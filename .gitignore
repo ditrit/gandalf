@@ -27,7 +27,3 @@ HELP.md
 
 ### VS Code ###
 .vscode/
-
-/artifacts
-/orchestrators
-/builds
