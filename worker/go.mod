@@ -1,0 +1,4 @@
+module worker
+require(
+    workergandalf
+)

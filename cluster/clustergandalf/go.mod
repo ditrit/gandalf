@@ -1,0 +1,4 @@
+module clustergandalf
+require(
+    configuration
+)

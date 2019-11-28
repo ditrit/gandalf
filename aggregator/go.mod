@@ -1,0 +1,4 @@
+module aggregator
+require(
+    aggregatorgandalf
+)

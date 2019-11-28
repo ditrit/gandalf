@@ -1,0 +1,4 @@
+module connectorgandalf
+require(
+    configuration
+)
