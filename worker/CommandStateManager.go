@@ -1,4 +1,4 @@
-package domain
+package worker
 
 type CommandStateManager struct {
 	mapUUIDCommandStates map[string]List

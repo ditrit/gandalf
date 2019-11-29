@@ -1,4 +1,4 @@
-package domain
+package worker
 
 type CommandState struct {
 	stateValue string

@@ -1,4 +1,4 @@
-package domain
+package worker
 
 type ReferenceState struct {
 	state Constant.State
