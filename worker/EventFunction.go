@@ -1,6 +1,16 @@
 package worker
 
+import "fmt"
+
 type EventFunction interface {
+	//executeEvent(event [][]byte)
+	executeEvent()
 }
 
-func (c EventFunction) executeCommand(event [][]byte)
+type EventPrint struct {
+	print string
+}
+
+func (ep EventPrint) executeEvent() {
+	fmt.Print(ep.print)
+}

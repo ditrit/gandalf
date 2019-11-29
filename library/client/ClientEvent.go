@@ -1,4 +1,4 @@
-package library
+package client
 
 import (
 	"nanomsg.org/go/mangos/v2"

@@ -14,6 +14,10 @@ type Routine struct {
 	identity                          string
 	topics                            *string
 	commandStateManager               CommandStateManager
+	mapUUIDCommandStates              map[string][]string
+	mapUUIDState                      map[string]*ReferenceState
+	mapCommand                        map[string]*CommandFunction
+	mapEvent                          map[string]*EventFunction
 }
 
 func (r Routine) new(identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string) {
@@ -21,17 +25,22 @@ func (r Routine) new(identity, workerCommandReceiveC2WConnection, workerEventRec
 
 	r.workerCommandReceiveC2WConnection = workerCommandReceiveC2WConnection
 	r.workerCommandReceiveC2W = zmq.NewDealer(workerCommandReceiveC2WConnection)
-	r.workerCommandReceiveC2W.Identity(w.Identity)
+	r.workerCommandReceiveC2W.Identity(w.identity)
 	fmt.Printf("workerCommandReceiveC2W connect : " + workerCommandReceiveC2WConnection)
 
 	r.workerEventReceiveC2WConnection = workerEventReceiveC2WConnection
 	r.workerEventReceiveC2W = zmq.NewSub(workerEventReceiveC2WConnection)
-	r.workerEventReceiveC2W.Identity(w.Identity)
+	r.workerEventReceiveC2W.Identity(w.identity)
 	fmt.Printf("workerEventReceiveC2W connect : " + workerEventReceiveC2WConnection)
 
 	r.topics = topics
 	r.commandStateManager = new(CommandStateManager)
 
+	ga.mapUUIDCommandStates = make(map[string][]string)
+	ga.mapUUIDState = make(map[string]*ReferenceState)
+
+	ga.mapCommandFunction = make(map[string]*CommandFunction)
+	ga.mapEventFunction = make(map[string]*EventFunction)
 }
 
 func (r Routine) close() {
@@ -56,8 +65,8 @@ func (r Routine) run() {
 	var command = [][]byte{}
 	var event = [][]byte{}
 
-	//  Process messages from both sockets
 	for {
+		r.sendReadyCommand()
 
 		_, _ = zmq.Poll(pi, -1)
 
@@ -118,10 +127,48 @@ func (r Routine) reconnectToConnector() {
 	r.WorkerZMQ.sendReadyCommand()
 }
 
+func (r Routine) GetMapCommandByName(name string) *CommandFunction {
+	return ga.mapCommandFunction[name]
+}
+
+func (r Routine) GetMapEventByName(name string) *EventFunction {
+	return ga.mapEventFunction[name]
+}
+
 func (r Routine) executeWorkerCommandFunction(commandExecute [][]byte) {
-	//TODO CALL GOROUTINE
+	r.GetMapCommandByName("CommandPrint").executeCommand();
 }
 
 func (r Routine) executeWorkerEventFunction(eventExecute [][]byte) {
-	//TODO CALL GOROUTINE
+	r.GetMapEventByName("EventPrint").executeEvent());
 }
+
+func (r Routine) GetMapUUIDCommandStates() map[string]List {
+	return ga.mapUUIDCommandStates
+}
+
+func (r Routine) SetMapUUIDCommandStates(mapUUIDCommandStates map[string]List) {
+	return ga.mapUUIDCommandStates = mapUUIDCommandStates
+}
+
+func (r Routine) GetMapUUIDState() map[string]ReferenceState {
+	return ga.mapUUIDState
+}
+
+func (r Routine) SetMapUUIDState(mapUUIDState map[string]ReferenceState) {
+	return ga.mapUUIDState = mapUUIDState
+}
+
+func (r Routine) New() {
+	ga.mapUUIDCommandStates = make(map[string]List)
+	ga.mapUUIDState = make(map[string]ReferenceState)
+}
+
+func (r Routine) GetMapUUIDCommandStatesByUUID(uuid string) []string {
+	return ga.mapUUIDCommandStates[uuid]
+}
+
+func (r Routine) GetMapUUIDStateByUUID(uuid string) *ReferenceState {
+	return ga.mapUUIDState[uuid]
+}
+
