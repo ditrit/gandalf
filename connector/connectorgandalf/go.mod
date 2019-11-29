@@ -1,4 +1,0 @@
-module connectorgandalf
-require(
-    configuration
-)

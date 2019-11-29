@@ -1,4 +1,7 @@
 module aggregator
 require(
-    aggregatorgandalf
+    configuration
+    constant
+    core
+    properties
 )

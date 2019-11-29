@@ -1,4 +1,0 @@
-module workergandalf
-require(
-    configuration
-)

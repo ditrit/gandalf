@@ -1,4 +1,10 @@
 module cluster
 require(
-    clustergandalf
+    configuration
+    constant
+    core
+    domain
+    properties
+    router
+    worker
 )

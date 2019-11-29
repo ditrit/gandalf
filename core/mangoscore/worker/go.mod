@@ -1,4 +1,0 @@
-module worker
-require(
-    domain
-)

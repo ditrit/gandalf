@@ -1,4 +1,0 @@
-module aggregatorgandalf
-require(
-    configuration
-)

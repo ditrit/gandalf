@@ -1,6 +1,5 @@
-module connector
+module client
 require(
-    configuration
     constant
     core
     properties

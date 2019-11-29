@@ -1,4 +1,9 @@
 module worker
 require(
-    workergandalf
+    configuration
+    controller
+    core
+    function
+    loader
+    properties
 )
