@@ -83,8 +83,15 @@ func (r ClusterCommandRoutine) run() {
 }
 
 func (r ClusterCommandRoutine) processCommandSend(command [][]byte) {
+	r.processCaptureCommandSend(command)
+
 	command = r.updateHeaderCommandSend(command)
-	r.processCommandCapture(command)
+	r.clusterCommandReceive.SendMessage(command)
+}
+
+func (r ClusterCommandRoutine) processCaptureCommandSend(command [][]byte) {
+	command = r.updateHeaderCaptureCommand(command)
+	r.clusterCommandCapture.SendMessage(command)
 }
 
 func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) {
@@ -92,13 +99,21 @@ func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) {
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
+	r.processCaptureCommandReceive(command)
+
 	command = r.updateHeaderCommandReceive(command)
-	r.processCommandCapture(command)
+	r.clusterCommandSend(command)
+}
+
+func (r ClusterCommandRoutine) processCaptureCommandReceive(command [][]byte) {
+	command = r.updateHeaderCaptureCommand(command)
+	r.clusterCommandCapture.SendMessage(command)
 }
 
 func (r ClusterCommandRoutine) updateHeaderCommandReceive(command [][]byte) {
 
 }
 
-func (r ClusterCommandRoutine) processCommandCapture(command [][]byte) {
+func (r ClusterCommandRoutine) updateHeaderCaptureCommand(command [][]byte) {
+	
 }

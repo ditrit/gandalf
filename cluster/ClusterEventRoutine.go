@@ -84,8 +84,15 @@ func (r ClusterEventRoutine) run() {
 }
 
 func (r ClusterEventRoutine) processEventSend(event [][]byte) {
+	r.processCaptureEventSend(event)
+
 	event = r.updateHeaderEventSend(event)
-	r.processEventCapture(event)
+	r.clusterEventReceive.SendMessage(event)
+}
+
+func (r ClusterEventRoutine) processCaptureEventSend(event [][]byte) {
+	event = r.updateHeaderCaptureEvent(event)
+	r.clusterEventCapture.SendMessage(event)
 }
 
 func (r ClusterEventRoutine) updateHeaderEventSend(event [][]byte) {
@@ -93,13 +100,21 @@ func (r ClusterEventRoutine) updateHeaderEventSend(event [][]byte) {
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
-	event = r.updateHeaderEventReceive(event)
 	r.processEventCapture(event)
+
+	event = r.updateHeaderEventReceive(event)
+	r.clusterEventSend.SendMessage(event)
+}
+
+func (r ClusterEventRoutine) processCaptureEventReceive(event [][]byte) {
+	event = r.updateHeaderCaptureEvent(event)
+	r.clusterEventCapture.SendMessage(event)
 }
 
 func (r ClusterEventRoutine) updateHeaderEventReceive(event [][]byte) {
 
 }
 
-func (r ClusterEventRoutine) processEventCapture(event [][]byte) {
+func (r ClusterCommandRoutine) updateHeaderCaptureEvent(command [][]byte) {
+
 }

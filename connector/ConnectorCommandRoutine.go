@@ -112,6 +112,7 @@ func (r ConnectorCommandRoutine) run() {
 
 func (r ConnectorCommandRoutine) processCommandSendCL2C(command [][]byte) {
 	command = r.updateHeaderCommandSendCL2C(command)
+	r.connectorCommandSendC2CL.SendMessage(command)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandSendCL2C(command [][]byte) {
@@ -120,6 +121,7 @@ func (r ConnectorCommandRoutine) updateHeaderCommandSendCL2C(command [][]byte) {
 
 func (r ConnectorCommandRoutine) processCommandReceiveCL2C(command [][]byte) {
 	command = r.updateHeaderCommandReceiveCL2C(command)
+	r.connectorCommandReceiveC2CL.SendMessage(command)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandReceiveCL2C(command [][]byte) {
@@ -128,6 +130,7 @@ func (r ConnectorCommandRoutine) updateHeaderCommandReceiveCL2C(command [][]byte
 
 func (r ConnectorCommandRoutine) processCommandSendC2CL(command [][]byte) {
 	command = r.updateHeaderCommandSendC2CL(command)
+	r.connectorCommandSendCL2C.SendMessage(command)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) {
@@ -136,6 +139,7 @@ func (r ConnectorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) {
 
 func (r ConnectorCommandRoutine) processCommandReceiveC2CL(command [][]byte) {
 	command = r.updateHeaderCommandSendC2CL(command)
+	r.connectorCommandReceiveCL2C.SendMessage(command)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) {

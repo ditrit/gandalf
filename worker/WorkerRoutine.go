@@ -94,9 +94,7 @@ func (r WorkerRoutine) run() {
 			}
 		}
 	}
-
 	fmt.Println("done")
-
 }
 
 func (r WorkerRoutine) processRoutingWorkerCommand(command [][]byte) {

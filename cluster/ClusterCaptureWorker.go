@@ -79,7 +79,7 @@ func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
 }
 
 func (r ClusterCaptureWorkerRoutine) updateHeaderCommand(command [][]byte) {
-
+	//CALL API
 }
 
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
@@ -87,5 +87,5 @@ func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
 }
 
 func (r ClusterCaptureWorkerRoutine) updateHeaderEvent(event [][]byte) {
-
+	//CALL API
 }

@@ -19,25 +19,25 @@ type ConnectorEventRoutine struct {
 }
 
 func (r ConnectorEventRoutine) new(identity, connectorEventSendCL2CConnection, connectorEventReceiveCL2CConnection, connectorEventSendC2CLConnection, connectorEventReceiveC2CLConnection string) {
-	re.identity = identity
-	re.connectorEventSendCL2CConnection = connectorEventSendCL2CConnection
-	re.connectorEventSendCL2C = zmq.NewDealer(connectorEventSendCL2CConnection)
-	re.connectorEventSendCL2C.Identity(re.Identity)
+	r.identity = identity
+	r.connectorEventSendCL2CConnection = connectorEventSendCL2CConnection
+	r.connectorEventSendCL2C = zmq.NewDealer(connectorEventSendCL2CConnection)
+	r.connectorEventSendCL2C.Identity(r.Identity)
 	fmt.Printf("connectorEventSendCL2C connect : " + connectorEventSendCL2CConnection)
 
-	re.connectorEventReceiveCL2CConnection = connectorEventReceiveCL2CConnection
-	re.connectorEventReceiveCL2C = zmq.NewRouter(connectorEventReceiveCL2CConnection)
-	re.connectorEventReceiveCL2C.Identity(re.Identity)
+	r.connectorEventReceiveCL2CConnection = connectorEventReceiveCL2CConnection
+	r.connectorEventReceiveCL2C = zmq.NewRouter(connectorEventReceiveCL2CConnection)
+	r.connectorEventReceiveCL2C.Identity(r.Identity)
 	fmt.Printf("connectorEventReceiveCL2C connect : " + connectorEventReceiveCL2CConnection)
 
-	re.connectorEventSendC2CLConnection = connectorEventSendC2CLConnection
-	re.connectorEventSendC2CL = zmq.NewDealer(connectorEventSendC2CLConnection)
-	re.connectorEventSendC2CL.Identity(re.Identity)
+	r.connectorEventSendC2CLConnection = connectorEventSendC2CLConnection
+	r.connectorEventSendC2CL = zmq.NewDealer(connectorEventSendC2CLConnection)
+	r.connectorEventSendC2CL.Identity(r.Identity)
 	fmt.Printf("connectorEventSendC2CL connect : " + connectorEventSendC2CLConnection)
 
-	re.connectorEventReceiveC2CLConnection = connectorEventReceiveC2CLConnection
-	re.connectorEventReceiveC2CL = zmq.NewRouter(connectorEventReceiveC2CLConnection)
-	re.connectorEventReceiveC2CL.Identity(re.Identity)
+	r.connectorEventReceiveC2CLConnection = connectorEventReceiveC2CLConnection
+	r.connectorEventReceiveC2CL = zmq.NewRouter(connectorEventReceiveC2CLConnection)
+	r.connectorEventReceiveC2CL.Identity(r.Identity)
 	fmt.Printf("connectorEventReceiveC2CL connect : " + connectorEventReceiveC2CLConnection)
 }
 
@@ -110,7 +110,8 @@ func (r ConnectorEventRoutine) run() {
 }
 
 func (r ConnectorCommandRoutine) processEventSendCL2C(event [][]byte) {
-	event = r.updateHeaderCommandSendCL2C(event)
+	event = r.updateHeaderEventSendCL2C(event)
+	r.connectorEventSendC2CL.SendMessage(event)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderEventSendCL2C(event [][]byte) {
@@ -119,6 +120,7 @@ func (r ConnectorCommandRoutine) updateHeaderEventSendCL2C(event [][]byte) {
 
 func (r ConnectorCommandRoutine) processEventReceiveCL2C(event [][]byte) {
 	event = r.updateHeaderEventReceiveCL2C(event)
+	r.connectorEventReceiveC2CL.SendMessage(event)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderEventReceiveCL2C(event [][]byte) {
@@ -127,6 +129,7 @@ func (r ConnectorCommandRoutine) updateHeaderEventReceiveCL2C(event [][]byte) {
 
 func (r ConnectorCommandRoutine) processEventSendC2CL(event [][]byte) {
 	event = r.updateHeaderEventSendC2CL(event)
+	r.connectorEventSendCL2C.SendMessage(event)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderEventSendC2CL(event [][]byte) {
@@ -134,7 +137,8 @@ func (r ConnectorCommandRoutine) updateHeaderEventSendC2CL(event [][]byte) {
 }
 
 func (r ConnectorCommandRoutine) processEventReceiveC2CL(event [][]byte) {
-	event = r.updateHeaderEventSendC2CL(event)
+	event = r.updateHeaderEventReceiveC2CL(event)
+	r.connectorEventReceiveCL2C.SendMessage(event)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
