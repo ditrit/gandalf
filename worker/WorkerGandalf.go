@@ -1,26 +1,26 @@
 package worker
 
 type WorkerGandalf struct {
-	routine Routine
+	workerRoutine Routine
 }
 
 func (wg WorkerGandalf) main() {
 	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
-	wg.routine = Routine.new()
+	wg.workerRoutine = Routine.new()
 
 	//LOAD
 	wg.LoadCommandFunctions()
 	wg.LoadEventFunctions()
 
-	go wg.routine.run()
+	go wg.workerRoutine.run()
 }
 
 func (wg GandalfApplication) LoadCommandFunctions() {
 	//TODO
-	wg.routine.mapCommandFunction["CommandPrint"] = CommandFunction.CommandPrint.new()
+	wg.workerRoutine.mapCommandFunction["CommandPrint"] = CommandFunction.CommandPrint.new()
 }
 
 func (wg GandalfApplication) LoadEventFunctions() {
 	//TODO
-	wg.routine.mapEventFunction["EventPrint"] = EventFunction.EventPrint.new()
+	wg.workerRoutine.mapEventFunction["EventPrint"] = EventFunction.EventPrint.new()
 }

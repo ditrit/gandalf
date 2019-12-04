@@ -6,7 +6,7 @@ import (
 	zmq "github.com/zeromq/goczmq"
 )
 
-type Routine struct {
+type WorkerRoutine struct {
 	workerCommandReceiveC2W           zmq.Sock
 	workerCommandReceiveC2WConnection string
 	workerEventReceiveC2W             zmq.Sock
@@ -20,7 +20,7 @@ type Routine struct {
 	mapEvent                          map[string]*EventFunction
 }
 
-func (r Routine) new(identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string) {
+func (r WorkerRoutine) new(identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string) {
 	r.Identity = identity
 
 	r.workerCommandReceiveC2WConnection = workerCommandReceiveC2WConnection
@@ -43,21 +43,21 @@ func (r Routine) new(identity, workerCommandReceiveC2WConnection, workerEventRec
 	ga.mapEventFunction = make(map[string]*EventFunction)
 }
 
-func (r Routine) close() {
+func (r WorkerRoutine) close() {
 	r.WorkerCommandFrontEndReceive.close()
 	r.WorkerEventFrontEndReceive.close()
 	r.Context.close()
 }
 
-func (r Routine) sendReadyCommand() {
+func (r WorkerRoutine) sendReadyCommand() {
 
 }
 
-func (r Routine) sendCommandState(request goczmq.Message, state, payload string) {
+func (r WorkerRoutine) sendCommandState(request goczmq.Message, state, payload string) {
 	//response := [][]byte{}
 }
 
-func (r Routine) run() {
+func (r WorkerRoutine) run() {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: workerCommandReceiveC2W, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: workerEventReceiveC2W, Events: zmq.POLLIN}}
@@ -101,22 +101,22 @@ func (r Routine) run() {
 
 }
 
-func (r Routine) processRoutingWorkerCommand(command [][]byte) {
+func (r WorkerRoutine) processRoutingWorkerCommand(command [][]byte) {
 
 	r.executeWorkerCommandFunction(command)
 	//TODO message pack
 }
 
-func (r Routine) processRoutingSubscriberCommand(event [][]byte) {
+func (r WorkerRoutine) processRoutingSubscriberCommand(event [][]byte) {
 	r.executeWorkerEventFunction(event)
 	//TODO message pack
 }
 
-func (r Routine) updateHeaderFrontEndWorker(command [][]byte) {
+func (r WorkerRoutine) updateHeaderFrontEndWorker(command [][]byte) {
 
 }
 
-func (r Routine) reconnectToConnector() {
+func (r WorkerRoutine) reconnectToConnector() {
 	if r.workerCommandFrontEndReceive != nil {
 		r.workerCommandFrontEndReceive.Destroy()
 	}
@@ -127,48 +127,48 @@ func (r Routine) reconnectToConnector() {
 	r.WorkerZMQ.sendReadyCommand()
 }
 
-func (r Routine) GetMapCommandByName(name string) *CommandFunction {
+func (r WorkerRoutine) GetMapCommandByName(name string) *CommandFunction {
 	return ga.mapCommandFunction[name]
 }
 
-func (r Routine) GetMapEventByName(name string) *EventFunction {
+func (r WorkerRoutine) GetMapEventByName(name string) *EventFunction {
 	return ga.mapEventFunction[name]
 }
 
-func (r Routine) executeWorkerCommandFunction(commandExecute [][]byte) {
+func (r WorkerRoutine) executeWorkerCommandFunction(commandExecute [][]byte) {
 	r.GetMapCommandByName("CommandPrint").executeCommand();
 }
 
-func (r Routine) executeWorkerEventFunction(eventExecute [][]byte) {
+func (r WorkerRoutine) executeWorkerEventFunction(eventExecute [][]byte) {
 	r.GetMapEventByName("EventPrint").executeEvent());
 }
 
-func (r Routine) GetMapUUIDCommandStates() map[string]List {
+func (r WorkerRoutine) GetMapUUIDCommandStates() map[string]List {
 	return ga.mapUUIDCommandStates
 }
 
-func (r Routine) SetMapUUIDCommandStates(mapUUIDCommandStates map[string]List) {
+func (r WorkerRoutine) SetMapUUIDCommandStates(mapUUIDCommandStates map[string]List) {
 	return ga.mapUUIDCommandStates = mapUUIDCommandStates
 }
 
-func (r Routine) GetMapUUIDState() map[string]ReferenceState {
+func (r WorkerRoutine) GetMapUUIDState() map[string]ReferenceState {
 	return ga.mapUUIDState
 }
 
-func (r Routine) SetMapUUIDState(mapUUIDState map[string]ReferenceState) {
+func (r WorkerRoutine) SetMapUUIDState(mapUUIDState map[string]ReferenceState) {
 	return ga.mapUUIDState = mapUUIDState
 }
 
-func (r Routine) New() {
+func (r WorkerRoutine) New() {
 	ga.mapUUIDCommandStates = make(map[string]List)
 	ga.mapUUIDState = make(map[string]ReferenceState)
 }
 
-func (r Routine) GetMapUUIDCommandStatesByUUID(uuid string) []string {
+func (r WorkerRoutine) GetMapUUIDCommandStatesByUUID(uuid string) []string {
 	return ga.mapUUIDCommandStates[uuid]
 }
 
-func (r Routine) GetMapUUIDStateByUUID(uuid string) *ReferenceState {
+func (r WorkerRoutine) GetMapUUIDStateByUUID(uuid string) *ReferenceState {
 	return ga.mapUUIDState[uuid]
 }
 
