@@ -13,36 +13,36 @@ type ClusterCommandRoutine struct {
 	clusterCommandReceiveConnection string
 	clusterCommandCapture           zmq.Sock
 	clusterCommandCaptureConnection string
-	Identity                        string
+	identity                        string
 }
 
-func (c ClusterCommandRoutine) new(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) {
+func (r ClusterCommandRoutine) new(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) {
 	r.Identity = identity
 
-	c.clusterCommandSendConnection = clusterCommandSendConnection
-	c.clusterCommandSend = zmq.NewRouter(clusterCommandSendConnection)
-	c.clusterCommandSend.Identity(w.identity)
-	cmt.Printf("clusterCommandSend connect : " + clusterCommandSendConnection)
+	r.clusterCommandSendConnection = clusterCommandSendConnection
+	r.clusterCommandSend = zmq.NewRouter(clusterCommandSendConnection)
+	r.clusterCommandSend.Identity(r.identity)
+	rmt.Printf("clusterCommandSend connect : " + clusterCommandSendConnection)
 
-	c.clusterCommandReceiveConnection = clusterCommandReceiveConnection
-	c.clusterCommandReceive = zmq.NewRouter(clusterCommandReceiveConnection)
-	c.clusterCommandReceive.Identity(w.identity)
-	cmt.Printf("clusterCommandReceive connect : " + clusterCommandReceiveConnection)
+	r.clusterCommandReceiveConnection = clusterCommandReceiveConnection
+	r.clusterCommandReceive = zmq.NewRouter(clusterCommandReceiveConnection)
+	r.clusterCommandReceive.Identity(r.identity)
+	rmt.Printf("clusterCommandReceive connect : " + clusterCommandReceiveConnection)
 
-	c.clusterCommandCaptureConnection = clusterCommandCaptureConnection
-	c.clusterCommandCapture = zmq.NewRouter(aggregatorCommandSendC2CLConnection)
-	c.clusterCommandCapture.Identity(w.identity)
+	r.clusterCommandCaptureConnection = clusterCommandCaptureConnection
+	r.clusterCommandCapture = zmq.NewRouter(aggregatorCommandSendC2CLConnection)
+	r.clusterCommandCapture.Identity(r.identity)
 	fmt.Printf("clusterCommandCapture connect : " + clusterCommandCaptureConnection)
 }
 
-func (c ClusterCommandRoutine) close() {
+func (r ClusterCommandRoutine) close() {
 	c.clusterCommandSend.close()
 	c.clusterCommandReceive.close()
 	c.clusterCommandCapture.close()
 	c.Context.close()
 }
 
-func (c ClusterCommandRoutine) run() {
+func (r ClusterCommandRoutine) run() {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: clusterCommandSend, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: clusterCommandReceive, Events: zmq.POLLIN},

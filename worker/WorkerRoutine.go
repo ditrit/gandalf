@@ -21,16 +21,16 @@ type WorkerRoutine struct {
 }
 
 func (r WorkerRoutine) new(identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string) {
-	r.Identity = identity
+	r.identity = identity
 
 	r.workerCommandReceiveC2WConnection = workerCommandReceiveC2WConnection
 	r.workerCommandReceiveC2W = zmq.NewDealer(workerCommandReceiveC2WConnection)
-	r.workerCommandReceiveC2W.Identity(w.identity)
+	r.workerCommandReceiveC2W.Identity(r.identity)
 	fmt.Printf("workerCommandReceiveC2W connect : " + workerCommandReceiveC2WConnection)
 
 	r.workerEventReceiveC2WConnection = workerEventReceiveC2WConnection
 	r.workerEventReceiveC2W = zmq.NewSub(workerEventReceiveC2WConnection)
-	r.workerEventReceiveC2W.Identity(w.identity)
+	r.workerEventReceiveC2W.Identity(r.identity)
 	fmt.Printf("workerEventReceiveC2W connect : " + workerEventReceiveC2WConnection)
 
 	r.topics = topics

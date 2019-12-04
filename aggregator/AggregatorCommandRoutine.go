@@ -8,37 +8,37 @@ import (
 
 type AggregatorCommandRoutine struct {
 	aggregatorCommandSendC2CL              zmq.Sock
-	aggregatorCommandSendC2CLConnection    string
+	aggregatorCommandSendC2CLConnections   *string
 	aggregatorCommandReceiveC2CL           zmq.Sock
 	aggregatorCommandReceiveC2CLConnection string
-	aggregatorCommandSendC2CL              zmq.Sock
-	aggregatorCommandSendC2CLConnection    string
-	aggregatorCommandReceiveC2CL           zmq.Sock
-	aggregatorCommandReceiveC2CLConnection string
-	Identity                               string
+	aggregatorCommandSendCL2C              zmq.Sock
+	aggregatorCommandSendCL2CConnections   *string
+	aggregatorCommandReceiveCL2C           zmq.Sock
+	aggregatorCommandReceiveCL2CConnection string
+	identity                               string
 }
 
-func (r AggregatorCommandRoutine) new(identity, aggregatorCommandSendC2CLConnection, aggregatorCommandReceiveC2CLConnection, aggregatorCommandSendC2CLConnection, aggregatorCommandReceiveC2CLConnection string) {
-	r.Identity = identity
+func (r AggregatorCommandRoutine) new(identity, aggregatorCommandSendC2CLConnections, aggregatorCommandReceiveC2CLConnection, aggregatorCommandSendCL2CConnections, aggregatorCommandReceiveCL2CConnection string) {
+	r.identity = identity
 
-	r.aggregatorCommandSendC2CLConnection = aggregatorCommandSendC2CLConnection
-	r.aggregatorCommandSendC2CL = zmq.NewDealer(aggregatorCommandSendC2CLConnection)
-	r.aggregatorCommandSendC2CL.Identity(w.identity)
-	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendC2CLConnection)
+	r.aggregatorCommandSendC2CLConnections = aggregatorCommandSendC2CLConnections
+	r.aggregatorCommandSendC2CL = zmq.NewDealer(aggregatorCommandSendC2CLConnections)
+	r.aggregatorCommandSendC2CL.Identity(r.identity)
+	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendC2CLConnections)
 
 	r.workerEventReceiveC2WConnection = aggregatorCommandReceiveC2CLConnection
 	r.aggregatorCommandReceiveC2CL = zmq.NewSub(aggregatorCommandReceiveC2CLConnection)
-	r.aggregatorCommandReceiveC2CL.Identity(w.identity)
+	r.aggregatorCommandReceiveC2CL.Identity(r.identity)
 	fmt.Printf("aggregatorCommandReceiveC2CL connect : " + aggregatorCommandReceiveC2CLConnection)
 
-	r.aggregatorCommandSendC2CLConnection = aggregatorCommandSendC2CLConnection
-	r.aggregatorCommandSendC2CL = zmq.NewSub(aggregatorCommandSendC2CLConnection)
-	r.aggregatorCommandSendC2CL.Identity(w.identity)
-	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendC2CLConnection)
+	r.aggregatorCommandSendCL2CConnections = aggregatorCommandSendCL2CConnections
+	r.aggregatorCommandSendC2CL = zmq.NewSub(aggregatorCommandSendCL2CConnections)
+	r.aggregatorCommandSendC2CL.Identity(r.identity)
+	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendCL2CConnections)
 
 	r.aggregatorCommandReceiveC2CLConnection = aggregatorCommandReceiveC2CLConnection
 	r.aggregatorCommandReceiveC2CL = zmq.NewSub(aggregatorCommandReceiveC2CLConnection)
-	r.aggregatorCommandReceiveC2CL.Identity(w.identity)
+	r.aggregatorCommandReceiveC2CL.Identity(r.identity)
 	fmt.Printf("aggregatorCommandReceiveC2CL connect : " + aggregatorCommandReceiveC2CLConnection)
 }
 

@@ -15,30 +15,30 @@ type AggregatorEventRoutine struct {
 	aggregatorEventSendCL2CConnection    string
 	aggregatorEventReceiveCL2C           zmq.Sock
 	aggregatorEventReceiveCL2CConnection string
-	Identity                             string
+	identity                             string
 }
 
 func (r AggregatorEventRoutine) new(identity, aggregatorEventSendC2CLConnection, aggregatorEventReceiveC2CLConnection, aggregatorEventSendCL2CConnection, aggregatorEventReceiveCL2CConnection string) {
-	r.Identity = identity
+	r.identity = identity
 
 	r.aggregatorEventSendC2CLConnection = aggregatorEventSendC2CLConnection
 	r.aggregatorEventSendC2CL = zmq.NewDealer(aggregatorEventSendC2CLConnection)
-	r.aggregatorEventSendC2CL.Identity(w.identity)
+	r.aggregatorEventSendC2CL.Identity(r.identity)
 	fmt.Printf("aggregatorEventSendC2CL connect : " + aggregatorEventSendC2CLConnection)
 
 	r.aggregatorEventReceiveC2CLConnection = aggregatorEventReceiveC2CLConnection
 	r.aggregatorEventReceiveC2CL = zmq.NewSub(aggregatorEventReceiveC2CLConnection)
-	r.aggregatorEventReceiveC2CL.Identity(w.identity)
+	r.aggregatorEventReceiveC2CL.Identity(r.identity)
 	fmt.Printf("aggregatorEventReceiveC2CL connect : " + aggregatorEventReceiveC2CLConnection)
 
 	r.aggregatorEventSendCL2CConnection = aggregatorEventSendCL2CConnection
 	r.aggregatorEventSendCL2C = zmq.NewSub(aggregatorEventSendCL2CConnection)
-	r.aggregatorEventSendCL2C.Identity(w.identity)
+	r.aggregatorEventSendCL2C.Identity(r.identity)
 	fmt.Printf("aggregatorEventSendCL2C connect : " + aggregatorEventSendCL2CConnection)
 
 	r.aggregatorEventReceiveCL2CConnection = aggregatorEventReceiveCL2CConnection
 	r.aggregatorEventReceiveCL2C = zmq.NewSub(aggregatorEventReceiveCL2CConnection)
-	r.aggregatorEventReceiveCL2C.Identity(w.identity)
+	r.aggregatorEventReceiveCL2C.Identity(r.identity)
 	fmt.Printf("aggregatorEventReceiveCL2C connect : " + aggregatorEventReceiveCL2CConnection)
 }
 

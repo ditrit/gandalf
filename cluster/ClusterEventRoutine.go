@@ -14,36 +14,36 @@ type ClusterEventRoutine struct {
 	clusterEventCapture             zmq.Sock
 	clusterEventCaptureConnection    string
 
-	Identity string
+	identity string
 }
 
-func (c ClusterEventRoutine) new(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) {
-	c.Identity = identity
+func (r ClusterEventRoutine) new(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) {
+	r.identity = identity
 
-	c.clusterEventSendConnection = clusterEventSendConnection
-	c.clusterEventSend = zmq.NewXSub(clusterEventSendConnection)
-	c.clusterEventSend.Identity(w.identity)
-	cmt.Printf("clusterEventSend connect : " + clusterEventSendConnection)
+	r.clusterEventSendConnection = clusterEventSendConnection
+	r.clusterEventSend = zmq.NewXSub(clusterEventSendConnection)
+	r.clusterEventSend.Identity(r.identity)
+	rmt.Printf("clusterEventSend connect : " + clusterEventSendConnection)
 
-	c.clusterEventReceiveConnection = clusterEventReceiveConnection
-	c.clusterEventReceive = zmq.NewXPub(clusterEventReceiveConnection)
-	c.clusterEventReceive.Identity(w.identity)
-	cmt.Printf("clusterEventReceive connect : " + clusterEventReceiveConnection)
+	r.clusterEventReceiveConnection = clusterEventReceiveConnection
+	r.clusterEventReceive = zmq.NewXPub(clusterEventReceiveConnection)
+	r.clusterEventReceive.Identity(r.identity)
+	rmt.Printf("clusterEventReceive connect : " + clusterEventReceiveConnection)
 
-	c.clusterEventCaptureConnection = clusterEventCaptureConnection
-	c.clusterEventCapture = zmq.NewPub(clusterEventCaptureConnection)
-	c.clusterEventCapture.Identity(w.identity)
+	r.clusterEventCaptureConnection = clusterEventCaptureConnection
+	r.clusterEventCapture = zmq.NewPub(clusterEventCaptureConnection)
+	r.clusterEventCapture.Identity(r.identity)
 	fmt.Printf("clusterEventCapture connect : " + clusterEventCaptureConnection)
 }
 
-func (c ClusterEventRoutine) close() {
-	c.clusterEventSend.close()
-	c.clusterEventReceive.close()
-	c.clusterEventCapture.close()
-	c.Context.close()
+func (r ClusterEventRoutine) close() {
+	r.clusterEventSend.close()
+	r.clusterEventReceive.close()
+	r.clusterEventCapture.close()
+	r.Context.close()
 }
 
-func (c ClusterEventRoutine) run() {
+func (r ClusterEventRoutine) run() {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: aggregatorEventSendC2CL, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: zmq.POLLIN},
