@@ -24,7 +24,7 @@ func (r AggregatorCommandRoutine) new(identity, aggregatorCommandSendC2CLConnect
 	r.aggregatorCommandSendC2CLConnection = aggregatorCommandSendC2CLConnection
 	r.aggregatorCommandSendC2CL = zmq.NewDealer(aggregatorCommandSendC2CLConnection)
 	r.aggregatorCommandSendC2CL.Identity(w.identity)
-	fmt.Printf("woraggregatorCommandSendC2CLkerCommandReceiveC2W connect : " + aggregatorCommandSendC2CLConnection)
+	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendC2CLConnection)
 
 	r.workerEventReceiveC2WConnection = aggregatorCommandReceiveC2CLConnection
 	r.aggregatorCommandReceiveC2CL = zmq.NewSub(aggregatorCommandReceiveC2CLConnection)
