@@ -1,27 +1,16 @@
 package aggregatorgandalf
 
 type AggregatorGandalf struct {
-	routine Routine
+	aggregatorCommandRoutine AggregatorCommandRoutine
+	aggregatorEventRoutine   AggregatorEventRoutine
 }
 
-func (wg AggregatorGandalf) main() {
+func (ag AggregatorGandalf) main() {
 	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
-	wg.routine = Routine.new()
+	//LOAD CONF
+	wg.aggregatorCommandRoutine = AggregatorCommandRoutine.new()
+	wg.aggregatorEventRoutine = AggregatorEventRoutine.new()
 
-	//LOAD
-	wg.LoadCommandFunctions()
-	wg.LoadEventFunctions()
-
-	go wg.routine.run()
+	go wg.aggregatorCommandRoutine.run()
+	go wg.aggregatorEventRoutine.run()
 }
-
-func (wg GandalfApplication) LoadCommandFunctions() {
-	//TODO
-	wg.routine.mapCommandFunction["CommandPrint"] = CommandFunction.CommandPrint.new()
-}
-
-func (wg GandalfApplication) LoadEventFunctions() {
-	//TODO
-	wg.routine.mapEventFunction["EventPrint"] = EventFunction.EventPrint.new()
-}
-

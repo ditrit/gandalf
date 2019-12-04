@@ -1,12 +1,13 @@
 package worker
 
 type WorkerGandalf struct {
-	workerRoutine Routine
+	workerRoutine WorkerRoutine
 }
 
 func (wg WorkerGandalf) main() {
 	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
-	wg.workerRoutine = Routine.new()
+	//LOAD CONF
+	wg.workerRoutine = WorkerRoutine.new()
 
 	//LOAD
 	wg.LoadCommandFunctions()
