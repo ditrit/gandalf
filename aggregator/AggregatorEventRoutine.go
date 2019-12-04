@@ -71,8 +71,7 @@ func (r AggregatorEventRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS SEND EVENT TO CLUSTER
-			err = routerSock.SendMessage(msg)
+			err = r.processEventSendC2CL(event)
 			if err != nil {
 				panic(err)
 			}
@@ -83,8 +82,7 @@ func (r AggregatorEventRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS RECEIVE EVENT TO CLUSTER
-			err = routerSock.SendMessage(msg)
+			err = r.processEventReceiveC2CL(event)
 			if err != nil {
 				panic(err)
 			}
@@ -95,8 +93,7 @@ func (r AggregatorEventRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS SEND EVENT TO CONNECTOR
-			err = routerSock.SendMessage(msg)
+			err = r.processEventSendC2CL(event)
 			if err != nil {
 				panic(err)
 			}
@@ -107,14 +104,43 @@ func (r AggregatorEventRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS RECEIVE EVENT TO CONNECTOR
-			err = routerSock.SendMessage(msg)
+			err = r.processEventReceiveC2CL(event)
 			if err != nil {
 				panic(err)
 			}
 		}
 	}
-
 	fmt.Println("done")
+}
+
+func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) {
+	event = r.updateHeaderEventSendC2CL(command)
+}
+
+func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) {
+
+}
+
+func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) {
+	event = r.updateHeaderEventReceiveC2CL(event)
+}
+
+func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
+
+}
+
+func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) {
+	event = r.updateHeaderEventSendC2CL(event)
+}
+
+func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) {
+
+}
+
+func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) {
+	event = r.updateHeaderEventReceiveC2CL(event)
+}
+
+func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
 
 }

@@ -71,8 +71,7 @@ func (r AggregatorCommandRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS SEND COMMAND TO CLUSTER
-			err = routerSock.SendMessage(msg)
+			err = r.processCommandSendC2CL(command)
 			if err != nil {
 				panic(err)
 			}
@@ -83,8 +82,7 @@ func (r AggregatorCommandRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS RECEIVE COMMAND TO CLUSTER
-			err = routerSock.SendMessage(msg)
+			err = r.processCommandReceiveC2CL(command)
 			if err != nil {
 				panic(err)
 			}
@@ -95,8 +93,7 @@ func (r AggregatorCommandRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS SEND COMMAND TO CONNECTOR
-			err = routerSock.SendMessage(msg)
+			err = r.processCommandSendC2CL(command)
 			if err != nil {
 				panic(err)
 			}
@@ -107,8 +104,7 @@ func (r AggregatorCommandRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS RECEIVE COMMAND TO CONNECTOR
-			err = routerSock.SendMessage(msg)
+			err = r.processCommandReceiveC2CL(command)
 			if err != nil {
 				panic(err)
 			}
@@ -116,5 +112,36 @@ func (r AggregatorCommandRoutine) run() {
 	}
 
 	fmt.Println("done")
+}
+
+func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) {
+	command = r.updateHeaderCommandSendC2CL(command)
+}
+
+func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) {
+
+}
+
+func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) {
+	command = r.updateHeaderCommandReceiveC2CL(command)
+}
+
+func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) {
+
+}
+
+func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) {
+	command = r.updateHeaderCommandSendC2CL(command)
+}
+
+func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) {
+
+}
+
+func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) {
+	command = r.updateHeaderCommandReceiveC2CL(command)
+}
+
+func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) {
 
 }

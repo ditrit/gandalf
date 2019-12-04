@@ -77,8 +77,7 @@ func (r WorkerRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS COMMAND
-			err = routerSock.SendMessage(msg)
+			err = r.processRoutingWorkerCommand(command)
 			if err != nil {
 				panic(err)
 			}
@@ -89,8 +88,7 @@ func (r WorkerRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS EVENT
-			err = routerSock.SendMessage(msg)
+			err = r.processRoutingSubscriberCommand(event)
 			if err != nil {
 				panic(err)
 			}
@@ -102,17 +100,23 @@ func (r WorkerRoutine) run() {
 }
 
 func (r WorkerRoutine) processRoutingWorkerCommand(command [][]byte) {
-
+	command = r.updateHeaderWorkerCommand(command)
 	r.executeWorkerCommandFunction(command)
 	//TODO message pack
 }
 
+func (r WorkerRoutine) updateHeaderWorkerCommand(command [][]byte) {
+
+}
+
+
 func (r WorkerRoutine) processRoutingSubscriberCommand(event [][]byte) {
+	event = r.updateHeaderWorkerEvent(event)
 	r.executeWorkerEventFunction(event)
 	//TODO message pack
 }
 
-func (r WorkerRoutine) updateHeaderFrontEndWorker(command [][]byte) {
+func (r WorkerRoutine) updateHeaderWorkerEvent(command [][]byte) {
 
 }
 

@@ -52,7 +52,5 @@ func (r ListenerCommandRoutine) run() {
 			}
 		}
 	}
-
 	fmt.Println("done")
-
 }

@@ -47,7 +47,6 @@ func (r ClusterEventRoutine) run() {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: aggregatorEventSendC2CL, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorEventSendCL2C, Events: zmq.POLLIN},
 
 	var event = [][]byte{}
 
@@ -63,8 +62,7 @@ func (r ClusterEventRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS SEND EVENT TO CLUSTER
-			err = routerSock.SendMessage(msg)
+			err = r.processEventSend(event)
 			if err != nil {
 				panic(err)
 			}
@@ -75,20 +73,7 @@ func (r ClusterEventRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS RECEIVE EVENT TO CLUSTER
-			err = routerSock.SendMessage(msg)
-			if err != nil {
-				panic(err)
-			}
-
-		case pi[2].REvents&zmq.POLLIN != 0:
-
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			//PROCESS SEND EVENT TO CONNECTOR
-			err = routerSock.SendMessage(msg)
+			err = r.processEventReceive(event)
 			if err != nil {
 				panic(err)
 			}
@@ -96,5 +81,25 @@ func (r ClusterEventRoutine) run() {
 	}
 
 	fmt.Println("done")
+}
 
+func (r ClusterEventRoutine) processEventSend(event [][]byte) {
+	event = r.updateHeaderEventSend(event)
+	r.processEventCapture(event)
+}
+
+func (r ClusterEventRoutine) updateHeaderEventSend(event [][]byte) {
+
+}
+
+func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
+	event = r.updateHeaderEventReceive(event)
+	r.processEventCapture(event)
+}
+
+func (r ClusterEventRoutine) updateHeaderEventReceive(event [][]byte) {
+
+}
+
+func (r ClusterEventRoutine) processEventCapture(event [][]byte) {
 }

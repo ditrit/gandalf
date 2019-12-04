@@ -6,7 +6,7 @@ import (
 	zmq "github.com/zeromq/goczmq"
 )
 
-type RoutineEvent struct {
+type ConnectorEventRoutine struct {
 	connectorEventSendCL2C              zmq.Sock
 	connectorEventSendCL2CConnection    string
 	connectorEventReceiveCL2C           zmq.Sock
@@ -18,7 +18,7 @@ type RoutineEvent struct {
 	identity                            string
 }
 
-func (re RoutineEvent) new(identity, connectorEventSendCL2CConnection, connectorEventReceiveCL2CConnection, connectorEventSendC2CLConnection, connectorEventReceiveC2CLConnection string) {
+func (r ConnectorEventRoutine) new(identity, connectorEventSendCL2CConnection, connectorEventReceiveCL2CConnection, connectorEventSendC2CLConnection, connectorEventReceiveC2CLConnection string) {
 	re.identity = identity
 	re.connectorEventSendCL2CConnection = connectorEventSendCL2CConnection
 	re.connectorEventSendCL2C = zmq.NewDealer(connectorEventSendCL2CConnection)
@@ -41,14 +41,14 @@ func (re RoutineEvent) new(identity, connectorEventSendCL2CConnection, connector
 	fmt.Printf("connectorEventReceiveC2CL connect : " + connectorEventReceiveC2CLConnection)
 }
 
-func (re Event) close() {
+func (r ConnectorEventRoutine) close() {
 }
 
-func (re Event) reconnectToProxy() {
+func (r ConnectorEventRoutine) reconnectToProxy() {
 
 }
 
-func (re Event) run() {
+func (r ConnectorEventRoutine) run() {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: connectorEventSendCL2C, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: connectorEventReceiveCL2C, Events: zmq.POLLIN},
@@ -68,9 +68,7 @@ func (re Event) run() {
 			if err != nil {
 				panic(err)
 			}
-
-			//PROCESS FORMATAGE TO WORKER
-			err = event.send(pi[0].Socket)
+			err = r.processEventSendCL2C(event)
 			if err != nil {
 				panic(err)
 			}
@@ -81,7 +79,7 @@ func (re Event) run() {
 			if err != nil {
 				panic(err)
 			}
-			err = event.send(pi[0].Socket)
+			err = r.processEventReceiveCL2C(event)
 			if err != nil {
 				panic(err)
 			}
@@ -92,8 +90,7 @@ func (re Event) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS FORMATAGE TO CLUSTER
-			err = event.send(pi[2].Socket)
+			err = r.processEventSendC2CL(event)
 			if err != nil {
 				panic(err)
 			}
@@ -104,11 +101,42 @@ func (re Event) run() {
 			if err != nil {
 				panic(err)
 			}
-			err = event.send(pi[2].Socket)
+			err = r.processEventReceiveC2CL(event)
 			if err != nil {
 				panic(err)
 			}
 		}
-
 	}
+}
+
+func (r ConnectorCommandRoutine) processEventSendCL2C(event [][]byte) {
+	event = r.updateHeaderCommandSendCL2C(event)
+}
+
+func (r ConnectorCommandRoutine) updateHeaderEventSendCL2C(event [][]byte) {
+
+}
+
+func (r ConnectorCommandRoutine) processEventReceiveCL2C(event [][]byte) {
+	event = r.updateHeaderEventReceiveCL2C(event)
+}
+
+func (r ConnectorCommandRoutine) updateHeaderEventReceiveCL2C(event [][]byte) {
+
+}
+
+func (r ConnectorCommandRoutine) processEventSendC2CL(event [][]byte) {
+	event = r.updateHeaderEventSendC2CL(event)
+}
+
+func (r ConnectorCommandRoutine) updateHeaderEventSendC2CL(event [][]byte) {
+
+}
+
+func (r ConnectorCommandRoutine) processEventReceiveC2CL(event [][]byte) {
+	event = r.updateHeaderEventSendC2CL(event)
+}
+
+func (r ConnectorCommandRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
+
 }

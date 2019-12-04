@@ -46,7 +46,6 @@ func (r ClusterCommandRoutine) run() {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: clusterCommandSend, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: clusterCommandReceive, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: clusterCommandCapture, Events: zmq.POLLIN},
 
 	var command = [][]byte{}
 
@@ -62,8 +61,7 @@ func (r ClusterCommandRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS SEND COMMAND
-			err = routerSock.SendMessage(msg)
+			err = r.processCommandSend(command)
 			if err != nil {
 				panic(err)
 			}
@@ -74,20 +72,7 @@ func (r ClusterCommandRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//PROCESS RECEIVE COMMAND
-			err = routerSock.SendMessage(msg)
-			if err != nil {
-				panic(err)
-			}
-
-		case pi[2].REvents&zmq.POLLIN != 0:
-
-			command, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			//PROCESS CAPTURE COMMAND
-			err = routerSock.SendMessage(msg)
+			err = r.processCommandReceive(command)
 			if err != nil {
 				panic(err)
 			}
@@ -95,5 +80,25 @@ func (r ClusterCommandRoutine) run() {
 	}
 
 	fmt.Println("done")
+}
 
+func (r ClusterCommandRoutine) processCommandSend(command [][]byte) {
+	command = r.updateHeaderCommandSend(command)
+	r.processCommandCapture(command)
+}
+
+func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) {
+
+}
+
+func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
+	command = r.updateHeaderCommandReceive(command)
+	r.processCommandCapture(command)
+}
+
+func (r ClusterCommandRoutine) updateHeaderCommandReceive(command [][]byte) {
+
+}
+
+func (r ClusterCommandRoutine) processCommandCapture(command [][]byte) {
 }

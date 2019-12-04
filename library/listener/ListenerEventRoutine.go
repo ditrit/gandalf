@@ -50,7 +50,5 @@ func (r ListenerEventRoutine) run() {
 			}
 		}
 	}
-
 	fmt.Println("done")
-
 }
