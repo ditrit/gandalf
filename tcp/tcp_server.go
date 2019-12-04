@@ -8,13 +8,18 @@ import (
 )
 
 var (
-	config_server tls.Config
+	configServer tls.Config
 )
 
-func serverTcp(connect string) {
+// ServerTCP : Type socket Serveur
+type ServerTCP struct {
+	socket net.Conn
+}
+
+func serverTCP(connect string) {
 
 	cert, _ := tls.LoadX509KeyPair("./cert.pem", "./key.pem")
-	config_server = tls.Config{
+	configServer = tls.Config{
 		Certificates: []tls.Certificate{cert},
 	}
 
@@ -31,12 +36,12 @@ func serverTcp(connect string) {
 			log.Printf("server: accept %s", err)
 			break
 		}
-		go handleTlsConnection(conn)
+		go handleTLSConnection(conn)
 	}
 }
 
-func handleTlsConnection(unenc_conn net.Conn) {
-	conn := tls.Server(unenc_conn, &config_server)
+func handleTLSConnection(unencConn net.Conn) {
+	conn := tls.Server(unencConn, &configServer)
 	defer conn.Close()
 	buffer := make([]byte, 1024)
 	conn.Handshake()

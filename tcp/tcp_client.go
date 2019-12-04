@@ -12,31 +12,31 @@ import (
 )
 
 var (
-	config_client tls.Config
+	configClient tls.Config
 )
 
-func initTls(connect string) (*tls.Conn, error) {
+func initTLS(connect string) (*tls.Conn, error) {
 
-	CA_Pool := x509.NewCertPool()
+	CAPool := x509.NewCertPool()
 	serverCert, err := ioutil.ReadFile("./cert.pem")
 	if err != nil {
 		//log.Print("initTLs : Could not load server certificate!")
 		return nil, err
 	}
-	CA_Pool.AppendCertsFromPEM(serverCert)
+	CAPool.AppendCertsFromPEM(serverCert)
 
-	config_client = tls.Config{
-		RootCAs:            CA_Pool,
+	configClient = tls.Config{
+		RootCAs:            CAPool,
 		InsecureSkipVerify: true,
 	}
 
-	unenc_conn, err := net.Dial("tcp", connect)
+	unencConn, err := net.Dial("tcp", connect)
 	if err != nil {
 		//log.Printf("initTLs : net.Dial %s", err)
 		return nil, err
 	}
 
-	conn := tls.Client(unenc_conn, &config_client)
+	conn := tls.Client(unencConn, &configClient)
 	err = conn.Handshake()
 	if err != nil {
 		//log.Printf("initTLs : tls handshake %s", err)
@@ -47,7 +47,7 @@ func initTls(connect string) (*tls.Conn, error) {
 	return conn, nil
 }
 
-func clientTcp(connect string) {
+func clientTCP(connect string) {
 
 	var buffer = make([]byte, 1024)
 
