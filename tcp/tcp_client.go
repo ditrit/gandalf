@@ -52,7 +52,7 @@ func clientTCP(connect string) {
 	var buffer = make([]byte, 1024)
 
 	for {
-		conn, err := initTls(connect)
+		conn, err := initTLS(connect)
 		defer conn.Close()
 
 		if err != nil {
