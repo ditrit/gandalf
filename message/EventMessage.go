@@ -1,5 +1,11 @@
 package message
 
+import (
+	"fmt"
+
+	msgpack "github.com/shamaton/msgpack"
+)
+
 type Event struct {
 	topic string
 	uuid  string
@@ -20,4 +26,22 @@ func (e Event) sendWith() {
 
 func (e Event) from() {
 
+}
+
+func (e Event) encodeEvent() (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(e)
+	if err != nil {
+		commandError = fmt.Errorf("Event %s", err)
+		return
+	}
+	return
+}
+
+func (e Event) decodeEvent(bytesContent []byte) (event Event, commandError error) {
+	err := msgpack.Decode(bytesContent, event)
+	if err != nil {
+		commandError = fmt.Errorf("Event %s", err)
+		return
+	}
+	return
 }

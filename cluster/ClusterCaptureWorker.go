@@ -76,16 +76,17 @@ func (r ClusterCaptureWorkerRoutine) run() {
 
 func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
 	command = r.updateHeaderCommand(command)
+	//CALL API
 }
 
 func (r ClusterCaptureWorkerRoutine) updateHeaderCommand(command [][]byte) {
-	//CALL API
 }
 
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
 	event = r.updateHeaderEvent(event)
+	//CALL API
+
 }
 
 func (r ClusterCaptureWorkerRoutine) updateHeaderEvent(event [][]byte) {
-	//CALL API
 }
