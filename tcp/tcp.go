@@ -25,13 +25,13 @@ func main() {
 	connect := arguments[2]
 	switch option {
 	case "--client":
-		clientTcp(connect)
+		clientTCP(connect)
 	case "-c":
-		clientTcp(connect)
+		clientTCP(connect)
 	case "--server":
-		serverTcp(connect)
+		serverTCP(connect)
 	case "-s":
-		serverTcp(connect)
+		serverTCP(connect)
 	default:
 		usage()
 	}
