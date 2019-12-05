@@ -18,7 +18,7 @@ type ConnectorEventRoutine struct {
 	identity                            string
 }
 
-func (r ConnectorEventRoutine) new(identity, connectorEventSendCL2CConnection, connectorEventReceiveCL2CConnection, connectorEventSendC2CLConnection, connectorEventReceiveC2CLConnection string) {
+func (r ConnectorEventRoutine) New(identity, connectorEventSendCL2CConnection, connectorEventReceiveCL2CConnection, connectorEventSendC2CLConnection, connectorEventReceiveC2CLConnection string) err error {
 	r.identity = identity
 	r.connectorEventSendCL2CConnection = connectorEventSendCL2CConnection
 	r.connectorEventSendCL2C = zmq.NewDealer(connectorEventSendCL2CConnection)
@@ -41,14 +41,14 @@ func (r ConnectorEventRoutine) new(identity, connectorEventSendCL2CConnection, c
 	fmt.Printf("connectorEventReceiveC2CL connect : " + connectorEventReceiveC2CLConnection)
 }
 
-func (r ConnectorEventRoutine) close() {
+func (r ConnectorEventRoutine) close() err error {
 }
 
-func (r ConnectorEventRoutine) reconnectToProxy() {
+func (r ConnectorEventRoutine) reconnectToProxy() err error {
 
 }
 
-func (r ConnectorEventRoutine) run() {
+func (r ConnectorEventRoutine) run() err error {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: connectorEventSendCL2C, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: connectorEventReceiveCL2C, Events: zmq.POLLIN},
@@ -109,38 +109,38 @@ func (r ConnectorEventRoutine) run() {
 	}
 }
 
-func (r ConnectorCommandRoutine) processEventSendCL2C(event [][]byte) {
+func (r ConnectorCommandRoutine) processEventSendCL2C(event [][]byte) err error {
 	event = r.updateHeaderEventSendCL2C(event)
 	r.connectorEventSendC2CL.SendMessage(event)
 }
 
-func (r ConnectorCommandRoutine) updateHeaderEventSendCL2C(event [][]byte) {
+func (r ConnectorCommandRoutine) updateHeaderEventSendCL2C(event [][]byte) err error {
 
 }
 
-func (r ConnectorCommandRoutine) processEventReceiveCL2C(event [][]byte) {
+func (r ConnectorCommandRoutine) processEventReceiveCL2C(event [][]byte) err error {
 	event = r.updateHeaderEventReceiveCL2C(event)
 	r.connectorEventReceiveC2CL.SendMessage(event)
 }
 
-func (r ConnectorCommandRoutine) updateHeaderEventReceiveCL2C(event [][]byte) {
+func (r ConnectorCommandRoutine) updateHeaderEventReceiveCL2C(event [][]byte) err error {
 
 }
 
-func (r ConnectorCommandRoutine) processEventSendC2CL(event [][]byte) {
+func (r ConnectorCommandRoutine) processEventSendC2CL(event [][]byte) err error {
 	event = r.updateHeaderEventSendC2CL(event)
 	r.connectorEventSendCL2C.SendMessage(event)
 }
 
-func (r ConnectorCommandRoutine) updateHeaderEventSendC2CL(event [][]byte) {
+func (r ConnectorCommandRoutine) updateHeaderEventSendC2CL(event [][]byte) err error {
 
 }
 
-func (r ConnectorCommandRoutine) processEventReceiveC2CL(event [][]byte) {
+func (r ConnectorCommandRoutine) processEventReceiveC2CL(event [][]byte) err error {
 	event = r.updateHeaderEventReceiveC2CL(event)
 	r.connectorEventReceiveCL2C.SendMessage(event)
 }
 
-func (r ConnectorCommandRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
+func (r ConnectorCommandRoutine) updateHeaderEventReceiveC2CL(event [][]byte) err error {
 
 }

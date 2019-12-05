@@ -18,7 +18,7 @@ type AggregatorEventRoutine struct {
 	identity                             string
 }
 
-func (r AggregatorEventRoutine) new(identity, aggregatorEventSendC2CLConnection, aggregatorEventReceiveC2CLConnection, aggregatorEventSendCL2CConnection, aggregatorEventReceiveCL2CConnection string) {
+func (r AggregatorEventRoutine) New(identity, aggregatorEventSendC2CLConnection, aggregatorEventReceiveC2CLConnection, aggregatorEventSendCL2CConnection, aggregatorEventReceiveCL2CConnection string) err error {
 	r.identity = identity
 
 	r.aggregatorEventSendC2CLConnection = aggregatorEventSendC2CLConnection
@@ -42,7 +42,7 @@ func (r AggregatorEventRoutine) new(identity, aggregatorEventSendC2CLConnection,
 	fmt.Printf("aggregatorEventReceiveCL2C connect : " + aggregatorEventReceiveCL2CConnection)
 }
 
-func (r AggregatorEventRoutine) close() {
+func (r AggregatorEventRoutine) close() err error {
 	r.aggregatorEventSendC2CL.close()
 	r.aggregatorEventReceiveC2CL.close()
 	r.aggregatorEventSendCL2C.close()
@@ -50,7 +50,7 @@ func (r AggregatorEventRoutine) close() {
 	r.Context.close()
 }
 
-func (r AggregatorEventRoutine) run() {
+func (r AggregatorEventRoutine) run() err error {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: aggregatorEventSendC2CL, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: zmq.POLLIN},
@@ -113,34 +113,34 @@ func (r AggregatorEventRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) {
+func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
 	event = r.updateHeaderEventSendC2CL(command)
 }
 
-func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) {
+func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) err error {
 
 }
 
-func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) {
+func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
 	event = r.updateHeaderEventReceiveC2CL(event)
 }
 
-func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
+func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) err error {
 
 }
 
-func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) {
+func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
 	event = r.updateHeaderEventSendC2CL(event)
 }
 
-func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) {
+func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) err error {
 
 }
 
-func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) {
+func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
 	event = r.updateHeaderEventReceiveC2CL(event)
 }
 
-func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
+func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) err error {
 
 }

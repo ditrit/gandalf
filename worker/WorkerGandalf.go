@@ -16,12 +16,12 @@ func (wg WorkerGandalf) main() {
 	go wg.workerRoutine.run()
 }
 
-func (wg GandalfApplication) LoadCommandFunctions() {
+func (wg GandalfApplication) LoadCommandFunctions() err error {
 	//TODO
 	wg.workerRoutine.mapCommandFunction["CommandPrint"] = CommandFunction.CommandPrint.new()
 }
 
-func (wg GandalfApplication) LoadEventFunctions() {
+func (wg GandalfApplication) LoadEventFunctions() err error {
 	//TODO
 	wg.workerRoutine.mapEventFunction["EventPrint"] = EventFunction.EventPrint.new()
 }

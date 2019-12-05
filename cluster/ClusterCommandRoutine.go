@@ -16,7 +16,7 @@ type ClusterCommandRoutine struct {
 	identity                        string
 }
 
-func (r ClusterCommandRoutine) new(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) {
+func (r ClusterCommandRoutine) New(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) err error {
 	r.Identity = identity
 
 	r.clusterCommandSendConnection = clusterCommandSendConnection
@@ -35,14 +35,14 @@ func (r ClusterCommandRoutine) new(identity, clusterCommandSendConnection, clust
 	fmt.Printf("clusterCommandCapture connect : " + clusterCommandCaptureConnection)
 }
 
-func (r ClusterCommandRoutine) close() {
+func (r ClusterCommandRoutine) close() err error {
 	c.clusterCommandSend.close()
 	c.clusterCommandReceive.close()
 	c.clusterCommandCapture.close()
 	c.Context.close()
 }
 
-func (r ClusterCommandRoutine) run() {
+func (r ClusterCommandRoutine) run() err error {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: clusterCommandSend, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: clusterCommandReceive, Events: zmq.POLLIN},
@@ -82,38 +82,38 @@ func (r ClusterCommandRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ClusterCommandRoutine) processCommandSend(command [][]byte) {
+func (r ClusterCommandRoutine) processCommandSend(command [][]byte) err error {
 	r.processCaptureCommandSend(command)
 
 	command = r.updateHeaderCommandSend(command)
 	r.clusterCommandReceive.SendMessage(command)
 }
 
-func (r ClusterCommandRoutine) processCaptureCommandSend(command [][]byte) {
+func (r ClusterCommandRoutine) processCaptureCommandSend(command [][]byte) err error {
 	command = r.updateHeaderCaptureCommand(command)
 	r.clusterCommandCapture.SendMessage(command)
 }
 
-func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) {
+func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) err error {
 
 }
 
-func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
+func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) err error {
 	r.processCaptureCommandReceive(command)
 
 	command = r.updateHeaderCommandReceive(command)
 	r.clusterCommandSend(command)
 }
 
-func (r ClusterCommandRoutine) processCaptureCommandReceive(command [][]byte) {
+func (r ClusterCommandRoutine) processCaptureCommandReceive(command [][]byte) err error {
 	command = r.updateHeaderCaptureCommand(command)
 	r.clusterCommandCapture.SendMessage(command)
 }
 
-func (r ClusterCommandRoutine) updateHeaderCommandReceive(command [][]byte) {
+func (r ClusterCommandRoutine) updateHeaderCommandReceive(command [][]byte) err error {
 
 }
 
-func (r ClusterCommandRoutine) updateHeaderCaptureCommand(command [][]byte) {
+func (r ClusterCommandRoutine) updateHeaderCaptureCommand(command [][]byte) err error {
 	
 }

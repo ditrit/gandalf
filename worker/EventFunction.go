@@ -11,6 +11,6 @@ type EventPrint struct {
 	print string
 }
 
-func (ep EventPrint) executeEvent() {
+func (ep EventPrint) executeEvent() err error {
 	fmt.Print(ep.print)
 }

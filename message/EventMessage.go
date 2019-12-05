@@ -13,18 +13,18 @@ type Event struct {
 	info  string
 }
 
-func (e Event) new(topic, uuid, acces, info string) {
+func (e Event) New(topic, uuid, acces, info string) err error {
 	e.topic = topic
 	e.uuid = uuid
 	e.acces = acces
 	e.info = info
 }
 
-func (e Event) sendWith() {
+func (e Event) sendWith() err error {
 
 }
 
-func (e Event) from() {
+func (e Event) from() err error {
 
 }
 

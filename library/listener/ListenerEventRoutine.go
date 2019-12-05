@@ -13,7 +13,7 @@ type ListenerEventRoutine struct {
 	events [][]byte{}
 }
 
-func (r ListenerEventRoutine) new(identity, listenerEventReceiveConnection string) {
+func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection string) err error {
 	r.identity = identity
 
 	r.listenerEventReceiveConnection = listenerEventReceiveConnection
@@ -22,7 +22,7 @@ func (r ListenerEventRoutine) new(identity, listenerEventReceiveConnection strin
 	fmt.Printf("listenerEventReceive connect : " + listenerEventReceiveConnection)
 }
 
-func (r ListenerEventRoutine) close() {
+func (r ListenerEventRoutine) close() err error {
 	r.listenerEventReceive.close()
 	r.Context.close()
 }
@@ -31,7 +31,7 @@ func (r ListenerEventRoutine) run() {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: listenerEventReceive, Events: zmq.POLLIN}
 
-	var command = [][]byte{}
+	var event = [][]byte{}
 
 	for {
 		_, _ = zmq.Poll(pi, -1)
@@ -39,16 +39,19 @@ func (r ListenerEventRoutine) run() {
 		switch {
 		case pi[0].REvents&zmq.POLLIN != 0:
 
-			command, err := pi[0].Socket.RecvMessage()
+			event, err := pi[0].Socket.RecvMessage()
 			if err != nil {
 				panic(err)
 			}
 			//STORE IN events
-			err = routerSock.SendMessage(msg)
+			err = r.processEventReceive(event)
 			if err != nil {
 				panic(err)
 			}
 		}
 	}
 	fmt.Println("done")
+}
+
+func (r ListenerEventRoutine) processEventReceive(event [][]byte) err error {
 }

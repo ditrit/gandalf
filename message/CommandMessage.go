@@ -13,22 +13,22 @@ type Command struct {
 	info    string
 }
 
-func (c Command) new(uuid, routing, acces, info string) {
+func (c Command) New(uuid, routing, acces, info string) err error {
 	c.uuid = uuid
 	c.routing = routing
 	c.acces = acces
 	c.info = info
 }
 
-func (c Command) sendWith() {
+func (c Command) sendWith() err error {
 
 }
 
-func (c Command) from() {
+func (c Command) from() err error {
 
 }
 
-func (c Command) response() {
+func (c Command) response() err error {
 
 }
 

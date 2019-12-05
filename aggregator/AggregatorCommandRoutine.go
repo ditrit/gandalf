@@ -18,7 +18,7 @@ type AggregatorCommandRoutine struct {
 	identity                               string
 }
 
-func (r AggregatorCommandRoutine) new(identity, aggregatorCommandSendC2CLConnections, aggregatorCommandReceiveC2CLConnection, aggregatorCommandSendCL2CConnections, aggregatorCommandReceiveCL2CConnection string) {
+func (r AggregatorCommandRoutine) New(identity, aggregatorCommandSendC2CLConnections, aggregatorCommandReceiveC2CLConnection, aggregatorCommandSendCL2CConnections, aggregatorCommandReceiveCL2CConnection string) err error {
 	r.identity = identity
 
 	r.aggregatorCommandSendC2CLConnections = aggregatorCommandSendC2CLConnections
@@ -42,7 +42,7 @@ func (r AggregatorCommandRoutine) new(identity, aggregatorCommandSendC2CLConnect
 	fmt.Printf("aggregatorCommandReceiveC2CL connect : " + aggregatorCommandReceiveC2CLConnection)
 }
 
-func (r AggregatorCommandRoutine) close() {
+func (r AggregatorCommandRoutine) close() err error {
 	r.aggregatorCommandSendC2CL.close()
 	r.aggregatorCommandReceiveC2CL.close()
 	r.aggregatorCommandSendC2CL.close()
@@ -50,7 +50,7 @@ func (r AggregatorCommandRoutine) close() {
 	r.Context.close()
 }
 
-func (r AggregatorCommandRoutine) run() {
+func (r AggregatorCommandRoutine) run() err error {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: aggregatorCommandSendC2CL, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: aggregatorCommandReceiveC2CL, Events: zmq.POLLIN},
@@ -114,34 +114,34 @@ func (r AggregatorCommandRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) {
+func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err error {
 	command = r.updateHeaderCommandSendC2CL(command)
 }
 
-func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) {
+func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) err error {
 
 }
 
-func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) {
+func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveC2CL(command)
 }
 
-func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) {
+func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) err error {
 
 }
 
-func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) {
+func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err error {
 	command = r.updateHeaderCommandSendC2CL(command)
 }
 
-func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) {
+func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) err error {
 
 }
 
-func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) {
+func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveC2CL(command)
 }
 
-func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) {
+func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) err error {
 
 }

@@ -14,7 +14,7 @@ type ClusterCaptureWorkerRoutine struct {
 	identity                                  string
 }
 
-func (r ClusterCaptureWorkerRoutine) new(identity, workerCaptureCommandReceiveCL2WConnection, workerCaptureEventReceiveC2WConnection string, topics *string) {
+func (r ClusterCaptureWorkerRoutine) New(identity, workerCaptureCommandReceiveCL2WConnection, workerCaptureEventReceiveC2WConnection string, topics *string) err error {
 	r.identity = identity
 
 	r.workerCaptureCommandReceiveCL2WConnection = workerCaptureCommandReceiveCL2WConnection
@@ -28,13 +28,13 @@ func (r ClusterCaptureWorkerRoutine) new(identity, workerCaptureCommandReceiveCL
 	fmt.Printf("workerCaptureEventReceiveC2W connect : " + workerCaptureEventReceiveCL2WConnection)
 }
 
-func (r ClusterCaptureWorkerRoutine) close() {
+func (r ClusterCaptureWorkerRoutine) close() err error {
 	r.workerCaptureCommandReceiveC2W.close()
 	r.workerCaptureEventReceiveC2W.close()
 	r.Context.close()
 }
 
-func (r ClusterCaptureWorkerRoutine) run() {
+func (r ClusterCaptureWorkerRoutine) run() err error {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: workerCaptureCommandReceiveCL2W, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: workerCaptureEventReceiveC2W, Events: zmq.POLLIN}}
@@ -74,19 +74,19 @@ func (r ClusterCaptureWorkerRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
+func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) err error {
 	command = r.updateHeaderCommand(command)
 	//CALL API
 }
 
-func (r ClusterCaptureWorkerRoutine) updateHeaderCommand(command [][]byte) {
+func (r ClusterCaptureWorkerRoutine) updateHeaderCommand(command [][]byte) err error {
 }
 
-func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
+func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) err error {
 	event = r.updateHeaderEvent(event)
 	//CALL API
 
 }
 
-func (r ClusterCaptureWorkerRoutine) updateHeaderEvent(event [][]byte) {
+func (r ClusterCaptureWorkerRoutine) updateHeaderEvent(event [][]byte) err error {
 }

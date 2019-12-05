@@ -13,7 +13,7 @@ type ListenerCommandRoutine struct {
 	commands [][]byte{}
 }
 
-func (r ListenerCommandRoutine) new(identity, listenerCommandReceiveConnection string) {
+func (r ListenerCommandRoutine) New(identity, listenerCommandReceiveConnection string) err error {
 	r.Identity = identity
 
 	r.listenerCommandReceiveConnection = listenerCommandReceiveConnection
@@ -22,12 +22,12 @@ func (r ListenerCommandRoutine) new(identity, listenerCommandReceiveConnection s
 	fmt.Printf("listenerCommandReceive connect : " + listenerCommandReceiveConnection)
 }
 
-func (r ListenerCommandRoutine) close() {
+func (r ListenerCommandRoutine) close() err error {
 	r.listenerCommandReceive.close()
 	r.Context.close()
 }
 
-func (r ListenerCommandRoutine) run() {
+func (r ListenerCommandRoutine) run() err error {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: listenerCommandReceive, Events: zmq.POLLIN}
 
@@ -46,11 +46,14 @@ func (r ListenerCommandRoutine) run() {
 				panic(err)
 			}
 			//STORE IN COMMANDS
-			err = routerSock.SendMessage(msg)
+			err = r.processCommandReceive(command)
 			if err != nil {
 				panic(err)
 			}
 		}
 	}
 	fmt.Println("done")
+}
+
+func (r ListenerCommandRoutine) processCommandReceive(event [][]byte) err error {
 }

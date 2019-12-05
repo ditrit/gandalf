@@ -17,7 +17,7 @@ type ClusterEventRoutine struct {
 	identity string
 }
 
-func (r ClusterEventRoutine) new(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) {
+func (r ClusterEventRoutine) New(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) err error {
 	r.identity = identity
 
 	r.clusterEventSendConnection = clusterEventSendConnection
@@ -36,14 +36,14 @@ func (r ClusterEventRoutine) new(identity, clusterEventSendConnection, clusterEv
 	fmt.Printf("clusterEventCapture connect : " + clusterEventCaptureConnection)
 }
 
-func (r ClusterEventRoutine) close() {
+func (r ClusterEventRoutine) close() err error {
 	r.clusterEventSend.close()
 	r.clusterEventReceive.close()
 	r.clusterEventCapture.close()
 	r.Context.close()
 }
 
-func (r ClusterEventRoutine) run() {
+func (r ClusterEventRoutine) run() err error {
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: aggregatorEventSendC2CL, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: zmq.POLLIN},
@@ -83,38 +83,38 @@ func (r ClusterEventRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ClusterEventRoutine) processEventSend(event [][]byte) {
+func (r ClusterEventRoutine) processEventSend(event [][]byte) err error {
 	r.processCaptureEventSend(event)
 
 	event = r.updateHeaderEventSend(event)
 	r.clusterEventReceive.SendMessage(event)
 }
 
-func (r ClusterEventRoutine) processCaptureEventSend(event [][]byte) {
+func (r ClusterEventRoutine) processCaptureEventSend(event [][]byte) err error {
 	event = r.updateHeaderCaptureEvent(event)
 	r.clusterEventCapture.SendMessage(event)
 }
 
-func (r ClusterEventRoutine) updateHeaderEventSend(event [][]byte) {
+func (r ClusterEventRoutine) updateHeaderEventSend(event [][]byte) err error {
 
 }
 
-func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
+func (r ClusterEventRoutine) processEventReceive(event [][]byte) err error {
 	r.processEventCapture(event)
 
 	event = r.updateHeaderEventReceive(event)
 	r.clusterEventSend.SendMessage(event)
 }
 
-func (r ClusterEventRoutine) processCaptureEventReceive(event [][]byte) {
+func (r ClusterEventRoutine) processCaptureEventReceive(event [][]byte) err error {
 	event = r.updateHeaderCaptureEvent(event)
 	r.clusterEventCapture.SendMessage(event)
 }
 
-func (r ClusterEventRoutine) updateHeaderEventReceive(event [][]byte) {
+func (r ClusterEventRoutine) updateHeaderEventReceive(event [][]byte) err error {
 
 }
 
-func (r ClusterCommandRoutine) updateHeaderCaptureEvent(command [][]byte) {
+func (r ClusterCommandRoutine) updateHeaderCaptureEvent(command [][]byte) err error {
 
 }

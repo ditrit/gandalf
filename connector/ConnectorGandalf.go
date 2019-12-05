@@ -7,7 +7,7 @@ type ConnectorGandalf struct {
 	connectorCommandSendFileMap map[string]string
 }
 
-func (cg ConnectorGandalf) new() {
+func (cg ConnectorGandalf) New() err error {
 	cg.connectorCommandsMap = make(map[string][]string)
 	cg.connectorCommandSendFileMap = make(map[string]string)
 	cg.connectorCommandRoutine = ConnectorCommandRoutine.new()
@@ -18,20 +18,20 @@ func (cg ConnectorGandalf) new() {
 	go cg.connectorEventRoutine.run()
 }
 
-func (cg ConnectorGandalf) getWorkerCommands(worker string) []string {
+func (cg ConnectorGandalf) getWorkerCommands(worker string) (workerCommand []string, err error) {
 	return cg.connectorCommandsMap[worker]
 }
 
-func (cg ConnectorGandalf) addWorkerCommands(worker, command string) {
+func (cg ConnectorGandalf) addWorkerCommands(worker, command string) err error {
 	var sizeList = len(cg.connectorCommandsMap[worker])
 	cg.connectorCommandsMap[worker][sizeList] = command
 
 }
 
-func (cg ConnectorGandalf) getWorkerCommandSendFile(worker string) string {
+func (cg ConnectorGandalf) getWorkerCommandSendFile(worker string) (workerCommandFile string, err error) {
 	return cg.connectorCommandSendFileMap[worker]
 }
 
-func (cg ConnectorGandalf) addWorkerCommandSendFile(worker, commandSendFile string) {
+func (cg ConnectorGandalf) addWorkerCommandSendFile(worker, commandSendFile string) err error {
 	cg.connectorCommandSendFileMap[worker] = commandSendFile
 }

@@ -14,11 +14,11 @@ type CommandPrint struct {
 	print string
 }
 
-func (cp CommandPrint) new() {
+func (cp CommandPrint) New() {
 
 }
 
-func (cp CommandPrint) executeCommand() string {
+func (cp CommandPrint) executeCommand() (result string, err error) {
 	fmt.Print(cp.print)
 	return print
 }

@@ -14,7 +14,7 @@ type ClientEventRoutine struct {
 	Responses                  *zmq.Message
 }
 
-func (r ClientEventRoutine) new(identity, clientEventSendConnection string) {
+func (r ClientEventRoutine) New(identity, clientEventSendConnection string) err error {
 	r.identity = identity
 	r.clientEventSendConnection = clientEventSendConnection
 	r.clientEventSend = zmq.NewDealer(clientEventSendConnection)
@@ -22,7 +22,7 @@ func (r ClientEventRoutine) new(identity, clientEventSendConnection string) {
 	fmt.Printf("clientEventSend connect : " + clientEventSendConnection)
 }
 
-func (r ClientEventRoutine) new(identity string, clientEventSendConnections *string) {
+func (r ClientEventRoutine) new(identity string, clientEventSendConnections *string) err error {
 	r.identity = identity
 	r.clientEventSendConnections = clientEventSendConnections
 	r.clientEventSend = zmq.NewDealer(clientEventSendConnections)
@@ -30,9 +30,9 @@ func (r ClientEventRoutine) new(identity string, clientEventSendConnections *str
 	fmt.Printf("clientEventSend connect : " + clientEventSendConnections)
 }
 
-func (r ClientEventRoutine) sendEvent(topic, timeout, event, payload string) {
+func (r ClientEventRoutine) sendEvent(topic, timeout, event, payload string) err error {
 
 }
 
-func (r ClientEventRoutine) close() {
+func (r ClientEventRoutine) close() err error {
 }
