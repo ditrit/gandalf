@@ -126,13 +126,13 @@ func (r ConnectorCommandRoutine) updateHeaderCommandSendA2W(command [][]byte) er
 
 func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveA2W(command)
-	r.connectorCommandSendW2A.SendMessage(command)
+	r.connectorCommandSendA2W.SendMessage(command)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandReceiveA2W(command [][]byte) err error {
     currentCommand, err := r.commandMessage.decodeCommand(command[1])
     if err != nil {
-        //TODO
+        //STOCK COMMAND
     }
     command[0] = []byte(currentCommand.targetConnector)
 }
@@ -140,6 +140,7 @@ func (r ConnectorCommandRoutine) updateHeaderCommandReceiveA2W(command [][]byte)
 func (r ConnectorCommandRoutine) processCommandSendW2A(command [][]byte) err error {
 	command = r.updateHeaderCommandSendW2A(command)
 	r.connectorCommandReceiveW2A.SendMessage(command)
+	//SEND
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandSendW2A(command [][]byte) err error {
@@ -147,6 +148,7 @@ func (r ConnectorCommandRoutine) updateHeaderCommandSendW2A(command [][]byte) er
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err error {
+    //READY && RESULT
     if command[1] == Constant.COMMAND_READY {
         commands := command[2]
         workerCommand, err := r.getCommandByWorkerCommands()

@@ -118,6 +118,7 @@ func (r AggregatorCommandRoutine) run() err error {
 func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err error {
 	command = r.updateHeaderCommandSendC2CL(command)
 	 r.connectorCommandReceiveC2CL.SendMessage(command)
+	 //RESULT TO CLUSTER
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) (command [][]byte, err error) {
@@ -130,6 +131,7 @@ func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) 
 func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveC2CL(command)
 	 r.connectorCommandSendC2CL.SendMessage(command)
+	 //COMMAND FROM CLUSTER
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error) {
@@ -140,7 +142,7 @@ func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byt
 func (r AggregatorCommandRoutine) processCommandSendCL2C(command [][]byte) err error {
 	command = r.updateHeaderCommandSendCL2C(command)
 	 r.connectorCommandReceiveC2CL.SendMessage(command)
-
+        //COMMAND
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandSendCL2C(command [][]byte) (command [][]byte, err error {
@@ -151,6 +153,7 @@ func (r AggregatorCommandRoutine) updateHeaderCommandSendCL2C(command [][]byte) 
 func (r AggregatorCommandRoutine) processCommandReceiveCL2C(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveC2CL(command)
 	 r.connectorCommandReceiveC2CL.SendMessage(command)
+	 //RECEIVE FROM CONNECTOR
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error {
