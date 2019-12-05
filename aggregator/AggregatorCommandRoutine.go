@@ -94,7 +94,7 @@ func (r AggregatorCommandRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processCommandSendC2CL(command)
+			err = r.processCommandSendCL2C(command)
 			if err != nil {
 				panic(err)
 			}
@@ -121,14 +121,15 @@ func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err e
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) (command [][]byte, err error) {
+    sourceConnector := command[0]
     commandMessage := r.commandMessage.decode(command[1])
-    command[0] = commandMessage.sourceConnector
+    commandMessage.sourceConnector = sourceConnector
+    commandMessage.sourceAggreagator = r.identity
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveC2CL(command)
-	 r.connectorCommandReceiveC2CL.SendMessage(command)
-
+	 r.connectorCommandSendC2CL.SendMessage(command)
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error) {
@@ -136,18 +137,18 @@ func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byt
     command[0] = commandMessage.targetConnector
 }
 
-func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err error {
-	command = r.updateHeaderCommandSendC2CL(command)
+func (r AggregatorCommandRoutine) processCommandSendCL2C(command [][]byte) err error {
+	command = r.updateHeaderCommandSendCL2C(command)
 	 r.connectorCommandReceiveC2CL.SendMessage(command)
 
 }
 
-func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) (command [][]byte, err error {
+func (r AggregatorCommandRoutine) updateHeaderCommandSendCL2C(command [][]byte) (command [][]byte, err error {
     commandMessage := r.commandMessage.decode(command[1])
     command[0] = commandMessage.sourceConnector
 }
 
-func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
+func (r AggregatorCommandRoutine) processCommandReceiveCL2C(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveC2CL(command)
 	 r.connectorCommandReceiveC2CL.SendMessage(command)
 }

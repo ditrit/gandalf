@@ -96,7 +96,7 @@ func (r ClusterEventRoutine) processCaptureEventSend(event [][]byte) err error {
 }
 
 func (r ClusterEventRoutine) updateHeaderEventSend(event [][]byte) err error {
-
+    //TODO NOTHING
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) err error {
@@ -112,9 +112,9 @@ func (r ClusterEventRoutine) processCaptureEventReceive(event [][]byte) err erro
 }
 
 func (r ClusterEventRoutine) updateHeaderEventReceive(event [][]byte) err error {
-
+    //TODO NOTHING
 }
 
-func (r ClusterCommandRoutine) updateHeaderCaptureEvent(command [][]byte) err error {
-
+func (r ClusterCommandRoutine) updateHeaderCaptureEvent(event [][]byte) err error {
+	  event[0] = Constant.WORKER_SERVICE_CLASS_CAPTURE
 }

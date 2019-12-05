@@ -7,6 +7,7 @@ import (
 )
 
 type ClusterCommandRoutine struct {
+    commandMessage                  CommandMessage
 	clusterCommandSend              zmq.Sock
 	clusterCommandSendConnection    string
 	clusterCommandReceive           zmq.Sock
@@ -94,8 +95,14 @@ func (r ClusterCommandRoutine) processCaptureCommandSend(command [][]byte) err e
 	r.clusterCommandCapture.SendMessage(command)
 }
 
-func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) err error {
-
+func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) (command [][]byte, err error) {
+    //TODO CALL ARANGO
+    target := ""
+    sourceAggregator := command[0]
+    commandMessage := r.commandMessage.decode(command[1])
+    commandMessage.sourceAggregator = sourceAggregator
+    commandMessage.targetAggregator = target
+    command := r.commandMessage.encode(commandMessage)
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) err error {
@@ -111,9 +118,11 @@ func (r ClusterCommandRoutine) processCaptureCommandReceive(command [][]byte) er
 }
 
 func (r ClusterCommandRoutine) updateHeaderCommandReceive(command [][]byte) err error {
-
+      commandMessage := r.commandMessage.decode(command[1])
+      sourceAggregator := commandMessage.sourceAggregator
+      command[0] = sourceAggregator
 }
 
 func (r ClusterCommandRoutine) updateHeaderCaptureCommand(command [][]byte) err error {
-	
+	  command[0] = Constant.WORKER_SERVICE_CLASS_CAPTURE
 }

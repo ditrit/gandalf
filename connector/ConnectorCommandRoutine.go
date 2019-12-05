@@ -113,20 +113,20 @@ func (r ConnectorCommandRoutine) run() err error {
 
 func (r ConnectorCommandRoutine) processCommandSendA2W(command [][]byte) err error {
 	command = r.updateHeaderCommandSendA2W(command)
-	r.connectorCommandSendW2A.SendMessage(command)
+	r.connectorCommandReceiveW2A.SendMessage(command)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandSendA2W(command [][]byte) err error {
     currentCommand, err := r.commandMessage.decodeCommand(command[1])
     if err != nil {
-        //TODO
+        //RESPONSE WORKER
     }
-    command[0] = []byte(currentCommand.sourceConnector)
+    command[0] = currentCommand.sourceConnector
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveA2W(command)
-	r.connectorCommandReceiveW2A.SendMessage(command)
+	r.connectorCommandSendW2A.SendMessage(command)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandReceiveA2W(command [][]byte) err error {
@@ -139,7 +139,7 @@ func (r ConnectorCommandRoutine) updateHeaderCommandReceiveA2W(command [][]byte)
 
 func (r ConnectorCommandRoutine) processCommandSendW2A(command [][]byte) err error {
 	command = r.updateHeaderCommandSendW2A(command)
-	r.connectorCommandSendA2W.SendMessage(command)
+	r.connectorCommandReceiveW2A.SendMessage(command)
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandSendW2A(command [][]byte) err error {
@@ -154,12 +154,12 @@ func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err 
         }
         workerCommand = r.updateIdentityCommandReadyMessage(workerCommand)
         workerCommand = r.updateHeaderCommandReceiveReadyMessage(workerCommand)
-    	r.connectorCommandReceiveA2W.SendMessage(command)
+    	r.connectorCommandSendW2A.SendMessage(command)
 
     }
     else {
-        command = r.updateHeaderCommandSendW2A(command)
-    	r.connectorCommandReceiveW2A.SendMessage(command)
+        command = r.updateHeaderCommandReceiveW2A(command)
+    	r.connectorCommandSendW2A.SendMessage(command)
     }
 }
 
@@ -168,10 +168,10 @@ func (r ConnectorCommandRoutine) updateIdentityCommandReadyMessage(command [][]b
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandReceiveReadyMessage(command [][]byte) (command [][]byte, err error) {
-    //TODOs
+    //TODO
 }
 
-func (r ConnectorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error) {
+func (r ConnectorCommandRoutine) updateHeaderCommandReceiveW2A(command [][]byte) (command [][]byte, err error) {
        command = append(command[:i][], s[i+1][]...)
        return command
 }

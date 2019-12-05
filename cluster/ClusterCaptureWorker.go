@@ -2,7 +2,7 @@ package cluster
 
 import (
 	"fmt"
-
+    "net/http"
 	zmq "github.com/zeromq/goczmq"
 )
 
@@ -76,7 +76,10 @@ func (r ClusterCaptureWorkerRoutine) run() err error {
 
 func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) err error {
 	command = r.updateHeaderCommand(command)
-	//CALL API
+    response, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
+    if err != nil {
+        fmt.Printf("The HTTP request failed with error %s\n", err)
+    }
 }
 
 func (r ClusterCaptureWorkerRoutine) updateHeaderCommand(command [][]byte) err error {
@@ -84,8 +87,10 @@ func (r ClusterCaptureWorkerRoutine) updateHeaderCommand(command [][]byte) err e
 
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) err error {
 	event = r.updateHeaderEvent(event)
-	//CALL API
-
+    response, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
+    if err != nil {
+        fmt.Printf("The HTTP request failed with error %s\n", err)
+    }
 }
 
 func (r ClusterCaptureWorkerRoutine) updateHeaderEvent(event [][]byte) err error {
