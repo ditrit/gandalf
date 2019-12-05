@@ -6,25 +6,41 @@ import (
 	msgpack "github.com/shamaton/msgpack"
 )
 
-type Command struct {
-	uuid    string
-	routing string
-	acces   string
-	info    string
+type CommandMessage struct {
+	sourceAggregator    string
+	sourceConnector string
+	sourceWorker   string
+	targetAggregator    string
+    targetConnector    string
+    targetWorker string
+    tenant   string
+    token    string
+    context    string
+    timeout string
+    timestamp   string
+    major    string
+    minor    string
+    uuid string
+    commandType   string
+    command    string
+    payload    string
 }
 
-func (c Command) New(uuid, routing, acces, info string) err error {
+func (c CommandMessage) New(context, timeout, uuid, commandType, command, payload string) err error {
+	c.context = context
+	c.timeout = timeout
 	c.uuid = uuid
-	c.routing = routing
-	c.acces = acces
-	c.info = info
+	c.commandType = commandType
+	c.command = command
+	c.payload = payload
+	c.timestamp = time.Now()
 }
 
-func (c Command) sendWith() err error {
+func (c CommandMessage) sendWith() err error {
 
 }
 
-func (c Command) from() err error {
+func (c CommandMessage) from() err error {
 
 }
 
@@ -32,7 +48,7 @@ func (c Command) response() err error {
 
 }
 
-func (c Command) encodeCommand() (bytesContent []byte, commandError error) {
+func (c CommandMessage) encodeCommand() (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(c)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)
@@ -41,7 +57,7 @@ func (c Command) encodeCommand() (bytesContent []byte, commandError error) {
 	return
 }
 
-func (c Command) decodeCommand(bytesContent []byte) (command Command, commandError error) {
+func (c CommandMessage) decodeCommand(bytesContent []byte) (command Command, commandError error) {
 	err := msgpack.Decode(bytesContent, command)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)

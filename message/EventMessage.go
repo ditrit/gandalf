@@ -6,29 +6,33 @@ import (
 	msgpack "github.com/shamaton/msgpack"
 )
 
-type Event struct {
+type EventMessage struct {
+	tenant string
+	token  string
 	topic string
-	uuid  string
-	acces string
-	info  string
+	timeout  string
+	timestamp  string
+	event  string
+	payload  string
 }
 
-func (e Event) New(topic, uuid, acces, info string) err error {
+func (e EventMessage) New(topic, timeout, event, payload string) err error {
 	e.topic = topic
-	e.uuid = uuid
-	e.acces = acces
-	e.info = info
+	e.timeout = timeout
+	e.event = event
+	e.payload = payload
+	e.timestamp = time.Now()
 }
 
-func (e Event) sendWith() err error {
-
-}
-
-func (e Event) from() err error {
+func (e EventMessage) sendWith() err error {
 
 }
 
-func (e Event) encodeEvent() (bytesContent []byte, commandError error) {
+func (e EventMessage) from() err error {
+
+}
+
+func (e EventMessage) encodeEvent() (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(e)
 	if err != nil {
 		commandError = fmt.Errorf("Event %s", err)
@@ -37,7 +41,7 @@ func (e Event) encodeEvent() (bytesContent []byte, commandError error) {
 	return
 }
 
-func (e Event) decodeEvent(bytesContent []byte) (event Event, commandError error) {
+func (e EventMessage) decodeEvent(bytesContent []byte) (event Event, commandError error) {
 	err := msgpack.Decode(bytesContent, event)
 	if err != nil {
 		commandError = fmt.Errorf("Event %s", err)

@@ -118,7 +118,7 @@ func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
 }
 
 func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) err error {
-
+    //TODO NOTHING
 }
 
 func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
@@ -126,7 +126,7 @@ func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err erro
 }
 
 func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) err error {
-
+    //TODO NOTHING
 }
 
 func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
@@ -134,7 +134,7 @@ func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
 }
 
 func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) err error {
-
+    //TODO NOTHING
 }
 
 func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
@@ -142,5 +142,5 @@ func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err erro
 }
 
 func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) err error {
-
+    //TODO NOTHING
 }

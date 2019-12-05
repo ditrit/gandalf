@@ -7,38 +7,39 @@ import (
 )
 
 type ConnectorCommandRoutine struct {
-	connectorCommandSendCL2C              zmq.Sock
-	connectorCommandSendCL2CConnection    string
-	connectorCommandReceiveCL2C           zmq.Sock
-	connectorCommandReceiveCL2CConnection string
-	connectorCommandSendC2CL              zmq.Sock
-	connectorCommandSendC2CLConnection    string
-	connectorCommandReceiveC2CL           zmq.Sock
-	connectorCommandReceiveC2CLConnection string
+    commandMessage                        CommandMessage
+	connectorCommandSendA2W              zmq.Sock
+	connectorCommandSendA2WConnection    string
+	connectorCommandReceiveA2W           zmq.Sock
+	connectorCommandReceiveA2WConnection string
+	connectorCommandSendW2A              zmq.Sock
+	connectorCommandSendW2AConnection    string
+	connectorCommandReceiveW2A           zmq.Sock
+	connectorCommandReceiveW2AConnection string
 	identity                              string
 }
 
-func (r ConnectorCommandRoutine) New(identity, connectorCommandSendCL2CConnection, connectorCommandReceiveCL2CConnection, connectorCommandSendC2CLConnection, connectorCommandReceiveC2CLConnection string) err error {
+func (r ConnectorCommandRoutine) New(identity, connectorCommandSendA2WConnection, connectorCommandReceiveA2WConnection, connectorCommandSendW2AConnection, connectorCommandReceiveW2AConnection string) err error {
 	r.identity = identity
-	r.connectorCommandSendCL2CConnection = connectorCommandSendCL2CConnection
-	r.connectorCommandSendCL2C = zmq.NewDealer(r.connectorCommandSendCL2CConnection)
-	r.connectorCommandSendCL2C.Identity(r.identity)
-	fmt.Printf("connectorCommandSendCL2C connect : " + connectorCommandSendCL2CConnection)
+	r.connectorCommandSendA2WConnection = connectorCommandSendA2WConnection
+	r.connectorCommandSendA2W = zmq.NewDealer(r.connectorCommandSendA2WConnection)
+	r.connectorCommandSendA2W.Identity(r.identity)
+	fmt.Printf("connectorCommandSendA2W connect : " + connectorCommandSendA2WConnection)
 
-	r.connectorCommandReceiveCL2CConnection = connectorCommandReceiveCL2CConnection
-	r.connectorCommandReceiveCL2C = zmq.NewRouter(connectorCommandReceiveCL2CConnection)
-	r.connectorCommandReceiveCL2C.Identity(r.identity)
-	fmt.Printf("connectorCommandReceiveCL2C connect : " + connectorCommandReceiveCL2CConnection)
+	r.connectorCommandReceiveA2WConnection = connectorCommandReceiveA2WConnection
+	r.connectorCommandReceiveA2W = zmq.NewRouter(connectorCommandReceiveA2WConnection)
+	r.connectorCommandReceiveA2W.Identity(r.identity)
+	fmt.Printf("connectorCommandReceiveA2W connect : " + connectorCommandReceiveA2WConnection)
 
-	r.connectorCommandSendC2CLConnection = connectorCommandSendC2CLConnection
-	r.connectorCommandSendC2CL = zmq.NewDealer(connectorCommandSendC2CLConnection)
-	r.connectorCommandSendC2CL.Identity(r.identity)
-	fmt.Printf("connectorCommandSendC2CL connect : " + connectorCommandSendC2CLConnection)
+	r.connectorCommandSendW2AConnection = connectorCommandSendW2AConnection
+	r.connectorCommandSendW2A = zmq.NewDealer(connectorCommandSendW2AConnection)
+	r.connectorCommandSendW2A.Identity(r.identity)
+	fmt.Printf("connectorCommandSendW2A connect : " + connectorCommandSendW2AConnection)
 
-	r.connectorCommandReceiveC2CLConnection = connectorCommandReceiveC2CLConnection
-	r.connectorCommandReceiveC2CL = zmq.NewRouter(connectorCommandReceiveC2CLConnection)
-	r.connectorCommandReceiveC2CL.Identity(r.identity)
-	fmt.Printf("connectorCommandReceiveC2CL connect : " + connectorCommandReceiveC2CLConnection)
+	r.connectorCommandReceiveW2AConnection = connectorCommandReceiveW2AConnection
+	r.connectorCommandReceiveW2A = zmq.NewRouter(connectorCommandReceiveW2AConnection)
+	r.connectorCommandReceiveW2A.Identity(r.identity)
+	fmt.Printf("connectorCommandReceiveW2A connect : " + connectorCommandReceiveW2AConnection)
 }
 
 func (r ConnectorCommandRoutine) close() err error {
@@ -50,10 +51,10 @@ func (r ConnectorCommandRoutine) reconnectToProxy() err error {
 
 func (r ConnectorCommandRoutine) run() err error {
 	pi := zmq.PollItems{
-		zmq.PollItem{Socket: connectorCommandSendCL2C, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorCommandReceiveCL2C, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorCommandSendC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorCommandReceiveC2CL, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: connectorCommandSendA2W, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: connectorCommandReceiveA2W, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: connectorCommandSendW2A, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: connectorCommandReceiveW2A, Events: zmq.POLLIN},
 
 		var command = [][]byte{}
 
@@ -69,7 +70,7 @@ func (r ConnectorCommandRoutine) run() err error {
 				panic(err)
 			}
 
-			err = r.processCommandSendCL2C(command)
+			err = r.processCommandSendA2W(command)
 			if err != nil {
 				panic(err)
 			}
@@ -80,7 +81,7 @@ func (r ConnectorCommandRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processCommandReceiveCL2C(command)
+			err = r.processCommandReceiveA2W(command)
 			if err != nil {
 				panic(err)
 			}
@@ -91,7 +92,7 @@ func (r ConnectorCommandRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processCommandSendC2CL(command)
+			err = r.processCommandSendW2A(command)
 			if err != nil {
 				panic(err)
 			}
@@ -102,7 +103,7 @@ func (r ConnectorCommandRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processCommandReceiveC2CL(command)
+			err = r.processCommandReceiveW2A(command)
 			if err != nil {
 				panic(err)
 			}
@@ -110,38 +111,71 @@ func (r ConnectorCommandRoutine) run() err error {
 	}
 }
 
-func (r ConnectorCommandRoutine) processCommandSendCL2C(command [][]byte) err error {
-	command = r.updateHeaderCommandSendCL2C(command)
-	r.connectorCommandSendC2CL.SendMessage(command)
+func (r ConnectorCommandRoutine) processCommandSendA2W(command [][]byte) err error {
+	command = r.updateHeaderCommandSendA2W(command)
+	r.connectorCommandSendW2A.SendMessage(command)
 }
 
-func (r ConnectorCommandRoutine) updateHeaderCommandSendCL2C(command [][]byte) err error {
-
+func (r ConnectorCommandRoutine) updateHeaderCommandSendA2W(command [][]byte) err error {
+    currentCommand, err := r.commandMessage.decodeCommand(command[1])
+    if err != nil {
+        //TODO
+    }
+    command[0] = []byte(currentCommand.sourceConnector)
 }
 
-func (r ConnectorCommandRoutine) processCommandReceiveCL2C(command [][]byte) err error {
-	command = r.updateHeaderCommandReceiveCL2C(command)
-	r.connectorCommandReceiveC2CL.SendMessage(command)
+func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err error {
+	command = r.updateHeaderCommandReceiveA2W(command)
+	r.connectorCommandReceiveW2A.SendMessage(command)
 }
 
-func (r ConnectorCommandRoutine) updateHeaderCommandReceiveCL2C(command [][]byte) err error {
-
+func (r ConnectorCommandRoutine) updateHeaderCommandReceiveA2W(command [][]byte) err error {
+    currentCommand, err := r.commandMessage.decodeCommand(command[1])
+    if err != nil {
+        //TODO
+    }
+    command[0] = []byte(currentCommand.targetConnector)
 }
 
-func (r ConnectorCommandRoutine) processCommandSendC2CL(command [][]byte) err error {
-	command = r.updateHeaderCommandSendC2CL(command)
-	r.connectorCommandSendCL2C.SendMessage(command)
+func (r ConnectorCommandRoutine) processCommandSendW2A(command [][]byte) err error {
+	command = r.updateHeaderCommandSendW2A(command)
+	r.connectorCommandSendA2W.SendMessage(command)
 }
 
-func (r ConnectorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) err error {
-
+func (r ConnectorCommandRoutine) updateHeaderCommandSendW2A(command [][]byte) err error {
+    //TODO NOTHING
 }
 
-func (r ConnectorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
-	command = r.updateHeaderCommandSendC2CL(command)
-	r.connectorCommandReceiveCL2C.SendMessage(command)
+func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err error {
+    if command[1] == Constant.COMMAND_READY {
+        commands := command[2]
+        workerCommand, err := r.getCommandByWorkerCommands()
+        if err != nil {
+        }
+        workerCommand = r.updateIdentityCommandReadyMessage(workerCommand)
+        workerCommand = r.updateHeaderCommandReceiveReadyMessage(workerCommand)
+    	r.connectorCommandReceiveA2W.SendMessage(command)
+
+    }
+    else {
+        command = r.updateHeaderCommandSendW2A(command)
+    	r.connectorCommandReceiveW2A.SendMessage(command)
+    }
 }
 
-func (r ConnectorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) err error {
+func (r ConnectorCommandRoutine) updateIdentityCommandReadyMessage(command [][]byte) (command [][]byte, err error) {
+    //TODO
+}
 
+func (r ConnectorCommandRoutine) updateHeaderCommandReceiveReadyMessage(command [][]byte) (command [][]byte, err error) {
+    //TODOs
+}
+
+func (r ConnectorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error) {
+       command = append(command[:i][], s[i+1][]...)
+       return command
+}
+
+func (r ConnectorCommandRoutine) getCommandByWorkerCommands() (command [][]byte, err error) {
+    //TODO
 }
