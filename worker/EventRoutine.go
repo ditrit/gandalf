@@ -2,7 +2,7 @@ package worker
 
 import "fmt"
 
-type EventFunction interface {
+type EventRoutine interface {
 	//executeEvent(event [][]byte)
 	executeEvent()
 }

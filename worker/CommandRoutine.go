@@ -5,7 +5,7 @@ import (
 )
 
 //TODO CHANNEL ?
-type CommandFunction interface {
+type CommandRoutine interface {
 	//executeCommand(command [][]byte, commandStates *CommandStates, referenceState *ReferenceState) string
 	executeCommand() string
 }
