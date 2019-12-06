@@ -122,20 +122,20 @@ func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err e
 
 func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) (command [][]byte, err error) {
     sourceConnector := command[0]
-    commandMessage := message.CommandMessage.decode(command[1])
+    commandMessage := message.CommandMessage.decodeCommand(command[1])
     commandMessage.sourceConnector = sourceConnector
-    commandMessage.sourceAggreagator = r.identity
+	commandMessage.sourceAggreagator = r.identity
+	command[1] = message.CommandMessage.encodeCommand(commandMessage)
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
 	command = r.updateHeaderCommandReceiveC2CL(command)
 	 r.connectorCommandSendC2CL.SendMessage(command)
-	 //COMMAND FROM CLUSTER
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error) {
-    commandMessage := message.CommandMessage.decode(command[1])
-    command[0] = commandMessage.targetConnector
+	command = append(command[:0][], s[0+1][]...)
+	return command
 }
 
 func (r AggregatorCommandRoutine) processCommandSendCL2C(command [][]byte) err error {
