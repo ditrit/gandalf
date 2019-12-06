@@ -2,12 +2,11 @@ package aggregator
 
 import (
 	"fmt"
-
+    "message"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type AggregatorCommandRoutine struct {
-    commandMessage                         CommandMessage
 	aggregatorCommandSendC2CL              zmq.Sock
 	aggregatorCommandSendC2CLConnections   *string
 	aggregatorCommandReceiveC2CL           zmq.Sock
@@ -123,7 +122,7 @@ func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err e
 
 func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) (command [][]byte, err error) {
     sourceConnector := command[0]
-    commandMessage := r.commandMessage.decode(command[1])
+    commandMessage := message.CommandMessage.decode(command[1])
     commandMessage.sourceConnector = sourceConnector
     commandMessage.sourceAggreagator = r.identity
 }
@@ -135,7 +134,7 @@ func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) er
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error) {
-    commandMessage := r.commandMessage.decode(command[1])
+    commandMessage := message.CommandMessage.decode(command[1])
     command[0] = commandMessage.targetConnector
 }
 
@@ -146,7 +145,7 @@ func (r AggregatorCommandRoutine) processCommandSendCL2C(command [][]byte) err e
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandSendCL2C(command [][]byte) (command [][]byte, err error {
-    commandMessage := r.commandMessage.decode(command[1])
+    commandMessage := message.CommandMessage.decode(command[1])
     command[0] = commandMessage.sourceConnector
 }
 
@@ -157,6 +156,6 @@ func (r AggregatorCommandRoutine) processCommandReceiveCL2C(command [][]byte) er
 }
 
 func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error {
-    commandMessage := r.commandMessage.decode(command[1])
+    commandMessage := message.CommandMessage.decode(command[1])
     command[0] = commandMessage.targetConnector
 }

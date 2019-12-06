@@ -15,7 +15,7 @@ type ClientCommandRoutine struct {
 	mapUUIDCommandStates              map[string]string
 }
 
-func (r ClientCommandRoutine) new(identity, sendClientConnection string) err error {
+func (r ClientCommandRoutine) New(identity, sendClientConnection string) err error {
 	cc.identity = identity
 	cc.sendClientConnection = sendClientConnection
 	cc.clientCommandSend = zmq.NewDealer(sendClientConnection)
@@ -23,7 +23,7 @@ func (r ClientCommandRoutine) new(identity, sendClientConnection string) err err
 	fmt.Printf("clientCommandSend connect : " + sendClientConnection)
 }
 
-func (r ClientCommandRoutine) New(identity string, clientCommandSendConnections *string) err error {
+func (r ClientCommandRoutine) NewList(identity string, clientCommandSendConnections *string) err error {
 	cc.identity = identity
 	cc.clientCommandSendConnections = clientCommandSendConnections
 	cc.clientCommandSend = zmq.NewDealer(clientCommandSendConnections)

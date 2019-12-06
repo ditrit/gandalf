@@ -22,7 +22,7 @@ func (r ClientEventRoutine) New(identity, clientEventSendConnection string) err 
 	fmt.Printf("clientEventSend connect : " + clientEventSendConnection)
 }
 
-func (r ClientEventRoutine) new(identity string, clientEventSendConnections *string) err error {
+func (r ClientEventRoutine) NewList(identity string, clientEventSendConnections *string) err error {
 	r.identity = identity
 	r.clientEventSendConnections = clientEventSendConnections
 	r.clientEventSend = zmq.NewDealer(clientEventSendConnections)

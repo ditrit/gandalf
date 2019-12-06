@@ -2,7 +2,7 @@ package listener
 
 import (
 	"fmt"
-
+	"message"
 	zmq "github.com/zeromq/goczmq"
 )
 
@@ -10,7 +10,7 @@ type ListenerEventRoutine struct {
 	listenerEventReceive           zmq.Sock
 	listenerEventReceiveConnection string
 	identity                       string
-	events [][]byte{}
+	events []message.EventMessage
 }
 
 func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection string) err error {
@@ -43,7 +43,6 @@ func (r ListenerEventRoutine) run() {
 			if err != nil {
 				panic(err)
 			}
-			//STORE IN events
 			err = r.processEventReceive(event)
 			if err != nil {
 				panic(err)
@@ -54,4 +53,5 @@ func (r ListenerEventRoutine) run() {
 }
 
 func (r ListenerEventRoutine) processEventReceive(event [][]byte) err error {
+	r.events.append(message.EventMessage.decodeEvent(event))
 }

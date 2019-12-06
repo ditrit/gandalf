@@ -2,12 +2,14 @@ package connector
 
 import (
 	"fmt"
-
+	"message"
+	"container/list"	
 	zmq "github.com/zeromq/goczmq"
 )
 
 type ConnectorCommandRoutine struct {
-    commandMessage                        CommandMessage
+	commandZMsgSlice 				     map[string][]message.CommandMessage					
+	commandWorkerCommands 				 map[string][]string				
 	connectorCommandSendA2W              zmq.Sock
 	connectorCommandSendA2WConnection    string
 	connectorCommandReceiveA2W           zmq.Sock
@@ -117,7 +119,7 @@ func (r ConnectorCommandRoutine) processCommandSendA2W(command [][]byte) err err
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandSendA2W(command [][]byte) err error {
-    currentCommand, err := r.commandMessage.decodeCommand(command[1])
+    currentCommand, err := message.CommandMessage.decodeCommand(command[1])
     if err != nil {
         //RESPONSE WORKER
     }
@@ -130,7 +132,7 @@ func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err 
 }
 
 func (r ConnectorCommandRoutine) updateHeaderCommandReceiveA2W(command [][]byte) err error {
-    currentCommand, err := r.commandMessage.decodeCommand(command[1])
+    currentCommand, err := message.CommandMessage.decodeCommand(command[1])
     if err != nil {
         //STOCK COMMAND
     }
@@ -178,6 +180,35 @@ func (r ConnectorCommandRoutine) updateHeaderCommandReceiveW2A(command [][]byte)
        return command
 }
 
-func (r ConnectorCommandRoutine) getCommandByWorkerCommands() (command [][]byte, err error) {
-    //TODO
+func (r ConnectorCommandRoutine) getCommandByWorkerCommands(String worker) (commandMessage message.CommandMessage, err error) {
+	
+	var maxCommand string
+	maxTimestamp := -1
+	currentTimestamp := -1
+	commandsWorker := r.commandWorkerCommands[worker]
+	var commands []string
+	
+	for i, commandWorker := range commandsWorker {
+		if currentCommandWorker, ok := r.commandZMsgSlice[commandWorker]; ok {
+			commands[i] = currentCommandWorker
+		}
+	}
+	
+	for i, command := range commands {
+		if command.timestamp >= currentTimestamp {
+			maxTimestamp = command.timestamp
+			maxCommand = command
+		}
+	}
+	
+	commandMessage = r.commandZMsgSlice(maxCommand)
+	append(commandZMsgSlice[:0], commandZMsgSlice[0+1:]...)
+
+	return 
+}
+
+func (r ConnectorCommandRoutine) getCommandZMsgSlice(String command) (commandMessage message.CommandMessage, err error) {
+    if commandMessage, ok := r.commandZMsgSlice[command]; ok {
+		return commandMessage
+	}
 }

@@ -2,12 +2,11 @@ package cluster
 
 import (
 	"fmt"
-
+    "message"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type ClusterCommandRoutine struct {
-    commandMessage                  CommandMessage
 	clusterCommandSend              zmq.Sock
 	clusterCommandSendConnection    string
 	clusterCommandReceive           zmq.Sock
@@ -99,7 +98,7 @@ func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) (comman
     //TODO CALL ARANGO
     target := ""
     sourceAggregator := command[0]
-    commandMessage := r.commandMessage.decode(command[1])
+    commandMessage := message.CommandMessage.decode(command[1])
     commandMessage.sourceAggregator = sourceAggregator
     commandMessage.targetAggregator = target
     command := r.commandMessage.encode(commandMessage)
@@ -118,7 +117,7 @@ func (r ClusterCommandRoutine) processCaptureCommandReceive(command [][]byte) er
 }
 
 func (r ClusterCommandRoutine) updateHeaderCommandReceive(command [][]byte) err error {
-      commandMessage := r.commandMessage.decode(command[1])
+      commandMessage := message.CommandMessage.decode(command[1])
       sourceAggregator := commandMessage.sourceAggregator
       command[0] = sourceAggregator
 }
