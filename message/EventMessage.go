@@ -24,12 +24,18 @@ func (e EventMessage) New(topic, timeout, event, payload string) err error {
 	e.timestamp = time.Now()
 }
 
-func (e EventMessage) sendWith() err error {
-
+func (e EventMessage) sendWith(socket zmq.Sock) err error {
+	socket.send(e.encodeEvent(e))
 }
 
-func (e EventMessage) from() err error {
-
+func (e EventMessage) from(event []byte) err error {
+	e.tenant = event[0]
+	e.token = event[1]
+	e.topic = event[2]
+	e.timeout = event[3]
+	e.timestamp = event[4]
+	e.event = event[5]
+	e.payload = event[6]
 }
 
 func (e EventMessage) encodeEvent() (bytesContent []byte, commandError error) {
