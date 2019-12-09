@@ -10,7 +10,7 @@ type ListenerCommandRoutine struct {
 	listenerCommandReceive              zmq.Sock
 	listenerCommandReceiveConnection   string
 	identity                               string
-	commands []message.CommandMessage
+	commands []CommandMessage
 }
 
 func (r ListenerCommandRoutine) New(identity, listenerCommandReceiveConnection string) err error {
@@ -55,5 +55,11 @@ func (r ListenerCommandRoutine) run() err error {
 }
 
 func (r ListenerCommandRoutine) processCommandReceive(command [][]byte) err error {
-	r.commands.append(message.CommandMessage.decodeCommand(command))
+	r.commands.append(CommandMessage.decodeCommand(command))
+}
+
+func (r ListenerCommandRoutine) GetCommand() (lastCommand CommandMessage, err error) {
+	lastCommand := r.commands[0]
+	r.commands = append(r.commands[:0][], s[0+1][]...)
+	return
 }

@@ -2,7 +2,7 @@ package message
 
 import (
 	"fmt"
-
+	"message"
 	msgpack "github.com/shamaton/msgpack"
 )
 
@@ -25,7 +25,8 @@ func (e EventMessage) New(topic, timeout, event, payload string) err error {
 }
 
 func (e EventMessage) sendWith(socket zmq.Sock) err error {
-	socket.send(e.encodeEvent(e))
+	zmq_send(socket, e.topic, ZMQ_SNDMORE);
+	zmq_send(socket, e.encodeEvent(e), 0);
 }
 
 func (e EventMessage) from(event []byte) err error {

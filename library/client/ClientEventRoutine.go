@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-
+	"message"
 	zmq "github.com/zeromq/goczmq"
 )
 
@@ -31,7 +31,11 @@ func (r ClientEventRoutine) NewList(identity string, clientEventSendConnections 
 }
 
 func (r ClientEventRoutine) sendEvent(topic, timeout, event, payload string) err error {
-
+	eventMessage := eventMessage.New(topic, timeout, event, payload)
+	if err != nil {
+		panic(err)
+	}
+	eventMessage.sendWith(clientEventSend)
 }
 
 func (r ClientEventRoutine) close() err error {

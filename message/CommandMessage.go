@@ -39,7 +39,7 @@ func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, 
 }
 
 func (c CommandMessage) sendWith(socket zmq.Sock) err error {
-	socket.send(c.encodeCommand(c))
+	zmq_send(socket, c.encodeCommand(c), 0);
 }
 
 func (c CommandMessage) from(command []byte) err error {
@@ -104,7 +104,7 @@ type CommandReply struct {
 }
 
 func (cr CommandResponse) sendWith(socket zmq.Sock) {
-	socket.send(cr.encodeCommandResponse(cr))
+	zmq_send(socket, cr.encodeCommandResponse(cr), 0);
 }
 
 func (cr CommandResponse) from(commandMessage CommandMessage, reply, payload string) {

@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-
+	"message"
 	zmq "github.com/zeromq/goczmq"
 )
 
@@ -11,65 +11,73 @@ type ClientCommandRoutine struct {
 	clientCommandSendConnections *string
 	clientCommandSendConnection  string
 	identity                 string
-	responses                *zmq.Message
+	result               chan
 	mapUUIDCommandStates              map[string]string
 }
 
 func (r ClientCommandRoutine) New(identity, sendClientConnection string) err error {
-	cc.identity = identity
-	cc.sendClientConnection = sendClientConnection
-	cc.clientCommandSend = zmq.NewDealer(sendClientConnection)
-	cc.clientCommandSend.Identity(cc.identity)
+	result := make(chan Result)
+	r.identity = identity
+	r.sendClientConnection = sendClientConnection
+	r.clientCommandSend = zmq.NewDealer(sendClientConnection)
+	r.clientCommandSend.Identity(cc.identity)
 	fmt.Printf("clientCommandSend connect : " + sendClientConnection)
 }
 
 func (r ClientCommandRoutine) NewList(identity string, clientCommandSendConnections *string) err error {
-	cc.identity = identity
-	cc.clientCommandSendConnections = clientCommandSendConnections
-	cc.clientCommandSend = zmq.NewDealer(clientCommandSendConnections)
-	cc.clientCommandSend.Identity(cc.identity)
+	result := make(chan Result)
+	r.identity = identity
+	r.clientCommandSendConnections = clientCommandSendConnections
+	r.clientCommandSend = zmq.NewDealer(clientCommandSendConnections)
+	r.clientCommandSend.Identity(cc.identity)
 	fmt.Printf("clientCommandSend connect : " + clientCommandSendConnections)
 }
 
-func (r ClientCommandRoutine) sendCommandSync(context, timeout, uuid, commandtype, command, payload string) (zmq.Message, err error) {
-	 //command = message.CommandMessage.new(type)
-	 commandMessage, err := msgpack.Marshal(&command)
+func (r ClientCommandRoutine) sendCommandSync(context, timeout, uuid, connectorType, commandtype, command, payload string) (commandResponse CommandResponse, err error) {
+	commandMessage := CommandMessage.New(context, timeout, uuid, connectorType, commandType, command, payload)
 	if err != nil {
 		panic(err)
 	}
-	result := make(chan Result)
-	cc.sendClient.SendMessage(commandMessage, result)
-	go getCommandResultSync(commandMessage, result)
-
-	return result
+	commandMessage.sendWith(clientCommandSend)
+	commandResponse, err := getCommandResultSync(commandMessage.uuid)
+	if err != nil {
+		panic(err)
+	}
+	return commandResponse
 }
 
 //TODO UTILISATION MAP
-func (r ClientCommandRoutine) getCommandResultSync(commandMessage string, result chan) (channel chan, err error) {
-	cc.sendClient.SendMessage(commandMessage)
-	select {
-		case event, err := cc.sendClient.RecvMessage():
-			if err != nil {
-				panic(err)
-			}
-			result <- event
-		case <-time.After(3 * time.Second):
-			fmt.Println("timeout 2")
-	}	
+func (r ClientCommandRoutine) getCommandResultSync(uuid string) (commandResponse CommandResponse, err error) {
+	for {
+		command, err := r.clientCommandSend.RecvMessage()
+        if err != nil {
+			panic(err)
+		}
+		commandResponse := CommandResponse.decode(command)
+		return
+    }
 }
 
-//TODO UTILISATION MAP //REVOIR
-func (r ClientCommandRoutine) getCommandResultAsync() (mangos.Message, err error) {
-	cc.sendClient.SendMessage(commandMessage)
+func (r ClientCommandRoutine) sendCommandAsync(context, timeout, uuid, connectorType, commandtype, command, payload string) (zmq.Message, err error) {
+	commandMessage := CommandMessage.New(context, timeout, uuid, connectorType, commandType, command, payload)
+	if err != nil {
+		panic(err)
+	}
+	commandMessage.sendWith(clientCommandSend)
+	go getCommandResultAsync(commandMessage)
+}
+
+func (r ClientCommandRoutine) getCommandResultAsync(commandMessage string) (err error) {
 	select {
-		case event, err := cc.sendClient.RecvMessage(): //APPEL ROUTINE
+		case command, err := r.clientCommandSend.RecvMessage():
 			if err != nil {
 				panic(err)
 			}
-			result <- event
-		case <-time.After(3 * time.Second):
-			fmt.Println("timeout 2")
-    }	
+			r.result <- command
+			return
+		case <-time.After(commandMessage.timeout):
+			fmt.Println("timeout")
+	}	
 }
 
 func (r ClientCommandRoutine) close() err error {

@@ -10,7 +10,7 @@ type ListenerEventRoutine struct {
 	listenerEventReceive           zmq.Sock
 	listenerEventReceiveConnection string
 	identity                       string
-	events []message.EventMessage
+	events []EventMessage
 }
 
 func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection string) err error {
@@ -54,4 +54,10 @@ func (r ListenerEventRoutine) run() {
 
 func (r ListenerEventRoutine) processEventReceive(event [][]byte) err error {
 	r.events.append(message.EventMessage.decodeEvent(event))
+}
+
+func (r ListenerEventRoutine) getEvents() (lastEvent EventMessage, err error) {
+	lastEvent := r.events[0]
+	r.events = append(r.events[:0][], s[0+1][]...)
+	return
 }
