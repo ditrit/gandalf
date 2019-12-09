@@ -1,15 +1,21 @@
 package aggregatorgandalf
 
+import(
+	 "github.com/tkanos/gonfig"
+)
+
 type AggregatorGandalf struct {
+	aggregatorConfiguration AggregatorConfiguration
 	aggregatorCommandRoutine AggregatorCommandRoutine
 	aggregatorEventRoutine   AggregatorEventRoutine
 }
 
 func (ag AggregatorGandalf) main() {
-	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
-	//LOAD CONF
-	wg.aggregatorCommandRoutine = AggregatorCommandRoutine.new()
-	wg.aggregatorEventRoutine = AggregatorEventRoutine.new()
+	path := ""
+	aggregatorConfiguration := AggregatorConfiguration.loadConfiguration(path)
+
+	wg.aggregatorCommandRoutine = AggregatorCommandRoutine.New(aggregatorConfiguration.identity, aggregatorConfiguration.aggregatorCommandSendC2CLConnections, aggregatorConfiguration.aggregatorCommandReceiveC2CLConnection, aggregatorConfiguration.aggregatorCommandSendCL2CConnections, aggregatorConfiguration.aggregatorCommandReceiveCL2CConnection)
+	wg.aggregatorEventRoutine = AggregatorEventRoutine.New(aggregatorConfiguration.identity, aggregatorConfiguration.aggregatorEventSendC2CLConnection, aggregatorConfiguration.aggregatorEventReceiveC2CLConnection, aggregatorConfiguration.aggregatorEventSendCL2CConnection, aggregatorConfiguration.aggregatorEventReceiveCL2CConnection)
 
 	go wg.aggregatorCommandRoutine.run()
 	go wg.aggregatorEventRoutine.run()

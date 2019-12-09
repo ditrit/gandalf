@@ -8,10 +8,14 @@ type ConnectorGandalf struct {
 }
 
 func (cg ConnectorGandalf) New() err error {
+	path := ""
+	connectorConfiguration := ConnectorConfiguration.loadConfiguration(path)
+
 	cg.connectorCommandsMap = make(map[string][]string)
 	cg.connectorCommandSendFileMap = make(map[string]string)
-	cg.connectorCommandRoutine = ConnectorCommandRoutine.new()
-	cg.connectorEventRoutine = ConnectorEventRoutine.new()
+
+	cg.connectorCommandRoutine = ConnectorCommandRoutine.New(connectorConfiguration.identity, connectorConfiguration.connectorCommandSendA2WConnection, connectorConfiguration.connectorCommandReceiveA2WConnection, connectorConfiguration.connectorCommandSendW2AConnection, connectorConfiguration.connectorCommandReceiveW2AConnection)
+	cg.connectorEventRoutine = ConnectorEventRoutine.New(connectorConfiguration.identity, connectorConfiguration.connectorEventSendA2WConnection, connectorConfiguration.connectorEventReceiveA2WConnection, connectorConfiguration.connectorEventSendW2AConnection, connectorConfiguration.connectorEventReceiveW2AConnection)
 
 	//RUN
 	go cg.connectorCommandRoutine.run()

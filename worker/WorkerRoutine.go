@@ -2,12 +2,15 @@ package worker
 
 import (
 	"fmt"
-    "message"
+	"message"
+	"os/exec"
 	zmq "github.com/zeromq/goczmq"
 )
 
+const pathRoutine string = "/enabled_worker/"
+
 type WorkerRoutine struct {
-	results chan
+	replys chan ResponseMessage
 	workerCommandReceive zmq.Sock
 	workerCommandReceiveConnection string
 	workerEventReceive zmq.Sock
@@ -33,6 +36,7 @@ func (r WorkerRoutine) New(identity, workerCommandReceiveConnection, workerEvent
 
 	r.loadCommandRoutines()
 	r.loadEventRoutines()
+
 }
 
 func (r WorkerRoutine) loadCommandRoutines() err error {
@@ -44,12 +48,9 @@ func (r WorkerRoutine) loadEventRoutines() err error {
 	//TODO
 }
 
-func (r WorkerRoutine) sendResults() err error {
-	//TODO
-	//LOOP CHANNEL + SEND
-}
-
 func (r WorkerRoutine) run() err error {
+	go r.sendResults()
+
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: workerCommandReceive, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: workerEventReceive, Events: zmq.POLLIN}
@@ -116,5 +117,15 @@ func (r WorkerRoutine) processEventReceive(event [][]byte) () {
 func (r WorkerRoutine) getEventRoutine(event string) (eventRoutine EventRoutine, err error) {
 	if eventRoutine, ok := r.eventsRoutine[command]; ok {
 		return eventRoutine
+	}
+}
+
+func (r WorkerRoutine) sendResults() err error {
+	for {
+		reply, err <- r.replys
+		if err != nil {
+			
+		} 
+		reply.sendWith(workerCommandReceive)
 	}
 }

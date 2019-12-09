@@ -5,23 +5,12 @@ type WorkerGandalf struct {
 }
 
 func (wg WorkerGandalf) main() {
-	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
-	//LOAD CONF
-	wg.workerRoutine = WorkerRoutine.new()
+	path := ""
+	workerConfiguration := WorkerConfiguration.loadConfiguration(path)
 
-	//LOAD
-	wg.LoadCommandFunctions()
-	wg.LoadEventFunctions()
+	wg.workerRoutine = WorkerRoutine.new(workerConfiguration.identity, workerConfiguration.workerCommandReceiveConnection, workerConfiguration.workerEventReceiveConnection)
 
 	go wg.workerRoutine.run()
 }
 
-func (wg GandalfApplication) LoadCommandFunctions() err error {
-	//TODO
-	wg.workerRoutine.mapCommandFunction["CommandPrint"] = CommandFunction.CommandPrint.new()
-}
 
-func (wg GandalfApplication) LoadEventFunctions() err error {
-	//TODO
-	wg.workerRoutine.mapEventFunction["EventPrint"] = EventFunction.EventPrint.new()
-}

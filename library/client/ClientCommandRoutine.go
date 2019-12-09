@@ -20,7 +20,7 @@ func (r ClientCommandRoutine) New(identity, sendClientConnection string) err err
 	r.identity = identity
 	r.sendClientConnection = sendClientConnection
 	r.clientCommandSend = zmq.NewDealer(sendClientConnection)
-	r.clientCommandSend.Identity(cc.identity)
+	r.clientCommandSend.Identity(r.identity)
 	fmt.Printf("clientCommandSend connect : " + sendClientConnection)
 }
 
@@ -29,7 +29,7 @@ func (r ClientCommandRoutine) NewList(identity string, clientCommandSendConnecti
 	r.identity = identity
 	r.clientCommandSendConnections = clientCommandSendConnections
 	r.clientCommandSend = zmq.NewDealer(clientCommandSendConnections)
-	r.clientCommandSend.Identity(cc.identity)
+	r.clientCommandSend.Identity(r.identity)
 	fmt.Printf("clientCommandSend connect : " + clientCommandSendConnections)
 }
 
