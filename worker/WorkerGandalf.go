@@ -1,7 +1,8 @@
 package worker
 
-type WorkerGandalf struct {
-	workerRoutine WorkerRoutine
+type WorkerGandalf struct {	
+	workerConfiguration WorkerConfiguration
+	workerRoutine 		WorkerRoutine
 }
 
 func (wg WorkerGandalf) main() {

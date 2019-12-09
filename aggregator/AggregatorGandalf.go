@@ -5,9 +5,9 @@ import(
 )
 
 type AggregatorGandalf struct {
-	aggregatorConfiguration AggregatorConfiguration
-	aggregatorCommandRoutine AggregatorCommandRoutine
-	aggregatorEventRoutine   AggregatorEventRoutine
+	aggregatorConfiguration 	AggregatorConfiguration
+	aggregatorCommandRoutine 	AggregatorCommandRoutine
+	aggregatorEventRoutine   	AggregatorEventRoutine
 }
 
 func (ag AggregatorGandalf) main() {

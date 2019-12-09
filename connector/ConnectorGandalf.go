@@ -1,6 +1,7 @@
 package connector
 
 type ConnectorGandalf struct {
+	connectorConfiguration 		ConnectorConfiguration
 	connectorCommandRoutine     ConnectorCommandRoutine
 	connectorEventRoutine       ConnectorEventRoutine
 	connectorCommandsMap        map[string][]string
