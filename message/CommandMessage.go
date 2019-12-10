@@ -39,7 +39,7 @@ func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, 
 }
 
 func (c CommandMessage) sendWith(socket zmq.Sock) err error {
-	zmq_send(socket, c.encodeCommand(c), 0);
+	zmq_send(socket, encode(c), 0);
 }
 
 func (c CommandMessage) from(command []byte) err error {
@@ -68,23 +68,7 @@ func (c Command) reply(socket zmq.Sock, reply, payload string) err error {
 	commandResponse.sendWith(socket)
 }
 
-func (c CommandMessage) encodeCommand() (bytesContent []byte, commandError error) {
-	bytesContent, err := msgpack.Encode(c)
-	if err != nil {
-		commandError = fmt.Errorf("Command %s", err)
-		return
-	}
-	return
-}
-
-func (c CommandMessage) decodeCommand(bytesContent []byte) (command Command, commandError error) {
-	err := msgpack.Decode(bytesContent, command)
-	if err != nil {
-		commandError = fmt.Errorf("Command %s", err)
-		return
-	}
-	return
-}	
+//
 
 type CommandReply struct {
 	sourceAggregator    string
@@ -103,11 +87,11 @@ type CommandReply struct {
     payload    string
 }
 
-func (cr CommandResponse) sendWith(socket zmq.Sock) {
-	zmq_send(socket, cr.encodeCommandResponse(cr), 0);
+func (cr CommandReply) sendWith(socket zmq.Sock) {
+	zmq_send(socket, encode(cr), 0);
 }
 
-func (cr CommandResponse) from(commandMessage CommandMessage, reply, payload string) {
+func (cr CommandReply) from(commandMessage CommandMessage, reply, payload string) {
 	cr.sourceAggregator = commandMessage.sourceAggregator
 	cr.sourceConnector = commandMessage.sourceConnector
 	cr.sourceWorker = commandMessage.sourceWorker
@@ -124,8 +108,74 @@ func (cr CommandResponse) from(commandMessage CommandMessage, reply, payload str
     cr.payload = payload
 }
 
-func (cr CommandResponse) encodeCommandResponse() (bytesContent []byte, commandError error) {
-	bytesContent, err := msgpack.Encode(cr)
+//
+
+type CommandCommandsEvents struct {
+	commands    []string
+	events    	[]string
+}
+
+func (cce CommandCommandsEvents) New(commands, events []string) err error {
+	cce.commands = commands
+	cce.events = events
+}
+
+func (cce CommandCommandsEvents) sendWith(socket zmq.Sock) {
+	zmq_send(socket, "validation", ZMQ_SNDMORE);
+	zmq_send(socket, encode(cce), 0);
+}
+
+//
+
+type CommandCommandsEventsReply struct {
+	validation bool
+}
+
+func (ccer CommandCommandsEventsReply) New(validation bool) err error {
+	ccer.validation = validation
+}
+
+func (ccer CommandCommandsEventsReply) sendWith(socket zmq.Sock) {
+	zmq_send(socket, "validation_reply", ZMQ_SNDMORE);
+	zmq_send(socket, encode(ccer), 0);
+}
+
+//
+
+type CommandReady struct {
+	// ???
+}
+
+func (cry CommandReady) New() err error {
+}
+
+func (cry CommandReady) sendWith(socket zmq.Sock) {
+	zmq_send(socket, "ready", ZMQ_SNDMORE);
+	zmq_send(socket, encode(cry), 0);
+}
+
+//
+
+func encode() (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(c)
+	if err != nil {
+		commandError = fmt.Errorf("Command %s", err)
+		return
+	}
+	return
+}
+
+func decodeCommand(bytesContent []byte) (command Command, commandError error) {
+	err := msgpack.Decode(bytesContent, command)
+	if err != nil {
+		commandError = fmt.Errorf("Command %s", err)
+		return
+	}
+	return
+}	
+
+func decodeCommandReply(bytesContent []byte) (commandReply CommandReply, commandError error) {
+	err := msgpack.Decode(bytesContent, commandReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return
@@ -133,8 +183,17 @@ func (cr CommandResponse) encodeCommandResponse() (bytesContent []byte, commandE
 	return
 }
 
-func (cr CommandResponse) decodeCommandResponse(bytesContent []byte) (commandResponse CommandResponse, commandError error) {
-	err := msgpack.Decode(bytesContent, commandResponse)
+func decodeCommandReady(bytesContent []byte) (commandReady CommandReady, commandError error) {
+	err := msgpack.Decode(bytesContent, CommandReady)
+	if err != nil {
+		commandError = fmt.Errorf("CommandResponse %s", err)
+		return
+	}
+	return
+}
+
+func decodeCommandCommandsEvents(bytesContent []byte) (commandCommandsEvents CommandCommandsEvents, commandError error) {
+	err := msgpack.Decode(bytesContent, commandCommandsEvents)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return

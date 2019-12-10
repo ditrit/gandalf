@@ -49,6 +49,9 @@ func (r WorkerRoutine) loadEventRoutines() err error {
 }
 
 func (r WorkerRoutine) run() err error {
+
+
+
 	go r.sendResults()
 
 	pi := zmq.PollItems{
@@ -88,6 +91,23 @@ func (r WorkerRoutine) run() err error {
 		}
 	}
 	fmt.Println("done")
+}
+
+func (r WorkerRoutine) validationCommandsEvents() () {
+	r.sendCommandsEvents()
+	for {
+		command, err := workerCommandReceive.RecvMessage()
+	}
+}
+
+func (r WorkerRoutine) sendCommandsEvents() () {
+	commandCommandsEvents := CommandCommandsEvents.New()
+	commandCommandsEvents.sendWith(r.workerCommandReceive)
+}
+
+func (r WorkerRoutine) sendReadyCommand() () {
+	commandReady := CommandReady.New()
+	commandReady.sendWith(r.workerCommandReceive)
 }
 
 func (r WorkerRoutine) processCommandReceive(command [][]byte) () {
