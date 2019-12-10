@@ -123,41 +123,39 @@ func (cr CommandReply) from(commandMessage CommandMessage, reply, payload string
 
 //
 
-type CommandCommandsEvents struct {
-	commands    []string
-	events    	[]string
+type CommandFunction struct {
+	functions    []string
 }
 
-func (cce CommandCommandsEvents) New(commands, events []string) err error {
-	cce.commands = commands
-	cce.events = events
+func (cf CommandFunction) New(functions []string) err error {
+	cf.functions = functions
 }
 
-func (cce CommandCommandsEvents) sendWith(socket zmq.Sock) {
+func (cf CommandFunction) sendWith(socket zmq.Sock) {
 	zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS, ZMQ_SNDMORE);
-	zmq_send(socket, encode(cce), 0);
+	zmq_send(socket, encode(cf), 0);
 }
 
 //
 
-type CommandCommandsEventsReply struct {
+type CommandFunctionReply struct {
 	validation bool
 }
 
-func (ccer CommandCommandsEventsReply) New(validation bool) err error {
-	ccer.validation = validation
+func (cfr CommandFunctionReply) New(validation bool) err error {
+	cfr.validation = validation
 }
 
-func (ccer CommandCommandsEventsReply) sendWith(socket zmq.Sock, header string) {
-	ccer.sendHeaderWith(socket, header)
-	ccer.sendCommandCommandsEventsReplyWith(socket)
+func (cfr CommandFunctionReply) sendWith(socket zmq.Sock, header string) {
+	cfr.sendHeaderWith(socket, header)
+	cfr.sendCommandCommandsEventsReplyWith(socket)
 }
 
-func (ccer CommandCommandsEventsReply) sendHeaderWith(socket zmq.Sock, header string) {
+func (cfr CommandFunctionReply) sendHeaderWith(socket zmq.Sock, header string) {
 	zmq_send(socket, header, ZMQ_SNDMORE);
 }
 
-func (ccer CommandCommandsEventsReply) sendCommandCommandsEventsReplyWith(socket zmq.Sock) {
+func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket zmq.Sock) {
 	zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, ZMQ_SNDMORE);
 	zmq_send(socket, encode(ccer), 0);
 }
@@ -214,8 +212,8 @@ func decodeCommandReady(bytesContent []byte) (commandReady CommandReady, command
 	return
 }
 
-func decodeCommandCommandsEvents(bytesContent []byte) (commandCommandsEvents CommandCommandsEvents, commandError error) {
-	err := msgpack.Decode(bytesContent, commandCommandsEvents)
+func decodeCommandFunction(bytesContent []byte) (commandFunctions CommandFunctions, commandError error) {
+	err := msgpack.Decode(bytesContent, commandFunctions)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return
@@ -223,8 +221,8 @@ func decodeCommandCommandsEvents(bytesContent []byte) (commandCommandsEvents Com
 	return
 }
 
-func decodeCommandCommandsEventsReply(bytesContent []byte) (commandCommandsEventsReply CommandCommandsEventsReply, commandError error) {
-	err := msgpack.Decode(bytesContent, commandCommandsEventsReply)
+func decodeCommandFunctionReply(bytesContent []byte) (commandFunctionReply CommandFunctionReply, commandError error) {
+	err := msgpack.Decode(bytesContent, commandFunctionReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return

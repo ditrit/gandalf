@@ -9,9 +9,7 @@ func (wg WorkerGandalf) main() {
 	path := ""
 	workerConfiguration := WorkerConfiguration.loadConfiguration(path)
 
-	wg.workerRoutine = WorkerRoutine.new(workerConfiguration.identity, workerConfiguration.workerCommandReceiveConnection, workerConfiguration.workerEventReceiveConnection)
-
-	go wg.workerRoutine.run()
+	wg.workerRoutine = WorkerRoutine.New(workerConfiguration.identity, workerConfiguration.workerCommandReceiveConnection, workerConfiguration.workerEventReceiveConnection)
 }
 
 

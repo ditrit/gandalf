@@ -8,8 +8,8 @@ import (
 )
 
 type ConnectorCommandRoutine struct {
-	commandZMsgSlice 				     map[string][]CommandMessage					
-	commandWorkerCommands 				 map[string][]string				
+	connectorMapUUIDCommandMessage		     map[string][]CommandMessage					
+	connectorMapWorkerCommands 				 map[string][]string				
 	connectorCommandSendA2W              zmq.Sock
 	connectorCommandSendA2WConnection    string
 	connectorCommandReceiveA2W           zmq.Sock
@@ -52,6 +52,8 @@ func (r ConnectorCommandRoutine) reconnectToProxy() err error {
 }
 
 func (r ConnectorCommandRoutine) run() err error {
+	go cleanCommandsByTimeout()
+
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: connectorCommandSendA2W, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: connectorCommandReceiveA2W, Events: zmq.POLLIN},
@@ -115,12 +117,13 @@ func (r ConnectorCommandRoutine) run() err error {
 
 func (r ConnectorCommandRoutine) processCommandSendA2W(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
+	r.addCommands(commandMessage)
 	commandMessage.sendWith(r.connectorCommandReceiveW2A, commandMessage.sourceConnector)
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
-	r.commandZMsgSlice.append(r.commandZMsgSlice[currentCommand.command], commandMessage)
+	r.connectorMapUUIDCommandMessage.append(r.connectorMapUUIDCommandMessage[currentCommand.command], commandMessage)
 
 }
 
@@ -139,12 +142,12 @@ func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err 
 		commandMessage.sendWith(r.connectorCommandSendA2W, workerSource)
 	}
 	else if command[1] == Constant.COMMAND_VALIDATION_FUNCTIONS {
-		commandCommandsEvents := decodeCommandCommandsEvents(command[2])
-		result := r.validationCommandsEvents(commandCommandsEvents.commands , commandCommandsEvents.events)
+		commandFunction := decodeCommandFunction(command[2])
+		result := r.validationCommands(workerSource, commandFunction.functions)
         if result {
-			//TODO ADD WORKER
-			commandCommandsEventsReply := CommandCommandsEventsReply.New(result)
-			commandCommandsEventsReply.sendCommandCommandsEventsReplyWith(r.connectorCommandSendA2W)
+			r.connectorMapWorkerCommands[workerSource] = commands 
+			commandFunctionReply := CommandFunctionReply.New(result)
+			commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendA2W)
         }
 	}
     else {
@@ -163,7 +166,7 @@ func (r ConnectorCommandRoutine) getCommandByWorkerCommands(String worker) (comm
 	var commands []string
 	
 	for i, commandWorker := range commandsWorker {
-		if currentCommandWorker, ok := r.commandZMsgSlice[commandWorker]; ok {
+		if currentCommandWorker, ok := r.connectorMapUUIDCommandMessage[commandWorker]; ok {
 			commands[i] = currentCommandWorker
 		}
 	}
@@ -175,33 +178,48 @@ func (r ConnectorCommandRoutine) getCommandByWorkerCommands(String worker) (comm
 		}
 	}
 	
-	commandMessage = r.commandZMsgSlice(maxCommand)
-	append(commandZMsgSlice[:0], commandZMsgSlice[0+1:]...)
+	commandMessage = r.connectorMapUUIDCommandMessage[maxCommand]
+	append(connectorMapUUIDCommandMessage[:0], connectorMapUUIDCommandMessage[0+1:]...)
 
 	return 
 }
 
-func (r ConnectorCommandRoutine) getCommandZMsgSlice(String command) (commandMessage message.CommandMessage, err error) {
-    if commandMessage, ok := r.commandZMsgSlice[command]; ok {
-		return commandMessage
+func (r ConnectorCommandRoutine) getConnectorMapUUIDCommandMessage(String command) (commandMessage message.CommandMessage, err error) {
+    if commandMessage, ok := r.connectorMapUUIDCommandMessage[command]; ok {
+		if ok {
+			return commandMessage
+		}
 	}
 }
 
-func (r ConnectorCommandRoutine) validationCommandsEvents(commands, events []string) (result bool, err error) {
+func (r ConnectorCommandRoutine) validationCommands(workerSource string, commands []string) (result bool, err error) {
 	//TODO
-	result &= r.validationCommands(commands)
-	result &= r.validationEvents(events)
+	result := true
+
 	return
 }
 
-func (r ConnectorCommandRoutine) validationCommands(commands []string) (result bool, err error) {
-	//TODO
-	result := true
-	return
+func (r ConnectorCommandRoutine) addCommands(commandMessage CommandMessage) {
+	if val, ok := r.connectorMapUUIDCommandMessage[commandMessage.uuid]; ok {
+		if !ok {
+			r.connectorMapUUIDCommandMessage[commandMessage.uuid] = commandMessage
+		}
+	}
 }
 
-func (r ConnectorCommandRoutine) validationEvents(events []string) (result bool, err error) {
-	//TODO
-	result := true
-	return
+func (r ConnectorCommandRoutine) cleanCommandsByTimeout() {
+	maxTimeout = 0
+	for {
+		for uuid, commandMessage := range r.connectorMapUUIDCommandMessage { 
+			if commandMessage.timestamp - commandMessage.timeout == 0 {
+				delete(r.connectorMapUUIDCommandMessage, uuid) 	
+			}
+			else {
+				if commandMessage.timeout >= maxTimeout {
+					maxTimeout = commandMessage.timeout
+				}
+			}
+		}
+		time.Sleep(maxTimeout * time.Millisecond)
+	}
 }

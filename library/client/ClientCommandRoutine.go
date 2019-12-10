@@ -3,16 +3,17 @@ package client
 import (
 	"fmt"
 	"message"
+	"constant"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type ClientCommandRoutine struct {
-	clientCommandSend            zmq.Sock
-	clientCommandSendConnections *string
-	clientCommandSendConnection  string
-	identity                 string
-	result               chan
-	mapUUIDCommandStates              map[string]string
+	clientCommandSend            	zmq.Sock
+	clientCommandSendConnections 	*string
+	clientCommandSendConnection  	string
+	identity                 		string
+	result               			chan
+	mapUUIDCommandStates            map[string]State
 }
 
 func (r ClientCommandRoutine) New(identity, sendClientConnection string) err error {
@@ -78,6 +79,9 @@ func (r ClientCommandRoutine) getCommandResultAsync(commandMessage string) (err 
 		case <-time.After(commandMessage.timeout):
 			fmt.Println("timeout")
 	}	
+}
+
+func (r ClientCommandRoutine) cleanByTimeout() err error {
 }
 
 func (r ClientCommandRoutine) close() err error {

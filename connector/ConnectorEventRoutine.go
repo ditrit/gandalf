@@ -7,6 +7,8 @@ import (
 )
 
 type ConnectorEventRoutine struct {
+	connectorMapUUIDEventMessage	   map[string][]EventMessage					
+	connectorMapWorkerEvents 		   map[string][]string	
 	connectorEventSendA2W              zmq.Sock
 	connectorEventSendA2WConnection    string
 	connectorEventReceiveA2W           zmq.Sock
@@ -49,6 +51,8 @@ func (r ConnectorEventRoutine) reconnectToProxy() err error {
 }
 
 func (r ConnectorEventRoutine) run() err error {
+	go cleanEventsByTimeout()
+
 	pi := zmq.PollItems{
 		zmq.PollItem{Socket: connectorEventSendA2W, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: connectorEventReceiveA2W, Events: zmq.POLLIN},
@@ -109,23 +113,66 @@ func (r ConnectorEventRoutine) run() err error {
 	}
 }
 
-func (r ConnectorCommandRoutine) processEventSendA2W(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventSendA2W(event [][]byte) err error {
+	eventMessage := EventMessage.decodeEvent(event[1])
+	r.addEvents(eventMessage)
+	eventMessage.sendEventWith(r.connectorEventReceiveA2W)
+}
+
+func (r ConnectorEventRoutine) processEventReceiveA2W(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	eventMessage.sendEventWith(r.connectorEventSendA2W)
 }
 
-func (r ConnectorCommandRoutine) processEventReceiveA2W(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventSendW2A(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
-	eventMessage.sendEventWith(r.connectorEventSendA2W)
+	eventMessage.sendEventWith(r.connectorEventReceiveW2A)
 }
 
-func (r ConnectorCommandRoutine) processEventSendW2A(event [][]byte) err error {
-	eventMessage := EventMessage.decodeEvent(event[1])
-	eventMessage.sendEventWith(r.connectorEventSendA2W)
+func (r ConnectorEventRoutine) processEventReceiveW2A(event [][]byte) err error {
+	
+	if event[0] == Constant.COMMAND_VALIDATION_FUNCTIONS {
+		commandFunctions := decodeCommandCommandsEvents(command[2])
+		result := r.validationEvents(workerSource, commandFunctions.events)
+        if result {
+			r.connectorMapWorkerEvents[workerSource] = events
+			commandFunctionReply := CommandFunctionReply.New(result)
+			commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendA2W)
+        }
+	}
+	else {
+		eventMessage := EventMessage.decodeEvent(event[1])
+		eventMessage.sendEventWith(r.connectorEventSendW2A)
+	}
 }
 
-func (r ConnectorCommandRoutine) processEventReceiveW2A(event [][]byte) err error {
-	eventMessage := EventMessage.decodeEvent(event[1])
-	eventMessage.sendEventWith(r.connectorEventSendA2W)
+func (r ConnectorEventRoutine) validationEvents(workerSource string, events []string) (result bool, err error) {
+	//TODO
+	result := true
+	return
 }
 
+func (r ConnectorEventRoutine) addEvents(eventMessage EventMessage) {
+	if val, ok := r.connectorMapUUIDEventMessage[eventMessage.uuid]; ok {
+		if !ok {
+			r.connectorMapUUIDEventMessage[eventMessage.uuid] = eventMessage
+		}
+	}
+}
+
+func (r ConnectorEventRoutine) cleanEventsByTimeout() {
+	maxTimeout = 0
+	for {
+		for uuid, eventMessage := range r.connectorMapUUIDEventMessage { 
+			if commandMessage.timestamp - commandMessage.timeout == 0 {
+				delete(r.commandUUIDCommandMessage, uuid) 	
+			}
+			else {
+				if commandMessage.timeout >= maxTimeout {
+					maxTimeout = commandMessage.timeout
+				}
+			}
+		}
+		time.Sleep(maxTimeout * time.Millisecond)
+	}
+}

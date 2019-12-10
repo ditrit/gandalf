@@ -37,6 +37,13 @@ func (r WorkerRoutine) New(identity, workerCommandReceiveConnection, workerEvent
 	r.loadCommandRoutines()
 	r.loadEventRoutines()
 
+	result, err := r.validationFunctions()
+	if err != nil {
+		panic(err)
+	}
+
+	go wg.workerRoutine.run()
+
 }
 
 func (r WorkerRoutine) loadCommandRoutines() err error {
@@ -93,20 +100,39 @@ func (r WorkerRoutine) run() err error {
 	fmt.Println("done")
 }
 
-func (r WorkerRoutine) validationCommandsEvents() () {
-	r.sendCommandsEvents()
+func (r WorkerRoutine) validationFunctions() (result bool, err error) {
+	r.sendValidationFunctions()
 	for {
 		command, err := workerCommandReceive.RecvMessage()
 		if err != nil {
 			panic(err)
 		}
-		
+
+		event, err := workerEventReceive.RecvMessage()
+		if err != nil {
+			panic(err)
+		}
 	}
+	result = command && event
+	return
 }
 
-func (r WorkerRoutine) sendCommandsEvents() () {
-	commandCommandsEvents := CommandCommandsEvents.New()
-	commandCommandsEvents.sendWith(r.workerCommandReceive)
+func (r WorkerRoutine) sendValidationFunctions()  {
+	//COMMAND
+	functionkeys := make([]string, 0, len(commandsRoutine))
+    for key := range commandsRoutine {
+        functionkeys = append(functionkeys, key)
+	}
+	commandFunction := CommandFunction.New(keys)
+	commandFunction.sendWith(r.workerCommandReceive)
+
+	//EVENT
+	functionkeys := make([]string, 0, len(eventsRoutine))
+    for key := range eventsRoutine {
+        functionkeys = append(functionkeys, key)
+	}
+	commandFunction := CommandFunction.New(functionkeys)
+	commandFunction.sendWith(r.workerEventReceive)
 }
 
 func (r WorkerRoutine) sendReadyCommand() () {
