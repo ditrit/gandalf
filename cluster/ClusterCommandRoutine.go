@@ -83,45 +83,21 @@ func (r ClusterCommandRoutine) run() err error {
 }
 
 func (r ClusterCommandRoutine) processCommandSend(command [][]byte) err error {
-	r.processCaptureCommandSend(command)
+	commandMessage = CommandMessage.decodeCommand(comand[1])
+	r.processCaptureCommand(commandMessage)
 
-	command = r.updateHeaderCommandSend(command)
-	r.clusterCommandReceive.SendMessage(command)
-}
-
-func (r ClusterCommandRoutine) processCaptureCommandSend(command [][]byte) err error {
-	command = r.updateHeaderCaptureCommand(command)
-	r.clusterCommandCapture.SendMessage(command)
-}
-
-func (r ClusterCommandRoutine) updateHeaderCommandSend(command [][]byte) (command [][]byte, err error) {
-    //TODO CALL ARANGO
-    target := ""
-    sourceAggregator := command[0]
-    commandMessage := message.CommandMessage.decode(command[1])
-    commandMessage.sourceAggregator = sourceAggregator
-    commandMessage.targetAggregator = target
-    command := r.commandMessage.encode(commandMessage)
+	sourceAggregator := command[0]
+	commandMessage.sourceAggregator = sourceAggregator
+	commandMessage.targetAggregator = target
+	commandMessage.sendCommandWith(r.clusterCommandReceive)
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) err error {
-	r.processCaptureCommandReceive(command)
-
-	command = r.updateHeaderCommandReceive(command)
-	r.clusterCommandSend(command)
+	commandMessage = CommandMessage.decodeCommand(comand[1])
+	r.processCaptureCommand(commandMessage)
+	commandMessage.sendWith(r.clusterCommandSend, commandMessage.sourceAggregator)
 }
 
-func (r ClusterCommandRoutine) processCaptureCommandReceive(command [][]byte) err error {
-	command = r.updateHeaderCaptureCommand(command)
-	r.clusterCommandCapture.SendMessage(command)
-}
-
-func (r ClusterCommandRoutine) updateHeaderCommandReceive(command [][]byte) err error {
-      commandMessage := message.CommandMessage.decode(command[1])
-      sourceAggregator := commandMessage.sourceAggregator
-      command[0] = sourceAggregator
-}
-
-func (r ClusterCommandRoutine) updateHeaderCaptureCommand(command [][]byte) err error {
-	  command[0] = Constant.WORKER_SERVICE_CLASS_CAPTURE
+func (r ClusterCommandRoutine) processCaptureCommand(commandMessage CommandMessage) err error {
+	commandMessage.sendWith(r.clusterCommandCapture, Constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

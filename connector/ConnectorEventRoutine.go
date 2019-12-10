@@ -110,37 +110,22 @@ func (r ConnectorEventRoutine) run() err error {
 }
 
 func (r ConnectorCommandRoutine) processEventSendA2W(event [][]byte) err error {
-	event = r.updateHeaderEventSendA2W(event)
-	r.connectorEventSendW2A.SendMessage(event)
-}
-
-func (r ConnectorCommandRoutine) updateHeaderEventSendA2W(event [][]byte) err error {
-    //TODO NOTHING
+	eventMessage := EventMessage.decodeEvent(event[1])
+	eventMessage.sendEventWith(r.connectorEventSendA2W)
 }
 
 func (r ConnectorCommandRoutine) processEventReceiveA2W(event [][]byte) err error {
-	event = r.updateHeaderEventReceiveA2W(event)
-	r.connectorEventReceiveW2A.SendMessage(event)
-}
-
-func (r ConnectorCommandRoutine) updateHeaderEventReceiveA2W(event [][]byte) err error {
-    //TODO NOTHING
+	eventMessage := EventMessage.decodeEvent(event[1])
+	eventMessage.sendEventWith(r.connectorEventSendA2W)
 }
 
 func (r ConnectorCommandRoutine) processEventSendW2A(event [][]byte) err error {
-	event = r.updateHeaderEventSendW2A(event)
-	r.connectorEventSendA2W.SendMessage(event)
-}
-
-func (r ConnectorCommandRoutine) updateHeaderEventSendW2A(event [][]byte) err error {
-        //TODO NOTHING
+	eventMessage := EventMessage.decodeEvent(event[1])
+	eventMessage.sendEventWith(r.connectorEventSendA2W)
 }
 
 func (r ConnectorCommandRoutine) processEventReceiveW2A(event [][]byte) err error {
-	event = r.updateHeaderEventReceiveW2A(event)
-	r.connectorEventReceiveA2W.SendMessage(event)
+	eventMessage := EventMessage.decodeEvent(event[1])
+	eventMessage.sendEventWith(r.connectorEventSendA2W)
 }
 
-func (r ConnectorCommandRoutine) updateHeaderEventReceiveW2A(event [][]byte) err error {
-    //TODO NOTHING
-}

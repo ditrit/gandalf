@@ -115,47 +115,28 @@ func (r AggregatorCommandRoutine) run() err error {
 }
 
 func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err error {
-	command = r.updateHeaderCommandSendC2CL(command)
-	 r.connectorCommandReceiveC2CL.SendMessage(command)
+	sourceConnector := command[0]
+	commandMessage := CommandMessage.decodeCommand(command[1])
+	commandMessage.sourceConnector = sourceConnector
+	commandMessage.sourceAggreagator = r.identity
+
+	commandMessage.sendCommandWith(r.connectorCommandReceiveC2CL)
 	 //RESULT TO CLUSTER
 }
 
-func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) (command [][]byte, err error) {
-    sourceConnector := command[0]
-    commandMessage := message.CommandMessage.decodeCommand(command[1])
-    commandMessage.sourceConnector = sourceConnector
-	commandMessage.sourceAggreagator = r.identity
-	command[1] = message.CommandMessage.encodeCommand(commandMessage)
-}
-
 func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
-	command = r.updateHeaderCommandReceiveC2CL(command)
-	 r.connectorCommandSendC2CL.SendMessage(command)
-}
-
-func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error) {
-	command = append(command[:0][], s[0+1][]...)
-	return command
+	commandMessage := CommandMessage.decodeCommand(command[1])
+	commandMessage.sendCommandWith(r.connectorCommandSendC2CL)
 }
 
 func (r AggregatorCommandRoutine) processCommandSendCL2C(command [][]byte) err error {
-	command = r.updateHeaderCommandSendCL2C(command)
-	 r.connectorCommandReceiveC2CL.SendMessage(command)
-        //COMMAND
-}
-
-func (r AggregatorCommandRoutine) updateHeaderCommandSendCL2C(command [][]byte) (command [][]byte, err error {
-    commandMessage := message.CommandMessage.decode(command[1])
-    command[0] = commandMessage.sourceConnector
+	commandMessage := CommandMessage.decodeCommand(command[1])
+	commandMessage.sendWith(r.connectorCommandReceiveC2CL, commandMessage.sourceConnector)
+    //COMMAND
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveCL2C(command [][]byte) err error {
-	command = r.updateHeaderCommandReceiveC2CL(command)
-	 r.connectorCommandReceiveC2CL.SendMessage(command)
+	commandMessage := CommandMessage.decodeCommand(command[1])
+	commandMessage.sendWith(r.connectorCommandReceiveC2CL, commandMessage.targetConnector)
 	 //RECEIVE FROM CONNECTOR
-}
-
-func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) (command [][]byte, err error {
-    commandMessage := message.CommandMessage.decode(command[1])
-    command[0] = commandMessage.targetConnector
 }

@@ -97,6 +97,10 @@ func (r WorkerRoutine) validationCommandsEvents() () {
 	r.sendCommandsEvents()
 	for {
 		command, err := workerCommandReceive.RecvMessage()
+		if err != nil {
+			panic(err)
+		}
+		
 	}
 }
 

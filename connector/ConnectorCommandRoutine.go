@@ -8,7 +8,7 @@ import (
 )
 
 type ConnectorCommandRoutine struct {
-	commandZMsgSlice 				     map[string][]message.CommandMessage					
+	commandZMsgSlice 				     map[string][]CommandMessage					
 	commandWorkerCommands 				 map[string][]string				
 	connectorCommandSendA2W              zmq.Sock
 	connectorCommandSendA2WConnection    string
@@ -114,68 +114,47 @@ func (r ConnectorCommandRoutine) run() err error {
 }
 
 func (r ConnectorCommandRoutine) processCommandSendA2W(command [][]byte) err error {
-	command = r.updateHeaderCommandSendA2W(command)
-	r.connectorCommandReceiveW2A.SendMessage(command)
-}
-
-func (r ConnectorCommandRoutine) updateHeaderCommandSendA2W(command [][]byte) err error {
-    currentCommand, err := message.CommandMessage.decodeCommand(command[1])
-    if err != nil {
-        //RESPONSE WORKER
-    }
-    command[0] = currentCommand.sourceConnector
+	commandMessage := CommandMessage.decodeCommand(command[1])
+	commandMessage.sendWith(r.connectorCommandReceiveW2A, commandMessage.sourceConnector)
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err error {
-	command = r.updateHeaderCommandReceiveA2W(command)
-}
+	commandMessage := CommandMessage.decodeCommand(command[1])
+	r.commandZMsgSlice.append(r.commandZMsgSlice[currentCommand.command], commandMessage)
 
-func (r ConnectorCommandRoutine) updateHeaderCommandReceiveA2W(command [][]byte) err error {
-    currentCommand, err := message.CommandMessage.decodeCommand(command[1])
-    if err != nil {
-    }
-	r.commandZMsgSlice.append(r.commandZMsgSlice[currentCommand.command], currentCommand)
 }
 
 func (r ConnectorCommandRoutine) processCommandSendW2A(command [][]byte) err error {
-	command = r.updateHeaderCommandSendW2A(command)
-	r.connectorCommandReceiveW2A.SendMessage(command)
-}
-
-func (r ConnectorCommandRoutine) updateHeaderCommandSendW2A(command [][]byte) err error {
-    //TODO NOTHING
+	commandMessage := CommandMessage.decodeCommand(command[1])
+	commandMessage.sendWith(r.connectorCommandReceiveW2A)
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err error {
-    workerTarget := command[0]
+    workerSource := command[0]
     if command[1] == Constant.COMMAND_READY {
-        commands := command[2]
-        workerCommand, err := r.getCommandByWorkerCommands(workerTarget)
+        //commandReady := decodeCommandReady(command[2])
+        commandMessage, err := r.getCommandByWorkerCommands(workerSource)
         if err != nil {
         }
-        workerCommand = r.updateHeaderCommandReceiveReadyMessage(workerCommand, workerTarget)
-		r.connectorCommandSendA2W.SendMessage(command)
-    }
+		commandMessage.sendWith(r.connectorCommandSendA2W, workerSource)
+	}
+	else if command[1] == Constant.COMMAND_VALIDATION_FUNCTIONS {
+		commandCommandsEvents := decodeCommandCommandsEvents(command[2])
+		result := r.validationCommandsEvents(commandCommandsEvents.commands , commandCommandsEvents.events)
+        if result {
+			//TODO ADD WORKER
+			commandCommandsEventsReply := CommandCommandsEventsReply.New(result)
+			commandCommandsEventsReply.sendCommandCommandsEventsReplyWith(r.connectorCommandSendA2W)
+        }
+	}
     else {
-        command = r.updateHeaderCommandReceiveW2A(command)
-    	r.connectorCommandSendW2A.SendMessage(command)
+		commandMessage = CommandMessage.decodeCommand(command[1])
+		commandMessage.sourceWorker = workerSource
+		commandMessage.sendWith(r.connectorCommandSendW2A, workerSource)
     }
 }
 
-func (r ConnectorCommandRoutine) updateHeaderCommandReceiveReadyMessage(command [][]byte, worker string) (command [][]byte, err error) {
-	commandMessage = message.CommandMessage.decodeCommand(command[1])
-	commandMessage.sourceWorker = worker
-	command[0] = worker
-
-	return command;
-}
-
-func (r ConnectorCommandRoutine) updateHeaderCommandReceiveW2A(command [][]byte) (command [][]byte, err error) {
-       command = append(command[:0][], s[0+1][]...)
-       return command
-}
-
-func (r ConnectorCommandRoutine) getCommandByWorkerCommands(String worker) (commandMessage message.CommandMessage, err error) {
+func (r ConnectorCommandRoutine) getCommandByWorkerCommands(String worker) (commandMessage CommandMessage, err error) {
 	
 	var maxCommand string
 	maxTimestamp := -1
@@ -206,4 +185,23 @@ func (r ConnectorCommandRoutine) getCommandZMsgSlice(String command) (commandMes
     if commandMessage, ok := r.commandZMsgSlice[command]; ok {
 		return commandMessage
 	}
+}
+
+func (r ConnectorCommandRoutine) validationCommandsEvents(commands, events []string) (result bool, err error) {
+	//TODO
+	result &= r.validationCommands(commands)
+	result &= r.validationEvents(events)
+	return
+}
+
+func (r ConnectorCommandRoutine) validationCommands(commands []string) (result bool, err error) {
+	//TODO
+	result := true
+	return
+}
+
+func (r ConnectorCommandRoutine) validationEvents(events []string) (result bool, err error) {
+	//TODO
+	result := true
+	return
 }

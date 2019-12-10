@@ -84,37 +84,18 @@ func (r ClusterEventRoutine) run() err error {
 }
 
 func (r ClusterEventRoutine) processEventSend(event [][]byte) err error {
-	r.processCaptureEventSend(event)
+	eventMessage := EventMessage.decodeEvent(event[1])
+	r.processCaptureEvent(eventMessage)
+	eventMessage.sendWith(r.clusterEventReceive)
 
-	event = r.updateHeaderEventSend(event)
-	r.clusterEventReceive.SendMessage(event)
-}
-
-func (r ClusterEventRoutine) processCaptureEventSend(event [][]byte) err error {
-	event = r.updateHeaderCaptureEvent(event)
-	r.clusterEventCapture.SendMessage(event)
-}
-
-func (r ClusterEventRoutine) updateHeaderEventSend(event [][]byte) err error {
-    //TODO NOTHING
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) err error {
-	r.processEventCapture(event)
-
-	event = r.updateHeaderEventReceive(event)
-	r.clusterEventSend.SendMessage(event)
+	eventMessage := EventMessage.decodeEvent(event[1])
+	r.processCaptureEvent(eventMessage)
+	eventMessage.sendEventWith(r.clusterEventSend)
 }
 
-func (r ClusterEventRoutine) processCaptureEventReceive(event [][]byte) err error {
-	event = r.updateHeaderCaptureEvent(event)
-	r.clusterEventCapture.SendMessage(event)
-}
-
-func (r ClusterEventRoutine) updateHeaderEventReceive(event [][]byte) err error {
-    //TODO NOTHING
-}
-
-func (r ClusterCommandRoutine) updateHeaderCaptureEvent(event [][]byte) err error {
-	  event[0] = Constant.WORKER_SERVICE_CLASS_CAPTURE
+func (r ClusterEventRoutine) processCaptureEvent(eventMessage EventMessage) err error {
+	eventMessage.sendEventWith(r.clusterEventCapture , Constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

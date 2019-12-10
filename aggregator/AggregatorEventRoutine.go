@@ -114,33 +114,22 @@ func (r AggregatorEventRoutine) run() err error {
 }
 
 func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
-	event = r.updateHeaderEventSendC2CL(command)
-}
-
-func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) err error {
-    //TODO NOTHING
+	eventMessage = EventMessage.decodeEvent(event[1])
+	eventMessage.sendEventWith(r.aggregatorEventSendC2CL)
 }
 
 func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
-	event = r.updateHeaderEventReceiveC2CL(event)
-}
-
-func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) err error {
-    //TODO NOTHING
+	eventMessage = EventMessage.decodeEvent(event[1])
+	eventMessage.sendEventWith(r.aggregatorEventReceiveC2CL)
 }
 
 func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
-	event = r.updateHeaderEventSendC2CL(event)
-}
-
-func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) err error {
-    //TODO NOTHING
+	eventMessage = EventMessage.decodeEvent(event[1])
+	eventMessage.sendEventWith(r.aggregatorEventSendCL2C)
 }
 
 func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
-	event = r.updateHeaderEventReceiveC2CL(event)
+	eventMessage = EventMessage.decodeEvent(event[1])
+	eventMessage.sendEventWith(r.aggregatorEventReceiveCL2C)
 }
 
-func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) err error {
-    //TODO NOTHING
-}

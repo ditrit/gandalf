@@ -2,7 +2,7 @@ package message
 
 import (
 	"fmt"
-
+	"constant"
 	msgpack "github.com/shamaton/msgpack"
 )
 
@@ -38,7 +38,16 @@ func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, 
 	c.timestamp = time.Now()
 }
 
-func (c CommandMessage) sendWith(socket zmq.Sock) err error {
+func (c CommandMessage) sendWith(socket zmq.Sock, header string) {
+	cr.sendHeaderWith(socket, header)
+	cr.sendCommandWith(socket)
+}
+
+func (c CommandMessage) sendHeaderWith(socket zmq.Sock, header string) {
+	zmq_send(socket, header, ZMQ_SNDMORE);
+}
+
+func (c CommandMessage) sendCommandWith(socket zmq.Sock) {
 	zmq_send(socket, encode(c), 0);
 }
 
@@ -63,11 +72,6 @@ func (c CommandMessage) from(command []byte) err error {
     c.payload = command[17]
 }
 
-func (c Command) reply(socket zmq.Sock, reply, payload string) err error {
-	commandResponse := CommandResponse.from(c, reply, payload)
-	commandResponse.sendWith(socket)
-}
-
 //
 
 type CommandReply struct {
@@ -87,7 +91,16 @@ type CommandReply struct {
     payload    string
 }
 
-func (cr CommandReply) sendWith(socket zmq.Sock) {
+func (cr CommandReply) sendWith(socket zmq.Sock, header string) {
+	cr.sendHeaderWith(socket, header)
+	cr.sendCommandReplyWith(socket)
+}
+
+func (cr CommandReply) sendHeaderCommandReplyWith(socket zmq.Sock, header string) {
+	zmq_send(socket, header, ZMQ_SNDMORE);
+}
+
+func (cr CommandReply) sendCommandReplyWith(socket zmq.Sock) {
 	zmq_send(socket, encode(cr), 0);
 }
 
@@ -121,7 +134,7 @@ func (cce CommandCommandsEvents) New(commands, events []string) err error {
 }
 
 func (cce CommandCommandsEvents) sendWith(socket zmq.Sock) {
-	zmq_send(socket, "validation", ZMQ_SNDMORE);
+	zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS, ZMQ_SNDMORE);
 	zmq_send(socket, encode(cce), 0);
 }
 
@@ -135,8 +148,17 @@ func (ccer CommandCommandsEventsReply) New(validation bool) err error {
 	ccer.validation = validation
 }
 
-func (ccer CommandCommandsEventsReply) sendWith(socket zmq.Sock) {
-	zmq_send(socket, "validation_reply", ZMQ_SNDMORE);
+func (ccer CommandCommandsEventsReply) sendWith(socket zmq.Sock, header string) {
+	ccer.sendHeaderWith(socket, header)
+	ccer.sendCommandCommandsEventsReplyWith(socket)
+}
+
+func (ccer CommandCommandsEventsReply) sendHeaderWith(socket zmq.Sock, header string) {
+	zmq_send(socket, header, ZMQ_SNDMORE);
+}
+
+func (ccer CommandCommandsEventsReply) sendCommandCommandsEventsReplyWith(socket zmq.Sock) {
+	zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, ZMQ_SNDMORE);
 	zmq_send(socket, encode(ccer), 0);
 }
 
@@ -150,7 +172,7 @@ func (cry CommandReady) New() err error {
 }
 
 func (cry CommandReady) sendWith(socket zmq.Sock) {
-	zmq_send(socket, "ready", ZMQ_SNDMORE);
+	zmq_send(socket, constant.COMMAND_READY, ZMQ_SNDMORE);
 	zmq_send(socket, encode(cry), 0);
 }
 
@@ -194,6 +216,15 @@ func decodeCommandReady(bytesContent []byte) (commandReady CommandReady, command
 
 func decodeCommandCommandsEvents(bytesContent []byte) (commandCommandsEvents CommandCommandsEvents, commandError error) {
 	err := msgpack.Decode(bytesContent, commandCommandsEvents)
+	if err != nil {
+		commandError = fmt.Errorf("CommandResponse %s", err)
+		return
+	}
+	return
+}
+
+func decodeCommandCommandsEventsReply(bytesContent []byte) (commandCommandsEventsReply CommandCommandsEventsReply, commandError error) {
+	err := msgpack.Decode(bytesContent, commandCommandsEventsReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return

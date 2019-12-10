@@ -24,7 +24,18 @@ func (e EventMessage) New(topic, timeout, event, payload string) err error {
 	e.timestamp = time.Now()
 }
 
-func (e EventMessage) sendWith(socket zmq.Sock) err error {
+func (e EventMessage) sendWith(socket zmq.Sock, header string) err error {
+	e.sendHeaderWith(socket, header)
+	e.sendEventWith(socket)
+	zmq_send(socket, e.topic, ZMQ_SNDMORE);
+	zmq_send(socket, e.encodeEvent(e), 0);
+} 
+
+func (e EventMessage) sendHeaderWith(socket zmq.Sock, header string) err error {
+	zmq_send(socket, header, ZMQ_SNDMORE);
+}
+
+func (e EventMessage) sendEventWith(socket zmq.Sock) err error {
 	zmq_send(socket, e.topic, ZMQ_SNDMORE);
 	zmq_send(socket, e.encodeEvent(e), 0);
 }
