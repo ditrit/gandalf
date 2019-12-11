@@ -1,7 +1,7 @@
 package receiver
 
 type ReceiverCommandRoutine struct {
-	replys chan ResponseMessage
+	results chan ResponseMessage
 	workerCommandReceive zmq.Sock
 	receiverCommandConnection string
 	workerEventReceive zmq.Sock
@@ -10,10 +10,11 @@ type ReceiverCommandRoutine struct {
 	commandsRoutine map[string][]CommandFunction					
 }
 
-func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string) err error {
+func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, commandsRoutine map[string][]CommandFunction, results chan) err error {
 	r.identity = identity
 	r.receiverCommandConnection = receiverCommandConnection
-	results := make(chan message.CommandResponse)
+	r.commandsRoutine = commandsRoutine
+	r.results = results
 
 	r.workerCommandReceive = zmq.NewDealer(receiverCommandConnection)
 	r.workerCommandReceive.Identity(r.identity)
@@ -25,14 +26,7 @@ func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string) 
 	if err != nil {
 		panic(err)
 	}
-
 	go r.run()
-
-}
-
-func (r ReceiverCommandRoutine) loadCommandRoutines() err error {
-	//TODO
-	//CHANNEL ADD
 }
 
 func (r ReceiverCommandRoutine) run() err error {

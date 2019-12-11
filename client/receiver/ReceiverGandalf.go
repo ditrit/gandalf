@@ -6,12 +6,18 @@ type ReceiverGandalf struct {
 	receiverEventConnection 	string
 	receiverCommandRoutine 		ReceiverCommandRoutine
 	receiverEventRoutine   		ReceiverEventRoutine
+	results chan ResponseMessage
+	commandsRoutine map[string][]CommandFunction
+	eventsRoutine map[string][]EventFunction
 }
 
-func (rg ReceiverGandalf) New(identity, receiverCommandConnection, receiverEventConnection string) {
+func (rg ReceiverGandalf) New(identity, receiverCommandConnection, receiverEventConnection string, 	commandsRoutine map[string][]CommandFunction, eventsRoutine map[string][]EventFunction, results chan ResponseMessage) {
 	rg.identity = identity
 	rg.receiverCommandConnection = receiverCommandConnection
 	rg.receiverEventRoutine = receiverEventRoutine
-	rg.receiverCommandRoutine = ReceiverCommandRoutine.New(identity, receiverCommandConnection)
-	rg.receiverEventRoutine = ReceiverEventRoutine.New(idenitty, receiverEventConnection)
+	rg.commandsRoutine = commandsRoutine
+	rg.eventsRoutine = eventsRoutine
+	rg.results = results
+	rg.receiverCommandRoutine = ReceiverCommandRoutine.New(rg.identity, rg.receiverCommandConnection, rg.commandsRoutine , rg.results)
+	rg.receiverEventRoutine = ReceiverEventRoutine.New(rg.idenitty, rg.receiverEventConnection, rg.eventsRoutine)
 }

@@ -7,10 +7,11 @@ type ReceiverEventRoutine struct {
 	eventsRoutine map[string][]EventFunction					
 }
 
-func (r ReceiverEventRoutine) New(identity, receiverEventConnection string) err error {
+func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, eventsRoutine map[string][]EventFunction) err error {
 	r.identity = identity
 	r.receiverEventConnection = receiverEventConnection
-	
+	r.eventsRoutine = eventsRoutine
+
 	r.workerEventReceive = zmq.NewSub(receiverEventConnection)
 	r.workerEventReceive.Identity(r.identity)
 	fmt.Printf("workerEventReceive connect : " + receiverEventConnection)
@@ -21,13 +22,7 @@ func (r ReceiverEventRoutine) New(identity, receiverEventConnection string) err 
 	if err != nil {
 		panic(err)
 	}
-
 	go r.run()
-
-}
-
-func (r ReceiverEventRoutine) loadEventRoutines() err error {
-	//TODO
 }
 
 func (r ReceiverEventRoutine) run() err error {
