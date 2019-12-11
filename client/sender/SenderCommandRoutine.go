@@ -39,7 +39,14 @@ func (r SenderCommandRoutine) sendCommandSync(context, timeout, uuid, connectorT
 	if err != nil {
 		panic(err)
 	}
-	commandMessage.sendWith(senderCommandSend)
+	for {
+		isSend = commandMessage.sendWith(senderCommandSend)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
+
 	commandResponse, err := getCommandResultSync(commandMessage.uuid)
 	if err != nil {
 		panic(err)
@@ -64,7 +71,13 @@ func (r SenderCommandRoutine) sendCommandAsync(context, timeout, uuid, connector
 	if err != nil {
 		panic(err)
 	}
-	commandMessage.sendWith(senderCommandSend)
+	for {
+		isSend = commandMessage.sendWith(senderCommandSend)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 	go getCommandResultAsync(commandMessage)
 }
 
