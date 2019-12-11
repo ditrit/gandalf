@@ -86,16 +86,34 @@ func (r ClusterEventRoutine) run() err error {
 func (r ClusterEventRoutine) processEventSend(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	r.processCaptureEvent(eventMessage)
-	eventMessage.sendWith(r.clusterEventReceive)
+	for {
+		isSend = eventMessage.sendWith(r.clusterEventReceive)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	r.processCaptureEvent(eventMessage)
-	eventMessage.sendEventWith(r.clusterEventSend)
+	for {
+		isSend = eventMessage.sendEventWith(r.clusterEventSend)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (r ClusterEventRoutine) processCaptureEvent(eventMessage EventMessage) err error {
-	eventMessage.sendEventWith(r.clusterEventCapture , Constant.WORKER_SERVICE_CLASS_CAPTURE)
+	for {
+		isSend = eventMessage.sendEventWith(r.clusterEventCapture , Constant.WORKER_SERVICE_CLASS_CAPTURE)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }

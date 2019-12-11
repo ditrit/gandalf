@@ -116,17 +116,35 @@ func (r ConnectorEventRoutine) run() err error {
 func (r ConnectorEventRoutine) processEventSendA2W(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	r.addEvents(eventMessage)
-	eventMessage.sendEventWith(r.connectorEventReceiveA2W)
+	for {
+		isSend = eventMessage.sendEventWith(r.connectorEventReceiveA2W)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (r ConnectorEventRoutine) processEventReceiveA2W(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
-	eventMessage.sendEventWith(r.connectorEventSendA2W)
+	for {
+		isSend = eventMessage.sendEventWith(r.connectorEventSendA2W)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (r ConnectorEventRoutine) processEventSendW2A(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
-	eventMessage.sendEventWith(r.connectorEventReceiveW2A)
+	for {
+		isSend = eventMessage.sendEventWith(r.connectorEventReceiveW2A)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (r ConnectorEventRoutine) processEventReceiveW2A(event [][]byte) err error {
@@ -137,12 +155,24 @@ func (r ConnectorEventRoutine) processEventReceiveW2A(event [][]byte) err error 
         if result {
 			r.connectorMapWorkerEvents[workerSource] = events
 			commandFunctionReply := CommandFunctionReply.New(result)
-			commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendA2W)
+			for {
+				isSend = commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendA2W)
+				if isSend {
+					break
+				}
+				time.Sleep(2 * time.Second)
+			}
         }
 	}
 	else {
 		eventMessage := EventMessage.decodeEvent(event[1])
-		eventMessage.sendEventWith(r.connectorEventSendW2A)
+		for {
+			isSend = eventMessage.sendEventWith(r.connectorEventSendW2A)
+			if isSend {
+				break
+			}
+			time.Sleep(2 * time.Second)
+		}
 	}
 }
 

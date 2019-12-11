@@ -89,15 +89,33 @@ func (r ClusterCommandRoutine) processCommandSend(command [][]byte) err error {
 	sourceAggregator := command[0]
 	commandMessage.sourceAggregator = sourceAggregator
 	commandMessage.targetAggregator = target
-	commandMessage.sendCommandWith(r.clusterCommandReceive)
+	for {
+		isSend = commandMessage.sendCommandWith(r.clusterCommandReceive)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) err error {
 	commandMessage = CommandMessage.decodeCommand(comand[1])
 	r.processCaptureCommand(commandMessage)
-	commandMessage.sendWith(r.clusterCommandSend, commandMessage.sourceAggregator)
+	for {
+		isSend = commandMessage.sendWith(r.clusterCommandSend, commandMessage.sourceAggregator)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage CommandMessage) err error {
-	commandMessage.sendWith(r.clusterCommandCapture, Constant.WORKER_SERVICE_CLASS_CAPTURE)
+	for {
+		isSend = commandMessage.sendWith(r.clusterCommandCapture, Constant.WORKER_SERVICE_CLASS_CAPTURE)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }

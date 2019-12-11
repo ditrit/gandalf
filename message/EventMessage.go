@@ -24,20 +24,24 @@ func (e EventMessage) New(topic, timeout, event, payload string) err error {
 	e.timestamp = time.Now()
 }
 
-func (e EventMessage) sendWith(socket zmq.Sock, header string) err error {
-	e.sendHeaderWith(socket, header)
-	e.sendEventWith(socket)
-	zmq_send(socket, e.topic, ZMQ_SNDMORE);
-	zmq_send(socket, e.encodeEvent(e), 0);
+func (e EventMessage) sendWith(socket zmq.Sock, header string) isSend bool {
+	validation = e.sendHeaderWith(socket, header)
+	validation += e.sendEventWith(socket)
+	isSend := validation > 0 ? true : false
+	return
 } 
 
-func (e EventMessage) sendHeaderWith(socket zmq.Sock, header string) err error {
-	zmq_send(socket, header, ZMQ_SNDMORE);
+func (e EventMessage) sendHeaderWith(socket zmq.Sock, header string) isSend bool {
+	validation = zmq_send(socket, header, ZMQ_SNDMORE);
+	isSend := validation > 0 ? true : false
+	return
 }
 
-func (e EventMessage) sendEventWith(socket zmq.Sock) err error {
-	zmq_send(socket, e.topic, ZMQ_SNDMORE);
-	zmq_send(socket, e.encodeEvent(e), 0);
+func (e EventMessage) sendEventWith(socket zmq.Sock) isSend bool {
+	validation = zmq_send(socket, e.topic, ZMQ_SNDMORE);
+	validation += zmq_send(socket, e.encodeEvent(e), 0);
+	isSend := validation > 0 ? true : false
+	return
 }
 
 func (e EventMessage) from(event []byte) err error {

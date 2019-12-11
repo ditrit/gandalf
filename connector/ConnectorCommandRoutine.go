@@ -118,18 +118,29 @@ func (r ConnectorCommandRoutine) run() err error {
 func (r ConnectorCommandRoutine) processCommandSendA2W(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	r.addCommands(commandMessage)
-	commandMessage.sendWith(r.connectorCommandReceiveW2A, commandMessage.sourceConnector)
+	for {
+		isSend = commandMessage.sendWith(r.connectorCommandReceiveW2A, commandMessage.sourceConnector)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	r.connectorMapUUIDCommandMessage.append(r.connectorMapUUIDCommandMessage[currentCommand.command], commandMessage)
-
 }
 
 func (r ConnectorCommandRoutine) processCommandSendW2A(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
-	commandMessage.sendWith(r.connectorCommandReceiveW2A)
+	for {
+		isSend = commandMessage.sendWith(r.connectorCommandReceiveW2A)
+		if isSend {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err error {
@@ -139,7 +150,13 @@ func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err 
         commandMessage, err := r.getCommandByWorkerCommands(workerSource)
         if err != nil {
         }
-		commandMessage.sendWith(r.connectorCommandSendA2W, workerSource)
+		for {
+			isSend = commandMessage.sendWith(r.connectorCommandSendA2W, workerSource)
+			if isSend {
+				break
+			}
+			time.Sleep(2 * time.Second)
+		}
 	}
 	else if command[1] == Constant.COMMAND_VALIDATION_FUNCTIONS {
 		commandFunction := decodeCommandFunction(command[2])
@@ -147,13 +164,25 @@ func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err 
         if result {
 			r.connectorMapWorkerCommands[workerSource] = commands 
 			commandFunctionReply := CommandFunctionReply.New(result)
-			commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendA2W)
+			for {
+				isSend = commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendA2W)
+				if isSend {
+					break
+				}
+				time.Sleep(2 * time.Second)
+			}
         }
 	}
     else {
 		commandMessage = CommandMessage.decodeCommand(command[1])
 		commandMessage.sourceWorker = workerSource
-		commandMessage.sendWith(r.connectorCommandSendW2A, workerSource)
+		for {
+			isSend = commandMessage.sendWith(r.connectorCommandSendW2A, workerSource)
+			if isSend {
+				break
+			}
+			time.Sleep(2 * time.Second)
+		}
     }
 }
 
