@@ -53,6 +53,7 @@ func (r WorkerRoutine) loadCommandRoutines() err error {
 
 func (r WorkerRoutine) loadEventRoutines() err error {
 	//TODO
+	
 }
 
 func (r WorkerRoutine) run() err error {

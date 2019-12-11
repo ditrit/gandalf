@@ -1,13 +1,13 @@
 package library
 
 type LibraryGandalf struct {
-	clientGandalf   ClientGandalf
+	senderGandalf   SenderGandalf
 	listenerGandalf ListenerGandalf
 }
 
 func (lg LibraryGandalf) main() {
 	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
 	//LOAD CONF
-	cg.clientGandalf = ClientGandalf.new()
+	cg.senderGandalf = SenderGandalf.new()
 	cg.listenerGandalf = ListenerGandalf.new()
 }

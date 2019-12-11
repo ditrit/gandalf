@@ -8,8 +8,8 @@ import (
 )
 
 type ConnectorCommandRoutine struct {
-	connectorMapUUIDCommandMessage		     map[string][]CommandMessage					
-	connectorMapWorkerCommands 				 map[string][]string				
+	connectorMapUUIDCommandMessage		 map[string][]CommandMessage					
+	connectorMapWorkerCommands 			 map[string][]string				
 	connectorCommandSendA2W              zmq.Sock
 	connectorCommandSendA2WConnection    string
 	connectorCommandReceiveA2W           zmq.Sock
