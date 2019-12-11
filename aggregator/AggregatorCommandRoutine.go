@@ -119,8 +119,6 @@ func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err e
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	commandMessage.sourceConnector = sourceConnector
 	commandMessage.sourceAggreagator = r.identity
-
-	commandMessage.sendCommandWith(r.connectorCommandReceiveC2CL)
 	for {
 		isSend = commandMessage.sendCommandWith(r.connectorCommandReceiveC2CL)
 		if isSend {
@@ -133,7 +131,6 @@ func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err e
 
 func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
-	commandMessage.sendCommandWith(r.connectorCommandSendC2CL)
 	for {
 		isSend = commandMessage.sendCommandWith(r.connectorCommandSendC2CL)
 		if isSend {
@@ -145,7 +142,6 @@ func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) er
 
 func (r AggregatorCommandRoutine) processCommandSendCL2C(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
-	commandMessage.sendWith(r.connectorCommandReceiveC2CL, commandMessage.sourceConnector)
 	for {
 		isSend = commandMessage.sendWith(r.connectorCommandReceiveC2CL, commandMessage.sourceConnector)
 		if isSend {
