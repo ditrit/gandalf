@@ -23,22 +23,22 @@ type ConnectorEventRoutine struct {
 func (r ConnectorEventRoutine) New(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) err error {
 	r.identity = identity
 	r.connectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
-	r.connectorEventSendToWorker = zmq.NewDealer(connectorEventSendToWorkerConnection)
+	r.connectorEventSendToWorker = zmq.NewXPub(connectorEventSendToWorkerConnection)
 	r.connectorEventSendToWorker.Identity(r.Identity)
 	fmt.Printf("connectorEventSendToWorker connect : " + connectorEventSendToWorkerConnection)
 
 	r.connectorEventReceiveFromAggregatorConnection = connectorEventReceiveFromAggregatorConnection
-	r.connectorEventReceiveFromAggregator = zmq.NewRouter(connectorEventReceiveFromAggregatorConnection)
+	r.connectorEventReceiveFromAggregator = zmq.NewXSub(connectorEventReceiveFromAggregatorConnection)
 	r.connectorEventReceiveFromAggregator.Identity(r.Identity)
 	fmt.Printf("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
 
 	r.connectorEventSendToAggregatorConnection = connectorEventSendToAggregatorConnection
-	r.connectorEventSendToAggregator = zmq.NewDealer(connectorEventSendToAggregatorConnection)
+	r.connectorEventSendToAggregator = zmq.NewXPub(connectorEventSendToAggregatorConnection)
 	r.connectorEventSendToAggregator.Identity(r.Identity)
 	fmt.Printf("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
 
 	r.connectorEventReceiveFromWorkerConnection = connectorEventReceiveFromWorkerConnection
-	r.connectorEventReceiveFromWorker = zmq.NewRouter(connectorEventReceiveFromWorkerConnection)
+	r.connectorEventReceiveFromWorker = zmq.NewXSub(connectorEventReceiveFromWorkerConnection)
 	r.connectorEventReceiveFromWorker.Identity(r.Identity)
 	fmt.Printf("connectorEventReceiveFromWorker connect : " + connectorEventReceiveFromWorkerConnection)
 }

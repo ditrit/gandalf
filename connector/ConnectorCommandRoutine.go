@@ -8,38 +8,38 @@ import (
 )
 
 type ConnectorCommandRoutine struct {
-	connectorMapUUIDCommandMessage		 map[string][]CommandMessage					
-	connectorMapWorkerCommands 			 map[string][]string				
-	connectorCommandSendToWorker              zmq.Sock
-	connectorCommandSendToWorkerConnection    string
-	connectorCommandReceiveFromAggregator           zmq.Sock
-	connectorCommandReceiveFromAggregatorConnection string
-	connectorCommandSendToAggregator              zmq.Sock
-	connectorCommandSendToAggregatorConnection    string
-	connectorCommandReceiveFromWorker           zmq.Sock
-	connectorCommandReceiveFromWorkerConnection string
-	identity                              string
+	connectorMapUUIDCommandMessage		 				map[string][]CommandMessage					
+	connectorMapWorkerCommands 			 				map[string][]string				
+	connectorCommandSendToWorker              			zmq.Sock
+	connectorCommandSendToWorkerConnection    			string
+	connectorCommandReceiveFromAggregator           	zmq.Sock
+	connectorCommandReceiveFromAggregatorConnections 	[]string
+	connectorCommandSendToAggregator              		zmq.Sock
+	connectorCommandSendToAggregatorConnections    		[]string
+	connectorCommandReceiveFromWorker           		zmq.Sock
+	connectorCommandReceiveFromWorkerConnection 		string
+	identity                              				string
 }
 
-func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromAggregatorConnection, connectorCommandSendToAggregatorConnection, connectorCommandReceiveFromWorkerConnection string) err error {
+func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections, connectorCommandReceiveFromWorkerConnection string) err error {
 	r.identity = identity
 	r.connectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
-	r.connectorCommandSendToWorker = zmq.NewDealer(r.connectorCommandSendToWorkerConnection)
+	r.connectorCommandSendToWorker = zmq.NewRouter(r.connectorCommandSendToWorkerConnection)
 	r.connectorCommandSendToWorker.Identity(r.identity)
 	fmt.Printf("connectorCommandSendToWorker connect : " + connectorCommandSendToWorkerConnection)
 
-	r.connectorCommandReceiveFromAggregatorConnection = connectorCommandReceiveFromAggregatorConnection
-	r.connectorCommandReceiveFromAggregator = zmq.NewRouter(connectorCommandReceiveFromAggregatorConnection)
+	r.connectorCommandReceiveFromAggregatorConnections = connectorCommandReceiveFromAggregatorConnections
+	r.connectorCommandReceiveFromAggregator = zmq.NewDealer(connectorCommandReceiveFromAggregatorConnections)
 	r.connectorCommandReceiveFromAggregator.Identity(r.identity)
-	fmt.Printf("connectorCommandReceiveFromAggregator connect : " + connectorCommandReceiveFromAggregatorConnection)
+	fmt.Printf("connectorCommandReceiveFromAggregator connect : " + connectorCommandReceiveFromAggregatorConnections)
 
-	r.connectorCommandSendToAggregatorConnection = connectorCommandSendToAggregatorConnection
-	r.connectorCommandSendToAggregator = zmq.NewDealer(connectorCommandSendToAggregatorConnection)
+	r.connectorCommandSendToAggregatorConnections = connectorCommandSendToAggregatorConnections
+	r.connectorCommandSendToAggregator = zmq.NewRouter(connectorCommandSendToAggregatorConnections)
 	r.connectorCommandSendToAggregator.Identity(r.identity)
-	fmt.Printf("connectorCommandSendToAggregator connect : " + connectorCommandSendToAggregatorConnection)
+	fmt.Printf("connectorCommandSendToAggregator connect : " + connectorCommandSendToAggregatorConnections)
 
 	r.connectorCommandReceiveFromWorkerConnection = connectorCommandReceiveFromWorkerConnection
-	r.connectorCommandReceiveFromWorker = zmq.NewRouter(connectorCommandReceiveFromWorkerConnection)
+	r.connectorCommandReceiveFromWorker = zmq.NewDealer(connectorCommandReceiveFromWorkerConnection)
 	r.connectorCommandReceiveFromWorker.Identity(r.identity)
 	fmt.Printf("connectorCommandReceiveFromWorker connect : " + connectorCommandReceiveFromWorkerConnection)
 }
