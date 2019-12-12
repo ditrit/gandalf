@@ -35,7 +35,7 @@ func (r SenderEventRoutine) sendEvent(topic, timeout, event, payload string) err
 	if err != nil {
 		panic(err)
 	}
-	eventMessage.sendWith(senderEventSend)
+	go eventMessage.sendWith(senderEventSend)
 }
 
 func (r SenderEventRoutine) close() err error {

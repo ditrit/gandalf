@@ -79,12 +79,12 @@ func (r ReceiverCommandRoutine) sendValidationFunctions()  {
         functionkeys = append(functionkeys, key)
 	}
 	commandFunction := CommandFunction.New(keys)
-	commandFunction.sendWith(r.workerCommandReceive)
+	go commandFunction.sendWith(r.workerCommandReceive)
 }
 
 func (r ReceiverCommandRoutine) sendReadyCommand() () {
 	commandReady := CommandReady.New()
-	commandReady.sendWith(r.workerCommandReceive)
+	go commandReady.sendWith(r.workerCommandReceive)
 }
 
 func (r ReceiverCommandRoutine) processCommandReceive(command [][]byte) () {
@@ -108,6 +108,6 @@ func (r ReceiverCommandRoutine) sendResults() err error {
 		if err != nil {
 			
 		} 
-		reply.sendWith(workerCommandReceive)
+		go reply.sendWith(workerCommandReceive)
 	}
 }

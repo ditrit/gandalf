@@ -38,23 +38,35 @@ func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, 
 	c.timestamp = time.Now()
 }
 
-func (c CommandMessage) sendWith(socket zmq.Sock, header string) isSend bool {
-	validation = cr.sendHeaderWith(socket, header)
-	validation += cr.sendCommandWith(socket)
-	isSend := validation > 0 ? true : false
-	return
+func (c CommandMessage) sendWith(socket zmq.Sock, header string) {
+	for {
+		isSend = cr.sendHeaderWith(socket, header)
+		isSend += cr.sendCommandWith(socket)
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
-func (c CommandMessage) sendHeaderWith(socket zmq.Sock, header string) isSend bool {
-	validation = zmq_send(socket, header, ZMQ_SNDMORE);
-	isSend := validation > 0 ? true : false
-	return
+func (c CommandMessage) sendHeaderWith(socket zmq.Sock, header string) {
+	for {
+		isSend = zmq_send(socket, header, ZMQ_SNDMORE);
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
-func (c CommandMessage) sendCommandWith(socket zmq.Sock) isSend bool {
-	validation = zmq_send(socket, encode(c), 0);
-	isSend := validation > 0 ? true : false
-	return
+func (c CommandMessage) sendCommandWith(socket zmq.Sock) {
+	for {
+		isSend = zmq_send(socket, encode(c), 0);
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (c CommandMessage) from(command []byte) err error {
@@ -97,23 +109,35 @@ type CommandReply struct {
     payload    string
 }
 
-func (cr CommandReply) sendWith(socket zmq.Sock, header string) isSend bool {
-	validation = cr.sendHeaderWith(socket, header)
-	validation += cr.sendCommandReplyWith(socket)
-	isSend := validation > 0 ? true : false
-	return
+func (cr CommandReply) sendWith(socket zmq.Sock, header string) {
+	for {
+		isSend = cr.sendHeaderWith(socket, header)
+		isSend += cr.sendCommandReplyWith(socket)
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
-func (cr CommandReply) sendHeaderCommandReplyWith(socket zmq.Sock, header string) isSend bool {
-	validation = zmq_send(socket, header, ZMQ_SNDMORE);
-	isSend := validation > 0 ? true : false
-	return
+func (cr CommandReply) sendHeaderCommandReplyWith(socket zmq.Sock, header string) {
+	for {
+		isSend = zmq_send(socket, header, ZMQ_SNDMORE);
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
-func (cr CommandReply) sendCommandReplyWith(socket zmq.Sock) isSend bool {
-	validation = zmq_send(socket, encode(cr), 0);
-	isSend := validation > 0 ? true : false
-	return
+func (cr CommandReply) sendCommandReplyWith(socket zmq.Sock) {
+	for {
+		isSend = zmq_send(socket, encode(cr), 0);
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (cr CommandReply) from(commandMessage CommandMessage, reply, payload string) {
@@ -143,11 +167,15 @@ func (cf CommandFunction) New(functions []string) err error {
 	cf.functions = functions
 }
 
-func (cf CommandFunction) sendWith(socket zmq.Sock) isSend bool {
-	validation = zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS, ZMQ_SNDMORE);
-	validation += zmq_send(socket, encode(cf), 0);
-	isSend := validation > 0 ? true : false
-	return
+func (cf CommandFunction) sendWith(socket zmq.Sock) {
+	for {
+		isSend = zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS, ZMQ_SNDMORE);
+		isSend += zmq_send(socket, encode(cf), 0);
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 //
@@ -160,24 +188,36 @@ func (cfr CommandFunctionReply) New(validation bool) err error {
 	cfr.validation = validation
 }
 
-func (cfr CommandFunctionReply) sendWith(socket zmq.Sock, header string) isSend bool {
-	validation = cfr.sendHeaderWith(socket, header)
-	validation += cfr.sendCommandCommandsEventsReplyWith(socket)
-	isSend := validation > 0 ? true : false
-	return
+func (cfr CommandFunctionReply) sendWith(socket zmq.Sock, header string) {
+	for {
+		isSend = cfr.sendHeaderWith(socket, header)
+		isSend += cfr.sendCommandCommandsEventsReplyWith(socket)
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
-func (cfr CommandFunctionReply) sendHeaderWith(socket zmq.Sock, header string) isSend bool {
-	validation = zmq_send(socket, header, ZMQ_SNDMORE);
-	isSend := validation > 0 ? true : false
-	return
+func (cfr CommandFunctionReply) sendHeaderWith(socket zmq.Sock, header string) {
+	for {
+		isSend = zmq_send(socket, header, ZMQ_SNDMORE);
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
-func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket zmq.Sock) isSend bool {
-	validation = zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, ZMQ_SNDMORE);
-	validation += zmq_send(socket, encode(ccer), 0);
-	isSend := validation > 0 ? true : false
-	return
+func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket zmq.Sock) {
+	for {
+		isSend = zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, ZMQ_SNDMORE);
+		isSend += zmq_send(socket, encode(ccer), 0);
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 //
@@ -189,11 +229,15 @@ type CommandReady struct {
 func (cry CommandReady) New() err error {
 }
 
-func (cry CommandReady) sendWith(socket zmq.Sock) isSend bool {
-	validation = zmq_send(socket, constant.COMMAND_READY, ZMQ_SNDMORE);
-	validation += zmq_send(socket, encode(cry), 0);
-	isSend := validation > 0 ? true : false
-	return
+func (cry CommandReady) sendWith(socket zmq.Sock) {
+	for {
+		isSend = zmq_send(socket, constant.COMMAND_READY, ZMQ_SNDMORE);
+		isSend += zmq_send(socket, encode(cry), 0);
+		if isSend > 0 {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 //

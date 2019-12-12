@@ -115,45 +115,23 @@ func (r AggregatorEventRoutine) run() err error {
 
 func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])
-	for {
-		isSend = eventMessage.sendEventWith(r.aggregatorEventSendC2CL)
-		if isSend {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
+	go eventMessage.sendEventWith(r.aggregatorEventSendC2CL)
+
 }
 
 func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])	
-	for {
-		isSend = eventMessage.sendEventWith(r.aggregatorEventReceiveC2CL)
-		if isSend {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
+	go eventMessage.sendEventWith(r.aggregatorEventReceiveC2CL)
+
 }
 
 func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])
-	for {
-		isSend = eventMessage.sendEventWith(r.aggregatorEventSendCL2C)
-		if isSend {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
+	go eventMessage.sendEventWith(r.aggregatorEventSendCL2C)
 }
 
 func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])
-	for {
-		isSend = eventMessage.sendEventWith(r.aggregatorEventReceiveCL2C)
-		if isSend {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
+	go eventMessage.sendEventWith(r.aggregatorEventReceiveCL2C)
 }
 

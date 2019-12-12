@@ -119,48 +119,27 @@ func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) err e
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	commandMessage.sourceConnector = sourceConnector
 	commandMessage.sourceAggreagator = r.identity
-	for {
-		isSend = commandMessage.sendCommandWith(r.connectorCommandReceiveC2CL)
-		if isSend {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
+	go commandMessage.sendCommandWith(r.connectorCommandReceiveC2CL)
+
 	 //RESULT TO CLUSTER
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
-	for {
-		isSend = commandMessage.sendCommandWith(r.connectorCommandSendC2CL)
-		if isSend {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
+	go commandMessage.sendCommandWith(r.connectorCommandSendC2CL)
+
 }
 
 func (r AggregatorCommandRoutine) processCommandSendCL2C(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
-	for {
-		isSend = commandMessage.sendWith(r.connectorCommandReceiveC2CL, commandMessage.sourceConnector)
-		if isSend {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
+	go commandMessage.sendWith(r.connectorCommandReceiveC2CL, commandMessage.sourceConnector)
+
     //COMMAND
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveCL2C(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
-	for {
-		isSend = commandMessage.sendWith(r.connectorCommandReceiveC2CL, commandMessage.targetConnector)
-		if isSend {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
+	go commandMessage.sendWith(r.connectorCommandReceiveC2CL, commandMessage.targetConnector)
 	//RECEIVE FROM CONNECTOR
 }
 

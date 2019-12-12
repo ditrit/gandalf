@@ -72,7 +72,7 @@ func (r ReceiverEventRoutine) sendValidationFunctions()
         functionkeys = append(functionkeys, key)
 	}
 	commandFunction := CommandFunction.New(functionkeys)
-	commandFunction.sendWith(r.workerEventReceive)
+	go commandFunction.sendWith(r.workerEventReceive)
 }
 
 func (r ReceiverEventRoutine) processEventReceive(event [][]byte) () {
