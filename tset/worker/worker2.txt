@@ -1,7 +1,7 @@
 {
-	"senderCommandConnection": "127.0.0.1:9130",
-	"senderEventConnection": "127.0.0.1:9130",
-	"receiverCommandConnection": "127.0.0.1:9130",
-	"receiverEventConnection": "127.0.0.1:9130",
+	"senderCommandConnection": "127.0.0.1::9241",
+	"senderEventConnection": "127.0.0.1:9240",
+	"receiverCommandConnection": "127.0.0.1:9251",
+	"receiverEventConnection": "127.0.0.1:9250",
 	"identity": "worker2"
 }
