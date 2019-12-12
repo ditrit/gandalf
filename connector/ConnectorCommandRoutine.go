@@ -74,7 +74,7 @@ func (r ConnectorCommandRoutine) run() err error {
 				panic(err)
 			}
 
-			err = r.processCommandSendA2W(command)
+			err = r.processCommandSendToWorker(command)
 			if err != nil {
 				panic(err)
 			}
@@ -85,7 +85,7 @@ func (r ConnectorCommandRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processCommandReceiveA2W(command)
+			err = r.processCommandReceiveFromAggregator(command)
 			if err != nil {
 				panic(err)
 			}
@@ -96,7 +96,7 @@ func (r ConnectorCommandRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processCommandSendW2A(command)
+			err = r.processCommandSendAggregator(command)
 			if err != nil {
 				panic(err)
 			}
@@ -107,7 +107,7 @@ func (r ConnectorCommandRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processCommandReceiveW2A(command)
+			err = r.processCommandReceiveFromWorker(command)
 			if err != nil {
 				panic(err)
 			}
@@ -115,23 +115,23 @@ func (r ConnectorCommandRoutine) run() err error {
 	}
 }
 
-func (r ConnectorCommandRoutine) processCommandSendA2W(command [][]byte) err error {
+func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	r.addCommands(commandMessage)
-	go commandMessage.sendWith(r.connectorCommandReceiveFromWorker, commandMessage.sourceConnector)
+	go commandMessage.sendWith(r.connectorCommandReceiveFromCluster, commandMessage.sourceConnector)
 }
 
-func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err error {
+func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	r.connectorMapUUIDCommandMessage.append(r.connectorMapUUIDCommandMessage[currentCommand.command], commandMessage)
 }
 
-func (r ConnectorCommandRoutine) processCommandSendW2A(command [][]byte) err error {
+func (r ConnectorCommandRoutine) processCommandSendAggregator(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	go commandMessage.sendWith(r.connectorCommandReceiveFromWorker)
 }
 
-func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err error {
+func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byte) err error {
     workerSource := command[0]
     if command[1] == Constant.COMMAND_READY {
         //commandReady := decodeCommandReady(command[2])

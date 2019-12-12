@@ -72,7 +72,7 @@ func (r ConnectorEventRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processEventSendA2W(event)
+			err = r.processEventSendToWorker(event)
 			if err != nil {
 				panic(err)
 			}
@@ -83,7 +83,7 @@ func (r ConnectorEventRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processEventReceiveA2W(event)
+			err = r.processEventReceiveFromAggregator(event)
 			if err != nil {
 				panic(err)
 			}
@@ -94,7 +94,7 @@ func (r ConnectorEventRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processEventSendW2A(event)
+			err = r.processEventSendToAggregator(event)
 			if err != nil {
 				panic(err)
 			}
@@ -105,7 +105,7 @@ func (r ConnectorEventRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processEventReceiveW2A(event)
+			err = r.processEventReceiveFromWorker(event)
 			if err != nil {
 				panic(err)
 			}
@@ -113,23 +113,23 @@ func (r ConnectorEventRoutine) run() err error {
 	}
 }
 
-func (r ConnectorEventRoutine) processEventSendA2W(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	r.addEvents(eventMessage)
 	go eventMessage.sendEventWith(r.connectorEventReceiveFromAggregator)
 }
 
-func (r ConnectorEventRoutine) processEventReceiveA2W(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	go eventMessage.sendEventWith(r.connectorEventSendToWorker)
 }
 
-func (r ConnectorEventRoutine) processEventSendW2A(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) err error {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	go eventMessage.sendEventWith(r.connectorEventReceiveFromWorker)
 }
 
-func (r ConnectorEventRoutine) processEventReceiveW2A(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) err error {
 	
 	if event[0] == Constant.COMMAND_VALIDATION_FUNCTIONS {
 		commandFunctions := decodeCommandCommandsEvents(command[2])
@@ -137,7 +137,7 @@ func (r ConnectorEventRoutine) processEventReceiveW2A(event [][]byte) err error 
         if result {
 			r.connectorMapWorkerEvents[workerSource] = events
 			commandFunctionReply := CommandFunctionReply.New(result)
-			go commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendA2W)
+			go commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendToWorker)
         }
 	}
 	else {
