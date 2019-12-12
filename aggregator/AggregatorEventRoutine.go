@@ -7,55 +7,55 @@ import (
 )
 
 type AggregatorEventRoutine struct {
-	aggregatorEventSendC2CL              zmq.Sock
-	aggregatorEventSendC2CLConnection    string
-	aggregatorEventReceiveC2CL           zmq.Sock
-	aggregatorEventReceiveC2CLConnection string
-	aggregatorEventSendCL2C              zmq.Sock
-	aggregatorEventSendCL2CConnection    string
-	aggregatorEventReceiveCL2C           zmq.Sock
-	aggregatorEventReceiveCL2CConnection string
+	aggregatorEventSendToCluster              zmq.Sock
+	aggregatorEventSendToClusterConnection    string
+	aggregatorEventReceiveFromConnector           zmq.Sock
+	aggregatorEventReceiveFromConnectorConnection string
+	aggregatorEventSendToConnector              zmq.Sock
+	aggregatorEventSendToConnectorConnection    string
+	aggregatorEventReceiveFromCluster           zmq.Sock
+	aggregatorEventReceiveFromClusterConnection string
 	identity                             string
 }
 
-func (r AggregatorEventRoutine) New(identity, aggregatorEventSendC2CLConnection, aggregatorEventReceiveC2CLConnection, aggregatorEventSendCL2CConnection, aggregatorEventReceiveCL2CConnection string) err error {
+func (r AggregatorEventRoutine) New(identity, aggregatorEventSendToClusterConnection, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection, aggregatorEventReceiveFromClusterConnection string) err error {
 	r.identity = identity
 
-	r.aggregatorEventSendC2CLConnection = aggregatorEventSendC2CLConnection
-	r.aggregatorEventSendC2CL = zmq.NewDealer(aggregatorEventSendC2CLConnection)
-	r.aggregatorEventSendC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorEventSendC2CL connect : " + aggregatorEventSendC2CLConnection)
+	r.aggregatorEventSendToClusterConnection = aggregatorEventSendToClusterConnection
+	r.aggregatorEventSendToCluster = zmq.NewDealer(aggregatorEventSendToClusterConnection)
+	r.aggregatorEventSendToCluster.Identity(r.identity)
+	fmt.Printf("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnection)
 
-	r.aggregatorEventReceiveC2CLConnection = aggregatorEventReceiveC2CLConnection
-	r.aggregatorEventReceiveC2CL = zmq.NewSub(aggregatorEventReceiveC2CLConnection)
-	r.aggregatorEventReceiveC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorEventReceiveC2CL connect : " + aggregatorEventReceiveC2CLConnection)
+	r.aggregatorEventReceiveFromConnectorConnection = aggregatorEventReceiveFromConnectorConnection
+	r.aggregatorEventReceiveFromConnector = zmq.NewSub(aggregatorEventReceiveFromConnectorConnection)
+	r.aggregatorEventReceiveFromConnector.Identity(r.identity)
+	fmt.Printf("aggregatorEventReceiveFromConnector connect : " + aggregatorEventReceiveFromConnectorConnection)
 
-	r.aggregatorEventSendCL2CConnection = aggregatorEventSendCL2CConnection
-	r.aggregatorEventSendCL2C = zmq.NewSub(aggregatorEventSendCL2CConnection)
-	r.aggregatorEventSendCL2C.Identity(r.identity)
-	fmt.Printf("aggregatorEventSendCL2C connect : " + aggregatorEventSendCL2CConnection)
+	r.aggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
+	r.aggregatorEventSendToConnector = zmq.NewSub(aggregatorEventSendToConnectorConnection)
+	r.aggregatorEventSendToConnector.Identity(r.identity)
+	fmt.Printf("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
 
-	r.aggregatorEventReceiveCL2CConnection = aggregatorEventReceiveCL2CConnection
-	r.aggregatorEventReceiveCL2C = zmq.NewSub(aggregatorEventReceiveCL2CConnection)
-	r.aggregatorEventReceiveCL2C.Identity(r.identity)
-	fmt.Printf("aggregatorEventReceiveCL2C connect : " + aggregatorEventReceiveCL2CConnection)
+	r.aggregatorEventReceiveFromClusterConnection = aggregatorEventReceiveFromClusterConnection
+	r.aggregatorEventReceiveFromCluster = zmq.NewSub(aggregatorEventReceiveFromClusterConnection)
+	r.aggregatorEventReceiveFromCluster.Identity(r.identity)
+	fmt.Printf("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
 }
 
 func (r AggregatorEventRoutine) close() err error {
-	r.aggregatorEventSendC2CL.close()
-	r.aggregatorEventReceiveC2CL.close()
-	r.aggregatorEventSendCL2C.close()
-	r.aggregatorEventReceiveCL2C.close()
+	r.aggregatorEventSendToCluster.close()
+	r.aggregatorEventReceiveFromConnector.close()
+	r.aggregatorEventSendToConnector.close()
+	r.aggregatorEventReceiveFromCluster.close()
 	r.Context.close()
 }
 
 func (r AggregatorEventRoutine) run() err error {
 	pi := zmq.PollItems{
-		zmq.PollItem{Socket: aggregatorEventSendC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorEventSendCL2C, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorEventReceiveCL2C, Events: zmq.POLLIN}}
+		zmq.PollItem{Socket: aggregatorEventSendToCluster, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: aggregatorEventReceiveFromConnector, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: aggregatorEventSendToConnector, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: aggregatorEventReceiveFromCluster, Events: zmq.POLLIN}}
 
 	var event = [][]byte{}
 
@@ -115,23 +115,23 @@ func (r AggregatorEventRoutine) run() err error {
 
 func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])
-	go eventMessage.sendEventWith(r.aggregatorEventSendC2CL)
+	go eventMessage.sendEventWith(r.aggregatorEventSendToCluster)
 
 }
 
 func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])	
-	go eventMessage.sendEventWith(r.aggregatorEventReceiveC2CL)
+	go eventMessage.sendEventWith(r.aggregatorEventReceiveFromConnector)
 
 }
 
 func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])
-	go eventMessage.sendEventWith(r.aggregatorEventSendCL2C)
+	go eventMessage.sendEventWith(r.aggregatorEventSendToConnector)
 }
 
 func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])
-	go eventMessage.sendEventWith(r.aggregatorEventReceiveCL2C)
+	go eventMessage.sendEventWith(r.aggregatorEventReceiveFromCluster)
 }
 

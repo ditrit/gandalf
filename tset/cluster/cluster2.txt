@@ -1,9 +1,9 @@
 {
-	"clusterEventSendConnection": "127.0.0.1:8200",
-	"clusterEventReceiveConnection": "127.0.0.1:8210",
-    "clusterEventCaptureConnection": "127.0.0.1:8220",
-	"clusterCommandSendConnection": "127.0.0.1:8230",
-    "clusterCommandReceiveConnection": "127.0.0.1:8240",
-	"clusterCommandCaptureConnection": "127.0.0.1:8250",
+	"clusterEventSendConnection": "127.0.0.1:9200",
+	"clusterEventReceiveConnection": "127.0.0.1:9201",
+    "clusterEventCaptureConnection": "",
+	"clusterCommandSendConnection": "127.0.0.1:9210",
+    "clusterCommandReceiveConnection": "127.0.0.1:9211",
+	"clusterCommandCaptureConnection": "",
 	"identity": "cluster2"
 }

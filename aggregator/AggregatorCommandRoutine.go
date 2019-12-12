@@ -7,55 +7,55 @@ import (
 )
 
 type AggregatorCommandRoutine struct {
-	aggregatorCommandSendC2CL              zmq.Sock
-	aggregatorCommandSendC2CLConnections   []string
-	aggregatorCommandReceiveC2CL           zmq.Sock
-	aggregatorCommandReceiveC2CLConnection string
-	aggregatorCommandSendCL2C              zmq.Sock
-	aggregatorCommandSendCL2CConnections   []string
-	aggregatorCommandReceiveCL2C           zmq.Sock
-	aggregatorCommandReceiveCL2CConnection string
+	aggregatorCommandSendToCluster              zmq.Sock
+	aggregatorCommandSendToClusterConnections   []string
+	aggregatorCommandReceiveFromConnector           zmq.Sock
+	aggregatorCommandReceiveFromConnectorConnection string
+	aggregatorCommandSendToConnector              zmq.Sock
+	aggregatorCommandSendToConnectorConnections   []string
+	aggregatorCommandReceiveFromCluster           zmq.Sock
+	aggregatorCommandReceiveFromClusterConnection string
 	identity                               string
 }
 
-func (r AggregatorCommandRoutine) New(identity, aggregatorCommandSendC2CLConnections, aggregatorCommandReceiveC2CLConnection, aggregatorCommandSendCL2CConnections, aggregatorCommandReceiveCL2CConnection string) err error {
+func (r AggregatorCommandRoutine) New(identity, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnections, aggregatorCommandReceiveFromClusterConnection string) err error {
 	r.identity = identity
 
-	r.aggregatorCommandSendC2CLConnections = aggregatorCommandSendC2CLConnections
-	r.aggregatorCommandSendC2CL = zmq.NewDealer(aggregatorCommandSendC2CLConnections)
-	r.aggregatorCommandSendC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendC2CLConnections)
+	r.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
+	r.aggregatorCommandSendToCluster = zmq.NewDealer(aggregatorCommandSendToClusterConnections)
+	r.aggregatorCommandSendToCluster.Identity(r.identity)
+	fmt.Printf("aggregatorCommandSendToCluster connect : " + aggregatorCommandSendToClusterConnections)
 
-	r.workerEventReceiveC2WConnection = aggregatorCommandReceiveC2CLConnection
-	r.aggregatorCommandReceiveC2CL = zmq.NewSub(aggregatorCommandReceiveC2CLConnection)
-	r.aggregatorCommandReceiveC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorCommandReceiveC2CL connect : " + aggregatorCommandReceiveC2CLConnection)
+	r.workerEventReceiveC2WConnection = aggregatorCommandReceiveFromConnectorConnection
+	r.aggregatorCommandReceiveFromConnector = zmq.NewSub(aggregatorCommandReceiveFromConnectorConnection)
+	r.aggregatorCommandReceiveFromConnector.Identity(r.identity)
+	fmt.Printf("aggregatorCommandReceiveFromConnector connect : " + aggregatorCommandReceiveFromConnectorConnection)
 
-	r.aggregatorCommandSendCL2CConnections = aggregatorCommandSendCL2CConnections
-	r.aggregatorCommandSendC2CL = zmq.NewSub(aggregatorCommandSendCL2CConnections)
-	r.aggregatorCommandSendC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendCL2CConnections)
+	r.aggregatorCommandSendToConnectorConnections = aggregatorCommandSendToConnectorConnections
+	r.aggregatorCommandSendToCluster = zmq.NewSub(aggregatorCommandSendToConnectorConnections)
+	r.aggregatorCommandSendToCluster.Identity(r.identity)
+	fmt.Printf("aggregatorCommandSendToCluster connect : " + aggregatorCommandSendToConnectorConnections)
 
-	r.aggregatorCommandReceiveC2CLConnection = aggregatorCommandReceiveC2CLConnection
-	r.aggregatorCommandReceiveC2CL = zmq.NewSub(aggregatorCommandReceiveC2CLConnection)
-	r.aggregatorCommandReceiveC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorCommandReceiveC2CL connect : " + aggregatorCommandReceiveC2CLConnection)
+	r.aggregatorCommandReceiveFromConnectorConnection = aggregatorCommandReceiveFromConnectorConnection
+	r.aggregatorCommandReceiveFromConnector = zmq.NewSub(aggregatorCommandReceiveFromConnectorConnection)
+	r.aggregatorCommandReceiveFromConnector.Identity(r.identity)
+	fmt.Printf("aggregatorCommandReceiveFromConnector connect : " + aggregatorCommandReceiveFromConnectorConnection)
 }
 
 func (r AggregatorCommandRoutine) close() err error {
-	r.aggregatorCommandSendC2CL.close()
-	r.aggregatorCommandReceiveC2CL.close()
-	r.aggregatorCommandSendC2CL.close()
-	r.aggregatorCommandReceiveC2CL.close()
+	r.aggregatorCommandSendToCluster.close()
+	r.aggregatorCommandReceiveFromConnector.close()
+	r.aggregatorCommandSendToCluster.close()
+	r.aggregatorCommandReceiveFromConnector.close()
 	r.Context.close()
 }
 
 func (r AggregatorCommandRoutine) run() err error {
 	pi := zmq.PollItems{
-		zmq.PollItem{Socket: aggregatorCommandSendC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandReceiveC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandSendCL2C, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandReceiveCL2C, Events: zmq.POLLIN}}
+		zmq.PollItem{Socket: aggregatorCommandSendToCluster, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: aggregatorCommandReceiveFromConnector, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: aggregatorCommandSendToConnector, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: aggregatorCommandReceiveFromCluster, Events: zmq.POLLIN}}
 
 	var command = [][]byte{}
 
