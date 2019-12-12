@@ -71,7 +71,7 @@ func (r AggregatorEventRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processEventSendC2CL(event)
+			err = r.processEventSendToCluster(event)
 			if err != nil {
 				panic(err)
 			}
@@ -82,7 +82,7 @@ func (r AggregatorEventRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processEventReceiveC2CL(event)
+			err = r.processEventReceiveFromConnector(event)
 			if err != nil {
 				panic(err)
 			}
@@ -93,7 +93,7 @@ func (r AggregatorEventRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processEventSendC2CL(event)
+			err = r.processEventSendToConnector(event)
 			if err != nil {
 				panic(err)
 			}
@@ -104,7 +104,7 @@ func (r AggregatorEventRoutine) run() err error {
 			if err != nil {
 				panic(err)
 			}
-			err = r.processEventReceiveC2CL(event)
+			err = r.processEventReceiveFromCluster(event)
 			if err != nil {
 				panic(err)
 			}
@@ -113,25 +113,25 @@ func (r AggregatorEventRoutine) run() err error {
 	fmt.Println("done")
 }
 
-func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
+func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])
-	go eventMessage.sendEventWith(r.aggregatorEventSendToCluster)
-
-}
-
-func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
-	eventMessage = EventMessage.decodeEvent(event[1])	
 	go eventMessage.sendEventWith(r.aggregatorEventReceiveFromConnector)
 
 }
 
-func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) err error {
-	eventMessage = EventMessage.decodeEvent(event[1])
+func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) err error {
+	eventMessage = EventMessage.decodeEvent(event[1])	
 	go eventMessage.sendEventWith(r.aggregatorEventSendToConnector)
+
 }
 
-func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) err error {
+func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) err error {
 	eventMessage = EventMessage.decodeEvent(event[1])
 	go eventMessage.sendEventWith(r.aggregatorEventReceiveFromCluster)
+}
+
+func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) err error {
+	eventMessage = EventMessage.decodeEvent(event[1])
+	go eventMessage.sendEventWith(r.aggregatorEventSendToCluster)
 }
 
