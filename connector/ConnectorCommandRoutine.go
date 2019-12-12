@@ -16,12 +16,12 @@ type ConnectorCommandRoutine struct {
 	connectorCommandReceiveFromAggregatorConnection string
 	connectorCommandSendToAggregator              zmq.Sock
 	connectorCommandSendToAggregatorConnection    string
-	connectorCommandReceiveW2A           zmq.Sock
-	connectorCommandReceiveW2AConnection string
+	connectorCommandReceiveFromWorker           zmq.Sock
+	connectorCommandReceiveFromWorkerConnection string
 	identity                              string
 }
 
-func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromAggregatorConnection, connectorCommandSendToAggregatorConnection, connectorCommandReceiveW2AConnection string) err error {
+func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromAggregatorConnection, connectorCommandSendToAggregatorConnection, connectorCommandReceiveFromWorkerConnection string) err error {
 	r.identity = identity
 	r.connectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
 	r.connectorCommandSendToWorker = zmq.NewDealer(r.connectorCommandSendToWorkerConnection)
@@ -38,10 +38,10 @@ func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConne
 	r.connectorCommandSendToAggregator.Identity(r.identity)
 	fmt.Printf("connectorCommandSendToAggregator connect : " + connectorCommandSendToAggregatorConnection)
 
-	r.connectorCommandReceiveW2AConnection = connectorCommandReceiveW2AConnection
-	r.connectorCommandReceiveW2A = zmq.NewRouter(connectorCommandReceiveW2AConnection)
-	r.connectorCommandReceiveW2A.Identity(r.identity)
-	fmt.Printf("connectorCommandReceiveW2A connect : " + connectorCommandReceiveW2AConnection)
+	r.connectorCommandReceiveFromWorkerConnection = connectorCommandReceiveFromWorkerConnection
+	r.connectorCommandReceiveFromWorker = zmq.NewRouter(connectorCommandReceiveFromWorkerConnection)
+	r.connectorCommandReceiveFromWorker.Identity(r.identity)
+	fmt.Printf("connectorCommandReceiveFromWorker connect : " + connectorCommandReceiveFromWorkerConnection)
 }
 
 func (r ConnectorCommandRoutine) close() err error {
@@ -58,7 +58,7 @@ func (r ConnectorCommandRoutine) run() err error {
 		zmq.PollItem{Socket: connectorCommandSendToWorker, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: connectorCommandReceiveFromAggregator, Events: zmq.POLLIN},
 		zmq.PollItem{Socket: connectorCommandSendToAggregator, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorCommandReceiveW2A, Events: zmq.POLLIN},
+		zmq.PollItem{Socket: connectorCommandReceiveFromWorker, Events: zmq.POLLIN},
 
 		var command = [][]byte{}
 
@@ -118,7 +118,7 @@ func (r ConnectorCommandRoutine) run() err error {
 func (r ConnectorCommandRoutine) processCommandSendA2W(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	r.addCommands(commandMessage)
-	go commandMessage.sendWith(r.connectorCommandReceiveW2A, commandMessage.sourceConnector)
+	go commandMessage.sendWith(r.connectorCommandReceiveFromWorker, commandMessage.sourceConnector)
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err error {
@@ -128,7 +128,7 @@ func (r ConnectorCommandRoutine) processCommandReceiveA2W(command [][]byte) err 
 
 func (r ConnectorCommandRoutine) processCommandSendW2A(command [][]byte) err error {
 	commandMessage := CommandMessage.decodeCommand(command[1])
-	go commandMessage.sendWith(r.connectorCommandReceiveW2A)
+	go commandMessage.sendWith(r.connectorCommandReceiveFromWorker)
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveW2A(command [][]byte) err error {

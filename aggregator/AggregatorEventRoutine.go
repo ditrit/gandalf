@@ -22,24 +22,24 @@ func (r AggregatorEventRoutine) New(identity, aggregatorEventSendToClusterConnec
 	r.identity = identity
 
 	r.aggregatorEventSendToClusterConnection = aggregatorEventSendToClusterConnection
-	r.aggregatorEventSendToCluster = zmq.NewDealer(aggregatorEventSendToClusterConnection)
+	r.aggregatorEventSendToCluster = zmq.NewXPub(aggregatorEventSendToClusterConnection)
 	r.aggregatorEventSendToCluster.Identity(r.identity)
 	fmt.Printf("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnection)
+
+	r.aggregatorEventReceiveFromClusterConnection = aggregatorEventReceiveFromClusterConnection
+	r.aggregatorEventReceiveFromCluster = zmq.NewXSub(aggregatorEventReceiveFromClusterConnection)
+	r.aggregatorEventReceiveFromCluster.Identity(r.identity)
+	fmt.Printf("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
+
+	r.aggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
+	r.aggregatorEventSendToConnector = zmq.NewXPub(aggregatorEventSendToConnectorConnection)
+	r.aggregatorEventSendToConnector.Identity(r.identity)
+	fmt.Printf("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
 
 	r.aggregatorEventReceiveFromConnectorConnection = aggregatorEventReceiveFromConnectorConnection
 	r.aggregatorEventReceiveFromConnector = zmq.NewSub(aggregatorEventReceiveFromConnectorConnection)
 	r.aggregatorEventReceiveFromConnector.Identity(r.identity)
 	fmt.Printf("aggregatorEventReceiveFromConnector connect : " + aggregatorEventReceiveFromConnectorConnection)
-
-	r.aggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
-	r.aggregatorEventSendToConnector = zmq.NewSub(aggregatorEventSendToConnectorConnection)
-	r.aggregatorEventSendToConnector.Identity(r.identity)
-	fmt.Printf("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
-
-	r.aggregatorEventReceiveFromClusterConnection = aggregatorEventReceiveFromClusterConnection
-	r.aggregatorEventReceiveFromCluster = zmq.NewSub(aggregatorEventReceiveFromClusterConnection)
-	r.aggregatorEventReceiveFromCluster.Identity(r.identity)
-	fmt.Printf("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
 }
 
 func (r AggregatorEventRoutine) close() err error {
