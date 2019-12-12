@@ -21,12 +21,12 @@ func (r ClusterEventRoutine) New(identity, clusterEventSendConnection, clusterEv
 	r.identity = identity
 
 	r.clusterEventSendConnection = clusterEventSendConnection
-	r.clusterEventSend = zmq.NewXSub(clusterEventSendConnection)
+	r.clusterEventSend = zmq.NewXPub(clusterEventSendConnection)
 	r.clusterEventSend.Identity(r.identity)
 	rmt.Printf("clusterEventSend connect : " + clusterEventSendConnection)
 
 	r.clusterEventReceiveConnection = clusterEventReceiveConnection
-	r.clusterEventReceive = zmq.NewXPub(clusterEventReceiveConnection)
+	r.clusterEventReceive = zmq.NewXSub(clusterEventReceiveConnection)
 	r.clusterEventReceive.Identity(r.identity)
 	rmt.Printf("clusterEventReceive connect : " + clusterEventReceiveConnection)
 
