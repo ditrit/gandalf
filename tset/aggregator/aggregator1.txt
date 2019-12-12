@@ -1,11 +1,11 @@
 {
-	"aggregatorCommandSendC2CLConnections": ["127.0.0.1:9111", "127.0.0.1:9211"], 
-	"aggregatorCommandReceiveC2CLConnection": "127.0.0.1:9110",
-	"aggregatorCommandSendCL2CConnections":   "",
-	"aggregatorCommandReceiveCL2CConnection": ["127.0.0.1:9110", "127.0.0.1:9210"],
-	"aggregatorEventSendC2CLConnection": ["127.0.0.1:9101", "127.0.0.1:9201"] , 
-	"aggregatorEventReceiveC2CLConnection": "127.0.0.1:9110",
-	"aggregatorEventSendCL2CConnection": ["127.0.0.1:9100", "127.0.0.1:9200"]  ,
-	"aggregatorEventReceiveCL2CConnection": "127.0.0.1:9130",
+	"aggregatorCommandSendToClusterConnections": ["127.0.0.1:9111", "127.0.0.1:9211"], 
+	"aggregatorCommandReceiveFromClusterConnections": ["127.0.0.1:9110", "127.0.0.1:9210"],
+	"aggregatorCommandSendToConnectorConnection":   "127.0.0.1:9120",
+	"aggregatorCommandReceiveFromConnectorConnection": "127.0.0.1:9121",
+	"aggregatorEventSendToClusterConnections": ["127.0.0.1:9101", "127.0.0.1:9201"] , 
+	"aggregatorEventReceiveFromClusterConnections": ["127.0.0.1:9100", "127.0.0.1:9200"],
+	"aggregatorEventSendToConnectorConnection": "127.0.0.1:9130",
+	"aggregatorEventReceiveFromConnectorConnection": "127.0.0.1:9131",
 	"identity": "aggreagator1"
 }

@@ -1,9 +1,9 @@
 {
-	"clusterEventSendConnection": "127.0.0.1:9100",
-	"clusterEventReceiveConnection": "127.0.0.1:9101",
-    "clusterEventCaptureConnection": "",
 	"clusterCommandSendConnection": "127.0.0.1:9110",
     "clusterCommandReceiveConnection": "127.0.0.1:9111",
 	"clusterCommandCaptureConnection": "",
+	"clusterEventSendConnection": "127.0.0.1:9100",
+	"clusterEventReceiveConnection": "127.0.0.1:9101",
+    "clusterEventCaptureConnection": "",
 	"identity": "cluster1"
 }
