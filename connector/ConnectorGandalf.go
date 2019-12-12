@@ -1,5 +1,10 @@
 package connector
 
+import (
+    "fmt"
+    "os"
+)
+
 type ConnectorGandalf struct {
 	connectorConfiguration 		ConnectorConfiguration
 	connectorCommandRoutine     ConnectorCommandRoutine
@@ -8,8 +13,8 @@ type ConnectorGandalf struct {
 	connectorCommandSendFileMap map[string]string
 }
 
-func (cg ConnectorGandalf) New() err error {
-	path := ""
+func (cg ConnectorGandalf) New(path string) err error {
+	path := os.Args[0]
 	connectorConfiguration := ConnectorConfiguration.loadConfiguration(path)
 
 	cg.connectorCommandsMap = make(map[string][]string)

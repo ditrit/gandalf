@@ -1,4 +1,4 @@
-package clustergandalf
+package cluster
 
 import(
 	 gonfig "github.com/tkanos/gonfig"

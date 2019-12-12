@@ -1,17 +1,17 @@
-package aggregatorgandalf
+package aggregator
 
-import(
-	 "github.com/tkanos/gonfig"
+import (
+	"os"
 )
 
 type AggregatorGandalf struct {
-	aggregatorConfiguration 	AggregatorConfiguration
-	aggregatorCommandRoutine 	AggregatorCommandRoutine
-	aggregatorEventRoutine   	AggregatorEventRoutine
+	aggregatorConfiguration  AggregatorConfiguration
+	aggregatorCommandRoutine AggregatorCommandRoutine
+	aggregatorEventRoutine   AggregatorEventRoutine
 }
 
-func (ag AggregatorGandalf) main() {
-	path := ""
+func (ag AggregatorGandalf) New(path string) {
+	path := os.Args[0]
 	aggregatorConfiguration := AggregatorConfiguration.loadConfiguration(path)
 
 	wg.aggregatorCommandRoutine = AggregatorCommandRoutine.New(aggregatorConfiguration.identity, aggregatorConfiguration.aggregatorCommandSendC2CLConnections, aggregatorConfiguration.aggregatorCommandReceiveC2CLConnection, aggregatorConfiguration.aggregatorCommandSendCL2CConnections, aggregatorConfiguration.aggregatorCommandReceiveCL2CConnection)

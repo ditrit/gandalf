@@ -1,4 +1,4 @@
-package aggregatorgandalf
+package aggregator
 
 import(
 	 gonfig "github.com/tkanos/gonfig"

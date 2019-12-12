@@ -1,5 +1,10 @@
 package cluster
 
+import (
+    "fmt"
+    "os"
+)
+
 type ClusterGandalf struct {
 	clusterConfiguration 		ClusterConfiguration
 	clusterCommandRoutine       ClusterCommandRoutine
@@ -7,8 +12,8 @@ type ClusterGandalf struct {
 	clusterCaptureWorkerRoutine ClusterCaptureWorkerRoutine
 }
 
-func (cg ClusterGandalf) main() {
-	path := ""
+func (cg ClusterGandalf) New(path string) {
+	path := os.Args[0]
 	clusterConfiguration := ClusterConfiguration.loadConfiguration(path)
 
 	cg.clusterCommandRoutine = ClusterCommandRoutine.new(clusterConfiguration.identity, clusterConfiguration.clusterCommandSendConnection, clusterConfiguration.clusterCommandReceiveConnection, clusterConfiguration.clusterCommandCaptureConnection)

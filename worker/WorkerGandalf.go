@@ -1,4 +1,10 @@
-package worker
+package worker	
+
+import (
+    "fmt"
+    "os"
+)
+
 
 type WorkerGandalf struct {
 	results 			chan ResponseMessage
@@ -8,8 +14,8 @@ type WorkerGandalf struct {
 	clientGandalf 		ClientGandalf
 }
 
-func (wg WorkerGandalf) main() {
-	path := ""
+func (wg WorkerGandalf) New(path string) {
+	path := path
 	workerConfiguration := WorkerConfiguration.loadConfiguration(path)
 
 	wg.results := make(chan message.CommandResponse)
