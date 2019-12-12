@@ -5,8 +5,10 @@ import(
 )
 
 type WorkerConfiguration struct {
-	workerCommandReceiveConnection string
-	workerEventReceiveConnection string
+	senderCommandConnection string
+	senderEventConnection string
+	receiverCommandConnection string
+	receiverEventConnection string
 	identity string                          string
 }
 

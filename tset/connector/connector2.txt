@@ -1,0 +1,11 @@
+{
+	"connectorEventSendA2WConnection": "127.0.0.1:9130",
+	"connectorEventReceiveA2WConnection": "127.0.0.1:9130",
+	"connectorEventSendW2AConnection": "127.0.0.1:9130",
+	"connectorEventReceiveW2AConnection": "127.0.0.1:9130",
+	"connectorCommandSendA2WConnection": "127.0.0.1:9130",
+	"connectorCommandReceiveA2WConnection": "127.0.0.1:9130",
+	"connectorCommandSendW2AConnection": "127.0.0.1:9130",
+	"connectorCommandReceiveW2AConnection": "127.0.0.1:9130",
+	"identity": "connector2"
+}

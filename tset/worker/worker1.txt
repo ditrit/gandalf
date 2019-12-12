@@ -1,0 +1,7 @@
+{
+	"senderCommandConnection": "127.0.0.1:9130",
+	"senderEventConnection": "127.0.0.1:9130",
+	"receiverCommandConnection": "127.0.0.1:9130",
+	"receiverEventConnection": "127.0.0.1:9130",
+	"identity": "worker1"
+}

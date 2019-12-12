@@ -5,10 +5,15 @@ import(
 )
 
 type AggregatorConfiguration struct {
-	aggregatorCommandSendC2CLConnections   *string
+	aggregatorCommandSendC2CLConnections   []string
 	aggregatorCommandReceiveC2CLConnection string
-	aggregatorCommandSendCL2CConnections   *string
+	aggregatorCommandSendCL2CConnections   []string
 	aggregatorCommandReceiveCL2CConnection string
+	aggregatorEventSendC2CLConnection    string
+	aggregatorEventReceiveC2CLConnection string
+	aggregatorEventSendCL2CConnection    string
+	aggregatorEventReceiveCL2CConnection string
+
 	identity string
 }
 

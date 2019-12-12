@@ -8,11 +8,11 @@ import (
 
 type AggregatorCommandRoutine struct {
 	aggregatorCommandSendC2CL              zmq.Sock
-	aggregatorCommandSendC2CLConnections   *string
+	aggregatorCommandSendC2CLConnections   []string
 	aggregatorCommandReceiveC2CL           zmq.Sock
 	aggregatorCommandReceiveC2CLConnection string
 	aggregatorCommandSendCL2C              zmq.Sock
-	aggregatorCommandSendCL2CConnections   *string
+	aggregatorCommandSendCL2CConnections   []string
 	aggregatorCommandReceiveCL2C           zmq.Sock
 	aggregatorCommandReceiveCL2CConnection string
 	identity                               string
