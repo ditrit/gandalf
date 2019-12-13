@@ -42,7 +42,7 @@ func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, 
 
 func (c CommandMessage) sendWith(socket goczmq.Sock, header string) (isSend bool) {
 	for {
-		isSend := c.sendHeaderWith(socket, header)
+		isSend = c.sendHeaderWith(socket, header)
 		isSend = isSend && c.sendCommandWith(socket)
 		if isSend {
 			return
@@ -64,7 +64,8 @@ func (c CommandMessage) sendHeaderWith(socket goczmq.Sock, header string) (isSen
 
 func (c CommandMessage) sendCommandWith(socket goczmq.Sock) (isSend bool) {
 	for {
-		err := socket.SendFrame(encodeCommandMessage(c), 0);
+		encoded, _ := encodeCommandMessage(c)
+		err := socket.SendFrame(encoded, 0);
 		if err == nil {
 			isSend = true
 			return
@@ -137,7 +138,8 @@ func (cr CommandMessageReply) sendHeaderWith(socket goczmq.Sock, header string) 
 
 func (cr CommandMessageReply) sendCommandReplyWith(socket goczmq.Sock) (isSend bool) {
 	for {
-		err := socket.SendFrame(encodeCommandMessageReply(cr), 0);
+		encoded, _ := encodeCommandMessageReply(cr)
+		err := socket.SendFrame(encoded, 0);
 		if err == nil {
 			isSend = true
 			return
@@ -177,7 +179,8 @@ func (cf CommandFunction) sendWith(socket goczmq.Sock) (isSend bool) {
 	for {
 		err := socket.SendFrame([]byte(constant.COMMAND_VALIDATION_FUNCTIONS), goczmq.FlagMore);
 		if err == nil {
-			err = socket.SendFrame(encodeCommandFunction(cf), 0);
+			encoded, _ := encodeCommandFunction(cf)
+			err = socket.SendFrame(encoded, 0);
 			if err == nil {
 				isSend = true
 				return
@@ -223,7 +226,8 @@ func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket goczmq.Sock)
 	for {
 		err := socket.SendFrame([]byte(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY), goczmq.FlagMore);
 		if err == nil {
-			err = socket.SendFrame(encodeCommandFunctionReply(cfr), 0);
+			encoded, _ := encodeCommandFunctionReply(cfr)
+			err = socket.SendFrame(encoded, 0);
 			if err == nil {
 				isSend = true
 				return
@@ -247,7 +251,8 @@ func (cry CommandMessageReady) sendWith(socket goczmq.Sock) (isSend bool) {
 	for {
 		err := socket.SendFrame([]byte(constant.COMMAND_READY), goczmq.FlagMore);
 		if err == nil {
-			err = socket.SendFrame(encodeCommandMessageReady(cry), 0);
+			encoded, _ := encodeCommandMessageReady(cry)
+			err = socket.SendFrame(encoded, 0);
 			if err == nil {
 				isSend = true
 				return

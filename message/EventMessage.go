@@ -27,7 +27,7 @@ func (e EventMessage) New(topic, timeout, event, payload string) {
 
 func (e EventMessage) sendWith(socket goczmq.Sock, header string) (isSend bool) {
 	for {
-		isSend := e.sendHeaderWith(socket, header)
+		isSend = e.sendHeaderWith(socket, header)
 		isSend = isSend && isSend && e.sendEventWith(socket)
 		if isSend {
 			return
@@ -51,7 +51,8 @@ func (e EventMessage) sendEventWith(socket goczmq.Sock) (isSend bool) {
 	for {
 		err := socket.SendFrame([]byte(e.topic), goczmq.FlagMore)
 		if err == nil {
-			err = socket.SendFrame(encodeEvent(e), 0)
+			encoded, _ := encodeEvent(e)
+			err = socket.SendFrame(encoded, 0)
 			if err == nil {
 				isSend = true
 				return
