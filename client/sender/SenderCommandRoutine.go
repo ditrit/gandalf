@@ -2,8 +2,8 @@ package sender
 
 import (
 	"fmt"
-	"message"
-	"constant"
+	"gandalfgo/message"
+	"gandalfgo/constant"
 	zmq "github.com/zeromq/goczmq"
 )
 

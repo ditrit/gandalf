@@ -17,7 +17,7 @@ type ConnectorConfiguration struct {
 }
 
 func loadConfiguration(path string) (connectorConfiguration ConnectorConfiguration, err error) {
-	connectorConfiguration := ConnectorConfiguration{}
-	err := gonfig.GetConf(path, &connectorConfiguration)
+	connectorConfiguration = ConnectorConfiguration{}
+	err = gonfig.GetConf(path, &connectorConfiguration)
 	return
 }

@@ -2,8 +2,8 @@ package sender
 
 import (
 	"fmt"
-	"message"
-	zmq "github.com/zeromq/goczmq"
+	"gandalfgo/message"
+	"github.com/zeromq/goczmq"
 )
 
 type SenderEventRoutine struct {
