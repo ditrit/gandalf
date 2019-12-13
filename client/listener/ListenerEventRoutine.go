@@ -2,11 +2,12 @@ package listener
 
 import (
 	"fmt"
-	"message"
+	"gandalfgo/message"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type ListenerEventRoutine struct {
+	context							*zmq.Context
 	listenerEventReceive           zmq.Sock
 	listenerEventReceiveConnection string
 	identity                       string
@@ -16,8 +17,9 @@ type ListenerEventRoutine struct {
 func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection string) err error {
 	r.identity = identity
 
+	context, _ := zmq.NewContext()	
 	r.listenerEventReceiveConnection = listenerEventReceiveConnection
-	r.listenerEventReceive = zmq.NewSub(listenerEventReceiveConnection)
+	r.listenerEventReceive = context.NewSub(listenerEventReceiveConnection)
 	r.listenerEventReceive.Identity(r.identity)
 	fmt.Printf("listenerEventReceive connect : " + listenerEventReceiveConnection)
 }

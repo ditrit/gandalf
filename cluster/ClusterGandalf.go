@@ -1,8 +1,7 @@
 package cluster
 
 import (
-    "fmt"
-    "os"
+	"gandalfgo/constant"
 )
 
 type ClusterGandalf struct {
@@ -13,7 +12,6 @@ type ClusterGandalf struct {
 }
 
 func (cg ClusterGandalf) New(path string) {
-	path := os.Args[0]
 	clusterConfiguration := ClusterConfiguration.loadConfiguration(path)
 
 	cg.clusterCommandRoutine = ClusterCommandRoutine.new(clusterConfiguration.identity, clusterConfiguration.clusterCommandSendConnection, clusterConfiguration.clusterCommandReceiveConnection, clusterConfiguration.clusterCommandCaptureConnection)

@@ -2,11 +2,12 @@ package cluster
 
 import (
 	"fmt"
-    "message"
+    "gandalfgo/message"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type ClusterCommandRoutine struct {
+	context							*zmq.Context
 	clusterCommandSend              zmq.Sock
 	clusterCommandSendConnection    string
 	clusterCommandReceive           zmq.Sock
@@ -19,18 +20,19 @@ type ClusterCommandRoutine struct {
 func (r ClusterCommandRoutine) New(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) err error {
 	r.Identity = identity
 
+	context, _ := zmq.NewContext()
 	r.clusterCommandSendConnection = clusterCommandSendConnection
-	r.clusterCommandSend = zmq.NewRouter(clusterCommandSendConnection)
+	r.clusterCommandSend = context.NewRouter(clusterCommandSendConnection)
 	r.clusterCommandSend.Identity(r.identity)
 	rmt.Printf("clusterCommandSend connect : " + clusterCommandSendConnection)
 
 	r.clusterCommandReceiveConnection = clusterCommandReceiveConnection
-	r.clusterCommandReceive = zmq.NewRouter(clusterCommandReceiveConnection)
+	r.clusterCommandReceive = context.NewRouter(clusterCommandReceiveConnection)
 	r.clusterCommandReceive.Identity(r.identity)
 	rmt.Printf("clusterCommandReceive connect : " + clusterCommandReceiveConnection)
 
 	r.clusterCommandCaptureConnection = clusterCommandCaptureConnection
-	r.clusterCommandCapture = zmq.NewRouter(aggregatorCommandSendC2CLConnection)
+	r.clusterCommandCapture = context.NewRouter(aggregatorCommandSendC2CLConnection)
 	r.clusterCommandCapture.Identity(r.identity)
 	fmt.Printf("clusterCommandCapture connect : " + clusterCommandCaptureConnection)
 }

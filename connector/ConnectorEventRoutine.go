@@ -2,11 +2,12 @@ package connector
 
 import (
 	"fmt"
-
+	"gandalfgo/message"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type ConnectorEventRoutine struct {
+	context							*zmq.Context
 	connectorMapUUIDEventMessage	   map[string][]EventMessage					
 	connectorMapWorkerEvents 		   map[string][]string	
 	connectorEventSendToWorker              zmq.Sock
@@ -22,23 +23,25 @@ type ConnectorEventRoutine struct {
 
 func (r ConnectorEventRoutine) New(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) err error {
 	r.identity = identity
+
+	context, _ := zmq.NewContext()
 	r.connectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
-	r.connectorEventSendToWorker = zmq.NewXPub(connectorEventSendToWorkerConnection)
+	r.connectorEventSendToWorker = context.NewXPub(connectorEventSendToWorkerConnection)
 	r.connectorEventSendToWorker.Identity(r.Identity)
 	fmt.Printf("connectorEventSendToWorker connect : " + connectorEventSendToWorkerConnection)
 
 	r.connectorEventReceiveFromAggregatorConnection = connectorEventReceiveFromAggregatorConnection
-	r.connectorEventReceiveFromAggregator = zmq.NewXSub(connectorEventReceiveFromAggregatorConnection)
+	r.connectorEventReceiveFromAggregator = context.NewXSub(connectorEventReceiveFromAggregatorConnection)
 	r.connectorEventReceiveFromAggregator.Identity(r.Identity)
 	fmt.Printf("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
 
 	r.connectorEventSendToAggregatorConnection = connectorEventSendToAggregatorConnection
-	r.connectorEventSendToAggregator = zmq.NewXPub(connectorEventSendToAggregatorConnection)
+	r.connectorEventSendToAggregator = context.NewXPub(connectorEventSendToAggregatorConnection)
 	r.connectorEventSendToAggregator.Identity(r.Identity)
 	fmt.Printf("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
 
 	r.connectorEventReceiveFromWorkerConnection = connectorEventReceiveFromWorkerConnection
-	r.connectorEventReceiveFromWorker = zmq.NewXSub(connectorEventReceiveFromWorkerConnection)
+	r.connectorEventReceiveFromWorker = context.NewXSub(connectorEventReceiveFromWorkerConnection)
 	r.connectorEventReceiveFromWorker.Identity(r.Identity)
 	fmt.Printf("connectorEventReceiveFromWorker connect : " + connectorEventReceiveFromWorkerConnection)
 }

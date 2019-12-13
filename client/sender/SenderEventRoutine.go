@@ -7,6 +7,7 @@ import (
 )
 
 type SenderEventRoutine struct {
+	context							*zmq.Context
 	senderEventSend            zmq.Sock
 	senderEventConnection  string
 	senderEventConnections *string
@@ -16,16 +17,20 @@ type SenderEventRoutine struct {
 
 func (r SenderEventRoutine) New(identity, senderEventConnection string) err error {
 	r.identity = identity
+
+	context, _ := zmq.NewContext()
 	r.senderEventConnection = senderEventConnection
-	r.senderEventSend = zmq.NewDealer(senderEventConnection)
+	r.senderEventSend = context.NewDealer(senderEventConnection)
 	r.senderEventSend.Identity(r.identity)
 	fmt.Printf("senderEventSend connect : " + senderEventConnection)
 }
 
 func (r SenderEventRoutine) NewList(identity string, senderEventConnections *string) err error {
 	r.identity = identity
+
+	context, _ := zmq.NewContext()
 	r.senderEventConnections = senderEventConnections
-	r.senderEventSend = zmq.NewDealer(senderEventConnections)
+	r.senderEventSend = context.NewDealer(senderEventConnections)
 	r.senderEventSend.Identity(r.identity)
 	fmt.Printf("senderEventSend connect : " + senderEventConnections)
 }

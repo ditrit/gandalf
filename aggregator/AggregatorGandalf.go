@@ -1,7 +1,7 @@
 package aggregator
 
 import (
-	"os"
+	"gandalfgo/aggregator/AggregatorConfiguration"
 )
 
 type AggregatorGandalf struct {
@@ -11,7 +11,6 @@ type AggregatorGandalf struct {
 }
 
 func (ag AggregatorGandalf) New(path string) {
-	path := os.Args[0]
 	aggregatorConfiguration := AggregatorConfiguration.loadConfiguration(path)
 
 	wg.aggregatorCommandRoutine = AggregatorCommandRoutine.New(aggregatorConfiguration.identity, aggregatorConfiguration.aggregatorCommandSendC2CLConnections, aggregatorConfiguration.aggregatorCommandReceiveC2CLConnection, aggregatorConfiguration.aggregatorCommandSendCL2CConnections, aggregatorConfiguration.aggregatorCommandReceiveCL2CConnection)

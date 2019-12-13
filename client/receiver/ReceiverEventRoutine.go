@@ -1,6 +1,11 @@
 package receiver
 
+import(
+	"gandalfgo/message"
+)
+
 type ReceiverEventRoutine struct {
+	context							*zmq.Context
 	workerEventReceive zmq.Sock
 	receiverEventConnection string
 	identity string
@@ -12,7 +17,8 @@ func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, even
 	r.receiverEventConnection = receiverEventConnection
 	r.eventsRoutine = eventsRoutine
 
-	r.workerEventReceive = zmq.NewSub(receiverEventConnection)
+	context, _ := zmq.NewContext()
+	r.workerEventReceive = context.NewSub(receiverEventConnection)
 	r.workerEventReceive.Identity(r.identity)
 	fmt.Printf("workerEventReceive connect : " + receiverEventConnection)
 

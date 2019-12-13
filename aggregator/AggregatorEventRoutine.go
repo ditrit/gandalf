@@ -2,11 +2,12 @@ package aggregator
 
 import (
 	"fmt"
-
+	"gandalfgo/message"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type AggregatorEventRoutine struct {
+	context							*zmq.Context
 	aggregatorEventSendToCluster              zmq.Sock
 	aggregatorEventSendToClusterConnection    string
 	aggregatorEventReceiveFromConnector           zmq.Sock
@@ -21,23 +22,24 @@ type AggregatorEventRoutine struct {
 func (r AggregatorEventRoutine) New(identity, aggregatorEventSendToClusterConnection, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection, aggregatorEventReceiveFromClusterConnection string) err error {
 	r.identity = identity
 
+	context, _ := zmq.NewContext()
 	r.aggregatorEventSendToClusterConnection = aggregatorEventSendToClusterConnection
-	r.aggregatorEventSendToCluster = zmq.NewXPub(aggregatorEventSendToClusterConnection)
+	r.aggregatorEventSendToCluster = context.NewXPub(aggregatorEventSendToClusterConnection)
 	r.aggregatorEventSendToCluster.Identity(r.identity)
 	fmt.Printf("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnection)
 
 	r.aggregatorEventReceiveFromClusterConnection = aggregatorEventReceiveFromClusterConnection
-	r.aggregatorEventReceiveFromCluster = zmq.NewXSub(aggregatorEventReceiveFromClusterConnection)
+	r.aggregatorEventReceiveFromCluster = context.NewXSub(aggregatorEventReceiveFromClusterConnection)
 	r.aggregatorEventReceiveFromCluster.Identity(r.identity)
 	fmt.Printf("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
 
 	r.aggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
-	r.aggregatorEventSendToConnector = zmq.NewXPub(aggregatorEventSendToConnectorConnection)
+	r.aggregatorEventSendToConnector = context.NewXPub(aggregatorEventSendToConnectorConnection)
 	r.aggregatorEventSendToConnector.Identity(r.identity)
 	fmt.Printf("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
 
 	r.aggregatorEventReceiveFromConnectorConnection = aggregatorEventReceiveFromConnectorConnection
-	r.aggregatorEventReceiveFromConnector = zmq.NewSub(aggregatorEventReceiveFromConnectorConnection)
+	r.aggregatorEventReceiveFromConnector = context.NewSub(aggregatorEventReceiveFromConnectorConnection)
 	r.aggregatorEventReceiveFromConnector.Identity(r.identity)
 	fmt.Printf("aggregatorEventReceiveFromConnector connect : " + aggregatorEventReceiveFromConnectorConnection)
 }

@@ -2,11 +2,12 @@ package cluster
 
 import (
 	"fmt"
-
+	"gandalfgo/message"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type ClusterEventRoutine struct {
+	context							*zmq.Context
 	clusterEventSend              zmq.Sock
 	clusterEventSendConnection    string
 	clusterEventReceive           zmq.Sock
@@ -19,19 +20,20 @@ type ClusterEventRoutine struct {
 
 func (r ClusterEventRoutine) New(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) err error {
 	r.identity = identity
-
+	
+	context, _ := zmq.NewContext()
 	r.clusterEventSendConnection = clusterEventSendConnection
-	r.clusterEventSend = zmq.NewXPub(clusterEventSendConnection)
+	r.clusterEventSend = context.NewXPub(clusterEventSendConnection)
 	r.clusterEventSend.Identity(r.identity)
 	rmt.Printf("clusterEventSend connect : " + clusterEventSendConnection)
 
 	r.clusterEventReceiveConnection = clusterEventReceiveConnection
-	r.clusterEventReceive = zmq.NewXSub(clusterEventReceiveConnection)
+	r.clusterEventReceive = context.NewXSub(clusterEventReceiveConnection)
 	r.clusterEventReceive.Identity(r.identity)
 	rmt.Printf("clusterEventReceive connect : " + clusterEventReceiveConnection)
 
 	r.clusterEventCaptureConnection = clusterEventCaptureConnection
-	r.clusterEventCapture = zmq.NewPub(clusterEventCaptureConnection)
+	r.clusterEventCapture = context.NewPub(clusterEventCaptureConnection)
 	r.clusterEventCapture.Identity(r.identity)
 	fmt.Printf("clusterEventCapture connect : " + clusterEventCaptureConnection)
 }

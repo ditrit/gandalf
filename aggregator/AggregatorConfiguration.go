@@ -18,7 +18,7 @@ type AggregatorConfiguration struct {
 }
 
 func loadConfiguration(path string) (aggregatorConfiguration AggregatorConfiguration, err error) {
-	aggregatorConfiguration := AggregatorConfiguration{}
-	err := gonfig.GetConf(path, &aggregatorConfiguration)
+	aggregatorConfiguration = AggregatorConfiguration{}
+	err = gonfig.GetConf(path, &aggregatorConfiguration)
 	return
 }

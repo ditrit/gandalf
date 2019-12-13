@@ -1,25 +1,32 @@
 package client
 
-type ClientGandalf struct {
-	identity string
-	senderCommandConnection string
+import(
+	"gandalfg                 o/messge"
+	"gandalfgo/worker"  
+	"gandalfgo/sender"    
+	"gandalfgo/receiver"
+)  
+                  
+type ClientGandal          f struct {
+	identity strin            g
+senderCommandConnection string
 	senderEventConnection string
-	receiverCommandConnection string 
-	receiverEventConnection string
-	results chan ResponseMessage
-	commandsRoutine map[string][]CommandFunction
-	eventsRoutine map[string][]EventFunction										
+	receiverCommandConnection strin 
+	eceiverEventConnection string
+results chan ResponseMessage
+	commandsRoutine map[string][]CommandRoutine
+	eventsRoutine map[strig][]EventRoutine										
 
 	senderGandalf   SenderGandalf
 	receiverGandalf ReceiverGandalf
 }
 
-func (cg ClientGandalf) New(identity, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]CommandFunction, eventsRoutine map[string][]EventFunction , 	results chan ResponseMessage) {
-	cg.identity = identity
-	cg.senderCommandConnection = senderCommandConnection
+func (cg ClientGandalf) New(identty, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]CommandFunction, eventsRoutine map[string][]EventFunction , 	results chan ResponseMessage) {
+	cg.identity = identiy
+cg.senderCommandConnection = senderCommandConnection
 	cg.senderEventConnection = senderEventConnection
 	cg.receiverCommandConnection = receiverCommandConnection
-	cg.receiverEventConnection = receiverEventConnection
+	g.receiverEventConnection = receiverEventConnection
 	cg.commandsRoutine = commandsRoutine
 	cg.eventsRoutine = eventsRoutine
 	cg.results = results

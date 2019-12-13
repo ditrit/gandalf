@@ -2,11 +2,12 @@ package aggregator
 
 import (
 	"fmt"
-    "message"
+    "gandalfgo/message"
 	zmq "github.com/zeromq/goczmq"
 )
 
 type AggregatorCommandRoutine struct {
+	context							*zmq.Context
 	aggregatorCommandSendToCluster              zmq.Sock
 	aggregatorCommandSendToClusterConnections   []string
 	aggregatorCommandReceiveFromConnector           zmq.Sock
@@ -20,24 +21,25 @@ type AggregatorCommandRoutine struct {
 
 func (r AggregatorCommandRoutine) New(identity, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnections, aggregatorCommandReceiveFromClusterConnection string) err error {
 	r.identity = identity
-
+	
+	context, _ := zmq.NewContext()
 	r.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
-	r.aggregatorCommandSendToCluster = zmq.NewRouter(aggregatorCommandSendToClusterConnections)
+	r.aggregatorCommandSendToCluster = context.NewRouter(aggregatorCommandSendToClusterConnections)
 	r.aggregatorCommandSendToCluster.Identity(r.identity)
 	fmt.Printf("aggregatorCommandSendToCluster connect : " + aggregatorCommandSendToClusterConnections)
 
 	r.aggregatorCommandReceiveFromClusterConnections = aggregatorCommandReceiveFromClusterConnections
-	r.aggregatorCommandReceiveFromCluster = zmq.NewDealer(aggregatorCommandReceiveFromClusterConnections)
+	r.aggregatorCommandReceiveFromCluster = context.NewDealer(aggregatorCommandReceiveFromClusterConnections)
 	r.aggregatorCommandReceiveFromCluster.Identity(r.identity)
 	fmt.Printf("aggregatorCommandReceiveFromCluster connect : " + aggregatorCommandReceiveFromClusterConnections)
 
 	r.aggregatorCommandSendToConnectorConnection = aggregatorCommandSendToConnectorConnection
-	r.aggregatorCommandSendToConnector = zmq.NewRouter(aggregatorCommandSendToConnectorConnection)
+	r.aggregatorCommandSendToConnector = context.NewRouter(aggregatorCommandSendToConnectorConnection)
 	r.aggregatorCommandSendToConnector.Identity(r.identity)
 	fmt.Printf("aggregatorCommandSendToConnector connect : " + aggregatorCommandSendToConnectorConnection)
 
 	r.aggregatorCommandReceiveFromConnectorConnection = aggregatorCommandReceiveFromConnectorConnection
-	r.aggregatorCommandReceiveFromConnector = zmq.NewDealer(aggregatorCommandReceiveFromConnectorConnection)
+	r.aggregatorCommandReceiveFromConnector = context.NewDealer(aggregatorCommandReceiveFromConnectorConnection)
 	r.aggregatorCommandReceiveFromConnector.Identity(r.identity)
 	fmt.Printf("aggregatorCommandReceiveFromConnector connect : " + aggregatorCommandReceiveFromConnectorConnection)
 }

@@ -1,5 +1,10 @@
 package client
 
+import(
+	"gandalfgo/sender"
+	"gandalfgo/listener"
+)
+
 type LibraryGandalf struct {
 	senderGandalf   SenderGandalf
 	listenerGandalf ListenerGandalf

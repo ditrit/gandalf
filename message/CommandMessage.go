@@ -2,8 +2,10 @@ package message
 
 import (
 	"fmt"
-	"constant"
-	msgpack "github.com/shamaton/msgpack"
+	"time"
+	"gandalfgo/constant"
+	"github.com/shamaton/msgpack"
+	"github.com/zeromq/goczmq"
 )
 
 type CommandMessage struct {
@@ -27,7 +29,7 @@ type CommandMessage struct {
     payload    string
 }
 
-func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, command, payload string) err error {
+func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, command, payload string) {
 	c.context = context
 	c.timeout = timeout
 	c.uuid = uuid
@@ -38,10 +40,10 @@ func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, 
 	c.timestamp = time.Now()
 }
 
-func (c CommandMessage) sendWith(socket zmq.Sock, header string) {
+func (c CommandMessage) sendWith(socket Socket, header string) {
 	for {
-		isSend = cr.sendHeaderWith(socket, header)
-		isSend += cr.sendCommandWith(socket)
+		isSend := c.sendHeaderWith(socket, header)
+		isSend += c.sendCommandWith(socket)
 		if isSend > 0 {
 			break
 		}
@@ -49,9 +51,9 @@ func (c CommandMessage) sendWith(socket zmq.Sock, header string) {
 	}
 }
 
-func (c CommandMessage) sendHeaderWith(socket zmq.Sock, header string) {
+func (c CommandMessage) sendHeaderWith(socket Socket, header string) {
 	for {
-		isSend = zmq_send(socket, header, ZMQ_SNDMORE);
+		isSend := socket.Send(header, FlagMore);
 		if isSend > 0 {
 			break
 		}
@@ -59,9 +61,9 @@ func (c CommandMessage) sendHeaderWith(socket zmq.Sock, header string) {
 	}
 }
 
-func (c CommandMessage) sendCommandWith(socket zmq.Sock) {
+func (c CommandMessage) sendCommandWith(socket Socket) {
 	for {
-		isSend = zmq_send(socket, encode(c), 0);
+		isSend := socket.SendBytes(encode(c), 0);
 		if isSend > 0 {
 			break
 		}
@@ -69,7 +71,7 @@ func (c CommandMessage) sendCommandWith(socket zmq.Sock) {
 	}
 }
 
-func (c CommandMessage) from(command []byte) err error {
+func (c CommandMessage) from(command []byte) {
 	c.sourceAggregator = command[0]
 	c.sourceConnector = command[1]
 	c.sourceWorker = command[2]
@@ -92,7 +94,7 @@ func (c CommandMessage) from(command []byte) err error {
 
 //
 
-type CommandReply struct {
+type CommandMessageReply struct {
 	sourceAggregator    string
 	sourceConnector string
 	sourceWorker   string
@@ -109,9 +111,9 @@ type CommandReply struct {
     payload    string
 }
 
-func (cr CommandReply) sendWith(socket zmq.Sock, header string) {
+func (cr CommandMessageReply) sendWith(socket Socket, header string) {
 	for {
-		isSend = cr.sendHeaderWith(socket, header)
+		isSend := cr.sendHeaderWith(socket, header)
 		isSend += cr.sendCommandReplyWith(socket)
 		if isSend > 0 {
 			break
@@ -120,9 +122,9 @@ func (cr CommandReply) sendWith(socket zmq.Sock, header string) {
 	}
 }
 
-func (cr CommandReply) sendHeaderCommandReplyWith(socket zmq.Sock, header string) {
+func (cr CommandMessageReply) sendHeaderCommandReplyWith(socket Socket, header string) {
 	for {
-		isSend = zmq_send(socket, header, ZMQ_SNDMORE);
+		isSend := socket.Send(header, FlagMore);
 		if isSend > 0 {
 			break
 		}
@@ -130,9 +132,9 @@ func (cr CommandReply) sendHeaderCommandReplyWith(socket zmq.Sock, header string
 	}
 }
 
-func (cr CommandReply) sendCommandReplyWith(socket zmq.Sock) {
+func (cr CommandMessageReply) sendCommandReplyWith(socket Socket) {
 	for {
-		isSend = zmq_send(socket, encode(cr), 0);
+		isSend := socket.SendBytes(encode(cr), 0);
 		if isSend > 0 {
 			break
 		}
@@ -140,7 +142,7 @@ func (cr CommandReply) sendCommandReplyWith(socket zmq.Sock) {
 	}
 }
 
-func (cr CommandReply) from(commandMessage CommandMessage, reply, payload string) {
+func (cr CommandMessageReply) from(commandMessage CommandMessage, reply, payload string) {
 	cr.sourceAggregator = commandMessage.sourceAggregator
 	cr.sourceConnector = commandMessage.sourceConnector
 	cr.sourceWorker = commandMessage.sourceWorker
@@ -163,14 +165,14 @@ type CommandFunction struct {
 	functions    []string
 }
 
-func (cf CommandFunction) New(functions []string) err error {
+func (cf CommandFunction) New(functions []string) {
 	cf.functions = functions
 }
 
-func (cf CommandFunction) sendWith(socket zmq.Sock) {
+func (cf CommandFunction) sendWith(socket Socket) {
 	for {
-		isSend = zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS, ZMQ_SNDMORE);
-		isSend += zmq_send(socket, encode(cf), 0);
+		isSend := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS, FlagMore);
+		isSend += socket.SendBytes(encode(cf), 0);
 		if isSend > 0 {
 			break
 		}
@@ -184,13 +186,13 @@ type CommandFunctionReply struct {
 	validation bool
 }
 
-func (cfr CommandFunctionReply) New(validation bool) err error {
+func (cfr CommandFunctionReply) New(validation bool) {
 	cfr.validation = validation
 }
 
-func (cfr CommandFunctionReply) sendWith(socket zmq.Sock, header string) {
+func (cfr CommandFunctionReply) sendWith(socket Socket, header string) {
 	for {
-		isSend = cfr.sendHeaderWith(socket, header)
+		isSend := cfr.sendHeaderWith(socket, header)
 		isSend += cfr.sendCommandCommandsEventsReplyWith(socket)
 		if isSend > 0 {
 			break
@@ -199,9 +201,9 @@ func (cfr CommandFunctionReply) sendWith(socket zmq.Sock, header string) {
 	}
 }
 
-func (cfr CommandFunctionReply) sendHeaderWith(socket zmq.Sock, header string) {
+func (cfr CommandFunctionReply) sendHeaderWith(socket Socket, header string) {
 	for {
-		isSend = zmq_send(socket, header, ZMQ_SNDMORE);
+		isSend := socket.Send(header, FlagMore);
 		if isSend > 0 {
 			break
 		}
@@ -209,10 +211,10 @@ func (cfr CommandFunctionReply) sendHeaderWith(socket zmq.Sock, header string) {
 	}
 }
 
-func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket zmq.Sock) {
+func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket Socket) {
 	for {
-		isSend = zmq_send(socket, constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, ZMQ_SNDMORE);
-		isSend += zmq_send(socket, encode(ccer), 0);
+		isSend := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, FlagMore);
+		isSend += socket.SendBytes(encode(ccer), 0);
 		if isSend > 0 {
 			break
 		}
@@ -226,13 +228,13 @@ type CommandReady struct {
 	// ???
 }
 
-func (cry CommandReady) New() err error {
+func (cry CommandReady) New() {
 }
 
-func (cry CommandReady) sendWith(socket zmq.Sock) {
+func (cry CommandReady) sendWith(socket Socket) {
 	for {
-		isSend = zmq_send(socket, constant.COMMAND_READY, ZMQ_SNDMORE);
-		isSend += zmq_send(socket, encode(cry), 0);
+		isSend := socket.Send(constant.COMMAND_READY, FlagMore);
+		isSend += socket.SendBytes(encode(cry), 0);
 		if isSend > 0 {
 			break
 		}
@@ -251,7 +253,7 @@ func encode() (bytesContent []byte, commandError error) {
 	return
 }
 
-func decodeCommand(bytesContent []byte) (command Command, commandError error) {
+func decodeCommand(bytesContent []byte) (commandMessage CommandMessage, commandError error) {
 	err := msgpack.Decode(bytesContent, command)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)
@@ -260,7 +262,7 @@ func decodeCommand(bytesContent []byte) (command Command, commandError error) {
 	return
 }	
 
-func decodeCommandReply(bytesContent []byte) (commandReply CommandReply, commandError error) {
+func decodeCommandReply(bytesContent []byte) (commandReply CommandMessageReply, commandError error) {
 	err := msgpack.Decode(bytesContent, commandReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
@@ -278,16 +280,7 @@ func decodeCommandReady(bytesContent []byte) (commandReady CommandReady, command
 	return
 }
 
-func decodeCommandAck(bytesContent []byte) (commandAck CommandAck, commandError error) {
-	err := msgpack.Decode(bytesContent, commandAck)
-	if err != nil {
-		commandError = fmt.Errorf("CommandResponse %s", err)
-		return
-	}
-	return
-}
-
-func decodeCommandFunction(bytesContent []byte) (commandFunctions CommandFunctions, commandError error) {
+func decodeCommandFunction(bytesContent []byte) (commandFunction CommandFunction, commandError error) {
 	err := msgpack.Decode(bytesContent, commandFunctions)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)

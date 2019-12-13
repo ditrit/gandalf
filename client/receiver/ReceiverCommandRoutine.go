@@ -1,6 +1,11 @@
 package receiver
 
+import(
+	"gandalfgo/message"
+)
+
 type ReceiverCommandRoutine struct {
+	context							*zmq.Context
 	results chan ResponseMessage
 	workerCommandReceive zmq.Sock
 	receiverCommandConnection string
@@ -16,7 +21,8 @@ func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, 
 	r.commandsRoutine = commandsRoutine
 	r.results = results
 
-	r.workerCommandReceive = zmq.NewDealer(receiverCommandConnection)
+	context, _ := zmq.NewContext()
+	r.workerCommandReceive = context.NewDealer(receiverCommandConnection)
 	r.workerCommandReceive.Identity(r.identity)
 	fmt.Printf("workerCommandReceive connect : " + receiverCommandConnection)
 

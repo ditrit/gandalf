@@ -2,8 +2,9 @@ package message
 
 import (
 	"fmt"
-	"message"
-	msgpack "github.com/shamaton/msgpack"
+	"time"
+	"github.com/shamaton/msgpack"
+	"github.com/zeromq/goczmq"
 )
 
 type EventMessage struct {
@@ -16,7 +17,7 @@ type EventMessage struct {
 	payload  string
 }
 
-func (e EventMessage) New(topic, timeout, event, payload string) err error {
+func (e EventMessage) New(topic, timeout, event, payload string) {
 	e.topic = topic
 	e.timeout = timeout
 	e.event = event
@@ -24,9 +25,9 @@ func (e EventMessage) New(topic, timeout, event, payload string) err error {
 	e.timestamp = time.Now()
 }
 
-func (e EventMessage) sendWith(socket zmq.Sock, header string) {
+func (e EventMessage) sendWith(socket Socket, header string) {
 	for {
-		isSend = e.sendHeaderWith(socket, header)
+		isSend := e.sendHeaderWith(socket, header)
 		isSend += e.sendEventWith(socket)
 		if isSend > 0 {
 			break
@@ -35,9 +36,9 @@ func (e EventMessage) sendWith(socket zmq.Sock, header string) {
 	}
 } 
 
-func (e EventMessage) sendHeaderWith(socket zmq.Sock, header string) {
+func (e EventMessage) sendHeaderWith(socket Socket, header string) {
 	for {
-		isSend = zmq_send(socket, header, ZMQ_SNDMORE);
+		isSend := socket.Send(header, FlagMore);
 		if isSend > 0 {
 			break
 		}
@@ -45,10 +46,10 @@ func (e EventMessage) sendHeaderWith(socket zmq.Sock, header string) {
 	}
 }
 
-func (e EventMessage) sendEventWith(socket zmq.Sock) {
+func (e EventMessage) sendEventWith(socket Socket) {
 	for {
-		isSend = zmq_send(socket, e.topic, ZMQ_SNDMORE);
-		isSend += zmq_send(socket, e.encodeEvent(e), 0);
+		isSend := socket.Send(e.topic, FlagMore);
+		isSend += socket.SendBytes(e.encodeEvent(e), 0);
 		if isSend > 0 {
 			break
 		}
@@ -56,7 +57,7 @@ func (e EventMessage) sendEventWith(socket zmq.Sock) {
 	}
 }
 
-func (e EventMessage) from(event []byte) err error {
+func (e EventMessage) from(event []byte) {
 	e.tenant = event[0]
 	e.token = event[1]
 	e.topic = event[2]
@@ -75,8 +76,8 @@ func (e EventMessage) encodeEvent() (bytesContent []byte, commandError error) {
 	return
 }
 
-func (e EventMessage) decodeEvent(bytesContent []byte) (event Event, commandError error) {
-	err := msgpack.Decode(bytesContent, event)
+func (e EventMessage) decodeEvent(bytesContent []byte) (eventMessage EventMessage, commandError error) {
+	err := msgpack.Decode(bytesContent, eventMessage)
 	if err != nil {
 		commandError = fmt.Errorf("Event %s", err)
 		return

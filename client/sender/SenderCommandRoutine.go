@@ -8,6 +8,7 @@ import (
 )
 
 type SenderCommandRoutine struct {
+	context							*zmq.Context
 	senderCommandSend            	zmq.Sock
 	senderCommandConnections 	*string
 	senderCommandConnection  	string
@@ -19,8 +20,10 @@ type SenderCommandRoutine struct {
 func (r SenderCommandRoutine) New(identity, sendSenderConnection string) err error {
 	result := make(chan Result)
 	r.identity = identity
+
+	context, _ := zmq.NewContext()
 	r.sendSenderConnection = sendSenderConnection
-	r.senderCommandSend = zmq.NewDealer(sendSenderConnection)
+	r.senderCommandSend = context.NewDealer(sendSenderConnection)
 	r.senderCommandSend.Identity(r.identity)
 	fmt.Printf("senderCommandSend connect : " + sendSenderConnection)
 }
@@ -28,8 +31,10 @@ func (r SenderCommandRoutine) New(identity, sendSenderConnection string) err err
 func (r SenderCommandRoutine) NewList(identity string, senderCommandConnections *string) err error {
 	result := make(chan Result)
 	r.identity = identity
+
+	context, _ := zmq.NewContext()
 	r.senderCommandConnections = senderCommandConnections
-	r.senderCommandSend = zmq.NewDealer(senderCommandConnections)
+	r.senderCommandSend = context.NewDealer(senderCommandConnections)
 	r.senderCommandSend.Identity(r.identity)
 	fmt.Printf("senderCommandSend connect : " + senderCommandConnections)
 }

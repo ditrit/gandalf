@@ -1,5 +1,9 @@
 package listener
 
+import(
+	"gandalfgo/listener"
+)
+
 type ListenerGandalf struct {
 	listenerEventRoutine   ListenerEventRoutine
 	listenerCommandRoutine ListenerCommandRoutine
