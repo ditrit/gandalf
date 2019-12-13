@@ -15,7 +15,7 @@ type ClusterConfiguration struct {
 }
 
 func loadConfiguration(path string) (clusterConfiguration ClusterConfiguration, err error) {
-	clusterConfiguration := ClusterConfiguration{}
-	err := gonfig.GetConf(path, &clusterConfiguration)
+	clusterConfiguration = ClusterConfiguration{}
+	err = gonfig.GetConf(path, &clusterConfiguration)
 	return
 }

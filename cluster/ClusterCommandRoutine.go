@@ -3,16 +3,16 @@ package cluster
 import (
 	"fmt"
     "gandalfgo/message"
-	zmq "github.com/zeromq/goczmq"
+	"github.com/zeromq/goczmq"
 )
 
 type ClusterCommandRoutine struct {
-	context							*zmq.Context
-	clusterCommandSend              zmq.Sock
+	context							*goczmq.Context
+	clusterCommandSend              goczmq.Sock
 	clusterCommandSendConnection    string
-	clusterCommandReceive           zmq.Sock
+	clusterCommandReceive           goczmq.Sock
 	clusterCommandReceiveConnection string
-	clusterCommandCapture           zmq.Sock
+	clusterCommandCapture           goczmq.Sock
 	clusterCommandCaptureConnection string
 	identity                        string
 }
