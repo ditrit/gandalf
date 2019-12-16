@@ -25,10 +25,10 @@ func (e EventMessage) New(topic, timeout, event, payload string) {
 	e.timestamp = time.Now().String()
 }
 
-func (e EventMessage) sendWith(socket zmq4.Socket, header string) (isSend bool) {
+func (e EventMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
-		isSend = e.sendHeaderWith(socket, header)
-		isSend = isSend && isSend && e.sendEventWith(socket)
+		isSend = e.SendHeaderWith(socket, header)
+		isSend = isSend && isSend && e.SendEventWith(socket)
 		if isSend {
 			return
 		}
@@ -36,7 +36,7 @@ func (e EventMessage) sendWith(socket zmq4.Socket, header string) (isSend bool) 
 	}
 } 
 
-func (e EventMessage) sendHeaderWith(socket zmq4.Socket, header string) (isSend bool) {
+func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		_, err := socket.Send(header, zmq4.SNDMORE)
 		if err == nil {
@@ -47,11 +47,11 @@ func (e EventMessage) sendHeaderWith(socket zmq4.Socket, header string) (isSend 
 	}
 }
 
-func (e EventMessage) sendEventWith(socket zmq4.Socket) (isSend bool) {
+func (e EventMessage) SendEventWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(e.topic, zmq4.SNDMORE)
 		if err == nil {
-			encoded, _ := encodeEvent(e)
+			encoded, _ := EncodeEventMessage(e)
 			_, err = socket.SendBytes(encoded, 0)
 			if err == nil {
 				isSend = true
@@ -62,7 +62,7 @@ func (e EventMessage) sendEventWith(socket zmq4.Socket) (isSend bool) {
 	}
 }
 
-func (e EventMessage) from(event []string) {
+func (e EventMessage) From(event []string) {
 	e.tenant = event[0]
 	e.token = event[1]
 	e.topic = event[2]
@@ -72,7 +72,7 @@ func (e EventMessage) from(event []string) {
 	e.payload = event[6]
 }
 
-func encodeEvent(eventMessage EventMessage) (bytesContent []byte, commandError error) {
+func EncodeEventMessage(eventMessage EventMessage) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(eventMessage)
 	if err != nil {
 		commandError = fmt.Errorf("Event %s", err)
@@ -81,7 +81,7 @@ func encodeEvent(eventMessage EventMessage) (bytesContent []byte, commandError e
 	return
 }
 
-func decodeEvent(bytesContent []byte) (eventMessage EventMessage, commandError error) {
+func DecodeEventMessage(bytesContent []byte) (eventMessage EventMessage, commandError error) {
 	err := msgpack.Decode(bytesContent, eventMessage)
 	if err != nil {
 		commandError = fmt.Errorf("Event %s", err)

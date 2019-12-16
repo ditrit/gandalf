@@ -9,12 +9,12 @@ import (
 )
 
 type CommandMessage struct {
-	sourceAggregator    string
-	sourceConnector string
-	sourceWorker   string
-	destinationAggregator    string
-    destinationConnector    string
-    destinationWorker string
+	SourceAggregator    string
+	SourceConnector string
+	SourceWorker   string
+	DestinationAggregator    string
+    DestinationConnector    string
+    DestinationWorker string
     tenant   string
     token    string
     context    string
@@ -40,10 +40,10 @@ func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, 
 	c.timestamp = time.Now().String()
 }
 
-func (c CommandMessage) sendWith(socket zmq4.Socket, header string) (isSend bool) {
+func (c CommandMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
-		isSend = c.sendHeaderWith(socket, header)
-		isSend = isSend && c.sendCommandWith(socket)
+		isSend = c.SendHeaderWith(socket, header)
+		isSend = isSend && c.SendCommandWith(socket)
 		if isSend {
 			return
 		}
@@ -51,7 +51,7 @@ func (c CommandMessage) sendWith(socket zmq4.Socket, header string) (isSend bool
 	}
 }
 
-func (c CommandMessage) sendHeaderWith(socket zmq4.Socket, header string) (isSend bool) {
+func (c CommandMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		_, err := socket.Send(header, zmq4.SNDMORE);
 		if err == nil {
@@ -62,9 +62,9 @@ func (c CommandMessage) sendHeaderWith(socket zmq4.Socket, header string) (isSen
 	}
 }
 
-func (c CommandMessage) sendCommandWith(socket zmq4.Socket) (isSend bool) {
+func (c CommandMessage) SendCommandWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		encoded, _ := encodeCommandMessage(c)
+		encoded, _ := EncodeCommandMessage(c)
 		_, err := socket.SendBytes(encoded, 0);
 		if err == nil {
 			isSend = true
@@ -74,13 +74,13 @@ func (c CommandMessage) sendCommandWith(socket zmq4.Socket) (isSend bool) {
 	}
 }
 
-func (c CommandMessage) from(command []string) {
-	c.sourceAggregator = command[0]
-	c.sourceConnector = command[1]
-	c.sourceWorker = command[2]
-	c.destinationAggregator = command[3]
-    c.destinationConnector = command[4]
-    c.destinationWorker = command[5]
+func (c CommandMessage) From(command []string) {
+	c.SourceAggregator = command[0]
+	c.SourceConnector = command[1]
+	c.SourceWorker = command[2]
+	c.DestinationAggregator = command[3]
+    c.DestinationConnector = command[4]
+    c.DestinationWorker = command[5]
     c.tenant = command[6]
     c.token = command[7]
     c.context = command[8]
@@ -98,12 +98,12 @@ func (c CommandMessage) from(command []string) {
 //
 
 type CommandMessageReply struct {
-	sourceAggregator    string
-	sourceConnector string
-	sourceWorker   string
-	destinationAggregator    string
-    destinationConnector    string
-    destinationWorker string
+	SourceAggregator    string
+	SourceConnector string
+	SourceWorker   string
+	DestinationAggregator    string
+    DestinationConnector    string
+    DestinationWorker string
     tenant   string
     token    string
     context    string
@@ -114,10 +114,10 @@ type CommandMessageReply struct {
     payload    string
 }
 
-func (cr CommandMessageReply) sendWith(socket zmq4.Socket, header string) (isSend bool) {
+func (cr CommandMessageReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
-		isSend = cr.sendHeaderWith(socket, header)
-		isSend = isSend && cr.sendCommandReplyWith(socket)
+		isSend = cr.SendHeaderWith(socket, header)
+		isSend = isSend && cr.SendCommandReplyWith(socket)
 		if isSend {
 			return
 		}
@@ -125,7 +125,7 @@ func (cr CommandMessageReply) sendWith(socket zmq4.Socket, header string) (isSen
 	}
 }
 
-func (cr CommandMessageReply) sendHeaderWith(socket zmq4.Socket, header string) (isSend bool) {
+func (cr CommandMessageReply) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		_, err := socket.Send(header, zmq4.SNDMORE);
 		if err == nil {
@@ -136,9 +136,9 @@ func (cr CommandMessageReply) sendHeaderWith(socket zmq4.Socket, header string) 
 	}
 }
 
-func (cr CommandMessageReply) sendCommandReplyWith(socket zmq4.Socket) (isSend bool) {
+func (cr CommandMessageReply) SendCommandReplyWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		encoded, _ := encodeCommandMessageReply(cr)
+		encoded, _ := EncodeCommandMessageReply(cr)
 		_, err := socket.SendBytes(encoded, 0);
 		if err == nil {
 			isSend = true
@@ -148,13 +148,13 @@ func (cr CommandMessageReply) sendCommandReplyWith(socket zmq4.Socket) (isSend b
 	}
 }
 
-func (cr CommandMessageReply) from(commandMessage CommandMessage, reply, payload string) {
-	cr.sourceAggregator = commandMessage.sourceAggregator
-	cr.sourceConnector = commandMessage.sourceConnector
-	cr.sourceWorker = commandMessage.sourceWorker
-	cr.destinationAggregator = commandMessage.destinationAggregator
-    cr.destinationConnector = commandMessage.destinationConnector
-    cr.destinationWorker = commandMessage.destinationWorker
+func (cr CommandMessageReply) From(commandMessage CommandMessage, reply, payload string) {
+	cr.SourceAggregator = commandMessage.SourceAggregator
+	cr.SourceConnector = commandMessage.SourceConnector
+	cr.SourceWorker = commandMessage.SourceWorker
+	cr.DestinationAggregator = commandMessage.DestinationAggregator
+    cr.DestinationConnector = commandMessage.DestinationConnector
+    cr.DestinationWorker = commandMessage.DestinationWorker
     cr.tenant = commandMessage.tenant
     cr.token = commandMessage.token
     cr.context = commandMessage.context
@@ -175,11 +175,11 @@ func (cf CommandFunction) New(functions []string) {
 	cf.functions = functions
 }
 
-func (cf CommandFunction) sendWith(socket zmq4.Socket) (isSend bool) {
+func (cf CommandFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS, zmq4.SNDMORE);
 		if err == nil {
-			encoded, _ := encodeCommandFunction(cf)
+			encoded, _ := EncodeCommandFunction(cf)
 			_, err = socket.SendBytes(encoded, 0);
 			if err == nil {
 				isSend = true
@@ -200,10 +200,10 @@ func (cfr CommandFunctionReply) New(validation bool) {
 	cfr.validation = validation
 }
 
-func (cfr CommandFunctionReply) sendWith(socket zmq4.Socket, header string) (isSend bool) {
+func (cfr CommandFunctionReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
-		isSend = cfr.sendHeaderWith(socket, header)
-		isSend = isSend && cfr.sendCommandFunctionReplyWith(socket)
+		isSend = cfr.SendHeaderWith(socket, header)
+		isSend = isSend && cfr.SendCommandFunctionReplyWith(socket)
 		if isSend {
 			return
 		}
@@ -211,7 +211,7 @@ func (cfr CommandFunctionReply) sendWith(socket zmq4.Socket, header string) (isS
 	}
 }
 
-func (cfr CommandFunctionReply) sendHeaderWith(socket zmq4.Socket, header string) (isSend bool) {
+func (cfr CommandFunctionReply) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		_, err := socket.Send(header, zmq4.SNDMORE);
 		if err == nil {
@@ -222,11 +222,11 @@ func (cfr CommandFunctionReply) sendHeaderWith(socket zmq4.Socket, header string
 	}
 }
 
-func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket zmq4.Socket) (isSend bool) {
+func (cfr CommandFunctionReply) SendCommandFunctionReplyWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, zmq4.SNDMORE);
 		if err == nil {
-			encoded, _ := encodeCommandFunctionReply(cfr)
+			encoded, _ := EncodeCommandFunctionReply(cfr)
 			_, err = socket.SendBytes(encoded, 0);
 			if err == nil {
 				isSend = true
@@ -247,11 +247,11 @@ type CommandMessageReady struct {
 func (cry CommandMessageReady) New() {
 }
 
-func (cry CommandMessageReady) sendWith(socket zmq4.Socket) (isSend bool) {
+func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_READY, zmq4.SNDMORE);
 		if err == nil {
-			encoded, _ := encodeCommandMessageReady(cry)
+			encoded, _ := EncodeCommandMessageReady(cry)
 			_, err = socket.SendBytes(encoded, 0);
 			if err == nil {
 				isSend = true
@@ -264,7 +264,7 @@ func (cry CommandMessageReady) sendWith(socket zmq4.Socket) (isSend bool) {
 
 //
 
-func encodeCommandMessage(commandMessage CommandMessage) (bytesContent []byte, commandError error) {
+func EncodeCommandMessage(commandMessage CommandMessage) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandMessage)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)
@@ -273,7 +273,7 @@ func encodeCommandMessage(commandMessage CommandMessage) (bytesContent []byte, c
 	return
 }
 
-func encodeCommandMessageReply(commandMessageReply CommandMessageReply) (bytesContent []byte, commandError error) {
+func EncodeCommandMessageReply(commandMessageReply CommandMessageReply) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandMessageReply)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)
@@ -282,7 +282,7 @@ func encodeCommandMessageReply(commandMessageReply CommandMessageReply) (bytesCo
 	return
 }
 
-func encodeCommandMessageReady(commandMessageReady CommandMessageReady) (bytesContent []byte, commandError error) {
+func EncodeCommandMessageReady(commandMessageReady CommandMessageReady) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandMessageReady)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)
@@ -291,7 +291,7 @@ func encodeCommandMessageReady(commandMessageReady CommandMessageReady) (bytesCo
 	return
 }
 
-func encodeCommandFunction(commandFunction CommandFunction) (bytesContent []byte, commandError error) {
+func EncodeCommandFunction(commandFunction CommandFunction) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandFunction)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)
@@ -300,7 +300,7 @@ func encodeCommandFunction(commandFunction CommandFunction) (bytesContent []byte
 	return
 }
 
-func encodeCommandFunctionReply(commandFunctionReply CommandFunctionReply) (bytesContent []byte, commandError error) {
+func EncodeCommandFunctionReply(commandFunctionReply CommandFunctionReply) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandFunctionReply)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)
@@ -309,7 +309,7 @@ func encodeCommandFunctionReply(commandFunctionReply CommandFunctionReply) (byte
 	return
 }
 
-func decodeCommandMessage(bytesContent []byte) (commandMessage CommandMessage, commandError error) {
+func DecodeCommandMessage(bytesContent []byte) (commandMessage CommandMessage, commandError error) {
 	err := msgpack.Decode(bytesContent, commandMessage)
 	if err != nil {
 		commandError = fmt.Errorf("Command %s", err)
@@ -318,7 +318,7 @@ func decodeCommandMessage(bytesContent []byte) (commandMessage CommandMessage, c
 	return
 }	
 
-func decodeCommandMessageReply(bytesContent []byte) (commandMessageReply CommandMessageReply, commandError error) {
+func DecodeCommandMessageReply(bytesContent []byte) (commandMessageReply CommandMessageReply, commandError error) {
 	err := msgpack.Decode(bytesContent, commandMessageReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
@@ -327,7 +327,7 @@ func decodeCommandMessageReply(bytesContent []byte) (commandMessageReply Command
 	return
 }
 
-func decodeCommandMessageReady(bytesContent []byte) (commandMessageReady CommandMessageReady, commandError error) {
+func DecodeCommandMessageReady(bytesContent []byte) (commandMessageReady CommandMessageReady, commandError error) {
 	err := msgpack.Decode(bytesContent, commandMessageReady)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
@@ -336,7 +336,7 @@ func decodeCommandMessageReady(bytesContent []byte) (commandMessageReady Command
 	return
 }
 
-func decodeCommandFunction(bytesContent []byte) (commandFunction CommandFunction, commandError error) {
+func DecodeCommandFunction(bytesContent []byte) (commandFunction CommandFunction, commandError error) {
 	err := msgpack.Decode(bytesContent, commandFunction)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
@@ -345,7 +345,7 @@ func decodeCommandFunction(bytesContent []byte) (commandFunction CommandFunction
 	return
 }
 
-func decodeCommandFunctionReply(bytesContent []byte) (commandFunctionReply CommandFunctionReply, commandError error) {
+func DecodeCommandFunctionReply(bytesContent []byte) (commandFunctionReply CommandFunctionReply, commandError error) {
 	err := msgpack.Decode(bytesContent, commandFunctionReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)

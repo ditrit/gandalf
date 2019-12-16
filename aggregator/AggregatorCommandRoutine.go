@@ -2,6 +2,7 @@ package aggregator
 
 import (
 	"fmt"
+	"errors"
     "gandalfgo/message"
 	"github.com/pebbe/zmq4"
 )
@@ -55,7 +56,7 @@ func (r AggregatorCommandRoutine) New(identity, aggregatorCommandReceiveFromConn
 func (r AggregatorCommandRoutine) close() {
 	r.aggregatorCommandSendToCluster.Close()
 	r.aggregatorCommandReceiveFromConnector.Close()
-	r.aggregatorCommandSendToCluster.Close()
+	r.aggregatorCommandSendToConnector.Close()
 	r.aggregatorCommandReceiveFromConnector.Close()
 	r.context.Term()
 }
@@ -67,7 +68,8 @@ func (r AggregatorCommandRoutine) run() {
 	poller.Add(r.aggregatorCommandSendToConnector, zmq4.POLLIN)
 	poller.Add(r.aggregatorCommandReceiveFromCluster, zmq4.POLLIN)
 
-	var command = []string{}
+	command := [][]byte{}
+	err := errors.New("")
 
 	for {
 
@@ -77,7 +79,7 @@ func (r AggregatorCommandRoutine) run() {
 		switch currentSocket := socket.Socket; currentSocket {
 			case r.aggregatorCommandSendToCluster:
 
-				command, err := currentSocket.RecvBytes()
+				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -88,7 +90,7 @@ func (r AggregatorCommandRoutine) run() {
 
 			case r.aggregatorCommandReceiveFromConnector:
 
-				command, err := currentSocket.RecvBytes()
+				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -99,7 +101,7 @@ func (r AggregatorCommandRoutine) run() {
 
 			case r.aggregatorCommandSendToConnector:
 
-				command, err := currentSocket.RecvBytes()
+				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -110,7 +112,7 @@ func (r AggregatorCommandRoutine) run() {
 
 			case r.aggregatorCommandReceiveFromCluster:
 
-				command, err := currentSocket.RecvBytes()
+				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -125,32 +127,32 @@ func (r AggregatorCommandRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r AggregatorCommandRoutine) processCommandSendToCluster(command []byte) (err error) {
-	sourceConnector := command[0]
-	commandMessage := message.CommandMessage.decodeCommandMessage(command[1])
-	commandMessage.sourceConnector = sourceConnector
-	commandMessage.sourceAggreagator = r.identity
-	go commandMessage.sendCommandWith(r.aggregatorCommandReceiveFromConnector)
+func (r AggregatorCommandRoutine) processCommandSendToCluster(command [][]byte) (err error) {
+	sourceConnector := string(command[0])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	commandMessage.SourceConnector = sourceConnector
+	commandMessage.SourceAggregator = r.identity
+	go commandMessage.SendCommandWith(r.aggregatorCommandReceiveFromConnector)
 	return
 	 //RESULT TO CLUSTER
 }
 
-func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command []byte) (err error) {
-	commandMessage := message.CommandMessage.decodeCommandMessage(command[1])
-	go commandMessage.sendCommandWith(r.aggregatorCommandSendToConnector)
+func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) (err error) {
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	go commandMessage.SendCommandWith(r.aggregatorCommandSendToConnector)
 	return
 }
 
-func (r AggregatorCommandRoutine) processCommandSendToConnector(command []byte) (err error) {
-	commandMessage := message.CommandMessage.decodeCommandMessage(command[1])
-	go commandMessage.sendWith(r.aggregatorCommandReceiveFromCluster, commandMessage.sourceConnector)
+func (r AggregatorCommandRoutine) processCommandSendToConnector(command [][]byte) (err error) {
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	go commandMessage.SendWith(r.aggregatorCommandReceiveFromCluster, commandMessage.SourceConnector)
 	return
     //COMMAND
 }
 
-func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command []byte) (err error) {
-	commandMessage := message.CommandMessage.decodeCommandMessage(command[1])
-	go commandMessage.sendWith(r.aggregatorCommandSendCluster, commandMessage.targetConnector)
+func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) (err error) {
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	go commandMessage.SendWith(r.aggregatorCommandSendToCluster, commandMessage.DestinationConnector)
 	return
 	//RECEIVE FROM CONNECTOR
 }
