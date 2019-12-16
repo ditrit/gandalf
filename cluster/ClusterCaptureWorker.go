@@ -8,8 +8,8 @@ import (
 
 type ClusterCaptureWorkerRoutine struct {
 	context									  zmq4.Context
-	workerCaptureCommandReceive           zmq4.Socket
-	workerCaptureCommandReceiveConnection string
+	workerCaptureCommandReceive           	zmq4.Socket
+	workerCaptureCommandReceiveConnection 		string
 	workerCaptureEventReceive            zmq4.Socket
 	workerCaptureEventReceiveConnection   string
 	identity                                  string
@@ -20,13 +20,13 @@ func (r ClusterCaptureWorkerRoutine) New(identity, workerCaptureCommandReceiveCo
 
 	r.context, _ = zmq4.NewContext()
 	r.workerCaptureCommandReceiveConnection = workerCaptureCommandReceiveConnection
-	r.workerCaptureCommandReceive = r.context.NewSocket(zmq4.DEALER)
+	r.workerCaptureCommandReceive, _ = r.context.NewSocket(zmq4.DEALER)
 	r.workerCaptureCommandReceive.SetIdentity(r.identity)
 	r.workerCaptureCommandReceive.Connect(r.workerCaptureCommandReceiveConnection)
 	fmt.Printf("workerCaptureCommandReceive connect : " + workerCaptureCommandReceiveConnection)
 
 	r.workerCaptureEventReceiveConnection = workerCaptureEventReceiveConnection
-	r.workerCaptureEventReceive = r.context.NewSocket(zmq4.SUB)
+	r.workerCaptureEventReceive, _ = r.context.NewSocket(zmq4.SUB)
 	r.workerCaptureEventReceive.SetIdentity(r.identity)
 	r.workerCaptureEventReceive.Connect(r.workerCaptureEventReceiveConnection)
 	fmt.Printf("workerCaptureEventReceive connect : " + workerCaptureEventReceiveConnection)

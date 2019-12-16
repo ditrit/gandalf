@@ -22,10 +22,10 @@ type ConnectorCommandRoutine struct {
 	identity                              				string
 }
 
-func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections, connectorCommandReceiveFromWorkerConnection string) err error {
+func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections, connectorCommandReceiveFromWorkerConnection string) {
 	r.identity = identity
 
-	r.context, _ := zmq4.NewContext()
+	r.context, _ = zmq4.NewContext()
 	r.connectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
 	r.connectorCommandSendToWorker = r.context.NewSocket(zmq4.ROUTER)
 	r.connectorCommandSendToWorker.Identity(r.identity)
@@ -158,7 +158,6 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byt
 			r.connectorMapWorkerCommands[workerSource] = commands 
 			commandFunctionReply := CommandFunctionReply.New(result)
 			go commandFunctionReply.sendCommandFunctionReplyWith(r.connectorCommandSendToWorker)
-
         }
 	}
     else {
@@ -205,7 +204,7 @@ func (r ConnectorCommandRoutine) getConnectorMapUUIDCommandMessage(String comman
 
 func (r ConnectorCommandRoutine) validationCommands(workerSource string, commands []string) (result bool, err error) {
 	//TODO
-	result := true
+	result = true
 
 	return
 }
@@ -224,8 +223,7 @@ func (r ConnectorCommandRoutine) cleanCommandsByTimeout() {
 		for uuid, commandMessage := range r.connectorMapUUIDCommandMessage { 
 			if commandMessage.timestamp - commandMessage.timeout == 0 {
 				delete(r.connectorMapUUIDCommandMessage, uuid) 	
-			}
-			else {
+			} else {
 				if commandMessage.timeout >= maxTimeout {
 					maxTimeout = commandMessage.timeout
 				}
