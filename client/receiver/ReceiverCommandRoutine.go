@@ -23,8 +23,9 @@ func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, 
 	r.results = results
 
 	r.context, _ = zmq4.NewContext()
-	r.workerCommandReceive = r.context.NewDealer(receiverCommandConnection)
+	r.workerCommandReceive = r.context.NewSocket(zmq4.DEALER)
 	r.workerCommandReceive.SetIdentity(r.identity)
+	r.workerCommandReceive.Connect(r.receiverCommandConnection)
 	fmt.Printf("workerCommandReceive connect : " + receiverCommandConnection)
 
 	r.loadCommandRoutines()

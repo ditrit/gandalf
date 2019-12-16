@@ -17,15 +17,16 @@ type SenderCommandRoutine struct {
 	mapUUIDCommandStates            map[string]State
 }
 
-func (r SenderCommandRoutine) New(identity, sendSenderConnection string) {
+func (r SenderCommandRoutine) New(identity, senderCommandConnection string) {
 	result := make(chan Result)
 	r.identity = identity
 
 	r.context, _ := zmq4.NewContext()
 	r.sendSenderConnection = sendSenderConnection
-	r.senderCommandSend = r.context.NewDealer(sendSenderConnection)
-	r.senderCommandSend.Identity(r.identity)
-	fmt.Printf("senderCommandSend connect : " + sendSenderConnection)
+	r.senderCommandSend = r.context.NewSocket(zmq4.DEALER)
+	r.senderCommandSend.SetIdentity(r.identity)
+	r.senderCommandSend.Connect(r.senderCommandConnection)
+	fmt.Printf("senderCommandSend connect : " + senderCommandConnection)
 }
 
 func (r SenderCommandRoutine) NewList(identity string, senderCommandConnections *string) {
@@ -34,9 +35,13 @@ func (r SenderCommandRoutine) NewList(identity string, senderCommandConnections 
 
 	r.context, _ := zmq4.NewContext()
 	r.senderCommandConnections = senderCommandConnections
-	r.senderCommandSend = r.context.NewDealer(senderCommandConnections)
-	r.senderCommandSend.Identity(r.identity)
-	fmt.Printf("senderCommandSend connect : " + senderCommandConnections)
+	r.senderCommandSend = r.context.NewSocket(zmq4.DEALER)
+	r.senderCommandSend.SetIdentity(r.identity)
+	for _, connection := range r.aggregatorCommandReceiveFromClusterConnections {
+		r.senderCommandSend.Connect(r.connection)
+		fmt.Printf("senderCommandSend connect : " + connection)
+	}
+
 }
 
 func (r SenderCommandRoutine) sendCommandSync(context, timeout, uuid, connectorType, commandtype, command, payload string) (commandResponse CommandResponse, err error) {

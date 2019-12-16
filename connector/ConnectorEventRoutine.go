@@ -26,24 +26,28 @@ func (r ConnectorEventRoutine) New(identity, connectorEventSendToWorkerConnectio
 
 	r.context, _ := zmq4.NewContext()
 	r.connectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
-	r.connectorEventSendToWorker = r.context.NewXPub(connectorEventSendToWorkerConnection)
+	r.connectorEventSendToWorker = r.context.NewSocket(zmq4.XPUB)
 	r.connectorEventSendToWorker.Identity(r.Identity)
-	fmt.Printf("connectorEventSendToWorker connect : " + connectorEventSendToWorkerConnection)
+	r.connectorEventSendToWorker.Bind(r.connectorEventSendToWorkerConnection)
+	fmt.Printf("connectorEventSendToWorker bind : " + connectorEventSendToWorkerConnection)
 
 	r.connectorEventReceiveFromAggregatorConnection = connectorEventReceiveFromAggregatorConnection
-	r.connectorEventReceiveFromAggregator = r.context.NewXSub(connectorEventReceiveFromAggregatorConnection)
+	r.connectorEventReceiveFromAggregator = r.context.NewSocket(zmq4.XSUB)
 	r.connectorEventReceiveFromAggregator.Identity(r.Identity)
+	r.connectorEventReceiveFromAggregator.Connect(r.connectorEventReceiveFromAggregatorConnection)
 	fmt.Printf("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
 
 	r.connectorEventSendToAggregatorConnection = connectorEventSendToAggregatorConnection
-	r.connectorEventSendToAggregator = r.context.NewXPub(connectorEventSendToAggregatorConnection)
+	r.connectorEventSendToAggregator = r.context.NewSocket(zmq4.XPUB)
 	r.connectorEventSendToAggregator.Identity(r.Identity)
+	r.connectorEventSendToAggregator.Connect(r.connectorEventSendToAggregatorConnection)
 	fmt.Printf("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
 
 	r.connectorEventReceiveFromWorkerConnection = connectorEventReceiveFromWorkerConnection
-	r.connectorEventReceiveFromWorker = r.context.NewXSub(connectorEventReceiveFromWorkerConnection)
+	r.connectorEventReceiveFromWorker = r.context.NewSocket(zmq4.XSUB)
 	r.connectorEventReceiveFromWorker.Identity(r.Identity)
-	fmt.Printf("connectorEventReceiveFromWorker connect : " + connectorEventReceiveFromWorkerConnection)
+	r.connectorEventReceiveFromWorker.Bind(r.connectorEventReceiveFromWorkerConnection)
+	fmt.Printf("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
 }
 
 func (r ConnectorEventRoutine) close() {

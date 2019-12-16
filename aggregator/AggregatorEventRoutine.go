@@ -24,23 +24,27 @@ func (r AggregatorEventRoutine) New(identity, aggregatorEventSendToClusterConnec
 
 	r.context, _ = zmq4.NewContext()
 	r.aggregatorEventSendToClusterConnection = aggregatorEventSendToClusterConnection
-	r.aggregatorEventSendToCluster = r.context.NewXPub(aggregatorEventSendToClusterConnection)
+	r.aggregatorEventSendToCluster = r.context.NewSocket(zmq4.PUB)
 	r.aggregatorEventSendToCluster.SetIdentity(r.identity)
+	r.aggregatorEventSendToCluster.Connect(r.aggregatorEventSendToClusterConnection)
 	fmt.Printf("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnection)
 
 	r.aggregatorEventReceiveFromClusterConnection = aggregatorEventReceiveFromClusterConnection
-	r.aggregatorEventReceiveFromCluster = r.context.NewXSub(aggregatorEventReceiveFromClusterConnection)
+	r.aggregatorEventReceiveFromCluster = r.context.NewSocket(zmq4.SUB)
 	r.aggregatorEventReceiveFromCluster.SetIdentity(r.identity)
+	r.aggregatorEventSendToCluster.Connect(r.aggregatorEventReceiveFromClusterConnection)
 	fmt.Printf("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
 
 	r.aggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
-	r.aggregatorEventSendToConnector = r.context.NewXPub(aggregatorEventSendToConnectorConnection)
+	r.aggregatorEventSendToConnector = r.context.NewSocket(zmq4.PUB)
 	r.aggregatorEventSendToConnector.SetIdentity(r.identity)
+	r.aggregatorEventSendToCluster.Bind(r.aggregatorEventSendToConnectorConnection)
 	fmt.Printf("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
 
 	r.aggregatorEventReceiveFromConnectorConnection = aggregatorEventReceiveFromConnectorConnection
-	r.aggregatorEventReceiveFromConnector = r.context.NewSub(aggregatorEventReceiveFromConnectorConnection)
+	r.aggregatorEventReceiveFromConnector = r.context.NewSocket(zmq4.SUB)
 	r.aggregatorEventReceiveFromConnector.SetIdentity(r.identity)
+	r.aggregatorEventSendToCluster.Bind(r.aggregatorEventReceiveFromConnectorConnection)
 	fmt.Printf("aggregatorEventReceiveFromConnector connect : " + aggregatorEventReceiveFromConnectorConnection)
 }
 

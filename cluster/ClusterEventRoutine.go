@@ -23,18 +23,21 @@ func (r ClusterEventRoutine) New(identity, clusterEventSendConnection, clusterEv
 	
 	r.context, _ = gozmq.NewContext()
 	r.clusterEventSendConnection = clusterEventSendConnection
-	r.clusterEventSend = r.context.NewXPub(clusterEventSendConnection)
+	r.clusterEventSend = r.context.NewXPub(zmq4.XPUB)
 	r.clusterEventSend.SetIdentity(r.identity)
+	r.clusterEventSend.Bind(r.clusterEventSendConnection)
 	rmt.Printf("clusterEventSend connect : " + clusterEventSendConnection)
 
 	r.clusterEventReceiveConnection = clusterEventReceiveConnection
-	r.clusterEventReceive = r.context.NewXSub(clusterEventReceiveConnection)
+	r.clusterEventReceive = r.context.NewXSub(zmq4.XSUB)
 	r.clusterEventReceive.SetIdentity(r.identity)
+	r.clusterEventReceive.Bind(r.clusterEventReceiveConnection)
 	rmt.Printf("clusterEventReceive connect : " + clusterEventReceiveConnection)
 
 	r.clusterEventCaptureConnection = clusterEventCaptureConnection
-	r.clusterEventCapture = r.context.NewPub(clusterEventCaptureConnection)
+	r.clusterEventCapture = r.context.NewPub(zmq4.PUB)
 	r.clusterEventCapture.SetIdentity(r.identity)
+	r.clusterEventCapture.Bind(r.clusterEventCaptureConnection)
 	fmt.Printf("clusterEventCapture connect : " + clusterEventCaptureConnection)
 }
 

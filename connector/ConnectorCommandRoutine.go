@@ -27,24 +27,28 @@ func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConne
 
 	r.context, _ := zmq4.NewContext()
 	r.connectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
-	r.connectorCommandSendToWorker = r.context.NewRouter(r.connectorCommandSendToWorkerConnection)
+	r.connectorCommandSendToWorker = r.context.NewSocket(zmq4.ROUTER)
 	r.connectorCommandSendToWorker.Identity(r.identity)
-	fmt.Printf("connectorCommandSendToWorker connect : " + connectorCommandSendToWorkerConnection)
+	r.connectorCommandSendToWorker.Bind(r.connectorCommandSendToWorkerConnection)
+	fmt.Printf("connectorCommandSendToWorker bind : " + connectorCommandSendToWorkerConnection)
 
 	r.connectorCommandReceiveFromAggregatorConnections = connectorCommandReceiveFromAggregatorConnections
-	r.connectorCommandReceiveFromAggregator = r.context.NewDealer(connectorCommandReceiveFromAggregatorConnections)
+	r.connectorCommandReceiveFromAggregator = r.context.NewSocket(zmq4.DEALER)
 	r.connectorCommandReceiveFromAggregator.Identity(r.identity)
+	r.connectorCommandReceiveFromAggregator.Connect(r.connectorCommandReceiveFromAggregatorConnections)
 	fmt.Printf("connectorCommandReceiveFromAggregator connect : " + connectorCommandReceiveFromAggregatorConnections)
 
 	r.connectorCommandSendToAggregatorConnections = connectorCommandSendToAggregatorConnections
-	r.connectorCommandSendToAggregator = r.context.NewRouter(connectorCommandSendToAggregatorConnections)
+	r.connectorCommandSendToAggregator = r.context.NewSocket(zmq4.ROUTER)
 	r.connectorCommandSendToAggregator.Identity(r.identity)
+	r.connectorCommandSendToAggregator.Connect(r.connectorCommandSendToAggregatorConnections)
 	fmt.Printf("connectorCommandSendToAggregator connect : " + connectorCommandSendToAggregatorConnections)
 
 	r.connectorCommandReceiveFromWorkerConnection = connectorCommandReceiveFromWorkerConnection
-	r.connectorCommandReceiveFromWorker = r.context.NewDealer(connectorCommandReceiveFromWorkerConnection)
+	r.connectorCommandReceiveFromWorker = r.context.NewSocket(zmq4.DEALER)
 	r.connectorCommandReceiveFromWorker.Identity(r.identity)
-	fmt.Printf("connectorCommandReceiveFromWorker connect : " + connectorCommandReceiveFromWorkerConnection)
+	r.connectorCommandReceiveFromWorker.Bind(r.connectorCommandReceiveFromWorkerConnection)
+	fmt.Printf("connectorCommandReceiveFromWorker bind : " + connectorCommandReceiveFromWorkerConnection)
 }
 
 func (r ConnectorCommandRoutine) close() {

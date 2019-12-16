@@ -22,18 +22,21 @@ func (r ClusterCommandRoutine) New(identity, clusterCommandSendConnection, clust
 
 	r.context, _ = zmq4.NewContext()
 	r.clusterCommandSendConnection = clusterCommandSendConnection
-	r.clusterCommandSend, _ = r.context.NewRouter(clusterCommandSendConnection)
+	r.clusterCommandSend, _ = r.context.NewSocket(zmq4.ROUTER)
 	r.clusterCommandSend.SetIdentity(r.identity)
+	r.clusterCommandSend.Bind(r.clusterCommandSendConnection)
 	fmt.Printf("clusterCommandSend connect : " + clusterCommandSendConnection)
 
 	r.clusterCommandReceiveConnection = clusterCommandReceiveConnection
-	r.clusterCommandReceive, _ = r.context.NewRouter(clusterCommandReceiveConnection)
+	r.clusterCommandReceive, _ = r.context.NewSocket(zmq4.ROUTER)
 	r.clusterCommandReceive.SetIdentity(r.identity)
+	r.clusterCommandReceive.Bind(r.clusterCommandReceiveConnection)
 	fmt.Printf("clusterCommandReceive connect : " + clusterCommandReceiveConnection)
 
 	r.clusterCommandCaptureConnection = clusterCommandCaptureConnection
-	r.clusterCommandCapture, _ = r.context.NewRouter(clusterCommandCaptureConnection)
+	r.clusterCommandCapture, _ = r.context.NewSocket(zmq4.ROUTER)
 	r.clusterCommandCapture.SetIdentity(r.identity)
+	r.clusterCommandCapture.Bind(r.clusterCommandCaptureConnection)
 	fmt.Printf("clusterCommandCapture connect : " + clusterCommandCaptureConnection)
 }
 

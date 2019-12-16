@@ -19,8 +19,9 @@ func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, even
 	r.eventsRoutine = eventsRoutine
 
 	r.context, _ := zmq4.NewContext()
-	r.workerEventReceive = r.context.NewSub(receiverEventConnection)
-	r.workerEventReceive.Identity(r.identity)
+	r.workerEventReceive = r.context.NewSocket(zmq4.SUB)
+	r.workerEventReceive.SetIdentity(r.identity)
+	r.workerEventReceive.Connect(r.identity)
 	fmt.Printf("workerEventReceive connect : " + receiverEventConnection)
 
 	r.loadEventRoutines()

@@ -20,8 +20,9 @@ func (r SenderEventRoutine) New(identity, senderEventConnection string) {
 
 	r.context, _ := zmq4.NewContext()
 	r.senderEventConnection = senderEventConnection
-	r.senderEventSend = r.context.NewDealer(senderEventConnection)
-	r.senderEventSend.Identity(r.identity)
+	r.senderEventSend = r.context.NewSocket(zmq.DEALER)
+	r.senderEventSend.SetIdentity(r.identity)
+	r.senderEventSend.Connect(r.senderEventConnection)
 	fmt.Printf("senderEventSend connect : " + senderEventConnection)
 }
 
@@ -30,9 +31,12 @@ func (r SenderEventRoutine) NewList(identity string, senderEventConnections *str
 
 	context, _ := zmq4.NewContext()
 	r.senderEventConnections = senderEventConnections
-	r.senderEventSend = context.NewDealer(senderEventConnections)
-	r.senderEventSend.Identity(r.identity)
-	fmt.Printf("senderEventSend connect : " + senderEventConnections)
+	r.senderEventSend = context.NewSocket(zmq4.DEALER)
+	r.senderEventSend.SetIdentity(r.identity)
+	for _, connection := range r.aggregatorCommandReceiveFromClusterConnections {
+		r.senderEventSend.Connect(r.identity)
+		fmt.Printf("senderEventSend connect : " + senderEventConnections)
+	}
 }
 
 func (r SenderEventRoutine) sendEvent(topic, timeout, event, payload string) {
