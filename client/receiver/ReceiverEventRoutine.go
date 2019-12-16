@@ -35,14 +35,14 @@ func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, even
 
 func (r ReceiverEventRoutine) run() {
 
-	pi := zmq4.PollItems{
-		zmq4.PollItem{Socket: workerEventReceive, Events: zmq4.POLLIN}
+	poller := zmq4.NewPoller()
+	poller.Add(r.workerEventReceive, zmq4.POLLIN)
 
-	var event = [][]byte{}
+	event := [][]byte{}
 
 	for {
 
-		pi.Poll(-1)
+		poller.Poll(-1)
 
 		switch {
 

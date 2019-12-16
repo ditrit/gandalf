@@ -61,17 +61,18 @@ func (r ConnectorCommandRoutine) reconnectToProxy() {
 func (r ConnectorCommandRoutine) run() {
 	go cleanCommandsByTimeout()
 
-	pi := zmq4.PollItems{
-		zmq4.PollItem{Socket: connectorCommandSendToWorker, Events: zmq4.POLLIN},
-		zmq4.PollItem{Socket: connectorCommandReceiveFromAggregator, Events: zmq4.POLLIN},
-		zmq4.PollItem{Socket: connectorCommandSendToAggregator, Events: zmq4.POLLIN},
-		zmq4.PollItem{Socket: connectorCommandReceiveFromWorker, Events: zmq4.POLLIN},
+	poller := zmq4.NewPoller()
+	poller.Add(r.connectorCommandSendToWorker, zmq4.POLLIN)
+	poller.Add(r.connectorCommandReceiveFromAggregator, zmq4.POLLIN)
+	poller.Add(r.connectorCommandSendToAggregator, zmq4.POLLIN)
+	poller.Add(r.connectorCommandReceiveFromWorker, zmq4.POLLIN)
 
-		var command = [][]byte{}
+	command := [][]byte{}
 
 	for {
+		r.sendReadyCommand()
 
-		_, _ = zmq4.Poll(pi, -1)
+		poller.Poll(-1)
 
 		switch {
 		case pi[0].REvents&zmq4.POLLIN != 0:

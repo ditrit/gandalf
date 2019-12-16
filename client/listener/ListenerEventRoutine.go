@@ -31,13 +31,15 @@ func (r ListenerEventRoutine) close() {
 }
 
 func (r ListenerEventRoutine) run() {
-	pi := zmq4.PollItems{
-		zmq4.PollItem{Socket: listenerEventReceive, Events: zmq4.POLLIN}
 
-	var event = [][]byte{}
+	poller := zmq4.NewPoller()
+	poller.Add(r.listenerEventReceive, zmq4.POLLIN)
+
+	event := [][]byte{}
 
 	for {
-		pi.Poll(-1)
+
+		poller.Poll(-1)
 
 		switch {
 		case pi[0].REvents&zmq4.POLLIN != 0:

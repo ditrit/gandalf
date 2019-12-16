@@ -49,16 +49,18 @@ func (r ClusterEventRoutine) close() {
 }
 
 func (r ClusterEventRoutine) run() {
-	pi := gozmq.PollItems{
-		gozmq.PollItem{Socket: aggregatorEventSendC2CL, Events: gozmq.POLLIN},
-		gozmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: gozmq.POLLIN}}
+
+
+	poller := zmq4.NewPoller()
+	poller.Add(r.aggregatorEventSendC2CL, zmq4.POLLIN)
+	poller.Add(r.aggregatorEventReceiveC2CL, zmq4.POLLIN)
 
 	event := [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		pi.Poll(-1)
+		poller.Poll(-1)
 
 		switch {
 		case pi[0].REvents&gozmq.POLLIN != 0:

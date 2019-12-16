@@ -47,18 +47,19 @@ func (r ClusterCommandRoutine) close() {
 }
 
 func (r ClusterCommandRoutine) run() {
-	pi := gozmq.PollItems{
-		gozmq.PollItem{Socket: aggregatorCommandSendToCluster, Events: gozmq.POLLIN},
-		gozmq.PollItem{Socket: aggregatorCommandReceiveFromConnector, Events: gozmq.POLLIN},
-		gozmq.PollItem{Socket: aggregatorCommandSendToConnector, Events: gozmq.POLLIN},
-		gozmq.PollItem{Socket: aggregatorCommandReceiveFromCluster, Events: gozmq.POLLIN}}
 
-	var command = [][]byte{}
+	poller := zmq4.NewPoller()
+	poller.Add(r.aggregatorCommandSendToCluster, zmq4.POLLIN)
+	poller.Add(r.aggregatorCommandReceiveFromConnector, zmq4.POLLIN)
+	poller.Add(r.aggregatorCommandSendToConnector, zmq4.POLLIN)
+	poller.Add(r.aggregatorCommandReceiveFromCluster, zmq4.POLLIN)
+
+	command := [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		pi.Poll(-1)
+		poller.Poll(-1)
 
 		switch {
 		case pi[0].REvents&zmq4.POLLIN != 0:

@@ -41,16 +41,15 @@ func (r ReceiverCommandRoutine) run() {
 
 	go r.sendResults()
 
-	pi := zmq4.PollItems{
-		zmq4.PollItem{Socket: workerCommandReceive, Events: zmq4.POLLIN},
+	poller := zmq4.NewPoller()
+	poller.Add(r.workerCommandReceive, zmq4.POLLIN)
 
-	var command = [][]byte{}
-	var event = [][]byte{}
+	command := [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		pi.Poll(-1)
+		poller.Poll(-1)
 
 		switch {
 		case pi[0].REvents&zmq4.POLLIN != 0:

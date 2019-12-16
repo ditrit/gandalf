@@ -39,9 +39,9 @@ func (r ClusterCaptureWorkerRoutine) close() {
 }
 
 func (r ClusterCaptureWorkerRoutine) run() {
-	pi := zmq4.PollItems{
-		zmq4.PollItem{Socket: workerCaptureCommandReceive, Events: zmq4.POLLIN},
-		zmq4.PollItem{Socket: workerCaptureEventReceive, Events: zmq4.POLLIN}}
+	poller := zmq4.NewPoller()
+	poller.Add(r.workerCaptureCommandReceive, zmq4.POLLIN)
+	poller.Add(r.workerCaptureEventReceive, zmq4.POLLIN)
 
 	command := [][]byte{}
 	event := [][]byte{}
@@ -49,7 +49,7 @@ func (r ClusterCaptureWorkerRoutine) run() {
 	for {
 		r.sendReadyCommand()
 
-		pi.Poll(pi, -1)
+		poller.Poll(-1)
 
 		switch {
 		case pi[0].REvents&zmq4.POLLIN != 0:
