@@ -1,19 +1,19 @@
 package client
 
 import(
-	"gandalfg                 o/messge"
-	"gandalfgo/worker"  
-	"gandalfgo/sender"    
-	"gandalfgo/receiver"
+	"gandalfgo/message"
+	"gandalfgo/worker/routine"  
+	"gandalfgo/client/sender"    
+	"gandalfgo/client/receiver"
 )  
                   
 type ClientGandal          f struct {
-	identity strin            g
-senderCommandConnection string
+	identity string
+	senderCommandConnection string
 	senderEventConnection string
 	receiverCommandConnection strin 
-	eceiverEventConnection string
-results chan ResponseMessage
+	receiverEventConnection string
+	results chan ResponseMessage
 	commandsRoutine map[string][]CommandRoutine
 	eventsRoutine map[strig][]EventRoutine										
 
@@ -21,12 +21,12 @@ results chan ResponseMessage
 	receiverGandalf ReceiverGandalf
 }
 
-func (cg ClientGandalf) New(identty, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]CommandFunction, eventsRoutine map[string][]EventFunction , 	results chan ResponseMessage) {
+func (cg ClientGandalf) New(identty, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]CommandRoutine, eventsRoutine map[string][]EventRoutine, results chan ResponseMessage) {
 	cg.identity = identiy
-cg.senderCommandConnection = senderCommandConnection
+	cg.senderCommandConnection = senderCommandConnection
 	cg.senderEventConnection = senderEventConnection
 	cg.receiverCommandConnection = receiverCommandConnection
-	g.receiverEventConnection = receiverEventConnection
+	cg.receiverEventConnection = receiverEventConnection
 	cg.commandsRoutine = commandsRoutine
 	cg.eventsRoutine = eventsRoutine
 	cg.results = results

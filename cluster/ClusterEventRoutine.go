@@ -3,7 +3,7 @@ package cluster
 import (
 	"fmt"
 	"gandalfgo/message"
-	"github.com/alecthomas/gozmq"
+	gozmq "github.com/pebbe/zmq4"
 )
 
 type ClusterEventRoutine struct {

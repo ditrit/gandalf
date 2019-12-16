@@ -3,14 +3,14 @@ package cluster
 import (
 	"fmt"
     "net/http"
-	zmq "github.com/zeromq/goczmq"
+	"github.com/pebbe/zmq4"
 )
 
 type ClusterCaptureWorkerRoutine struct {
-	context									  *zmq.Context
-	workerCaptureCommandReceiveCL2W           *zmq.Socket
+	context									  *zmq4.Context
+	workerCaptureCommandReceiveCL2W           *zmq4.Socket
 	workerCaptureCommandReceiveCL2WConnection string
-	workerCaptureEventReceiveCL2W             *zmq.Socket
+	workerCaptureEventReceiveCL2W             *zmq4.Socket
 	workerCaptureEventReceiveCL2WConnection   string
 	identity                                  string
 }
@@ -18,7 +18,7 @@ type ClusterCaptureWorkerRoutine struct {
 func (r ClusterCaptureWorkerRoutine) New(identity, workerCaptureCommandReceiveCL2WConnection, workerCaptureEventReceiveC2WConnection string, topics *string) {
 	r.identity = identity
 
-	context, _ := zmq.NewContext()
+	context, _ := zmq4.NewContext()
 	r.workerCaptureCommandReceiveCL2WConnection = workerCaptureCommandReceiveCL2WConnection
 	r.workerCaptureCommandReceiveCL2W = context.NewDealer(workerCaptureCommandReceiveCL2WConnection)
 	r.workerCaptureCommandReceiveCL2W.Identity(r.identity)
@@ -37,9 +37,9 @@ func (r ClusterCaptureWorkerRoutine) close() {
 }
 
 func (r ClusterCaptureWorkerRoutine) run() {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: workerCaptureCommandReceiveCL2W, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: workerCaptureEventReceiveC2W, Events: zmq.POLLIN}}
+	pi := zmq4.PollItems{
+		zmq4.PollItem{Socket: workerCaptureCommandReceiveCL2W, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: workerCaptureEventReceiveC2W, Events: zmq4.POLLIN}}
 
 	var command = [][]byte{}
 	var event = [][]byte{}
@@ -47,10 +47,10 @@ func (r ClusterCaptureWorkerRoutine) run() {
 	for {
 		r.sendReadyCommand()
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = zmq4.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[0].Socket.RecvMessage()
 			if err != nil {
@@ -61,7 +61,7 @@ func (r ClusterCaptureWorkerRoutine) run() {
 				panic(err)
 			}
 
-		case pi[1].REvents&zmq.POLLIN != 0:
+		case pi[1].REvents&zmq4.POLLIN != 0:
 
 			event, err := pi[1].Socket.RecvMessage()
 			if err != nil {

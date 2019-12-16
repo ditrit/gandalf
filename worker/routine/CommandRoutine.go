@@ -1,4 +1,4 @@
-package worker
+package routine
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ func (cp CommandPrint) New() {
 
 }
 
-func (cp CommandPrint) executeCommand() (result string, err error) {
+func (cp CommandPrint) executeCommand() (result string) {
 	fmt.Print(cp.print)
 	return print
 }

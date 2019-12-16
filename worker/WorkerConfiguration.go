@@ -1,4 +1,4 @@
-package workergandalf
+package worker
 
 import(
 	 gonfig "github.com/tkanos/gonfig"

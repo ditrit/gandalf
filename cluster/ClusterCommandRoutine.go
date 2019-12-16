@@ -3,16 +3,16 @@ package cluster
 import (
 	"fmt"
     "gandalfgo/message"
-	"github.com/alecthomas/gozmq"
+	"github.com/pebbe/zmq4"
 )
 
 type ClusterCommandRoutine struct {
-	context							*goczmq.Context
-	clusterCommandSend              *goczmq.Socket
+	context							*zmq4.Context
+	clusterCommandSend              *zmq4.Socket
 	clusterCommandSendConnection    string
-	clusterCommandReceive           *goczmq.Socket
+	clusterCommandReceive           *zmq4.Socket
 	clusterCommandReceiveConnection string
-	clusterCommandCapture           *goczmq.Socket
+	clusterCommandCapture           *zmq4.Socket
 	clusterCommandCaptureConnection string
 	identity                        string
 }
@@ -20,7 +20,7 @@ type ClusterCommandRoutine struct {
 func (r ClusterCommandRoutine) New(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) {
 	r.identity = identity
 
-	r.context, _ := goczmq.NewContext()
+	r.context, _ := zmq4.NewContext()
 	r.clusterCommandSendConnection = clusterCommandSendConnection
 	r.clusterCommandSend, _ = r.context.NewRouter(clusterCommandSendConnection)
 	r.clusterCommandSend.SetOption(context.SockSetIdentity(r.identity))
@@ -44,21 +44,21 @@ func (r ClusterCommandRoutine) close() (err error) {
 }
 
 func (r ClusterCommandRoutine) run() (err error) {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: aggregatorCommandSendToCluster, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandReceiveFromConnector, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandSendToConnector, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandReceiveFromCluster, Events: zmq.POLLIN}}
+	pi := gozmq.PollItems{
+		gozmq.PollItem{Socket: aggregatorCommandSendToCluster, Events: gozmq.POLLIN},
+		gozmq.PollItem{Socket: aggregatorCommandReceiveFromConnector, Events: gozmq.POLLIN},
+		gozmq.PollItem{Socket: aggregatorCommandSendToConnector, Events: gozmq.POLLIN},
+		gozmq.PollItem{Socket: aggregatorCommandReceiveFromCluster, Events: gozmq.POLLIN}}
 
 	var command = [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = gozmq.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&goczmq.POLLIN != 0:
+		case pi[0].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[0].Socket.RecvMessage()
 			if err != nil {
@@ -69,7 +69,7 @@ func (r ClusterCommandRoutine) run() (err error) {
 				panic(err)
 			}
 
-		case pi[1].REvents&goczmq.POLLIN != 0:
+		case pi[1].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[1].Socket.RecvMessage()
 			if err != nil {

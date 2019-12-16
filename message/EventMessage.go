@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 	"github.com/shamaton/msgpack"
-	"github.com/alecthomas/gozmq"
+	zmq4 "github.com/pebbe/zmq4"
 )
 
 type EventMessage struct {
@@ -25,7 +25,7 @@ func (e EventMessage) New(topic, timeout, event, payload string) {
 	e.timestamp = time.Now().String()
 }
 
-func (e EventMessage) sendWith(socket goczmq.Sock, header string) (isSend bool) {
+func (e EventMessage) sendWith(socket zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = e.sendHeaderWith(socket, header)
 		isSend = isSend && isSend && e.sendEventWith(socket)
@@ -36,9 +36,9 @@ func (e EventMessage) sendWith(socket goczmq.Sock, header string) (isSend bool) 
 	}
 } 
 
-func (e EventMessage) sendHeaderWith(socket goczmq.Sock, header string) (isSend bool) {
+func (e EventMessage) sendHeaderWith(socket zmq4.Socket, header string) (isSend bool) {
 	for {
-		err := socket.SendFrame([]byte(header), goczmq.FlagMore)
+		_, err := socket.Send(header, zmq4.SNDMORE)
 		if err == nil {
 			isSend = true
 			return
@@ -47,12 +47,12 @@ func (e EventMessage) sendHeaderWith(socket goczmq.Sock, header string) (isSend 
 	}
 }
 
-func (e EventMessage) sendEventWith(socket goczmq.Sock) (isSend bool) {
+func (e EventMessage) sendEventWith(socket zmq4.Socket) (isSend bool) {
 	for {
-		err := socket.SendFrame([]byte(e.topic), goczmq.FlagMore)
+		_, err := socket.Send(e.topic, zmq4.SNDMORE)
 		if err == nil {
 			encoded, _ := encodeEvent(e)
-			err = socket.SendFrame(encoded, 0)
+			_, err = socket.SendBytes(encoded, 0)
 			if err == nil {
 				isSend = true
 				return

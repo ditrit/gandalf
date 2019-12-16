@@ -3,12 +3,12 @@ package listener
 import (
 	"fmt"
 	"gandalfgo/message"
-	"github.com/alecthomas/gozmq"
+	"github.com/pebbe/zmq4"
 )
 
 type ListenerCommandRoutine struct {
-	context								*gozmq.Context
-	listenerCommandReceive              gozmq.Socket
+	context								*zmq4.Context
+	listenerCommandReceive              zmq4.Socket
 	listenerCommandReceiveConnection   	string
 	identity                            string
 	commands []CommandMessage
@@ -17,7 +17,7 @@ type ListenerCommandRoutine struct {
 func (r ListenerCommandRoutine) New(identity, listenerCommandReceiveConnection string) err error {
 	r.Identity = identity
 
-	r.context, _ := gozmq.NewContext()
+	r.context, _ := zmq4.NewContext()
 	r.listenerCommandReceiveConnection = listenerCommandReceiveConnection
 	r.listenerCommandReceive = r.context.NewDealer(listenerCommandReceiveConnection)
 	r.listenerCommandReceive.Identity(r.identity)
@@ -30,18 +30,18 @@ func (r ListenerCommandRoutine) close() err error {
 }
 
 func (r ListenerCommandRoutine) run() err error {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: listenerCommandReceive, Events: zmq.POLLIN}
+	pi := zmq4.PollItems{
+		zmq4.PollItem{Socket: listenerCommandReceive, Events: zmq4.POLLIN}
 
 	var command = [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = zmq4.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[0].Socket.RecvMessage()
 			if err != nil {

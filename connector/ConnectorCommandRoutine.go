@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"gandalfgo/message"
 	"container/list"	
-	"github.com/alecthomas/gozmq"
+	"github.com/pebbe/zmq4"
 )
 
 type ConnectorCommandRoutine struct {
-	context												*gozmq.Context
+	context												*zmq4.Context
 	connectorMapUUIDCommandMessage		 				map[string][]CommandMessage					
 	connectorMapWorkerCommands 			 				map[string][]string				
-	connectorCommandSendToWorker              			*gozmq.Socket
+	connectorCommandSendToWorker              			*zmq4.Socket
 	connectorCommandSendToWorkerConnection    			string
-	connectorCommandReceiveFromAggregator           	*gozmq.Socket
+	connectorCommandReceiveFromAggregator           	*zmq4.Socket
 	connectorCommandReceiveFromAggregatorConnections 	[]string
-	connectorCommandSendToAggregator              		*gozmq.Socket
+	connectorCommandSendToAggregator              		*zmq4.Socket
 	connectorCommandSendToAggregatorConnections    		[]string
-	connectorCommandReceiveFromWorker           		*gozmq.Socket
+	connectorCommandReceiveFromWorker           		*zmq4.Socket
 	connectorCommandReceiveFromWorkerConnection 		string
 	identity                              				string
 }
@@ -25,7 +25,7 @@ type ConnectorCommandRoutine struct {
 func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections, connectorCommandReceiveFromWorkerConnection string) err error {
 	r.identity = identity
 
-	r.context, _ := gozmq.NewContext()
+	r.context, _ := zmq4.NewContext()
 	r.connectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
 	r.connectorCommandSendToWorker = r.context.NewRouter(r.connectorCommandSendToWorkerConnection)
 	r.connectorCommandSendToWorker.Identity(r.identity)
@@ -57,20 +57,20 @@ func (r ConnectorCommandRoutine) reconnectToProxy() err error {
 func (r ConnectorCommandRoutine) run() err error {
 	go cleanCommandsByTimeout()
 
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: connectorCommandSendToWorker, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorCommandReceiveFromAggregator, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorCommandSendToAggregator, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorCommandReceiveFromWorker, Events: zmq.POLLIN},
+	pi := zmq4.PollItems{
+		zmq4.PollItem{Socket: connectorCommandSendToWorker, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: connectorCommandReceiveFromAggregator, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: connectorCommandSendToAggregator, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: connectorCommandReceiveFromWorker, Events: zmq4.POLLIN},
 
 		var command = [][]byte{}
 
 	for {
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = zmq4.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[0].Socket.RecvMessage()
 			if err != nil {
@@ -82,7 +82,7 @@ func (r ConnectorCommandRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[1].REvents&zmq.POLLIN != 0:
+		case pi[1].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[1].Socket.RecvMessage()
 			if err != nil {
@@ -93,7 +93,7 @@ func (r ConnectorCommandRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[2].REvents&zmq.POLLIN != 0:
+		case pi[2].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[2].Socket.RecvMessage()
 			if err != nil {
@@ -104,7 +104,7 @@ func (r ConnectorCommandRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[3].REvents&zmq.POLLIN != 0:
+		case pi[3].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[3].Socket.RecvMessage()
 			if err != nil {

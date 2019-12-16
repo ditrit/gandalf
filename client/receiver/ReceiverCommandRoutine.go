@@ -2,15 +2,15 @@ package receiver
 
 import(
 	"gandalfgo/message"
-	"github.com/alecthomas/gozmq"
+	"github.com/pebbe/zmq4"
 )
 
 type ReceiverCommandRoutine struct {
-	context							*gozmq.Context
+	context							*zmq4.Context
 	results 						chan ResponseMessage
-	workerCommandReceive 			gozmq.Socket
+	workerCommandReceive 			zmq4.Socket
 	receiverCommandConnection 		string
-	workerEventReceive 				gozmq.Socket
+	workerEventReceive 				zmq4.Socket
 	workerEventReceiveConnection	string
 	identity 						string
 	commandsRoutine 				map[string][]CommandFunction					
@@ -22,7 +22,7 @@ func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, 
 	r.commandsRoutine = commandsRoutine
 	r.results = results
 
-	r.context, _ := gozmq.NewContext()
+	r.context, _ := zmq4.NewContext()
 	r.workerCommandReceive = r.context.NewDealer(receiverCommandConnection)
 	r.workerCommandReceive.Identity(r.identity)
 	fmt.Printf("workerCommandReceive connect : " + receiverCommandConnection)
@@ -40,8 +40,8 @@ func (r ReceiverCommandRoutine) run() err error {
 
 	go r.sendResults()
 
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: workerCommandReceive, Events: zmq.POLLIN},
+	pi := zmq4.PollItems{
+		zmq4.PollItem{Socket: workerCommandReceive, Events: zmq4.POLLIN},
 
 	var command = [][]byte{}
 	var event = [][]byte{}
@@ -49,10 +49,10 @@ func (r ReceiverCommandRoutine) run() err error {
 	for {
 		r.sendReadyCommand()
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = zmq4.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[0].Socket.RecvMessage()
 			if err != nil {

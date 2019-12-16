@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"gandalfgo/message"
 	"gandalfgo/constant"
-	"github.com/alecthomas/gozmq"
+	"github.com/pebbe/zmq4"
 )
 
 type SenderCommandRoutine struct {
-	context							*gozmq.Context
-	senderCommandSend            	*gozmq.Socket
+	context							*zmq4.Context
+	senderCommandSend            	*zmq4.Socket
 	senderCommandConnections 		[]string
 	senderCommandConnection  		string
 	identity                 		string
@@ -21,7 +21,7 @@ func (r SenderCommandRoutine) New(identity, sendSenderConnection string) err err
 	result := make(chan Result)
 	r.identity = identity
 
-	r.context, _ := gozmq.NewContext()
+	r.context, _ := zmq4.NewContext()
 	r.sendSenderConnection = sendSenderConnection
 	r.senderCommandSend = r.context.NewDealer(sendSenderConnection)
 	r.senderCommandSend.Identity(r.identity)
@@ -32,7 +32,7 @@ func (r SenderCommandRoutine) NewList(identity string, senderCommandConnections 
 	result := make(chan Result)
 	r.identity = identity
 
-	r.context, _ := gozmq.NewContext()
+	r.context, _ := zmq4.NewContext()
 	r.senderCommandConnections = senderCommandConnections
 	r.senderCommandSend = r.context.NewDealer(senderCommandConnections)
 	r.senderCommandSend.Identity(r.identity)
@@ -65,7 +65,7 @@ func (r SenderCommandRoutine) getCommandResultSync(uuid string) (commandResponse
     }
 }
 
-func (r SenderCommandRoutine) sendCommandAsync(context, timeout, uuid, connectorType, commandtype, command, payload string) (zmq.Message, err error) {
+func (r SenderCommandRoutine) sendCommandAsync(context, timeout, uuid, connectorType, commandtype, command, payload string) (zmq4.Message, err error) {
 	commandMessage := CommandMessage.New(context, timeout, uuid, connectorType, commandType, command, payload)
 	if err != nil {
 		panic(err)

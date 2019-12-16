@@ -1,9 +1,5 @@
 package aggregator
 
-import (
-	"gandalfgo/aggregator/AggregatorConfiguration"
-)
-
 type AggregatorGandalf struct {
 	aggregatorConfiguration  AggregatorConfiguration
 	aggregatorCommandRoutine AggregatorCommandRoutine

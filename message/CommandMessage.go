@@ -5,7 +5,7 @@ import (
 	"time"
 	"gandalfgo/constant"
 	"github.com/shamaton/msgpack"
-	"github.com/alecthomas/gozmq"
+	"github.com/pebbe/zmq4"
 )
 
 type CommandMessage struct {
@@ -40,7 +40,7 @@ func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, 
 	c.timestamp = time.Now().String()
 }
 
-func (c CommandMessage) sendWith(socket goczmq.Sock, header string) (isSend bool) {
+func (c CommandMessage) sendWith(socket zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = c.sendHeaderWith(socket, header)
 		isSend = isSend && c.sendCommandWith(socket)
@@ -51,9 +51,9 @@ func (c CommandMessage) sendWith(socket goczmq.Sock, header string) (isSend bool
 	}
 }
 
-func (c CommandMessage) sendHeaderWith(socket goczmq.Sock, header string) (isSend bool) {
+func (c CommandMessage) sendHeaderWith(socket zmq4.Socket, header string) (isSend bool) {
 	for {
-		err := socket.SendFrame([]byte(header), goczmq.FlagMore);
+		_, err := socket.Send(header, zmq4.SNDMORE);
 		if err == nil {
 			isSend = true
 			return
@@ -62,10 +62,10 @@ func (c CommandMessage) sendHeaderWith(socket goczmq.Sock, header string) (isSen
 	}
 }
 
-func (c CommandMessage) sendCommandWith(socket goczmq.Sock) (isSend bool) {
+func (c CommandMessage) sendCommandWith(socket zmq4.Socket) (isSend bool) {
 	for {
 		encoded, _ := encodeCommandMessage(c)
-		err := socket.SendFrame(encoded, 0);
+		_, err := socket.SendBytes(encoded, 0);
 		if err == nil {
 			isSend = true
 			return
@@ -114,7 +114,7 @@ type CommandMessageReply struct {
     payload    string
 }
 
-func (cr CommandMessageReply) sendWith(socket goczmq.Sock, header string) (isSend bool) {
+func (cr CommandMessageReply) sendWith(socket zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = cr.sendHeaderWith(socket, header)
 		isSend = isSend && cr.sendCommandReplyWith(socket)
@@ -125,9 +125,9 @@ func (cr CommandMessageReply) sendWith(socket goczmq.Sock, header string) (isSen
 	}
 }
 
-func (cr CommandMessageReply) sendHeaderWith(socket goczmq.Sock, header string) (isSend bool) {
+func (cr CommandMessageReply) sendHeaderWith(socket zmq4.Socket, header string) (isSend bool) {
 	for {
-		err := socket.SendFrame([]byte(header), goczmq.FlagMore);
+		_, err := socket.Send(header, zmq4.SNDMORE);
 		if err == nil {
 			isSend = true
 			return
@@ -136,10 +136,10 @@ func (cr CommandMessageReply) sendHeaderWith(socket goczmq.Sock, header string) 
 	}
 }
 
-func (cr CommandMessageReply) sendCommandReplyWith(socket goczmq.Sock) (isSend bool) {
+func (cr CommandMessageReply) sendCommandReplyWith(socket zmq4.Socket) (isSend bool) {
 	for {
 		encoded, _ := encodeCommandMessageReply(cr)
-		err := socket.SendFrame(encoded, 0);
+		_, err := socket.SendBytes(encoded, 0);
 		if err == nil {
 			isSend = true
 			return
@@ -175,12 +175,12 @@ func (cf CommandFunction) New(functions []string) {
 	cf.functions = functions
 }
 
-func (cf CommandFunction) sendWith(socket goczmq.Sock) (isSend bool) {
+func (cf CommandFunction) sendWith(socket zmq4.Socket) (isSend bool) {
 	for {
-		err := socket.SendFrame([]byte(constant.COMMAND_VALIDATION_FUNCTIONS), goczmq.FlagMore);
+		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS, zmq4.SNDMORE);
 		if err == nil {
 			encoded, _ := encodeCommandFunction(cf)
-			err = socket.SendFrame(encoded, 0);
+			_, err = socket.SendBytes(encoded, 0);
 			if err == nil {
 				isSend = true
 				return
@@ -200,7 +200,7 @@ func (cfr CommandFunctionReply) New(validation bool) {
 	cfr.validation = validation
 }
 
-func (cfr CommandFunctionReply) sendWith(socket goczmq.Sock, header string) (isSend bool) {
+func (cfr CommandFunctionReply) sendWith(socket zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = cfr.sendHeaderWith(socket, header)
 		isSend = isSend && cfr.sendCommandFunctionReplyWith(socket)
@@ -211,9 +211,9 @@ func (cfr CommandFunctionReply) sendWith(socket goczmq.Sock, header string) (isS
 	}
 }
 
-func (cfr CommandFunctionReply) sendHeaderWith(socket goczmq.Sock, header string) (isSend bool) {
+func (cfr CommandFunctionReply) sendHeaderWith(socket zmq4.Socket, header string) (isSend bool) {
 	for {
-		err := socket.SendFrame([]byte(header), goczmq.FlagMore);
+		_, err := socket.Send(header, zmq4.SNDMORE);
 		if err == nil {
 			isSend = true
 			return
@@ -222,12 +222,12 @@ func (cfr CommandFunctionReply) sendHeaderWith(socket goczmq.Sock, header string
 	}
 }
 
-func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket goczmq.Sock) (isSend bool) {
+func (cfr CommandFunctionReply) sendCommandFunctionReplyWith(socket zmq4.Socket) (isSend bool) {
 	for {
-		err := socket.SendFrame([]byte(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY), goczmq.FlagMore);
+		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, zmq4.SNDMORE);
 		if err == nil {
 			encoded, _ := encodeCommandFunctionReply(cfr)
-			err = socket.SendFrame(encoded, 0);
+			_, err = socket.SendBytes(encoded, 0);
 			if err == nil {
 				isSend = true
 				return
@@ -247,12 +247,12 @@ type CommandMessageReady struct {
 func (cry CommandMessageReady) New() {
 }
 
-func (cry CommandMessageReady) sendWith(socket goczmq.Sock) (isSend bool) {
+func (cry CommandMessageReady) sendWith(socket zmq4.Socket) (isSend bool) {
 	for {
-		err := socket.SendFrame([]byte(constant.COMMAND_READY), goczmq.FlagMore);
+		_, err := socket.Send(constant.COMMAND_READY, zmq4.SNDMORE);
 		if err == nil {
 			encoded, _ := encodeCommandMessageReady(cry)
-			err = socket.SendFrame(encoded, 0);
+			_, err = socket.SendBytes(encoded, 0);
 			if err == nil {
 				isSend = true
 				return

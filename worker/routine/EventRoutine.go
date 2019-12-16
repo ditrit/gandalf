@@ -1,4 +1,4 @@
-package worker
+package routine
 
 import "fmt"
 
@@ -11,6 +11,6 @@ type EventPrint struct {
 	print string
 }
 
-func (ep EventPrint) executeEvent() err error {
+func (ep EventPrint) executeEvent() {
 	fmt.Print(ep.print)
 }

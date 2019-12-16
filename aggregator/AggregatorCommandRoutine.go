@@ -3,18 +3,18 @@ package aggregator
 import (
 	"fmt"
     "gandalfgo/message"
-	"github.com/alecthomas/gozmq"
+	"github.com/pebbe/zmq4"
 )
 
 type AggregatorCommandRoutine struct {
-	context												*gozmq.Context
-	aggregatorCommandSendToCluster              		*gozmq.Socket
+	context												*zmq4.Context
+	aggregatorCommandSendToCluster              		*zmq4.Socket
 	aggregatorCommandSendToClusterConnections   		[]string
-	aggregatorCommandReceiveFromConnector           	*gozmq.Socket
+	aggregatorCommandReceiveFromConnector           	*zmq4.Socket
 	aggregatorCommandReceiveFromConnectorConnection 	string
-	aggregatorCommandSendToConnector              		*gozmq.Socket
+	aggregatorCommandSendToConnector              		*zmq4.Socket
 	aggregatorCommandSendToConnectorConnection   		string
-	aggregatorCommandReceiveFromCluster          		*gozmq.Socket
+	aggregatorCommandReceiveFromCluster          		*zmq4.Socket
 	aggregatorCommandReceiveFromClusterConnections 		[]string
 	identity                               				string
 }
@@ -22,7 +22,7 @@ type AggregatorCommandRoutine struct {
 func (r AggregatorCommandRoutine) New(identity, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnections, aggregatorCommandReceiveFromClusterConnection string) err error {
 	r.identity = identity
 	
-	r.context, _ := zmq.NewContext()
+	r.context, _ := zmq4.NewContext()
 	r.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
 	r.aggregatorCommandSendToCluster = context.NewRouter(aggregatorCommandSendToClusterConnections)
 	r.aggregatorCommandSendToCluster.Identity(r.identity)
@@ -53,21 +53,21 @@ func (r AggregatorCommandRoutine) close() err error {
 }
 
 func (r AggregatorCommandRoutine) run() err error {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: aggregatorCommandSendToCluster, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandReceiveFromConnector, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandSendToConnector, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandReceiveFromCluster, Events: zmq.POLLIN}}
+	pi := zmq4.PollItems{
+		zmq4.PollItem{Socket: aggregatorCommandSendToCluster, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: aggregatorCommandReceiveFromConnector, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: aggregatorCommandSendToConnector, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: aggregatorCommandReceiveFromCluster, Events: zmq4.POLLIN}}
 
 	var command = [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = zmq4.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[0].Socket.RecvMessage()
 			if err != nil {
@@ -78,7 +78,7 @@ func (r AggregatorCommandRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[1].REvents&zmq.POLLIN != 0:
+		case pi[1].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[1].Socket.RecvMessage()
 			if err != nil {
@@ -89,7 +89,7 @@ func (r AggregatorCommandRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[2].REvents&zmq.POLLIN != 0:
+		case pi[2].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[1].Socket.RecvMessage()
 			if err != nil {
@@ -100,7 +100,7 @@ func (r AggregatorCommandRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[3].REvents&zmq.POLLIN != 0:
+		case pi[3].REvents&zmq4.POLLIN != 0:
 
 			command, err := pi[1].Socket.RecvMessage()
 			if err != nil {

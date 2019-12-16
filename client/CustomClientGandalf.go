@@ -1,8 +1,8 @@
 package client
 
 import(
-	"gandalfgo/sender"
-	"gandalfgo/listener"
+	"gandalfgo/client/sender"
+	"gandalfgo/client/listener"
 )
 
 type LibraryGandalf struct {

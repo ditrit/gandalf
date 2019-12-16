@@ -2,14 +2,15 @@ package worker
 
 import (
     "fmt"
-    "os"
+	"os"
+	"gandalfgo/client"  
 )
 
 
 type WorkerGandalf struct {
 	results 			chan ResponseMessage
-	commandsRoutine 	map[string][]CommandFunction
-	eventsRoutine 		map[string][]EventFunction
+	commandsRoutine 	map[string][]CommandRoutine
+	eventsRoutine 		map[string][]EventRoutine
 	workerConfiguration WorkerConfiguration
 	clientGandalf 		ClientGandalf
 }
@@ -23,7 +24,7 @@ func (wg WorkerGandalf) New(path string) {
 
 	wg.clientGandalf = ClientGandalf.New(workerConfiguration.identity, workerConfiguration.senderCommandConnection, workerConfiguration.senderEventConnection, 
 		workerConfiguration.receiverCommandConnection, workerConfiguration.receiverEventConnection,
-		 commandsRoutine map[string][]CommandFunction, eventsRoutine map[string][]EventFunction, results chan ResponseMessage)
+		 commandsRoutine map[string][]CommandRoutine, eventsRoutine map[string][]EventRoutine, results chan ResponseMessage)
 }
 
 

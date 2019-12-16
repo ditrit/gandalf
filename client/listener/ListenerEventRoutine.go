@@ -3,12 +3,12 @@ package listener
 import (
 	"fmt"
 	"gandalfgo/message"
-	"github.com/alecthomas/gozmq"
+	"github.com/pebbe/zmq4"
 )
 
 type ListenerEventRoutine struct {
-	context							*gozmq.Context
-	listenerEventReceive           	gozmq.Sock
+	context							*zmq4.Context
+	listenerEventReceive           	zmq4.Sock
 	listenerEventReceiveConnection 	string
 	identity                       	string
 	events []EventMessage
@@ -17,7 +17,7 @@ type ListenerEventRoutine struct {
 func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection string) err error {
 	r.identity = identity
 
-	r.context, _ := gozmq.NewContext()	
+	r.context, _ := zmq4.NewContext()	
 	r.listenerEventReceiveConnection = listenerEventReceiveConnection
 	r.listenerEventReceive = r.context.NewSub(listenerEventReceiveConnection)
 	r.listenerEventReceive.Identity(r.identity)
@@ -30,16 +30,16 @@ func (r ListenerEventRoutine) close() err error {
 }
 
 func (r ListenerEventRoutine) run() {
-	pi := gozmq.PollItems{
-		gozmq.PollItem{Socket: listenerEventReceive, Events: gozmq.POLLIN}
+	pi := zmq4.PollItems{
+		zmq4.PollItem{Socket: listenerEventReceive, Events: zmq4.POLLIN}
 
 	var event = [][]byte{}
 
 	for {
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = zmq4.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&zmq4.POLLIN != 0:
 
 			event, err := pi[0].Socket.RecvMessage()
 			if err != nil {

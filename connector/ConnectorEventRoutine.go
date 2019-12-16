@@ -3,20 +3,20 @@ package connector
 import (
 	"fmt"
 	"gandalfgo/message"
-	zmq "github.com/zeromq/goczmq"
+	zmq4 "github.com/pebbe/zmq4"
 )
 
 type ConnectorEventRoutine struct {
-	context											*gozmq.Context
+	context											*zmq4.Context
 	connectorMapUUIDEventMessage	   				map[string][]EventMessage					
 	connectorMapWorkerEvents 		   				map[string][]string	
-	connectorEventSendToWorker              		*gozmq.Socket
+	connectorEventSendToWorker              		*zmq4.Socket
 	connectorEventSendToWorkerConnection    		string
-	connectorEventReceiveFromAggregator           	*gozmq.Socket
+	connectorEventReceiveFromAggregator           	*zmq4.Socket
 	connectorEventReceiveFromAggregatorConnection 	string
-	connectorEventSendToAggregator              	*gozmq.Socket
+	connectorEventSendToAggregator              	*zmq4.Socket
 	connectorEventSendToAggregatorConnection    	string
-	connectorEventReceiveFromWorker           		*gozmq.Socket
+	connectorEventReceiveFromWorker           		*zmq4.Socket
 	connectorEventReceiveFromWorkerConnection 		string
 	identity                            			string
 }
@@ -24,7 +24,7 @@ type ConnectorEventRoutine struct {
 func (r ConnectorEventRoutine) New(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) err error {
 	r.identity = identity
 
-	r.context, _ := gozmq.NewContext()
+	r.context, _ := zmq4.NewContext()
 	r.connectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
 	r.connectorEventSendToWorker = r.context.NewXPub(connectorEventSendToWorkerConnection)
 	r.connectorEventSendToWorker.Identity(r.Identity)
@@ -56,20 +56,20 @@ func (r ConnectorEventRoutine) reconnectToProxy() err error {
 func (r ConnectorEventRoutine) run() err error {
 	go cleanEventsByTimeout()
 
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: connectorEventSendToWorker, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorEventReceiveFromAggregator, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorEventSendToAggregator, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: connectorEventReceiveFromWorker, Events: zmq.POLLIN}}
+	pi := zmq4.PollItems{
+		zmq4.PollItem{Socket: connectorEventSendToWorker, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: connectorEventReceiveFromAggregator, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: connectorEventSendToAggregator, Events: zmq4.POLLIN},
+		zmq4.PollItem{Socket: connectorEventReceiveFromWorker, Events: zmq4.POLLIN}}
 
 	var event = [][]byte{}
 
 	for {
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = zmq4.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&zmq4.POLLIN != 0:
 
 			event, err := pi[0].Socket.RecvMessage()
 			if err != nil {
@@ -80,7 +80,7 @@ func (r ConnectorEventRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[1].REvents&zmq.POLLIN != 0:
+		case pi[1].REvents&zmq4.POLLIN != 0:
 
 			event, err := pi[1].Socket.RecvMessage()
 			if err != nil {
@@ -91,7 +91,7 @@ func (r ConnectorEventRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[2].REvents&zmq.POLLIN != 0:
+		case pi[2].REvents&zmq4.POLLIN != 0:
 
 			event, err := pi[2].Socket.RecvMessage()
 			if err != nil {
@@ -102,7 +102,7 @@ func (r ConnectorEventRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[3].REvents&zmq.POLLIN != 0:
+		case pi[3].REvents&zmq4.POLLIN != 0:
 
 			event, err := pi[3].Socket.RecvMessage()
 			if err != nil {
