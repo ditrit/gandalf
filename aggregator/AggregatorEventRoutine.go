@@ -7,44 +7,44 @@ import (
 )
 
 type AggregatorEventRoutine struct {
-	context									 		*zmq4.Context
-	aggregatorEventSendToCluster              		*zmq4.Socket
+	context									 		zmq4.Context
+	aggregatorEventSendToCluster              		zmq4.Socket
 	aggregatorEventSendToClusterConnection    		string
-	aggregatorEventReceiveFromConnector           	*zmq4.Socket
+	aggregatorEventReceiveFromConnector           	zmq4.Socket
 	aggregatorEventReceiveFromConnectorConnection 	string
-	aggregatorEventSendToConnector              	*zmq4.Socket
+	aggregatorEventSendToConnector              	zmq4.Socket
 	aggregatorEventSendToConnectorConnection    	string
-	aggregatorEventReceiveFromCluster           	*zmq4.Socket
+	aggregatorEventReceiveFromCluster           	zmq4.Socket
 	aggregatorEventReceiveFromClusterConnection 	string
 	identity                             			string
 }
 
-func (r AggregatorEventRoutine) New(identity, aggregatorEventSendToClusterConnection, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection, aggregatorEventReceiveFromClusterConnection string) err error {
+func (r AggregatorEventRoutine) New(identity, aggregatorEventSendToClusterConnection, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection, aggregatorEventReceiveFromClusterConnection string) {
 	r.identity = identity
 
-	r.context, _ := zmq4.NewContext()
+	r.context, _ = zmq4.NewContext()
 	r.aggregatorEventSendToClusterConnection = aggregatorEventSendToClusterConnection
 	r.aggregatorEventSendToCluster = r.context.NewXPub(aggregatorEventSendToClusterConnection)
-	r.aggregatorEventSendToCluster.Identity(r.identity)
+	r.aggregatorEventSendToCluster.SetIdentity(r.identity)
 	fmt.Printf("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnection)
 
 	r.aggregatorEventReceiveFromClusterConnection = aggregatorEventReceiveFromClusterConnection
 	r.aggregatorEventReceiveFromCluster = r.context.NewXSub(aggregatorEventReceiveFromClusterConnection)
-	r.aggregatorEventReceiveFromCluster.Identity(r.identity)
+	r.aggregatorEventReceiveFromCluster.SetIdentity(r.identity)
 	fmt.Printf("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
 
 	r.aggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
 	r.aggregatorEventSendToConnector = r.context.NewXPub(aggregatorEventSendToConnectorConnection)
-	r.aggregatorEventSendToConnector.Identity(r.identity)
+	r.aggregatorEventSendToConnector.SetIdentity(r.identity)
 	fmt.Printf("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
 
 	r.aggregatorEventReceiveFromConnectorConnection = aggregatorEventReceiveFromConnectorConnection
 	r.aggregatorEventReceiveFromConnector = r.context.NewSub(aggregatorEventReceiveFromConnectorConnection)
-	r.aggregatorEventReceiveFromConnector.Identity(r.identity)
+	r.aggregatorEventReceiveFromConnector.SetIdentity(r.identity)
 	fmt.Printf("aggregatorEventReceiveFromConnector connect : " + aggregatorEventReceiveFromConnectorConnection)
 }
 
-func (r AggregatorEventRoutine) close() err error {
+func (r AggregatorEventRoutine) close() {
 	r.aggregatorEventSendToCluster.close()
 	r.aggregatorEventReceiveFromConnector.close()
 	r.aggregatorEventSendToConnector.close()
@@ -52,7 +52,7 @@ func (r AggregatorEventRoutine) close() err error {
 	r.Context.close()
 }
 
-func (r AggregatorEventRoutine) run() err error {
+func (r AggregatorEventRoutine) run() {
 	pi := zmq4.PollItems{
 		zmq4.PollItem{Socket: aggregatorEventSendToCluster, Events: zmq4.POLLIN},
 		zmq4.PollItem{Socket: aggregatorEventReceiveFromConnector, Events: zmq4.POLLIN},
@@ -64,7 +64,7 @@ func (r AggregatorEventRoutine) run() err error {
 	for {
 		r.sendReadyCommand()
 
-		_, _ = zmq4.Poll(pi, -1)
+		pi.Poll(-1)
 
 		switch {
 		case pi[0].REvents&zmq4.POLLIN != 0:
@@ -115,24 +115,24 @@ func (r AggregatorEventRoutine) run() err error {
 	fmt.Println("done")
 }
 
-func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) err error {
+func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
 	eventMessage = EventMessage.decodeEvent(event[1])
 	go eventMessage.sendEventWith(r.aggregatorEventReceiveFromConnector)
 
 }
 
-func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) err error {
+func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
 	eventMessage = EventMessage.decodeEvent(event[1])	
 	go eventMessage.sendEventWith(r.aggregatorEventSendToConnector)
 
 }
 
-func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) err error {
+func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
 	eventMessage = EventMessage.decodeEvent(event[1])
 	go eventMessage.sendEventWith(r.aggregatorEventReceiveFromCluster)
 }
 
-func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) err error {
+func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
 	eventMessage = EventMessage.decodeEvent(event[1])
 	go eventMessage.sendEventWith(r.aggregatorEventSendToCluster)
 }

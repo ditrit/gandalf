@@ -1,9 +1,5 @@
 package cluster
 
-import (
-	"gandalfgo/constant"
-)
-
 type ClusterGandalf struct {
 	clusterConfiguration 		ClusterConfiguration
 	clusterCommandRoutine       ClusterCommandRoutine

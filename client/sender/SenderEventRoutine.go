@@ -7,15 +7,15 @@ import (
 )
 
 type SenderEventRoutine struct {
-	context						*zmq4.Context
-	senderEventSend            	*zmq4.Socket
+	context						zmq4.Context
+	senderEventSend            	zmq4.Socket
 	senderEventConnection  		string
-	senderEventConnections 		*string
+	senderEventConnections 		string
 	Identity                   	string
-	Responses                  	*zmq4.Message
+	Responses                  	zmq4.Message
 }
 
-func (r SenderEventRoutine) New(identity, senderEventConnection string) err error {
+func (r SenderEventRoutine) New(identity, senderEventConnection string) {
 	r.identity = identity
 
 	r.context, _ := zmq4.NewContext()
@@ -25,7 +25,7 @@ func (r SenderEventRoutine) New(identity, senderEventConnection string) err erro
 	fmt.Printf("senderEventSend connect : " + senderEventConnection)
 }
 
-func (r SenderEventRoutine) NewList(identity string, senderEventConnections *string) err error {
+func (r SenderEventRoutine) NewList(identity string, senderEventConnections *string) {
 	r.identity = identity
 
 	context, _ := zmq4.NewContext()
@@ -35,7 +35,7 @@ func (r SenderEventRoutine) NewList(identity string, senderEventConnections *str
 	fmt.Printf("senderEventSend connect : " + senderEventConnections)
 }
 
-func (r SenderEventRoutine) sendEvent(topic, timeout, event, payload string) err error {
+func (r SenderEventRoutine) sendEvent(topic, timeout, event, payload string) {
 	eventMessage := eventMessage.New(topic, timeout, event, payload)
 	if err != nil {
 		panic(err)
@@ -43,5 +43,5 @@ func (r SenderEventRoutine) sendEvent(topic, timeout, event, payload string) err
 	go eventMessage.sendWith(senderEventSend)
 }
 
-func (r SenderEventRoutine) close() err error {
+func (r SenderEventRoutine) close() {
 }

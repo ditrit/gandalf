@@ -19,6 +19,6 @@ func (cp CommandPrint) New() {
 }
 
 func (cp CommandPrint) executeCommand() (result string) {
-	fmt.Print(cp.print)
+	fmt.Print("%s", "COMMAND")
 	return print
 }

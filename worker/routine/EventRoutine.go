@@ -12,5 +12,5 @@ type EventPrint struct {
 }
 
 func (ep EventPrint) executeEvent() {
-	fmt.Print(ep.print)
+	fmt.Print("%s", "EVENT")
 }

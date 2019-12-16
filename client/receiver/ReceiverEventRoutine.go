@@ -6,14 +6,14 @@ import(
 )
 
 type ReceiverEventRoutine struct {
-	context							*zmq4.Context
-	workerEventReceive 				*zmq4.Socket
+	context							zmq4.Context
+	workerEventReceive 				zmq4.Socket
 	receiverEventConnection 		string
 	identity 						string
 	eventsRoutine 					map[string][]EventFunction					
 }
 
-func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, eventsRoutine map[string][]EventFunction) err error {
+func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, eventsRoutine map[string][]EventFunction) {
 	r.identity = identity
 	r.receiverEventConnection = receiverEventConnection
 	r.eventsRoutine = eventsRoutine
@@ -32,7 +32,7 @@ func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, even
 	go r.run()
 }
 
-func (r ReceiverEventRoutine) run() err error {
+func (r ReceiverEventRoutine) run() {
 
 	pi := zmq4.PollItems{
 		zmq4.PollItem{Socket: workerEventReceive, Events: zmq4.POLLIN}
@@ -41,7 +41,7 @@ func (r ReceiverEventRoutine) run() err error {
 
 	for {
 
-		_, _ = zmq4.Poll(pi, -1)
+		pi.Poll(-1)
 
 		switch {
 

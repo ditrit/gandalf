@@ -7,14 +7,14 @@ import (
 )
 
 type ListenerEventRoutine struct {
-	context							*zmq4.Context
+	context							zmq4.Context
 	listenerEventReceive           	zmq4.Sock
 	listenerEventReceiveConnection 	string
 	identity                       	string
 	events []EventMessage
 }
 
-func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection string) err error {
+func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection string) {
 	r.identity = identity
 
 	r.context, _ := zmq4.NewContext()	
@@ -24,7 +24,7 @@ func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection strin
 	fmt.Printf("listenerEventReceive connect : " + listenerEventReceiveConnection)
 }
 
-func (r ListenerEventRoutine) close() err error {
+func (r ListenerEventRoutine) close() {
 	r.listenerEventReceive.close()
 	r.Context.close()
 }
@@ -36,7 +36,7 @@ func (r ListenerEventRoutine) run() {
 	var event = [][]byte{}
 
 	for {
-		_, _ = zmq4.Poll(pi, -1)
+		pi.Poll(-1)
 
 		switch {
 		case pi[0].REvents&zmq4.POLLIN != 0:
@@ -54,7 +54,7 @@ func (r ListenerEventRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ListenerEventRoutine) processEventReceive(event [][]byte) err error {
+func (r ListenerEventRoutine) processEventReceive(event [][]byte) {
 	r.events.append(message.EventMessage.decodeEvent(event))
 }
 

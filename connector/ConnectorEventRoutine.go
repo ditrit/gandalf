@@ -7,16 +7,16 @@ import (
 )
 
 type ConnectorEventRoutine struct {
-	context											*zmq4.Context
+	context											zmq4.Context
 	connectorMapUUIDEventMessage	   				map[string][]EventMessage					
 	connectorMapWorkerEvents 		   				map[string][]string	
-	connectorEventSendToWorker              		*zmq4.Socket
+	connectorEventSendToWorker              		zmq4.Socket
 	connectorEventSendToWorkerConnection    		string
-	connectorEventReceiveFromAggregator           	*zmq4.Socket
+	connectorEventReceiveFromAggregator           	zmq4.Socket
 	connectorEventReceiveFromAggregatorConnection 	string
-	connectorEventSendToAggregator              	*zmq4.Socket
+	connectorEventSendToAggregator              	zmq4.Socket
 	connectorEventSendToAggregatorConnection    	string
-	connectorEventReceiveFromWorker           		*zmq4.Socket
+	connectorEventReceiveFromWorker           		zmq4.Socket
 	connectorEventReceiveFromWorkerConnection 		string
 	identity                            			string
 }
@@ -46,14 +46,14 @@ func (r ConnectorEventRoutine) New(identity, connectorEventSendToWorkerConnectio
 	fmt.Printf("connectorEventReceiveFromWorker connect : " + connectorEventReceiveFromWorkerConnection)
 }
 
-func (r ConnectorEventRoutine) close() err error {
+func (r ConnectorEventRoutine) close() {
 }
 
-func (r ConnectorEventRoutine) reconnectToProxy() err error {
+func (r ConnectorEventRoutine) reconnectToProxy() {
 
 }
 
-func (r ConnectorEventRoutine) run() err error {
+func (r ConnectorEventRoutine) run() {
 	go cleanEventsByTimeout()
 
 	pi := zmq4.PollItems{
@@ -116,23 +116,23 @@ func (r ConnectorEventRoutine) run() err error {
 	}
 }
 
-func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	r.addEvents(eventMessage)
 	go eventMessage.sendEventWith(r.connectorEventReceiveFromAggregator)
 }
 
-func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	go eventMessage.sendEventWith(r.connectorEventSendToWorker)
 }
 
-func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
 	eventMessage := EventMessage.decodeEvent(event[1])
 	go eventMessage.sendEventWith(r.connectorEventReceiveFromWorker)
 }
 
-func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) err error {
+func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
 	
 	if event[0] == Constant.COMMAND_VALIDATION_FUNCTIONS {
 		commandFunctions := decodeCommandCommandsEvents(command[2])

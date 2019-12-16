@@ -8,16 +8,16 @@ import (
 )
 
 type ConnectorCommandRoutine struct {
-	context												*zmq4.Context
+	context												zmq4.Context
 	connectorMapUUIDCommandMessage		 				map[string][]CommandMessage					
 	connectorMapWorkerCommands 			 				map[string][]string				
-	connectorCommandSendToWorker              			*zmq4.Socket
+	connectorCommandSendToWorker              			zmq4.Socket
 	connectorCommandSendToWorkerConnection    			string
-	connectorCommandReceiveFromAggregator           	*zmq4.Socket
+	connectorCommandReceiveFromAggregator           	zmq4.Socket
 	connectorCommandReceiveFromAggregatorConnections 	[]string
-	connectorCommandSendToAggregator              		*zmq4.Socket
+	connectorCommandSendToAggregator              		zmq4.Socket
 	connectorCommandSendToAggregatorConnections    		[]string
-	connectorCommandReceiveFromWorker           		*zmq4.Socket
+	connectorCommandReceiveFromWorker           		zmq4.Socket
 	connectorCommandReceiveFromWorkerConnection 		string
 	identity                              				string
 }
@@ -47,14 +47,14 @@ func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConne
 	fmt.Printf("connectorCommandReceiveFromWorker connect : " + connectorCommandReceiveFromWorkerConnection)
 }
 
-func (r ConnectorCommandRoutine) close() err error {
+func (r ConnectorCommandRoutine) close() {
 }
 
-func (r ConnectorCommandRoutine) reconnectToProxy() err error {
+func (r ConnectorCommandRoutine) reconnectToProxy() {
 
 }
 
-func (r ConnectorCommandRoutine) run() err error {
+func (r ConnectorCommandRoutine) run() {
 	go cleanCommandsByTimeout()
 
 	pi := zmq4.PollItems{
@@ -118,23 +118,23 @@ func (r ConnectorCommandRoutine) run() err error {
 	}
 }
 
-func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) err error {
+func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	r.addCommands(commandMessage)
 	go commandMessage.sendWith(r.connectorCommandReceiveFromCluster, commandMessage.sourceConnector)
 }
 
-func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][]byte) err error {
+func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][]byte) {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	r.connectorMapUUIDCommandMessage.append(r.connectorMapUUIDCommandMessage[currentCommand.command], commandMessage)
 }
 
-func (r ConnectorCommandRoutine) processCommandSendAggregator(command [][]byte) err error {
+func (r ConnectorCommandRoutine) processCommandSendAggregator(command [][]byte) {
 	commandMessage := CommandMessage.decodeCommand(command[1])
 	go commandMessage.sendWith(r.connectorCommandReceiveFromWorker)
 }
 
-func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byte) err error {
+func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byte) {
     workerSource := command[0]
     if command[1] == Constant.COMMAND_READY {
         //commandReady := decodeCommandReady(command[2])

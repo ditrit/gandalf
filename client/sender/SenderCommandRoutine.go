@@ -8,8 +8,8 @@ import (
 )
 
 type SenderCommandRoutine struct {
-	context							*zmq4.Context
-	senderCommandSend            	*zmq4.Socket
+	context							zmq4.Context
+	senderCommandSend            	zmq4.Socket
 	senderCommandConnections 		[]string
 	senderCommandConnection  		string
 	identity                 		string
@@ -17,7 +17,7 @@ type SenderCommandRoutine struct {
 	mapUUIDCommandStates            map[string]State
 }
 
-func (r SenderCommandRoutine) New(identity, sendSenderConnection string) err error {
+func (r SenderCommandRoutine) New(identity, sendSenderConnection string) {
 	result := make(chan Result)
 	r.identity = identity
 
@@ -28,7 +28,7 @@ func (r SenderCommandRoutine) New(identity, sendSenderConnection string) err err
 	fmt.Printf("senderCommandSend connect : " + sendSenderConnection)
 }
 
-func (r SenderCommandRoutine) NewList(identity string, senderCommandConnections *string) err error {
+func (r SenderCommandRoutine) NewList(identity string, senderCommandConnections *string) {
 	result := make(chan Result)
 	r.identity = identity
 

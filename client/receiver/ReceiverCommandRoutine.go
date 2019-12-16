@@ -6,25 +6,25 @@ import(
 )
 
 type ReceiverCommandRoutine struct {
-	context							*zmq4.Context
-	results 						chan ResponseMessage
+	context							zmq4.Context
+	results 						chan message.ResponseMessage
 	workerCommandReceive 			zmq4.Socket
 	receiverCommandConnection 		string
 	workerEventReceive 				zmq4.Socket
 	workerEventReceiveConnection	string
 	identity 						string
-	commandsRoutine 				map[string][]CommandFunction					
+	commandsRoutine 				map[string][]message.CommandRoutine					
 }
 
-func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, commandsRoutine map[string][]CommandFunction, results chan) err error {
+func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, commandsRoutine map[string][]CommandFunction, results chan message.ResponseMessage) {
 	r.identity = identity
 	r.receiverCommandConnection = receiverCommandConnection
 	r.commandsRoutine = commandsRoutine
 	r.results = results
 
-	r.context, _ := zmq4.NewContext()
+	r.context, _ = zmq4.NewContext()
 	r.workerCommandReceive = r.context.NewDealer(receiverCommandConnection)
-	r.workerCommandReceive.Identity(r.identity)
+	r.workerCommandReceive.SetIdentity(r.identity)
 	fmt.Printf("workerCommandReceive connect : " + receiverCommandConnection)
 
 	r.loadCommandRoutines()
@@ -36,7 +36,7 @@ func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, 
 	go r.run()
 }
 
-func (r ReceiverCommandRoutine) run() err error {
+func (r ReceiverCommandRoutine) run() {
 
 	go r.sendResults()
 
@@ -49,7 +49,7 @@ func (r ReceiverCommandRoutine) run() err error {
 	for {
 		r.sendReadyCommand()
 
-		_, _ = zmq4.Poll(pi, -1)
+		pi.Poll(-1)
 
 		switch {
 		case pi[0].REvents&zmq4.POLLIN != 0:
@@ -109,7 +109,7 @@ func (r ReceiverCommandRoutine) getCommandRoutine(command string) (commandRoutin
 	}
 }
 
-func (r ReceiverCommandRoutine) sendResults() err error {
+func (r ReceiverCommandRoutine) sendResults() {
 	for {
 		reply, err <- r.replys
 		if err != nil {
