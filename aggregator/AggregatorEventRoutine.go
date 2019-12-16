@@ -68,51 +68,53 @@ func (r AggregatorEventRoutine) run() {
 	for {
 		r.sendReadyCommand()
 
-		poller.Poll(-1)
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
 
-		switch {
-		case pi[0].REvents&zmq4.POLLIN != 0:
+			switch currentSocket := socket.Socket; currentSocket {
+			case aggregatorEventSendToCluster:
 
-			event, err := pi[0].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventSendToCluster(event)
-			if err != nil {
-				panic(err)
-			}
+				event, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processEventSendToCluster(event)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[1].REvents&zmq4.POLLIN != 0:
+			case aggregatorEventReceiveFromConnector:
 
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventReceiveFromConnector(event)
-			if err != nil {
-				panic(err)
-			}
+				event, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processEventReceiveFromConnector(event)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[2].REvents&zmq4.POLLIN != 0:
+			case aggregatorEventSendToConnector:
 
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventSendToConnector(event)
-			if err != nil {
-				panic(err)
-			}
+				event, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processEventSendToConnector(event)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[3].REvents&zmq4.POLLIN != 0:
+			case aggregatorEventReceiveFromCluster:
 
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventReceiveFromCluster(event)
-			if err != nil {
-				panic(err)
+				event, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processEventReceiveFromCluster(event)
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	}

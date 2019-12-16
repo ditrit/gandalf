@@ -45,33 +45,36 @@ func (r ClusterCaptureWorkerRoutine) run() {
 
 	command := [][]byte{}
 	event := [][]byte{}
+	
 
 	for {
 		r.sendReadyCommand()
 
-		poller.Poll(-1)
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
 
-		switch {
-		case pi[0].REvents&zmq4.POLLIN != 0:
+			switch currentSocket := socket.Socket; currentSocket {
+			case workerCaptureCommandReceive:
 
-			command, err := pi[0].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommand(command)
-			if err != nil {
-				panic(err)
-			}
+				command, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processCommand(command)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[1].REvents&zmq4.POLLIN != 0:
+			case workerCaptureEventReceive:
 
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEvent(event)
-			if err != nil {
-				panic(err)
+				event, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processEvent(event)
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	}

@@ -72,52 +72,55 @@ func (r ConnectorCommandRoutine) run() {
 	for {
 		r.sendReadyCommand()
 
-		poller.Poll(-1)
+	
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
 
-		switch {
-		case pi[0].REvents&zmq4.POLLIN != 0:
+			switch currentSocket := socket.Socket; currentSocket {
+			case connectorCommandSendToWorker:
 
-			command, err := pi[0].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
+				command, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
 
-			err = r.processCommandSendToWorker(command)
-			if err != nil {
-				panic(err)
-			}
+				err = r.processCommandSendToWorker(command)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[1].REvents&zmq4.POLLIN != 0:
+			case connectorCommandReceiveFromAggregator:
 
-			command, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandReceiveFromAggregator(command)
-			if err != nil {
-				panic(err)
-			}
+				command, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processCommandReceiveFromAggregator(command)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[2].REvents&zmq4.POLLIN != 0:
+			case connectorCommandSendToAggregator:
 
-			command, err := pi[2].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandSendAggregator(command)
-			if err != nil {
-				panic(err)
-			}
+				command, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processCommandSendAggregator(command)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[3].REvents&zmq4.POLLIN != 0:
+			case connectorCommandReceiveFromWorker:
 
-			command, err := pi[3].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandReceiveFromWorker(command)
-			if err != nil {
-				panic(err)
+				command, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processCommandReceiveFromWorker(command)
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	}

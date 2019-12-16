@@ -49,39 +49,39 @@ func (r ClusterCommandRoutine) close() {
 func (r ClusterCommandRoutine) run() {
 
 	poller := zmq4.NewPoller()
-	poller.Add(r.aggregatorCommandSendToCluster, zmq4.POLLIN)
-	poller.Add(r.aggregatorCommandReceiveFromConnector, zmq4.POLLIN)
-	poller.Add(r.aggregatorCommandSendToConnector, zmq4.POLLIN)
-	poller.Add(r.aggregatorCommandReceiveFromCluster, zmq4.POLLIN)
+	poller.Add(r.clusterCommandSend, zmq4.POLLIN)
+	poller.Add(r.clusterCommandReceive, zmq4.POLLIN)
 
 	command := [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		poller.Poll(-1)
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
 
-		switch {
-		case pi[0].REvents&zmq4.POLLIN != 0:
+			switch currentSocket := socket.Socket; currentSocket {
+			case clusterCommandSend:
 
-			command, err := pi[0].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandSend(command)
-			if err != nil {
-				panic(err)
-			}
+				command, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processCommandSend(command)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[1].REvents&zmq4.POLLIN != 0:
+			case clusterCommandReceive:
 
-			command, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandReceive(command)
-			if err != nil {
-				panic(err)
+				command, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processCommandReceive(command)
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	}

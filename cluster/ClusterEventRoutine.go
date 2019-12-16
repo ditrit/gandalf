@@ -52,37 +52,39 @@ func (r ClusterEventRoutine) run() {
 
 
 	poller := zmq4.NewPoller()
-	poller.Add(r.aggregatorEventSendC2CL, zmq4.POLLIN)
-	poller.Add(r.aggregatorEventReceiveC2CL, zmq4.POLLIN)
+	poller.Add(r.clusterEventSend, zmq4.POLLIN)
+	poller.Add(r.clusterEventReceive, zmq4.POLLIN)
 
 	event := [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		poller.Poll(-1)
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
 
-		switch {
-		case pi[0].REvents&gozmq.POLLIN != 0:
+			switch currentSocket := socket.Socket; currentSocket {
+			case clusterEventSend:
 
-			event, err := pi[0].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventSend(event)
-			if err != nil {
-				panic(err)
-			}
+				event, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processEventSend(event)
+				if err != nil {
+					panic(err)
+				}
 
-		case pi[1].REvents&gozmq.POLLIN != 0:
+			case clusterEventReceive:
 
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventReceive(event)
-			if err != nil {
-				panic(err)
+				event, err := currentSocket.RecvMessage()
+				if err != nil {
+					panic(err)
+				}
+				err = r.processEventReceive(event)
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	}
