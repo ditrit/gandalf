@@ -129,7 +129,7 @@ func (r AggregatorCommandRoutine) run() {
 
 func (r AggregatorCommandRoutine) processCommandSendToCluster(command [][]byte) (err error) {
 	sourceConnector := string(command[0])
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	commandMessage, err := message.DecodeCommandMessage(command[1])
 	commandMessage.SourceConnector = sourceConnector
 	commandMessage.SourceAggregator = r.identity
 	go commandMessage.SendCommandWith(r.aggregatorCommandReceiveFromConnector)
@@ -138,13 +138,13 @@ func (r AggregatorCommandRoutine) processCommandSendToCluster(command [][]byte) 
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) (err error) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	commandMessage, err := message.DecodeCommandMessage(command[1])
 	go commandMessage.SendCommandWith(r.aggregatorCommandSendToConnector)
 	return
 }
 
 func (r AggregatorCommandRoutine) processCommandSendToConnector(command [][]byte) (err error) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	commandMessage, err := message.DecodeCommandMessage(command[1])
 	go commandMessage.SendWith(r.aggregatorCommandReceiveFromCluster, commandMessage.SourceConnector)
 	return
     //COMMAND

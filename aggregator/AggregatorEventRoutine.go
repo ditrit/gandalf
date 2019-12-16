@@ -122,25 +122,25 @@ func (r AggregatorEventRoutine) run() {
 }
 
 func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) (err error) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])
+	eventMessage, err := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventReceiveFromConnector)
 	return
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) (err error) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])	
+	eventMessage, err := message.DecodeEventMessage(event[1])	
 	go eventMessage.SendEventWith(r.aggregatorEventSendToConnector)
 	return
 }
 
 func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) (err error) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])
+	eventMessage, err := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventReceiveFromCluster)
 	return
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) (err error) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])
+	eventMessage, err := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventSendToCluster)
 	return
 }
