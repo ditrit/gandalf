@@ -2,17 +2,18 @@ package receiver
 
 import(
 	"gandalfgo/message"
+	"github.com/alecthomas/gozmq"
 )
 
 type ReceiverCommandRoutine struct {
-	context							*zmq.Context
-	results chan ResponseMessage
-	workerCommandReceive zmq.Sock
-	receiverCommandConnection string
-	workerEventReceive zmq.Sock
-	workerEventReceiveConnection string
-	identity string
-	commandsRoutine map[string][]CommandFunction					
+	context							*gozmq.Context
+	results 						chan ResponseMessage
+	workerCommandReceive 			gozmq.Socket
+	receiverCommandConnection 		string
+	workerEventReceive 				gozmq.Socket
+	workerEventReceiveConnection	string
+	identity 						string
+	commandsRoutine 				map[string][]CommandFunction					
 }
 
 func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, commandsRoutine map[string][]CommandFunction, results chan) err error {
@@ -21,8 +22,8 @@ func (r ReceiverCommandRoutine) New(identity, receiverCommandConnection string, 
 	r.commandsRoutine = commandsRoutine
 	r.results = results
 
-	context, _ := zmq.NewContext()
-	r.workerCommandReceive = context.NewDealer(receiverCommandConnection)
+	r.context, _ := gozmq.NewContext()
+	r.workerCommandReceive = r.context.NewDealer(receiverCommandConnection)
 	r.workerCommandReceive.Identity(r.identity)
 	fmt.Printf("workerCommandReceive connect : " + receiverCommandConnection)
 

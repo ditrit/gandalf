@@ -3,17 +3,17 @@ package cluster
 import (
 	"fmt"
 	"gandalfgo/message"
-	zmq "github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type ClusterEventRoutine struct {
-	context							*zmq.Context
-	clusterEventSend              zmq.Sock
-	clusterEventSendConnection    string
-	clusterEventReceive           zmq.Sock
-	clusterEventReceiveConnection string
-	clusterEventCapture             zmq.Sock
-	clusterEventCaptureConnection    string
+	context							*gozmq.Context
+	clusterEventSend              	*gozmq.Socket
+	clusterEventSendConnection    	string
+	clusterEventReceive           	*gozmq.Socket
+	clusterEventReceiveConnection 	string
+	clusterEventCapture             *gozmq.Socket
+	clusterEventCaptureConnection   string
 
 	identity string
 }
@@ -21,19 +21,19 @@ type ClusterEventRoutine struct {
 func (r ClusterEventRoutine) New(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) err error {
 	r.identity = identity
 	
-	context, _ := zmq.NewContext()
+	r.context, _ := gozmq.NewContext()
 	r.clusterEventSendConnection = clusterEventSendConnection
-	r.clusterEventSend = context.NewXPub(clusterEventSendConnection)
+	r.clusterEventSend = r.context.NewXPub(clusterEventSendConnection)
 	r.clusterEventSend.Identity(r.identity)
 	rmt.Printf("clusterEventSend connect : " + clusterEventSendConnection)
 
 	r.clusterEventReceiveConnection = clusterEventReceiveConnection
-	r.clusterEventReceive = context.NewXSub(clusterEventReceiveConnection)
+	r.clusterEventReceive = r.context.NewXSub(clusterEventReceiveConnection)
 	r.clusterEventReceive.Identity(r.identity)
 	rmt.Printf("clusterEventReceive connect : " + clusterEventReceiveConnection)
 
 	r.clusterEventCaptureConnection = clusterEventCaptureConnection
-	r.clusterEventCapture = context.NewPub(clusterEventCaptureConnection)
+	r.clusterEventCapture = r.context.NewPub(clusterEventCaptureConnection)
 	r.clusterEventCapture.Identity(r.identity)
 	fmt.Printf("clusterEventCapture connect : " + clusterEventCaptureConnection)
 }
@@ -46,19 +46,19 @@ func (r ClusterEventRoutine) close() err error {
 }
 
 func (r ClusterEventRoutine) run() err error {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: aggregatorEventSendC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: zmq.POLLIN},
+	pi := gozmq.PollItems{
+		gozmq.PollItem{Socket: aggregatorEventSendC2CL, Events: gozmq.POLLIN},
+		gozmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: gozmq.POLLIN},
 
 	var event = [][]byte{}
 
 	for {
 		r.sendReadyCommand()
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = gozmq.Poll(pi, -1)
 
 		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&gozmq.POLLIN != 0:
 
 			event, err := pi[0].Socket.RecvMessage()
 			if err != nil {
@@ -69,7 +69,7 @@ func (r ClusterEventRoutine) run() err error {
 				panic(err)
 			}
 
-		case pi[1].REvents&zmq.POLLIN != 0:
+		case pi[1].REvents&gozmq.POLLIN != 0:
 
 			event, err := pi[1].Socket.RecvMessage()
 			if err != nil {

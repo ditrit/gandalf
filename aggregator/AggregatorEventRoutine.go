@@ -3,43 +3,43 @@ package aggregator
 import (
 	"fmt"
 	"gandalfgo/message"
-	zmq "github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type AggregatorEventRoutine struct {
-	context							*zmq.Context
-	aggregatorEventSendToCluster              zmq.Sock
-	aggregatorEventSendToClusterConnection    string
-	aggregatorEventReceiveFromConnector           zmq.Sock
-	aggregatorEventReceiveFromConnectorConnection string
-	aggregatorEventSendToConnector              zmq.Sock
-	aggregatorEventSendToConnectorConnection    string
-	aggregatorEventReceiveFromCluster           zmq.Sock
-	aggregatorEventReceiveFromClusterConnection string
-	identity                             string
+	context									 		*gozmq.Context
+	aggregatorEventSendToCluster              		*gozmq.Socket
+	aggregatorEventSendToClusterConnection    		string
+	aggregatorEventReceiveFromConnector           	*gozmq.Socket
+	aggregatorEventReceiveFromConnectorConnection 	string
+	aggregatorEventSendToConnector              	*gozmq.Socket
+	aggregatorEventSendToConnectorConnection    	string
+	aggregatorEventReceiveFromCluster           	*gozmq.Socket
+	aggregatorEventReceiveFromClusterConnection 	string
+	identity                             			string
 }
 
 func (r AggregatorEventRoutine) New(identity, aggregatorEventSendToClusterConnection, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection, aggregatorEventReceiveFromClusterConnection string) err error {
 	r.identity = identity
 
-	context, _ := zmq.NewContext()
+	r.context, _ := gozmq.NewContext()
 	r.aggregatorEventSendToClusterConnection = aggregatorEventSendToClusterConnection
-	r.aggregatorEventSendToCluster = context.NewXPub(aggregatorEventSendToClusterConnection)
+	r.aggregatorEventSendToCluster = r.context.NewXPub(aggregatorEventSendToClusterConnection)
 	r.aggregatorEventSendToCluster.Identity(r.identity)
 	fmt.Printf("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnection)
 
 	r.aggregatorEventReceiveFromClusterConnection = aggregatorEventReceiveFromClusterConnection
-	r.aggregatorEventReceiveFromCluster = context.NewXSub(aggregatorEventReceiveFromClusterConnection)
+	r.aggregatorEventReceiveFromCluster = r.context.NewXSub(aggregatorEventReceiveFromClusterConnection)
 	r.aggregatorEventReceiveFromCluster.Identity(r.identity)
 	fmt.Printf("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
 
 	r.aggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
-	r.aggregatorEventSendToConnector = context.NewXPub(aggregatorEventSendToConnectorConnection)
+	r.aggregatorEventSendToConnector = r.context.NewXPub(aggregatorEventSendToConnectorConnection)
 	r.aggregatorEventSendToConnector.Identity(r.identity)
 	fmt.Printf("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
 
 	r.aggregatorEventReceiveFromConnectorConnection = aggregatorEventReceiveFromConnectorConnection
-	r.aggregatorEventReceiveFromConnector = context.NewSub(aggregatorEventReceiveFromConnectorConnection)
+	r.aggregatorEventReceiveFromConnector = r.context.NewSub(aggregatorEventReceiveFromConnectorConnection)
 	r.aggregatorEventReceiveFromConnector.Identity(r.identity)
 	fmt.Printf("aggregatorEventReceiveFromConnector connect : " + aggregatorEventReceiveFromConnectorConnection)
 }

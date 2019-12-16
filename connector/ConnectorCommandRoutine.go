@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"gandalfgo/message"
 	"container/list"	
-	zmq "github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type ConnectorCommandRoutine struct {
-	context							*zmq.Context
+	context												*gozmq.Context
 	connectorMapUUIDCommandMessage		 				map[string][]CommandMessage					
 	connectorMapWorkerCommands 			 				map[string][]string				
-	connectorCommandSendToWorker              			zmq.Sock
+	connectorCommandSendToWorker              			*gozmq.Socket
 	connectorCommandSendToWorkerConnection    			string
-	connectorCommandReceiveFromAggregator           	zmq.Sock
+	connectorCommandReceiveFromAggregator           	*gozmq.Socket
 	connectorCommandReceiveFromAggregatorConnections 	[]string
-	connectorCommandSendToAggregator              		zmq.Sock
+	connectorCommandSendToAggregator              		*gozmq.Socket
 	connectorCommandSendToAggregatorConnections    		[]string
-	connectorCommandReceiveFromWorker           		zmq.Sock
+	connectorCommandReceiveFromWorker           		*gozmq.Socket
 	connectorCommandReceiveFromWorkerConnection 		string
 	identity                              				string
 }
@@ -25,24 +25,24 @@ type ConnectorCommandRoutine struct {
 func (r ConnectorCommandRoutine) New(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections, connectorCommandReceiveFromWorkerConnection string) err error {
 	r.identity = identity
 
-	context, _ := zmq.NewContext()
+	r.context, _ := gozmq.NewContext()
 	r.connectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
-	r.connectorCommandSendToWorker = context.NewRouter(r.connectorCommandSendToWorkerConnection)
+	r.connectorCommandSendToWorker = r.context.NewRouter(r.connectorCommandSendToWorkerConnection)
 	r.connectorCommandSendToWorker.Identity(r.identity)
 	fmt.Printf("connectorCommandSendToWorker connect : " + connectorCommandSendToWorkerConnection)
 
 	r.connectorCommandReceiveFromAggregatorConnections = connectorCommandReceiveFromAggregatorConnections
-	r.connectorCommandReceiveFromAggregator = context.NewDealer(connectorCommandReceiveFromAggregatorConnections)
+	r.connectorCommandReceiveFromAggregator = r.context.NewDealer(connectorCommandReceiveFromAggregatorConnections)
 	r.connectorCommandReceiveFromAggregator.Identity(r.identity)
 	fmt.Printf("connectorCommandReceiveFromAggregator connect : " + connectorCommandReceiveFromAggregatorConnections)
 
 	r.connectorCommandSendToAggregatorConnections = connectorCommandSendToAggregatorConnections
-	r.connectorCommandSendToAggregator = context.NewRouter(connectorCommandSendToAggregatorConnections)
+	r.connectorCommandSendToAggregator = r.context.NewRouter(connectorCommandSendToAggregatorConnections)
 	r.connectorCommandSendToAggregator.Identity(r.identity)
 	fmt.Printf("connectorCommandSendToAggregator connect : " + connectorCommandSendToAggregatorConnections)
 
 	r.connectorCommandReceiveFromWorkerConnection = connectorCommandReceiveFromWorkerConnection
-	r.connectorCommandReceiveFromWorker = context.NewDealer(connectorCommandReceiveFromWorkerConnection)
+	r.connectorCommandReceiveFromWorker = r.context.NewDealer(connectorCommandReceiveFromWorkerConnection)
 	r.connectorCommandReceiveFromWorker.Identity(r.identity)
 	fmt.Printf("connectorCommandReceiveFromWorker connect : " + connectorCommandReceiveFromWorkerConnection)
 }

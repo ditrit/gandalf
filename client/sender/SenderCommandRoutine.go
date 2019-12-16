@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"gandalfgo/message"
 	"gandalfgo/constant"
-	zmq "github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type SenderCommandRoutine struct {
-	context							*zmq.Context
-	senderCommandSend            	zmq.Sock
-	senderCommandConnections 	*string
-	senderCommandConnection  	string
+	context							*gozmq.Context
+	senderCommandSend            	*gozmq.Socket
+	senderCommandConnections 		[]string
+	senderCommandConnection  		string
 	identity                 		string
 	result               			chan
 	mapUUIDCommandStates            map[string]State
@@ -21,9 +21,9 @@ func (r SenderCommandRoutine) New(identity, sendSenderConnection string) err err
 	result := make(chan Result)
 	r.identity = identity
 
-	context, _ := zmq.NewContext()
+	r.context, _ := gozmq.NewContext()
 	r.sendSenderConnection = sendSenderConnection
-	r.senderCommandSend = context.NewDealer(sendSenderConnection)
+	r.senderCommandSend = r.context.NewDealer(sendSenderConnection)
 	r.senderCommandSend.Identity(r.identity)
 	fmt.Printf("senderCommandSend connect : " + sendSenderConnection)
 }
@@ -32,9 +32,9 @@ func (r SenderCommandRoutine) NewList(identity string, senderCommandConnections 
 	result := make(chan Result)
 	r.identity = identity
 
-	context, _ := zmq.NewContext()
+	r.context, _ := gozmq.NewContext()
 	r.senderCommandConnections = senderCommandConnections
-	r.senderCommandSend = context.NewDealer(senderCommandConnections)
+	r.senderCommandSend = r.context.NewDealer(senderCommandConnections)
 	r.senderCommandSend.Identity(r.identity)
 	fmt.Printf("senderCommandSend connect : " + senderCommandConnections)
 }

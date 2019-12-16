@@ -2,14 +2,15 @@ package receiver
 
 import(
 	"gandalfgo/message"
+	"github.com/alecthomas/gozmq"
 )
 
 type ReceiverEventRoutine struct {
-	context							*zmq.Context
-	workerEventReceive zmq.Sock
-	receiverEventConnection string
-	identity string
-	eventsRoutine map[string][]EventFunction					
+	context							*gozmq.Context
+	workerEventReceive 				gozmq.Sock
+	receiverEventConnection 		string
+	identity 						string
+	eventsRoutine 					map[string][]EventFunction					
 }
 
 func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, eventsRoutine map[string][]EventFunction) err error {
@@ -17,8 +18,8 @@ func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, even
 	r.receiverEventConnection = receiverEventConnection
 	r.eventsRoutine = eventsRoutine
 
-	context, _ := zmq.NewContext()
-	r.workerEventReceive = context.NewSub(receiverEventConnection)
+	r.context, _ := gozmq.NewContext()
+	r.workerEventReceive = r.context.NewSub(receiverEventConnection)
 	r.workerEventReceive.Identity(r.identity)
 	fmt.Printf("workerEventReceive connect : " + receiverEventConnection)
 
@@ -33,18 +34,18 @@ func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, even
 
 func (r ReceiverEventRoutine) run() err error {
 
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: workerEventReceive, Events: zmq.POLLIN}
+	pi := gozmq.PollItems{
+		gozmq.PollItem{Socket: workerEventReceive, Events: gozmq.POLLIN}
 
 	var event = [][]byte{}
 
 	for {
 
-		_, _ = zmq.Poll(pi, -1)
+		_, _ = gozmq.Poll(pi, -1)
 
 		switch {
 
-		case pi[0].REvents&zmq.POLLIN != 0:
+		case pi[0].REvents&gozmq.POLLIN != 0:
 
 			event, err := pi[1].Socket.RecvMessage()
 			if err != nil {

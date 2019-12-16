@@ -3,24 +3,24 @@ package sender
 import (
 	"fmt"
 	"gandalfgo/message"
-	"github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type SenderEventRoutine struct {
-	context							*zmq.Context
-	senderEventSend            zmq.Sock
-	senderEventConnection  string
-	senderEventConnections *string
-	Identity                   string
-	Responses                  *zmq.Message
+	context						*gozmq.Context
+	senderEventSend            	gozmq.Sock
+	senderEventConnection  		string
+	senderEventConnections 		*string
+	Identity                   	string
+	Responses                  	*gozmq.Message
 }
 
 func (r SenderEventRoutine) New(identity, senderEventConnection string) err error {
 	r.identity = identity
 
-	context, _ := zmq.NewContext()
+	r.context, _ := gozmq.NewContext()
 	r.senderEventConnection = senderEventConnection
-	r.senderEventSend = context.NewDealer(senderEventConnection)
+	r.senderEventSend = r.context.NewDealer(senderEventConnection)
 	r.senderEventSend.Identity(r.identity)
 	fmt.Printf("senderEventSend connect : " + senderEventConnection)
 }
@@ -28,7 +28,7 @@ func (r SenderEventRoutine) New(identity, senderEventConnection string) err erro
 func (r SenderEventRoutine) NewList(identity string, senderEventConnections *string) err error {
 	r.identity = identity
 
-	context, _ := zmq.NewContext()
+	context, _ := gozmq.NewContext()
 	r.senderEventConnections = senderEventConnections
 	r.senderEventSend = context.NewDealer(senderEventConnections)
 	r.senderEventSend.Identity(r.identity)

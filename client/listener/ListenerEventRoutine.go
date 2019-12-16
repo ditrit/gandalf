@@ -3,23 +3,23 @@ package listener
 import (
 	"fmt"
 	"gandalfgo/message"
-	zmq "github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type ListenerEventRoutine struct {
-	context							*zmq.Context
-	listenerEventReceive           zmq.Sock
-	listenerEventReceiveConnection string
-	identity                       string
+	context							*gozmq.Context
+	listenerEventReceive           	gozmq.Sock
+	listenerEventReceiveConnection 	string
+	identity                       	string
 	events []EventMessage
 }
 
 func (r ListenerEventRoutine) New(identity, listenerEventReceiveConnection string) err error {
 	r.identity = identity
 
-	context, _ := zmq.NewContext()	
+	r.context, _ := gozmq.NewContext()	
 	r.listenerEventReceiveConnection = listenerEventReceiveConnection
-	r.listenerEventReceive = context.NewSub(listenerEventReceiveConnection)
+	r.listenerEventReceive = r.context.NewSub(listenerEventReceiveConnection)
 	r.listenerEventReceive.Identity(r.identity)
 	fmt.Printf("listenerEventReceive connect : " + listenerEventReceiveConnection)
 }
@@ -30,8 +30,8 @@ func (r ListenerEventRoutine) close() err error {
 }
 
 func (r ListenerEventRoutine) run() {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: listenerEventReceive, Events: zmq.POLLIN}
+	pi := gozmq.PollItems{
+		gozmq.PollItem{Socket: listenerEventReceive, Events: gozmq.POLLIN}
 
 	var event = [][]byte{}
 

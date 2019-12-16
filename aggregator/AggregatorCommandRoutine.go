@@ -3,26 +3,26 @@ package aggregator
 import (
 	"fmt"
     "gandalfgo/message"
-	zmq "github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type AggregatorCommandRoutine struct {
-	context							*zmq.Context
-	aggregatorCommandSendToCluster              zmq.Sock
-	aggregatorCommandSendToClusterConnections   []string
-	aggregatorCommandReceiveFromConnector           zmq.Sock
-	aggregatorCommandReceiveFromConnectorConnection string
-	aggregatorCommandSendToConnector              zmq.Sock
-	aggregatorCommandSendToConnectorConnection   string
-	aggregatorCommandReceiveFromCluster           zmq.Sock
-	aggregatorCommandReceiveFromClusterConnections []string
-	identity                               string
+	context												*gozmq.Context
+	aggregatorCommandSendToCluster              		*gozmq.Socket
+	aggregatorCommandSendToClusterConnections   		[]string
+	aggregatorCommandReceiveFromConnector           	*gozmq.Socket
+	aggregatorCommandReceiveFromConnectorConnection 	string
+	aggregatorCommandSendToConnector              		*gozmq.Socket
+	aggregatorCommandSendToConnectorConnection   		string
+	aggregatorCommandReceiveFromCluster          		*gozmq.Socket
+	aggregatorCommandReceiveFromClusterConnections 		[]string
+	identity                               				string
 }
 
 func (r AggregatorCommandRoutine) New(identity, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnections, aggregatorCommandReceiveFromClusterConnection string) err error {
 	r.identity = identity
 	
-	context, _ := zmq.NewContext()
+	r.context, _ := zmq.NewContext()
 	r.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
 	r.aggregatorCommandSendToCluster = context.NewRouter(aggregatorCommandSendToClusterConnections)
 	r.aggregatorCommandSendToCluster.Identity(r.identity)

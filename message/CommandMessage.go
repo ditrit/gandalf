@@ -5,7 +5,7 @@ import (
 	"time"
 	"gandalfgo/constant"
 	"github.com/shamaton/msgpack"
-	"github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type CommandMessage struct {

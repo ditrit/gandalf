@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 	"github.com/shamaton/msgpack"
-	"github.com/zeromq/goczmq"
+	"github.com/alecthomas/gozmq"
 )
 
 type EventMessage struct {

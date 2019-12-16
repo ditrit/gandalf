@@ -7,41 +7,41 @@ import (
 )
 
 type ConnectorEventRoutine struct {
-	context							*zmq.Context
-	connectorMapUUIDEventMessage	   map[string][]EventMessage					
-	connectorMapWorkerEvents 		   map[string][]string	
-	connectorEventSendToWorker              zmq.Sock
-	connectorEventSendToWorkerConnection    string
-	connectorEventReceiveFromAggregator           zmq.Sock
-	connectorEventReceiveFromAggregatorConnection string
-	connectorEventSendToAggregator              zmq.Sock
-	connectorEventSendToAggregatorConnection    string
-	connectorEventReceiveFromWorker           zmq.Sock
-	connectorEventReceiveFromWorkerConnection string
-	identity                            string
+	context											*gozmq.Context
+	connectorMapUUIDEventMessage	   				map[string][]EventMessage					
+	connectorMapWorkerEvents 		   				map[string][]string	
+	connectorEventSendToWorker              		*gozmq.Socket
+	connectorEventSendToWorkerConnection    		string
+	connectorEventReceiveFromAggregator           	*gozmq.Socket
+	connectorEventReceiveFromAggregatorConnection 	string
+	connectorEventSendToAggregator              	*gozmq.Socket
+	connectorEventSendToAggregatorConnection    	string
+	connectorEventReceiveFromWorker           		*gozmq.Socket
+	connectorEventReceiveFromWorkerConnection 		string
+	identity                            			string
 }
 
 func (r ConnectorEventRoutine) New(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) err error {
 	r.identity = identity
 
-	context, _ := zmq.NewContext()
+	r.context, _ := gozmq.NewContext()
 	r.connectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
-	r.connectorEventSendToWorker = context.NewXPub(connectorEventSendToWorkerConnection)
+	r.connectorEventSendToWorker = r.context.NewXPub(connectorEventSendToWorkerConnection)
 	r.connectorEventSendToWorker.Identity(r.Identity)
 	fmt.Printf("connectorEventSendToWorker connect : " + connectorEventSendToWorkerConnection)
 
 	r.connectorEventReceiveFromAggregatorConnection = connectorEventReceiveFromAggregatorConnection
-	r.connectorEventReceiveFromAggregator = context.NewXSub(connectorEventReceiveFromAggregatorConnection)
+	r.connectorEventReceiveFromAggregator = r.context.NewXSub(connectorEventReceiveFromAggregatorConnection)
 	r.connectorEventReceiveFromAggregator.Identity(r.Identity)
 	fmt.Printf("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
 
 	r.connectorEventSendToAggregatorConnection = connectorEventSendToAggregatorConnection
-	r.connectorEventSendToAggregator = context.NewXPub(connectorEventSendToAggregatorConnection)
+	r.connectorEventSendToAggregator = r.context.NewXPub(connectorEventSendToAggregatorConnection)
 	r.connectorEventSendToAggregator.Identity(r.Identity)
 	fmt.Printf("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
 
 	r.connectorEventReceiveFromWorkerConnection = connectorEventReceiveFromWorkerConnection
-	r.connectorEventReceiveFromWorker = context.NewXSub(connectorEventReceiveFromWorkerConnection)
+	r.connectorEventReceiveFromWorker = r.context.NewXSub(connectorEventReceiveFromWorkerConnection)
 	r.connectorEventReceiveFromWorker.Identity(r.Identity)
 	fmt.Printf("connectorEventReceiveFromWorker connect : " + connectorEventReceiveFromWorkerConnection)
 }
