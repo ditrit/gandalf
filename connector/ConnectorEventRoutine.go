@@ -22,6 +22,7 @@ type ConnectorEventRoutine struct {
 }
 
 func (r ConnectorEventRoutine) New(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) err error {
+	
 	r.identity = identity
 
 	r.context, _ := zmq4.NewContext()

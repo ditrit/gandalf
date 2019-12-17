@@ -5,20 +5,19 @@ import(
 )
 
 type AggregatorConfiguration struct {
-	aggregatorCommandSendC2CLConnections   []string
-	aggregatorCommandReceiveC2CLConnection string
-	aggregatorCommandSendCL2CConnections   []string
-	aggregatorCommandReceiveCL2CConnection string
-	aggregatorEventSendC2CLConnection    string
-	aggregatorEventReceiveC2CLConnection string
-	aggregatorEventSendCL2CConnection    string
-	aggregatorEventReceiveCL2CConnection string
-
-	identity string
+	AggregatorCommandSendToClusterConnections   		[]string
+	AggregatorCommandReceiveFromClusterConnections 		[]string
+	AggregatorCommandReceiveFromConnectorConnection 	string
+	AggregatorCommandSendToConnectorConnection   		string
+	AggregatorEventSendToClusterConnection    		string
+	AggregatorEventReceiveFromConnectorConnection 	string
+	AggregatorEventSendToConnectorConnection    	string
+	AggregatorEventReceiveFromClusterConnection 	string
+	Identity string
 }
 
-func loadConfiguration(path string) (aggregatorConfiguration AggregatorConfiguration, err error) {
-	aggregatorConfiguration = AggregatorConfiguration{}
+func LoadConfiguration(path string) (aggregatorConfiguration *AggregatorConfiguration, err error) {
+	aggregatorConfiguration = new(AggregatorConfiguration)
 	err = gonfig.GetConf(path, &aggregatorConfiguration)
 	return
 }

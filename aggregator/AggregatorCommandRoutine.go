@@ -20,37 +20,41 @@ type AggregatorCommandRoutine struct {
 	identity                               				string
 }
 
-func (r AggregatorCommandRoutine) New(identity, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnection string, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromClusterConnections []string) {
-	r.identity = identity
+func NewAggregatorCommandRoutine(identity, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnection string, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromClusterConnections []string) (aggregatorCommandRoutine *AggregatorCommandRoutine) {
+	aggregatorCommandRoutine = new(AggregatorCommandRoutine)
+
+	aggregatorCommandRoutine.identity = identity
 	
-	r.context, _ = zmq4.NewContext()
-	r.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
-	r.aggregatorCommandSendToCluster, _ = r.context.NewSocket(zmq4.ROUTER)
-	r.aggregatorCommandSendToCluster.SetIdentity(r.identity)
-	for _, connection := range r.aggregatorCommandSendToClusterConnections {
-		r.aggregatorCommandReceiveFromCluster.Connect(connection)
+	aggregatorCommandRoutine.context, _ = zmq4.NewContext()
+	aggregatorCommandRoutine.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
+	aggregatorCommandRoutine.aggregatorCommandSendToCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
+	aggregatorCommandRoutine.aggregatorCommandSendToCluster.SetIdentity(aggregatorCommandRoutine.identity)
+	for _, connection := range aggregatorCommandRoutine.aggregatorCommandSendToClusterConnections {
+		aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster.Connect(connection)
 		fmt.Printf("aggregatorCommandSendToCluster connect : " + connection)
 	}
 
-	r.aggregatorCommandReceiveFromClusterConnections = aggregatorCommandReceiveFromClusterConnections
-	r.aggregatorCommandReceiveFromCluster, _ = r.context.NewSocket(zmq4.DEALER)
-	r.aggregatorCommandReceiveFromCluster.SetIdentity(r.identity)
-	for _, connection := range r.aggregatorCommandReceiveFromClusterConnections {
-		r.aggregatorCommandReceiveFromCluster.Connect(connection)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromClusterConnections = aggregatorCommandReceiveFromClusterConnections
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.DEALER)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster.SetIdentity(aggregatorCommandRoutine.identity)
+	for _, connection := range aggregatorCommandRoutine.aggregatorCommandReceiveFromClusterConnections {
+		aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster.Connect(connection)
 		fmt.Printf("aggregatorCommandReceiveFromCluster connect : " + connection)
 	}
 
-	r.aggregatorCommandSendToConnectorConnection = aggregatorCommandSendToConnectorConnection
-	r.aggregatorCommandSendToConnector, _ = r.context.NewSocket(zmq4.ROUTER)
-	r.aggregatorCommandSendToConnector.SetIdentity(r.identity)
-	r.aggregatorCommandSendToConnector.Bind(r.aggregatorCommandSendToConnectorConnection)
+	aggregatorCommandRoutine.aggregatorCommandSendToConnectorConnection = aggregatorCommandSendToConnectorConnection
+	aggregatorCommandRoutine.aggregatorCommandSendToConnector, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
+	aggregatorCommandRoutine.aggregatorCommandSendToConnector.SetIdentity(aggregatorCommandRoutine.identity)
+	aggregatorCommandRoutine.aggregatorCommandSendToConnector.Bind(aggregatorCommandRoutine.aggregatorCommandSendToConnectorConnection)
 	fmt.Printf("aggregatorCommandSendToConnector bind : " + aggregatorCommandSendToConnectorConnection)
 
-	r.aggregatorCommandReceiveFromConnectorConnection = aggregatorCommandReceiveFromConnectorConnection
-	r.aggregatorCommandReceiveFromConnector, _ = r.context.NewSocket(zmq4.DEALER)
-	r.aggregatorCommandReceiveFromConnector.SetIdentity(r.identity)
-	r.aggregatorCommandReceiveFromConnector.Bind(r.aggregatorCommandReceiveFromConnectorConnection)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnectorConnection = aggregatorCommandReceiveFromConnectorConnection
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.DEALER)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector.SetIdentity(aggregatorCommandRoutine.identity)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector.Bind(aggregatorCommandRoutine.aggregatorCommandReceiveFromConnectorConnection)
 	fmt.Printf("aggregatorCommandReceiveFromConnector bind : " + aggregatorCommandReceiveFromConnectorConnection)
+
+	return
 }
 
 func (r AggregatorCommandRoutine) close() {

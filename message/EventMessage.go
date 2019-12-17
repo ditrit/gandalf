@@ -8,21 +8,21 @@ import (
 )
 
 type EventMessage struct {
-	tenant string
-	token  string
-	topic string
-	timeout  string
-	timestamp  string
-	event  string
-	payload  string
+	Tenant string
+	Token  string
+	Topic string
+	Timeout  string
+	Timestamp  string
+	Event  string
+	Payload  string
 }
 
 func (e EventMessage) New(topic, timeout, event, payload string) {
-	e.topic = topic
-	e.timeout = timeout
-	e.event = event
-	e.payload = payload
-	e.timestamp = time.Now().String()
+	e.Topic = topic
+	e.Timeout = timeout
+	e.Event = event
+	e.Payload = payload
+	e.Timestamp = time.Now().String()
 }
 
 func (e EventMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
@@ -49,7 +49,7 @@ func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend
 
 func (e EventMessage) SendEventWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		_, err := socket.Send(e.topic, zmq4.SNDMORE)
+		_, err := socket.Send(e.Topic, zmq4.SNDMORE)
 		if err == nil {
 			encoded, _ := EncodeEventMessage(e)
 			_, err = socket.SendBytes(encoded, 0)
@@ -63,13 +63,13 @@ func (e EventMessage) SendEventWith(socket *zmq4.Socket) (isSend bool) {
 }
 
 func (e EventMessage) From(event []string) {
-	e.tenant = event[0]
-	e.token = event[1]
-	e.topic = event[2]
-	e.timeout = event[3]
-	e.timestamp = event[4]
-	e.event = event[5]
-	e.payload = event[6]
+	e.Tenant = event[0]
+	e.Token = event[1]
+	e.Topic = event[2]
+	e.Timeout = event[3]
+	e.Timestamp = event[4]
+	e.Event = event[5]
+	e.Payload = event[6]
 }
 
 func EncodeEventMessage(eventMessage EventMessage) (bytesContent []byte, commandError error) {
