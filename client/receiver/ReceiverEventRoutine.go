@@ -6,27 +6,29 @@ import(
 )
 
 type ReceiverEventRoutine struct {
-	context							zmq4.Context
-	workerEventReceive 				zmq4.Socket
+	context							*zmq4.Context
+	workerEventReceive 				*zmq4.Socket
 	receiverEventConnection 		string
 	identity 						string
 	eventsRoutine 					map[string][]EventFunction					
 }
 
-func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, eventsRoutine map[string][]EventFunction) {
-	r.identity = identity
-	r.receiverEventConnection = receiverEventConnection
-	r.eventsRoutine = eventsRoutine
+func NewReceiverEventRoutine(identity, receiverEventConnection string, eventsRoutine map[string][]EventFunction) (receiverEventRoutine *ReceiverEventRoutine) {
+	receiverEventRoutine = new(ReceiverEventRoutine)
+	
+	receiverEventRoutine.Identity = identity
+	receiverEventRoutine.ReceiverEventConnection = receiverEventConnection
+	receiverEventRoutine.EventsRoutine = eventsRoutine
 
-	r.context, _ := zmq4.NewContext()
-	r.workerEventReceive = r.context.NewSocket(zmq4.SUB)
-	r.workerEventReceive.SetIdentity(r.identity)
-	r.workerEventReceive.Connect(r.identity)
+	receiverEventRoutine.Context, _ := zmq4.NewContext()
+	receiverEventRoutine.WorkerEventReceive = receiverEventRoutine.Context.NewSocket(zmq4.SUB)
+	receiverEventRoutine.WorkerEventReceive.SetIdentity(receiverEventRoutine.Identity)
+	receiverEventRoutine.WorkerEventReceive.Connect(receiverEventRoutine.Identity)
 	fmt.Printf("workerEventReceive connect : " + receiverEventConnection)
 
-	r.loadEventRoutines()
+	receiverEventRoutine.loadEventRoutines()
 
-	result, err := r.validationFunctions()
+	result, err := receiverEventRoutine.validationFunctions()
 	if err != nil {
 		panic(err)
 	}
@@ -36,25 +38,26 @@ func (r ReceiverEventRoutine) New(identity, receiverEventConnection string, even
 func (r ReceiverEventRoutine) run() {
 
 	poller := zmq4.NewPoller()
-	poller.Add(r.workerEventReceive, zmq4.POLLIN)
+	poller.Add(r.WorkerEventReceive, zmq4.POLLIN)
 
 	event := [][]byte{}
 
 	for {
 
-		poller.Poll(-1)
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
 
-		switch {
+			switch currentSocket := socket.Socket; currentSocket {
+			case r.WorkerEventReceive:
 
-		case pi[0].REvents&zmq4.POLLIN != 0:
-
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventReceive(event)
-			if err != nil {
-				panic(err)
+				event, err := pi[1].Socket.RecvMessageBytes(0)
+				if err != nil {
+					panic(err)
+				}
+				err = r.processEventReceive(event)
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	}
@@ -64,7 +67,7 @@ func (r ReceiverEventRoutine) run() {
 func (r ReceiverEventRoutine) validationFunctions() (result bool, err error) {
 	r.sendValidationFunctions()
 	for {
-		event, err := workerEventReceive.RecvMessage()
+		event, err := WorkerEventReceive.RecvMessageBytes(0)
 		if err != nil {
 			panic(err)
 		}
@@ -76,16 +79,16 @@ func (r ReceiverEventRoutine) validationFunctions() (result bool, err error) {
 func (r ReceiverEventRoutine) sendValidationFunctions()  
 	//EVENT
 	functionkeys := make([]string, 0, len(eventsRoutine))
-    for key := range eventsRoutine {
+    for key := range r.EventsRoutine {
         functionkeys = append(functionkeys, key)
 	}
-	commandFunction := CommandFunction.New(functionkeys)
-	go commandFunction.sendWith(r.workerEventReceive)
+	commandFunction := message.NewCommandFunction(functionkeys)
+	go commandFunction.sendWith(r.WorkerEventReceive)
 }
 
 func (r ReceiverEventRoutine) processEventReceive(event [][]byte) () {
-	eventMessage := message.EventMessage.decodeEvent(event[1])
-	eventRoutine, err := r.getEventRoutine(eventMessage.event)
+	eventMessage := message.decodeEventMessage(event[1])
+	eventRoutine, err := r.getEventRoutine(eventMessage.Event)
 	if err != nil {
 
 	}
@@ -93,7 +96,7 @@ func (r ReceiverEventRoutine) processEventReceive(event [][]byte) () {
 }
 
 func (r ReceiverEventRoutine) getEventRoutine(event string) (eventRoutine EventRoutine, err error) {
-	if eventRoutine, ok := r.eventsRoutine[command]; ok {
+	if eventRoutine, ok := r.EventsRoutine[command]; ok {
 		return eventRoutine
 	}
 }

@@ -6,13 +6,15 @@ import(
 )
 
 type LibraryGandalf struct {
-	senderGandalf   SenderGandalf
-	listenerGandalf ListenerGandalf
+	SenderGandalf   SenderGandalf
+	ListenerGandalf ListenerGandalf
 }
 
-func (lg LibraryGandalf) New(path string) {
+func (lg LibraryGandalf) NewLibraryGandalf(path string) (libraryGandalf LibraryGandalf) {
 	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
 	//LOAD CONF
-	cg.senderGandalf = SenderGandalf.new()
-	cg.listenerGandalf = ListenerGandalf.new()
+	libraryGandalf = new(LibraryGandalf)
+
+	libraryGandalf.SenderGandalf = NewSenderGandalf()
+	libraryGandalf.ListenerGandalf = NewListenerGandalf()
 }

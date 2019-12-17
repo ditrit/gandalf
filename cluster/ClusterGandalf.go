@@ -7,14 +7,16 @@ type ClusterGandalf struct {
 	clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine
 }
 
-func (cg ClusterGandalf) New(path string) {
-	cg.clusterConfiguration, _ = LoadConfiguration(path)
+func NewClusterGandalf(path string) (clusterGandalf ClusterGandalf) {
+	clusterGandalf = new(ClusterGandalf)
 
-	cg.clusterCommandRoutine = NewClusterCommandRoutine(cg.clusterConfiguration.Identity, cg.clusterConfiguration.ClusterCommandSendConnection, cg.clusterConfiguration.ClusterCommandReceiveConnection, cg.clusterConfiguration.ClusterCommandCaptureConnection)
-	cg.clusterEventRoutine = NewClusterEventRoutine(cg.clusterConfiguration.Identity, cg.clusterConfiguration.ClusterEventSendConnection, cg.clusterConfiguration.ClusterEventReceiveConnection, cg.clusterConfiguration.ClusterEventCaptureConnection)
-	cg.clusterCaptureWorkerRoutine = NewClusterCaptureWorkerRoutine(cg.clusterConfiguration.Identity, cg.clusterConfiguration.WorkerCaptureCommandReceiveConnection, cg.clusterConfiguration.WorkerCaptureEventReceiveConnection, cg.clusterConfiguration.Topics)
+	clusterGandalf.clusterConfiguration, _ = LoadConfiguration(path)
 
-	go cg.clusterCommandRoutine.run()
-	go cg.clusterEventRoutine.run()
-	go cg.clusterCaptureWorkerRoutine.run()
+	clusterGandalf.clusterCommandRoutine = NewClusterCommandRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.ClusterCommandSendConnection, clusterGandalf.clusterConfiguration.ClusterCommandReceiveConnection, clusterGandalf.clusterConfiguration.ClusterCommandCaptureConnection)
+	clusterGandalf.clusterEventRoutine = NewClusterEventRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.ClusterEventSendConnection, clusterGandalf.clusterConfiguration.ClusterEventReceiveConnection, clusterGandalf.clusterConfiguration.ClusterEventCaptureConnection)
+	clusterGandalf.clusterCaptureWorkerRoutine = NewClusterCaptureWorkerRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.WorkerCaptureCommandReceiveConnection, clusterGandalf.clusterConfiguration.WorkerCaptureEventReceiveConnection, clusterGandalf.clusterConfiguration.Topics)
+
+	go clusterGandalf.clusterCommandRoutine.run()
+	go clusterGandalf.clusterEventRoutine.run()
+	go clusterGandalf.clusterCaptureWorkerRoutine.run()
 }

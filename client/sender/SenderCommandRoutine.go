@@ -8,50 +8,55 @@ import (
 )
 
 type SenderCommandRoutine struct {
-	context							zmq4.Context
-	senderCommandSend            	zmq4.Socket
-	senderCommandConnections 		[]string
-	senderCommandConnection  		string
-	identity                 		string
-	result               			chan
-	mapUUIDCommandStates            map[string]State
+	Context							*zmq4.Context
+	SenderCommandSend            	*zmq4.Socket
+	SenderCommandConnections 		[]string
+	SenderCommandConnection  		string
+	Identity                 		string
+	Replys               			chan CommandMessageReply
+	MapUUIDCommandStates            map[string]State
 }
 
-func (r SenderCommandRoutine) New(identity, senderCommandConnection string) {
-	result := make(chan Result)
-	r.identity = identity
+func (r SenderCommandRoutine) NewSenderCommandRoutine(identity, senderCommandConnection string) (senderCommandRoutine *SenderCommandRoutine) {
+	senderCommandRoutine = new(SenderCommandRoutine)
 
-	r.context, _ := zmq4.NewContext()
-	r.sendSenderConnection = sendSenderConnection
-	r.senderCommandSend = r.context.NewSocket(zmq4.DEALER)
-	r.senderCommandSend.SetIdentity(r.identity)
-	r.senderCommandSend.Connect(r.senderCommandConnection)
+	senderCommandRoutine.Replys := make(chan CommandMessageReply)
+	senderCommandRoutine.Identity = Identity
+
+	senderCommandRoutine.Context, _ := zmq4.NewContext()
+	senderCommandRoutine.SendSenderConnection = sendSenderConnection
+	senderCommandRoutine.SenderCommandSend = senderCommandRoutine.Context.NewSocket(zmq4.DEALER)
+	senderCommandRoutine.SenderCommandSend.SetIdentity(senderCommandRoutine.Identity)
+	senderCommandRoutine.SenderCommandSend.Connect(senderCommandRoutine.SenderCommandConnection)
 	fmt.Printf("senderCommandSend connect : " + senderCommandConnection)
 }
 
-func (r SenderCommandRoutine) NewList(identity string, senderCommandConnections *string) {
-	result := make(chan Result)
-	r.identity = identity
+func (r SenderCommandRoutine) NewLenderCommandRoutine(identity string, senderCommandConnections []string) {
+	senderCommandRoutine = new(SenderCommandRoutine)
 
-	r.context, _ := zmq4.NewContext()
-	r.senderCommandConnections = senderCommandConnections
-	r.senderCommandSend = r.context.NewSocket(zmq4.DEALER)
-	r.senderCommandSend.SetIdentity(r.identity)
-	for _, connection := range r.aggregatorCommandReceiveFromClusterConnections {
-		r.senderCommandSend.Connect(r.connection)
+	senderCommandRoutine.Replys := make(chan CommandMessageReply)
+	senderCommandRoutine.Identity = Identity
+
+	senderCommandRoutine.Context, _ := zmq4.NewContext()
+	senderCommandRoutine.SenderCommandConnections = senderCommandConnections
+	senderCommandRoutine.SenderCommandSend = senderCommandRoutine.Context.NewSocket(zmq4.DEALER)
+	senderCommandRoutine.SenderCommandSend.SetIdentity(senderCommandRoutine.Identity)
+
+	for _, connection := range senderCommandRoutine.senderCommandConnections {
+		senderCommandRoutine.SenderCommandSend.Connect(connection)
 		fmt.Printf("senderCommandSend connect : " + connection)
 	}
 
 }
 
 func (r SenderCommandRoutine) sendCommandSync(context, timeout, uuid, connectorType, commandtype, command, payload string) (commandResponse CommandResponse, err error) {
-	commandMessage := CommandMessage.New(context, timeout, uuid, connectorType, commandType, command, payload)
+	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
 	if err != nil {
 		panic(err)
 	}
-	go commandMessage.sendWith(senderCommandSend)
+	go commandMessage.sendWith(r.SenderCommandSend)
 
-	commandResponse, err := getCommandResultSync(commandMessage.uuid)
+	commandResponse, err := getCommandResultSync(commandMessage.Uuid)
 	if err != nil {
 		panic(err)
 	}
@@ -61,32 +66,32 @@ func (r SenderCommandRoutine) sendCommandSync(context, timeout, uuid, connectorT
 //TODO UTILISATION MAP
 func (r SenderCommandRoutine) getCommandResultSync(uuid string) (commandResponse CommandResponse, err error) {
 	for {
-		command, err := r.senderCommandSend.RecvMessage()
+		command, err := r.SenderCommandSend.RecvMessageBytes(0)
         if err != nil {
 			panic(err)
 		}
-		commandResponse := CommandResponse.decode(command)
+		commandResponse := message.decodeCommandResponse(command)
 		return
     }
 }
 
 func (r SenderCommandRoutine) sendCommandAsync(context, timeout, uuid, connectorType, commandtype, command, payload string) (zmq4.Message, err error) {
-	commandMessage := CommandMessage.New(context, timeout, uuid, connectorType, commandType, command, payload)
+	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
 	if err != nil {
 		panic(err)
 	}
-	go commandMessage.sendWith(senderCommandSend)
+	go commandMessage.sendWith(r.SenderCommandSend)
 
 	go getCommandResultAsync(commandMessage)
 }
 
 func (r SenderCommandRoutine) getCommandResultAsync(commandMessage string) (err error) {
 	select {
-		case command, err := r.senderCommandSend.RecvMessage():
+		case command, err := r.SenderCommandSend.RecvMessageBytes(0):
 			if err != nil {
 				panic(err)
 			}
-			r.result <- command
+			r.Replys <- command
 			return
 		case <-time.After(commandMessage.timeout):
 			fmt.Println("timeout")

@@ -1,16 +1,17 @@
 package listener
 
 type ListenerGandalf struct {
-	listenerEventRoutine   ListenerEventRoutine
-	listenerCommandRoutine ListenerCommandRoutine
+	listenerEventRoutine   *ListenerEventRoutine
+	listenerCommandRoutine *ListenerCommandRoutine
 }
 
-func (lg ListenerGandalf) main() {
+func NewListenerGandalf() (listenerGandalf ListenerGandalf) {
+	listenerGandalf = new(ListenerGandalf)
 	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
 	//LOAD CONF
-	cg.listenerEventRoutine = ListenerEventRoutine.new()
-	cg.listenerCommandRoutine = ListenerCommandRoutine.new()
+	listenerGandalf.listenerEventRoutine = ListenerEventRoutine.NewListenerEventRoutine()
+	listenerGandalf.listenerCommandRoutine = ListenerCommandRoutine.NewListenerCommandRoutine()
 
-	go cg.listenerEventRoutine.run()
-	go cg.listenerCommandRoutine.run()
+	go listenerGandalf.listenerEventRoutine.run()
+	go listenerGandalf.listenerCommandRoutine.run()
 }

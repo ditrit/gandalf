@@ -1,17 +1,17 @@
 package sender
 
 type SenderGandalf struct {
-	identity 			 	string
-	senderCommandConnection string
-	senderEventConnection 	string
-	senderCommandRoutine 	SenderCommandRoutine
-	senderEventRoutine   	SenderEventRoutine
+	Identity 			 	string
+	SenderCommandConnection string
+	SenderEventConnection 	string
+	SenderCommandRoutine 	*SenderCommandRoutine
+	SenderEventRoutine   	*SenderEventRoutine
 }
 
-func (sg SenderGandalf) New(identity, senderCommandConnection, senderEventConnection) {
-	sg.identity = identity
-	sg.senderCommandConnection = senderCommandConnection
-	sg.senderEventConnection = senderEventConnection
-	sg.senderCommandRoutine = SenderCommandRoutine.New(identity, senderCommandConnection)
-	sg.senderEventRoutine = SenderEventRoutine.New(identity, senderEventConnection)
+func NewSenderGandalf(identity, senderCommandConnection, senderEventConnection) (senderGandalf SenderGandalf) {
+	senderGandalf.Identity = identity
+	senderGandalf.SenderCommandConnection = senderCommandConnection
+	senderGandalf.SenderEventConnection = senderEventConnection
+	senderGandalf.SenderCommandRoutine = NewSenderCommandRoutine(identity, senderCommandConnection)
+	senderGandalf.SenderEventRoutine = NewSenderEventRoutine(identity, senderEventConnection)
 }

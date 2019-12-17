@@ -6,12 +6,14 @@ type AggregatorGandalf struct {
 	aggregatorEventRoutine   *AggregatorEventRoutine
 }
 
-func (ag AggregatorGandalf) New(path string) {
-	ag.aggregatorConfiguration, _ = LoadConfiguration(path)
+func NewAggregatorGandalf(path string) (aggregatorGandalf AggregatorGandalf) {
+	aggregatorGandalf = new(AggregatorGandalf)
 
-	ag.aggregatorCommandRoutine = NewAggregatorCommandRoutine(ag.aggregatorConfiguration.Identity, ag.aggregatorConfiguration.AggregatorCommandReceiveFromConnectorConnection, ag.aggregatorConfiguration.AggregatorCommandSendToConnectorConnection, ag.aggregatorConfiguration.AggregatorCommandSendToClusterConnections, ag.aggregatorConfiguration.AggregatorCommandReceiveFromClusterConnections)
-	ag.aggregatorEventRoutine = NewAggregatorEventRoutine(ag.aggregatorConfiguration.Identity, ag.aggregatorConfiguration.AggregatorEventSendToClusterConnection, ag.aggregatorConfiguration.AggregatorEventReceiveFromConnectorConnection, ag.aggregatorConfiguration.AggregatorEventSendToConnectorConnection, ag.aggregatorConfiguration.AggregatorEventReceiveFromClusterConnection)
+	aggregatorGandalf.aggregatorConfiguration, _ = LoadConfiguration(path)
 
-	go ag.aggregatorCommandRoutine.run()
-	go ag.aggregatorEventRoutine.run()
+	aggregatorGandalf.aggregatorCommandRoutine = NewAggregatorCommandRoutine(aggregatorGandalf.aggregatorConfiguration.Identity, aggregatorGandalf.aggregatorConfiguration.AggregatorCommandReceiveFromConnectorConnection, aggregatorGandalf.aggregatorConfiguration.AggregatorCommandSendToConnectorConnection, aggregatorGandalf.aggregatorConfiguration.AggregatorCommandSendToClusterConnections, aggregatorGandalf.aggregatorConfiguration.AggregatorCommandReceiveFromClusterConnections)
+	aggregatorGandalf.aggregatorEventRoutine = NewAggregatorEventRoutine(aggregatorGandalf.aggregatorConfiguration.Identity, aggregatorGandalf.aggregatorConfiguration.AggregatorEventSendToClusterConnection, aggregatorGandalf.aggregatorConfiguration.AggregatorEventReceiveFromConnectorConnection, aggregatorGandalf.aggregatorConfiguration.AggregatorEventSendToConnectorConnection, aggregatorGandalf.aggregatorConfiguration.AggregatorEventReceiveFromClusterConnection)
+
+	go aggregatorGandalf.aggregatorCommandRoutine.run()
+	go aggregatorGandalf.aggregatorEventRoutine.run()
 }

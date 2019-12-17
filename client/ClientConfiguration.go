@@ -5,15 +5,15 @@ import(
 )
 
 type ClientConfiguration struct {
-	senderCommandConnection    	string
-	senderEventConnection 		string
-	receiverCommandConnection   string
-	receiverEventConnection 	string
-	identity                    string
+	SenderCommandConnection    	string
+	SenderEventConnection 		string
+	ReceiverCommandConnection   string
+	ReceiverEventConnection 	string
+	Identity                    string
 }
 
-func loadConfiguration(path string) (clusterConfiguration ClusterConfiguration, err error) {
-	clusterConfiguration := ClusterConfiguration{}
+func LoadConfiguration(path string) (clusterConfiguration *ClusterConfiguration, err error) {
+	clusterConfiguration = new(ClusterConfiguration)
 	err := gonfig.GetConf(path, &clusterConfiguration)
 	return
 }

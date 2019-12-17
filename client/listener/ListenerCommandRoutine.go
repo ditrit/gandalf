@@ -7,33 +7,35 @@ import (
 )
 
 type ListenerCommandRoutine struct {
-	context								zmq4.Context
-	listenerCommandReceive              zmq4.Socket
-	listenerCommandReceiveConnection   	string
-	identity                            string
-	commands []CommandMessage
+	Context								*zmq4.Context
+	ListenerCommandReceive              *zmq4.Socket
+	ListenerCommandReceiveConnection   	string
+	Identity                            string
+	Commands 							[]CommandMessage
 }
 
-func (r ListenerCommandRoutine) New(identity, listenerCommandReceiveConnection string) {
-	r.Identity = identity
+func (r ListenerCommandRoutine) NewListenerCommandRoutine(identity, listenerCommandReceiveConnection string) (listenerCommandRoutine *ListenerCommandRoutine) {
+	listenerCommandRoutine = new(ListenerCommandRoutine)
 
-	r.context, _ = zmq4.NewContext()
-	r.listenerCommandReceiveConnection = listenerCommandReceiveConnection
-	r.listenerCommandReceive = r.context.NewSocket(zmq4.DEALER)
-	r.listenerCommandReceive.SetIdentity(r.identity)
-	r.listenerCommandReceive.Connect(r.listenerCommandReceiveConnection)
+	listenerCommandRoutine.Identity = identity
+
+	listenerCommandRoutine.context, _ = zmq4.NewContext()
+	listenerCommandRoutine.ListenerCommandReceiveConnection = listenerCommandReceiveConnection
+	listenerCommandRoutine.ListenerCommandReceive = listenerCommandRoutine.Context.NewSocket(zmq4.DEALER)
+	listenerCommandRoutine.ListenerCommandReceive.SetIdentity(listenerCommandRoutine.Identity)
+	listenerCommandRoutine.ListenerCommandReceive.Connect(listenerCommandRoutine.ListenerCommandReceiveConnection)
 	fmt.Printf("listenerCommandReceive connect : " + listenerCommandReceiveConnection)
 }
 
 func (r ListenerCommandRoutine) close() {
-	r.listenerCommandReceive.close()
-	r.Context.close()
+	r.ListenerCommandReceive.Close()
+	r.Context.Term()
 }
 
 func (r ListenerCommandRoutine) run() {
 
 	poller := zmq4.NewPoller()
-	poller.Add(r.listenerCommandReceive, zmq4.POLLIN)
+	poller.Add(r.ListenerCommandReceive, zmq4.POLLIN)
 
 	command := [][]byte{}
 
@@ -44,9 +46,9 @@ func (r ListenerCommandRoutine) run() {
 		for _, socket := range sockets {
 
 			switch currentSocket := socket.Socket; currentSocket {
-			case listenerCommandReceive:
+			case r.ListenerCommandReceive:
 
-				command, err := currentSocket.RecvMessage()
+				command, err := currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -61,11 +63,11 @@ func (r ListenerCommandRoutine) run() {
 }
 
 func (r ListenerCommandRoutine) processCommandReceive(command [][]byte) {
-	r.commands.append(CommandMessage.decodeCommand(command))
+	r.Commands.append(message.decodeCommandMessage(command))
 }
 
 func (r ListenerCommandRoutine) GetCommand() (lastCommand CommandMessage, err error) {
-	lastCommand = r.commands[0]
-	r.commands = append(r.commands[:0][], s[0+1][]...)
+	lastCommand = r.Commands[0]
+	r.commands = append(r.Commands[:0][], s[0+1][]...)
 	return
 }

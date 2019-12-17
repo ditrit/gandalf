@@ -7,30 +7,31 @@ import(
 	"gandalfgo/client/receiver"
 )  
                   
-type ClientGandal          f struct {
-	identity string
-	senderCommandConnection string
-	senderEventConnection string
-	receiverCommandConnection strin 
-	receiverEventConnection string
-	results chan ResponseMessage
-	commandsRoutine map[string][]CommandRoutine
-	eventsRoutine map[strig][]EventRoutine										
-
-	senderGandalf   SenderGandalf
-	receiverGandalf ReceiverGandalf
+type ClientGandalf struct {
+	Identity 					string
+	SenderCommandConnection 	string
+	SenderEventConnection 		string
+	ReceiverCommandConnection 	string
+	ReceiverEventConnection 	string
+	Replys 						chan CommandMessageReply
+	CommandsRoutine 			map[string][]CommandRoutine
+	EventsRoutine 				map[string][]EventRoutine										
+	SenderGandalf   			*SenderGandalf
+	ReceiverGandalf 			*ReceiverGandalf
 }
 
-func (cg ClientGandalf) New(identty, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]CommandRoutine, eventsRoutine map[string][]EventRoutine, results chan ResponseMessage) {
-	cg.identity = identiy
-	cg.senderCommandConnection = senderCommandConnection
-	cg.senderEventConnection = senderEventConnection
-	cg.receiverCommandConnection = receiverCommandConnection
-	cg.receiverEventConnection = receiverEventConnection
-	cg.commandsRoutine = commandsRoutine
-	cg.eventsRoutine = eventsRoutine
-	cg.results = results
+func NewClientGandalf(identty, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]CommandRoutine, eventsRoutine map[string][]EventRoutine, replys chan ResponseMessage) (clientGandalf *ClientGandalf) {
+	clientGandalf = new(ClientGandalf)
+	clientGandalf.Identity = identity
+	clientGandalf.SenderCommandConnection = senderCommandConnection
+	clientGandalf.SenderEventConnection = senderEventConnection
+	clientGandalf.ReceiverCommandConnection = receiverCommandcgConnection
+	clientGandalf.ReceiverEventConnection = receiverEventConnection
+	clientGandalf.CommandsRoutine = commandsRoutine
+	clientGandalf.EventsRoutine = eventsRoutine
+	//TODO USELESS ??
+	clientGandalf.Replys = replys
 
-	cg.senderGandalf = SenderGandalf.New(cg.identity, cg.senderCommandConnection, cg.senderEventConnection)
-	cg.receiverGandalf = ReceiverGandalf.New(cg.identity, cg.receiverCommandConnection, cg.receiverEventConnection, cg.commandsRoutine, cg.eventsRoutine, results)
+	clientGandalf.SenderGandalf = NewSenderGandalf(clientGandalf.identity, clientGandalf.senderCommandConnection, clientGandalf.senderEventConnection)
+	clientGandalf.ReceiverGandalf = NewReceiverGandalf(clientGandalf.identity, clientGandalf.receiverCommandConnection, clientGandalf.receiverEventConnection, clientGandalf.commandsRoutine, clientGandalf.eventsRoutine, clientGandalf.results)
 }
