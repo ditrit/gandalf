@@ -18,7 +18,6 @@ func (cp CommandPrint) New() {
 
 }
 
-func (cp CommandPrint) executeCommand() (result string) {
+func (cp CommandPrint) executeCommand() {
 	fmt.Print("%s", "COMMAND")
-	return print
 }

@@ -40,7 +40,6 @@ func (r ListenerCommandRoutine) run() {
 	command := [][]byte{}
 
 	for {
-		r.sendReadyCommand()
 
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
@@ -63,7 +62,7 @@ func (r ListenerCommandRoutine) run() {
 }
 
 func (r ListenerCommandRoutine) processCommandReceive(command [][]byte) {
-	r.Commands.append(message.decodeCommandMessage(command))
+	r.Commands.append(message.DecodeCommandMessage(command))
 }
 
 func (r ListenerCommandRoutine) GetCommand() (lastCommand CommandMessage, err error) {

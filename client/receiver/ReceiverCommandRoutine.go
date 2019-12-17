@@ -1,31 +1,33 @@
 package receiver
 
 import(
+	"fmt"
 	"gandalfgo/message"
+	"gandalfgo/worker/routine"
 	"github.com/pebbe/zmq4"
 )
 
 type ReceiverCommandRoutine struct {
 	Context							*zmq4.Context
-	Replys 							chan message.ResponseMessage
+	Replys 							chan message.CommandMessageReply
 	WorkerCommandReceive 			*zmq4.Socket
 	ReceiverCommandConnection 		string
 	WorkerEventReceive 				*zmq4.Socket
 	WorkerEventReceiveConnection	string
 	Identity 						string
-	CommandsRoutine 				map[string][]message.CommandRoutine					
+	CommandsRoutine 				map[string][]routine.CommandRoutine					
 }
 
-func NewReceiverCommandRoutine(identity, receiverCommandConnection string, commandsRoutine map[string][]CommandFunction, results chan message.ResponseMessage) (receiverCommandRoutine *ReceiverCommandRoutine) {
-	receiverCommandRoutine = new(ReceiverCommandRoutin)
+func NewReceiverCommandRoutine(identity, receiverCommandConnection string, commandsRoutine map[string][]routine.CommandRoutine, results chan message.CommandMessageReply) (receiverCommandRoutine *ReceiverCommandRoutine) {
+	receiverCommandRoutine = new(ReceiverCommandRoutine)
 	
 	receiverCommandRoutine.Identity = identity
 	receiverCommandRoutine.ReceiverCommandConnection = receiverCommandConnection
 	receiverCommandRoutine.CommandsRoutine = commandsRoutine
-	receiverCommandRoutine.Replys = make(chan message.ResponseMessage)
+	receiverCommandRoutine.Replys = make(chan message.CommandMessageReply)
 
 	receiverCommandRoutine.Context, _ = zmq4.NewContext()
-	receiverCommandRoutine.WorkerCommandReceive = receiverCommandRoutine.Context.NewSocket(zmq4.DEALER)
+	receiverCommandRoutine.WorkerCommandReceive, _ = receiverCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	receiverCommandRoutine.WorkerCommandReceive.SetIdentity(receiverCommandRoutine.Identity)
 	receiverCommandRoutine.WorkerCommandReceive.Connect(receiverCommandRoutine.ReceiverCommandConnection)
 	fmt.Printf("workerCommandReceive connect : " + receiverCommandConnection)
@@ -71,6 +73,12 @@ func (r ReceiverCommandRoutine) run() {
 	fmt.Println("done")
 }
 
+func (r ReceiverCommandRoutine) loadCommandRoutines() (result bool, err error) {
+	//TODO
+	return
+}
+
+
 func (r ReceiverCommandRoutine) validationFunctions() (result bool, err error) {
 	r.sendValidationFunctions()
 	for {
@@ -99,7 +107,7 @@ func (r ReceiverCommandRoutine) sendReadyCommand() () {
 }
 
 func (r ReceiverCommandRoutine) processCommandReceive(command [][]byte) () {
-	commandMessage := message.decodeCommandMessage(command[1])
+	commandMessage := message.DecodeCommandMessage(command[1])
 	commandRoutine, err := r.getCommandRoutine(commandMessage.Command)
 	if err != nil {
 		
@@ -107,7 +115,7 @@ func (r ReceiverCommandRoutine) processCommandReceive(command [][]byte) () {
 	go commandRoutine.execute(commandMessage, results)
 }
 
-func (r ReceiverCommandRoutine) getCommandRoutine(command string) (commandRoutine CommandRoutine, err error) {
+func (r ReceiverCommandRoutine) getCommandRoutine(command string) (commandRoutine routine.CommandRoutine, err error) {
 	if commandRoutine, ok := r.CommandsRoutine[command]; ok {
 		return commandRoutine
 	}
@@ -115,7 +123,7 @@ func (r ReceiverCommandRoutine) getCommandRoutine(command string) (commandRoutin
 
 func (r ReceiverCommandRoutine) sendResults() {
 	for {
-		reply, err <- r.Replys
+		reply <- r.Replys
 		if err != nil {
 			
 		} 

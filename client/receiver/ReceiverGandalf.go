@@ -1,18 +1,22 @@
 package receiver
 
-  
+import(
+	"gandalfgo/worker/routine"
+	"gandalfgo/message"
+)  
+
 type ReceiverGandalf struct {
 	Identity 					string   
 	ReceiverCommandConnection 	string
 	ReceiverEventConnection 	string
-	ReceiverCommandRoutine 		*ReceiverCommandoutine
+	ReceiverCommandRoutine 		*ReceiverCommandRoutine
 	ReceiverEventRoutine   		*ReceiverEventRoutine
-	Results 					chan ResponseMessage
-	CommandsRoutine 			map[string][]CommandFunction
-	EventsRoutine 				map[string][]EventFunction
+	Replys 						chan message.CommandMessageReply
+	CommandsRoutine 			map[string][]routine.CommandRoutine
+	EventsRoutine 				map[string][]routine.EventRoutine
 }
 
-func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnection string, commandsRoutine map[string][]CommandFunction, eventsRoutine map[string][]EventFunction, results chan ResponseMessage) (receiverGandalf ReceiverGandalf) {
+func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnection string, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (receiverGandalf ReceiverGandalf) {
 	receiverGandalf = new(ReceiverGandalf)
 
 	receiverGandalf.Identity = identity
@@ -20,7 +24,7 @@ func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnec
 	receiverGandalf.ReceiverEventRoutine = receiverEventRoutine
 	receiverGandalf.CommandsRoutine = commandsRoutine
 	receiverGandalf.EventsRoutine = eventsRoutine
-	receiverGandalf.Results = results
+	receiverGandalf.Replys = replys
 	receiverGandalf.ReceiverCommandRoutine = ReceiverCommandRoutine.New(receiverGandalf.Identity, receiverGandalf.ReceiverCommandConnection, receiverGandalf.CommandsRoutine , receiverGandalf.Results)
 	receiverGandalf.ReceiverEventRoutine = ReceiverEventRoutine.New(receiverGandalf.Identity, receiverGandalf.ReceiverEventConnection, receiverGandalf.EventsRoutine)
 }

@@ -2,25 +2,26 @@ package receiver
 
 import(
 	"gandalfgo/message"
+	"gandalfgo/worker/routine"
 	"github.com/pebbe/zmq4"
 )
 
 type ReceiverEventRoutine struct {
-	context							*zmq4.Context
-	workerEventReceive 				*zmq4.Socket
-	receiverEventConnection 		string
-	identity 						string
-	eventsRoutine 					map[string][]EventFunction					
+	Context							*zmq4.Context
+	WorkerEventReceive 				*zmq4.Socket
+	ReceiverEventConnection 		string
+	Identity 						string
+	EventsRoutine 					map[string][]routine.EventRoutine					
 }
 
-func NewReceiverEventRoutine(identity, receiverEventConnection string, eventsRoutine map[string][]EventFunction) (receiverEventRoutine *ReceiverEventRoutine) {
+func NewReceiverEventRoutine(identity, receiverEventConnection string, eventsRoutine map[string][]routine.EventRoutine) (receiverEventRoutine *ReceiverEventRoutine) {
 	receiverEventRoutine = new(ReceiverEventRoutine)
 	
 	receiverEventRoutine.Identity = identity
 	receiverEventRoutine.ReceiverEventConnection = receiverEventConnection
 	receiverEventRoutine.EventsRoutine = eventsRoutine
 
-	receiverEventRoutine.Context, _ := zmq4.NewContext()
+	receiverEventRoutine.Context, _ = zmq4.NewContext()
 	receiverEventRoutine.WorkerEventReceive = receiverEventRoutine.Context.NewSocket(zmq4.SUB)
 	receiverEventRoutine.WorkerEventReceive.SetIdentity(receiverEventRoutine.Identity)
 	receiverEventRoutine.WorkerEventReceive.Connect(receiverEventRoutine.Identity)
@@ -64,6 +65,13 @@ func (r ReceiverEventRoutine) run() {
 	fmt.Println("done")
 }
 
+
+func (r ReceiverEventRoutine) loadEventRoutines() (result bool, err error) {
+	//TODO
+	return
+}
+
+
 func (r ReceiverEventRoutine) validationFunctions() (result bool, err error) {
 	r.sendValidationFunctions()
 	for {
@@ -76,7 +84,7 @@ func (r ReceiverEventRoutine) validationFunctions() (result bool, err error) {
 	return
 }
 
-func (r ReceiverEventRoutine) sendValidationFunctions()  
+func (r ReceiverEventRoutine) sendValidationFunctions()  {
 	//EVENT
 	functionkeys := make([]string, 0, len(eventsRoutine))
     for key := range r.EventsRoutine {
@@ -87,7 +95,7 @@ func (r ReceiverEventRoutine) sendValidationFunctions()
 }
 
 func (r ReceiverEventRoutine) processEventReceive(event [][]byte) () {
-	eventMessage := message.decodeEventMessage(event[1])
+	eventMessage := message.DecodeEventMessage(event[1])
 	eventRoutine, err := r.getEventRoutine(eventMessage.Event)
 	if err != nil {
 
@@ -95,8 +103,8 @@ func (r ReceiverEventRoutine) processEventReceive(event [][]byte) () {
 	go eventRoutine.execute(eventMessage)
 }
 
-func (r ReceiverEventRoutine) getEventRoutine(event string) (eventRoutine EventRoutine, err error) {
-	if eventRoutine, ok := r.EventsRoutine[command]; ok {
+func (r ReceiverEventRoutine) getEventRoutine(event string) (eventRoutine routine.sEventRoutine, err error) {
+	if eventRoutine, ok := r.EventsRoutine[event]; ok {
 		return eventRoutine
 	}
 }
