@@ -16,15 +16,17 @@ type ReceiverGandalf struct {
 	EventsRoutine 				map[string][]routine.EventRoutine
 }
 
-func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnection string, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (receiverGandalf ReceiverGandalf) {
+func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnection string, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (receiverGandalf *ReceiverGandalf) {
 	receiverGandalf = new(ReceiverGandalf)
 
 	receiverGandalf.Identity = identity
-	receiverGandalf.ReceiverCommandConection = receiverCommandConnection
-	receiverGandalf.ReceiverEventRoutine = receiverEventRoutine
+	receiverGandalf.ReceiverCommandConnection = receiverCommandConnection
+	receiverGandalf.ReceiverEventConnection = receiverEventConnection
 	receiverGandalf.CommandsRoutine = commandsRoutine
 	receiverGandalf.EventsRoutine = eventsRoutine
 	receiverGandalf.Replys = replys
-	receiverGandalf.ReceiverCommandRoutine = ReceiverCommandRoutine.New(receiverGandalf.Identity, receiverGandalf.ReceiverCommandConnection, receiverGandalf.CommandsRoutine , receiverGandalf.Results)
-	receiverGandalf.ReceiverEventRoutine = ReceiverEventRoutine.New(receiverGandalf.Identity, receiverGandalf.ReceiverEventConnection, receiverGandalf.EventsRoutine)
+	receiverGandalf.ReceiverCommandRoutine = NewReceiverCommandRoutine(receiverGandalf.Identity, receiverGandalf.ReceiverCommandConnection, receiverGandalf.CommandsRoutine , receiverGandalf.Replys)
+	receiverGandalf.ReceiverEventRoutine = NewReceiverEventRoutine(receiverGandalf.Identity, receiverGandalf.ReceiverEventConnection, receiverGandalf.EventsRoutine)
+
+	return
 }

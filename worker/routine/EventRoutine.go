@@ -1,16 +1,19 @@
 package routine
 
-import "fmt"
+import (
+	"fmt"
+	"gandalfgo/message"
+)
 
 type EventRoutine interface {
 	//executeEvent(event [][]byte)
-	executeEvent()
+	ExecuteEvent(eventMessage message.EventMessage)
 }
 
 type EventPrint struct {
 	print string
 }
 
-func (ep EventPrint) executeEvent() {
+func (ep EventPrint) ExecuteEvent(eventMessage message.EventMessage) {
 	fmt.Print("%s", "EVENT")
 }
