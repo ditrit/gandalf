@@ -9,53 +9,56 @@ import (
 )
 
 type ClusterEventRoutine struct {
-	context							*zmq4.Context
-	clusterEventSend              	*zmq4.Socket
-	clusterEventSendConnection    	string
-	clusterEventReceive           	*zmq4.Socket
-	clusterEventReceiveConnection 	string
-	clusterEventCapture             *zmq4.Socket
-	clusterEventCaptureConnection   string
-
-	identity string
+	Context							*zmq4.Context
+	ClusterEventSend              	*zmq4.Socket
+	ClusterEventSendConnection    	string
+	ClusterEventReceive           	*zmq4.Socket
+	ClusterEventReceiveConnection 	string
+	ClusterEventCapture             *zmq4.Socket
+	ClusterEventCaptureConnection   string
+	Identity string
 }
 
-func (r ClusterEventRoutine) New(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) {
-	r.identity = identity
+func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) (clusterEventRoutine *ClusterEventRoutine) {
+	clusterEventRoutine = new(ClusterEventRoutine)
+
+	clusterEventRoutine.Identity = identity
 	
-	r.context, _ = zmq4.NewContext()
-	r.clusterEventSendConnection = clusterEventSendConnection
-	r.clusterEventSend, _ = r.context.NewSocket(zmq4.XPUB)
-	r.clusterEventSend.SetIdentity(r.identity)
-	r.clusterEventSend.Bind(r.clusterEventSendConnection)
+	clusterEventRoutine.Context, _ = zmq4.NewContext()
+	clusterEventRoutine.ClusterEventSendConnection = clusterEventSendConnection
+	clusterEventRoutine.ClusterEventSend, _ = clusterEventRoutine.Context.NewSocket(zmq4.XPUB)
+	clusterEventRoutine.ClusterEventSend.SetIdentity(clusterEventRoutine.Identity)
+	clusterEventRoutine.ClusterEventSend.Bind(clusterEventRoutine.ClusterEventSendConnection)
 	fmt.Printf("clusterEventSend connect : " + clusterEventSendConnection)
 
-	r.clusterEventReceiveConnection = clusterEventReceiveConnection
-	r.clusterEventReceive, _ = r.context.NewSocket(zmq4.XSUB)
-	r.clusterEventReceive.SetIdentity(r.identity)
-	r.clusterEventReceive.Bind(r.clusterEventReceiveConnection)
+	clusterEventRoutine.ClusterEventReceiveConnection = clusterEventReceiveConnection
+	clusterEventRoutine.ClusterEventReceive, _ = clusterEventRoutine.Context.NewSocket(zmq4.XSUB)
+	clusterEventRoutine.ClusterEventReceive.SetIdentity(clusterEventRoutine.Identity)
+	clusterEventRoutine.ClusterEventReceive.Bind(clusterEventRoutine.ClusterEventReceiveConnection)
 	fmt.Printf("clusterEventReceive connect : " + clusterEventReceiveConnection)
 
-	r.clusterEventCaptureConnection = clusterEventCaptureConnection
-	r.clusterEventCapture, _ = r.context.NewSocket(zmq4.PUB)
-	r.clusterEventCapture.SetIdentity(r.identity)
-	r.clusterEventCapture.Bind(r.clusterEventCaptureConnection)
+	clusterEventRoutine.ClusterEventCaptureConnection = clusterEventCaptureConnection
+	clusterEventRoutine.ClusterEventCapture, _ = clusterEventRoutine.Context.NewSocket(zmq4.PUB)
+	clusterEventRoutine.ClusterEventCapture.SetIdentity(clusterEventRoutine.Identity)
+	clusterEventRoutine.ClusterEventCapture.Bind(clusterEventRoutine.ClusterEventCaptureConnection)
 	fmt.Printf("clusterEventCapture connect : " + clusterEventCaptureConnection)
+
+	return
 }
 
 func (r ClusterEventRoutine) close() {
-	r.clusterEventSend.Close()
-	r.clusterEventReceive.Close()
-	r.clusterEventCapture.Close()
-	r.context.Term()
+	r.ClusterEventSend.Close()
+	r.ClusterEventReceive.Close()
+	r.ClusterEventCapture.Close()
+	r.Context.Term()
 }
 
 func (r ClusterEventRoutine) run() {
 
 
 	poller := zmq4.NewPoller()
-	poller.Add(r.clusterEventSend, zmq4.POLLIN)
-	poller.Add(r.clusterEventReceive, zmq4.POLLIN)
+	poller.Add(r.ClusterEventSend, zmq4.POLLIN)
+	poller.Add(r.ClusterEventReceive, zmq4.POLLIN)
 
 	event := [][]byte{}
 	err := errors.New("")
@@ -66,7 +69,7 @@ func (r ClusterEventRoutine) run() {
 		for _, socket := range sockets {
 
 			switch currentSocket := socket.Socket; currentSocket {
-			case r.clusterEventSend:
+			case r.ClusterEventSend:
 
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -77,7 +80,7 @@ func (r ClusterEventRoutine) run() {
 					panic(err)
 				}
 
-			case r.clusterEventReceive:
+			case r.ClusterEventReceive:
 
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -97,17 +100,17 @@ func (r ClusterEventRoutine) run() {
 func (r ClusterEventRoutine) processEventSend(event [][]byte) (err error) {
 	eventMessage, err := message.DecodeEventMessage(event[1])
 	r.processCaptureEvent(eventMessage)
-	go eventMessage.SendEventWith(r.clusterEventReceive)
+	go eventMessage.SendEventWith(r.ClusterEventReceive)
 	return
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) (err error) {
 	eventMessage, err := message.DecodeEventMessage(event[1])
 	r.processCaptureEvent(eventMessage)
-	go eventMessage.SendEventWith(r.clusterEventSend)
+	go eventMessage.SendEventWith(r.ClusterEventSend)
 	return
 }
 
 func (r ClusterEventRoutine) processCaptureEvent(eventMessage message.EventMessage) {
-	go eventMessage.SendWith(r.clusterEventCapture , constant.WORKER_SERVICE_CLASS_CAPTURE)
+	go eventMessage.SendWith(r.ClusterEventCapture , constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

@@ -256,6 +256,8 @@ type CommandMessageReady struct {
 
 func NewCommandMessageReady() (commandMessageReady *CommandMessageReady) {
 	commandMessageReady = new(CommandMessageReady)
+
+	return
 }
 
 func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {

@@ -1,18 +1,18 @@
 package cluster
 
 type ClusterGandalf struct {
-	clusterConfiguration 		ClusterConfiguration
-	clusterCommandRoutine       ClusterCommandRoutine
-	clusterEventRoutine         ClusterEventRoutine
-	clusterCaptureWorkerRoutine ClusterCaptureWorkerRoutine
+	clusterConfiguration 		*ClusterConfiguration
+	clusterCommandRoutine       *ClusterCommandRoutine
+	clusterEventRoutine         *ClusterEventRoutine
+	clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine
 }
 
 func (cg ClusterGandalf) New(path string) {
-	clusterConfiguration := ClusterConfiguration.loadConfiguration(path)
+	cg.clusterConfiguration, _ = LoadConfiguration(path)
 
-	cg.clusterCommandRoutine = ClusterCommandRoutine.new(clusterConfiguration.identity, clusterConfiguration.clusterCommandSendConnection, clusterConfiguration.clusterCommandReceiveConnection, clusterConfiguration.clusterCommandCaptureConnection)
-	cg.clusterEventRoutine = ClusterEventRoutine.new(clusterConfiguration.identity, clusterConfiguration.clusterEventSendConnection, clusterConfiguration.clusterEventReceiveConnection, clusterConfiguration.clusterEventCaptureConnection)
-	cg.clusterCaptureWorkerRoutine = ClusterCaptureWorkerRoutine.new(clusterConfiguration.identity, clusterConfiguration.workerCaptureCommandReceiveCL2WConnection, clusterConfiguration.workerCaptureEventReceiveC2WConnection)
+	cg.clusterCommandRoutine = NewClusterCommandRoutine(cg.clusterConfiguration.Identity, cg.clusterConfiguration.ClusterCommandSendConnection, cg.clusterConfiguration.ClusterCommandReceiveConnection, cg.clusterConfiguration.ClusterCommandCaptureConnection)
+	cg.clusterEventRoutine = NewClusterEventRoutine(cg.clusterConfiguration.Identity, cg.clusterConfiguration.ClusterEventSendConnection, cg.clusterConfiguration.ClusterEventReceiveConnection, cg.clusterConfiguration.ClusterEventCaptureConnection)
+	cg.clusterCaptureWorkerRoutine = NewClusterCaptureWorkerRoutine(cg.clusterConfiguration.Identity, cg.clusterConfiguration.WorkerCaptureCommandReceiveConnection, cg.clusterConfiguration.WorkerCaptureEventReceiveConnection, cg.clusterConfiguration.Topics)
 
 	go cg.clusterCommandRoutine.run()
 	go cg.clusterEventRoutine.run()

@@ -5,17 +5,20 @@ import(
 )
 
 type ClusterConfiguration struct {
-	clusterEventSendConnection    string
-	clusterEventReceiveConnection string
-	clusterEventCaptureConnection    string
-	clusterCommandSendConnection    string
-	clusterCommandReceiveConnection string
-	clusterCommandCaptureConnection string
-	identity                        string
+	ClusterEventSendConnection    			string
+	ClusterEventReceiveConnection 			string
+	ClusterEventCaptureConnection    		string
+	ClusterCommandSendConnection    		string
+	ClusterCommandReceiveConnection 		string
+	ClusterCommandCaptureConnection 		string
+	WorkerCaptureCommandReceiveConnection 	string
+	WorkerCaptureEventReceiveConnection 	string
+	Identity                        		string
+	Topics                        			[]string
 }
 
-func loadConfiguration(path string) (clusterConfiguration ClusterConfiguration, err error) {
-	clusterConfiguration = ClusterConfiguration{}
+func LoadConfiguration(path string) (clusterConfiguration *ClusterConfiguration, err error) {
+	clusterConfiguration = new(ClusterConfiguration)
 	err = gonfig.GetConf(path, &clusterConfiguration)
 	return
 }

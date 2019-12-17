@@ -9,51 +9,55 @@ import (
 )
 
 type ClusterCommandRoutine struct {
-	context							*zmq4.Context
-	clusterCommandSend              *zmq4.Socket
-	clusterCommandSendConnection    string
-	clusterCommandReceive           *zmq4.Socket
-	clusterCommandReceiveConnection string
-	clusterCommandCapture           *zmq4.Socket
-	clusterCommandCaptureConnection string
-	identity                        string
+	Context							*zmq4.Context
+	ClusterCommandSend              *zmq4.Socket
+	ClusterCommandSendConnection    string
+	ClusterCommandReceive           *zmq4.Socket
+	ClusterCommandReceiveConnection string
+	ClusterCommandCapture           *zmq4.Socket
+	ClusterCommandCaptureConnection string
+	Identity                        string
 }
 
-func (r ClusterCommandRoutine) New(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) {
-	r.identity = identity
+func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) (clusterCommandRoutine *ClusterCommandRoutine) {
+	clusterCommandRoutine = new(ClusterCommandRoutine)
+	
+	clusterCommandRoutine.Identity = identity
 
-	r.context, _ = zmq4.NewContext()
-	r.clusterCommandSendConnection = clusterCommandSendConnection
-	r.clusterCommandSend, _ = r.context.NewSocket(zmq4.ROUTER)
-	r.clusterCommandSend.SetIdentity(r.identity)
-	r.clusterCommandSend.Bind(r.clusterCommandSendConnection)
+	clusterCommandRoutine.Context, _ = zmq4.NewContext()
+	clusterCommandRoutine.ClusterCommandSendConnection = clusterCommandSendConnection
+	clusterCommandRoutine.ClusterCommandSend, _ = clusterCommandRoutine.Context.NewSocket(zmq4.ROUTER)
+	clusterCommandRoutine.ClusterCommandSend.SetIdentity(clusterCommandRoutine.Identity)
+	clusterCommandRoutine.ClusterCommandSend.Bind(clusterCommandRoutine.ClusterCommandSendConnection)
 	fmt.Printf("clusterCommandSend connect : " + clusterCommandSendConnection)
 
-	r.clusterCommandReceiveConnection = clusterCommandReceiveConnection
-	r.clusterCommandReceive, _ = r.context.NewSocket(zmq4.ROUTER)
-	r.clusterCommandReceive.SetIdentity(r.identity)
-	r.clusterCommandReceive.Bind(r.clusterCommandReceiveConnection)
+	clusterCommandRoutine.ClusterCommandReceiveConnection = clusterCommandReceiveConnection
+	clusterCommandRoutine.ClusterCommandReceive, _ = clusterCommandRoutine.Context.NewSocket(zmq4.ROUTER)
+	clusterCommandRoutine.ClusterCommandReceive.SetIdentity(clusterCommandRoutine.Identity)
+	clusterCommandRoutine.ClusterCommandReceive.Bind(clusterCommandRoutine.ClusterCommandReceiveConnection)
 	fmt.Printf("clusterCommandReceive connect : " + clusterCommandReceiveConnection)
 
-	r.clusterCommandCaptureConnection = clusterCommandCaptureConnection
-	r.clusterCommandCapture, _ = r.context.NewSocket(zmq4.ROUTER)
-	r.clusterCommandCapture.SetIdentity(r.identity)
-	r.clusterCommandCapture.Bind(r.clusterCommandCaptureConnection)
+	clusterCommandRoutine.ClusterCommandCaptureConnection = clusterCommandCaptureConnection
+	clusterCommandRoutine.ClusterCommandCapture, _ = clusterCommandRoutine.Context.NewSocket(zmq4.ROUTER)
+	clusterCommandRoutine.ClusterCommandCapture.SetIdentity(clusterCommandRoutine.Identity)
+	clusterCommandRoutine.ClusterCommandCapture.Bind(clusterCommandRoutine.ClusterCommandCaptureConnection)
 	fmt.Printf("clusterCommandCapture connect : " + clusterCommandCaptureConnection)
+
+	return
 }
 
 func (r ClusterCommandRoutine) close() {
-	r.clusterCommandSend.Close()
-	r.clusterCommandReceive.Close()
-	r.clusterCommandCapture.Close()
-	r.context.Term()
+	r.ClusterCommandSend.Close()
+	r.ClusterCommandReceive.Close()
+	r.ClusterCommandCapture.Close()
+	r.Context.Term()
 }
 
 func (r ClusterCommandRoutine) run() {
 
 	poller := zmq4.NewPoller()
-	poller.Add(r.clusterCommandSend, zmq4.POLLIN)
-	poller.Add(r.clusterCommandReceive, zmq4.POLLIN)
+	poller.Add(r.ClusterCommandSend, zmq4.POLLIN)
+	poller.Add(r.ClusterCommandReceive, zmq4.POLLIN)
 
 	command := [][]byte{}
 	err := errors.New("")
@@ -64,7 +68,7 @@ func (r ClusterCommandRoutine) run() {
 		for _, socket := range sockets {
 
 			switch currentSocket := socket.Socket; currentSocket {
-			case r.clusterCommandSend:
+			case r.ClusterCommandSend:
 
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -75,7 +79,7 @@ func (r ClusterCommandRoutine) run() {
 					panic(err)
 				}
 
-			case r.clusterCommandReceive:
+			case r.ClusterCommandReceive:
 
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -99,17 +103,17 @@ func (r ClusterCommandRoutine) processCommandSend(command [][]byte) (err error) 
 	sourceAggregator := string(command[0])
 	commandMessage.SourceAggregator = sourceAggregator
 	commandMessage.DestinationAggregator = target
-	go commandMessage.SendCommandWith(r.clusterCommandReceive)
+	go commandMessage.SendCommandWith(r.ClusterCommandReceive)
 	return
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) (err error) {
 	commandMessage, err := message.DecodeCommandMessage(command[1])
 	r.processCaptureCommand(commandMessage)
-	go commandMessage.SendWith(r.clusterCommandSend, commandMessage.SourceAggregator)
+	go commandMessage.SendWith(r.ClusterCommandSend, commandMessage.SourceAggregator)
 	return
 }
 
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.CommandMessage) {
-	go commandMessage.SendWith(r.clusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
+	go commandMessage.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }
