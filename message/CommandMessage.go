@@ -29,15 +29,19 @@ type CommandMessage struct {
     Payload    string
 }
 
-func (c CommandMessage) New(context, timeout, uuid, connectorType, commandType, command, payload string) {
-	c.Context = context
-	c.Timeout = timeout
-	c.Uuid = uuid
-	c.ConnectorType = connectorType
-	c.CommandType = commandType
-	c.Command = command
-	c.Payload = payload
-	c.Timestamp = time.Now().String()
+func NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessage *CommandMessage) {
+	commandMessage = new(CommandMessage)
+
+	commandMessage.Context = context
+	commandMessage.Timeout = timeout
+	commandMessage.Uuid = uuid
+	commandMessage.ConnectorType = connectorType
+	commandMessage.CommandType = commandType
+	commandMessage.Command = command
+	commandMessage.Payload = payload
+	commandMessage.Timestamp = time.Now().String()
+
+	return
 }
 
 func (c CommandMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
@@ -171,8 +175,11 @@ type CommandFunction struct {
 	Functions    []string
 }
 
-func (cf CommandFunction) New(functions []string) {
-	cf.Functions = functions
+func NewCommandFunction(functions []string) (commandFunction *CommandFunction) {
+	commandFunction = new(CommandFunction)
+	commandFunction.Functions = functions
+
+	return
 }
 
 func (cf CommandFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
@@ -196,8 +203,11 @@ type CommandFunctionReply struct {
 	Validation bool
 }
 
-func (cfr CommandFunctionReply) New(validation bool) {
-	cfr.Validation = validation
+func NewCommandFunctionReply(validation bool) (commandFunctionReply *CommandFunctionReply) {
+	commandFunctionReply = new(CommandFunctionReply) 
+	commandFunctionReply.Validation = validation
+
+	return
 }
 
 func (cfr CommandFunctionReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
@@ -244,7 +254,8 @@ type CommandMessageReady struct {
 	// ???
 }
 
-func (cry CommandMessageReady) New() {
+func NewCommandMessageReady() (commandMessageReady *CommandMessageReady) {
+	commandMessageReady = new(CommandMessageReady)
 }
 
 func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {

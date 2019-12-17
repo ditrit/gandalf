@@ -17,12 +17,15 @@ type EventMessage struct {
 	Payload  string
 }
 
-func (e EventMessage) New(topic, timeout, event, payload string) {
-	e.Topic = topic
-	e.Timeout = timeout
-	e.Event = event
-	e.Payload = payload
-	e.Timestamp = time.Now().String()
+func NewEventMessage(topic, timeout, event, payload string) (eventMessage *EventMessage) {
+	eventMessage = new(EventMessage)
+	eventMessage.Topic = topic
+	eventMessage.Timeout = timeout
+	eventMessage.Event = event
+	eventMessage.Payload = payload
+	eventMessage.Timestamp = time.Now().String()
+	
+	return
 }
 
 func (e EventMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {

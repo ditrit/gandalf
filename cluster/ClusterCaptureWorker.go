@@ -7,29 +7,33 @@ import (
 )
 
 type ClusterCaptureWorkerRoutine struct {
-	context									  zmq4.Context
-	workerCaptureCommandReceive           	zmq4.Socket
-	workerCaptureCommandReceiveConnection 		string
-	workerCaptureEventReceive            zmq4.Socket
-	workerCaptureEventReceiveConnection   string
-	identity                                  string
+	Context									  zmq4.Context
+	WorkerCaptureCommandReceive           	zmq4.Socket
+	WorkerCaptureCommandReceiveConnection 		string
+	WorkerCaptureEventReceive            zmq4.Socket
+	WorkerCaptureEventReceiveConnection   string
+	Identity                                  string
 }
 
-func (r ClusterCaptureWorkerRoutine) New(identity, workerCaptureCommandReceiveConnection, workerCaptureEventReceiveConnection string, topics []string) {
-	r.identity = identity
+func NewClusterCaptureWorkerRoutine(identity, workerCaptureCommandReceiveConnection, workerCaptureEventReceiveConnection string, topics []string) (clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine) {
+	clusterCaptureWorkerRoutine = new(ClusterCaptureWorkerRoutine)
+	
+	clusterCaptureWorkerRoutine.identity = identity
 
-	r.context, _ = zmq4.NewContext()
-	r.workerCaptureCommandReceiveConnection = workerCaptureCommandReceiveConnection
-	r.workerCaptureCommandReceive, _ = r.context.NewSocket(zmq4.DEALER)
-	r.workerCaptureCommandReceive.SetIdentity(r.identity)
-	r.workerCaptureCommandReceive.Connect(r.workerCaptureCommandReceiveConnection)
+	clusterCaptureWorkerRoutine.context, _ = zmq4.NewContext()
+	clusterCaptureWorkerRoutine.workerCaptureCommandReceiveConnection = workerCaptureCommandReceiveConnection
+	clusterCaptureWorkerRoutine.workerCaptureCommandReceive, _ = clusterCaptureWorkerRoutine.context.NewSocket(zmq4.DEALER)
+	clusterCaptureWorkerRoutine.workerCaptureCommandReceive.SetIdentity(clusterCaptureWorkerRoutine.identity)
+	clusterCaptureWorkerRoutine.workerCaptureCommandReceive.Connect(clusterCaptureWorkerRoutine.workerCaptureCommandReceiveConnection)
 	fmt.Printf("workerCaptureCommandReceive connect : " + workerCaptureCommandReceiveConnection)
 
-	r.workerCaptureEventReceiveConnection = workerCaptureEventReceiveConnection
-	r.workerCaptureEventReceive, _ = r.context.NewSocket(zmq4.SUB)
-	r.workerCaptureEventReceive.SetIdentity(r.identity)
-	r.workerCaptureEventReceive.Connect(r.workerCaptureEventReceiveConnection)
+	clusterCaptureWorkerRoutine.workerCaptureEventReceiveConnection = workerCaptureEventReceiveConnection
+	clusterCaptureWorkerRoutine.workerCaptureEventReceive, _ = clusterCaptureWorkerRoutine.context.NewSocket(zmq4.SUB)
+	clusterCaptureWorkerRoutine.workerCaptureEventReceive.SetIdentity(clusterCaptureWorkerRoutine.identity)
+	clusterCaptureWorkerRoutine.workerCaptureEventReceive.Connect(clusterCaptureWorkerRoutine.workerCaptureEventReceiveConnection)
 	fmt.Printf("workerCaptureEventReceive connect : " + workerCaptureEventReceiveConnection)
+
+	return
 }
 
 func (r ClusterCaptureWorkerRoutine) close() {
