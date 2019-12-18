@@ -10,7 +10,7 @@ type SenderEventRoutine struct {
 	Context						*zmq4.Context
 	SenderEventSend            	*zmq4.Socket
 	SenderEventConnection  		string
-	SenderEventConnections 		string
+	SenderEventConnections 		[]string
 	Identity                   	string
 }
 
@@ -19,37 +19,41 @@ func NewSenderEventRoutine(identity, senderEventConnection string) (senderEventR
 
 	senderEventRoutine.Identity = identity
 
-	senderEventRoutine.Context, _ := zmq4.NewContext()
+	senderEventRoutine.Context, _ = zmq4.NewContext()
 	senderEventRoutine.SenderEventConnection = senderEventConnection
-	senderEventRoutine.SenderEventSend = senderEventRoutine.Context.NewSocket(zmq.DEALER)
+	senderEventRoutine.SenderEventSend, _ = senderEventRoutine.Context.NewSocket(zmq4.DEALER)
 	senderEventRoutine.SenderEventSend.SetIdentity(senderEventRoutine.Identity)
 	senderEventRoutine.SenderEventSend.Connect(senderEventRoutine.SenderEventConnection)
 	fmt.Printf("senderEventSend connect : " + senderEventConnection)
+
+	return
 }
 
-func (r SenderEventRoutine) NewList(identity string, senderEventConnections *string) {
-	senderEventRoutine = newSenderEventRoutine)
+func NewSenderEventRoutineList(identity string, senderEventConnections []string) (senderEventRoutine *SenderEventRoutine) {
+	senderEventRoutine = new(SenderEventRoutine)
 
 	senderEventRoutine.Identity = identity
 
-	senderEventRoutine.Context, _ := zmq4.NewContext()
+	senderEventRoutine.Context, _ = zmq4.NewContext()
 	senderEventRoutine.SenderEventConnections = senderEventConnections
-	senderEventRoutine.SenderEventSend = senderEventRoutine.Context.NewSocket(zmq.DEALER)
+	senderEventRoutine.SenderEventSend, _ = senderEventRoutine.Context.NewSocket(zmq4.DEALER)
 	senderEventRoutine.SenderEventSend.SetIdentity(senderEventRoutine.Identity)
 
-	fmt.Printf("senderEventSend connect : " + senderEventConnection)
-	for _, connection := range senderEventRoutine.senderEventConnections {
-		senderEventRoutine.senderEventSend.Connect(connection)
-		fmt.Printf("senderEventSend connect : " + senderEventConnections)
+	for _, connection := range senderEventRoutine.SenderEventConnections {
+		senderEventRoutine.SenderEventSend.Connect(connection)
+		fmt.Printf("senderEventSend connect : " + connection)
 	}
+	return
 }
 
-func (r SenderEventRoutine) sendEvent(topic, timeout, event, payload string) {
-	eventMessage := message.NewEventMessage(topic, timeout, event, payload)
+func (r SenderEventRoutine) sendEvent(topic, timeout, uuid, event, payload string) (err error) {
+	eventMessage := message.NewEventMessage(topic, timeout, uuid, event, payload)
 	if err != nil {
 		panic(err)
 	}
-	go eventMessage.sendWith(r.SenderEventSend)
+	go eventMessage.SendEventWith(r.SenderEventSend)
+
+	return
 }
 
 func (r SenderEventRoutine) close() {
