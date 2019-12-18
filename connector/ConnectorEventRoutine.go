@@ -2,21 +2,23 @@ package connector
 
 import (
 	"fmt"
+	"errors"
 	"gandalfgo/message"
-	zmq4 "github.com/pebbe/zmq4"
+	"gandalfgo/constant"
+	"github.com/pebbe/zmq4"
 )
 
 type ConnectorEventRoutine struct {
-	Context											zmq4.Context
+	Context											*zmq4.Context
 	ConnectorMapUUIDEventMessage	   				map[string][]message.EventMessage					
 	ConnectorMapWorkerEvents 		   				map[string][]string	
-	ConnectorEventSendToWorker              		zmq4.Socket
+	ConnectorEventSendToWorker              		*zmq4.Socket
 	ConnectorEventSendToWorkerConnection    		string
-	ConnectorEventReceiveFromAggregator           	zmq4.Socket
+	ConnectorEventReceiveFromAggregator           	*zmq4.Socket
 	ConnectorEventReceiveFromAggregatorConnection 	string
-	ConnectorEventSendToAggregator              	zmq4.Socket
+	ConnectorEventSendToAggregator              	*zmq4.Socket
 	ConnectorEventSendToAggregatorConnection    	string
-	ConnectorEventReceiveFromWorker           		zmq4.Socket
+	ConnectorEventReceiveFromWorker           		*zmq4.Socket
 	ConnectorEventReceiveFromWorkerConnection 		string
 	Identity                            			string
 }
@@ -24,32 +26,34 @@ type ConnectorEventRoutine struct {
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) (connectorEventRoutine *ConnectorEventRoutine) {
 	connectorEventRoutine = new(ConnectorEventRoutine)
 	
-	connectorEventRoutine.identity = identity
+	connectorEventRoutine.Identity = identity
 
 	connectorEventRoutine.Context, _ = zmq4.NewContext()
 	connectorEventRoutine.ConnectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
-	connectorEventRoutine.ConnectorEventSendToWorker = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
-	connectorEventRoutine.ConnectorEventSendToWorker.Identity(connectorEventRoutine.Identity)
-	connectorEventRoutineConnectorEventSendToWorker.Bind(connectorEventRoutine.ConnectorEventSendToWorkerConnection)
+	connectorEventRoutine.ConnectorEventSendToWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
+	connectorEventRoutine.ConnectorEventSendToWorker.SetIdentity(connectorEventRoutine.Identity)
+	connectorEventRoutine.ConnectorEventSendToWorker.Bind(connectorEventRoutine.ConnectorEventSendToWorkerConnection)
 	fmt.Printf("connectorEventSendToWorker bind : " + connectorEventSendToWorkerConnection)
 
 	connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnection = connectorEventReceiveFromAggregatorConnection
-	connectorEventRoutine.ConnectorEventReceiveFromAggregator = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
-	connectorEventRoutine.ConnectorEventReceiveFromAggregator.Identity(connectorEventRoutine.Identity)
+	connectorEventRoutine.ConnectorEventReceiveFromAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
+	connectorEventRoutine.ConnectorEventReceiveFromAggregator.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator.Connect(connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnection)
 	fmt.Printf("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
 
 	connectorEventRoutine.ConnectorEventSendToAggregatorConnection = connectorEventSendToAggregatorConnection
-	connectorEventRoutine.ConnectorEventSendToAggregator = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
-	connectorEventRoutine.ConnectorEventSendToAggregator.Identity(connectorEventRoutine.Identity)
+	connectorEventRoutine.ConnectorEventSendToAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
+	connectorEventRoutine.ConnectorEventSendToAggregator.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventSendToAggregator.Connect(connectorEventRoutine.ConnectorEventSendToAggregatorConnection)
 	fmt.Printf("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
 
 	connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection = connectorEventReceiveFromWorkerConnection
-	connectorEventRoutine.ConnectorEventReceiveFromWorker = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
-	connectorEventRoutine.ConnectorEventReceiveFromWorker.Identity(connectorEventRoutine.Identity)
+	connectorEventRoutine.ConnectorEventReceiveFromWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
+	connectorEventRoutine.ConnectorEventReceiveFromWorker.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.Bind(connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection)
 	fmt.Printf("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
+	
+	return
 }
 
 func (r ConnectorEventRoutine) close() {
@@ -65,7 +69,7 @@ func (r ConnectorEventRoutine) reconnectToProxy() {
 }
 
 func (r ConnectorEventRoutine) run() {
-	go cleanEventsByTimeout()
+	//go r.cleanEventsByTimeout()
 
 	poller := zmq4.NewPoller()
 	poller.Add(r.ConnectorEventSendToWorker, zmq4.POLLIN)
@@ -74,16 +78,16 @@ func (r ConnectorEventRoutine) run() {
 	poller.Add(r.ConnectorEventReceiveFromWorker, zmq4.POLLIN)
 
 	event := [][]byte{}
+	err := errors.New("")
 
 	for {
-		r.sendReadyCommand()
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 
 			switch currentSocket := socket.Socket; currentSocket {
-			case connectorEventSendToWorker:
+			case r.ConnectorEventSendToWorker:
 
-				event, err := currentSocket.RecvMessage()
+				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -92,9 +96,9 @@ func (r ConnectorEventRoutine) run() {
 					panic(err)
 				}
 
-			case connectorEventReceiveFromAggregator:
+			case r.ConnectorEventReceiveFromAggregator:
 
-				event, err := currentSocket.RecvMessage()
+				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -103,9 +107,9 @@ func (r ConnectorEventRoutine) run() {
 					panic(err)
 				}
 
-			case connectorEventSendToAggregator:
+			case r.ConnectorEventSendToAggregator:
 
-				event, err := currentSocket.RecvMessage()
+				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -114,9 +118,9 @@ func (r ConnectorEventRoutine) run() {
 					panic(err)
 				}
 
-			case connectorEventReceiveFromWorker:
+			case r.ConnectorEventReceiveFromWorker:
 
-				event, err := currentSocket.RecvMessage()
+				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
@@ -129,36 +133,43 @@ func (r ConnectorEventRoutine) run() {
 	}
 }
 
-func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) {
-	eventMessage := message.DecodeEvent(event[1])
-	r.addEvents(eventMessage)
-	go eventMessage.sendEventWith(r.connectorEventReceiveFromAggregator)
+func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) (err error) {
+	eventMessage, _ := message.DecodeEventMessage(event[1])
+	//r.addEvents(eventMessage)
+	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromAggregator)
+
+	return
 }
 
-func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) {
-	eventMessage := message.DecodeEvent(event[1])
-	go eventMessage.sendEventWith(r.connectorEventSendToWorker)
+func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) (err error) {
+	eventMessage, _ := message.DecodeEventMessage(event[1])
+	go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
+
+	return
 }
 
-func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
-	eventMessage := message.DecodeEvent(event[1])
-	go eventMessage.SendEventWith(r.connectorEventReceiveFromWorker)
-}
-
-func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
+func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) (err error) {
+	eventMessage, _ := message.DecodeEventMessage(event[1])
+	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
 	
-	if event[0] == Constant.COMMAND_VALIDATION_FUNCTIONS {
-		commandFunctions := decodeCommandCommandsEvents(command[2])
-		result := r.validationEvents(workerSource, commandFunctions.events)
+	return
+}
+
+func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) (err error) {
+	if  string(event[0]) == constant.EVENT_VALIDATION_TOPIC && string(event[1]) == constant.COMMAND_VALIDATION_FUNCTIONS {
+		eventFunctions, _ := message.DecodeEventFunction(event[2])
+		result, _ := r.validationEvents(eventFunctions.Worker, eventFunctions.Functions)
         if result {
-			r.ConnectorMapWorkerEvents[workerSource] = events
-			commandFunctionReply := CommandFunctionReply.New(result)
-			go commandFunctionReply.SendCommandFunctionReplyWith(r.connectorCommandSendToWorker)
+			r.ConnectorMapWorkerEvents[eventFunctions.Worker] = eventFunctions.Functions
+			eventFunctionReply := message.NewEventFunctionReply(result)
+			go eventFunctionReply.SendEventFunctionReplyWith(r.ConnectorEventReceiveFromAggregator)
         }
 	} else {
-		eventMessage := EventMessage.decodeEvent(event[1])
-		go eventMessage.SendEventWith(r.connectorEventSendToAggregator)
+		eventMessage, _ := message.DecodeEventMessage(event[2])
+		go eventMessage.SendEventWith(r.ConnectorEventSendToAggregator)
 	}
+
+	return
 }
 
 func (r ConnectorEventRoutine) validationEvents(workerSource string, events []string) (result bool, err error) {
@@ -167,10 +178,10 @@ func (r ConnectorEventRoutine) validationEvents(workerSource string, events []st
 	return
 }
 
-func (r ConnectorEventRoutine) addEvents(eventMessage message.EventMessage) {
-	if val, ok := r.connectorMapUUIDEventMessage[eventMessage.Uuid]; ok {
+/*func (r ConnectorEventRoutine) addEvents(eventMessage message.EventMessage) {
+	if val, ok := r.ConnectorMapUUIDEventMessage[eventMessage.Uuid]; ok {
 		if !ok {
-			r.connectorMapUUIDEventMessage[eventMessage.Uuid] = eventMessage
+			r.ConnectorMapUUIDEventMessage[eventMessage.Uuid] = eventMessage
 		}
 	}
 }
@@ -189,4 +200,4 @@ func (r ConnectorEventRoutine) cleanEventsByTimeout() {
 		}
 		time.Sleep(maxTimeout * time.Millisecond)
 	}
-}
+}*/

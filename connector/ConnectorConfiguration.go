@@ -10,13 +10,13 @@ type ConnectorConfiguration struct {
 	ConnectorEventSendToAggregatorConnection      		string
 	ConnectorEventReceiveFromWorkerConnection   		string
 	ConnectorCommandSendToWorkerConnection    			string
-	ConnectorCommandReceiveFromAggregatorConnection 	string
-	ConnectorCommandSendToAggregatorConnection    		string
+	ConnectorCommandReceiveFromAggregatorConnections 	[]string
+	ConnectorCommandSendToAggregatorConnections    		[]string
 	ConnectorCommandReceiveFromWorkerConnection 		string
 	Identity                             				string
 }
 
-func LoadConfiguration(path string) (connectorConfiguration *ConnectorConfiguration) {
+func LoadConfiguration(path string) (connectorConfiguration *ConnectorConfiguration, err error) {
 	connectorConfiguration = new(ConnectorConfiguration)
 	err = gonfig.GetConf(path, &connectorConfiguration)
 	return

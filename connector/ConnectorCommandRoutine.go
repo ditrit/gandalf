@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"errors"
 	"strconv"
+	"time"
 	"gandalfgo/message"
 	"gandalfgo/constant"
 	"github.com/pebbe/zmq4"
@@ -170,15 +171,15 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byt
         }
 		go commandMessage.SendWith(r.ConnectorCommandSendToWorker, workerSource)
 	} else if commandHeader == constant.COMMAND_VALIDATION_FUNCTIONS {
-		commandFunction, err := message.DecodeCommandFunction(command[2])
-		result, _ := r.validationCommands(workerSource, commandFunction.Functions)
+		commandFunction, _ := message.DecodeCommandFunction(command[2])
+		result := r.validationCommands(workerSource, commandFunction.Functions)
         if result {
 			r.ConnectorMapWorkerCommands[workerSource] = commandFunction.Functions
 			commandFunctionReply := message.NewCommandFunctionReply(result)
 			go commandFunctionReply.SendCommandFunctionReplyWith(r.ConnectorCommandSendToWorker)
         }
 	} else {
-		commandMessage, err := message.DecodeCommandMessage(command[1])
+		commandMessage, _ := message.DecodeCommandMessage(command[1])
 		commandMessage.SourceWorker = workerSource
 		go commandMessage.SendWith(r.ConnectorCommandSendToAggregator, workerSource)
 	}
@@ -199,20 +200,21 @@ func (r ConnectorCommandRoutine) getCommandByWorkerCommands(worker string) (comm
 		}
 	}
 	
-	for i, command := range commands {
-		if strconv.ParseInt(command.Timestamp, 10, 64) >= strconv.ParseInt(currentTimestamp, 10, 64) {
-			maxTimestamp = command.Timestamp
-			maxCommand = command
+	for _, command := range commands {
+		currentTimestamp, _ = strconv.Atoi(command.Timestamp)
+		if currentTimestamp >= maxTimestamp {
+			maxTimestamp, _ = strconv.Atoi(command.Timestamp)
+			maxCommand = command.Command
 		}
 	}
 	
 	commandMessage = r.ConnectorMapUUIDCommandMessage[maxCommand][0]
-	append(r.ConnectorMapUUIDCommandMessage[:0], r.ConnectorMapUUIDCommandMessage[0+1:]...)
+	delete(r.ConnectorMapUUIDCommandMessage, maxCommand);
 
 	return 
 }
 
-func (r ConnectorCommandRoutine) getConnectorMapUUIDCommandMessage(command string) (commandMessage message.CommandMessage, err error) {
+func (r ConnectorCommandRoutine) getConnectorMapUUIDCommandMessage(command string) (commandMessage []message.CommandMessage) {
     if commandMessage, ok := r.ConnectorMapUUIDCommandMessage[command]; ok {
 		if ok {
 			return commandMessage
@@ -221,7 +223,7 @@ func (r ConnectorCommandRoutine) getConnectorMapUUIDCommandMessage(command strin
 	return
 }
 
-func (r ConnectorCommandRoutine) validationCommands(workerSource string, commands []string) (result bool, err error) {
+func (r ConnectorCommandRoutine) validationCommands(workerSource string, commands []string) (result bool) {
 	//TODO
 	result = true
 
@@ -229,25 +231,32 @@ func (r ConnectorCommandRoutine) validationCommands(workerSource string, command
 }
 
 func (r ConnectorCommandRoutine) addCommands(commandMessage message.CommandMessage) {
-	if val, ok := r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid]; ok {
+	if _, ok := r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid]; ok {
 		if !ok {
-			r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid].append(r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid], commandMessage)
+			r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid] = append(r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid], commandMessage)
 		}
 	}
 }
 
 func (r ConnectorCommandRoutine) cleanCommandsByTimeout() {
 	maxTimeout := 0
+	currentTimestamp := -1
+	currentTimeout := -1
 	for {
-		for uuid, commandMessage := range r.ConnectorMapUUIDCommandMessage { 
-			if commandMessage.Timestamp - commandMessage.Timeout == 0 {
-				delete(r.ConnectorMapUUIDCommandMessage, uuid) 	
-			} else {
-				if commandMessage.timeout >= maxTimeout {
-					maxTimeout = commandMessage.timeout
+		for uuid, commandMessageSlice := range r.ConnectorMapUUIDCommandMessage { 
+			for _, commandMessage := range commandMessageSlice {
+				currentTimestamp, _ = strconv.Atoi(commandMessage.Timestamp)
+				currentTimeout, _ = strconv.Atoi(commandMessage.Timeout)
+
+				if currentTimestamp - currentTimeout == 0 {
+					delete(r.ConnectorMapUUIDCommandMessage, uuid) 	
+				} else {
+					if currentTimeout >= maxTimeout {
+						maxTimeout = currentTimeout
+					}
 				}
 			}
 		}
-		time.Sleep(maxTimeout * time.Millisecond)
+		time.Sleep(time.Duration(maxTimeout) * time.Millisecond)
 	}
 }
