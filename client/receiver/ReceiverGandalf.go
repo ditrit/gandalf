@@ -32,7 +32,7 @@ func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnec
 	return
 }
 
-func (rg ReceiverGandalf) run() {
+func (rg ReceiverGandalf) Run() {
 	go rg.ReceiverCommandRoutine.run()
 	go rg.ReceiverEventRoutine.run()
 }

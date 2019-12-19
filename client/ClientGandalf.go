@@ -20,22 +20,24 @@ type ClientGandalf struct {
 	ReceiverGandalf           *receiver.ReceiverGandalf
 }
 
-func NewClientGandalf(identty, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (clientGandalf *ClientGandalf) {
+func NewClientGandalf(identity, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection string, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (clientGandalf *ClientGandalf) {
 	clientGandalf = new(ClientGandalf)
 	clientGandalf.Identity = identity
 	clientGandalf.SenderCommandConnection = senderCommandConnection
 	clientGandalf.SenderEventConnection = senderEventConnection
-	clientGandalf.ReceiverCommandConnection = receiverCommandcgConnection
+	clientGandalf.ReceiverCommandConnection = receiverCommandConnection
 	clientGandalf.ReceiverEventConnection = receiverEventConnection
 	clientGandalf.CommandsRoutine = commandsRoutine
 	clientGandalf.EventsRoutine = eventsRoutine
 	//TODO USELESS ??
 	clientGandalf.Replys = replys
 
-	clientGandalf.SenderGandalf = NewSenderGandalf(clientGandalf.identity, clientGandalf.senderCommandConnection, clientGandalf.senderEventConnection)
-	clientGandalf.ReceiverGandalf = NewReceiverGandalf(clientGandalf.identity, clientGandalf.receiverCommandConnection, clientGandalf.receiverEventConnection, clientGandalf.commandsRoutine, clientGandalf.eventsRoutine, clientGandalf.results)
+	clientGandalf.SenderGandalf = sender.NewSenderGandalf(clientGandalf.Identity, clientGandalf.SenderCommandConnection, clientGandalf.SenderEventConnection)
+	clientGandalf.ReceiverGandalf = receiver.NewReceiverGandalf(clientGandalf.Identity, clientGandalf.ReceiverCommandConnection, clientGandalf.ReceiverEventConnection, clientGandalf.CommandsRoutine, clientGandalf.EventsRoutine, clientGandalf.Replys)
+
+	return
 }
 
 func (cg ClientGandalf) run() {
-	go cg.ReceiverGandalf.run()
+	go cg.ReceiverGandalf.Run()
 }

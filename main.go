@@ -1,11 +1,11 @@
 package gandalfgo
 
 import (
-	"gandalfgo/aggregator"
-	"gandalfgo/client"
-	"gandalfgo/cluster"
-	"gandalfgo/connector"
-	"gandalfgo/worker"
+	"flag"
+	"gandalf-go/aggregator"
+	"gandalf-go/cluster"
+	"gandalf-go/connector"
+	"gandalf-go/worker"
 )
 
 func main() {
@@ -14,13 +14,13 @@ func main() {
 
 	switch mod {
 	case "cluster":
-		ClusterGandalf.New(path)
+		cluster.ClusterGandalf.New(path)
 	case "aggregator":
-		AggregatorGandalf.New(path)
+		aggregator.AggregatorGandalf.New(path)
 	case "connector":
-		ConnectorGandalf.New(path)
+		connector.ConnectorGandalf.New(path)
 	case "worker":
-		WorkerGandalf.New(path)
+		worker.WorkerGandalf.New(path)
 	default:
 		//ERROR
 	}

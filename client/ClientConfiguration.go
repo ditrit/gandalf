@@ -1,19 +1,19 @@
 package client
 
-import(
-	 gonfig "github.com/tkanos/gonfig"
+import (
+	gonfig "github.com/tkanos/gonfig"
 )
 
 type ClientConfiguration struct {
-	SenderCommandConnection    	string
-	SenderEventConnection 		string
-	ReceiverCommandConnection   string
-	ReceiverEventConnection 	string
-	Identity                    string
+	SenderCommandConnection   string
+	SenderEventConnection     string
+	ReceiverCommandConnection string
+	ReceiverEventConnection   string
+	Identity                  string
 }
 
-func LoadConfiguration(path string) (clusterConfiguration *ClusterConfiguration, err error) {
-	clusterConfiguration = new(ClusterConfiguration)
-	err := gonfig.GetConf(path, &clusterConfiguration)
+func LoadConfiguration(path string) (clientConfiguration *ClientConfiguration, err error) {
+	clientConfiguration = new(ClientConfiguration)
+	err = gonfig.GetConf(path, &clientConfiguration)
 	return
 }
