@@ -19,7 +19,7 @@ func NewAggregatorGandalf(path string) (aggregatorGandalf *AggregatorGandalf) {
 	return
 }
 
-func (ag AggregatorGandalf) run() {
+func (ag AggregatorGandalf) Run() {
 
 	go ag.aggregatorCommandRoutine.run()
 	go ag.aggregatorEventRoutine.run()

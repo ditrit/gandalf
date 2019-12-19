@@ -1,9 +1,9 @@
 {
-	"clusterCommandSendConnection": "127.0.0.1:9110",
-    "clusterCommandReceiveConnection": "127.0.0.1:9111",
-	"clusterCommandCaptureConnection": "",
-	"clusterEventSendConnection": "127.0.0.1:9100",
-	"clusterEventReceiveConnection": "127.0.0.1:9101",
-    "clusterEventCaptureConnection": "",
-	"identity": "cluster1"
+	"ClusterCommandSendConnection": "127.0.0.1:9110",
+    "ClusterCommandReceiveConnection": "127.0.0.1:9111",
+	"ClusterCommandCaptureConnection": "tata",
+	"ClusterEventSendConnection": "127.0.0.1:9100",
+	"ClusterEventReceiveConnection": "127.0.0.1:9101",
+    "ClusterEventCaptureConnection": "tatta",
+	"Identity": "cluster1"
 }

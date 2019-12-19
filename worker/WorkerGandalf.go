@@ -31,7 +31,7 @@ func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	return
 }
 
-func (wg WorkerGandalf) run() {
+func (wg WorkerGandalf) Run() {
 	go wg.ClientGandalf.Run()
 }
 

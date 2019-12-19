@@ -36,10 +36,11 @@ func NewReceiverCommandRoutine(identity, receiverCommandConnection string, comma
 
 	receiverCommandRoutine.loadCommandRoutines()
 
-	result, err := receiverCommandRoutine.validationFunctions()
-	if err != nil {
-		panic(err)
-	}
+	result := true
+	/* 	result, err := receiverCommandRoutine.validationFunctions()
+	   	if err != nil {
+	   		panic(err)
+	   	} */
 	if result {
 		go receiverCommandRoutine.run()
 	}

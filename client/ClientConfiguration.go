@@ -14,6 +14,6 @@ type ClientConfiguration struct {
 
 func LoadConfiguration(path string) (clientConfiguration *ClientConfiguration, err error) {
 	clientConfiguration = new(ClientConfiguration)
-	err = gonfig.GetConf(path, &clientConfiguration)
+	err = gonfig.GetConf(path, clientConfiguration)
 	return
 }

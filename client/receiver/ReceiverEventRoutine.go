@@ -32,10 +32,11 @@ func NewReceiverEventRoutine(identity, receiverEventConnection string, eventsRou
 
 	receiverEventRoutine.loadEventRoutines()
 
-	result, err := receiverEventRoutine.validationFunctions()
+	result := true
+	/* result, err := receiverEventRoutine.validationFunctions()
 	if err != nil {
 		panic(err)
-	}
+	} */
 	if result {
 		go receiverEventRoutine.run()
 	}

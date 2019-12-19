@@ -53,7 +53,7 @@ func NewLenderCommandRoutine(identity string, senderCommandConnections []string)
 	return
 }
 
-func (r SenderCommandRoutine) sendCommandSync(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
+func (r SenderCommandRoutine) SendCommandSync(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
 
 	go commandMessage.SendCommandWith(r.SenderCommandSend)

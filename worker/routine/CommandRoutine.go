@@ -21,4 +21,5 @@ func (cp CommandPrint) New() {
 
 func (cp CommandPrint) ExecuteCommand(commandMessage message.CommandMessage, Replys chan message.CommandMessageReply) {
 	fmt.Print("%s", "COMMAND")
+	fmt.Print("%s", commandMessage)
 }

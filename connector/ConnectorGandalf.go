@@ -26,7 +26,7 @@ func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 	return
 }
 
-func (cg ConnectorGandalf) run() {
+func (cg ConnectorGandalf) Run() {
 	go cg.ConnectorCommandRoutine.run()
 	go cg.ConnectorEventRoutine.run()
 }
