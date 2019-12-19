@@ -20,6 +20,7 @@ type SenderCommandRoutine struct {
 func NewSenderCommandRoutine(identity, senderCommandConnection string) (senderCommandRoutine *SenderCommandRoutine) {
 	senderCommandRoutine = new(SenderCommandRoutine)
 
+	senderCommandRoutine.MapUUIDCommandStates := make(map[string]string)
 	senderCommandRoutine.Replys = make(chan message.CommandMessageReply)
 	senderCommandRoutine.Identity = identity
 

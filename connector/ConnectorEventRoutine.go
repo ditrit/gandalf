@@ -26,8 +26,9 @@ type ConnectorEventRoutine struct {
 
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) (connectorEventRoutine *ConnectorEventRoutine) {
 	connectorEventRoutine = new(ConnectorEventRoutine)
-
 	connectorEventRoutine.Identity = identity
+	connectorEventRoutine.ConnectorMapUUIDEventMessage := make(map[string][]message.EventMessage)
+	connectorEventRoutine.ConnectorMapWorkerEvents := make(map[string][]string)
 
 	connectorEventRoutine.Context, _ = zmq4.NewContext()
 	connectorEventRoutine.ConnectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection

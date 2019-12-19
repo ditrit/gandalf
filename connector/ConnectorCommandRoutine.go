@@ -28,8 +28,9 @@ type ConnectorCommandRoutine struct {
 
 func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) (connectorCommandRoutine *ConnectorCommandRoutine) {
 	connectorCommandRoutine = new(ConnectorCommandRoutine)
-
 	connectorCommandRoutine.Identity = identity
+	connectorCommandRoutine.ConnectorMapUUIDCommandMessage := make(map[string][]message.CommandMessage)
+	connectorCommandRoutine.ConnectorMapWorkerCommands := make(map[string][]string)
 
 	connectorCommandRoutine.Context, _ = zmq4.NewContext()
 	connectorCommandRoutine.ConnectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection

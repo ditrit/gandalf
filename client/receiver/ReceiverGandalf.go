@@ -25,6 +25,7 @@ func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnec
 	receiverGandalf.CommandsRoutine = commandsRoutine
 	receiverGandalf.EventsRoutine = eventsRoutine
 	receiverGandalf.Replys = replys
+
 	receiverGandalf.ReceiverCommandRoutine = NewReceiverCommandRoutine(receiverGandalf.Identity, receiverGandalf.ReceiverCommandConnection, receiverGandalf.CommandsRoutine, receiverGandalf.Replys)
 	receiverGandalf.ReceiverEventRoutine = NewReceiverEventRoutine(receiverGandalf.Identity, receiverGandalf.ReceiverEventConnection, receiverGandalf.EventsRoutine)
 
