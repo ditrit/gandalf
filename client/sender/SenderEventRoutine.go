@@ -3,15 +3,16 @@ package sender
 import (
 	"fmt"
 	"gandalfgo/message"
+
 	"github.com/pebbe/zmq4"
 )
 
 type SenderEventRoutine struct {
-	Context						*zmq4.Context
-	SenderEventSend            	*zmq4.Socket
-	SenderEventConnection  		string
-	SenderEventConnections 		[]string
-	Identity                   	string
+	Context                *zmq4.Context
+	SenderEventSend        *zmq4.Socket
+	SenderEventConnection  string
+	SenderEventConnections []string
+	Identity               string
 }
 
 func NewSenderEventRoutine(identity, senderEventConnection string) (senderEventRoutine *SenderEventRoutine) {
@@ -46,14 +47,12 @@ func NewSenderEventRoutineList(identity string, senderEventConnections []string)
 	return
 }
 
-func (r SenderEventRoutine) sendEvent(topic, timeout, uuid, event, payload string) (err error) {
+func (r SenderEventRoutine) sendEvent(topic, timeout, uuid, event, payload string) {
 	eventMessage := message.NewEventMessage(topic, timeout, uuid, event, payload)
 	if err != nil {
 		panic(err)
 	}
 	go eventMessage.SendEventWith(r.SenderEventSend)
-
-	return
 }
 
 func (r SenderEventRoutine) close() {

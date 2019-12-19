@@ -1,31 +1,32 @@
 package connector
 
 import (
-	"fmt"
 	"errors"
-	"gandalfgo/message"
+	"fmt"
 	"gandalfgo/constant"
+	"gandalfgo/message"
+
 	"github.com/pebbe/zmq4"
 )
 
 type ConnectorEventRoutine struct {
-	Context											*zmq4.Context
-	ConnectorMapUUIDEventMessage	   				map[string][]message.EventMessage					
-	ConnectorMapWorkerEvents 		   				map[string][]string	
-	ConnectorEventSendToWorker              		*zmq4.Socket
-	ConnectorEventSendToWorkerConnection    		string
-	ConnectorEventReceiveFromAggregator           	*zmq4.Socket
-	ConnectorEventReceiveFromAggregatorConnection 	string
-	ConnectorEventSendToAggregator              	*zmq4.Socket
-	ConnectorEventSendToAggregatorConnection    	string
-	ConnectorEventReceiveFromWorker           		*zmq4.Socket
-	ConnectorEventReceiveFromWorkerConnection 		string
-	Identity                            			string
+	Context                                       *zmq4.Context
+	ConnectorMapUUIDEventMessage                  map[string][]message.EventMessage
+	ConnectorMapWorkerEvents                      map[string][]string
+	ConnectorEventSendToWorker                    *zmq4.Socket
+	ConnectorEventSendToWorkerConnection          string
+	ConnectorEventReceiveFromAggregator           *zmq4.Socket
+	ConnectorEventReceiveFromAggregatorConnection string
+	ConnectorEventSendToAggregator                *zmq4.Socket
+	ConnectorEventSendToAggregatorConnection      string
+	ConnectorEventReceiveFromWorker               *zmq4.Socket
+	ConnectorEventReceiveFromWorkerConnection     string
+	Identity                                      string
 }
 
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) (connectorEventRoutine *ConnectorEventRoutine) {
 	connectorEventRoutine = new(ConnectorEventRoutine)
-	
+
 	connectorEventRoutine.Identity = identity
 
 	connectorEventRoutine.Context, _ = zmq4.NewContext()
@@ -52,7 +53,7 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.Bind(connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection)
 	fmt.Printf("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
-	
+
 	return
 }
 
@@ -133,43 +134,35 @@ func (r ConnectorEventRoutine) run() {
 	}
 }
 
-func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) (err error) {
+func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	//r.addEvents(eventMessage)
 	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromAggregator)
-
-	return
 }
 
-func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) (err error) {
+func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
-
-	return
 }
 
-func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) (err error) {
+func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
-	
-	return
 }
 
-func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) (err error) {
-	if  string(event[0]) == constant.EVENT_VALIDATION_TOPIC && string(event[1]) == constant.COMMAND_VALIDATION_FUNCTIONS {
+func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
+	if string(event[0]) == constant.EVENT_VALIDATION_TOPIC && string(event[1]) == constant.COMMAND_VALIDATION_FUNCTIONS {
 		eventFunctions, _ := message.DecodeEventFunction(event[2])
 		result, _ := r.validationEvents(eventFunctions.Worker, eventFunctions.Functions)
-        if result {
+		if result {
 			r.ConnectorMapWorkerEvents[eventFunctions.Worker] = eventFunctions.Functions
 			eventFunctionReply := message.NewEventFunctionReply(result)
 			go eventFunctionReply.SendEventFunctionReplyWith(r.ConnectorEventReceiveFromAggregator)
-        }
+		}
 	} else {
 		eventMessage, _ := message.DecodeEventMessage(event[2])
 		go eventMessage.SendEventWith(r.ConnectorEventSendToAggregator)
 	}
-
-	return
 }
 
 func (r ConnectorEventRoutine) validationEvents(workerSource string, events []string) (result bool, err error) {
@@ -189,9 +182,9 @@ func (r ConnectorEventRoutine) validationEvents(workerSource string, events []st
 func (r ConnectorEventRoutine) cleanEventsByTimeout() {
 	maxTimeout = 0
 	for {
-		for uuid, eventMessage := range r.connectorMapUUIDEventMessage { 
+		for uuid, eventMessage := range r.connectorMapUUIDEventMessage {
 			if commandMessage.timestamp - commandMessage.timeout == 0 {
-				delete(r.commandUUIDCommandMessage, uuid) 	
+				delete(r.commandUUIDCommandMessage, uuid)
 			} else {
 				if commandMessage.timeout >= maxTimeout {
 					maxTimeout = commandMessage.timeout

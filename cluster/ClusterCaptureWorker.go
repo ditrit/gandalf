@@ -1,25 +1,26 @@
 package cluster
 
 import (
-	"fmt"
-	"net/http"
 	"bytes"
 	"errors"
+	"fmt"
+	"net/http"
+
 	"github.com/pebbe/zmq4"
 )
 
 type ClusterCaptureWorkerRoutine struct {
-	Context									  	*zmq4.Context
-	WorkerCaptureCommandReceive           		*zmq4.Socket
-	WorkerCaptureCommandReceiveConnection 		string
-	WorkerCaptureEventReceive            		*zmq4.Socket
-	WorkerCaptureEventReceiveConnection   		string
-	Identity                                  	string
+	Context                               *zmq4.Context
+	WorkerCaptureCommandReceive           *zmq4.Socket
+	WorkerCaptureCommandReceiveConnection string
+	WorkerCaptureEventReceive             *zmq4.Socket
+	WorkerCaptureEventReceiveConnection   string
+	Identity                              string
 }
 
 func NewClusterCaptureWorkerRoutine(identity, workerCaptureCommandReceiveConnection, workerCaptureEventReceiveConnection string, topics []string) (clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine) {
 	clusterCaptureWorkerRoutine = new(ClusterCaptureWorkerRoutine)
-	
+
 	clusterCaptureWorkerRoutine.Identity = identity
 
 	clusterCaptureWorkerRoutine.Context, _ = zmq4.NewContext()
@@ -86,19 +87,16 @@ func (r ClusterCaptureWorkerRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) (err error) {
-    _, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
-    if err != nil {
-        fmt.Printf("The HTTP request failed with error %s\n", err)
+func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
+	_, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}
-	return
 }
 
-func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) (err error) {
-    _, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
-    if err != nil {
-        fmt.Printf("The HTTP request failed with error %s\n", err)
+func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
+	_, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}
-	return
 }
-

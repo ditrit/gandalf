@@ -1,7 +1,7 @@
 package connector
 
 type ConnectorGandalf struct {
-	ConnectorConfiguration 		*ConnectorConfiguration
+	ConnectorConfiguration      *ConnectorConfiguration
 	ConnectorCommandRoutine     *ConnectorCommandRoutine
 	ConnectorEventRoutine       *ConnectorEventRoutine
 	ConnectorCommandsMap        map[string][]string
@@ -20,10 +20,15 @@ func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 	connectorGandalf.ConnectorEventRoutine = NewConnectorEventRoutine(connectorGandalf.ConnectorConfiguration.Identity, connectorGandalf.ConnectorConfiguration.ConnectorEventSendToWorkerConnection, connectorGandalf.ConnectorConfiguration.ConnectorEventReceiveFromAggregatorConnection, connectorGandalf.ConnectorConfiguration.ConnectorEventSendToAggregatorConnection, connectorGandalf.ConnectorConfiguration.ConnectorEventReceiveFromWorkerConnection)
 
 	//RUN
-	go connectorGandalf.ConnectorCommandRoutine.run()
-	go connectorGandalf.ConnectorEventRoutine.run()
-	
+	//go connectorGandalf.ConnectorCommandRoutine.run()
+	//go connectorGandalf.ConnectorEventRoutine.run()
+
 	return
+}
+
+func (cg ConnectorGandalf) run() {
+	go cg.ConnectorCommandRoutine.run()
+	go cg.ConnectorEventRoutine.run()
 }
 
 func (cg ConnectorGandalf) getWorkerCommands(worker string) (workerCommand []string) {

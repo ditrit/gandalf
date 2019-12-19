@@ -3,17 +3,18 @@ package sender
 import (
 	"fmt"
 	"gandalfgo/message"
+
 	"github.com/pebbe/zmq4"
 )
 
 type SenderCommandRoutine struct {
-	Context							*zmq4.Context
-	SenderCommandSend            	*zmq4.Socket
-	SenderCommandConnections 		[]string
-	SenderCommandConnection  		string
-	Identity                 		string
-	Replys               			chan message.CommandMessageReply
-	MapUUIDCommandStates            map[string]string
+	Context                  *zmq4.Context
+	SenderCommandSend        *zmq4.Socket
+	SenderCommandConnections []string
+	SenderCommandConnection  string
+	Identity                 string
+	Replys                   chan message.CommandMessageReply
+	MapUUIDCommandStates     map[string]string
 }
 
 func NewSenderCommandRoutine(identity, senderCommandConnection string) (senderCommandRoutine *SenderCommandRoutine) {
@@ -69,42 +70,39 @@ func (r SenderCommandRoutine) sendCommandSync(context, timeout, uuid, connectorT
 func (r SenderCommandRoutine) getCommandResultSync(uuid string) (commandMessageReply message.CommandMessageReply) {
 	for {
 		command, err := r.SenderCommandSend.RecvMessageBytes(0)
-        if err != nil {
+		if err != nil {
 			panic(err)
 		}
 		commandMessageReply, _ = message.DecodeCommandMessageReply(command[1])
 		return
-    }
+	}
 }
 
-func (r SenderCommandRoutine) sendCommandAsync(context, timeout, uuid, connectorType, commandType, command, payload string) (err error) {
+func (r SenderCommandRoutine) sendCommandAsync(context, timeout, uuid, connectorType, commandType, command, payload string) {
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
 	if err != nil {
 		panic(err)
 	}
 	go commandMessage.SendCommandWith(r.SenderCommandSend)
-
 	go r.getCommandResultAsync()
-	
-	return
 }
 
 func (r SenderCommandRoutine) getCommandResultAsync() {
-	for  {
+	for {
 		command, err := r.SenderCommandSend.RecvMessageBytes(0)
-        if err != nil {
+		if err != nil {
 			panic(err)
 		}
 		commandMessage, _ := message.DecodeCommandMessageReply(command[1])
 		r.Replys <- commandMessage
-		
+
 		return
-    }
+	}
 }
 
 func (r SenderCommandRoutine) cleanByTimeout() {
 
 }
 
-func (r SenderCommandRoutine) close()  {
+func (r SenderCommandRoutine) close() {
 }

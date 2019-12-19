@@ -1,15 +1,16 @@
 package cluster
 
 import (
-	"fmt"
 	"errors"
-    "gandalfgo/message"
-    "gandalfgo/constant"
+	"fmt"
+	"gandalfgo/constant"
+	"gandalfgo/message"
+
 	"github.com/pebbe/zmq4"
 )
 
 type ClusterCommandRoutine struct {
-	Context							*zmq4.Context
+	Context                         *zmq4.Context
 	ClusterCommandSend              *zmq4.Socket
 	ClusterCommandSendConnection    string
 	ClusterCommandReceive           *zmq4.Socket
@@ -21,7 +22,7 @@ type ClusterCommandRoutine struct {
 
 func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) (clusterCommandRoutine *ClusterCommandRoutine) {
 	clusterCommandRoutine = new(ClusterCommandRoutine)
-	
+
 	clusterCommandRoutine.Identity = identity
 
 	clusterCommandRoutine.Context, _ = zmq4.NewContext()
@@ -96,7 +97,7 @@ func (r ClusterCommandRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ClusterCommandRoutine) processCommandSend(command [][]byte) (err error) {
+func (r ClusterCommandRoutine) processCommandSend(command [][]byte) {
 	commandMessage, err := message.DecodeCommandMessage(command[1])
 	r.processCaptureCommand(commandMessage)
 	target := ""
@@ -104,14 +105,12 @@ func (r ClusterCommandRoutine) processCommandSend(command [][]byte) (err error) 
 	commandMessage.SourceAggregator = sourceAggregator
 	commandMessage.DestinationAggregator = target
 	go commandMessage.SendCommandWith(r.ClusterCommandReceive)
-	return
 }
 
-func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) (err error) {
+func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 	commandMessage, err := message.DecodeCommandMessage(command[1])
 	r.processCaptureCommand(commandMessage)
 	go commandMessage.SendWith(r.ClusterCommandSend, commandMessage.SourceAggregator)
-	return
 }
 
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.CommandMessage) {

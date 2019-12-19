@@ -1,24 +1,25 @@
 package receiver
 
-import(
-	"fmt"
+import (
 	"errors"
+	"fmt"
 	"gandalfgo/message"
 	"gandalfgo/worker/routine"
+
 	"github.com/pebbe/zmq4"
 )
 
 type ReceiverEventRoutine struct {
-	Context							*zmq4.Context
-	WorkerEventReceive 				*zmq4.Socket
-	ReceiverEventConnection 		string
-	Identity 						string
-	EventsRoutine 					map[string][]routine.EventRoutine					
+	Context                 *zmq4.Context
+	WorkerEventReceive      *zmq4.Socket
+	ReceiverEventConnection string
+	Identity                string
+	EventsRoutine           map[string][]routine.EventRoutine
 }
 
 func NewReceiverEventRoutine(identity, receiverEventConnection string, eventsRoutine map[string][]routine.EventRoutine) (receiverEventRoutine *ReceiverEventRoutine) {
 	receiverEventRoutine = new(ReceiverEventRoutine)
-	
+
 	receiverEventRoutine.Identity = identity
 	receiverEventRoutine.ReceiverEventConnection = receiverEventConnection
 	receiverEventRoutine.EventsRoutine = eventsRoutine
@@ -72,11 +73,9 @@ func (r ReceiverEventRoutine) run() {
 	fmt.Println("done")
 }
 
-
 func (r ReceiverEventRoutine) loadEventRoutines() {
 	//TODO
 }
-
 
 func (r ReceiverEventRoutine) validationFunctions() (result bool, err error) {
 	r.sendValidationFunctions()
@@ -88,29 +87,27 @@ func (r ReceiverEventRoutine) validationFunctions() (result bool, err error) {
 		}
 	}
 	reply, err := message.DecodeCommandFunctionReply(event[1])
-	result = reply.Validation 
+	result = reply.Validation
 	return
 }
 
-func (r ReceiverEventRoutine) sendValidationFunctions()  {
+func (r ReceiverEventRoutine) sendValidationFunctions() {
 	//EVENT
 	functionkeys := make([]string, 0, len(r.EventsRoutine))
-    for key := range r.EventsRoutine {
-        functionkeys = append(functionkeys, key)
+	for key := range r.EventsRoutine {
+		functionkeys = append(functionkeys, key)
 	}
 	commandFunction := message.NewCommandFunction(functionkeys)
 	go commandFunction.SendWith(r.WorkerEventReceive)
 }
 
-func (r ReceiverEventRoutine) processEventReceive(event [][]byte) (err error) {
+func (r ReceiverEventRoutine) processEventReceive(event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	eventRoutine := r.getEventRoutine(eventMessage.Event)
 	if err != nil {
 
 	}
 	go eventRoutine.ExecuteEvent(eventMessage)
-
-	return 
 }
 
 func (r ReceiverEventRoutine) getEventRoutine(event string) (eventRoutine routine.EventRoutine) {

@@ -15,18 +15,22 @@ type WorkerGandalf struct {
 	clientGandalf 		ClientGandalf
 }
 
-func (wg WorkerGandalf) New(path string) {
-	path := path
-	workerConfiguration := WorkerConfiguration.loadConfiguration(path)
+func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
+	workerGandalf = new(WorkerGandalf)
 
-	wg.results := make(chan message.CommandResponse)
-	wg. loadFunctions()
+	workerGandalf.workerConfiguration := WorkerConfiguration.loadConfiguration(path)
 
-	wg.clientGandalf = ClientGandalf.New(workerConfiguration.identity, workerConfiguration.senderCommandConnection, workerConfiguration.senderEventConnection, 
+	workerGandalf.results := make(chan message.CommandResponse)
+	workerGandalf. loadFunctions()
+
+	workerGandalf.clientGandalf = ClientGandalf.New(workerConfiguration.identity, workerConfiguration.senderCommandConnection, workerConfiguration.senderEventConnection, 
 		workerConfiguration.receiverCommandConnection, workerConfiguration.receiverEventConnection,
 		 commandsRoutine map[string][]CommandRoutine, eventsRoutine map[string][]EventRoutine, results chan ResponseMessage)
 }
 
+unc (wg WorkerGandalf) run() {
+	go wg.clientGandalf.run()
+}
 
 func (wg WorkerGandalf) loadFunctions() {
 	wg.loadCommands()

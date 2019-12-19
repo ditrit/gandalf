@@ -1,29 +1,30 @@
 package cluster
 
 import (
-	"fmt"
 	"errors"
-	"gandalfgo/message"
+	"fmt"
 	"gandalfgo/constant"
+	"gandalfgo/message"
+
 	"github.com/pebbe/zmq4"
 )
 
 type ClusterEventRoutine struct {
-	Context							*zmq4.Context
-	ClusterEventSend              	*zmq4.Socket
-	ClusterEventSendConnection    	string
-	ClusterEventReceive           	*zmq4.Socket
-	ClusterEventReceiveConnection 	string
-	ClusterEventCapture             *zmq4.Socket
-	ClusterEventCaptureConnection   string
-	Identity string
+	Context                       *zmq4.Context
+	ClusterEventSend              *zmq4.Socket
+	ClusterEventSendConnection    string
+	ClusterEventReceive           *zmq4.Socket
+	ClusterEventReceiveConnection string
+	ClusterEventCapture           *zmq4.Socket
+	ClusterEventCaptureConnection string
+	Identity                      string
 }
 
 func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) (clusterEventRoutine *ClusterEventRoutine) {
 	clusterEventRoutine = new(ClusterEventRoutine)
 
 	clusterEventRoutine.Identity = identity
-	
+
 	clusterEventRoutine.Context, _ = zmq4.NewContext()
 	clusterEventRoutine.ClusterEventSendConnection = clusterEventSendConnection
 	clusterEventRoutine.ClusterEventSend, _ = clusterEventRoutine.Context.NewSocket(zmq4.XPUB)
@@ -54,7 +55,6 @@ func (r ClusterEventRoutine) close() {
 }
 
 func (r ClusterEventRoutine) run() {
-
 
 	poller := zmq4.NewPoller()
 	poller.Add(r.ClusterEventSend, zmq4.POLLIN)
@@ -97,20 +97,18 @@ func (r ClusterEventRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ClusterEventRoutine) processEventSend(event [][]byte) (err error) {
+func (r ClusterEventRoutine) processEventSend(event [][]byte) {
 	eventMessage, err := message.DecodeEventMessage(event[1])
 	r.processCaptureEvent(eventMessage)
 	go eventMessage.SendEventWith(r.ClusterEventReceive)
-	return
 }
 
-func (r ClusterEventRoutine) processEventReceive(event [][]byte) (err error) {
+func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
 	eventMessage, err := message.DecodeEventMessage(event[1])
 	r.processCaptureEvent(eventMessage)
 	go eventMessage.SendEventWith(r.ClusterEventSend)
-	return
 }
 
 func (r ClusterEventRoutine) processCaptureEvent(eventMessage message.EventMessage) {
-	go eventMessage.SendWith(r.ClusterEventCapture , constant.WORKER_SERVICE_CLASS_CAPTURE)
+	go eventMessage.SendWith(r.ClusterEventCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

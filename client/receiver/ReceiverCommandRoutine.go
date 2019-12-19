@@ -1,27 +1,28 @@
 package receiver
 
-import(
-	"fmt"
+import (
 	"errors"
+	"fmt"
 	"gandalfgo/message"
 	"gandalfgo/worker/routine"
+
 	"github.com/pebbe/zmq4"
 )
 
 type ReceiverCommandRoutine struct {
-	Context							*zmq4.Context
-	Replys 							chan message.CommandMessageReply
-	WorkerCommandReceive 			*zmq4.Socket
-	ReceiverCommandConnection 		string
-	WorkerEventReceive 				*zmq4.Socket
-	WorkerEventReceiveConnection	string
-	Identity 						string
-	CommandsRoutine 				map[string][]routine.CommandRoutine					
+	Context                      *zmq4.Context
+	Replys                       chan message.CommandMessageReply
+	WorkerCommandReceive         *zmq4.Socket
+	ReceiverCommandConnection    string
+	WorkerEventReceive           *zmq4.Socket
+	WorkerEventReceiveConnection string
+	Identity                     string
+	CommandsRoutine              map[string][]routine.CommandRoutine
 }
 
 func NewReceiverCommandRoutine(identity, receiverCommandConnection string, commandsRoutine map[string][]routine.CommandRoutine, results chan message.CommandMessageReply) (receiverCommandRoutine *ReceiverCommandRoutine) {
 	receiverCommandRoutine = new(ReceiverCommandRoutine)
-	
+
 	receiverCommandRoutine.Identity = identity
 	receiverCommandRoutine.ReceiverCommandConnection = receiverCommandConnection
 	receiverCommandRoutine.CommandsRoutine = commandsRoutine
@@ -83,7 +84,6 @@ func (r ReceiverCommandRoutine) loadCommandRoutines() {
 	//TODO
 }
 
-
 func (r ReceiverCommandRoutine) validationFunctions() (result bool, err error) {
 	r.sendValidationFunctions()
 	command := [][]byte{}
@@ -95,34 +95,32 @@ func (r ReceiverCommandRoutine) validationFunctions() (result bool, err error) {
 		}
 	}
 	reply, err := message.DecodeCommandFunctionReply(command[1])
-	result = reply.Validation 
+	result = reply.Validation
 	return
 }
 
-func (r ReceiverCommandRoutine) sendValidationFunctions()  {
+func (r ReceiverCommandRoutine) sendValidationFunctions() {
 	//COMMAND
 	functionkeys := make([]string, 0, len(r.CommandsRoutine))
-    for key := range r.CommandsRoutine {
-        functionkeys = append(functionkeys, key)
+	for key := range r.CommandsRoutine {
+		functionkeys = append(functionkeys, key)
 	}
 	commandFunction := message.NewCommandFunction(functionkeys)
 	go commandFunction.SendWith(r.WorkerCommandReceive)
 }
 
-func (r ReceiverCommandRoutine) sendReadyCommand() () {
+func (r ReceiverCommandRoutine) sendReadyCommand() {
 	commandReady := message.NewCommandMessageReady()
 	go commandReady.SendWith(r.WorkerCommandReceive)
 }
 
-func (r ReceiverCommandRoutine) processCommandReceive(command [][]byte) (err error) {
+func (r ReceiverCommandRoutine) processCommandReceive(command [][]byte) {
 	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	commandRoutine := r.getCommandRoutine(commandMessage.Command)
 	if err != nil {
-		
+
 	}
 	go commandRoutine.ExecuteCommand(commandMessage, r.Replys)
-
-	return 
 }
 
 func (r ReceiverCommandRoutine) getCommandRoutine(command string) (commandRoutine routine.CommandRoutine) {
@@ -135,10 +133,10 @@ func (r ReceiverCommandRoutine) getCommandRoutine(command string) (commandRoutin
 func (r ReceiverCommandRoutine) sendResults() {
 	err := errors.New("")
 	for {
-		reply := <- r.Replys
+		reply := <-r.Replys
 		if err != nil {
-			
-		} 
+
+		}
 		go reply.SendCommandReplyWith(r.WorkerCommandReceive)
 	}
 }

@@ -1,7 +1,7 @@
 package cluster
 
 type ClusterGandalf struct {
-	clusterConfiguration 		*ClusterConfiguration
+	clusterConfiguration        *ClusterConfiguration
 	clusterCommandRoutine       *ClusterCommandRoutine
 	clusterEventRoutine         *ClusterEventRoutine
 	clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine
@@ -16,7 +16,14 @@ func NewClusterGandalf(path string) (clusterGandalf ClusterGandalf) {
 	clusterGandalf.clusterEventRoutine = NewClusterEventRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.ClusterEventSendConnection, clusterGandalf.clusterConfiguration.ClusterEventReceiveConnection, clusterGandalf.clusterConfiguration.ClusterEventCaptureConnection)
 	clusterGandalf.clusterCaptureWorkerRoutine = NewClusterCaptureWorkerRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.WorkerCaptureCommandReceiveConnection, clusterGandalf.clusterConfiguration.WorkerCaptureEventReceiveConnection, clusterGandalf.clusterConfiguration.Topics)
 
-	go clusterGandalf.clusterCommandRoutine.run()
-	go clusterGandalf.clusterEventRoutine.run()
-	go clusterGandalf.clusterCaptureWorkerRoutine.run()
+	//go clusterGandalf.clusterCommandRoutine.run()
+	//go clusterGandalf.clusterEventRoutine.run()
+	//go clusterGandalf.clusterCaptureWorkerRoutine.run()
+}
+
+func (cg ClusterGandalf) run() {
+
+	go cg.clusterCommandRoutine.run()
+	go cg.clusterEventRoutine.run()
+	go cg.clusterCaptureWorkerRoutine.run()
 }

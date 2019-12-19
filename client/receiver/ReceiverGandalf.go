@@ -1,19 +1,19 @@
 package receiver
 
-import(
-	"gandalfgo/worker/routine"
+import (
 	"gandalfgo/message"
-)  
+	"gandalfgo/worker/routine"
+)
 
 type ReceiverGandalf struct {
-	Identity 					string   
-	ReceiverCommandConnection 	string
-	ReceiverEventConnection 	string
-	ReceiverCommandRoutine 		*ReceiverCommandRoutine
-	ReceiverEventRoutine   		*ReceiverEventRoutine
-	Replys 						chan message.CommandMessageReply
-	CommandsRoutine 			map[string][]routine.CommandRoutine
-	EventsRoutine 				map[string][]routine.EventRoutine
+	Identity                  string
+	ReceiverCommandConnection string
+	ReceiverEventConnection   string
+	ReceiverCommandRoutine    *ReceiverCommandRoutine
+	ReceiverEventRoutine      *ReceiverEventRoutine
+	Replys                    chan message.CommandMessageReply
+	CommandsRoutine           map[string][]routine.CommandRoutine
+	EventsRoutine             map[string][]routine.EventRoutine
 }
 
 func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnection string, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (receiverGandalf *ReceiverGandalf) {
@@ -25,8 +25,13 @@ func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnec
 	receiverGandalf.CommandsRoutine = commandsRoutine
 	receiverGandalf.EventsRoutine = eventsRoutine
 	receiverGandalf.Replys = replys
-	receiverGandalf.ReceiverCommandRoutine = NewReceiverCommandRoutine(receiverGandalf.Identity, receiverGandalf.ReceiverCommandConnection, receiverGandalf.CommandsRoutine , receiverGandalf.Replys)
+	receiverGandalf.ReceiverCommandRoutine = NewReceiverCommandRoutine(receiverGandalf.Identity, receiverGandalf.ReceiverCommandConnection, receiverGandalf.CommandsRoutine, receiverGandalf.Replys)
 	receiverGandalf.ReceiverEventRoutine = NewReceiverEventRoutine(receiverGandalf.Identity, receiverGandalf.ReceiverEventConnection, receiverGandalf.EventsRoutine)
 
 	return
+}
+
+func (rg ReceiverGandalf) run() {
+	go rg.ReceiverCommandRoutine.run()
+	go rg.ReceiverEventRoutine.run()
 }

@@ -1,23 +1,24 @@
 package aggregator
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"gandalfgo/message"
+
 	"github.com/pebbe/zmq4"
 )
 
 type AggregatorEventRoutine struct {
-	context									 		*zmq4.Context
-	aggregatorEventSendToCluster              		*zmq4.Socket
-	aggregatorEventSendToClusterConnection    		string
-	aggregatorEventReceiveFromConnector           	*zmq4.Socket
-	aggregatorEventReceiveFromConnectorConnection 	string
-	aggregatorEventSendToConnector              	*zmq4.Socket
-	aggregatorEventSendToConnectorConnection    	string
-	aggregatorEventReceiveFromCluster           	*zmq4.Socket
-	aggregatorEventReceiveFromClusterConnection 	string
-	identity                             			string
+	context                                       *zmq4.Context
+	aggregatorEventSendToCluster                  *zmq4.Socket
+	aggregatorEventSendToClusterConnection        string
+	aggregatorEventReceiveFromConnector           *zmq4.Socket
+	aggregatorEventReceiveFromConnectorConnection string
+	aggregatorEventSendToConnector                *zmq4.Socket
+	aggregatorEventSendToConnectorConnection      string
+	aggregatorEventReceiveFromCluster             *zmq4.Socket
+	aggregatorEventReceiveFromClusterConnection   string
+	identity                                      string
 }
 
 func NewAggregatorEventRoutine(identity, aggregatorEventSendToClusterConnection, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection, aggregatorEventReceiveFromClusterConnection string) (aggregatorEventRoutine *AggregatorEventRoutine) {
@@ -125,27 +126,22 @@ func (r AggregatorEventRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) (err error) {
+func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
 	eventMessage, err := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventReceiveFromConnector)
-	return
 }
 
-func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) (err error) {
-	eventMessage, err := message.DecodeEventMessage(event[1])	
+func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
+	eventMessage, err := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventSendToConnector)
-	return
 }
 
-func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) (err error) {
+func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
 	eventMessage, err := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventReceiveFromCluster)
-	return
 }
 
-func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) (err error) {
+func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
 	eventMessage, err := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventSendToCluster)
-	return
 }
-

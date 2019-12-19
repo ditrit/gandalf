@@ -12,6 +12,11 @@ func NewListenerGandalf() (listenerGandalf ListenerGandalf) {
 	listenerGandalf.listenerEventRoutine = ListenerEventRoutine.NewListenerEventRoutine()
 	listenerGandalf.listenerCommandRoutine = ListenerCommandRoutine.NewListenerCommandRoutine()
 
-	go listenerGandalf.listenerEventRoutine.run()
-	go listenerGandalf.listenerCommandRoutine.run()
+	//go listenerGandalf.listenerEventRoutine.run()
+	//go listenerGandalf.listenerCommandRoutine.run()
+}
+
+func (lg ListenerGandalf) run() {
+	go lg.listenerEventRoutine.run()
+	go lg.listenerCommandRoutine.run()
 }
