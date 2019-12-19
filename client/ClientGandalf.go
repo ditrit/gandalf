@@ -1,19 +1,26 @@
 package client
 
+import (
+	"gandalf-go/client/receiver"
+	"gandalf-go/client/sender"
+	"gandalf-go/message"
+	"gandalf-go/worker/routine"
+)
+
 type ClientGandalf struct {
 	Identity                  string
 	SenderCommandConnection   string
 	SenderEventConnection     string
 	ReceiverCommandConnection string
 	ReceiverEventConnection   string
-	Replys                    chan CommandMessageReply
-	CommandsRoutine           map[string][]CommandRoutine
-	EventsRoutine             map[string][]EventRoutine
-	SenderGandalf             *SenderGandalf
-	ReceiverGandalf           *ReceiverGandalf
+	Replys                    chan message.CommandMessageReply
+	CommandsRoutine           map[string][]routine.CommandRoutine
+	EventsRoutine             map[string][]routine.EventRoutine
+	SenderGandalf             *sender.SenderGandalf
+	ReceiverGandalf           *receiver.ReceiverGandalf
 }
 
-func NewClientGandalf(identty, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]CommandRoutine, eventsRoutine map[string][]EventRoutine, replys chan ResponseMessage) (clientGandalf *ClientGandalf) {
+func NewClientGandalf(identty, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (clientGandalf *ClientGandalf) {
 	clientGandalf = new(ClientGandalf)
 	clientGandalf.Identity = identity
 	clientGandalf.SenderCommandConnection = senderCommandConnection

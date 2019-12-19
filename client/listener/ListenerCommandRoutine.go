@@ -1,30 +1,34 @@
 package listener
 
 import (
+	"errors"
 	"fmt"
-	"gandalfgo/message"
+	"gandalf-go/message"
+
 	"github.com/pebbe/zmq4"
 )
 
 type ListenerCommandRoutine struct {
-	Context								*zmq4.Context
-	ListenerCommandReceive              *zmq4.Socket
-	ListenerCommandReceiveConnection   	string
-	Identity                            string
-	Commands 							[]CommandMessage
+	Context                          *zmq4.Context
+	ListenerCommandReceive           *zmq4.Socket
+	ListenerCommandReceiveConnection string
+	Identity                         string
+	Commands                         []message.CommandMessage
 }
 
-func (r ListenerCommandRoutine) NewListenerCommandRoutine(identity, listenerCommandReceiveConnection string) (listenerCommandRoutine *ListenerCommandRoutine) {
+func NewListenerCommandRoutine(identity, listenerCommandReceiveConnection string) (listenerCommandRoutine *ListenerCommandRoutine) {
 	listenerCommandRoutine = new(ListenerCommandRoutine)
 
 	listenerCommandRoutine.Identity = identity
 
-	listenerCommandRoutine.context, _ = zmq4.NewContext()
+	listenerCommandRoutine.Context, _ = zmq4.NewContext()
 	listenerCommandRoutine.ListenerCommandReceiveConnection = listenerCommandReceiveConnection
-	listenerCommandRoutine.ListenerCommandReceive = listenerCommandRoutine.Context.NewSocket(zmq4.DEALER)
+	listenerCommandRoutine.ListenerCommandReceive, _ = listenerCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	listenerCommandRoutine.ListenerCommandReceive.SetIdentity(listenerCommandRoutine.Identity)
 	listenerCommandRoutine.ListenerCommandReceive.Connect(listenerCommandRoutine.ListenerCommandReceiveConnection)
 	fmt.Printf("listenerCommandReceive connect : " + listenerCommandReceiveConnection)
+
+	return
 }
 
 func (r ListenerCommandRoutine) close() {
@@ -38,6 +42,7 @@ func (r ListenerCommandRoutine) run() {
 	poller.Add(r.ListenerCommandReceive, zmq4.POLLIN)
 
 	command := [][]byte{}
+	err := errors.New("")
 
 	for {
 
@@ -47,14 +52,11 @@ func (r ListenerCommandRoutine) run() {
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ListenerCommandReceive:
 
-				command, err := currentSocket.RecvMessageBytes(0)
+				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandReceive(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandReceive(command)
 			}
 		}
 	}
@@ -62,11 +64,13 @@ func (r ListenerCommandRoutine) run() {
 }
 
 func (r ListenerCommandRoutine) processCommandReceive(command [][]byte) {
-	r.Commands.append(message.DecodeCommandMessage(command))
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	r.Commands = append(r.Commands, commandMessage)
 }
 
-func (r ListenerCommandRoutine) GetCommand() (lastCommand CommandMessage, err error) {
+func (r ListenerCommandRoutine) GetCommand() (lastCommand message.CommandMessage, err error) {
 	lastCommand = r.Commands[0]
-	r.commands = append(r.Commands[:0][], s[0+1][]...)
+	//TODO REVOIR
+	r.Commands = append(r.Commands[:0], r.Commands[0+1])
 	return
 }

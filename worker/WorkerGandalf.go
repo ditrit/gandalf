@@ -3,8 +3,8 @@ package worker
 import (
     "fmt"
 	"os"
-	"gandalfgo/client"  
-	"gandalfgo/worker/routine"  
+	"gandalf-go/client"  
+	"gandalf-go/worker/routine"  
 )
 
 

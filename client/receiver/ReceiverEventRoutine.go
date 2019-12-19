@@ -3,8 +3,8 @@ package receiver
 import (
 	"errors"
 	"fmt"
-	"gandalfgo/message"
-	"gandalfgo/worker/routine"
+	"gandalf-go/message"
+	"gandalf-go/worker/routine"
 
 	"github.com/pebbe/zmq4"
 )
@@ -63,10 +63,7 @@ func (r ReceiverEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventReceive(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventReceive(event)
 			}
 		}
 	}
@@ -104,9 +101,7 @@ func (r ReceiverEventRoutine) sendValidationFunctions() {
 func (r ReceiverEventRoutine) processEventReceive(event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	eventRoutine := r.getEventRoutine(eventMessage.Event)
-	if err != nil {
 
-	}
 	go eventRoutine.ExecuteEvent(eventMessage)
 }
 

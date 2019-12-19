@@ -1,8 +1,8 @@
 package receiver
 
 import (
-	"gandalfgo/message"
-	"gandalfgo/worker/routine"
+	"gandalf-go/message"
+	"gandalf-go/worker/routine"
 )
 
 type ReceiverGandalf struct {

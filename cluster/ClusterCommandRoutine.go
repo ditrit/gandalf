@@ -3,8 +3,8 @@ package cluster
 import (
 	"errors"
 	"fmt"
-	"gandalfgo/constant"
-	"gandalfgo/message"
+	"gandalf-go/constant"
+	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
 )
@@ -75,10 +75,7 @@ func (r ClusterCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandSend(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandSend(command)
 
 			case r.ClusterCommandReceive:
 
@@ -86,10 +83,7 @@ func (r ClusterCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandReceive(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandReceive(command)
 			}
 		}
 	}
@@ -98,7 +92,7 @@ func (r ClusterCommandRoutine) run() {
 }
 
 func (r ClusterCommandRoutine) processCommandSend(command [][]byte) {
-	commandMessage, err := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	r.processCaptureCommand(commandMessage)
 	target := ""
 	sourceAggregator := string(command[0])
@@ -108,7 +102,7 @@ func (r ClusterCommandRoutine) processCommandSend(command [][]byte) {
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
-	commandMessage, err := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	r.processCaptureCommand(commandMessage)
 	go commandMessage.SendWith(r.ClusterCommandSend, commandMessage.SourceAggregator)
 }

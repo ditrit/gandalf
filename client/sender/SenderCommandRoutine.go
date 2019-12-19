@@ -2,7 +2,7 @@ package sender
 
 import (
 	"fmt"
-	"gandalfgo/message"
+	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
 )
@@ -20,7 +20,7 @@ type SenderCommandRoutine struct {
 func NewSenderCommandRoutine(identity, senderCommandConnection string) (senderCommandRoutine *SenderCommandRoutine) {
 	senderCommandRoutine = new(SenderCommandRoutine)
 
-	senderCommandRoutine.MapUUIDCommandStates := make(map[string]string)
+	senderCommandRoutine.MapUUIDCommandStates = make(map[string]string)
 	senderCommandRoutine.Replys = make(chan message.CommandMessageReply)
 	senderCommandRoutine.Identity = identity
 
@@ -53,17 +53,12 @@ func NewLenderCommandRoutine(identity string, senderCommandConnections []string)
 	return
 }
 
-func (r SenderCommandRoutine) sendCommandSync(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply, err error) {
+func (r SenderCommandRoutine) sendCommandSync(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
-	if err != nil {
-		panic(err)
-	}
-	go commandMessage.SendCommandWith(r.SenderCommandSend)
 
+	go commandMessage.SendCommandWith(r.SenderCommandSend)
 	commandMessageReply = r.getCommandResultSync(commandMessage.Uuid)
-	if err != nil {
-		panic(err)
-	}
+
 	return
 }
 
@@ -81,9 +76,7 @@ func (r SenderCommandRoutine) getCommandResultSync(uuid string) (commandMessageR
 
 func (r SenderCommandRoutine) sendCommandAsync(context, timeout, uuid, connectorType, commandType, command, payload string) {
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
-	if err != nil {
-		panic(err)
-	}
+
 	go commandMessage.SendCommandWith(r.SenderCommandSend)
 	go r.getCommandResultAsync()
 }

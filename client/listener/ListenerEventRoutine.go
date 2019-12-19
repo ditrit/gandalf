@@ -1,29 +1,33 @@
 package listener
 
 import (
+	"errors"
 	"fmt"
-	"gandalfgo/message"
+	"gandalf-go/message"
+
 	"github.com/pebbe/zmq4"
 )
 
 type ListenerEventRoutine struct {
-	Context							*zmq4.Context
-	ListenerEventReceive           	*zmq4.Socket
-	ListenerEventReceiveConnection 	string
-	Identity                       	string
-	Events 							[]EventMessage
+	Context                        *zmq4.Context
+	ListenerEventReceive           *zmq4.Socket
+	ListenerEventReceiveConnection string
+	Identity                       string
+	Events                         []message.EventMessage
 }
 
 func NewListenerEventRoutine(identity, listenerEventReceiveConnection string) (listenerEventRoutine *ListenerEventRoutine) {
 	listenerEventRoutine = new(ListenerEventRoutine)
-	listenerEventRoutine.identity = identity
+	listenerEventRoutine.Identity = identity
 
-	listenerEventRoutine.Context, _ := zmq4.NewContext()	
+	listenerEventRoutine.Context, _ = zmq4.NewContext()
 	listenerEventRoutine.ListenerEventReceiveConnection = listenerEventReceiveConnection
-	listenerEventRoutine.ListenerEventReceive = listenerEventRoutine.Context.NewSocket(zmq4.SUB)
+	listenerEventRoutine.ListenerEventReceive, _ = listenerEventRoutine.Context.NewSocket(zmq4.SUB)
 	listenerEventRoutine.ListenerEventReceive.SetIdentity(listenerEventRoutine.Identity)
-	listenerEventRoutine.ListenerEventReceive.Connect(rlistenerEventRoutine.ListenerEventReceiveConnection)
+	listenerEventRoutine.ListenerEventReceive.Connect(listenerEventRoutine.ListenerEventReceiveConnection)
 	fmt.Printf("listenerEventReceive connect : " + listenerEventReceiveConnection)
+
+	return
 }
 
 func (r ListenerEventRoutine) close() {
@@ -37,6 +41,7 @@ func (r ListenerEventRoutine) run() {
 	poller.Add(r.ListenerEventReceive, zmq4.POLLIN)
 
 	event := [][]byte{}
+	err := errors.New("")
 
 	for {
 
@@ -46,14 +51,11 @@ func (r ListenerEventRoutine) run() {
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ListenerEventReceive:
 
-				event, err := pi[0].currentSocket.RecvMessageBytes(0)
+				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventReceive(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventReceive(event)
 			}
 		}
 	}
@@ -61,11 +63,12 @@ func (r ListenerEventRoutine) run() {
 }
 
 func (r ListenerEventRoutine) processEventReceive(event [][]byte) {
-	r.Events.append(message.decodeEventMessage(event))
+	eventMessage, _ := message.DecodeEventMessage(event[1])
+	r.Events = append(r.Events, eventMessage)
 }
 
-func (r ListenerEventRoutine) getEvents() (lastEvent EventMessage, err error) {
-	lastEvent := r.Events[0]
-	r.events = append(r.events[:0][], s[0+1][]...)
+func (r ListenerEventRoutine) getEvents() (lastEvent message.EventMessage, err error) {
+	lastEvent = r.Events[0]
+	r.Events = append(r.Events[:0], r.Events[0+1])
 	return
 }

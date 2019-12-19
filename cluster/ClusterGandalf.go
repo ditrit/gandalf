@@ -7,7 +7,7 @@ type ClusterGandalf struct {
 	clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine
 }
 
-func NewClusterGandalf(path string) (clusterGandalf ClusterGandalf) {
+func NewClusterGandalf(path string) (clusterGandalf *ClusterGandalf) {
 	clusterGandalf = new(ClusterGandalf)
 
 	clusterGandalf.clusterConfiguration, _ = LoadConfiguration(path)
@@ -19,6 +19,7 @@ func NewClusterGandalf(path string) (clusterGandalf ClusterGandalf) {
 	//go clusterGandalf.clusterCommandRoutine.run()
 	//go clusterGandalf.clusterEventRoutine.run()
 	//go clusterGandalf.clusterCaptureWorkerRoutine.run()
+	return
 }
 
 func (cg ClusterGandalf) run() {

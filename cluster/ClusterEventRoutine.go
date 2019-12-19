@@ -3,8 +3,8 @@ package cluster
 import (
 	"errors"
 	"fmt"
-	"gandalfgo/constant"
-	"gandalfgo/message"
+	"gandalf-go/constant"
+	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
 )
@@ -75,10 +75,7 @@ func (r ClusterEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventSend(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventSend(event)
 
 			case r.ClusterEventReceive:
 
@@ -86,10 +83,7 @@ func (r ClusterEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventReceive(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventReceive(event)
 			}
 		}
 	}
@@ -98,13 +92,13 @@ func (r ClusterEventRoutine) run() {
 }
 
 func (r ClusterEventRoutine) processEventSend(event [][]byte) {
-	eventMessage, err := message.DecodeEventMessage(event[1])
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	r.processCaptureEvent(eventMessage)
 	go eventMessage.SendEventWith(r.ClusterEventReceive)
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
-	eventMessage, err := message.DecodeEventMessage(event[1])
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	r.processCaptureEvent(eventMessage)
 	go eventMessage.SendEventWith(r.ClusterEventSend)
 }

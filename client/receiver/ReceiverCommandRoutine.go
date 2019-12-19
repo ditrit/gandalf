@@ -3,8 +3,8 @@ package receiver
 import (
 	"errors"
 	"fmt"
-	"gandalfgo/message"
-	"gandalfgo/worker/routine"
+	"gandalf-go/message"
+	"gandalf-go/worker/routine"
 
 	"github.com/pebbe/zmq4"
 )
@@ -70,10 +70,7 @@ func (r ReceiverCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandReceive(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandReceive(command)
 			}
 		}
 	}
@@ -117,9 +114,7 @@ func (r ReceiverCommandRoutine) sendReadyCommand() {
 func (r ReceiverCommandRoutine) processCommandReceive(command [][]byte) {
 	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	commandRoutine := r.getCommandRoutine(commandMessage.Command)
-	if err != nil {
 
-	}
 	go commandRoutine.ExecuteCommand(commandMessage, r.Replys)
 }
 

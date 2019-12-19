@@ -1,13 +1,10 @@
 package client
 
-import(
-	"gandalfgo/client/sender"
-	"gandalfgo/client/listener"
-)
+import "gandalf-go/client/sender"
 
 type LibraryGandalf struct {
-	SenderGandalf   SenderGandalf
-	ListenerGandalf ListenerGandalf
+	SenderGandalf   sender.SenderGandalf
+	ListenerGandalf listener.ListenerGandalf
 }
 
 func (lg LibraryGandalf) NewLibraryGandalf(path string) (libraryGandalf LibraryGandalf) {

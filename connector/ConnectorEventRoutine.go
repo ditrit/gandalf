@@ -3,8 +3,8 @@ package connector
 import (
 	"errors"
 	"fmt"
-	"gandalfgo/constant"
-	"gandalfgo/message"
+	"gandalf-go/constant"
+	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
 )
@@ -27,8 +27,8 @@ type ConnectorEventRoutine struct {
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) (connectorEventRoutine *ConnectorEventRoutine) {
 	connectorEventRoutine = new(ConnectorEventRoutine)
 	connectorEventRoutine.Identity = identity
-	connectorEventRoutine.ConnectorMapUUIDEventMessage := make(map[string][]message.EventMessage)
-	connectorEventRoutine.ConnectorMapWorkerEvents := make(map[string][]string)
+	connectorEventRoutine.ConnectorMapUUIDEventMessage = make(map[string][]message.EventMessage)
+	connectorEventRoutine.ConnectorMapWorkerEvents = make(map[string][]string)
 
 	connectorEventRoutine.Context, _ = zmq4.NewContext()
 	connectorEventRoutine.ConnectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
@@ -93,10 +93,7 @@ func (r ConnectorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventSendToWorker(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventSendToWorker(event)
 
 			case r.ConnectorEventReceiveFromAggregator:
 
@@ -104,10 +101,7 @@ func (r ConnectorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventReceiveFromAggregator(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventReceiveFromAggregator(event)
 
 			case r.ConnectorEventSendToAggregator:
 
@@ -115,10 +109,7 @@ func (r ConnectorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventSendToAggregator(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventSendToAggregator(event)
 
 			case r.ConnectorEventReceiveFromWorker:
 
@@ -126,10 +117,8 @@ func (r ConnectorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventReceiveFromWorker(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventReceiveFromWorker(event)
+
 			}
 		}
 	}

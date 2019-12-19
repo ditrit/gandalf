@@ -2,21 +2,22 @@ package message
 
 import (
 	"fmt"
+	"gandalf-go/constant"
 	"time"
-	"gandalfgo/constant"
+
+	"github.com/pebbe/zmq4"
 	"github.com/shamaton/msgpack"
-	zmq4 "github.com/pebbe/zmq4"
 )
 
 type EventMessage struct {
-	Tenant 		string
-	Token  		string
-	Topic 		string
-	Timeout  	string
-	Timestamp  	string
-	Uuid 		string
-	Event  		string
-	Payload  	string
+	Tenant    string
+	Token     string
+	Topic     string
+	Timeout   string
+	Timestamp string
+	Uuid      string
+	Event     string
+	Payload   string
 }
 
 func NewEventMessage(topic, timeout, uuid, event, payload string) (eventMessage *EventMessage) {
@@ -27,7 +28,7 @@ func NewEventMessage(topic, timeout, uuid, event, payload string) (eventMessage 
 	eventMessage.Uuid = uuid
 	eventMessage.Event = event
 	eventMessage.Payload = payload
-	
+
 	return
 }
 
@@ -40,7 +41,7 @@ func (e EventMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool)
 		}
 		time.Sleep(2 * time.Second)
 	}
-} 
+}
 
 func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
@@ -80,8 +81,8 @@ func (e EventMessage) From(event []string) {
 }
 
 type EventFunction struct {
-	Worker		 string
-	Functions    []string
+	Worker    string
+	Functions []string
 }
 
 func NewEventFunction(worker string, functions []string) (eventFunction *EventFunction) {
@@ -93,11 +94,11 @@ func NewEventFunction(worker string, functions []string) (eventFunction *EventFu
 
 func (cf EventFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		_, err := socket.Send(constant.EVENT_VALIDATION_TOPIC, zmq4.SNDMORE);
-		_, err = socket.Send(constant.EVENT_VALIDATION_FUNCTIONS, zmq4.SNDMORE);
+		_, err := socket.Send(constant.EVENT_VALIDATION_TOPIC, zmq4.SNDMORE)
+		_, err = socket.Send(constant.EVENT_VALIDATION_FUNCTIONS, zmq4.SNDMORE)
 		if err == nil {
 			encoded, _ := EncodeEventFunction(cf)
-			_, err = socket.SendBytes(encoded, 0);
+			_, err = socket.SendBytes(encoded, 0)
 			if err == nil {
 				isSend = true
 				return
@@ -114,7 +115,7 @@ type EventFunctionReply struct {
 }
 
 func NewEventFunctionReply(validation bool) (eventFunctionReply *EventFunctionReply) {
-	eventFunctionReply = new(EventFunctionReply) 
+	eventFunctionReply = new(EventFunctionReply)
 	eventFunctionReply.Validation = validation
 
 	return
@@ -133,7 +134,7 @@ func (cfr EventFunctionReply) SendWith(socket *zmq4.Socket, header string) (isSe
 
 func (cfr EventFunctionReply) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
-		_, err := socket.Send(header, zmq4.SNDMORE);
+		_, err := socket.Send(header, zmq4.SNDMORE)
 		if err == nil {
 			isSend = true
 			return
@@ -144,16 +145,16 @@ func (cfr EventFunctionReply) SendHeaderWith(socket *zmq4.Socket, header string)
 
 func (cfr EventFunctionReply) SendEventFunctionReplyWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, zmq4.SNDMORE);
+		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, zmq4.SNDMORE)
 		if err == nil {
 			encoded, _ := EncodeEventFunctionReply(cfr)
-			_, err = socket.SendBytes(encoded, 0);
+			_, err = socket.SendBytes(encoded, 0)
 			if err == nil {
 				isSend = true
 				return
 			}
 		}
-		
+
 		time.Sleep(2 * time.Second)
 	}
 }

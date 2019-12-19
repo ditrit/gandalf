@@ -3,8 +3,8 @@ package connector
 import (
 	"errors"
 	"fmt"
-	"gandalfgo/constant"
-	"gandalfgo/message"
+	"gandalf-go/constant"
+	"gandalf-go/message"
 	"strconv"
 	"time"
 
@@ -29,8 +29,8 @@ type ConnectorCommandRoutine struct {
 func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) (connectorCommandRoutine *ConnectorCommandRoutine) {
 	connectorCommandRoutine = new(ConnectorCommandRoutine)
 	connectorCommandRoutine.Identity = identity
-	connectorCommandRoutine.ConnectorMapUUIDCommandMessage := make(map[string][]message.CommandMessage)
-	connectorCommandRoutine.ConnectorMapWorkerCommands := make(map[string][]string)
+	connectorCommandRoutine.ConnectorMapUUIDCommandMessage = make(map[string][]message.CommandMessage)
+	connectorCommandRoutine.ConnectorMapWorkerCommands = make(map[string][]string)
 
 	connectorCommandRoutine.Context, _ = zmq4.NewContext()
 	connectorCommandRoutine.ConnectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
@@ -100,11 +100,7 @@ func (r ConnectorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-
-				err = r.processCommandSendToWorker(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandSendToWorker(command)
 
 			case r.ConnectorCommandReceiveFromAggregator:
 
@@ -112,10 +108,7 @@ func (r ConnectorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandReceiveFromAggregator(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandReceiveFromAggregator(command)
 
 			case r.ConnectorCommandSendToAggregator:
 
@@ -123,10 +116,7 @@ func (r ConnectorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandSendAggregator(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandSendAggregator(command)
 
 			case r.ConnectorCommandReceiveFromWorker:
 
@@ -134,28 +124,25 @@ func (r ConnectorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandReceiveFromWorker(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandReceiveFromWorker(command)
 			}
 		}
 	}
 }
 
 func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
-	commandMessage, err := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	r.addCommands(commandMessage)
 	go commandMessage.SendWith(r.ConnectorCommandReceiveFromAggregator, commandMessage.SourceConnector)
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][]byte) {
-	commandMessage, err := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	r.ConnectorMapUUIDCommandMessage[commandMessage.Command] = append(r.ConnectorMapUUIDCommandMessage[commandMessage.Command], commandMessage)
 }
 
 func (r ConnectorCommandRoutine) processCommandSendAggregator(command [][]byte) {
-	commandMessage, err := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	go commandMessage.SendCommandWith(r.ConnectorCommandReceiveFromWorker)
 }
 

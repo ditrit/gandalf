@@ -2,7 +2,7 @@ package sender
 
 import (
 	"fmt"
-	"gandalfgo/message"
+	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
 )
@@ -49,9 +49,6 @@ func NewSenderEventRoutineList(identity string, senderEventConnections []string)
 
 func (r SenderEventRoutine) sendEvent(topic, timeout, uuid, event, payload string) {
 	eventMessage := message.NewEventMessage(topic, timeout, uuid, event, payload)
-	if err != nil {
-		panic(err)
-	}
 	go eventMessage.SendEventWith(r.SenderEventSend)
 }
 

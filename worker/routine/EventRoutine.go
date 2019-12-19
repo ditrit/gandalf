@@ -2,7 +2,7 @@ package routine
 
 import (
 	"fmt"
-	"gandalfgo/message"
+	"gandalf-go/message"
 )
 
 type EventRoutine interface {

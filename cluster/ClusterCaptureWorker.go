@@ -66,10 +66,7 @@ func (r ClusterCaptureWorkerRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommand(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommand(command)
 
 			case r.WorkerCaptureEventReceive:
 
@@ -77,10 +74,7 @@ func (r ClusterCaptureWorkerRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEvent(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEvent(event)
 			}
 		}
 	}
@@ -88,14 +82,14 @@ func (r ClusterCaptureWorkerRoutine) run() {
 }
 
 func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
-	_, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
+	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}
 }
 
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
-	_, err = http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
+	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}

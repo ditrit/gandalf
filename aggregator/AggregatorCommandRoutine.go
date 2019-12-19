@@ -3,7 +3,7 @@ package aggregator
 import (
 	"errors"
 	"fmt"
-	"gandalfgo/message"
+	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
 )
@@ -88,10 +88,7 @@ func (r AggregatorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandSendToCluster(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandSendToCluster(command)
 
 			case r.aggregatorCommandReceiveFromConnector:
 
@@ -99,10 +96,7 @@ func (r AggregatorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandReceiveFromConnector(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandReceiveFromConnector(command)
 
 			case r.aggregatorCommandSendToConnector:
 
@@ -110,10 +104,7 @@ func (r AggregatorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandSendToConnector(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandSendToConnector(command)
 
 			case r.aggregatorCommandReceiveFromCluster:
 
@@ -121,10 +112,7 @@ func (r AggregatorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processCommandReceiveFromCluster(command)
-				if err != nil {
-					panic(err)
-				}
+				r.processCommandReceiveFromCluster(command)
 			}
 		}
 	}
@@ -134,7 +122,7 @@ func (r AggregatorCommandRoutine) run() {
 
 func (r AggregatorCommandRoutine) processCommandSendToCluster(command [][]byte) {
 	sourceConnector := string(command[0])
-	commandMessage, err := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	commandMessage.SourceConnector = sourceConnector
 	commandMessage.SourceAggregator = r.identity
 	go commandMessage.SendCommandWith(r.aggregatorCommandReceiveFromConnector)
@@ -142,12 +130,12 @@ func (r AggregatorCommandRoutine) processCommandSendToCluster(command [][]byte) 
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) {
-	commandMessage, err := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	go commandMessage.SendCommandWith(r.aggregatorCommandSendToConnector)
 }
 
 func (r AggregatorCommandRoutine) processCommandSendToConnector(command [][]byte) {
-	commandMessage, err := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[1])
 	go commandMessage.SendWith(r.aggregatorCommandReceiveFromCluster, commandMessage.SourceConnector)
 	//COMMAND
 }

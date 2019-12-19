@@ -6,7 +6,7 @@ type AggregatorGandalf struct {
 	aggregatorEventRoutine   *AggregatorEventRoutine
 }
 
-func NewAggregatorGandalf(path string) (aggregatorGandalf AggregatorGandalf) {
+func NewAggregatorGandalf(path string) (aggregatorGandalf *AggregatorGandalf) {
 	aggregatorGandalf = new(AggregatorGandalf)
 
 	aggregatorGandalf.aggregatorConfiguration, _ = LoadConfiguration(path)
@@ -16,6 +16,7 @@ func NewAggregatorGandalf(path string) (aggregatorGandalf AggregatorGandalf) {
 
 	//go aggregatorGandalf.aggregatorCommandRoutine.run()
 	//go aggregatorGandalf.aggregatorEventRoutine.run()
+	return
 }
 
 func (ag AggregatorGandalf) run() {

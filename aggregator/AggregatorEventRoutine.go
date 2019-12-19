@@ -3,7 +3,7 @@ package aggregator
 import (
 	"errors"
 	"fmt"
-	"gandalfgo/message"
+	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
 )
@@ -83,10 +83,7 @@ func (r AggregatorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventSendToCluster(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventSendToCluster(event)
 
 			case r.aggregatorEventReceiveFromConnector:
 
@@ -94,10 +91,7 @@ func (r AggregatorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventReceiveFromConnector(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventReceiveFromConnector(event)
 
 			case r.aggregatorEventSendToConnector:
 
@@ -105,10 +99,7 @@ func (r AggregatorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventSendToConnector(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventSendToConnector(event)
 
 			case r.aggregatorEventReceiveFromCluster:
 
@@ -116,10 +107,7 @@ func (r AggregatorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				err = r.processEventReceiveFromCluster(event)
-				if err != nil {
-					panic(err)
-				}
+				r.processEventReceiveFromCluster(event)
 			}
 		}
 	}
@@ -127,21 +115,21 @@ func (r AggregatorEventRoutine) run() {
 }
 
 func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
-	eventMessage, err := message.DecodeEventMessage(event[1])
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventReceiveFromConnector)
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
-	eventMessage, err := message.DecodeEventMessage(event[1])
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventSendToConnector)
 }
 
 func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
-	eventMessage, err := message.DecodeEventMessage(event[1])
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventReceiveFromCluster)
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
-	eventMessage, err := message.DecodeEventMessage(event[1])
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	go eventMessage.SendEventWith(r.aggregatorEventSendToCluster)
 }
