@@ -10,27 +10,29 @@ type WorkerGandalf struct {
 	Replys              chan message.CommandMessageReply
 	CommandsRoutine     map[string][]routine.CommandRoutine
 	EventsRoutine       map[string][]routine.EventRoutine
-	WorkerConfiguration WorkerConfiguration
-	ClientGandalf       ClientGandalf
+	WorkerConfiguration *WorkerConfiguration
+	ClientGandalf       *client.ClientGandalf
 }
 
 func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	workerGandalf = new(WorkerGandalf)
 
-	workerGandalf.WorkerConfiguration = WorkerConfiguration.loadConfiguration(path)
+	workerGandalf.WorkerConfiguration, _ = LoadConfiguration(path)
 
-	workerGandalf.CommandsRoutine = make(map[string][]CommandRoutine)
-	workerGandalf.EventsRoutine = make(map[string][]EventRoutine)
-	workerGandalf.Results = make(chan message.CommandResponse)
+	workerGandalf.CommandsRoutine = make(map[string][]routine.CommandRoutine)
+	workerGandalf.EventsRoutine = make(map[string][]routine.EventRoutine)
+	workerGandalf.Replys = make(chan message.CommandMessageReply)
 	workerGandalf.loadFunctions()
 
-	workerGandalf.ClientGandalf = client.NewClientGandalf(WorkerConfiguration.Identity, WorkerConfiguration.SenderCommandConnection, WorkerConfiguration.SenderEventConnection,
-		workerConfiguration.ReceiverCommandConnection, WorkerConfiguration.ReceiverEventConnection,
+	workerGandalf.ClientGandalf = client.NewClientGandalf(workerGandalf.WorkerConfiguration.Identity, workerGandalf.WorkerConfiguration.SenderCommandConnection,
+		workerGandalf.WorkerConfiguration.SenderEventConnection, workerGandalf.WorkerConfiguration.ReceiverCommandConnection, workerGandalf.WorkerConfiguration.ReceiverEventConnection,
 		workerGandalf.CommandsRoutine, workerGandalf.EventsRoutine, workerGandalf.Replys)
+
+	return
 }
 
 func (wg WorkerGandalf) run() {
-	go wg.clientGandalf.run()
+	go wg.ClientGandalf.Run()
 }
 
 func (wg WorkerGandalf) loadFunctions() {

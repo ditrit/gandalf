@@ -1,6 +1,6 @@
 package worker
 
-type ReferenceState struct {
+/*type ReferenceState struct {
 	state Constant.State
 }
 
@@ -10,4 +10,4 @@ func (r ReferenceState) GetState() (state Constant.State, err error) {
 
 func (r ReferenceState) New(state Constant.State) (ref ReferenceState, err error) {
 	r.state = state
-}
+}*/

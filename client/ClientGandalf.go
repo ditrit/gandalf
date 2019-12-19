@@ -38,6 +38,6 @@ func NewClientGandalf(identity, senderCommandConnection, senderEventConnection, 
 	return
 }
 
-func (cg ClientGandalf) run() {
+func (cg ClientGandalf) Run() {
 	go cg.ReceiverGandalf.Run()
 }
