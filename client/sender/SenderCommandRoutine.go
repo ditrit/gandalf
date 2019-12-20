@@ -54,10 +54,16 @@ func NewLenderCommandRoutine(identity string, senderCommandConnections []string)
 }
 
 func (r SenderCommandRoutine) SendCommandSync(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
+	fmt.Printf("SEND")
+
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
+	fmt.Printf("SEND1")
 
 	go commandMessage.SendCommandWith(r.SenderCommandSend)
+	fmt.Printf("SEND2")
+
 	commandMessageReply = r.getCommandResultSync(commandMessage.Uuid)
+	fmt.Printf("SEND3")
 
 	return
 }

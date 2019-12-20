@@ -44,7 +44,8 @@ func (wg WorkerGandalf) loadFunctions() {
 }
 
 func (wg WorkerGandalf) loadCommands() {
-	//TODO
+	//wg.CommandsRoutine["receive"] = tset.NewFunctionTest()
+	//wg.CommandsRoutine["send"] = tset.NewFunctionTestSend()
 }
 
 func (wg WorkerGandalf) loadEvents() {

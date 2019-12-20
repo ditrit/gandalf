@@ -7,6 +7,8 @@ import (
 	"gandalf-go/worker"
 	"gandalf-go/aggregator"
 	"gandalf-go/connector"
+
+	"gandalf-go/client/sender"
 )
 
 func main() {
@@ -39,9 +41,10 @@ func main() {
 		workerGandalf.Run()
 		fmt.Print("%s", "Worker " + config) 
 	case "workerTest":
-		workerGandalf := worker.NewWorkerGandalf(config)
-		workerGandalf.Run()
+	
 		fmt.Print("%s", "Worker " + config)
-		workerGandalf.ClientGandalf.SenderGandalf.SenderCommandRoutine.SendCommandSync("context", "timeout", "uuid", "connectorType", "commandType", "command", "payload")
+
+		clientT := sender.NewSenderGandalf("toto", "tcp://127.0.0.1:9141", "127.0.0.1:9151")
+		clientT.SenderCommandRoutine.SendCommandSync("context", "timeout", "uuid", "connectorType", "commandType", "command", "payload")
 	}
 }

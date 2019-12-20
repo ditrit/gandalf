@@ -64,7 +64,7 @@ func (r ClusterCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
-		fmt.Print("%s", "Running ClusterGandalf")
+		fmt.Print("%s", "Running ClusterCommandRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 
@@ -75,6 +75,7 @@ func (r ClusterCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
+				fmt.Print( "Cluster Send")
 				r.processCommandSend(command)
 
 			case r.ClusterCommandReceive:
@@ -83,6 +84,7 @@ func (r ClusterCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
+				fmt.Print("Cluster Receive")
 				r.processCommandReceive(command)
 			}
 		}

@@ -28,7 +28,7 @@ func NewAggregatorCommandRoutine(identity, aggregatorCommandReceiveFromConnector
 
 	aggregatorCommandRoutine.context, _ = zmq4.NewContext()
 	aggregatorCommandRoutine.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
-	aggregatorCommandRoutine.aggregatorCommandSendToCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
+	aggregatorCommandRoutine.aggregatorCommandSendToCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.DEALER)
 	aggregatorCommandRoutine.aggregatorCommandSendToCluster.SetIdentity(aggregatorCommandRoutine.identity)
 	for _, connection := range aggregatorCommandRoutine.aggregatorCommandSendToClusterConnections {
 		aggregatorCommandRoutine.aggregatorCommandSendToCluster.Connect(connection)
@@ -36,7 +36,7 @@ func NewAggregatorCommandRoutine(identity, aggregatorCommandReceiveFromConnector
 	}
 
 	aggregatorCommandRoutine.aggregatorCommandReceiveFromClusterConnections = aggregatorCommandReceiveFromClusterConnections
-	aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.DEALER)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
 	aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster.SetIdentity(aggregatorCommandRoutine.identity)
 	for _, connection := range aggregatorCommandRoutine.aggregatorCommandReceiveFromClusterConnections {
 		aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster.Connect(connection)
@@ -44,13 +44,13 @@ func NewAggregatorCommandRoutine(identity, aggregatorCommandReceiveFromConnector
 	}
 
 	aggregatorCommandRoutine.aggregatorCommandSendToConnectorConnection = aggregatorCommandSendToConnectorConnection
-	aggregatorCommandRoutine.aggregatorCommandSendToConnector, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
+	aggregatorCommandRoutine.aggregatorCommandSendToConnector, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.DEALER)
 	aggregatorCommandRoutine.aggregatorCommandSendToConnector.SetIdentity(aggregatorCommandRoutine.identity)
 	aggregatorCommandRoutine.aggregatorCommandSendToConnector.Bind(aggregatorCommandRoutine.aggregatorCommandSendToConnectorConnection)
 	fmt.Printf("aggregatorCommandSendToConnector bind : " + aggregatorCommandSendToConnectorConnection)
 
 	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnectorConnection = aggregatorCommandReceiveFromConnectorConnection
-	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.DEALER)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
 	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector.SetIdentity(aggregatorCommandRoutine.identity)
 	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector.Bind(aggregatorCommandRoutine.aggregatorCommandReceiveFromConnectorConnection)
 	fmt.Printf("aggregatorCommandReceiveFromConnector bind : " + aggregatorCommandReceiveFromConnectorConnection)
@@ -60,7 +60,7 @@ func NewAggregatorCommandRoutine(identity, aggregatorCommandReceiveFromConnector
 
 func (r AggregatorCommandRoutine) close() {
 	r.aggregatorCommandSendToCluster.Close()
-	r.aggregatorCommandReceiveFromConnector.Close()
+	r.aggregatorCommandReceiveFromCluster.Close()
 	r.aggregatorCommandSendToConnector.Close()
 	r.aggregatorCommandReceiveFromConnector.Close()
 	r.context.Term()
@@ -88,14 +88,15 @@ func (r AggregatorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
+				fmt.Print("Aggregator send cluster")
 				r.processCommandSendToCluster(command)
 
 			case r.aggregatorCommandReceiveFromConnector:
-
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
+				fmt.Print("Aggregator receive connector")
 				r.processCommandReceiveFromConnector(command)
 
 			case r.aggregatorCommandSendToConnector:
@@ -104,6 +105,7 @@ func (r AggregatorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
+				fmt.Print("Aggregator send connector")
 				r.processCommandSendToConnector(command)
 
 			case r.aggregatorCommandReceiveFromCluster:
@@ -112,6 +114,7 @@ func (r AggregatorCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
+				fmt.Print("Aggregator receive cluster")
 				r.processCommandReceiveFromCluster(command)
 			}
 		}
@@ -121,8 +124,8 @@ func (r AggregatorCommandRoutine) run() {
 }
 
 func (r AggregatorCommandRoutine) processCommandSendToCluster(command [][]byte) {
-	sourceConnector := string(command[0])
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	sourceConnector := string(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[2])
 	commandMessage.SourceConnector = sourceConnector
 	commandMessage.SourceAggregator = r.identity
 	go commandMessage.SendCommandWith(r.aggregatorCommandReceiveFromConnector)
@@ -130,7 +133,7 @@ func (r AggregatorCommandRoutine) processCommandSendToCluster(command [][]byte) 
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	commandMessage, _ := message.DecodeCommandMessage(command[2])
 	go commandMessage.SendCommandWith(r.aggregatorCommandSendToConnector)
 }
 
@@ -141,7 +144,15 @@ func (r AggregatorCommandRoutine) processCommandSendToConnector(command [][]byte
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	fmt.Println(string(command[0]))
+	fmt.Println("0")
+	fmt.Println(string(command[1]))
+	fmt.Println("1")
+	fmt.Println(string(command[2]))
+	fmt.Println("2")
+	commandMessage, _ := message.DecodeCommandMessage(command[2])
+	fmt.Println(commandMessage)
+	fmt.Println(commandMessage.DestinationConnector)
 	go commandMessage.SendWith(r.aggregatorCommandSendToCluster, commandMessage.DestinationConnector)
 	//RECEIVE FROM CONNECTOR
 }

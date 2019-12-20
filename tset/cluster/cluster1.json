@@ -1,6 +1,6 @@
 {
 	"ClusterCommandSendConnection": "127.0.0.1:9110",
-    "ClusterCommandReceiveConnection": "127.0.0.1:9111",
+    "ClusterCommandReceiveConnection": "tcp://127.0.0.1:9111",
 	"ClusterCommandCaptureConnection": "",
 	"ClusterEventSendConnection": "127.0.0.1:9100",
 	"ClusterEventReceiveConnection": "127.0.0.1:9101",

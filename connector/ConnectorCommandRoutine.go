@@ -34,13 +34,13 @@ func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection
 
 	connectorCommandRoutine.Context, _ = zmq4.NewContext()
 	connectorCommandRoutine.ConnectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
-	connectorCommandRoutine.ConnectorCommandSendToWorker, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
+	connectorCommandRoutine.ConnectorCommandSendToWorker, _ = connectorCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	connectorCommandRoutine.ConnectorCommandSendToWorker.SetIdentity(connectorCommandRoutine.Identity)
 	connectorCommandRoutine.ConnectorCommandSendToWorker.Bind(connectorCommandRoutine.ConnectorCommandSendToWorkerConnection)
 	fmt.Printf("connectorCommandSendToWorker bind : " + connectorCommandSendToWorkerConnection)
 
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregatorConnections = connectorCommandReceiveFromAggregatorConnections
-	connectorCommandRoutine.ConnectorCommandReceiveFromAggregator, _ = connectorCommandRoutine.Context.NewSocket(zmq4.DEALER)
+	connectorCommandRoutine.ConnectorCommandReceiveFromAggregator, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregator.SetIdentity(connectorCommandRoutine.Identity)
 	for _, connection := range connectorCommandRoutine.ConnectorCommandReceiveFromAggregatorConnections {
 		connectorCommandRoutine.ConnectorCommandReceiveFromAggregator.Connect(connection)
@@ -48,7 +48,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection
 	}
 
 	connectorCommandRoutine.ConnectorCommandSendToAggregatorConnections = connectorCommandSendToAggregatorConnections
-	connectorCommandRoutine.ConnectorCommandSendToAggregator, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
+	connectorCommandRoutine.ConnectorCommandSendToAggregator, _ = connectorCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	connectorCommandRoutine.ConnectorCommandSendToAggregator.SetIdentity(connectorCommandRoutine.Identity)
 	for _, connection := range connectorCommandRoutine.ConnectorCommandSendToAggregatorConnections {
 		connectorCommandRoutine.ConnectorCommandSendToAggregator.Connect(connection)
@@ -56,7 +56,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection
 	}
 
 	connectorCommandRoutine.ConnectorCommandReceiveFromWorkerConnection = connectorCommandReceiveFromWorkerConnection
-	connectorCommandRoutine.ConnectorCommandReceiveFromWorker, _ = connectorCommandRoutine.Context.NewSocket(zmq4.DEALER)
+	connectorCommandRoutine.ConnectorCommandReceiveFromWorker, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
 	connectorCommandRoutine.ConnectorCommandReceiveFromWorker.SetIdentity(connectorCommandRoutine.Identity)
 	connectorCommandRoutine.ConnectorCommandReceiveFromWorker.Bind(connectorCommandRoutine.ConnectorCommandReceiveFromWorkerConnection)
 	fmt.Printf("connectorCommandReceiveFromWorker bind : " + connectorCommandReceiveFromWorkerConnection)
@@ -77,7 +77,7 @@ func (r ConnectorCommandRoutine) reconnectToProxy() {
 }
 
 func (r ConnectorCommandRoutine) run() {
-	go r.cleanCommandsByTimeout()
+	//go r.cleanCommandsByTimeout()
 
 	poller := zmq4.NewPoller()
 	poller.Add(r.ConnectorCommandSendToWorker, zmq4.POLLIN)
@@ -92,9 +92,11 @@ func (r ConnectorCommandRoutine) run() {
 		fmt.Print("%s", "Running ConnectorCommandRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
+			fmt.Print("%s", "Running ConnectorCommandRoutine2")
 
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ConnectorCommandSendToWorker:
+				fmt.Print("Connector send worker")
 
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -103,6 +105,7 @@ func (r ConnectorCommandRoutine) run() {
 				r.processCommandSendToWorker(command)
 
 			case r.ConnectorCommandReceiveFromAggregator:
+				fmt.Print("Connector receive aggregator")
 
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -111,6 +114,7 @@ func (r ConnectorCommandRoutine) run() {
 				r.processCommandReceiveFromAggregator(command)
 
 			case r.ConnectorCommandSendToAggregator:
+				fmt.Print("Connector send aggregator")
 
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -119,7 +123,7 @@ func (r ConnectorCommandRoutine) run() {
 				r.processCommandSendAggregator(command)
 
 			case r.ConnectorCommandReceiveFromWorker:
-
+				fmt.Print("Connector receive worker")
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -148,7 +152,10 @@ func (r ConnectorCommandRoutine) processCommandSendAggregator(command [][]byte) 
 
 func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byte) {
 	workerSource := string(command[0])
+	fmt.Print(workerSource)
 	commandHeader := string(command[1])
+	fmt.Print(commandHeader)
+
 	if commandHeader == constant.COMMAND_READY {
 		//commandReady := decodeCommandReady(command[2])
 		commandMessage, err := r.getCommandByWorkerCommands(workerSource)
@@ -164,6 +171,9 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byt
 			go commandFunctionReply.SendCommandFunctionReplyWith(r.ConnectorCommandSendToWorker)
 		}
 	} else {
+		fmt.Println("SEND AGG")
+		fmt.Println(workerSource)
+
 		commandMessage, _ := message.DecodeCommandMessage(command[1])
 		commandMessage.SourceWorker = workerSource
 		go commandMessage.SendWith(r.ConnectorCommandSendToAggregator, workerSource)
