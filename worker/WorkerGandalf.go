@@ -1,7 +1,7 @@
 package worker
 
 import (
-	"gandalf-go/client"
+	"gandalf-go/client/receiver"
 	"gandalf-go/message"
 	"gandalf-go/worker/routine"
 )
@@ -11,7 +11,8 @@ type WorkerGandalf struct {
 	CommandsRoutine     map[string][]routine.CommandRoutine
 	EventsRoutine       map[string][]routine.EventRoutine
 	WorkerConfiguration *WorkerConfiguration
-	ClientGandalf       *client.ClientGandalf
+	//ClientGandalf       *client.ClientGandalf
+	receiverGandalf 	*ReceiverGandalf
 }
 
 func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
@@ -24,15 +25,17 @@ func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	workerGandalf.Replys = make(chan message.CommandMessageReply)
 	workerGandalf.loadFunctions()
 
-	workerGandalf.ClientGandalf = client.NewClientGandalf(workerGandalf.WorkerConfiguration.Identity, workerGandalf.WorkerConfiguration.SenderCommandConnection,
+/* 	workerGandalf.ClientGandalf = client.NewClientGandalf(workerGandalf.WorkerConfiguration.Identity, workerGandalf.WorkerConfiguration.SenderCommandConnection,
 		workerGandalf.WorkerConfiguration.SenderEventConnection, workerGandalf.WorkerConfiguration.ReceiverCommandConnection, workerGandalf.WorkerConfiguration.ReceiverEventConnection,
-		workerGandalf.CommandsRoutine, workerGandalf.EventsRoutine, workerGandalf.Replys)
+		workerGandalf.CommandsRoutine, workerGandalf.EventsRoutine, workerGandalf.Replys) */
 
+	workerGandalf.receiverGandalf = receiver.NewReceiverGandalf(workerGandalf.WorkerConfiguration.Identity,  workerGandalf.WorkerConfiguration.ReceiverCommandConnection, 
+		workerGandalf.WorkerConfiguration.ReceiverEventConnection, workerGandalf.CommandsRoutine, workerGandalf.EventsRoutine, workerGandalf.Replys)
 	return
 }
 
 func (wg WorkerGandalf) Run() {
-	go wg.ClientGandalf.Run()
+	go wg.receiverGandalf.Run()
 	for {
 		//GESTION CHANNEL
 	}
