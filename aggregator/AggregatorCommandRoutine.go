@@ -31,7 +31,7 @@ func NewAggregatorCommandRoutine(identity, aggregatorCommandReceiveFromConnector
 	aggregatorCommandRoutine.aggregatorCommandSendToCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
 	aggregatorCommandRoutine.aggregatorCommandSendToCluster.SetIdentity(aggregatorCommandRoutine.identity)
 	for _, connection := range aggregatorCommandRoutine.aggregatorCommandSendToClusterConnections {
-		aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster.Connect(connection)
+		aggregatorCommandRoutine.aggregatorCommandSendToCluster.Connect(connection)
 		fmt.Printf("aggregatorCommandSendToCluster connect : " + connection)
 	}
 
@@ -77,7 +77,7 @@ func (r AggregatorCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
-
+		fmt.Print("%s", "Running 2")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

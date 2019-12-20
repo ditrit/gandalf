@@ -29,6 +29,9 @@ func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 func (cg ConnectorGandalf) Run() {
 	go cg.ConnectorCommandRoutine.run()
 	go cg.ConnectorEventRoutine.run()
+	for {
+		//GESTION CHANNEL
+	}
 }
 
 func (cg ConnectorGandalf) getWorkerCommands(worker string) (workerCommand []string) {

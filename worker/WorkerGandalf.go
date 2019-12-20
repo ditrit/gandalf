@@ -33,6 +33,9 @@ func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 
 func (wg WorkerGandalf) Run() {
 	go wg.ClientGandalf.Run()
+	for {
+		//GESTION CHANNEL
+	}
 }
 
 func (wg WorkerGandalf) loadFunctions() {

@@ -1,11 +1,11 @@
 {
-	"connectorCommandSendToWorkerConnection": "127.0.0.1:9240",
-	"connectorCommandReceiveFromWorkerConnection": "127.0.0.1:9241",
-	"connectorCommandReceiveFromAggregatorConnections": ["127.0.0.1:9220"],
-	"connectorCommandSendToAggregatorConnection": ["127.0.0.1:9221"],
-	"connectorEventSendToWorkerConnection": "127.0.0.1:9250",
-	"connectorEventReceiveFromWorkerConnection": "127.0.0.1:9251",
-	"connectorEventReceiveFromAggregatorConnection": ["127.0.0.1:9230"],
-	"connectorEventSendToAggregatorConnection": ["127.0.0.1:9231"],
+	"connectorCommandSendToWorkerConnection": "127.0.0.1:9140",
+	"connectorCommandReceiveFromWorkerConnection": "127.0.0.1:9141",
+	"connectorCommandReceiveFromAggregatorConnections": ["127.0.0.1:9120"],
+	"connectorCommandSendToAggregatorConnection": ["127.0.0.1:9121"],
+	"connectorEventSendToWorkerConnection": "127.0.0.1:9150",
+	"connectorEventReceiveFromWorkerConnection": "127.0.0.1:9151",
+	"connectorEventReceiveFromAggregatorConnection": ["127.0.0.1:9130"],
+	"connectorEventSendToAggregatorConnection": ["127.0.0.1:9131"],
 	"identity": "connector2"
 }

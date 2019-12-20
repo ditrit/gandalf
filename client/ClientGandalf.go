@@ -40,4 +40,7 @@ func NewClientGandalf(identity, senderCommandConnection, senderEventConnection, 
 
 func (cg ClientGandalf) Run() {
 	go cg.ReceiverGandalf.Run()
+	for {
+		//GESTION CHANNEL
+	}
 }

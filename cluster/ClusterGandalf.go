@@ -14,9 +14,6 @@ func NewClusterGandalf(path string) (clusterGandalf *ClusterGandalf) {
 	//clusterGandalf = ClusterGandalf{}
 
 	clusterGandalf.clusterConfiguration, _ = LoadConfiguration(path)
-	fmt.Print(clusterGandalf.clusterConfiguration)
-	fmt.Print("totototo")
-	fmt.Print(clusterGandalf.clusterConfiguration.ClusterCommandSendConnection)
 
 	clusterGandalf.clusterCommandRoutine = NewClusterCommandRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.ClusterCommandSendConnection, clusterGandalf.clusterConfiguration.ClusterCommandReceiveConnection, clusterGandalf.clusterConfiguration.ClusterCommandCaptureConnection)
 	clusterGandalf.clusterEventRoutine = NewClusterEventRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.ClusterEventSendConnection, clusterGandalf.clusterConfiguration.ClusterEventReceiveConnection, clusterGandalf.clusterConfiguration.ClusterEventCaptureConnection)
@@ -29,8 +26,10 @@ func NewClusterGandalf(path string) (clusterGandalf *ClusterGandalf) {
 }
 
 func (cg ClusterGandalf) Run() {
-
 	go cg.clusterCommandRoutine.run()
 	go cg.clusterEventRoutine.run()
 	go cg.clusterCaptureWorkerRoutine.run()
+	for {
+		//GESTION CHANNEL
+	}
 }
