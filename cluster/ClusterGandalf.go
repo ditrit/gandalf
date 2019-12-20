@@ -1,7 +1,5 @@
 package cluster
 
-import "fmt"
-
 type ClusterGandalf struct {
 	clusterConfiguration        *ClusterConfiguration
 	clusterCommandRoutine       *ClusterCommandRoutine

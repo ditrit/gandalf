@@ -35,4 +35,7 @@ func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnec
 func (rg ReceiverGandalf) Run() {
 	go rg.ReceiverCommandRoutine.run()
 	go rg.ReceiverEventRoutine.run()
+	for {
+		//GESTION CHANNEL
+	}
 }

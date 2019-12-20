@@ -53,7 +53,7 @@ func (r ReceiverEventRoutine) run() {
 	err := errors.New("")
 
 	for {
-
+		fmt.Print("%s", "Running ReceiverEventRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

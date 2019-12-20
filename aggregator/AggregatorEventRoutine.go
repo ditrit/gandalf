@@ -72,7 +72,7 @@ func (r AggregatorEventRoutine) run() {
 	event := [][]byte{}
 	err := errors.New("")
 	for {
-		fmt.Print("%s", "Running 1")
+		fmt.Print("%s", "Running AggregatorEventRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

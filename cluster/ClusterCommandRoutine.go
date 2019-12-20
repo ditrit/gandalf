@@ -64,7 +64,7 @@ func (r ClusterCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
-
+		fmt.Print("%s", "Running ClusterGandalf")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

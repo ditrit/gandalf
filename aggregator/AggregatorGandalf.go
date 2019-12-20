@@ -1,9 +1,5 @@
 package aggregator
 
-import(
-	"fmt"
-)
-
 type AggregatorGandalf struct {
 	aggregatorConfiguration  *AggregatorConfiguration
 	aggregatorCommandRoutine *AggregatorCommandRoutine
@@ -24,7 +20,6 @@ func NewAggregatorGandalf(path string) (aggregatorGandalf *AggregatorGandalf) {
 }
 
 func (ag AggregatorGandalf) Run() {
-	fmt.Print("%s", "Running 0")
 	go ag.aggregatorCommandRoutine.run()
 	go ag.aggregatorEventRoutine.run()
 	for {

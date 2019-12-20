@@ -77,7 +77,7 @@ func (r AggregatorCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
-		fmt.Print("%s", "Running 2")
+		fmt.Print("%s", "Running AggregatorCommandRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

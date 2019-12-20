@@ -89,7 +89,7 @@ func (r ConnectorCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
-
+		fmt.Print("%s", "Running ConnectorCommandRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

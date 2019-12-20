@@ -59,8 +59,8 @@ func (r ReceiverCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
+		fmt.Print("%s", "Running ReceiverCommandRoutine")
 		r.sendReadyCommand()
-
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 
