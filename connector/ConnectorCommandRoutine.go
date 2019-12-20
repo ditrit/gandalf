@@ -169,7 +169,6 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byt
 			go commandFunctionReply.SendCommandFunctionReplyWith(r.ConnectorCommandSendToWorker)
 		}
 	} else {
-		fmt.Println("SEND AGG")
 		commandMessage, _ := message.DecodeCommandMessage(command[1])
 		commandMessage.SourceWorker = workerSource
 		go commandMessage.SendWith(r.ConnectorCommandSendToAggregator, workerSource)

@@ -145,7 +145,6 @@ func (r AggregatorCommandRoutine) processCommandSendToConnector(command [][]byte
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
 	commandMessage, _ := message.DecodeCommandMessage(command[2])
-	fmt.Println(commandMessage.DestinationConnector)
 	go commandMessage.SendWith(r.aggregatorCommandSendToCluster, commandMessage.DestinationConnector)
 	//RECEIVE FROM CONNECTOR
 }
