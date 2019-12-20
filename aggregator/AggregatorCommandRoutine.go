@@ -144,14 +144,7 @@ func (r AggregatorCommandRoutine) processCommandSendToConnector(command [][]byte
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
-	fmt.Println(string(command[0]))
-	fmt.Println("0")
-	fmt.Println(string(command[1]))
-	fmt.Println("1")
-	fmt.Println(string(command[2]))
-	fmt.Println("2")
 	commandMessage, _ := message.DecodeCommandMessage(command[2])
-	fmt.Println(commandMessage)
 	fmt.Println(commandMessage.DestinationConnector)
 	go commandMessage.SendWith(r.aggregatorCommandSendToCluster, commandMessage.DestinationConnector)
 	//RECEIVE FROM CONNECTOR

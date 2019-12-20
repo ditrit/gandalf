@@ -324,7 +324,7 @@ func EncodeCommandFunctionReply(commandFunctionReply CommandFunctionReply) (byte
 }
 
 func DecodeCommandMessage(bytesContent []byte) (commandMessage CommandMessage, commandError error) {
-	err := msgpack.Decode(bytesContent, commandMessage)
+	err := msgpack.Decode(bytesContent, &commandMessage)
 	if err != nil {
 		commandError = fmt.Errorf("command %s", err)
 		return
@@ -333,7 +333,7 @@ func DecodeCommandMessage(bytesContent []byte) (commandMessage CommandMessage, c
 }
 
 func DecodeCommandMessageReply(bytesContent []byte) (commandMessageReply CommandMessageReply, commandError error) {
-	err := msgpack.Decode(bytesContent, commandMessageReply)
+	err := msgpack.Decode(bytesContent, &commandMessageReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return
@@ -342,7 +342,7 @@ func DecodeCommandMessageReply(bytesContent []byte) (commandMessageReply Command
 }
 
 func DecodeCommandMessageReady(bytesContent []byte) (commandMessageReady CommandMessageReady, commandError error) {
-	err := msgpack.Decode(bytesContent, commandMessageReady)
+	err := msgpack.Decode(bytesContent, &commandMessageReady)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return
@@ -351,7 +351,7 @@ func DecodeCommandMessageReady(bytesContent []byte) (commandMessageReady Command
 }
 
 func DecodeCommandFunction(bytesContent []byte) (commandFunction CommandFunction, commandError error) {
-	err := msgpack.Decode(bytesContent, commandFunction)
+	err := msgpack.Decode(bytesContent, &commandFunction)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return
@@ -360,7 +360,7 @@ func DecodeCommandFunction(bytesContent []byte) (commandFunction CommandFunction
 }
 
 func DecodeCommandFunctionReply(bytesContent []byte) (commandFunctionReply CommandFunctionReply, commandError error) {
-	err := msgpack.Decode(bytesContent, commandFunctionReply)
+	err := msgpack.Decode(bytesContent, &commandFunctionReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return

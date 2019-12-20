@@ -152,9 +152,7 @@ func (r ConnectorCommandRoutine) processCommandSendAggregator(command [][]byte) 
 
 func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byte) {
 	workerSource := string(command[0])
-	fmt.Print(workerSource)
 	commandHeader := string(command[1])
-	fmt.Print(commandHeader)
 
 	if commandHeader == constant.COMMAND_READY {
 		//commandReady := decodeCommandReady(command[2])
@@ -172,8 +170,6 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byt
 		}
 	} else {
 		fmt.Println("SEND AGG")
-		fmt.Println(workerSource)
-
 		commandMessage, _ := message.DecodeCommandMessage(command[1])
 		commandMessage.SourceWorker = workerSource
 		go commandMessage.SendWith(r.ConnectorCommandSendToAggregator, workerSource)

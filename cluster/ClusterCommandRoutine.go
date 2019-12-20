@@ -104,7 +104,12 @@ func (r ClusterCommandRoutine) processCommandSend(command [][]byte) {
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	fmt.Println("TOTO")
+	fmt.Println(command[0])
+	fmt.Println(command[1])
+	fmt.Println(command[2])
+	commandMessage, _ := message.DecodeCommandMessage(command[2])
+	fmt.Println(commandMessage)
 	r.processCaptureCommand(commandMessage)
 	go commandMessage.SendWith(r.ClusterCommandSend, commandMessage.SourceAggregator)
 }

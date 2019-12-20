@@ -169,7 +169,7 @@ func EncodeEventMessage(eventMessage EventMessage) (bytesContent []byte, command
 }
 
 func DecodeEventMessage(bytesContent []byte) (eventMessage EventMessage, commandError error) {
-	err := msgpack.Decode(bytesContent, eventMessage)
+	err := msgpack.Decode(bytesContent, &eventMessage)
 	if err != nil {
 		commandError = fmt.Errorf("Event %s", err)
 		return
@@ -187,7 +187,7 @@ func EncodeEventFunction(eventFunction EventFunction) (bytesContent []byte, comm
 }
 
 func DecodeEventFunction(bytesContent []byte) (eventFunction EventFunction, commandError error) {
-	err := msgpack.Decode(bytesContent, eventFunction)
+	err := msgpack.Decode(bytesContent, &eventFunction)
 	if err != nil {
 		commandError = fmt.Errorf("Event %s", err)
 		return
@@ -205,7 +205,7 @@ func EncodeEventFunctionReply(eventFunctionReply EventFunctionReply) (bytesConte
 }
 
 func DecodeEventFunctionReply(bytesContent []byte) (eventFunctionReply EventFunctionReply, commandError error) {
-	err := msgpack.Decode(bytesContent, eventFunctionReply)
+	err := msgpack.Decode(bytesContent, &eventFunctionReply)
 	if err != nil {
 		commandError = fmt.Errorf("Event %s", err)
 		return
