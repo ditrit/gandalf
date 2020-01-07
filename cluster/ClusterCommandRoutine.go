@@ -30,19 +30,19 @@ func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCom
 	clusterCommandRoutine.ClusterCommandSend, _ = clusterCommandRoutine.Context.NewSocket(zmq4.ROUTER)
 	clusterCommandRoutine.ClusterCommandSend.SetIdentity(clusterCommandRoutine.Identity)
 	clusterCommandRoutine.ClusterCommandSend.Bind(clusterCommandRoutine.ClusterCommandSendConnection)
-	fmt.Printf("clusterCommandSend connect : " + clusterCommandSendConnection)
+	fmt.Println("clusterCommandSend connect : " + clusterCommandSendConnection)
 
 	clusterCommandRoutine.ClusterCommandReceiveConnection = clusterCommandReceiveConnection
 	clusterCommandRoutine.ClusterCommandReceive, _ = clusterCommandRoutine.Context.NewSocket(zmq4.ROUTER)
 	clusterCommandRoutine.ClusterCommandReceive.SetIdentity(clusterCommandRoutine.Identity)
 	clusterCommandRoutine.ClusterCommandReceive.Bind(clusterCommandRoutine.ClusterCommandReceiveConnection)
-	fmt.Printf("clusterCommandReceive connect : " + clusterCommandReceiveConnection)
+	fmt.Println("clusterCommandReceive connect : " + clusterCommandReceiveConnection)
 
 	clusterCommandRoutine.ClusterCommandCaptureConnection = clusterCommandCaptureConnection
 	clusterCommandRoutine.ClusterCommandCapture, _ = clusterCommandRoutine.Context.NewSocket(zmq4.ROUTER)
 	clusterCommandRoutine.ClusterCommandCapture.SetIdentity(clusterCommandRoutine.Identity)
 	clusterCommandRoutine.ClusterCommandCapture.Bind(clusterCommandRoutine.ClusterCommandCaptureConnection)
-	fmt.Printf("clusterCommandCapture connect : " + clusterCommandCaptureConnection)
+	fmt.Println("clusterCommandCapture connect : " + clusterCommandCaptureConnection)
 
 	return
 }
@@ -64,7 +64,7 @@ func (r ClusterCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
-		fmt.Print("%s", "Running ClusterCommandRoutine")
+		fmt.Println("Running ClusterCommandRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 
@@ -75,7 +75,7 @@ func (r ClusterCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				fmt.Print( "Cluster Send")
+				fmt.Println("Cluster Send")
 				r.processCommandSend(command)
 
 			case r.ClusterCommandReceive:
@@ -84,7 +84,7 @@ func (r ClusterCommandRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				fmt.Print("Cluster Receive")
+				fmt.Println("Cluster Receive")
 				r.processCommandReceive(command)
 			}
 		}

@@ -12,7 +12,7 @@ type WorkerGandalf struct {
 	EventsRoutine       map[string][]routine.EventRoutine
 	WorkerConfiguration *WorkerConfiguration
 	//ClientGandalf       *client.ClientGandalf
-	receiverGandalf 	*ReceiverGandalf
+	receiverGandalf 	*receiver.ReceiverGandalf
 }
 
 func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {

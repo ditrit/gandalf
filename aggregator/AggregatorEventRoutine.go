@@ -31,25 +31,25 @@ func NewAggregatorEventRoutine(identity, aggregatorEventSendToClusterConnection,
 	aggregatorEventRoutine.aggregatorEventSendToCluster, _ = aggregatorEventRoutine.context.NewSocket(zmq4.PUB)
 	aggregatorEventRoutine.aggregatorEventSendToCluster.SetIdentity(aggregatorEventRoutine.identity)
 	aggregatorEventRoutine.aggregatorEventSendToCluster.Connect(aggregatorEventRoutine.aggregatorEventSendToClusterConnection)
-	fmt.Printf("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnection)
+	fmt.Println("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnection)
 
 	aggregatorEventRoutine.aggregatorEventReceiveFromClusterConnection = aggregatorEventReceiveFromClusterConnection
 	aggregatorEventRoutine.aggregatorEventReceiveFromCluster, _ = aggregatorEventRoutine.context.NewSocket(zmq4.SUB)
 	aggregatorEventRoutine.aggregatorEventReceiveFromCluster.SetIdentity(aggregatorEventRoutine.identity)
 	aggregatorEventRoutine.aggregatorEventSendToCluster.Connect(aggregatorEventRoutine.aggregatorEventReceiveFromClusterConnection)
-	fmt.Printf("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
+	fmt.Println("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnection)
 
 	aggregatorEventRoutine.aggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
 	aggregatorEventRoutine.aggregatorEventSendToConnector, _ = aggregatorEventRoutine.context.NewSocket(zmq4.PUB)
 	aggregatorEventRoutine.aggregatorEventSendToConnector.SetIdentity(aggregatorEventRoutine.identity)
 	aggregatorEventRoutine.aggregatorEventSendToCluster.Bind(aggregatorEventRoutine.aggregatorEventSendToConnectorConnection)
-	fmt.Printf("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
+	fmt.Println("aggregatorEventSendToConnector connect : " + aggregatorEventSendToConnectorConnection)
 
 	aggregatorEventRoutine.aggregatorEventReceiveFromConnectorConnection = aggregatorEventReceiveFromConnectorConnection
 	aggregatorEventRoutine.aggregatorEventReceiveFromConnector, _ = aggregatorEventRoutine.context.NewSocket(zmq4.SUB)
 	aggregatorEventRoutine.aggregatorEventReceiveFromConnector.SetIdentity(aggregatorEventRoutine.identity)
 	aggregatorEventRoutine.aggregatorEventSendToCluster.Bind(aggregatorEventRoutine.aggregatorEventReceiveFromConnectorConnection)
-	fmt.Printf("aggregatorEventReceiveFromConnector connect : " + aggregatorEventReceiveFromConnectorConnection)
+	fmt.Println("aggregatorEventReceiveFromConnector connect : " + aggregatorEventReceiveFromConnectorConnection)
 
 	return
 }
@@ -72,7 +72,7 @@ func (r AggregatorEventRoutine) run() {
 	event := [][]byte{}
 	err := errors.New("")
 	for {
-		fmt.Print("%s", "Running AggregatorEventRoutine")
+		fmt.Println("Running AggregatorEventRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

@@ -29,7 +29,7 @@ func NewSenderCommandRoutine(identity, senderCommandConnection string) (senderCo
 	senderCommandRoutine.SenderCommandSend, _ = senderCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	senderCommandRoutine.SenderCommandSend.SetIdentity(senderCommandRoutine.Identity)
 	senderCommandRoutine.SenderCommandSend.Connect(senderCommandRoutine.SenderCommandConnection)
-	fmt.Printf("senderCommandSend connect : " + senderCommandConnection)
+	fmt.Println("senderCommandSend connect : " + senderCommandConnection)
 
 	return
 }
@@ -47,7 +47,7 @@ func NewLenderCommandRoutine(identity string, senderCommandConnections []string)
 
 	for _, connection := range senderCommandRoutine.SenderCommandConnections {
 		senderCommandRoutine.SenderCommandSend.Connect(connection)
-		fmt.Printf("senderCommandSend connect : " + connection)
+		fmt.Println("senderCommandSend connect : " + connection)
 	}
 
 	return

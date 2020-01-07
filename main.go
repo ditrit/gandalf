@@ -26,23 +26,23 @@ func main() {
 	case "cluster":
 		clusterGandalf := cluster.NewClusterGandalf(config)
 		clusterGandalf.Run()
-		fmt.Print("%s", "Cluster " + config)
+		fmt.Println("%s", "Cluster " + config)
 	case "aggregator":
 		aggregatorGandalf := aggregator.NewAggregatorGandalf(config)
-		fmt.Print("%s", "Running")
+		fmt.Println("%s", "Running")
 		aggregatorGandalf.Run()
-		fmt.Print("%s", "Aggregator " + config)
+		fmt.Println("%s", "Aggregator " + config)
 	case "connector":
 		connectorGandalf := connector.NewConnectorGandalf(config)
 		connectorGandalf.Run()
-		fmt.Print("%s", "Connector " + config)
+		fmt.Println("%s", "Connector " + config)
 	case "worker":
 		workerGandalf := worker.NewWorkerGandalf(config)
 		workerGandalf.Run()
-		fmt.Print("%s", "Worker " + config) 
+		fmt.Println("%s", "Worker " + config) 
 	case "workerTest":
 	
-		fmt.Print("%s", "Worker " + config)
+		fmt.Println("%s", "Worker " + config)
 
 		clientT := sender.NewSenderGandalf("toto", "tcp://127.0.0.1:9141", "127.0.0.1:9151")
 		clientT.SenderCommandRoutine.SendCommandSync("context", "timeout", "uuid", "connectorType", "commandType", "command", "payload")

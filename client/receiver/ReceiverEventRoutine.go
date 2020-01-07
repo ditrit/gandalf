@@ -28,7 +28,7 @@ func NewReceiverEventRoutine(identity, receiverEventConnection string, eventsRou
 	receiverEventRoutine.WorkerEventReceive, _ = receiverEventRoutine.Context.NewSocket(zmq4.SUB)
 	receiverEventRoutine.WorkerEventReceive.SetIdentity(receiverEventRoutine.Identity)
 	receiverEventRoutine.WorkerEventReceive.Connect(receiverEventRoutine.Identity)
-	fmt.Printf("workerEventReceive connect : " + receiverEventConnection)
+	fmt.Println("workerEventReceive connect : " + receiverEventConnection)
 
 	receiverEventRoutine.loadEventRoutines()
 
@@ -53,7 +53,7 @@ func (r ReceiverEventRoutine) run() {
 	err := errors.New("")
 
 	for {
-		fmt.Print("%s", "Running ReceiverEventRoutine")
+		fmt.Println("Running ReceiverEventRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

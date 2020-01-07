@@ -35,25 +35,25 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine.ConnectorEventSendToWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
 	connectorEventRoutine.ConnectorEventSendToWorker.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventSendToWorker.Bind(connectorEventRoutine.ConnectorEventSendToWorkerConnection)
-	fmt.Printf("connectorEventSendToWorker bind : " + connectorEventSendToWorkerConnection)
+	fmt.Println("connectorEventSendToWorker bind : " + connectorEventSendToWorkerConnection)
 
 	connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnection = connectorEventReceiveFromAggregatorConnection
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator.Connect(connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnection)
-	fmt.Printf("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
+	fmt.Println("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
 
 	connectorEventRoutine.ConnectorEventSendToAggregatorConnection = connectorEventSendToAggregatorConnection
 	connectorEventRoutine.ConnectorEventSendToAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
 	connectorEventRoutine.ConnectorEventSendToAggregator.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventSendToAggregator.Connect(connectorEventRoutine.ConnectorEventSendToAggregatorConnection)
-	fmt.Printf("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
+	fmt.Println("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
 
 	connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection = connectorEventReceiveFromWorkerConnection
 	connectorEventRoutine.ConnectorEventReceiveFromWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.Bind(connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection)
-	fmt.Printf("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
+	fmt.Println("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
 
 	return
 }
@@ -83,7 +83,7 @@ func (r ConnectorEventRoutine) run() {
 	err := errors.New("")
 
 	for {
-		fmt.Print("%s", "Running ConnectorEventRoutine")
+		fmt.Println("Running ConnectorEventRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
 

@@ -25,7 +25,7 @@ func NewListenerEventRoutine(identity, listenerEventReceiveConnection string) (l
 	listenerEventRoutine.ListenerEventReceive, _ = listenerEventRoutine.Context.NewSocket(zmq4.SUB)
 	listenerEventRoutine.ListenerEventReceive.SetIdentity(listenerEventRoutine.Identity)
 	listenerEventRoutine.ListenerEventReceive.Connect(listenerEventRoutine.ListenerEventReceiveConnection)
-	fmt.Printf("listenerEventReceive connect : " + listenerEventReceiveConnection)
+	fmt.Println("listenerEventReceive connect : " + listenerEventReceiveConnection)
 
 	return
 }

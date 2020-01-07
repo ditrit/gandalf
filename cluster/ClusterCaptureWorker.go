@@ -28,13 +28,13 @@ func NewClusterCaptureWorkerRoutine(identity, workerCaptureCommandReceiveConnect
 	clusterCaptureWorkerRoutine.WorkerCaptureCommandReceive, _ = clusterCaptureWorkerRoutine.Context.NewSocket(zmq4.DEALER)
 	clusterCaptureWorkerRoutine.WorkerCaptureCommandReceive.SetIdentity(clusterCaptureWorkerRoutine.Identity)
 	clusterCaptureWorkerRoutine.WorkerCaptureCommandReceive.Connect(clusterCaptureWorkerRoutine.WorkerCaptureCommandReceiveConnection)
-	fmt.Printf("workerCaptureCommandReceive connect : " + workerCaptureCommandReceiveConnection)
+	fmt.Println("workerCaptureCommandReceive connect : " + workerCaptureCommandReceiveConnection)
 
 	clusterCaptureWorkerRoutine.WorkerCaptureEventReceiveConnection = workerCaptureEventReceiveConnection
 	clusterCaptureWorkerRoutine.WorkerCaptureEventReceive, _ = clusterCaptureWorkerRoutine.Context.NewSocket(zmq4.SUB)
 	clusterCaptureWorkerRoutine.WorkerCaptureEventReceive.SetIdentity(clusterCaptureWorkerRoutine.Identity)
 	clusterCaptureWorkerRoutine.WorkerCaptureEventReceive.Connect(clusterCaptureWorkerRoutine.WorkerCaptureEventReceiveConnection)
-	fmt.Printf("workerCaptureEventReceive connect : " + workerCaptureEventReceiveConnection)
+	fmt.Println("workerCaptureEventReceive connect : " + workerCaptureEventReceiveConnection)
 
 	return
 }
@@ -84,13 +84,13 @@ func (r ClusterCaptureWorkerRoutine) run() {
 func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
 	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
+		fmt.Println("The HTTP request failed with error %s\n", err)
 	}
 }
 
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
 	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
+		fmt.Println("The HTTP request failed with error %s\n", err)
 	}
 }

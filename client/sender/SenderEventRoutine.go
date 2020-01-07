@@ -25,7 +25,7 @@ func NewSenderEventRoutine(identity, senderEventConnection string) (senderEventR
 	senderEventRoutine.SenderEventSend, _ = senderEventRoutine.Context.NewSocket(zmq4.DEALER)
 	senderEventRoutine.SenderEventSend.SetIdentity(senderEventRoutine.Identity)
 	senderEventRoutine.SenderEventSend.Connect(senderEventRoutine.SenderEventConnection)
-	fmt.Printf("senderEventSend connect : " + senderEventConnection)
+	fmt.Println("senderEventSend connect : " + senderEventConnection)
 
 	return
 }
@@ -42,7 +42,7 @@ func NewSenderEventRoutineList(identity string, senderEventConnections []string)
 
 	for _, connection := range senderEventRoutine.SenderEventConnections {
 		senderEventRoutine.SenderEventSend.Connect(connection)
-		fmt.Printf("senderEventSend connect : " + connection)
+		fmt.Println("senderEventSend connect : " + connection)
 	}
 	return
 }

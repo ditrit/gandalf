@@ -32,7 +32,7 @@ func NewReceiverCommandRoutine(identity, receiverCommandConnection string, comma
 	receiverCommandRoutine.WorkerCommandReceive, _ = receiverCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	receiverCommandRoutine.WorkerCommandReceive.SetIdentity(receiverCommandRoutine.Identity)
 	receiverCommandRoutine.WorkerCommandReceive.Connect(receiverCommandRoutine.ReceiverCommandConnection)
-	fmt.Printf("workerCommandReceive connect : " + receiverCommandConnection)
+	fmt.Println("workerCommandReceive connect : " + receiverCommandConnection)
 
 	receiverCommandRoutine.loadCommandRoutines()
 
@@ -59,7 +59,7 @@ func (r ReceiverCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
-		fmt.Print("%s", "Running ReceiverCommandRoutine")
+		fmt.Println("Running ReceiverCommandRoutine")
 		r.sendReadyCommand()
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {

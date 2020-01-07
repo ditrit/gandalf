@@ -26,7 +26,7 @@ func NewListenerCommandRoutine(identity, listenerCommandReceiveConnection string
 	listenerCommandRoutine.ListenerCommandReceive, _ = listenerCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	listenerCommandRoutine.ListenerCommandReceive.SetIdentity(listenerCommandRoutine.Identity)
 	listenerCommandRoutine.ListenerCommandReceive.Connect(listenerCommandRoutine.ListenerCommandReceiveConnection)
-	fmt.Printf("listenerCommandReceive connect : " + listenerCommandReceiveConnection)
+	fmt.Println("listenerCommandReceive connect : " + listenerCommandReceiveConnection)
 
 	return
 }

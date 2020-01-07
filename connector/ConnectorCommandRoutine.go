@@ -37,14 +37,14 @@ func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection
 	connectorCommandRoutine.ConnectorCommandSendToWorker, _ = connectorCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	connectorCommandRoutine.ConnectorCommandSendToWorker.SetIdentity(connectorCommandRoutine.Identity)
 	connectorCommandRoutine.ConnectorCommandSendToWorker.Bind(connectorCommandRoutine.ConnectorCommandSendToWorkerConnection)
-	fmt.Printf("connectorCommandSendToWorker bind : " + connectorCommandSendToWorkerConnection)
+	fmt.Println("connectorCommandSendToWorker bind : " + connectorCommandSendToWorkerConnection)
 
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregatorConnections = connectorCommandReceiveFromAggregatorConnections
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregator, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregator.SetIdentity(connectorCommandRoutine.Identity)
 	for _, connection := range connectorCommandRoutine.ConnectorCommandReceiveFromAggregatorConnections {
 		connectorCommandRoutine.ConnectorCommandReceiveFromAggregator.Connect(connection)
-		fmt.Printf("connectorCommandReceiveFromAggregator connect : " + connection)
+		fmt.Println("connectorCommandReceiveFromAggregator connect : " + connection)
 	}
 
 	connectorCommandRoutine.ConnectorCommandSendToAggregatorConnections = connectorCommandSendToAggregatorConnections
@@ -52,14 +52,14 @@ func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection
 	connectorCommandRoutine.ConnectorCommandSendToAggregator.SetIdentity(connectorCommandRoutine.Identity)
 	for _, connection := range connectorCommandRoutine.ConnectorCommandSendToAggregatorConnections {
 		connectorCommandRoutine.ConnectorCommandSendToAggregator.Connect(connection)
-		fmt.Printf("connectorCommandSendToAggregator connect : " + connection)
+		fmt.Println("connectorCommandSendToAggregator connect : " + connection)
 	}
 
 	connectorCommandRoutine.ConnectorCommandReceiveFromWorkerConnection = connectorCommandReceiveFromWorkerConnection
 	connectorCommandRoutine.ConnectorCommandReceiveFromWorker, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
 	connectorCommandRoutine.ConnectorCommandReceiveFromWorker.SetIdentity(connectorCommandRoutine.Identity)
 	connectorCommandRoutine.ConnectorCommandReceiveFromWorker.Bind(connectorCommandRoutine.ConnectorCommandReceiveFromWorkerConnection)
-	fmt.Printf("connectorCommandReceiveFromWorker bind : " + connectorCommandReceiveFromWorkerConnection)
+	fmt.Println("connectorCommandReceiveFromWorker bind : " + connectorCommandReceiveFromWorkerConnection)
 
 	return
 }
@@ -89,14 +89,14 @@ func (r ConnectorCommandRoutine) run() {
 	err := errors.New("")
 
 	for {
-		fmt.Print("%s", "Running ConnectorCommandRoutine")
+		fmt.PrPrintlnint("Running ConnectorCommandRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
-			fmt.Print("%s", "Running ConnectorCommandRoutine2")
+			fmt.Println("Running ConnectorCommandRoutine2")
 
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ConnectorCommandSendToWorker:
-				fmt.Print("Connector send worker")
+				fmt.Println("Connector send worker")
 
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -105,7 +105,7 @@ func (r ConnectorCommandRoutine) run() {
 				r.processCommandSendToWorker(command)
 
 			case r.ConnectorCommandReceiveFromAggregator:
-				fmt.Print("Connector receive aggregator")
+				fmt.Println("Connector receive aggregator")
 
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -114,7 +114,7 @@ func (r ConnectorCommandRoutine) run() {
 				r.processCommandReceiveFromAggregator(command)
 
 			case r.ConnectorCommandSendToAggregator:
-				fmt.Print("Connector send aggregator")
+				fmt.Println("Connector send aggregator")
 
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -123,7 +123,7 @@ func (r ConnectorCommandRoutine) run() {
 				r.processCommandSendAggregator(command)
 
 			case r.ConnectorCommandReceiveFromWorker:
-				fmt.Print("Connector receive worker")
+				fmt.Println("Connector receive worker")
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
