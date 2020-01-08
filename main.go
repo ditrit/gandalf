@@ -3,12 +3,19 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gandalf-go/cluster"
-	"gandalf-go/worker"
 	"gandalf-go/aggregator"
+	"gandalf-go/cluster"
 	"gandalf-go/connector"
+	"gandalf-go/message"
+	"gandalf-go/worker"
+	"gandalf-go/worker/routine"
+	"log"
+	"time"
 
 	"gandalf-go/client/sender"
+	"gandalf-go/tset/function"
+
+	"github.com/pebbe/zmq4"
 )
 
 func main() {
@@ -26,25 +33,74 @@ func main() {
 	case "cluster":
 		clusterGandalf := cluster.NewClusterGandalf(config)
 		clusterGandalf.Run()
-		fmt.Println("%s", "Cluster " + config)
+		fmt.Println("%s", "Cluster "+config)
 	case "aggregator":
 		aggregatorGandalf := aggregator.NewAggregatorGandalf(config)
 		fmt.Println("%s", "Running")
 		aggregatorGandalf.Run()
-		fmt.Println("%s", "Aggregator " + config)
+		fmt.Println("%s", "Aggregator "+config)
 	case "connector":
 		connectorGandalf := connector.NewConnectorGandalf(config)
 		connectorGandalf.Run()
-		fmt.Println("%s", "Connector " + config)
+		fmt.Println("%s", "Connector "+config)
 	case "worker":
 		workerGandalf := worker.NewWorkerGandalf(config)
 		workerGandalf.Run()
-		fmt.Println("%s", "Worker " + config) 
-	case "workerTest":
-	
-		fmt.Println("%s", "Worker " + config)
+		fmt.Println("%s", "Worker "+config)
+	case "workerTestSend":
 
-		clientT := sender.NewSenderGandalf("toto", "tcp://127.0.0.1:9141", "127.0.0.1:9151")
-		clientT.SenderCommandRoutine.SendCommandSync("context", "timeout", "uuid", "connectorType", "commandType", "command", "payload")
+		fmt.Println("WorkerSend " + config)
+
+		clientT := sender.NewSenderGandalf("toto", "tcp://127.0.0.1:9141", "tcp://127.0.0.1:9151")
+		//clientT.SenderCommandRoutine.SendCommandSyncTEST("context", "timeout", "uuid", "connectorType", "commandType", "command", "payload")
+		time.Sleep(time.Second * 5)
+		clientT.SenderEventRoutine.SendEvent("topic", "timeout", "uuid", "event", "payload")
+	case "workerTestReceive":
+		commandsRoutine := make(map[string][]routine.CommandRoutine)
+		command := new(function.FunctionTest)
+		fmt.Println("BEFORE")
+		fmt.Println(commandsRoutine["command"])
+		commandsRoutine["command"] = append(commandsRoutine["command"], command)
+		fmt.Println("AFTER")
+		fmt.Println(commandsRoutine["command"])
+
+		eventsRoutine := make(map[string][]routine.EventRoutine)
+		fmt.Println("BEFORE")
+		fmt.Println(eventsRoutine["command"])
+		event := new(function.FunctionTest)
+		eventsRoutine["command"] = append(eventsRoutine["command"], event)
+		fmt.Println("AFTER")
+		fmt.Println(eventsRoutine["command"])
+
+		receiveT := worker.NewWorkerGandalfRoutine(config, commandsRoutine, eventsRoutine)
+		receiveT.Run()
+	case "Pub":
+		//  Prepare our publisher
+		publisher, _ := zmq4.NewSocket(zmq4.PUB)
+		defer publisher.Close()
+		publisher.Connect("tcp://127.0.0.1:9251")
+
+		time.Sleep(time.Second * 5)
+
+		eventMessage := message.NewEventMessage("topic", "timeout", "uuid", "event", "payload")
+		go eventMessage.SendEventWith(publisher)
+		/* 		publisher.Send("A", zmq4.SNDMORE)
+		   		publisher.Send("WTF! 1 ", 0) */
+
+		time.Sleep(time.Second * 5)
+
+	case "Sub":
+		//  Prepare our publisher
+		subscriber, _ := zmq4.NewSocket(zmq4.XSUB)
+		defer subscriber.Close()
+		err := subscriber.Bind("tcp://*:9000")
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = subscriber.SendBytes([]byte{0x01}, 0)
+		toto, _ := subscriber.RecvBytes(0)
+		tata, _ := subscriber.RecvBytes(0)
+		fmt.Println(string(toto))
+		fmt.Println(string(tata))
 	}
 }

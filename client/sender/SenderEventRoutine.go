@@ -3,6 +3,7 @@ package sender
 import (
 	"fmt"
 	"gandalf-go/message"
+	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -22,7 +23,7 @@ func NewSenderEventRoutine(identity, senderEventConnection string) (senderEventR
 
 	senderEventRoutine.Context, _ = zmq4.NewContext()
 	senderEventRoutine.SenderEventConnection = senderEventConnection
-	senderEventRoutine.SenderEventSend, _ = senderEventRoutine.Context.NewSocket(zmq4.DEALER)
+	senderEventRoutine.SenderEventSend, _ = senderEventRoutine.Context.NewSocket(zmq4.PUB)
 	senderEventRoutine.SenderEventSend.SetIdentity(senderEventRoutine.Identity)
 	senderEventRoutine.SenderEventSend.Connect(senderEventRoutine.SenderEventConnection)
 	fmt.Println("senderEventSend connect : " + senderEventConnection)
@@ -37,7 +38,7 @@ func NewSenderEventRoutineList(identity string, senderEventConnections []string)
 
 	senderEventRoutine.Context, _ = zmq4.NewContext()
 	senderEventRoutine.SenderEventConnections = senderEventConnections
-	senderEventRoutine.SenderEventSend, _ = senderEventRoutine.Context.NewSocket(zmq4.DEALER)
+	senderEventRoutine.SenderEventSend, _ = senderEventRoutine.Context.NewSocket(zmq4.PUB)
 	senderEventRoutine.SenderEventSend.SetIdentity(senderEventRoutine.Identity)
 
 	for _, connection := range senderEventRoutine.SenderEventConnections {
@@ -47,9 +48,15 @@ func NewSenderEventRoutineList(identity string, senderEventConnections []string)
 	return
 }
 
-func (r SenderEventRoutine) sendEvent(topic, timeout, uuid, event, payload string) {
+func (r SenderEventRoutine) SendEvent(topic, timeout, uuid, event, payload string) {
 	eventMessage := message.NewEventMessage(topic, timeout, uuid, event, payload)
+	fmt.Println("TOTO")
+	fmt.Println(eventMessage)
 	go eventMessage.SendEventWith(r.SenderEventSend)
+
+	//TODO REVOIR AVEC CHANNEL
+	time.Sleep(10 * time.Second)
+
 }
 
 func (r SenderEventRoutine) close() {

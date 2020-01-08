@@ -35,6 +35,7 @@ func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventRe
 	clusterEventRoutine.ClusterEventReceiveConnection = clusterEventReceiveConnection
 	clusterEventRoutine.ClusterEventReceive, _ = clusterEventRoutine.Context.NewSocket(zmq4.XSUB)
 	clusterEventRoutine.ClusterEventReceive.SetIdentity(clusterEventRoutine.Identity)
+	clusterEventRoutine.ClusterEventReceive.SetSubscribe("")
 	clusterEventRoutine.ClusterEventReceive.Bind(clusterEventRoutine.ClusterEventReceiveConnection)
 	fmt.Println("clusterEventReceive connect : " + clusterEventReceiveConnection)
 

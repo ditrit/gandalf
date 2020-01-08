@@ -104,10 +104,13 @@ func (r ReceiverCommandRoutine) sendValidationFunctions() {
 		functionkeys = append(functionkeys, key)
 	}
 	commandFunction := message.NewCommandFunction(functionkeys)
+	fmt.Println("VALIDATION")
+
 	go commandFunction.SendWith(r.WorkerCommandReceive)
 }
 
 func (r ReceiverCommandRoutine) sendReadyCommand() {
+	fmt.Println("READY")
 	commandReady := message.NewCommandMessageReady()
 	go commandReady.SendWith(r.WorkerCommandReceive)
 }

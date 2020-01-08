@@ -6,9 +6,10 @@ import (
 
 type EventRoutine interface {
 	//executeEvent(event [][]byte)
-	ExecuteEvent(eventMessage message.EventMessage) string
+	ExecuteEvent(eventMessage message.EventMessage)
 }
-/* 
+
+/*
 type EventPrint struct {
 	print string
 }
@@ -16,4 +17,4 @@ type EventPrint struct {
 func (ep EventPrint) ExecuteEvent(eventMessage message.EventMessage) {
 	fmt.Print("%s", "EVENT")
 }
- */
+*/

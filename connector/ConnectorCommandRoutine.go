@@ -141,8 +141,16 @@ func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][]byte) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
+	fmt.Println("CMD")
+	fmt.Println(command)
+	fmt.Println(string(command[0]))
+	fmt.Println(string(command[1]))
+	commandMessage, _ := message.DecodeCommandMessage(command[2])
+	fmt.Println("BEFORE")
+	fmt.Println(r.ConnectorMapUUIDCommandMessage[commandMessage.Command])
 	r.ConnectorMapUUIDCommandMessage[commandMessage.Command] = append(r.ConnectorMapUUIDCommandMessage[commandMessage.Command], commandMessage)
+	fmt.Println("AFTER")
+	fmt.Println(r.ConnectorMapUUIDCommandMessage[commandMessage.Command])
 }
 
 func (r ConnectorCommandRoutine) processCommandSendAggregator(command [][]byte) {

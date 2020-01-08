@@ -7,9 +7,10 @@ import (
 //TODO CHANNEL ?
 type CommandRoutine interface {
 	//executeCommand(command [][]byte, commandStates *CommandStates, referenceState *ReferenceState) string
-	ExecuteCommand(commandMessage message.CommandMessage, Replys chan message.CommandMessageReply) string
+	ExecuteCommand(commandMessage message.CommandMessage, Replys chan message.CommandMessageReply)
 }
-/* 
+
+/*
 type CommandPrint struct {
 	print string
 }

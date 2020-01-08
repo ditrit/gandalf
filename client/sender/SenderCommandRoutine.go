@@ -62,6 +62,20 @@ func (r SenderCommandRoutine) SendCommandSync(context, timeout, uuid, connectorT
 	return
 }
 
+//TEST
+func (r SenderCommandRoutine) SendCommandSyncTEST(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
+	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
+	commandMessage.DestinationAggregator = "aggregator2"
+	commandMessage.DestinationConnector = "connector2"
+	commandMessage.DestinationWorker = "worker2"
+	go commandMessage.SendCommandWith(r.SenderCommandSend)
+	commandMessageReply = r.getCommandResultSync(commandMessage.Uuid)
+
+	return
+}
+
+//FIN TEST
+
 //TODO UTILISATION MAP
 func (r SenderCommandRoutine) getCommandResultSync(uuid string) (commandMessageReply message.CommandMessageReply) {
 	for {

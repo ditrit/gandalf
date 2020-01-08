@@ -10,21 +10,21 @@ import (
 )
 
 type ConnectorEventRoutine struct {
-	Context                                       *zmq4.Context
-	ConnectorMapUUIDEventMessage                  map[string][]message.EventMessage
-	ConnectorMapWorkerEvents                      map[string][]string
-	ConnectorEventSendToWorker                    *zmq4.Socket
-	ConnectorEventSendToWorkerConnection          string
-	ConnectorEventReceiveFromAggregator           *zmq4.Socket
-	ConnectorEventReceiveFromAggregatorConnection string
-	ConnectorEventSendToAggregator                *zmq4.Socket
-	ConnectorEventSendToAggregatorConnection      string
-	ConnectorEventReceiveFromWorker               *zmq4.Socket
-	ConnectorEventReceiveFromWorkerConnection     string
-	Identity                                      string
+	Context                                        *zmq4.Context
+	ConnectorMapUUIDEventMessage                   map[string][]message.EventMessage
+	ConnectorMapWorkerEvents                       map[string][]string
+	ConnectorEventSendToWorker                     *zmq4.Socket
+	ConnectorEventSendToWorkerConnection           string
+	ConnectorEventReceiveFromAggregator            *zmq4.Socket
+	ConnectorEventReceiveFromAggregatorConnections []string
+	ConnectorEventSendToAggregator                 *zmq4.Socket
+	ConnectorEventSendToAggregatorConnections      []string
+	ConnectorEventReceiveFromWorker                *zmq4.Socket
+	ConnectorEventReceiveFromWorkerConnection      string
+	Identity                                       string
 }
 
-func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromAggregatorConnection, connectorEventSendToAggregatorConnection, connectorEventReceiveFromWorkerConnection string) (connectorEventRoutine *ConnectorEventRoutine) {
+func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) (connectorEventRoutine *ConnectorEventRoutine) {
 	connectorEventRoutine = new(ConnectorEventRoutine)
 	connectorEventRoutine.Identity = identity
 	connectorEventRoutine.ConnectorMapUUIDEventMessage = make(map[string][]message.EventMessage)
@@ -37,23 +37,33 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine.ConnectorEventSendToWorker.Bind(connectorEventRoutine.ConnectorEventSendToWorkerConnection)
 	fmt.Println("connectorEventSendToWorker bind : " + connectorEventSendToWorkerConnection)
 
-	connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnection = connectorEventReceiveFromAggregatorConnection
-	connectorEventRoutine.ConnectorEventReceiveFromAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
-	connectorEventRoutine.ConnectorEventReceiveFromAggregator.SetIdentity(connectorEventRoutine.Identity)
-	connectorEventRoutine.ConnectorEventReceiveFromAggregator.Connect(connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnection)
-	fmt.Println("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
-
-	connectorEventRoutine.ConnectorEventSendToAggregatorConnection = connectorEventSendToAggregatorConnection
-	connectorEventRoutine.ConnectorEventSendToAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
-	connectorEventRoutine.ConnectorEventSendToAggregator.SetIdentity(connectorEventRoutine.Identity)
-	connectorEventRoutine.ConnectorEventSendToAggregator.Connect(connectorEventRoutine.ConnectorEventSendToAggregatorConnection)
-	fmt.Println("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
-
 	connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection = connectorEventReceiveFromWorkerConnection
 	connectorEventRoutine.ConnectorEventReceiveFromWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.Bind(connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection)
 	fmt.Println("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
+	connectorEventRoutine.ConnectorEventReceiveFromWorker.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
+
+	connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnections = connectorEventReceiveFromAggregatorConnections
+	connectorEventRoutine.ConnectorEventReceiveFromAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
+	connectorEventRoutine.ConnectorEventReceiveFromAggregator.SetIdentity(connectorEventRoutine.Identity)
+	//connectorEventRoutine.ConnectorEventReceiveFromAggregator.Connect(connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnections)
+	//fmt.Println("connectorEventReceiveFromAggregator connect : " + connectorEventReceiveFromAggregatorConnection)
+	for _, connection := range connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnections {
+		connectorEventRoutine.ConnectorEventReceiveFromAggregator.Connect(connection)
+		fmt.Println("connectorEventReceiveFromAggregatorConnections connect : " + connection)
+	}
+	connectorEventRoutine.ConnectorEventReceiveFromAggregator.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
+
+	connectorEventRoutine.ConnectorEventSendToAggregatorConnections = connectorEventSendToAggregatorConnections
+	connectorEventRoutine.ConnectorEventSendToAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
+	connectorEventRoutine.ConnectorEventSendToAggregator.SetIdentity(connectorEventRoutine.Identity)
+	//connectorEventRoutine.ConnectorEventSendToAggregator.Connect(connectorEventRoutine.ConnectorEventSendToAggregatorConnection)
+	//fmt.Println("connectorEventSendToAggregator connect : " + connectorEventSendToAggregatorConnection)
+	for _, connection := range connectorEventRoutine.ConnectorEventSendToAggregatorConnections {
+		connectorEventRoutine.ConnectorEventSendToAggregator.Connect(connection)
+		fmt.Println("connectorEventSendToAggregator connect : " + connection)
+	}
 
 	return
 }
@@ -79,6 +89,7 @@ func (r ConnectorEventRoutine) run() {
 	poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
 	poller.Add(r.ConnectorEventReceiveFromWorker, zmq4.POLLIN)
 
+	topic := []byte{}
 	event := [][]byte{}
 	err := errors.New("")
 
@@ -89,61 +100,88 @@ func (r ConnectorEventRoutine) run() {
 
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ConnectorEventSendToWorker:
-
+				fmt.Println("TOTO")
+				topic, err = currentSocket.RecvBytes(0)
+				fmt.Println(string(topic))
+				if err != nil {
+					panic(err)
+				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSendToWorker(event)
+				r.processEventSendToWorker(topic, event)
 
 			case r.ConnectorEventReceiveFromAggregator:
-
+				fmt.Println("TOTO1")
+				topic, err = currentSocket.RecvBytes(0)
+				fmt.Println(string(topic))
+				if err != nil {
+					panic(err)
+				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventReceiveFromAggregator(event)
+				r.processEventReceiveFromAggregator(topic, event)
 
 			case r.ConnectorEventSendToAggregator:
-
+				fmt.Println("TOTO2")
+				topic, err = currentSocket.RecvBytes(0)
+				fmt.Println(string(topic))
+				if err != nil {
+					panic(err)
+				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSendToAggregator(event)
+				r.processEventSendToAggregator(topic, event)
 
 			case r.ConnectorEventReceiveFromWorker:
-
+				fmt.Println("TOTO3")
+				topic, err = currentSocket.RecvBytes(0)
+				fmt.Println(string(topic))
+				if err != nil {
+					panic(err)
+				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventReceiveFromWorker(event)
+				r.processEventReceiveFromWorker(topic, event)
 
 			}
 		}
 	}
 }
 
-func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])
+func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]byte) {
+	fmt.Println("EVENT 3")
+	eventMessage, _ := message.DecodeEventMessage(event[0])
 	//r.addEvents(eventMessage)
 	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromAggregator)
 }
 
-func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])
+func (r ConnectorEventRoutine) processEventReceiveFromAggregator(topic []byte, event [][]byte) {
+	fmt.Println("EVENT 2")
+	eventMessage, _ := message.DecodeEventMessage(event[0])
 	go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
 }
 
-func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])
+func (r ConnectorEventRoutine) processEventSendToAggregator(topic []byte, event [][]byte) {
+	fmt.Println("EVENT 1")
+	eventMessage, _ := message.DecodeEventMessage(event[0])
 	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
 }
 
-func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
-	if string(event[0]) == constant.EVENT_VALIDATION_TOPIC && string(event[1]) == constant.COMMAND_VALIDATION_FUNCTIONS {
-		eventFunctions, _ := message.DecodeEventFunction(event[2])
+func (r ConnectorEventRoutine) processEventReceiveFromWorker(topic []byte, event [][]byte) {
+	fmt.Println("EVENT")
+	fmt.Println(event)
+	fmt.Println(string(event[0]))
+	fmt.Println("EVENT")
+	if string(topic) == constant.EVENT_VALIDATION_FUNCTIONS {
+		eventFunctions, _ := message.DecodeEventFunction(event[0])
 		result, _ := r.validationEvents(eventFunctions.Worker, eventFunctions.Functions)
 		if result {
 			r.ConnectorMapWorkerEvents[eventFunctions.Worker] = eventFunctions.Functions
@@ -151,7 +189,8 @@ func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
 			go eventFunctionReply.SendEventFunctionReplyWith(r.ConnectorEventReceiveFromAggregator)
 		}
 	} else {
-		eventMessage, _ := message.DecodeEventMessage(event[2])
+		fmt.Println("BLOOP")
+		eventMessage, _ := message.DecodeEventMessage(event[0])
 		go eventMessage.SendEventWith(r.ConnectorEventSendToAggregator)
 	}
 }

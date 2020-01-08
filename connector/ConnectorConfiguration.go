@@ -6,8 +6,8 @@ import (
 
 type ConnectorConfiguration struct {
 	ConnectorEventSendToWorkerConnection             string
-	ConnectorEventReceiveFromAggregatorConnection    string
-	ConnectorEventSendToAggregatorConnection         string
+	ConnectorEventReceiveFromAggregatorConnections   []string
+	ConnectorEventSendToAggregatorConnections        []string
 	ConnectorEventReceiveFromWorkerConnection        string
 	ConnectorCommandSendToWorkerConnection           string
 	ConnectorCommandReceiveFromAggregatorConnections []string
