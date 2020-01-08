@@ -244,7 +244,6 @@ func (cfr CommandFunctionReply) SendCommandFunctionReplyWith(socket *zmq4.Socket
 				return
 			}
 		}
-
 		time.Sleep(2 * time.Second)
 	}
 }

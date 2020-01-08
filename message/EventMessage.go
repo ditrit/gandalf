@@ -66,6 +66,7 @@ func (e EventMessage) SendEventWith(socket *zmq4.Socket) (isSend bool) {
 				return
 			}
 		}
+		time.Sleep(2 * time.Second)
 	}
 }
 
@@ -153,7 +154,6 @@ func (cfr EventFunctionReply) SendEventFunctionReplyWith(socket *zmq4.Socket) (i
 				return
 			}
 		}
-
 		time.Sleep(2 * time.Second)
 	}
 }

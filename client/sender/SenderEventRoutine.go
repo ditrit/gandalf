@@ -3,7 +3,6 @@ package sender
 import (
 	"fmt"
 	"gandalf-go/message"
-	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -51,10 +50,6 @@ func NewSenderEventRoutineList(identity string, senderEventConnections []string)
 func (r SenderEventRoutine) SendEvent(topic, timeout, uuid, event, payload string) {
 	eventMessage := message.NewEventMessage(topic, timeout, uuid, event, payload)
 	go eventMessage.SendEventWith(r.SenderEventSend)
-
-	//TODO REVOIR AVEC CHANNEL
-	time.Sleep(10 * time.Second)
-
 }
 
 func (r SenderEventRoutine) close() {
