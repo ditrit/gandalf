@@ -9,10 +9,10 @@ type AggregatorConfiguration struct {
 	AggregatorCommandReceiveFromClusterConnections  []string
 	AggregatorCommandReceiveFromConnectorConnection string
 	AggregatorCommandSendToConnectorConnection      string
-	AggregatorEventSendToClusterConnection          string
+	AggregatorEventSendToClusterConnections         []string
 	AggregatorEventReceiveFromConnectorConnection   string
 	AggregatorEventSendToConnectorConnection        string
-	AggregatorEventReceiveFromClusterConnection     string
+	AggregatorEventReceiveFromClusterConnections    []string
 	Identity                                        string
 }
 

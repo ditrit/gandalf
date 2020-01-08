@@ -55,24 +55,17 @@ func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend
 }
 
 func (e EventMessage) SendEventWith(socket *zmq4.Socket) (isSend bool) {
-	fmt.Println("toto0")
-	fmt.Println(e.Topic)
 	for {
-		fmt.Println("toto")
 		_, err := socket.Send(e.Topic, zmq4.SNDMORE)
-		fmt.Println("toto1")
 
 		if err == nil {
-			fmt.Println("toto2")
 			encoded, _ := EncodeEventMessage(e)
 			_, err = socket.SendBytes(encoded, 0)
 			if err == nil {
-				fmt.Println("toto3")
 				isSend = true
 				return
 			}
 		}
-		time.Sleep(2 * time.Second)
 	}
 }
 

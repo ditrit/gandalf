@@ -97,14 +97,14 @@ func (r ConnectorEventRoutine) run() {
 		fmt.Println("Running ConnectorEventRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
-
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ConnectorEventSendToWorker:
-				fmt.Println("TOTO")
 				topic, err = currentSocket.RecvBytes(0)
-				fmt.Println(string(topic))
 				if err != nil {
 					panic(err)
+				}
+				if len(topic) <= 1 {
+					break
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -113,11 +113,12 @@ func (r ConnectorEventRoutine) run() {
 				r.processEventSendToWorker(topic, event)
 
 			case r.ConnectorEventReceiveFromAggregator:
-				fmt.Println("TOTO1")
 				topic, err = currentSocket.RecvBytes(0)
-				fmt.Println(string(topic))
 				if err != nil {
 					panic(err)
+				}
+				if len(topic) <= 1 {
+					break
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -126,11 +127,12 @@ func (r ConnectorEventRoutine) run() {
 				r.processEventReceiveFromAggregator(topic, event)
 
 			case r.ConnectorEventSendToAggregator:
-				fmt.Println("TOTO2")
 				topic, err = currentSocket.RecvBytes(0)
-				fmt.Println(string(topic))
 				if err != nil {
 					panic(err)
+				}
+				if len(topic) <= 1 {
+					break
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -139,11 +141,12 @@ func (r ConnectorEventRoutine) run() {
 				r.processEventSendToAggregator(topic, event)
 
 			case r.ConnectorEventReceiveFromWorker:
-				fmt.Println("TOTO3")
 				topic, err = currentSocket.RecvBytes(0)
-				fmt.Println(string(topic))
 				if err != nil {
 					panic(err)
+				}
+				if len(topic) <= 1 {
+					break
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -157,29 +160,22 @@ func (r ConnectorEventRoutine) run() {
 }
 
 func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]byte) {
-	fmt.Println("EVENT 3")
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	//r.addEvents(eventMessage)
 	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromAggregator)
 }
 
 func (r ConnectorEventRoutine) processEventReceiveFromAggregator(topic []byte, event [][]byte) {
-	fmt.Println("EVENT 2")
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
 }
 
 func (r ConnectorEventRoutine) processEventSendToAggregator(topic []byte, event [][]byte) {
-	fmt.Println("EVENT 1")
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
 }
 
 func (r ConnectorEventRoutine) processEventReceiveFromWorker(topic []byte, event [][]byte) {
-	fmt.Println("EVENT")
-	fmt.Println(event)
-	fmt.Println(string(event[0]))
-	fmt.Println("EVENT")
 	if string(topic) == constant.EVENT_VALIDATION_FUNCTIONS {
 		eventFunctions, _ := message.DecodeEventFunction(event[0])
 		result, _ := r.validationEvents(eventFunctions.Worker, eventFunctions.Functions)
@@ -189,7 +185,6 @@ func (r ConnectorEventRoutine) processEventReceiveFromWorker(topic []byte, event
 			go eventFunctionReply.SendEventFunctionReplyWith(r.ConnectorEventReceiveFromAggregator)
 		}
 	} else {
-		fmt.Println("BLOOP")
 		eventMessage, _ := message.DecodeEventMessage(event[0])
 		go eventMessage.SendEventWith(r.ConnectorEventSendToAggregator)
 	}

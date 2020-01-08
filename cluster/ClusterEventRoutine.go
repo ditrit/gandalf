@@ -38,6 +38,7 @@ func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventRe
 	clusterEventRoutine.ClusterEventReceive.SetSubscribe("")
 	clusterEventRoutine.ClusterEventReceive.Bind(clusterEventRoutine.ClusterEventReceiveConnection)
 	fmt.Println("clusterEventReceive connect : " + clusterEventReceiveConnection)
+	clusterEventRoutine.ClusterEventReceive.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
 	clusterEventRoutine.ClusterEventCaptureConnection = clusterEventCaptureConnection
 	clusterEventRoutine.ClusterEventCapture, _ = clusterEventRoutine.Context.NewSocket(zmq4.PUB)
@@ -61,6 +62,7 @@ func (r ClusterEventRoutine) run() {
 	poller.Add(r.ClusterEventSend, zmq4.POLLIN)
 	poller.Add(r.ClusterEventReceive, zmq4.POLLIN)
 
+	topic := []byte{}
 	event := [][]byte{}
 	err := errors.New("")
 
@@ -71,20 +73,34 @@ func (r ClusterEventRoutine) run() {
 
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ClusterEventSend:
+				topic, err = currentSocket.RecvBytes(0)
 
+				if err != nil {
+					panic(err)
+				}
+				if len(topic) <= 1 {
+					break
+				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSend(event)
+				r.processEventSend(topic, event)
 
 			case r.ClusterEventReceive:
+				topic, err = currentSocket.RecvBytes(0)
 
+				if err != nil {
+					panic(err)
+				}
+				if len(topic) <= 1 {
+					break
+				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventReceive(event)
+				r.processEventReceive(topic, event)
 			}
 		}
 	}
@@ -92,15 +108,15 @@ func (r ClusterEventRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ClusterEventRoutine) processEventSend(event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])
-	r.processCaptureEvent(eventMessage)
+func (r ClusterEventRoutine) processEventSend(topic []byte, event [][]byte) {
+	eventMessage, _ := message.DecodeEventMessage(event[0])
+	//r.processCaptureEvent(eventMessage)
 	go eventMessage.SendEventWith(r.ClusterEventReceive)
 }
 
-func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[1])
-	r.processCaptureEvent(eventMessage)
+func (r ClusterEventRoutine) processEventReceive(topic []byte, event [][]byte) {
+	eventMessage, _ := message.DecodeEventMessage(event[0])
+	//r.processCaptureEvent(eventMessage)
 	go eventMessage.SendEventWith(r.ClusterEventSend)
 }
 

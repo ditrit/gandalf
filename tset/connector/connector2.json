@@ -6,6 +6,6 @@
 	"connectorEventSendToWorkerConnection": "tcp://*:9250",
 	"connectorEventReceiveFromWorkerConnection": "tcp://*:9251",
 	"connectorEventReceiveFromAggregatorConnections": ["tcp://127.0.0.1:9230", "tcp://127.0.0.1:9230"],
-	"connectorEventSendToAggregatorConnections": ["tcp://127.0.0.1:9231", "tcp://127.0.0.1:9231"],
+	"connectorEventSendToAggregatorConnections": ["tcp://127.0.0.1:9231", "tcp://127.0.0.1:9239"],
 	"identity": "connector2"
 }

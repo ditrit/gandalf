@@ -76,24 +76,32 @@ func main() {
 		receiveT.Run()
 	case "Pub":
 		//  Prepare our publisher
-		publisher, _ := zmq4.NewSocket(zmq4.PUB)
+		publisher, _ := zmq4.NewSocket(zmq4.XPUB)
 		defer publisher.Close()
 		publisher.Connect("tcp://127.0.0.1:9251")
 
+		/* subscriber, _ := zmq4.NewSocket(zmq4.XSUB)
+		defer subscriber.Close()
+		subscriber.Connect("tcp://127.0.0.1:9250")
+		subscriber.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
+		*/
 		time.Sleep(time.Second * 5)
 
 		eventMessage := message.NewEventMessage("topic", "timeout", "uuid", "event", "payload")
-		go eventMessage.SendEventWith(publisher)
-		/* 		publisher.Send("A", zmq4.SNDMORE)
-		   		publisher.Send("WTF! 1 ", 0) */
+		for {
+			go eventMessage.SendEventWith(publisher)
+			/* 		publisher.Send("A", zmq4.SNDMORE)
+			   		publisher.Send("WTF! 1 ", 0) */
 
-		time.Sleep(time.Second * 5)
+			time.Sleep(time.Second * 5)
+		}
 
 	case "Sub":
 		//  Prepare our publisher
 		subscriber, _ := zmq4.NewSocket(zmq4.XSUB)
 		defer subscriber.Close()
-		err := subscriber.Bind("tcp://*:9000")
+		err := subscriber.Bind("tcp://*:9251")
+		subscriber.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 		if err != nil {
 			log.Fatal(err)
 		}
