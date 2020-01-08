@@ -6,21 +6,47 @@ option java_outer_classname = "ConnectorProto";
 
 package connector;
 
-service Command {
+service Connector {
     // Sends a greeting
-    rpc SendCommand (CommandMessage) returns (CommandMessageAck) {}
-    rpc ReceiveCommandReply (CommandMessageReply) returns (CommandMessageAck) {}
-    rpc ReceiveCommand (CommandMessage) returns (CommandMessageAck) {}
-  }
+    rpc SendCommandMessage (CommandMessage) returns (CommandMessageUUID) {}
+    rpc SendCommandMessageReply (CommandMessageReply) returns (Empty) {}
+    rpc SendEventMessage (EventMessage) returns (Empty) {}
+    rpc WaitCommandMessage (CommandMessageRequest) returns (CommandMessage) {}
+    rpc WaitCommandMessageReply (CommandMessageUUID) returns (CommandMessageReply) {}
+    rpc WaitEventMessage (EventMessageRequest) returns (EventMessage) {}
+}
 
 message CommandMessage {
-  string name = 1;
+  string target = 1;
+  string command = 2;
+  string payload = 3;
+}
+
+message CommandMessageRequest {
+  string command = 1;
+}
+
+message CommandMessageUUID {
+  string uuid = 1;
 }
 
 message CommandMessageReply {
-  string message = 1;
+  string uuid = 1;
+  string state = 2;
+  string payload = 3;
 }
 
-message CommandMessageAck {
-    string message = 1;
-  }
+message EventMessage {
+    string topic = 1;
+    string event = 2;
+    string payload = 3;
+}
+
+message EventMessageRequest {
+    string topic = 1;
+    string event = 2;
+}
+
+message Empty {
+
+}
