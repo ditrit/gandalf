@@ -1,11 +1,11 @@
 package sender
 
 type SenderGandalf struct {
-	Identity 			 	string
+	Identity                string
 	SenderCommandConnection string
-	SenderEventConnection 	string
-	SenderCommandRoutine 	*SenderCommandRoutine
-	SenderEventRoutine   	*SenderEventRoutine
+	SenderEventConnection   string
+	SenderCommandRoutine    *SenderCommandRoutine
+	SenderEventRoutine      *SenderEventRoutine
 }
 
 func NewSenderGandalf(identity, senderCommandConnection, senderEventConnection string) (senderGandalf *SenderGandalf) {

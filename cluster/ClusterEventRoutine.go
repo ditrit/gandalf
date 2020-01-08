@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
+	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -79,7 +80,8 @@ func (r ClusterEventRoutine) run() {
 					panic(err)
 				}
 				if len(topic) <= 1 {
-					break
+					//break
+					go r.sendSubscribeTopic(r.ClusterEventReceive, topic)
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -93,9 +95,9 @@ func (r ClusterEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				if len(topic) <= 1 {
+				/* if len(topic) <= 1 {
 					break
-				}
+				} */
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -122,4 +124,15 @@ func (r ClusterEventRoutine) processEventReceive(topic []byte, event [][]byte) {
 
 func (r ClusterEventRoutine) processCaptureEvent(eventMessage message.EventMessage) {
 	go eventMessage.SendWith(r.ClusterEventCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
+}
+
+func (r ClusterEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {
+	for {
+		_, err := socket.SendBytes(topic, zmq4.SNDMORE)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
 }

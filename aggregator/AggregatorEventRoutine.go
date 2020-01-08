@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"gandalf-go/message"
+	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -93,7 +94,9 @@ func (r AggregatorEventRoutine) run() {
 					panic(err)
 				}
 				if len(topic) <= 1 {
-					break
+					//break
+					go r.sendSubscribeTopic(r.AggregatorEventReceiveFromConnector, topic)
+
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -106,9 +109,9 @@ func (r AggregatorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				if len(topic) <= 1 {
+				/* 	if len(topic) <= 1 {
 					break
-				}
+				} */
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -121,7 +124,8 @@ func (r AggregatorEventRoutine) run() {
 					panic(err)
 				}
 				if len(topic) <= 1 {
-					break
+					//break
+					go r.sendSubscribeTopic(r.AggregatorEventReceiveFromCluster, topic)
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -134,9 +138,9 @@ func (r AggregatorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				if len(topic) <= 1 {
+				/* 	if len(topic) <= 1 {
 					break
-				}
+				} */
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -166,4 +170,15 @@ func (r AggregatorEventRoutine) processEventSendToConnector(topic []byte, event 
 func (r AggregatorEventRoutine) processEventReceiveFromConnector(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	go eventMessage.SendEventWith(r.AggregatorEventSendToCluster)
+}
+
+func (r AggregatorEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {
+	for {
+		_, err := socket.SendBytes(topic, zmq4.SNDMORE)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
 }

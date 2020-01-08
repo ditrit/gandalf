@@ -1,15 +1,18 @@
 package cluster
 
+import "fmt"
+
 type ClusterGandalf struct {
 	clusterConfiguration        *ClusterConfiguration
 	clusterCommandRoutine       *ClusterCommandRoutine
 	clusterEventRoutine         *ClusterEventRoutine
 	clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine
+	clusterStopChannel          chan int
 }
 
 func NewClusterGandalf(path string) (clusterGandalf *ClusterGandalf) {
 	clusterGandalf = new(ClusterGandalf)
-	//clusterGandalf = ClusterGandalf{}
+	clusterGandalf.clusterStopChannel = make(chan int)
 
 	clusterGandalf.clusterConfiguration, _ = LoadConfiguration(path)
 
@@ -28,6 +31,14 @@ func (cg ClusterGandalf) Run() {
 	go cg.clusterEventRoutine.run()
 	go cg.clusterCaptureWorkerRoutine.run()
 	for {
-		//GESTION CHANNEL
+		select {
+		case <-cg.clusterStopChannel:
+			fmt.Println("quit")
+			break
+		}
 	}
+}
+
+func (cg ClusterGandalf) Stop() {
+	cg.clusterStopChannel <- 0
 }

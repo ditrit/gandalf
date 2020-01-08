@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
+	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -104,7 +105,8 @@ func (r ConnectorEventRoutine) run() {
 					panic(err)
 				}
 				if len(topic) <= 1 {
-					break
+					//break
+					go r.sendSubscribeTopic(r.ConnectorEventReceiveFromAggregator, topic)
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -117,9 +119,9 @@ func (r ConnectorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				if len(topic) <= 1 {
+				/* if len(topic) <= 1 {
 					break
-				}
+				} */
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -132,7 +134,8 @@ func (r ConnectorEventRoutine) run() {
 					panic(err)
 				}
 				if len(topic) <= 1 {
-					break
+					//break
+					go r.sendSubscribeTopic(r.ConnectorEventReceiveFromWorker, topic)
 				}
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -145,9 +148,10 @@ func (r ConnectorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				if len(topic) <= 1 {
-					break
-				}
+				/* 		if len(topic) <= 1 {
+					//break
+					r.sendSubscribeTopic(r.ConnectorEventSendToAggregator, topic)
+				} */
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -194,6 +198,17 @@ func (r ConnectorEventRoutine) validationEvents(workerSource string, events []st
 	//TODO
 	result = true
 	return
+}
+
+func (r ConnectorEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {
+	for {
+		_, err := socket.SendBytes(topic, zmq4.SNDMORE)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
 /*func (r ConnectorEventRoutine) addEvents(eventMessage message.EventMessage) {

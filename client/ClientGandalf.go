@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"gandalf-go/client/receiver"
 	"gandalf-go/client/sender"
 	"gandalf-go/message"
@@ -18,10 +19,13 @@ type ClientGandalf struct {
 	EventsRoutine             map[string][]routine.EventRoutine
 	SenderGandalf             *sender.SenderGandalf
 	ReceiverGandalf           *receiver.ReceiverGandalf
+	ClientStopChannel         chan int
 }
 
 func NewClientGandalf(identity, senderCommandConnection, senderEventConnection, receiverCommandConnection, receiverEventConnection string, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (clientGandalf *ClientGandalf) {
 	clientGandalf = new(ClientGandalf)
+	clientGandalf.ClientStopChannel = make(chan int)
+
 	clientGandalf.Identity = identity
 	clientGandalf.SenderCommandConnection = senderCommandConnection
 	clientGandalf.SenderEventConnection = senderEventConnection
@@ -41,6 +45,14 @@ func NewClientGandalf(identity, senderCommandConnection, senderEventConnection, 
 func (cg ClientGandalf) Run() {
 	go cg.ReceiverGandalf.Run()
 	for {
-		//GESTION CHANNEL
+		select {
+		case <-cg.ClientStopChannel:
+			fmt.Println("quit")
+			break
+		}
 	}
+}
+
+func (cg ClientGandalf) Stop() {
+	cg.ClientStopChannel <- 0
 }

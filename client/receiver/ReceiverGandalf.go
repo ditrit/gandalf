@@ -1,6 +1,7 @@
 package receiver
 
 import (
+	"fmt"
 	"gandalf-go/message"
 	"gandalf-go/worker/routine"
 )
@@ -14,10 +15,12 @@ type ReceiverGandalf struct {
 	Replys                    chan message.CommandMessageReply
 	CommandsRoutine           map[string][]routine.CommandRoutine
 	EventsRoutine             map[string][]routine.EventRoutine
+	ReceiverStopChannel       chan int
 }
 
 func NewReceiverGandalf(identity, receiverCommandConnection, receiverEventConnection string, commandsRoutine map[string][]routine.CommandRoutine, eventsRoutine map[string][]routine.EventRoutine, replys chan message.CommandMessageReply) (receiverGandalf *ReceiverGandalf) {
 	receiverGandalf = new(ReceiverGandalf)
+	receiverGandalf.ReceiverStopChannel = make(chan int)
 
 	receiverGandalf.Identity = identity
 	receiverGandalf.ReceiverCommandConnection = receiverCommandConnection
@@ -36,6 +39,14 @@ func (rg ReceiverGandalf) Run() {
 	go rg.ReceiverCommandRoutine.run()
 	go rg.ReceiverEventRoutine.run()
 	for {
-		//GESTION CHANNEL
+		select {
+		case <-rg.ReceiverStopChannel:
+			fmt.Println("quit")
+			break
+		}
 	}
+}
+
+func (rg ReceiverGandalf) Stop() {
+	rg.ReceiverStopChannel <- 0
 }

@@ -33,20 +33,19 @@ func main() {
 	case "cluster":
 		clusterGandalf := cluster.NewClusterGandalf(config)
 		clusterGandalf.Run()
-		fmt.Println("%s", "Cluster "+config)
+		fmt.Println("Cluster " + config)
 	case "aggregator":
 		aggregatorGandalf := aggregator.NewAggregatorGandalf(config)
-		fmt.Println("%s", "Running")
 		aggregatorGandalf.Run()
-		fmt.Println("%s", "Aggregator "+config)
+		fmt.Println("Aggregator " + config)
 	case "connector":
 		connectorGandalf := connector.NewConnectorGandalf(config)
 		connectorGandalf.Run()
-		fmt.Println("%s", "Connector "+config)
+		fmt.Println("Connector " + config)
 	case "worker":
 		workerGandalf := worker.NewWorkerGandalf(config)
 		workerGandalf.Run()
-		fmt.Println("%s", "Worker "+config)
+		fmt.Println("Worker " + config)
 	case "workerTestSend":
 
 		fmt.Println("WorkerSend " + config)
