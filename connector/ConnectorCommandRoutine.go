@@ -22,16 +22,16 @@ type ConnectorCommandRoutine struct {
 	ConnectorCommandReceiveFromWorker                *zmq4.Socket
 	ConnectorCommandReceiveFromWorkerConnection      string
 	Identity                                         string
-	ConnectorMapUUIDCommandMessage                   map[string][]message.CommandMessage
-	ConnectorMapUUIDCommandMessageReply              map[string][]message.CommandMessageReply
+	ConnectorMapUUIDCommandMessage                   *Queue
+	ConnectorMapUUIDCommandMessageReply              *Queue
 	ConnectorMapWorkerCommands                       map[string][]string
 }
 
 func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) (connectorCommandRoutine *ConnectorCommandRoutine) {
 	connectorCommandRoutine = new(ConnectorCommandRoutine)
 	connectorCommandRoutine.Identity = identity
-	connectorCommandRoutine.ConnectorMapUUIDCommandMessage = make(map[string][]message.CommandMessage)
-	connectorCommandRoutine.ConnectorMapWorkerCommands = make(map[string][]string)
+	connectorCommandRoutine.ConnectorMapUUIDCommandMessage.Init()
+	connectorCommandRoutine.ConnectorMapUUIDCommandMessageReply.Init()
 
 	connectorCommandRoutine.Context, _ = zmq4.NewContext()
 	connectorCommandRoutine.ConnectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
@@ -149,7 +149,8 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][
 	commandMessage, _ := message.DecodeCommandMessage(command[2])
 	fmt.Println("BEFORE")
 	fmt.Println(r.ConnectorMapUUIDCommandMessage[commandMessage.Command])
-	r.ConnectorMapUUIDCommandMessage[commandMessage.Command] = append(r.ConnectorMapUUIDCommandMessage[commandMessage.Command], commandMessage)
+	//r.ConnectorMapUUIDCommandMessage[commandMessage.Command] = append(r.ConnectorMapUUIDCommandMessage[commandMessage.Command], commandMessage)
+	r.ConnectorMapUUIDCommandMessage.Push(commandMessage)
 	fmt.Println("AFTER")
 	fmt.Println(r.ConnectorMapUUIDCommandMessage[commandMessage.Command])
 }
@@ -180,7 +181,9 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byt
 	} else {
 		commandMessage, _ := message.DecodeCommandMessage(command[1])
 		commandMessage.SourceWorker = workerSource
-		go commandMessage.SendWith(r.ConnectorCommandSendToAggregator, workerSource)
+		r.ConnectorMapUUIDCommandMessageReply.Push(commandMessage)
+
+		//go commandMessage.SendWith(r.ConnectorCommandSendToAggregator, workerSource)
 	}
 }
 

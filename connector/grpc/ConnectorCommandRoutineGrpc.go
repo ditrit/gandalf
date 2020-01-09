@@ -134,7 +134,7 @@ func (r ConnectorCommandRoutine) run() {
 	}
 }
 
-func startCommandGRPCServer(address string) error {
+func startConnectorCommandGRPCServer(address string) error {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		return fmt.Errorf("failed to listen: %v", err)
