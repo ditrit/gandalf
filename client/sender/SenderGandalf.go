@@ -23,7 +23,6 @@ func (sg SenderGandalf) SendEvent(topic, timeout, uuid, event, payload string) {
 	sg.SenderEventRoutine.SenderEvent(topic, timeout, uuid, event, payload)
 }
 
-
 func (sg SenderGandalf) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string)  {
 	sg.SenderCommandRoutine.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }

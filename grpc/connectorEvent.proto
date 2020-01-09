@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.connector";
+option java_outer_classname = "ConnectorProto";
+
+package connector;
+
+service ConnectorEvent {
+    // Sends a greeting
+    rpc SendEventMessage (EventMessage) returns (Empty) {}
+    rpc WaitEventMessage (EventMessageRequest) returns (EventMessage) {}
+}
+
+message EventMessage {
+    string topic = 1;
+    string event = 2;
+    string payload = 3;
+}
+
+message EventMessageRequest {
+    string topic = 1;
+    string event = 2;
+}
+
+message Empty {
+
+}

@@ -31,7 +31,7 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine.ConnectorMapUUIDEventMessage = make(map[string][]message.EventMessage)
 	connectorEventRoutine.ConnectorMapWorkerEvents = make(map[string][]string)
 
-/* 	connectorEventRoutine.Context, _ = zmq4.NewContext()
+	connectorEventRoutine.Context, _ = zmq4.NewContext()
 	connectorEventRoutine.ConnectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
 	connectorEventRoutine.ConnectorEventSendToWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
 	connectorEventRoutine.ConnectorEventSendToWorker.SetIdentity(connectorEventRoutine.Identity)
@@ -43,7 +43,7 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.Bind(connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection)
 	fmt.Println("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
-	connectorEventRoutine.ConnectorEventReceiveFromWorker.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL */
+	connectorEventRoutine.ConnectorEventReceiveFromWorker.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
 	connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnections = connectorEventReceiveFromAggregatorConnections
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
@@ -67,26 +67,6 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	}
 
 	return
-}
-
-func startConnectorEventGRPCServer(address string) error {
-	lis, err := net.Listen("tcp", address)
-	if err != nil {
-		return fmt.Errorf("failed to listen: %v", err)
-	}
-
-	s := grpc.ConnectorServer{}
-
-	grpcServer := grpc.NewServer(opts...)
-
-	grpc.RegisterConnectorEventServer(grpcServer, &s)
-
-	log.Printf("starting HTTP/2 gRPC server on %s", address)
-	if err := grpcServer.Serve(lis); err != nil {
-		return fmt.Errorf("failed to serve: %s", err)
-	}
-
-	return nil
 }
 
 func (r ConnectorEventRoutine) close() {
