@@ -7,8 +7,8 @@ import (
 type ClientConfiguration struct {
 	SenderCommandConnection   string
 	SenderEventConnection     string
-	ReceiverCommandConnection string
-	ReceiverEventConnection   string
+	WaiterCommandConnection string
+	WaiterEventConnection   string
 	Identity                  string
 }
 

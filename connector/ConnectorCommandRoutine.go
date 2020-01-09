@@ -23,6 +23,7 @@ type ConnectorCommandRoutine struct {
 	ConnectorCommandReceiveFromWorkerConnection      string
 	Identity                                         string
 	ConnectorMapUUIDCommandMessage                   map[string][]message.CommandMessage
+	ConnectorMapUUIDCommandMessageReply              map[string][]message.CommandMessageReply
 	ConnectorMapWorkerCommands                       map[string][]string
 }
 
