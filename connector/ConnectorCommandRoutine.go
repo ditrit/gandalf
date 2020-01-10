@@ -25,11 +25,14 @@ type ConnectorCommandRoutine struct {
 	ConnectorMapUUIDCommandMessage                   *Queue
 	ConnectorMapUUIDCommandMessageReply              *Queue
 	ConnectorMapWorkerCommands                       map[string][]string
+	ConnectorMapUUIDIterators                       map[string][]*Iterator
 }
 
 func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) (connectorCommandRoutine *ConnectorCommandRoutine) {
 	connectorCommandRoutine = new(ConnectorCommandRoutine)
 	connectorCommandRoutine.Identity = identity
+	connectorCommandRoutine.ConnectorMapUUIDIterators = make(map[string][]*Iterator)
+
 	connectorCommandRoutine.ConnectorMapUUIDCommandMessage.Init()
 	connectorCommandRoutine.ConnectorMapUUIDCommandMessageReply.Init()
 
@@ -129,10 +132,11 @@ func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 	if commandType == constant.COMMAND_WAIT {
 		commandMessageWait, _ := message.DecodeCommandMessageWait(command[2])
 		if commandMessageWait.typeCommand == constant.COMMAND_MESSAGE_REPLY {
-			//NEW ITERATOR SUR REPLY
+			iterator := Iterator.NewIterator(r.ConnectorMapUUIDCommandMessageReply)
 		} else {
-			//NEW ITERATOR SUR COMMAND
+			iterator := Iterator.NewIterator(r.ConnectorMapUUIDCommandMessage)
 		}
+		ConnectorMapUUIDIterators[commandMessageWait.uuid] = iterator
 	}
 }
 

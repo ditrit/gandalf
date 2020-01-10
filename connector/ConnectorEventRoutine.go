@@ -14,6 +14,7 @@ type ConnectorEventRoutine struct {
 	Context                                        *zmq4.Context
 	ConnectorMapUUIDEventMessage                   *Queue
 	ConnectorMapWorkerEvents                       map[string][]string
+	ConnectorMapEventIterator                      map[string][]*Iterator
 	ConnectorEventSendToWorker                     *zmq4.Socket
 	ConnectorEventSendToWorkerConnection           string
 	ConnectorEventReceiveFromAggregator            *zmq4.Socket
@@ -28,6 +29,7 @@ type ConnectorEventRoutine struct {
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) (connectorEventRoutine *ConnectorEventRoutine) {
 	connectorEventRoutine = new(ConnectorEventRoutine)
 	connectorEventRoutine.Identity = identity
+	connectorEventRoutine.ConnectorMapEventIterator = make(map[string][]*Iterator)
 	connectorEventRoutine.ConnectorMapUUIDEventMessage.Init()
 
  	connectorEventRoutine.Context, _ = zmq4.NewContext()
@@ -167,7 +169,8 @@ func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]
 	eventType := string(command[1])
 	if eventType == constant.EVENT_WAIT {
 		eventMessageWait, _ := message.DecodeEventMessageWait(command[2])
-		//NEW ITERATOR SUR EVENT
+		iterator := Iterator.NewIterator(r.ConnectorMapUUIDCommandMessage)
+		ConnectorMapEventIterator[eventMessageWait.event] = iterator
 	}
 }
 
