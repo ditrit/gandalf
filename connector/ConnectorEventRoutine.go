@@ -70,6 +70,7 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	return
 }
 
+
 func (r ConnectorEventRoutine) close() {
 	r.ConnectorEventSendToWorker.Close()
 	r.ConnectorEventReceiveFromAggregator.Close()

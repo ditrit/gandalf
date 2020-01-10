@@ -45,6 +45,10 @@ func NewCommandMessage(context, timeout, uuid, connectorType, commandType, comma
 	return
 }
 
+func (c CommandMessage) GetUUID() string {
+	return c.Uuid
+}
+
 func (c CommandMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = c.SendHeaderWith(socket, header)
@@ -118,6 +122,10 @@ type CommandMessageReply struct {
 	Uuid                  string
 	Reply                 string
 	Payload               string
+}
+
+func (cr CommandMessageReply) GetUUID() string {
+	return cr.Uuid
 }
 
 func (cr CommandMessageReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {

@@ -32,6 +32,10 @@ func NewEventMessage(topic, timeout, uuid, event, payload string) (eventMessage 
 	return
 }
 
+func (e EventMessage) GetUUID() string {
+	return e.Uuid
+}
+
 func (e EventMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = e.SendHeaderWith(socket, header)
