@@ -236,3 +236,21 @@ func DecodeEventFunctionReply(bytesContent []byte) (eventFunctionReply EventFunc
 	}
 	return
 }
+
+func EncodeEventMessageWait(eventMessageWait EventMessageWait) (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(eventMessageWait)
+	if err != nil {
+		commandError = fmt.Errorf("Event %s", err)
+		return
+	}
+	return
+}
+
+func DecodeEventMessageWait(bytesContent []byte) (eventMessageWait EventMessageWait, commandError error) {
+	err := msgpack.Decode(bytesContent, &eventMessageWait)
+	if err != nil {
+		commandError = fmt.Errorf("Event %s", err)
+		return
+	}
+	return
+}

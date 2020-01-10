@@ -72,7 +72,6 @@ func (r SenderCommandRoutine) SendCommandReply(commandMessage CommandMessage, re
 	commandMessageReply := new(CommandMessageReply)
 	commandMessageReply.From(commandMessage, reply, payload)
 
-	//TODO CHANGE SOCKET
 	go commandMessageReply.SendCommandReplyWith(r.SenderCommandSend)
 	return
 }

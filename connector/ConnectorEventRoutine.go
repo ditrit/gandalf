@@ -86,7 +86,7 @@ func (r ConnectorEventRoutine) run() {
 	poller := zmq4.NewPoller()
 	poller.Add(r.ConnectorEventSendToWorker, zmq4.POLLIN)
 	poller.Add(r.ConnectorEventReceiveFromAggregator, zmq4.POLLIN)
-	poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
+	//poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
 	poller.Add(r.ConnectorEventReceiveFromWorker, zmq4.POLLIN)
 
 	topic := []byte{}
@@ -127,7 +127,7 @@ func (r ConnectorEventRoutine) run() {
 				}
 				r.processEventReceiveFromAggregator(topic, event)
 
-			case r.ConnectorEventSendToAggregator:
+		/* 	case r.ConnectorEventSendToAggregator:
 				topic, err = currentSocket.RecvBytes(0)
 				if err != nil {
 					panic(err)
@@ -140,7 +140,7 @@ func (r ConnectorEventRoutine) run() {
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSendToAggregator(topic, event)
+				r.processEventSendToAggregator(topic, event) */
 
 			case r.ConnectorEventReceiveFromWorker:
 				topic, err = currentSocket.RecvBytes(0)
@@ -163,9 +163,12 @@ func (r ConnectorEventRoutine) run() {
 }
 
 func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
-	//r.addEvents(eventMessage)
-	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromAggregator)
+
+	eventType := string(command[1])
+	if eventType == constant.EVENT_WAIT {
+		eventMessageWait, _ := message.DecodeEventMessageWait(command[2])
+		//NEW ITERATOR SUR EVENT
+	}
 }
 
 func (r ConnectorEventRoutine) processEventReceiveFromAggregator(topic []byte, event [][]byte) {
@@ -174,11 +177,11 @@ func (r ConnectorEventRoutine) processEventReceiveFromAggregator(topic []byte, e
 	//go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
 }
 
-func (r ConnectorEventRoutine) processEventSendToAggregator(topic []byte, event [][]byte) {
+/* func (r ConnectorEventRoutine) processEventSendToAggregator(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
 }
-
+ */
 func (r ConnectorEventRoutine) processEventReceiveFromWorker(topic []byte, event [][]byte) {
 	if string(topic) == constant.EVENT_VALIDATION_FUNCTIONS {
 		eventFunctions, _ := message.DecodeEventFunction(event[0])
