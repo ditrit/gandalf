@@ -83,7 +83,6 @@ func (r ConnectorCommandRoutine) run() {
 	poller := zmq4.NewPoller()
 	poller.Add(r.ConnectorCommandSendToWorker, zmq4.POLLIN)
 	poller.Add(r.ConnectorCommandReceiveFromAggregator, zmq4.POLLIN)
-	poller.Add(r.ConnectorCommandSendToAggregator, zmq4.POLLIN)
 	poller.Add(r.ConnectorCommandReceiveFromWorker, zmq4.POLLIN)
 
 	command := [][]byte{}
@@ -113,16 +112,6 @@ func (r ConnectorCommandRoutine) run() {
 					panic(err)
 				}
 				r.processCommandReceiveFromAggregator(command)
-
-			case r.ConnectorCommandSendToAggregator:
-				fmt.Println("Connector send aggregator")
-
-				command, err = currentSocket.RecvMessageBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				r.processCommandSendAggregator(command)
-
 			case r.ConnectorCommandReceiveFromWorker:
 				fmt.Println("Connector receive worker")
 				command, err = currentSocket.RecvMessageBytes(0)
@@ -136,9 +125,15 @@ func (r ConnectorCommandRoutine) run() {
 }
 
 func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
-	r.addCommands(commandMessage)
-	go commandMessage.SendWith(r.ConnectorCommandReceiveFromAggregator, commandMessage.SourceConnector)
+	commandType := string(command[1])
+	if commandType == constant.COMMAND_WAIT {
+		commandMessageWait, _ := message.DecodeCommandMessageWait(command[2])
+		if commandMessageWait.typeCommand == constant.COMMAND_MESSAGE_REPLY {
+			//NEW ITERATOR SUR REPLY
+		} else {
+			//NEW ITERATOR SUR COMMAND
+		}
+	}
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][]byte) {
@@ -146,31 +141,21 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][
 	fmt.Println(command)
 	fmt.Println(string(command[0]))
 	fmt.Println(string(command[1]))
-	commandMessage, _ := message.DecodeCommandMessage(command[2])
-	fmt.Println("BEFORE")
-	fmt.Println(r.ConnectorMapUUIDCommandMessage[commandMessage.Command])
-	//r.ConnectorMapUUIDCommandMessage[commandMessage.Command] = append(r.ConnectorMapUUIDCommandMessage[commandMessage.Command], commandMessage)
-	r.ConnectorMapUUIDCommandMessage.Push(commandMessage)
-	fmt.Println("AFTER")
-	fmt.Println(r.ConnectorMapUUIDCommandMessage[commandMessage.Command])
-}
-
-func (r ConnectorCommandRoutine) processCommandSendAggregator(command [][]byte) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
-	go commandMessage.SendCommandWith(r.ConnectorCommandReceiveFromWorker)
+	commandType := string(command[1])
+	if commandType == constant.COMMAND_MESSAGE {
+		commandMessage, _ := message.DecodeCommandMessage(command[2])
+		r.ConnectorMapUUIDCommandMessage.Push(commandMessage)
+	} else {
+		commandMessageReply, _ := message.DecodeCommandMessageReply(command[2])
+		r.ConnectorMapUUIDCommandMessageReply.Push(commandMessageReply)
+	}
 }
 
 func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byte) {
 	workerSource := string(command[0])
 	commandHeader := string(command[1])
 
-	if commandHeader == constant.COMMAND_READY {
-		//commandReady := decodeCommandReady(command[2])
-		commandMessage, err := r.getCommandByWorkerCommands(workerSource)
-		if err != nil {
-		}
-		go commandMessage.SendWith(r.ConnectorCommandSendToWorker, workerSource)
-	} else if commandHeader == constant.COMMAND_VALIDATION_FUNCTIONS {
+	 if commandHeader == constant.COMMAND_VALIDATION_FUNCTIONS {
 		commandFunction, _ := message.DecodeCommandFunction(command[2])
 		result := r.validationCommands(workerSource, commandFunction.Functions)
 		if result {
@@ -181,47 +166,8 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byt
 	} else {
 		commandMessage, _ := message.DecodeCommandMessage(command[1])
 		commandMessage.SourceWorker = workerSource
-		r.ConnectorMapUUIDCommandMessageReply.Push(commandMessage)
-
-		//go commandMessage.SendWith(r.ConnectorCommandSendToAggregator, workerSource)
+		go commandMessage.SendCommandWith(r.ConnectorCommandSendToAggregator)
 	}
-}
-
-func (r ConnectorCommandRoutine) getCommandByWorkerCommands(worker string) (commandMessage message.CommandMessage, err error) {
-
-	var maxCommand string
-	maxTimestamp := -1
-	currentTimestamp := -1
-	commandsWorker := r.ConnectorMapWorkerCommands[worker]
-	var commands []message.CommandMessage
-
-	for i, commandWorker := range commandsWorker {
-		if currentCommandWorker, ok := r.ConnectorMapUUIDCommandMessage[commandWorker]; ok {
-			commands[i] = currentCommandWorker[0]
-		}
-	}
-
-	for _, command := range commands {
-		currentTimestamp, _ = strconv.Atoi(command.Timestamp)
-		if currentTimestamp >= maxTimestamp {
-			maxTimestamp, _ = strconv.Atoi(command.Timestamp)
-			maxCommand = command.Command
-		}
-	}
-
-	commandMessage = r.ConnectorMapUUIDCommandMessage[maxCommand][0]
-	delete(r.ConnectorMapUUIDCommandMessage, maxCommand)
-
-	return
-}
-
-func (r ConnectorCommandRoutine) getConnectorMapUUIDCommandMessage(command string) (commandMessage []message.CommandMessage) {
-	if commandMessage, ok := r.ConnectorMapUUIDCommandMessage[command]; ok {
-		if ok {
-			return commandMessage
-		}
-	}
-	return
 }
 
 func (r ConnectorCommandRoutine) validationCommands(workerSource string, commands []string) (result bool) {

@@ -68,9 +68,7 @@ func (r AggregatorCommandRoutine) close() {
 
 func (r AggregatorCommandRoutine) run() {
 	poller := zmq4.NewPoller()
-	poller.Add(r.aggregatorCommandSendToCluster, zmq4.POLLIN)
 	poller.Add(r.aggregatorCommandReceiveFromConnector, zmq4.POLLIN)
-	poller.Add(r.aggregatorCommandSendToConnector, zmq4.POLLIN)
 	poller.Add(r.aggregatorCommandReceiveFromCluster, zmq4.POLLIN)
 
 	command := [][]byte{}
@@ -82,15 +80,6 @@ func (r AggregatorCommandRoutine) run() {
 		for _, socket := range sockets {
 
 			switch currentSocket := socket.Socket; currentSocket {
-			case r.aggregatorCommandSendToCluster:
-
-				command, err = currentSocket.RecvMessageBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				fmt.Println("Aggregator send cluster")
-				r.processCommandSendToCluster(command)
-
 			case r.aggregatorCommandReceiveFromConnector:
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
@@ -98,16 +87,6 @@ func (r AggregatorCommandRoutine) run() {
 				}
 				fmt.Println("Aggregator receive connector")
 				r.processCommandReceiveFromConnector(command)
-
-			case r.aggregatorCommandSendToConnector:
-
-				command, err = currentSocket.RecvMessageBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				fmt.Println("Aggregator send connector")
-				r.processCommandSendToConnector(command)
-
 			case r.aggregatorCommandReceiveFromCluster:
 
 				command, err = currentSocket.RecvMessageBytes(0)
@@ -123,30 +102,21 @@ func (r AggregatorCommandRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r AggregatorCommandRoutine) processCommandSendToCluster(command [][]byte) {
-	sourceConnector := string(command[1])
-	commandMessage, _ := message.DecodeCommandMessage(command[2])
-	commandMessage.SourceConnector = sourceConnector
-	commandMessage.SourceAggregator = r.identity
-	go commandMessage.SendCommandWith(r.aggregatorCommandReceiveFromConnector)
-	//RESULT TO CLUSTER
-}
-
 func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) {
+
 	fmt.Println("TOTO")
 	fmt.Println(command[0])
 	fmt.Println(command[1])
 	fmt.Println("TATA")
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
-	fmt.Println(commandMessage.DestinationConnector)
-	//go commandMessage.SendCommandWith(r.aggregatorCommandSendToConnector)
-	go commandMessage.SendWith(r.aggregatorCommandSendToConnector, commandMessage.DestinationConnector)
-}
-
-func (r AggregatorCommandRoutine) processCommandSendToConnector(command [][]byte) {
-	commandMessage, _ := message.DecodeCommandMessage(command[1])
-	go commandMessage.SendWith(r.aggregatorCommandReceiveFromCluster, commandMessage.SourceConnector)
-	//COMMAND
+	commandType := string(command[1])
+	if commandType == constant.COMMAND_MESSAGE {
+		//COMMAND
+		message, _ := message.DecodeCommandMessage(command[2])
+	} else {
+		//REPLY
+		message, _ := message.DecodeCommandMessageReply(command[2])
+	}
+	go commandMessage.SendWith(r.aggregatorCommandSendToConnector, message.DestinationConnector)
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {

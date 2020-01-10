@@ -69,6 +69,7 @@ func (c CommandMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSe
 
 func (c CommandMessage) SendCommandWith(socket *zmq4.Socket) (isSend bool) {
 	for {
+		_, err := socket.Send(constant.COMMAND_MESSAGE, zmq4.SNDMORE)
 		encoded, _ := EncodeCommandMessage(c)
 		_, err := socket.SendBytes(encoded, 0)
 		if err == nil {
@@ -143,6 +144,7 @@ func (cr CommandMessageReply) SendHeaderWith(socket *zmq4.Socket, header string)
 
 func (cr CommandMessageReply) SendCommandReplyWith(socket *zmq4.Socket) (isSend bool) {
 	for {
+		_, err := socket.Send(constant.COMMAND_MESSAGE_REPLY, zmq4.SNDMORE)
 		encoded, _ := EncodeCommandMessageReply(cr)
 		_, err := socket.SendBytes(encoded, 0)
 		if err == nil {
@@ -248,6 +250,32 @@ func (cfr CommandFunctionReply) SendCommandFunctionReplyWith(socket *zmq4.Socket
 	}
 }
 
+type CommandMessageWait struct {
+	uuid string
+	typeCommand string
+}
+
+func NewCommandMessageWait(uuid, typeCommand string) (commandMessageWait *CommandMessageWait) {
+	commandMessageWait = new(CommandMessageWait)
+	commandMessageWait.uuid = uuid
+	commandMessageWait.typeCommand = typeCommand
+	return
+}
+
+func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {
+	for {
+		_, err := socket.Send(constant.COMMAND_READY, zmq4.SNDMORE)
+		if err == nil {
+			encoded, _ := EncodeCommandMessageReady(cry)
+			_, err = socket.SendBytes(encoded, 0)
+			if err == nil {
+				isSend = true
+				return
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
 //
 
 type CommandMessageReady struct {
@@ -288,6 +316,15 @@ func EncodeCommandMessage(commandMessage CommandMessage) (bytesContent []byte, c
 
 func EncodeCommandMessageReply(commandMessageReply CommandMessageReply) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandMessageReply)
+	if err != nil {
+		commandError = fmt.Errorf("command %s", err)
+		return
+	}
+	return
+}
+
+func EncodeCommandMessageWait(commandMessageWait CommandMessageWait) (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(commandMessageWait)
 	if err != nil {
 		commandError = fmt.Errorf("command %s", err)
 		return
@@ -342,6 +379,15 @@ func DecodeCommandMessageReply(bytesContent []byte) (commandMessageReply Command
 
 func DecodeCommandMessageReady(bytesContent []byte) (commandMessageReady CommandMessageReady, commandError error) {
 	err := msgpack.Decode(bytesContent, &commandMessageReady)
+	if err != nil {
+		commandError = fmt.Errorf("CommandResponse %s", err)
+		return
+	}
+	return
+}
+
+func DecodeCommandMessageWait(bytesContent []byte) (commandMessageWait CommandMessageWait, commandError error) {
+	err := msgpack.Decode(bytesContent, &commandMessageWait)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return

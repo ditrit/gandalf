@@ -33,3 +33,30 @@ func NewClientGandalf(identity, senderCommandConnection, senderEventConnection, 
 
 	return
 }
+
+func (cg ClientGandalf) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string)  {
+	cg.SenderGandalf.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
+}
+
+func (cg ClientGandalf) SendCommandReply(commandMessage CommandMessage, reply, payload string) {
+	cg.SenderGandalf.SendCommandReply(commandMessage CommandMessage, reply, payload)
+}
+
+func (cg ClientGandalf) SendEvent(topic, timeout, uuid, event, payload string) {
+	cg.SenderGandalf.SendEvent(topic, timeout, uuid, event, payload)
+}
+
+func (cg ClientGandalf) WaitCommand(string uuid) (commandMessage CommandMessage) {
+	//SEND WAIT
+	cg.WaiterGandalf.WaitCommand(uuid)
+}
+
+func (cg ClientGandalf) WaitCommandReply(uuid string) (commandMessageReply CommandMessageReply) {
+		//SEND WAIT
+	cg.WaiterGandalf.WaitCommandReply(uuid)
+}
+
+func (cg ClientGandalf) WaitEvent(event string) (eventMessage EventMessage) {
+		//SEND WAIT
+	cg.WaiterGandalf.WaitEvent(event)
+}
