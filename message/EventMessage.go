@@ -158,6 +158,31 @@ func (cfr EventFunctionReply) SendEventFunctionReplyWith(socket *zmq4.Socket) (i
 	}
 }
 
+type EventMessageWait struct {
+	event string
+}
+
+func NewEventMessageWait(event string) (eventMessageWait *EventMessageWait) {
+	eventMessageWait = new(EventMessageWait)
+	eventMessageWait.event = event
+	return
+}
+
+func (emw EventMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
+	for {
+		_, err := socket.Send(constant.EVENT_WAIT, zmq4.SNDMORE)
+		if err == nil {
+			encoded, _ := EncodeCommandMessageReady(cry)
+			_, err = socket.SendBytes(encoded, 0)
+			if err == nil {
+				isSend = true
+				return
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
 func EncodeEventMessage(eventMessage EventMessage) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(eventMessage)
 	if err != nil {

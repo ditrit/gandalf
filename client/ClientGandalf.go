@@ -12,8 +12,8 @@ type ClientGandalf struct {
 	Identity                  string
 	SenderCommandConnection   string
 	SenderEventConnection     string
-	WaiterCommandConnection string
-	WaiterEventConnection   string
+	WaiterCommandConnection   string
+	WaiterEventConnection     string
 	SenderGandalf             *sender.SenderGandalf
 	WaiterGandalf             *waiter.WaiterGandalf
 }

@@ -36,7 +36,8 @@ func NewWaiterCommandRoutine(identity, waiterCommandConnection string, commandsR
 }
 
 func (r WaiterCommandRoutine) WaitCommand(string uuid) (commandMessage CommandMessage) {
-	//SEND REQUEST
+	commandMessageWait := CommandMessageWait.NewCommandMessageWait(uuid, constant.COMMAND_MESSAGE)
+	go commandMessageWait.SendWith(r.WaiterCommandReceive)
 	for {
 		command, err := r.WaiterCommandReceive.RecvMessageBytes(0)
 		if err != nil {
@@ -48,7 +49,8 @@ func (r WaiterCommandRoutine) WaitCommand(string uuid) (commandMessage CommandMe
 }
 
 func (r WaiterCommandRoutine) WaitCommandReply(uuid string) (commandMessageReply CommandMessageReply) {
-	//SEND REQUEST
+	commandMessageWait := CommandMessageWait.NewCommandMessageWait(uuid, constant.COMMAND_MESSAGE_REPLY)
+	go commandMessageWait.SendWith(r.WaiterCommandReceive)
 	for {
 		command, err := r.WaiterCommandReceive.RecvMessageBytes(0)
 		if err != nil {
@@ -58,3 +60,4 @@ func (r WaiterCommandRoutine) WaitCommandReply(uuid string) (commandMessageReply
 		return
 	}
 }
+

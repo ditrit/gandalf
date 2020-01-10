@@ -36,7 +36,8 @@ func NewWaiterEventRoutine(identity, waiterEventConnection string, commandsRouti
 }
 
 func (r WaiterEventRoutine) WaitEvent(event string) (eventMessage EventMessage) {
-	//SEND REQUEST
+	eventMessageWait := EventMessageWait.NewEventMessageWait(uuid)
+	go eventMessageWait.SendWith(r.WaiterEventReceive)
 	for {
 		event, err := r.WaiterEventReceive.RecvMessageBytes(0)
 		if err != nil {

@@ -262,9 +262,9 @@ func NewCommandMessageWait(uuid, typeCommand string) (commandMessageWait *Comman
 	return
 }
 
-func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {
+func (cmw CommandMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		_, err := socket.Send(constant.COMMAND_READY, zmq4.SNDMORE)
+		_, err := socket.Send(constant.COMMAND_WAIT, zmq4.SNDMORE)
 		if err == nil {
 			encoded, _ := EncodeCommandMessageReady(cry)
 			_, err = socket.SendBytes(encoded, 0)
