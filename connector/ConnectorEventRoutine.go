@@ -14,7 +14,7 @@ type ConnectorEventRoutine struct {
 	Context                                        *zmq4.Context
 	ConnectorMapUUIDEventMessage                   *Queue
 	ConnectorMapWorkerEvents                       map[string][]string
-	ConnectorMapEventIterator                      map[string][]*Iterator
+	ConnectorMapEventIterators                      map[string][]*Iterator
 	ConnectorEventSendToWorker                     *zmq4.Socket
 	ConnectorEventSendToWorkerConnection           string
 	ConnectorEventReceiveFromAggregator            *zmq4.Socket
@@ -29,7 +29,7 @@ type ConnectorEventRoutine struct {
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) (connectorEventRoutine *ConnectorEventRoutine) {
 	connectorEventRoutine = new(ConnectorEventRoutine)
 	connectorEventRoutine.Identity = identity
-	connectorEventRoutine.ConnectorMapEventIterator = make(map[string][]*Iterator)
+	connectorEventRoutine.ConnectorMapEventIterators = make(map[string][]*Iterator)
 	connectorEventRoutine.ConnectorMapUUIDEventMessage.Init()
 
  	connectorEventRoutine.Context, _ = zmq4.NewContext()
@@ -167,11 +167,11 @@ func (r ConnectorEventRoutine) run() {
 
 func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]byte) {
 
-	eventType := string(command[1])
+	eventType := string(event[1])
 	if eventType == constant.EVENT_WAIT {
-		eventMessageWait, _ := message.DecodeEventMessageWait(command[2])
-		iterator := Iterator.NewIterator(r.ConnectorMapUUIDCommandMessage)
-		ConnectorMapEventIterator[eventMessageWait.event] = iterator
+		eventMessageWait, _ := message.DecodeEventMessageWait(event[2])
+		iterator := NewIterator(r.ConnectorMapUUIDEventMessage)
+		r.ConnectorMapEventIterators[eventMessageWait.Event] = append(r.ConnectorMapEventIterators[eventMessageWait.Event], iterator)
 	}
 }
 
@@ -193,11 +193,11 @@ func (r ConnectorEventRoutine) processEventReceiveFromWorker(topic []byte, event
 		if result {
 			r.ConnectorMapWorkerEvents[eventFunctions.Worker] = eventFunctions.Functions
 			eventFunctionReply := message.NewEventFunctionReply(result)
-			go eventFunctionReply.SendEventFunctionReplyWith(r.ConnectorEventReceiveFromAggregator)
+			go eventFunctionReply.SendMessageWith(r.ConnectorEventReceiveFromAggregator)
 		}
 	} else {
 		eventMessage, _ := message.DecodeEventMessage(event[0])
-		go eventMessage.SendEventWith(r.ConnectorEventSendToAggregator)
+		go eventMessage.SendMessageWith(r.ConnectorEventSendToAggregator)
 	}
 }
 

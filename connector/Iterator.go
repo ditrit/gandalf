@@ -2,6 +2,7 @@ package connector
 
 import (
 	"sync"
+	"gandalf-go/message"
 )
 
 //Iterator : queue allowing access via a string key
@@ -32,11 +33,11 @@ func (i *Iterator) Close() {
 }
 
 // Get : get next unseen element
-func (i *Iterator) Get() *Message {
+func (i *Iterator) Get() *message.Message {
 	i.m.Lock()
 	defer i.m.Unlock()
 
-	var message *Message
+	var message *message.Message
 	// Si la queue est vide, on ne renvoie rien
 	if i.queue.IsEmpty() {
 		return nil

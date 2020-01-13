@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
-	"strconv"
-	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -131,12 +129,13 @@ func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_WAIT {
 		commandMessageWait, _ := message.DecodeCommandMessageWait(command[2])
-		if commandMessageWait.typeCommand == constant.COMMAND_MESSAGE_REPLY {
-			iterator := Iterator.NewIterator(r.ConnectorMapUUIDCommandMessageReply)
+		var iterator *Iterator
+		if commandMessageWait.TypeCommand == constant.COMMAND_MESSAGE_REPLY {
+			iterator = NewIterator(r.ConnectorMapUUIDCommandMessageReply)
 		} else {
-			iterator := Iterator.NewIterator(r.ConnectorMapUUIDCommandMessage)
+			iterator = NewIterator(r.ConnectorMapUUIDCommandMessage)
 		}
-		ConnectorMapUUIDIterators[commandMessageWait.uuid] = iterator
+		r.ConnectorMapUUIDIterators[commandMessageWait.Uuid] = append(r.ConnectorMapUUIDIterators[commandMessageWait.Uuid], iterator)
 	}
 }
 
@@ -165,12 +164,12 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromWorker(command [][]byt
 		if result {
 			r.ConnectorMapWorkerCommands[workerSource] = commandFunction.Functions
 			commandFunctionReply := message.NewCommandFunctionReply(result)
-			go commandFunctionReply.SendCommandFunctionReplyWith(r.ConnectorCommandSendToWorker)
+			go commandFunctionReply.SendMessageWith(r.ConnectorCommandSendToWorker)
 		}
 	} else {
 		commandMessage, _ := message.DecodeCommandMessage(command[1])
 		commandMessage.SourceWorker = workerSource
-		go commandMessage.SendCommandWith(r.ConnectorCommandSendToAggregator)
+		go commandMessage.SendMessageWith(r.ConnectorCommandSendToAggregator)
 	}
 }
 
@@ -182,14 +181,10 @@ func (r ConnectorCommandRoutine) validationCommands(workerSource string, command
 }
 
 func (r ConnectorCommandRoutine) addCommands(commandMessage message.CommandMessage) {
-	if _, ok := r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid]; ok {
-		if !ok {
-			r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid] = append(r.ConnectorMapUUIDCommandMessage[commandMessage.Uuid], commandMessage)
-		}
-	}
+	r.ConnectorMapUUIDCommandMessage.Push(commandMessage)
 }
 
-func (r ConnectorCommandRoutine) cleanCommandsByTimeout() {
+/* func (r ConnectorCommandRoutine) cleanCommandsByTimeout() {
 	maxTimeout := 0
 	currentTimestamp := -1
 	currentTimeout := -1
@@ -210,4 +205,4 @@ func (r ConnectorCommandRoutine) cleanCommandsByTimeout() {
 		}
 		time.Sleep(time.Duration(maxTimeout) * time.Millisecond)
 	}
-}
+} */

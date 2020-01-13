@@ -154,22 +154,22 @@ func (r AggregatorEventRoutine) run() {
 
 func (r AggregatorEventRoutine) processEventSendToCluster(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
-	go eventMessage.SendEventWith(r.AggregatorEventReceiveFromConnector)
+	go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromConnector)
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromCluster(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
-	go eventMessage.SendEventWith(r.AggregatorEventSendToConnector)
+	go eventMessage.SendMessageWith(r.AggregatorEventSendToConnector)
 }
 
 func (r AggregatorEventRoutine) processEventSendToConnector(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
-	go eventMessage.SendEventWith(r.AggregatorEventReceiveFromCluster)
+	go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromCluster)
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromConnector(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
-	go eventMessage.SendEventWith(r.AggregatorEventSendToCluster)
+	go eventMessage.SendMessageWith(r.AggregatorEventSendToCluster)
 }
 
 func (r AggregatorEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {

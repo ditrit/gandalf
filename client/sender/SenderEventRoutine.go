@@ -49,7 +49,7 @@ func NewSenderEventRoutineList(identity string, senderEventConnections []string)
 
 func (r SenderEventRoutine) SendEvent(topic, timeout, uuid, event, payload string) {
 	eventMessage := message.NewEventMessage(topic, timeout, uuid, event, payload)
-	go eventMessage.SendEventWith(r.SenderEventSend)
+	go eventMessage.SendMessageWith(r.SenderEventSend)
 }
 
 func (r SenderEventRoutine) close() {

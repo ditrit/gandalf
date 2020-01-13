@@ -1,7 +1,6 @@
 package waiter
 
 import (
-	"errors"
 	"fmt"
 	"gandalf-go/message"
 	"gandalf-go/worker/routine"
@@ -18,13 +17,12 @@ type WaiterCommandRoutine struct {
 	Identity                     string
 }
 
-func NewWaiterCommandRoutine(identity, waiterCommandConnection string, commandsRoutine map[string][]routine.CommandRoutine, results chan message.CommandMessageReply) (waiterCommandRoutine *WaiterCommandRoutine) {
+func NewWaiterCommandRoutine(identity, waiterCommandConnection string, commandsRoutine map[string][]routine.CommandRoutine) (waiterCommandRoutine *WaiterCommandRoutine) {
 	waiterCommandRoutine = new(WaiterCommandRoutine)
 
 	waiterCommandRoutine.Identity = identity
 	waiterCommandRoutine.WaiterCommandConnection = waiterCommandConnection
 	waiterCommandRoutine.CommandsRoutine = commandsRoutine
-	waiterCommandRoutine.Replys = make(chan message.CommandMessageReply)
 
 	waiterCommandRoutine.Context, _ = zmq4.NewContext()
 	waiterCommandRoutine.WaiterCommandReceive, _ = waiterCommandRoutine.Context.NewSocket(zmq4.DEALER)
@@ -35,7 +33,7 @@ func NewWaiterCommandRoutine(identity, waiterCommandConnection string, commandsR
 	return
 }
 
-func (r WaiterCommandRoutine) WaitCommand(string uuid) (commandMessage CommandMessage) {
+func (r WaiterCommandRoutine) WaitCommand(uuid string) (commandMessage message.CommandMessage) {
 	commandMessageWait := CommandMessageWait.NewCommandMessageWait(uuid, constant.COMMAND_MESSAGE)
 	go commandMessageWait.SendWith(r.WaiterCommandReceive)
 	for {
@@ -44,11 +42,12 @@ func (r WaiterCommandRoutine) WaitCommand(string uuid) (commandMessage CommandMe
 			panic(err)
 		}
 		commandMessage, _ := message.DecodeCommandMessage(command[1])
-		return
+		break
 	}
+	return
 }
 
-func (r WaiterCommandRoutine) WaitCommandReply(uuid string) (commandMessageReply CommandMessageReply) {
+func (r WaiterCommandRoutine) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {
 	commandMessageWait := CommandMessageWait.NewCommandMessageWait(uuid, constant.COMMAND_MESSAGE_REPLY)
 	go commandMessageWait.SendWith(r.WaiterCommandReceive)
 	for {
@@ -57,7 +56,8 @@ func (r WaiterCommandRoutine) WaitCommandReply(uuid string) (commandMessageReply
 			panic(err)
 		}
 		commandMessageReply, _ := message.DecodeCommandMessageReply(command[1])
-		return
+		break
 	}
+	return
 }
 

@@ -36,10 +36,14 @@ func (e EventMessage) GetUUID() string {
 	return e.Uuid
 }
 
+func (e EventMessage) GetTimeout() string {
+	return e.Timeout
+}
+
 func (e EventMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = e.SendHeaderWith(socket, header)
-		isSend = isSend && isSend && e.SendEventWith(socket)
+		isSend = isSend && e.SendMessageWith(socket)
 		if isSend {
 			return
 		}
@@ -58,7 +62,7 @@ func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend
 	}
 }
 
-func (e EventMessage) SendEventWith(socket *zmq4.Socket) (isSend bool) {
+func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(e.Topic, zmq4.SNDMORE)
 
@@ -128,7 +132,7 @@ func NewEventFunctionReply(validation bool) (eventFunctionReply *EventFunctionRe
 func (cfr EventFunctionReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = cfr.SendHeaderWith(socket, header)
-		isSend = isSend && cfr.SendEventFunctionReplyWith(socket)
+		isSend = isSend && cfr.SendMessageWith(socket)
 		if isSend {
 			return
 		}
@@ -147,7 +151,7 @@ func (cfr EventFunctionReply) SendHeaderWith(socket *zmq4.Socket, header string)
 	}
 }
 
-func (cfr EventFunctionReply) SendEventFunctionReplyWith(socket *zmq4.Socket) (isSend bool) {
+func (cfr EventFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, zmq4.SNDMORE)
 		if err == nil {
@@ -163,12 +167,12 @@ func (cfr EventFunctionReply) SendEventFunctionReplyWith(socket *zmq4.Socket) (i
 }
 
 type EventMessageWait struct {
-	event string
+	Event string
 }
 
 func NewEventMessageWait(event string) (eventMessageWait *EventMessageWait) {
 	eventMessageWait = new(EventMessageWait)
-	eventMessageWait.event = event
+	eventMessageWait.Event = event
 	return
 }
 
@@ -176,7 +180,7 @@ func (emw EventMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.EVENT_WAIT, zmq4.SNDMORE)
 		if err == nil {
-			encoded, _ := EncodeCommandMessageReady(cry)
+			encoded, _ := EncodeEventMessageWait(emw)
 			_, err = socket.SendBytes(encoded, 0)
 			if err == nil {
 				isSend = true

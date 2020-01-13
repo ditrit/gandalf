@@ -136,6 +136,6 @@ func (r ReceiverCommandRoutine) sendResults() {
 		if err != nil {
 
 		}
-		go reply.SendCommandReplyWith(r.WorkerCommandReceive)
+		go reply.SendMessageWith(r.WorkerCommandReceive)
 	}
 }

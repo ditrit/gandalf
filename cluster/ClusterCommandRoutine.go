@@ -94,14 +94,20 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 	if commandType == constant.COMMAND_MESSAGE {
 		message, _ := message.DecodeCommandMessage(command[2])
 		target :=  message.DestinationAggregator
+		r.processCaptureCommand(message)
+		go message.SendWith(r.ClusterCommandSend, target)
 	} else {
-		message, _ := message.DecodeCommandMessageReply(command[2])
-		target := message.SourceAggregator
+		messageReply, _ := message.DecodeCommandMessageReply(command[2])
+		target := messageReply.SourceAggregator
+		r.processCaptureCommandReply(messageReply)
+		go messageReply.SendWith(r.ClusterCommandSend, target)
 	}
-	r.processCaptureCommand(commandMessage)
-	go commandMessage.SendWith(r.ClusterCommandSend, target)
 }
 
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.CommandMessage) {
 	go commandMessage.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
+}
+
+func (r ClusterCommandRoutine) processCaptureCommandReply(commandMessageReply message.CommandMessageReply) {
+	go commandMessageReply.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

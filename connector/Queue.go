@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"strconv"
+	"gandalf-go/message"
 )
 
 //Queue : queue allowing access via a string key
@@ -30,10 +32,10 @@ func (q *Queue) Init() {
 }
 
 // Push : insert a new value in the queue except if the UUID is already present and remove after timeout expiration
-func (q *Queue) Push(m Message) {
+func (q *Queue) Push(m message.Message) {
 	fmt.Printf("Push a message!")
 	key := m.GetUUID()
-	timeout := m.GetTimeout()
+	timeout, _ := strconv.Atoi(m.GetTimeout())
 	q.m.Lock()
 	defer q.m.Unlock()
 	ele := q.dict[key]
@@ -50,26 +52,26 @@ func (q *Queue) Push(m Message) {
 }
 
 // First :
-func (q *Queue) First() *Message {
+func (q *Queue) First() *message.Message {
 	q.m.Lock()
 	defer q.m.Unlock()
 	ele := q.qlist.Back()
 	if ele != nil {
-		value := ele.Value.(Message)
+		value := ele.Value.(message.Message)
 		return &value
 	}
 	return nil
 }
 
 // Next :
-func (q *Queue) Next(key string) *Message {
+func (q *Queue) Next(key string) *message.Message {
 	q.m.Lock()
 	defer q.m.Unlock()
 	eleFromKey := q.dict[key]
 	if eleFromKey != nil {
 		nextEle := eleFromKey.Prev()
 		if nextEle != nil {
-			nextMessage := nextEle.Value.(Message)
+			nextMessage := nextEle.Value.(message.Message)
 			return &nextMessage
 		}
 	}
@@ -93,7 +95,7 @@ func (q *Queue) remove(key string) {
 	}
 	nextUUID := ""
 	if nextEle != nil {
-		nextUUID = nextEle.Value.(Message).GetUUID()
+		nextUUID = nextEle.Value.(message.Message).GetUUID()
 	}
 
 	// suppression et repositionnement pour chaque iterateur
@@ -122,7 +124,7 @@ func (q *Queue) Print() {
 	ele := q.qlist.Back()
 	fmt.Printf("   Queue{\n")
 	for ele != nil {
-		fmt.Printf("      %s,\n", ele.Value.(Message).GetUUID())
+		fmt.Printf("      %s,\n", ele.Value.(message.Message).GetUUID())
 		ele = ele.Prev()
 	}
 	fmt.Printf("nb eles : %d\n", q.qlist.Len())

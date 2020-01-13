@@ -53,26 +53,26 @@ func NewLenderCommandRoutine(identity string, senderCommandConnections []string)
 	return
 }
 
-func (r SenderCommandRoutine) SendCommandSync(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
+/* func (r SenderCommandRoutine) SendCommandSync(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
 
 	go commandMessage.SendCommandWith(r.SenderCommandSend)
 	commandMessageReply = r.getCommandResultSync(commandMessage.Uuid)
 
 	return
-}
+} */
 
 func (r SenderCommandRoutine) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string)  {
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
 
-	go commandMessage.SendCommandWith(r.SenderCommandSend)
+	go commandMessage.SendMessageWith(r.SenderCommandSend)
 }
 
-func (r SenderCommandRoutine) SendCommandReply(commandMessage CommandMessage, reply, payload string) {
-	commandMessageReply := new(CommandMessageReply)
+func (r SenderCommandRoutine) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) {
+	commandMessageReply := new(message.CommandMessageReply)
 	commandMessageReply.From(commandMessage, reply, payload)
 
-	go commandMessageReply.SendCommandReplyWith(r.SenderCommandSend)
+	go commandMessageReply.SendMessageWith(r.SenderCommandSend)
 	return
 }
 

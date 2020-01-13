@@ -33,11 +33,11 @@ func (wg WaiterGandalf) WaitEvent(event string) (eventMessage EventMessage) {
 }
 
 func (wg WaiterGandalf) WaitCommand(uuid string) (commandMessage CommandMessage) {
-	return wg.WaiterCommandRoutine.WaitCommand(uuid string)
+	return wg.WaiterCommandRoutine.WaitCommand(uuid)
 }
 
 func (wg WaiterGandalf) WaitCommandReply(uuid string) (commandMessageReply CommandMessageReply) {
-	return wg.WaiterCommandRoutine.WaitCommandReply(uuid string)
+	return wg.WaiterCommandRoutine.WaitCommandReply(uuid)
 }
 
 func (wg WaiterGandalf) Stop() {

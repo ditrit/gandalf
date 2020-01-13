@@ -1,7 +1,6 @@
 package waiter
 
 import (
-	"errors"
 	"fmt"
 	"gandalf-go/message"
 	"gandalf-go/worker/routine"
@@ -11,20 +10,18 @@ import (
 
 type WaiterEventRoutine struct {
 	Context                      *zmq4.Context
-	WaiterEventReceive         *zmq4.Socket
-	WaiterEventConnection    string
-	WaiterEventReceive           *zmq4.Socket
+	WaiterEventReceive         	 *zmq4.Socket
+	WaiterEventConnection    	 string
 	WaiterEventReceiveConnection string
 	Identity                     string
 }
 
-func NewWaiterEventRoutine(identity, waiterEventConnection string, commandsRoutine map[string][]routine.EventRoutine, results chan message.EventMessageReply) (waiterEventRoutine *WaiterEventRoutine) {
+func NewWaiterEventRoutine(identity, waiterEventConnection string, commandsRoutine map[string][]routine.EventRoutine) (waiterEventRoutine *WaiterEventRoutine) {
 	waiterEventRoutine = new(WaiterEventRoutine)
 
 	waiterEventRoutine.Identity = identity
 	waiterEventRoutine.WaiterEventConnection = waiterEventConnection
 	waiterEventRoutine.EventsRoutine = commandsRoutine
-	waiterEventRoutine.Replys = make(chan message.EventMessageReply)
 
 	waiterEventRoutine.Context, _ = zmq4.NewContext()
 	waiterEventRoutine.WaiterEventReceive, _ = waiterEventRoutine.Context.NewSocket(zmq4.DEALER)

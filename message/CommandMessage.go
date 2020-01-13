@@ -49,10 +49,14 @@ func (c CommandMessage) GetUUID() string {
 	return c.Uuid
 }
 
+func (c CommandMessage) GetTimeout() string {
+	return c.Timeout
+}
+
 func (c CommandMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = c.SendHeaderWith(socket, header)
-		isSend = isSend && c.SendCommandWith(socket)
+		isSend = isSend && c.SendMessageWith(socket)
 		if isSend {
 			return
 		}
@@ -71,11 +75,11 @@ func (c CommandMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSe
 	}
 }
 
-func (c CommandMessage) SendCommandWith(socket *zmq4.Socket) (isSend bool) {
+func (c CommandMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_MESSAGE, zmq4.SNDMORE)
 		encoded, _ := EncodeCommandMessage(c)
-		_, err := socket.SendBytes(encoded, 0)
+		_, err = socket.SendBytes(encoded, 0)
 		if err == nil {
 			isSend = true
 			return
@@ -128,10 +132,14 @@ func (cr CommandMessageReply) GetUUID() string {
 	return cr.Uuid
 }
 
+func (cr CommandMessageReply) GetTimeout() string {
+	return cr.Timeout
+}
+
 func (cr CommandMessageReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = cr.SendHeaderWith(socket, header)
-		isSend = isSend && cr.SendCommandReplyWith(socket)
+		isSend = isSend && cr.SendMessageWith(socket)
 		if isSend {
 			return
 		}
@@ -150,11 +158,11 @@ func (cr CommandMessageReply) SendHeaderWith(socket *zmq4.Socket, header string)
 	}
 }
 
-func (cr CommandMessageReply) SendCommandReplyWith(socket *zmq4.Socket) (isSend bool) {
+func (cr CommandMessageReply) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_MESSAGE_REPLY, zmq4.SNDMORE)
 		encoded, _ := EncodeCommandMessageReply(cr)
-		_, err := socket.SendBytes(encoded, 0)
+		_, err = socket.SendBytes(encoded, 0)
 		if err == nil {
 			isSend = true
 			return
@@ -224,7 +232,7 @@ func NewCommandFunctionReply(validation bool) (commandFunctionReply *CommandFunc
 func (cfr CommandFunctionReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = cfr.SendHeaderWith(socket, header)
-		isSend = isSend && cfr.SendCommandFunctionReplyWith(socket)
+		isSend = isSend && cfr.SendMessageWith(socket)
 		if isSend {
 			return
 		}
@@ -243,7 +251,7 @@ func (cfr CommandFunctionReply) SendHeaderWith(socket *zmq4.Socket, header strin
 	}
 }
 
-func (cfr CommandFunctionReply) SendCommandFunctionReplyWith(socket *zmq4.Socket) (isSend bool) {
+func (cfr CommandFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, zmq4.SNDMORE)
 		if err == nil {
@@ -259,14 +267,14 @@ func (cfr CommandFunctionReply) SendCommandFunctionReplyWith(socket *zmq4.Socket
 }
 
 type CommandMessageWait struct {
-	uuid string
-	typeCommand string
+	Uuid string
+	TypeCommand string
 }
 
 func NewCommandMessageWait(uuid, typeCommand string) (commandMessageWait *CommandMessageWait) {
 	commandMessageWait = new(CommandMessageWait)
-	commandMessageWait.uuid = uuid
-	commandMessageWait.typeCommand = typeCommand
+	commandMessageWait.Uuid = uuid
+	commandMessageWait.TypeCommand = typeCommand
 	return
 }
 
@@ -274,7 +282,7 @@ func (cmw CommandMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_WAIT, zmq4.SNDMORE)
 		if err == nil {
-			encoded, _ := EncodeCommandMessageReady(cry)
+			encoded, _ := EncodeCommandMessageWait(cmw)
 			_, err = socket.SendBytes(encoded, 0)
 			if err == nil {
 				isSend = true

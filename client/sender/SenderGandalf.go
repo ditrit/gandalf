@@ -1,5 +1,9 @@
 package sender
 
+import(
+	"gandalf-go/message"
+)
+
 type SenderGandalf struct {
 	Identity                string
 	SenderCommandConnection string
@@ -20,14 +24,14 @@ func NewSenderGandalf(identity, senderCommandConnection, senderEventConnection s
 }
 
 func (sg SenderGandalf) SendEvent(topic, timeout, uuid, event, payload string) {
-	sg.SenderEventRoutine.SenderEvent(topic, timeout, uuid, event, payload)
+	sg.SenderEventRoutine.SendEvent(topic, timeout, uuid, event, payload)
 }
 
 func (sg SenderGandalf) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string)  {
 	sg.SenderCommandRoutine.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
-func (sg SenderGandalf) SendCommandReplyWith(commandMessage CommandMessage, reply, payload string) {
+func (sg SenderGandalf) SendCommandReplyWith(commandMessage message.CommandMessage, reply, payload string) {
 	sg.SenderCommandRoutine.SendCommandReply(commandMessage, reply, payload)
 
 }

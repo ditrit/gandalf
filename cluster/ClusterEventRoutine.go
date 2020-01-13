@@ -113,13 +113,13 @@ func (r ClusterEventRoutine) run() {
 func (r ClusterEventRoutine) processEventSend(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	//r.processCaptureEvent(eventMessage)
-	go eventMessage.SendEventWith(r.ClusterEventReceive)
+	go eventMessage.SendMessageWith(r.ClusterEventReceive)
 }
 
 func (r ClusterEventRoutine) processEventReceive(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	//r.processCaptureEvent(eventMessage)
-	go eventMessage.SendEventWith(r.ClusterEventSend)
+	go eventMessage.SendMessageWith(r.ClusterEventSend)
 }
 
 func (r ClusterEventRoutine) processCaptureEvent(eventMessage message.EventMessage) {
