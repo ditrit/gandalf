@@ -3,8 +3,8 @@ package aggregator
 import (
 	"errors"
 	"fmt"
-	"gandalf-go/message"
 	"gandalf-go/constant"
+	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
 )
@@ -107,12 +107,16 @@ func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]b
 
 	fmt.Println("TOTO")
 	fmt.Println(command[0])
+	fmt.Println(string(command[0]))
 	fmt.Println(command[1])
+	fmt.Println(string(command[1]))
 	fmt.Println("TATA")
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
 		//COMMAND
 		message, _ := message.DecodeCommandMessage(command[2])
+		fmt.Println("MESSAGE")
+		fmt.Println(message)
 		go message.SendWith(r.aggregatorCommandSendToConnector, message.DestinationConnector)
 	} else {
 		//REPLY
@@ -125,6 +129,8 @@ func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]b
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
 	fmt.Println("TITI")
 	commandMessage, _ := message.DecodeCommandMessage(command[2])
+	fmt.Println("MESSAGE")
+	fmt.Println(commandMessage)
 	//go commandMessage.SendWith(r.aggregatorCommandSendToCluster, commandMessage.DestinationConnector)
 	go commandMessage.SendMessageWith(r.aggregatorCommandSendToCluster)
 	//RECEIVE FROM CONNECTOR

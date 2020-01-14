@@ -1,6 +1,6 @@
 package sender
 
-import(
+import (
 	"gandalf-go/message"
 )
 
@@ -27,11 +27,10 @@ func (sg SenderGandalf) SendEvent(topic, timeout, uuid, event, payload string) {
 	sg.SenderEventRoutine.SendEvent(topic, timeout, uuid, event, payload)
 }
 
-func (sg SenderGandalf) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string)  {
+func (sg SenderGandalf) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) {
 	sg.SenderCommandRoutine.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
-func (sg SenderGandalf) SendCommandReplyWith(commandMessage message.CommandMessage, reply, payload string) {
+func (sg SenderGandalf) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) {
 	sg.SenderCommandRoutine.SendCommandReply(commandMessage, reply, payload)
-
 }

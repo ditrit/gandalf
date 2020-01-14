@@ -1,13 +1,11 @@
 package waiter
 
 import (
-	"fmt"
 	"gandalf-go/message"
-	"gandalf-go/worker/routine"
 )
 
 type WaiterGandalf struct {
-	Identity                  string
+	Identity                string
 	WaiterCommandConnection string
 	WaiterEventConnection   string
 	WaiterCommandRoutine    *WaiterCommandRoutine
@@ -28,18 +26,18 @@ func NewWaiterGandalf(identity, waiterCommandConnection, waiterEventConnection s
 	return
 }
 
-func (wg WaiterGandalf) WaitEvent(event string) (eventMessage EventMessage) {
+func (wg WaiterGandalf) WaitEvent(event string) (eventMessage message.EventMessage) {
 	return wg.WaiterEventRoutine.WaitEvent(event)
 }
 
-func (wg WaiterGandalf) WaitCommand(uuid string) (commandMessage CommandMessage) {
+func (wg WaiterGandalf) WaitCommand(uuid string) (commandMessage message.CommandMessage) {
 	return wg.WaiterCommandRoutine.WaitCommand(uuid)
 }
 
-func (wg WaiterGandalf) WaitCommandReply(uuid string) (commandMessageReply CommandMessageReply) {
+func (wg WaiterGandalf) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {
 	return wg.WaiterCommandRoutine.WaitCommandReply(uuid)
 }
 
 func (wg WaiterGandalf) Stop() {
-	rg.WaiterStopChannel <- 0
+	wg.WaiterStopChannel <- 0
 }

@@ -57,6 +57,7 @@ func (c CommandMessage) SendWith(socket *zmq4.Socket, header string) (isSend boo
 	for {
 		isSend = c.SendHeaderWith(socket, header)
 		isSend = isSend && c.SendMessageWith(socket)
+		fmt.Println(isSend)
 		if isSend {
 			return
 		}
@@ -267,14 +268,15 @@ func (cfr CommandFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend boo
 }
 
 type CommandMessageWait struct {
-	Uuid string
-	TypeCommand string
+	Value       string
+	CommandType string
 }
 
-func NewCommandMessageWait(uuid, typeCommand string) (commandMessageWait *CommandMessageWait) {
+func NewCommandMessageWait(value, commandType string) (commandMessageWait *CommandMessageWait) {
 	commandMessageWait = new(CommandMessageWait)
-	commandMessageWait.Uuid = uuid
-	commandMessageWait.TypeCommand = typeCommand
+	commandMessageWait.CommandType = commandType
+	commandMessageWait.Value = value
+
 	return
 }
 
@@ -292,6 +294,7 @@ func (cmw CommandMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
 		time.Sleep(2 * time.Second)
 	}
 }
+
 //
 
 type CommandMessageReady struct {

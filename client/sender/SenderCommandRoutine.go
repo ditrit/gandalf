@@ -14,7 +14,7 @@ type SenderCommandRoutine struct {
 	SenderCommandConnection  string
 	Identity                 string
 	//Replys                   chan message.CommandMessageReply
-	MapUUIDCommandStates     map[string]string
+	MapUUIDCommandStates map[string]string
 }
 
 func NewSenderCommandRoutine(identity, senderCommandConnection string) (senderCommandRoutine *SenderCommandRoutine) {
@@ -34,7 +34,7 @@ func NewSenderCommandRoutine(identity, senderCommandConnection string) (senderCo
 	return
 }
 
-func NewLenderCommandRoutine(identity string, senderCommandConnections []string) (senderCommandRoutine *SenderCommandRoutine) {
+func NewSenderCommandRoutineList(identity string, senderCommandConnections []string) (senderCommandRoutine *SenderCommandRoutine) {
 	senderCommandRoutine = new(SenderCommandRoutine)
 
 	//senderCommandRoutine.Replys = make(chan message.CommandMessageReply)
@@ -62,18 +62,17 @@ func NewLenderCommandRoutine(identity string, senderCommandConnections []string)
 	return
 } */
 
-func (r SenderCommandRoutine) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string)  {
+func (r SenderCommandRoutine) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) {
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
-
-	go commandMessage.SendMessageWith(r.SenderCommandSend)
+	commandMessage.DestinationAggregator = "aggregator1"
+	commandMessage.DestinationConnector = "connector1"
+	commandMessage.SendMessageWith(r.SenderCommandSend)
 }
 
 func (r SenderCommandRoutine) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) {
 	commandMessageReply := new(message.CommandMessageReply)
 	commandMessageReply.From(commandMessage, reply, payload)
-
-	go commandMessageReply.SendMessageWith(r.SenderCommandSend)
-	return
+	commandMessageReply.SendMessageWith(r.SenderCommandSend)
 }
 
 /* //TEST

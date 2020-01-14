@@ -12,9 +12,9 @@ import (
 
 type ConnectorEventRoutine struct {
 	Context                                        *zmq4.Context
-	ConnectorMapUUIDEventMessage                   *Queue
+	ConnectorMapEventNameEventMessage              *Queue
 	ConnectorMapWorkerEvents                       map[string][]string
-	ConnectorMapEventIterators                      map[string][]*Iterator
+	ConnectorMapEventIterators                     map[string][]*Iterator
 	ConnectorEventSendToWorker                     *zmq4.Socket
 	ConnectorEventSendToWorkerConnection           string
 	ConnectorEventReceiveFromAggregator            *zmq4.Socket
@@ -30,9 +30,10 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine = new(ConnectorEventRoutine)
 	connectorEventRoutine.Identity = identity
 	connectorEventRoutine.ConnectorMapEventIterators = make(map[string][]*Iterator)
-	connectorEventRoutine.ConnectorMapUUIDEventMessage.Init()
+	connectorEventRoutine.ConnectorMapEventNameEventMessage = NewQueue()
+	connectorEventRoutine.ConnectorMapEventNameEventMessage.Init()
 
- 	connectorEventRoutine.Context, _ = zmq4.NewContext()
+	connectorEventRoutine.Context, _ = zmq4.NewContext()
 	connectorEventRoutine.ConnectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
 	connectorEventRoutine.ConnectorEventSendToWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
 	connectorEventRoutine.ConnectorEventSendToWorker.SetIdentity(connectorEventRoutine.Identity)
@@ -44,7 +45,7 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventReceiveFromWorker.Bind(connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection)
 	fmt.Println("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
-	connectorEventRoutine.ConnectorEventReceiveFromWorker.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL 
+	connectorEventRoutine.ConnectorEventReceiveFromWorker.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
 	connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnections = connectorEventReceiveFromAggregatorConnections
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
@@ -69,7 +70,6 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 
 	return
 }
-
 
 func (r ConnectorEventRoutine) close() {
 	r.ConnectorEventSendToWorker.Close()
@@ -130,7 +130,7 @@ func (r ConnectorEventRoutine) run() {
 				}
 				r.processEventReceiveFromAggregator(topic, event)
 
-		/* 	case r.ConnectorEventSendToAggregator:
+				/* 	case r.ConnectorEventSendToAggregator:
 				topic, err = currentSocket.RecvBytes(0)
 				if err != nil {
 					panic(err)
@@ -170,14 +170,14 @@ func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]
 	eventType := string(event[1])
 	if eventType == constant.EVENT_WAIT {
 		eventMessageWait, _ := message.DecodeEventMessageWait(event[2])
-		iterator := NewIterator(r.ConnectorMapUUIDEventMessage)
+		iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
 		r.ConnectorMapEventIterators[eventMessageWait.Event] = append(r.ConnectorMapEventIterators[eventMessageWait.Event], iterator)
 	}
 }
 
 func (r ConnectorEventRoutine) processEventReceiveFromAggregator(topic []byte, event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
-	r.ConnectorMapUUIDEventMessage.Push(eventMessage)
+	r.ConnectorMapEventNameEventMessage.Push(eventMessage)
 	//go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
 }
 
@@ -185,7 +185,7 @@ func (r ConnectorEventRoutine) processEventReceiveFromAggregator(topic []byte, e
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
 }
- */
+*/
 func (r ConnectorEventRoutine) processEventReceiveFromWorker(topic []byte, event [][]byte) {
 	if string(topic) == constant.EVENT_VALIDATION_FUNCTIONS {
 		eventFunctions, _ := message.DecodeEventFunction(event[0])
@@ -219,9 +219,9 @@ func (r ConnectorEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []b
 }
 
 /*func (r ConnectorEventRoutine) addEvents(eventMessage message.EventMessage) {
-	if val, ok := r.ConnectorMapUUIDEventMessage[eventMessage.Uuid]; ok {
+	if val, ok := r.ConnectorMapEventNameEventMessage[eventMessage.Uuid]; ok {
 		if !ok {
-			r.ConnectorMapUUIDEventMessage[eventMessage.Uuid] = eventMessage
+			r.ConnectorMapEventNameEventMessage[eventMessage.Uuid] = eventMessage
 		}
 	}
 }
@@ -229,7 +229,7 @@ func (r ConnectorEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []b
 func (r ConnectorEventRoutine) cleanEventsByTimeout() {
 	maxTimeout = 0
 	for {
-		for uuid, eventMessage := range r.connectorMapUUIDEventMessage {
+		for uuid, eventMessage := range r.ConnectorMapEventNameEventMessage {
 			if commandMessage.timestamp - commandMessage.timeout == 0 {
 				delete(r.commandUUIDCommandMessage, uuid)
 			} else {

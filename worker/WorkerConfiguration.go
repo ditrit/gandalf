@@ -5,11 +5,11 @@ import (
 )
 
 type WorkerConfiguration struct {
-	SenderCommandConnection   string
-	SenderEventConnection     string
-	ReceiverCommandConnection string
-	ReceiverEventConnection   string
-	Identity                  string
+	SenderCommandConnection string
+	SenderEventConnection   string
+	WaiterCommandConnection string
+	WaiterEventConnection   string
+	Identity                string
 }
 
 func LoadConfiguration(path string) (workerConfiguration *WorkerConfiguration, err error) {

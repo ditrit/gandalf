@@ -1,21 +1,20 @@
 package client
 
 import (
-	"fmt"
-	"gandalf-go/client/waiter"
 	"gandalf-go/client/sender"
+	"gandalf-go/client/waiter"
 	"gandalf-go/message"
-	"gandalf-go/worker/routine"
 )
 
 type ClientGandalf struct {
-	Identity                  string
-	SenderCommandConnection   string
-	SenderEventConnection     string
-	WaiterCommandConnection   string
-	WaiterEventConnection     string
-	SenderGandalf             *sender.SenderGandalf
-	WaiterGandalf             *waiter.WaiterGandalf
+	Identity                string
+	SenderCommandConnection string
+	SenderEventConnection   string
+	WaiterCommandConnection string
+	WaiterEventConnection   string
+	SenderGandalf           *sender.SenderGandalf
+	WaiterGandalf           *waiter.WaiterGandalf
+	ClientStopChannel       chan int
 }
 
 func NewClientGandalf(identity, senderCommandConnection, senderEventConnection, waiterCommandConnection, waiterEventConnection string) (clientGandalf *ClientGandalf) {
@@ -34,29 +33,29 @@ func NewClientGandalf(identity, senderCommandConnection, senderEventConnection, 
 	return
 }
 
-func (cg ClientGandalf) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string)  {
+func (cg ClientGandalf) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) {
 	cg.SenderGandalf.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
-func (cg ClientGandalf) SendCommandReply(commandMessage CommandMessage, reply, payload string) {
-	cg.SenderGandalf.SendCommandReply(commandMessage CommandMessage, reply, payload)
+func (cg ClientGandalf) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) {
+	cg.SenderGandalf.SendCommandReply(commandMessage, reply, payload)
 }
 
 func (cg ClientGandalf) SendEvent(topic, timeout, uuid, event, payload string) {
 	cg.SenderGandalf.SendEvent(topic, timeout, uuid, event, payload)
 }
 
-func (cg ClientGandalf) WaitCommand(string uuid) (commandMessage CommandMessage) {
+func (cg ClientGandalf) WaitCommand(uuid string) (commandMessage message.CommandMessage) {
 	//SEND WAIT
-	cg.WaiterGandalf.WaitCommand(uuid)
+	return cg.WaiterGandalf.WaitCommand(uuid)
 }
 
-func (cg ClientGandalf) WaitCommandReply(uuid string) (commandMessageReply CommandMessageReply) {
-		//SEND WAIT
-	cg.WaiterGandalf.WaitCommandReply(uuid)
+func (cg ClientGandalf) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {
+	//SEND WAIT
+	return cg.WaiterGandalf.WaitCommandReply(uuid)
 }
 
-func (cg ClientGandalf) WaitEvent(event string) (eventMessage EventMessage) {
-		//SEND WAIT
-	cg.WaiterGandalf.WaitEvent(event)
+func (cg ClientGandalf) WaitEvent(event string) (eventMessage message.EventMessage) {
+	//SEND WAIT
+	return cg.WaiterGandalf.WaitEvent(event)
 }

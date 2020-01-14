@@ -7,13 +7,10 @@ import (
 	"gandalf-go/cluster"
 	"gandalf-go/connector"
 	"gandalf-go/message"
+	"gandalf-go/tset"
 	"gandalf-go/worker"
-	"gandalf-go/worker/routine"
 	"log"
 	"time"
-
-	"gandalf-go/client/sender"
-	"gandalf-go/tset/function"
 
 	"github.com/pebbe/zmq4"
 )
@@ -47,15 +44,21 @@ func main() {
 		workerGandalf.Run()
 		fmt.Println("Worker " + config)
 	case "workerTestSend":
+		toto := tset.NewWorkerSender(config)
+		toto.WorkerGandalf.ClientGandalf.SendCommand("toto", "100", "toto", "toto", "toto", "toto", "toto")
+		fmt.Println("BOOP")
+		//toto.WorkerGandalf.ClientGandalf.SendEvent("toto", "100", "toto", "toto", "toto")
+		time.Sleep(time.Second * 5)
 
 		fmt.Println("WorkerSend " + config)
 
-		clientT := sender.NewSenderGandalf("toto", "tcp://127.0.0.1:9141", "tcp://127.0.0.1:9151")
-		//clientT.SenderCommandRoutine.SendCommandSyncTEST("context", "timeout", "uuid", "connectorType", "commandType", "command", "payload")
-		time.Sleep(time.Second * 5)
-		clientT.SenderEventRoutine.SendEvent("topic", "timeout", "uuid", "event", "payload")
+		//clientT := sender.NewSenderGandalf("toto", "tcp://127.0.0.1:9241", "tcp://127.0.0.1:9251")
+		//clientT.SenderCommandRoutine.SendCommand("context", "timeout", "uuid", "connectorType", "commandType", "command", "payload")
+		//time.Sleep(time.Second * 5)
+		//clientT.SenderEventRoutine.SendEvent("topic", "timeout", "uuid", "event", "payload")
 	case "workerTestReceive":
-		commandsRoutine := make(map[string][]routine.CommandRoutine)
+		tset.NewWorkerReceiver(config).Run()
+		/* commandsRoutine := make(map[string][]routine.CommandRoutine)
 		command := new(function.FunctionTest)
 		fmt.Println("BEFORE")
 		fmt.Println(commandsRoutine["command"])
@@ -72,7 +75,7 @@ func main() {
 		fmt.Println(eventsRoutine["command"])
 
 		receiveT := worker.NewWorkerGandalfRoutine(config, commandsRoutine, eventsRoutine)
-		receiveT.Run()
+		receiveT.Run() */
 	case "Pub":
 		//  Prepare our publisher
 		publisher, _ := zmq4.NewSocket(zmq4.XPUB)
@@ -88,7 +91,7 @@ func main() {
 
 		eventMessage := message.NewEventMessage("topic", "timeout", "uuid", "event", "payload")
 		for {
-			go eventMessage.SendEventWith(publisher)
+			go eventMessage.SendMessageWith(publisher)
 			/* 		publisher.Send("A", zmq4.SNDMORE)
 			   		publisher.Send("WTF! 1 ", 0) */
 

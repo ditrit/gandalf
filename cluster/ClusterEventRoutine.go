@@ -31,21 +31,21 @@ func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventRe
 	clusterEventRoutine.ClusterEventSend, _ = clusterEventRoutine.Context.NewSocket(zmq4.XPUB)
 	clusterEventRoutine.ClusterEventSend.SetIdentity(clusterEventRoutine.Identity)
 	clusterEventRoutine.ClusterEventSend.Bind(clusterEventRoutine.ClusterEventSendConnection)
-	fmt.Println("clusterEventSend connect : " + clusterEventSendConnection)
+	fmt.Println("clusterEventSend bind : " + clusterEventSendConnection)
 
 	clusterEventRoutine.ClusterEventReceiveConnection = clusterEventReceiveConnection
 	clusterEventRoutine.ClusterEventReceive, _ = clusterEventRoutine.Context.NewSocket(zmq4.XSUB)
 	clusterEventRoutine.ClusterEventReceive.SetIdentity(clusterEventRoutine.Identity)
 	clusterEventRoutine.ClusterEventReceive.SetSubscribe("")
 	clusterEventRoutine.ClusterEventReceive.Bind(clusterEventRoutine.ClusterEventReceiveConnection)
-	fmt.Println("clusterEventReceive connect : " + clusterEventReceiveConnection)
+	fmt.Println("clusterEventReceive bind : " + clusterEventReceiveConnection)
 	clusterEventRoutine.ClusterEventReceive.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
 	clusterEventRoutine.ClusterEventCaptureConnection = clusterEventCaptureConnection
 	clusterEventRoutine.ClusterEventCapture, _ = clusterEventRoutine.Context.NewSocket(zmq4.PUB)
 	clusterEventRoutine.ClusterEventCapture.SetIdentity(clusterEventRoutine.Identity)
 	clusterEventRoutine.ClusterEventCapture.Bind(clusterEventRoutine.ClusterEventCaptureConnection)
-	fmt.Println("clusterEventCapture connect : " + clusterEventCaptureConnection)
+	fmt.Println("clusterEventCapture bind : " + clusterEventCaptureConnection)
 
 	return
 }

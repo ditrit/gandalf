@@ -1,5 +1,5 @@
 {
-	"connectorCommandSendToWorkerConnection": "127.0.0.1:9140",
+	"connectorCommandSendToWorkerConnection": "tcp://127.0.0.1:9140",
 	"connectorCommandReceiveFromWorkerConnection": "tcp://127.0.0.1:9141",
 	"connectorCommandReceiveFromAggregatorConnections": ["tcp://127.0.0.1:9120", "tcp://127.0.0.1:9120"],
 	"connectorCommandSendToAggregatorConnections": ["tcp://127.0.0.1:9121", "tcp://127.0.0.1:9121"],
