@@ -45,9 +45,9 @@ func (cg ClientGandalf) SendEvent(topic, timeout, uuid, event, payload string) {
 	cg.SenderGandalf.SendEvent(topic, timeout, uuid, event, payload)
 }
 
-func (cg ClientGandalf) WaitCommand(uuid string) (commandMessage message.CommandMessage) {
+func (cg ClientGandalf) WaitCommand(command string) (commandMessage message.CommandMessage) {
 	//SEND WAIT
-	return cg.WaiterGandalf.WaitCommand(uuid)
+	return cg.WaiterGandalf.WaitCommand(command)
 }
 
 func (cg ClientGandalf) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {

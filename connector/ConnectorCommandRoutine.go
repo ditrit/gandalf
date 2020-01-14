@@ -129,8 +129,11 @@ func (r ConnectorCommandRoutine) run() {
 }
 
 func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
+	fmt.Println("WAIIIITTTT")
 	target := string(command[0])
+	fmt.Println(target)
 	commandType := string(command[1])
+	fmt.Println(commandType)
 	if commandType == constant.COMMAND_WAIT {
 		commandMessageWait, _ := message.DecodeCommandMessageWait(command[2])
 		var iterator *Iterator
@@ -141,7 +144,7 @@ func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 		}
 		r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
 
-		go r.runIterator(target, commandType, commandMessageWait.Value, iterator)
+		r.runIterator(target, commandType, commandMessageWait.Value, iterator)
 	}
 }
 
@@ -203,19 +206,23 @@ func (r ConnectorCommandRoutine) addCommands(commandMessage message.CommandMessa
 }
 
 func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, iterator *Iterator) {
+
 	notfound := true
 	for notfound {
+		fmt.Println("NOT FOUND")
 		messageIterator := iterator.Get()
 		if messageIterator != nil {
 			if commandType == constant.COMMAND_MESSAGE {
 				commandMessage := (*messageIterator).(message.CommandMessage)
 				if value == commandMessage.Command {
 					commandMessage.SendWith(r.ConnectorCommandSendToWorker, target)
+					notfound = false
 				}
 			} else {
 				commandMessageReply := (*messageIterator).(message.CommandMessageReply)
 				if value == commandMessageReply.Uuid {
 					commandMessageReply.SendWith(r.ConnectorCommandSendToWorker, target)
+					notfound = false
 				}
 			}
 		}

@@ -31,7 +31,7 @@ func NewWaiterEventRoutine(identity, waiterEventConnection string) (waiterEventR
 }
 
 func (r WaiterEventRoutine) WaitEvent(event string) (eventMessage message.EventMessage) {
-	eventMessageWait := message.NewEventMessageWait(event)
+	eventMessageWait := message.NewEventMessageWait(r.Identity, event)
 	eventMessageWait.SendWith(r.WaiterEventReceive)
 	for {
 		event, err := r.WaiterEventReceive.RecvMessageBytes(0)

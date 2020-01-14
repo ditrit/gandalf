@@ -167,11 +167,13 @@ func (cfr EventFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend bool)
 }
 
 type EventMessageWait struct {
-	Event string
+	WorkerSource string
+	Event        string
 }
 
-func NewEventMessageWait(event string) (eventMessageWait *EventMessageWait) {
+func NewEventMessageWait(workerSource, event string) (eventMessageWait *EventMessageWait) {
 	eventMessageWait = new(EventMessageWait)
+	eventMessageWait.WorkerSource = workerSource
 	eventMessageWait.Event = event
 	return
 }

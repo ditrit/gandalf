@@ -228,6 +228,7 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 			eventMessage := (*messageIterator).(message.EventMessage)
 			if value == eventMessage.Event {
 				eventMessage.SendWith(r.ConnectorEventSendToWorker, target)
+				notfound = false
 			}
 		}
 	}

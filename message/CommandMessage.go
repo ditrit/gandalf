@@ -268,12 +268,14 @@ func (cfr CommandFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend boo
 }
 
 type CommandMessageWait struct {
-	Value       string
-	CommandType string
+	WorkerSource string
+	Value        string
+	CommandType  string
 }
 
-func NewCommandMessageWait(value, commandType string) (commandMessageWait *CommandMessageWait) {
+func NewCommandMessageWait(workerSource, value, commandType string) (commandMessageWait *CommandMessageWait) {
 	commandMessageWait = new(CommandMessageWait)
+	commandMessageWait.WorkerSource = workerSource
 	commandMessageWait.CommandType = commandType
 	commandMessageWait.Value = value
 
