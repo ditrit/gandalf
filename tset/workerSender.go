@@ -19,7 +19,7 @@ func NewWorkerSender(path string) (workerSender *WorkerSender) {
 func (ws WorkerSender) Run() {
 	for {
 		fmt.Println("SEND")
-		go ws.WorkerGandalf.ClientGandalf.SendCommand("toto", "100", "toto", "toto", "toto", "toto", "toto")
+		go ws.WorkerGandalf.ClientGandalf.SendCommand("toto", "10000", "toto", "toto", "toto", "toto", "toto")
 
 		time.Sleep(time.Second * 5)
 	}

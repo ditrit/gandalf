@@ -3,10 +3,10 @@ package connector
 import (
 	"container/list"
 	"fmt"
+	"gandalf-go/message"
+	"strconv"
 	"sync"
 	"time"
-	"strconv"
-	"gandalf-go/message"
 )
 
 //Queue : queue allowing access via a string key
@@ -36,6 +36,8 @@ func (q *Queue) Push(m message.Message) {
 	fmt.Printf("Push a message!")
 	key := m.GetUUID()
 	timeout, _ := strconv.Atoi(m.GetTimeout())
+	fmt.Println("TIME OUT")
+	fmt.Println(timeout)
 	q.m.Lock()
 	defer q.m.Unlock()
 	ele := q.dict[key]

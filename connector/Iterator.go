@@ -37,6 +37,10 @@ func (i *Iterator) PrintQueue() {
 	i.queue.Print()
 }
 
+func (i *Iterator) GetQueue() (queue *Queue) {
+	return i.queue
+}
+
 // Get : get next unseen element
 func (i *Iterator) Get() *message.Message {
 	i.m.Lock()

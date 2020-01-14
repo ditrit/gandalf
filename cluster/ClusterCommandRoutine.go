@@ -78,6 +78,7 @@ func (r ClusterCommandRoutine) run() {
 				fmt.Println("Cluster Receive")
 				r.processCommandReceive(command)
 			}
+
 		}
 	}
 
@@ -98,14 +99,14 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 		fmt.Println(target)
 		fmt.Println("MESSAGE")
 		fmt.Println(message)
-		r.processCaptureCommand(message)
+		//r.processCaptureCommand(message)
 		go message.SendWith(r.ClusterCommandSend, target)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])
 		target := messageReply.SourceAggregator
 		fmt.Println("targetR")
 		fmt.Println(target)
-		r.processCaptureCommandReply(messageReply)
+		//r.processCaptureCommandReply(messageReply)
 		go messageReply.SendWith(r.ClusterCommandSend, target)
 	}
 }
