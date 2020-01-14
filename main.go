@@ -45,7 +45,7 @@ func main() {
 		fmt.Println("Worker " + config)
 	case "workerTestSend":
 		toto := tset.NewWorkerSender(config)
-		toto.WorkerGandalf.ClientGandalf.SendCommand("toto", "100", "toto", "toto", "toto", "toto", "toto")
+		toto.WorkerGandalf.ClientGandalf.SendCommand("toto", "100000000000000", "toto", "toto", "toto", "toto", "toto")
 		fmt.Println("BOOP")
 		//toto.WorkerGandalf.ClientGandalf.SendEvent("toto", "100", "toto", "toto", "toto")
 		time.Sleep(time.Second * 5)

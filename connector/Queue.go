@@ -48,6 +48,7 @@ func (q *Queue) Push(m message.Message) {
 	q.dict[key] = ele
 	go func() {
 		time.Sleep(time.Duration(timeout) * time.Millisecond)
+		fmt.Println("REMOVED")
 		q.remove(key)
 	}()
 	return

@@ -140,13 +140,13 @@ func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 			fmt.Println(r.ConnectorMapCommandNameCommandMessage)
 			iterator = NewIterator(r.ConnectorMapCommandNameCommandMessage)
 		} else {
-			fmt.Println("QUEUE")
+			fmt.Println("QUEUE2")
 			fmt.Println(r.ConnectorMapUUIDCommandMessageReply)
 			iterator = NewIterator(r.ConnectorMapUUIDCommandMessageReply)
 		}
 		r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
 
-		go r.runIterator(target, commandType, commandMessageWait.Value, iterator)
+		go r.runIterator(target, commandMessageWait.CommandType, commandMessageWait.Value, iterator)
 	}
 }
 
@@ -160,12 +160,13 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][
 	if commandType == constant.COMMAND_MESSAGE {
 		commandMessage, _ := message.DecodeCommandMessage(command[3])
 		fmt.Println("QUEUE CMD")
-		fmt.Println(r.ConnectorMapCommandNameCommandMessage)
+		toto := r.ConnectorMapCommandNameCommandMessage
+		fmt.Println(&toto)
 		r.ConnectorMapCommandNameCommandMessage.Print()
 		r.ConnectorMapCommandNameCommandMessage.Push(commandMessage)
 		fmt.Println("QUEUE CMD2")
-		fmt.Println(r.ConnectorMapCommandNameCommandMessage)
-		r.ConnectorMapCommandNameCommandMessage.Print()
+		toto = r.ConnectorMapCommandNameCommandMessage
+		fmt.Println(&toto)
 	} else {
 		fmt.Println("QUEUE REPLY")
 		r.ConnectorMapUUIDCommandMessageReply.Print()
@@ -220,8 +221,8 @@ func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, 
 	notfound := true
 	for notfound {
 		fmt.Println("ITERATOR PRINT QUEUE")
-		fmt.Println(iterator.GetQueue())
-		fmt.Println("QUEUEUE")
+		toto := iterator.GetQueue()
+		fmt.Println(&toto)
 		fmt.Println(iterator.GetQueue())
 		iterator.PrintQueue()
 
