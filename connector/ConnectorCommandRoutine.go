@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
+	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -32,9 +33,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection
 	connectorCommandRoutine.ConnectorMapWorkerIterators = make(map[string][]*Iterator)
 
 	connectorCommandRoutine.ConnectorMapCommandNameCommandMessage = NewQueue()
-	connectorCommandRoutine.ConnectorMapCommandNameCommandMessage.Init()
 	connectorCommandRoutine.ConnectorMapUUIDCommandMessageReply = NewQueue()
-	connectorCommandRoutine.ConnectorMapUUIDCommandMessageReply.Init()
 
 	connectorCommandRoutine.Context, _ = zmq4.NewContext()
 	connectorCommandRoutine.ConnectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
@@ -130,12 +129,11 @@ func (r ConnectorCommandRoutine) run() {
 
 func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 	fmt.Println("WAIIIITTTT")
-	target := string(command[0])
-	fmt.Println(target)
-	commandType := string(command[1])
+	commandType := string(command[0])
 	fmt.Println(commandType)
 	if commandType == constant.COMMAND_WAIT {
-		commandMessageWait, _ := message.DecodeCommandMessageWait(command[2])
+		commandMessageWait, _ := message.DecodeCommandMessageWait(command[1])
+		target := commandMessageWait.WorkerSource
 		var iterator *Iterator
 		if commandMessageWait.CommandType == constant.COMMAND_MESSAGE {
 			iterator = NewIterator(r.ConnectorMapCommandNameCommandMessage)
@@ -144,7 +142,7 @@ func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 		}
 		r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
 
-		r.runIterator(target, commandType, commandMessageWait.Value, iterator)
+		go r.runIterator(target, commandType, commandMessageWait.Value, iterator)
 	}
 }
 
@@ -157,12 +155,18 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][
 	commandType := string(command[2])
 	if commandType == constant.COMMAND_MESSAGE {
 		commandMessage, _ := message.DecodeCommandMessage(command[3])
-		fmt.Println("MESSAGE")
-		fmt.Println(commandMessage)
+		fmt.Println("QUEUE CMD")
+		r.ConnectorMapCommandNameCommandMessage.Print()
 		r.ConnectorMapCommandNameCommandMessage.Push(commandMessage)
+		fmt.Println("QUEUE CMD")
+		r.ConnectorMapCommandNameCommandMessage.Print()
 	} else {
+		fmt.Println("QUEUE REPLY")
+		r.ConnectorMapUUIDCommandMessageReply.Print()
 		commandMessageReply, _ := message.DecodeCommandMessageReply(command[3])
 		r.ConnectorMapUUIDCommandMessageReply.Push(commandMessageReply)
+		fmt.Println("QUEUE REPLY")
+		r.ConnectorMapUUIDCommandMessageReply.Print()
 	}
 }
 
@@ -209,8 +213,12 @@ func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, 
 
 	notfound := true
 	for notfound {
-		fmt.Println("NOT FOUND")
+		fmt.Println("ITERATOR PRINT QUEUE")
+		iterator.PrintQueue()
+
 		messageIterator := iterator.Get()
+		fmt.Println("GET")
+		fmt.Println(messageIterator)
 		if messageIterator != nil {
 			if commandType == constant.COMMAND_MESSAGE {
 				commandMessage := (*messageIterator).(message.CommandMessage)
@@ -226,6 +234,8 @@ func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, 
 				}
 			}
 		}
+		time.Sleep(time.Duration(2000 * time.Millisecond))
+
 	}
 	delete(r.ConnectorMapWorkerIterators, "target")
 }

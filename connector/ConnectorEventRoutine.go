@@ -31,7 +31,6 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine.Identity = identity
 	connectorEventRoutine.ConnectorMapWorkerIterators = make(map[string][]*Iterator)
 	connectorEventRoutine.ConnectorMapEventNameEventMessage = NewQueue()
-	connectorEventRoutine.ConnectorMapEventNameEventMessage.Init()
 
 	connectorEventRoutine.Context, _ = zmq4.NewContext()
 	connectorEventRoutine.ConnectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
@@ -166,10 +165,10 @@ func (r ConnectorEventRoutine) run() {
 }
 
 func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]byte) {
-	target := string(event[0])
 	eventType := string(event[1])
 	if eventType == constant.EVENT_WAIT {
-		eventMessageWait, _ := message.DecodeEventMessageWait(event[2])
+		eventMessageWait, _ := message.DecodeEventMessageWait(event[1])
+		target := eventMessageWait.WorkerSource
 		iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
 		r.ConnectorMapWorkerIterators[eventMessageWait.Event] = append(r.ConnectorMapWorkerIterators[eventMessageWait.Event], iterator)
 

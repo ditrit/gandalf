@@ -1,8 +1,8 @@
 package connector
 
 import (
-	"sync"
 	"gandalf-go/message"
+	"sync"
 )
 
 //Iterator : queue allowing access via a string key
@@ -30,6 +30,11 @@ func (i *Iterator) Init(queue *Queue) {
 // Close : fermeture de l'iterateur
 func (i *Iterator) Close() {
 	delete(i.queue.iters, i)
+}
+
+// Print : print la queue
+func (i *Iterator) PrintQueue() {
+	i.queue.Print()
 }
 
 // Get : get next unseen element
