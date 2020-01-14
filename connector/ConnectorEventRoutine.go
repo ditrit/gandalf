@@ -14,7 +14,7 @@ type ConnectorEventRoutine struct {
 	Context                                        *zmq4.Context
 	ConnectorMapEventNameEventMessage              *Queue
 	ConnectorMapWorkerEvents                       map[string][]string
-	ConnectorMapEventIterators                     map[string][]*Iterator
+	ConnectorMapWorkerIterators                    map[string][]*Iterator
 	ConnectorEventSendToWorker                     *zmq4.Socket
 	ConnectorEventSendToWorkerConnection           string
 	ConnectorEventReceiveFromAggregator            *zmq4.Socket
@@ -29,7 +29,7 @@ type ConnectorEventRoutine struct {
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) (connectorEventRoutine *ConnectorEventRoutine) {
 	connectorEventRoutine = new(ConnectorEventRoutine)
 	connectorEventRoutine.Identity = identity
-	connectorEventRoutine.ConnectorMapEventIterators = make(map[string][]*Iterator)
+	connectorEventRoutine.ConnectorMapWorkerIterators = make(map[string][]*Iterator)
 	connectorEventRoutine.ConnectorMapEventNameEventMessage = NewQueue()
 	connectorEventRoutine.ConnectorMapEventNameEventMessage.Init()
 
@@ -166,12 +166,14 @@ func (r ConnectorEventRoutine) run() {
 }
 
 func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]byte) {
-
+	target := string(event[0])
 	eventType := string(event[1])
 	if eventType == constant.EVENT_WAIT {
 		eventMessageWait, _ := message.DecodeEventMessageWait(event[2])
 		iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
-		r.ConnectorMapEventIterators[eventMessageWait.Event] = append(r.ConnectorMapEventIterators[eventMessageWait.Event], iterator)
+		r.ConnectorMapWorkerIterators[eventMessageWait.Event] = append(r.ConnectorMapWorkerIterators[eventMessageWait.Event], iterator)
+
+		go r.runIterator(target, eventMessageWait.Event, iterator)
 	}
 }
 
@@ -216,6 +218,20 @@ func (r ConnectorEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []b
 		}
 		time.Sleep(2 * time.Second)
 	}
+}
+
+func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Iterator) {
+	notfound := true
+	for notfound {
+		messageIterator := iterator.Get()
+		if messageIterator != nil {
+			eventMessage := (*messageIterator).(message.EventMessage)
+			if value == eventMessage.Event {
+				eventMessage.SendWith(r.ConnectorEventSendToWorker, target)
+			}
+		}
+	}
+	delete(r.ConnectorMapWorkerIterators, "target")
 }
 
 /*func (r ConnectorEventRoutine) addEvents(eventMessage message.EventMessage) {

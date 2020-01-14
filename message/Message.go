@@ -1,8 +1,9 @@
 package message
 
-import(
+import (
 	"github.com/pebbe/zmq4"
 )
+
 //TODO FINIR
 type Message interface {
 	GetUUID() string

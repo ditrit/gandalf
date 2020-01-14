@@ -134,10 +134,10 @@ func (r ConnectorCommandRoutine) processCommandSendToWorker(command [][]byte) {
 	if commandType == constant.COMMAND_WAIT {
 		commandMessageWait, _ := message.DecodeCommandMessageWait(command[2])
 		var iterator *Iterator
-		if commandMessageWait.TypeCommand == constant.COMMAND_MESSAGE {
-			iterator = NewIterator(r.ConnectorMapUUIDCommandMessage)
+		if commandMessageWait.CommandType == constant.COMMAND_MESSAGE {
+			iterator = NewIterator(r.ConnectorMapCommandNameCommandMessage)
 		} else {
-			iterator = NewIterator(r.ConnectorMapCommandNameCommandMessageReply)
+			iterator = NewIterator(r.ConnectorMapUUIDCommandMessageReply)
 		}
 		r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
 
@@ -205,17 +205,17 @@ func (r ConnectorCommandRoutine) addCommands(commandMessage message.CommandMessa
 func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, iterator *Iterator) {
 	notfound := true
 	for notfound {
-		message := iterator.Get()
-		if message != nil {
+		messageIterator := iterator.Get()
+		if messageIterator != nil {
 			if commandType == constant.COMMAND_MESSAGE {
-				commandMessage := (*message).(message.CommandMessage)
-				if value == message.Command {
-					commandMessage.SendMessageWith(r.ConnectorCommandSendToWorker, target)
+				commandMessage := (*messageIterator).(message.CommandMessage)
+				if value == commandMessage.Command {
+					commandMessage.SendWith(r.ConnectorCommandSendToWorker, target)
 				}
 			} else {
-				commandMessage := (*message).(message.CommandMessageReply)
-				if value == message.Uuid {
-					commandMessage.SendMessageWith(r.ConnectorCommandSendToWorker, target)
+				commandMessageReply := (*messageIterator).(message.CommandMessageReply)
+				if value == commandMessageReply.Uuid {
+					commandMessageReply.SendWith(r.ConnectorCommandSendToWorker, target)
 				}
 			}
 		}
