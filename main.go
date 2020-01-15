@@ -6,10 +6,8 @@ import (
 	"gandalf-go/aggregator"
 	"gandalf-go/cluster"
 	"gandalf-go/connector"
-	"gandalf-go/message"
 	"gandalf-go/tset"
 	"gandalf-go/worker"
-	"log"
 	"time"
 
 	"github.com/pebbe/zmq4"
@@ -44,11 +42,11 @@ func main() {
 		workerGandalf.Run()
 		fmt.Println("Worker " + config)
 	case "workerTestSend":
-		toto := tset.NewWorkerSender(config)
-		toto.WorkerGandalf.ClientGandalf.SendCommand("toto", "100000000000000", "toto", "toto", "toto", "toto", "toto")
+		tset.NewWorkerSender(config).Run()
+		//toto.WorkerGandalf.ClientGandalf.SendCommand("toto", "100000000000000", "toto", "toto", "toto", "toto", "toto")
 		fmt.Println("BOOP")
 		//toto.WorkerGandalf.ClientGandalf.SendEvent("toto", "100", "toto", "toto", "toto")
-		time.Sleep(time.Second * 5)
+		//time.Sleep(time.Second * 5)
 
 		fmt.Println("WorkerSend " + config)
 
@@ -78,39 +76,40 @@ func main() {
 		receiveT.Run() */
 	case "Pub":
 		//  Prepare our publisher
-		publisher, _ := zmq4.NewSocket(zmq4.XPUB)
+		publisher, _ := zmq4.NewSocket(zmq4.PUB)
 		defer publisher.Close()
-		publisher.Connect("tcp://127.0.0.1:9251")
+		publisher.Connect("tcp://localhost:5563")
+		time.Sleep(time.Second)
 
-		/* subscriber, _ := zmq4.NewSocket(zmq4.XSUB)
-		defer subscriber.Close()
-		subscriber.Connect("tcp://127.0.0.1:9250")
-		subscriber.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
-		*/
-		time.Sleep(time.Second * 5)
-
-		eventMessage := message.NewEventMessage("topic", "timeout", "uuid", "event", "payload")
 		for {
-			go eventMessage.SendMessageWith(publisher)
-			/* 		publisher.Send("A", zmq4.SNDMORE)
-			   		publisher.Send("WTF! 1 ", 0) */
+			//  Write two messages, each with an envelope and content
+			publisher.SendBytes([]byte("A"), zmq4.SNDMORE)
+			publisher.SendBytes([]byte("We don't want to see this"), 0)
+			publisher.SendBytes([]byte("B"), zmq4.SNDMORE)
+			publisher.SendBytes([]byte("We would like to see this"), 0)
 
-			time.Sleep(time.Second * 5)
+			contents, _ := publisher.RecvMessageBytes(0)
+			fmt.Println(contents)
+			time.Sleep(time.Second)
 		}
 
 	case "Sub":
-		//  Prepare our publisher
+		//  Prepare our subscriber
 		subscriber, _ := zmq4.NewSocket(zmq4.XSUB)
 		defer subscriber.Close()
-		err := subscriber.Bind("tcp://*:9251")
-		subscriber.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
-		if err != nil {
-			log.Fatal(err)
+		subscriber.Bind("tcp://*:5563")
+
+		time.Sleep(time.Second)
+
+		toto := []byte("A")
+		subscriber.SendBytes(toto, 0)
+
+		for {
+			//  Read envelope with address
+			//address, _ := subscriber.RecvBytes(0)
+			//  Read message contents
+			contents, _ := subscriber.RecvMessageBytes(0)
+			fmt.Println(contents)
 		}
-		_, err = subscriber.SendBytes([]byte{0x01}, 0)
-		toto, _ := subscriber.RecvBytes(0)
-		tata, _ := subscriber.RecvBytes(0)
-		fmt.Println(string(toto))
-		fmt.Println(string(tata))
 	}
 }

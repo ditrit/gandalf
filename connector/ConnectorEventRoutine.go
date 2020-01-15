@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
-	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -34,7 +33,7 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 
 	connectorEventRoutine.Context, _ = zmq4.NewContext()
 	connectorEventRoutine.ConnectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
-	connectorEventRoutine.ConnectorEventSendToWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
+	connectorEventRoutine.ConnectorEventSendToWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.ROUTER)
 	connectorEventRoutine.ConnectorEventSendToWorker.SetIdentity(connectorEventRoutine.Identity)
 	connectorEventRoutine.ConnectorEventSendToWorker.Bind(connectorEventRoutine.ConnectorEventSendToWorkerConnection)
 	fmt.Println("connectorEventSendToWorker bind : " + connectorEventSendToWorkerConnection)
@@ -88,10 +87,9 @@ func (r ConnectorEventRoutine) run() {
 	poller := zmq4.NewPoller()
 	poller.Add(r.ConnectorEventSendToWorker, zmq4.POLLIN)
 	poller.Add(r.ConnectorEventReceiveFromAggregator, zmq4.POLLIN)
-	//poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
+	poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
 	poller.Add(r.ConnectorEventReceiveFromWorker, zmq4.POLLIN)
 
-	topic := []byte{}
 	event := [][]byte{}
 	err := errors.New("")
 
@@ -101,94 +99,90 @@ func (r ConnectorEventRoutine) run() {
 		for _, socket := range sockets {
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ConnectorEventSendToWorker:
-				topic, err = currentSocket.RecvBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				if len(topic) <= 1 {
-					//break
-					go r.sendSubscribeTopic(r.ConnectorEventReceiveFromAggregator, topic)
-				}
+				fmt.Println("SEND WORKER")
 				event, err = currentSocket.RecvMessageBytes(0)
+				fmt.Println(event)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSendToWorker(topic, event)
+				r.processEventSendToWorker(event)
 
 			case r.ConnectorEventReceiveFromAggregator:
-				topic, err = currentSocket.RecvBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				/* if len(topic) <= 1 {
-					break
-				} */
+				fmt.Println("RECEIVER AGG")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventReceiveFromAggregator(topic, event)
-
-				/* 	case r.ConnectorEventSendToAggregator:
-				topic, err = currentSocket.RecvBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				if len(topic) <= 1 {
-					//break
-					go r.sendSubscribeTopic(r.ConnectorEventReceiveFromWorker, topic)
-				}
+				r.processEventReceiveFromAggregator(event)
+			case r.ConnectorEventSendToAggregator:
+				fmt.Println("SEND AGG")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSendToAggregator(topic, event) */
-
+				r.processEventSendToAggregator(event)
 			case r.ConnectorEventReceiveFromWorker:
-				topic, err = currentSocket.RecvBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				/* 		if len(topic) <= 1 {
-					//break
-					r.sendSubscribeTopic(r.ConnectorEventSendToAggregator, topic)
-				} */
+				fmt.Println("RECEIVER WORKER")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventReceiveFromWorker(topic, event)
+				r.processEventReceiveFromWorker(event)
 
 			}
 		}
 	}
 }
 
-func (r ConnectorEventRoutine) processEventSendToWorker(topic []byte, event [][]byte) {
+func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) {
+	fmt.Println("processEventSendToWorker")
+	fmt.Println(event)
 	eventType := string(event[1])
 	if eventType == constant.EVENT_WAIT {
-		eventMessageWait, _ := message.DecodeEventMessageWait(event[1])
+		fmt.Println(string(event[0]))
+		fmt.Println(string(event[1]))
+		fmt.Println(string(event[2]))
+		eventMessageWait, _ := message.DecodeEventMessageWait(event[2])
 		target := eventMessageWait.WorkerSource
 		iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
 		r.ConnectorMapWorkerIterators[eventMessageWait.Event] = append(r.ConnectorMapWorkerIterators[eventMessageWait.Event], iterator)
+
+		fmt.Println("SUB")
+		fmt.Println("ConnectorEventReceiveFromAggregator")
+		fmt.Println(eventMessageWait.Topic)
+		//go message.SendSubscribeTopic(r.ConnectorEventReceiveFromAggregator, []byte(eventMessageWait.Topic))
 
 		go r.runIterator(target, eventMessageWait.Event, iterator)
 	}
 }
 
-func (r ConnectorEventRoutine) processEventReceiveFromAggregator(topic []byte, event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
+func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) {
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	r.ConnectorMapEventNameEventMessage.Push(eventMessage)
 	//go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
 }
 
-/* func (r ConnectorEventRoutine) processEventSendToAggregator(topic []byte, event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
-	go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
+func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
+	fmt.Println("processEventSendToAggregator")
+	fmt.Println(event)
+	if len(event) == 1 {
+		topic := event[0]
+		fmt.Println("SUB")
+		fmt.Println("ConnectorEventReceiveFromWorker")
+		fmt.Println(topic)
+		fmt.Println(string(topic))
+
+		//go message.SendSubscribeTopic(r.ConnectorEventReceiveFromWorker, topic)
+	}
+	//eventMessage, _ := message.DecodeEventMessage(event[0])
+	//go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
 }
-*/
-func (r ConnectorEventRoutine) processEventReceiveFromWorker(topic []byte, event [][]byte) {
-	if string(topic) == constant.EVENT_VALIDATION_FUNCTIONS {
+
+func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
+	//TODO REVOIR EVENT IF
+	fmt.Println(event[0])
+	fmt.Println(event[1])
+	if string(event[0]) == constant.EVENT_VALIDATION_FUNCTIONS {
 		eventFunctions, _ := message.DecodeEventFunction(event[0])
 		result, _ := r.validationEvents(eventFunctions.Worker, eventFunctions.Functions)
 		if result {
@@ -197,7 +191,7 @@ func (r ConnectorEventRoutine) processEventReceiveFromWorker(topic []byte, event
 			go eventFunctionReply.SendMessageWith(r.ConnectorEventReceiveFromAggregator)
 		}
 	} else {
-		eventMessage, _ := message.DecodeEventMessage(event[0])
+		eventMessage, _ := message.DecodeEventMessage(event[1])
 		go eventMessage.SendMessageWith(r.ConnectorEventSendToAggregator)
 	}
 }
@@ -208,17 +202,6 @@ func (r ConnectorEventRoutine) validationEvents(workerSource string, events []st
 	return
 }
 
-func (r ConnectorEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {
-	for {
-		_, err := socket.SendBytes(topic, zmq4.SNDMORE)
-		if err == nil {
-			isSend = true
-			return
-		}
-		time.Sleep(2 * time.Second)
-	}
-}
-
 func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Iterator) {
 	notfound := true
 	for notfound {
@@ -226,6 +209,7 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 		if messageIterator != nil {
 			eventMessage := (*messageIterator).(message.EventMessage)
 			if value == eventMessage.Event {
+				fmt.Println("TOTO")
 				eventMessage.SendWith(r.ConnectorEventSendToWorker, target)
 				notfound = false
 			}

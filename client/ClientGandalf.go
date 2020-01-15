@@ -55,7 +55,7 @@ func (cg ClientGandalf) WaitCommandReply(uuid string) (commandMessageReply messa
 	return cg.WaiterGandalf.WaitCommandReply(uuid)
 }
 
-func (cg ClientGandalf) WaitEvent(event string) (eventMessage message.EventMessage) {
+func (cg ClientGandalf) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
 	//SEND WAIT
-	return cg.WaiterGandalf.WaitEvent(event)
+	return cg.WaiterGandalf.WaitEvent(event, topic)
 }

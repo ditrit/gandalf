@@ -16,7 +16,8 @@ func NewWorkerReceiver(path string) (workerReceiver *WorkerReceiver) {
 }
 
 func (wr WorkerReceiver) Run() {
-	commandMessage := wr.WorkerGandalf.ClientGandalf.WaitCommand("toto")
+	//commandMessage := wr.WorkerGandalf.ClientGandalf.WaitCommand("toto")
+	commandMessage := wr.WorkerGandalf.ClientGandalf.WaitEvent("toto", "toto")
 	fmt.Println("RECEIVE")
 	fmt.Println(commandMessage)
 

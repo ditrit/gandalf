@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"gandalf-go/message"
-	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -80,7 +79,6 @@ func (r AggregatorEventRoutine) run() {
 	poller.Add(r.AggregatorEventSendToConnector, zmq4.POLLIN)
 	poller.Add(r.AggregatorEventReceiveFromCluster, zmq4.POLLIN)
 
-	topic := []byte{}
 	event := [][]byte{}
 	err := errors.New("")
 	for {
@@ -89,96 +87,85 @@ func (r AggregatorEventRoutine) run() {
 		for _, socket := range sockets {
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.AggregatorEventSendToCluster:
-				topic, err = currentSocket.RecvBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				if len(topic) <= 1 {
-					//break
-					go r.sendSubscribeTopic(r.AggregatorEventReceiveFromConnector, topic)
-
-				}
+				fmt.Println("Send Cluster")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSendToCluster(topic, event)
+				r.processEventSendToCluster(event)
 
 			case r.AggregatorEventReceiveFromConnector:
-				topic, err = currentSocket.RecvBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				/* 	if len(topic) <= 1 {
-					break
-				} */
+				fmt.Println("Receive connector")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventReceiveFromConnector(topic, event)
+				r.processEventReceiveFromConnector(event)
 
 			case r.AggregatorEventSendToConnector:
-				topic, err = currentSocket.RecvBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				if len(topic) <= 1 {
-					//break
-					go r.sendSubscribeTopic(r.AggregatorEventReceiveFromCluster, topic)
-				}
+				fmt.Println("send connector")
 				event, err = currentSocket.RecvMessageBytes(0)
+				fmt.Println(event)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSendToConnector(topic, event)
+				r.processEventSendToConnector(event)
 
 			case r.AggregatorEventReceiveFromCluster:
-				topic, err = currentSocket.RecvBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				/* 	if len(topic) <= 1 {
-					break
-				} */
+				fmt.Println("receive cluster")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventReceiveFromCluster(topic, event)
+				r.processEventReceiveFromCluster(event)
 			}
 		}
 	}
 	fmt.Println("done")
 }
 
-func (r AggregatorEventRoutine) processEventSendToCluster(topic []byte, event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
-	go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromConnector)
+func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
+	fmt.Println("processEventSendToCluster")
+	fmt.Println(event)
+
+	if len(event) == 1 {
+		topic := event[0]
+		fmt.Println("SUB")
+		fmt.Println("AggregatorEventReceiveFromConnector")
+		fmt.Println(topic)
+		fmt.Println(string(topic))
+		//r.AggregatorEventReceiveFromConnector.SetSubscribe(string(topic))
+		//go message.SendSubscribeTopic(r.AggregatorEventReceiveFromConnector, topic)
+	} else {
+		eventMessage, _ := message.DecodeEventMessage(event[1])
+		go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromConnector)
+	}
 }
 
-func (r AggregatorEventRoutine) processEventReceiveFromCluster(topic []byte, event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
+func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	go eventMessage.SendMessageWith(r.AggregatorEventSendToConnector)
 }
 
-func (r AggregatorEventRoutine) processEventSendToConnector(topic []byte, event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
-	go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromCluster)
+func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
+	fmt.Println("processEventSendToConnector")
+	fmt.Println(event)
+
+	if len(event) == 1 {
+		topic := event[0]
+		fmt.Println("SUB")
+		fmt.Println("AggregatorEventReceiveFromCluster")
+		fmt.Println(topic)
+		fmt.Println(string(topic))
+		//r.AggregatorEventReceiveFromCluster.SetSubscribe(string(topic))
+		//go message.SendSubscribeTopic(r.AggregatorEventReceiveFromCluster, topic)
+	} else {
+		eventMessage, _ := message.DecodeEventMessage(event[0])
+		go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromCluster)
+	}
 }
 
-func (r AggregatorEventRoutine) processEventReceiveFromConnector(topic []byte, event [][]byte) {
+func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[0])
 	go eventMessage.SendMessageWith(r.AggregatorEventSendToCluster)
-}
-
-func (r AggregatorEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {
-	for {
-		_, err := socket.SendBytes(topic, zmq4.SNDMORE)
-		if err == nil {
-			isSend = true
-			return
-		}
-		time.Sleep(2 * time.Second)
-	}
 }

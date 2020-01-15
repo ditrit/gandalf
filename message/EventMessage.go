@@ -64,8 +64,9 @@ func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend
 
 func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		_, err := socket.Send(e.Topic, zmq4.SNDMORE)
-
+		fmt.Println("VBLIP2")
+		_, err := socket.SendBytes([]byte(e.Topic), zmq4.SNDMORE)
+		fmt.Println("VBLIP3")
 		if err == nil {
 			encoded, _ := EncodeEventMessage(e)
 			_, err = socket.SendBytes(encoded, 0)
@@ -74,6 +75,7 @@ func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 				return
 			}
 		}
+		fmt.Println("VBLIP4")
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -166,15 +168,28 @@ func (cfr EventFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend bool)
 	}
 }
 
+func SendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {
+	for {
+		_, err := socket.SendBytes(topic, 0)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
 type EventMessageWait struct {
 	WorkerSource string
 	Event        string
+	Topic        string
 }
 
-func NewEventMessageWait(workerSource, event string) (eventMessageWait *EventMessageWait) {
+func NewEventMessageWait(workerSource, event, topic string) (eventMessageWait *EventMessageWait) {
 	eventMessageWait = new(EventMessageWait)
 	eventMessageWait.WorkerSource = workerSource
 	eventMessageWait.Event = event
+	eventMessageWait.Topic = topic
 	return
 }
 

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
-	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -58,12 +57,10 @@ func (r ClusterEventRoutine) close() {
 }
 
 func (r ClusterEventRoutine) run() {
-
 	poller := zmq4.NewPoller()
 	poller.Add(r.ClusterEventSend, zmq4.POLLIN)
 	poller.Add(r.ClusterEventReceive, zmq4.POLLIN)
 
-	topic := []byte{}
 	event := [][]byte{}
 	err := errors.New("")
 
@@ -74,35 +71,20 @@ func (r ClusterEventRoutine) run() {
 
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ClusterEventSend:
-				topic, err = currentSocket.RecvBytes(0)
-
-				if err != nil {
-					panic(err)
-				}
-				if len(topic) <= 1 {
-					//break
-					go r.sendSubscribeTopic(r.ClusterEventReceive, topic)
-				}
+				fmt.Println("Cluster Send")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventSend(topic, event)
+				r.processEventSend(event)
 
 			case r.ClusterEventReceive:
-				topic, err = currentSocket.RecvBytes(0)
-
-				if err != nil {
-					panic(err)
-				}
-				/* if len(topic) <= 1 {
-					break
-				} */
+				fmt.Println("Cluster Receive")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				r.processEventReceive(topic, event)
+				r.processEventReceive(event)
 			}
 		}
 	}
@@ -110,29 +92,31 @@ func (r ClusterEventRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r ClusterEventRoutine) processEventSend(topic []byte, event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
-	//r.processCaptureEvent(eventMessage)
-	go eventMessage.SendMessageWith(r.ClusterEventReceive)
+func (r ClusterEventRoutine) processEventSend(event [][]byte) {
+	fmt.Println("processEventSend")
+	fmt.Println(event)
+	if len(event) == 1 {
+		topic := event[0]
+		fmt.Println("SUB")
+		fmt.Println("ClusterEventReceive")
+		fmt.Println(topic)
+		fmt.Println(string(topic))
+		r.ClusterEventReceive.SetSubscribe(string(topic))
+		go message.SendSubscribeTopic(r.ClusterEventReceive, topic)
+	} else {
+		eventMessage, _ := message.DecodeEventMessage(event[1])
+		//r.processCaptureEvent(eventMessage)
+		go eventMessage.SendMessageWith(r.ClusterEventReceive)
+	}
 }
 
-func (r ClusterEventRoutine) processEventReceive(topic []byte, event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
+func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
+	fmt.Println("TRALALALALLA")
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	//r.processCaptureEvent(eventMessage)
 	go eventMessage.SendMessageWith(r.ClusterEventSend)
 }
 
 func (r ClusterEventRoutine) processCaptureEvent(eventMessage message.EventMessage) {
 	go eventMessage.SendWith(r.ClusterEventCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
-}
-
-func (r ClusterEventRoutine) sendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {
-	for {
-		_, err := socket.SendBytes(topic, zmq4.SNDMORE)
-		if err == nil {
-			isSend = true
-			return
-		}
-		time.Sleep(2 * time.Second)
-	}
 }

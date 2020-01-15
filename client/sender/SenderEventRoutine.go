@@ -48,6 +48,7 @@ func NewSenderEventRoutineList(identity string, senderEventConnections []string)
 }
 
 func (r SenderEventRoutine) SendEvent(topic, timeout, uuid, event, payload string) {
+	fmt.Println("VBLIP")
 	eventMessage := message.NewEventMessage(topic, timeout, uuid, event, payload)
 	eventMessage.SendMessageWith(r.SenderEventSend)
 }

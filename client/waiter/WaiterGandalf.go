@@ -26,8 +26,8 @@ func NewWaiterGandalf(identity, waiterCommandConnection, waiterEventConnection s
 	return
 }
 
-func (wg WaiterGandalf) WaitEvent(event string) (eventMessage message.EventMessage) {
-	return wg.WaiterEventRoutine.WaitEvent(event)
+func (wg WaiterGandalf) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
+	return wg.WaiterEventRoutine.WaitEvent(event, topic)
 }
 
 func (wg WaiterGandalf) WaitCommand(uuid string) (commandMessage message.CommandMessage) {

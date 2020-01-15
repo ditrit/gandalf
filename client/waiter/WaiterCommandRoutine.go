@@ -27,7 +27,7 @@ func NewWaiterCommandRoutine(identity, waiterCommandConnection string) (waiterCo
 	waiterCommandRoutine.WaiterCommandReceive, _ = waiterCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	waiterCommandRoutine.WaiterCommandReceive.SetIdentity(waiterCommandRoutine.Identity)
 	waiterCommandRoutine.WaiterCommandReceive.Connect(waiterCommandRoutine.WaiterCommandConnection)
-	fmt.Println("workerCommandReceive connect : " + waiterCommandConnection)
+	fmt.Println("waiterCommandReceive connect : " + waiterCommandConnection)
 
 	return
 }
