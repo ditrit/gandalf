@@ -101,8 +101,8 @@ func (r ClusterEventRoutine) processEventSend(event [][]byte) {
 		fmt.Println("ClusterEventReceive")
 		fmt.Println(topic)
 		fmt.Println(string(topic))
-		r.ClusterEventReceive.SetSubscribe(string(topic))
-		go message.SendSubscribeTopic(r.ClusterEventReceive, topic)
+		//r.ClusterEventReceive.SetSubscribe(string(topic))
+		//go message.SendSubscribeTopic(r.ClusterEventReceive, topic)
 	} else {
 		eventMessage, _ := message.DecodeEventMessage(event[1])
 		//r.processCaptureEvent(eventMessage)

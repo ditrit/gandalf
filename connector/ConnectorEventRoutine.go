@@ -23,6 +23,7 @@ type ConnectorEventRoutine struct {
 	ConnectorEventReceiveFromWorker                *zmq4.Socket
 	ConnectorEventReceiveFromWorkerConnection      string
 	Identity                                       string
+	ConnectorEventGrpcServer					  grpc.Server
 }
 
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) (connectorEventRoutine *ConnectorEventRoutine) {
@@ -157,13 +158,19 @@ func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) {
 }
 
 func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) {
+	fmt.Println("processEventReceiveFromAggregator")
+	fmt.Println(event)
+	fmt.Println(len(event))
 	eventMessage, _ := message.DecodeEventMessage(event[1])
+	fmt.Println(eventMessage)
+	fmt.Println(eventMessage)
 	r.ConnectorMapEventNameEventMessage.Push(eventMessage)
+	
 	//go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
 }
 
 func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
-	fmt.Println("processEventSendToAggregator")
+/* 	fmt.Println("processEventSendToAggregator")
 	fmt.Println(event)
 	if len(event) == 1 {
 		topic := event[0]
@@ -173,17 +180,18 @@ func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
 		fmt.Println(string(topic))
 
 		//go message.SendSubscribeTopic(r.ConnectorEventReceiveFromWorker, topic)
-	}
+	} */
 	//eventMessage, _ := message.DecodeEventMessage(event[0])
 	//go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
 }
 
 func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
 	//TODO REVOIR EVENT IF
+	fmt.Println(event)
 	fmt.Println(event[0])
 	fmt.Println(event[1])
 	if string(event[0]) == constant.EVENT_VALIDATION_FUNCTIONS {
-		eventFunctions, _ := message.DecodeEventFunction(event[0])
+		eventFunctions, _ := message.DecodeEventFunction(event[1])
 		result, _ := r.validationEvents(eventFunctions.Worker, eventFunctions.Functions)
 		if result {
 			r.ConnectorMapWorkerEvents[eventFunctions.Worker] = eventFunctions.Functions
@@ -218,26 +226,22 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 	delete(r.ConnectorMapWorkerIterators, "target")
 }
 
-/*func (r ConnectorEventRoutine) addEvents(eventMessage message.EventMessage) {
-	if val, ok := r.ConnectorMapEventNameEventMessage[eventMessage.Uuid]; ok {
-		if !ok {
-			r.ConnectorMapEventNameEventMessage[eventMessage.Uuid] = eventMessage
-		}
+//GRPC
+func (r ConnectorEventRoutine) StartGrpcServer(port string) {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	if err != nil {
+			log.Fatalf("failed to listen: %v", err)
 	}
+	r.ConnectorEventGrpcServer := grpc.NewServer()
+	connector.RegisterConnectorEventServer(r.ConnectorEventGrpcServer, &connectorEventServer{})
+	grpcServer.Serve(lis)
 }
 
-func (r ConnectorEventRoutine) cleanEventsByTimeout() {
-	maxTimeout = 0
-	for {
-		for uuid, eventMessage := range r.ConnectorMapEventNameEventMessage {
-			if commandMessage.timestamp - commandMessage.timeout == 0 {
-				delete(r.commandUUIDCommandMessage, uuid)
-			} else {
-				if commandMessage.timeout >= maxTimeout {
-					maxTimeout = commandMessage.timeout
-				}
-			}
-		}
-		time.Sleep(maxTimeout * time.Millisecond)
-	}
-}*/
+//TODO REVOIR SERVICE
+func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *EventMessage) (*Empty, error) {
+
+}
+
+func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *EventMessageRequest) (*EventMessage, error) {
+
+}

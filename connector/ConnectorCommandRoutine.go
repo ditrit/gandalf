@@ -25,6 +25,7 @@ type ConnectorCommandRoutine struct {
 	ConnectorMapUUIDCommandMessageReply              *Queue
 	ConnectorMapWorkerCommands                       map[string][]string
 	ConnectorMapWorkerIterators                      map[string][]*Iterator
+	ConnectorCommandGrpcServer						 grpc.Server
 }
 
 func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) (connectorCommandRoutine *ConnectorCommandRoutine) {
@@ -250,25 +251,29 @@ func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, 
 	delete(r.ConnectorMapWorkerIterators, "target")
 }
 
-/* func (r ConnectorCommandRoutine) cleanCommandsByTimeout() {
-	maxTimeout := 0
-	currentTimestamp := -1
-	currentTimeout := -1
-	for {
-		for uuid, commandMessageSlice := range r.ConnectorMapCommandNameCommandMessage {
-			for _, commandMessage := range commandMessageSlice {
-				currentTimestamp, _ = strconv.Atoi(commandMessage.Timestamp)
-				currentTimeout, _ = strconv.Atoi(commandMessage.Timeout)
-
-				if currentTimestamp-currentTimeout == 0 {
-					delete(r.ConnectorMapCommandNameCommandMessage, uuid)
-				} else {
-					if currentTimeout >= maxTimeout {
-						maxTimeout = currentTimeout
-					}
-				}
-			}
-		}
-		time.Sleep(time.Duration(maxTimeout) * time.Millisecond)
+//GRPC
+func (r ConnectorCommandRoutine) StartGrpcServer(port string) {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	if err != nil {
+			log.Fatalf("failed to listen: %v", err)
 	}
-} */
+	r.ConnectorCommandGrpcServer = grpc.NewServer()
+	connector.RegisterConnectorCommandServer(r.ConnectorCommandGrpcServer, &connectorCommandServer{})
+	grpcServer.Serve(lis)
+}
+
+func (ccg *ConnectorCommandGrpc) SendCommandMessage(ctx context.Context, in *CommandMessage) (*CommandMessageUUID, error) {
+	
+}
+
+func (ccg *ConnectorCommandGrpc) SendCommandMessageReply(ctx context.Context, in *CommandMessageReply) (*Empty, error) {
+	
+}
+
+func (ccg *ConnectorCommandGrpc) WaitCommandMessage(ctx context.Context, in *CommandMessageRequest) (*CommandMessage, error) {
+	
+}
+
+func (ccg *ConnectorCommandGrpc) WaitCommandMessageReply(ctx context.Context, in *CommandMessageUUID) (*CommandMessageReply, error) {
+
+}

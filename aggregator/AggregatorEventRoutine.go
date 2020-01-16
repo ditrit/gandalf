@@ -143,7 +143,9 @@ func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
+	fmt.Println(event)
 	eventMessage, _ := message.DecodeEventMessage(event[1])
+	fmt.Println(eventMessage)
 	go eventMessage.SendMessageWith(r.AggregatorEventSendToConnector)
 }
 
@@ -161,6 +163,9 @@ func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
 		//go message.SendSubscribeTopic(r.AggregatorEventReceiveFromCluster, topic)
 	} else {
 		eventMessage, _ := message.DecodeEventMessage(event[0])
+		fmt.Println("SEN")
+		fmt.Println(event)
+		fmt.Println(eventMessage)
 		go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromCluster)
 	}
 }

@@ -33,7 +33,8 @@ func (q *Queue) Init() {
 
 // Push : insert a new value in the queue except if the UUID is already present and remove after timeout expiration
 func (q *Queue) Push(m message.Message) {
-	fmt.Printf("Push a message!")
+	fmt.Println("Push a message!")
+	fmt.Println(m)
 	key := m.GetUUID()
 	timeout, _ := strconv.Atoi(m.GetTimeout())
 	fmt.Println("TIME OUT")

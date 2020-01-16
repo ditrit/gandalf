@@ -95,15 +95,14 @@ func main() {
 
 	case "Sub":
 		//  Prepare our subscriber
-		subscriber, _ := zmq4.NewSocket(zmq4.XSUB)
+		subscriber, _ := zmq4.NewSocket(zmq4.SUB)
 		defer subscriber.Close()
 		subscriber.Bind("tcp://*:5563")
+		subscriber.SetSubscribe("A")
 
 		time.Sleep(time.Second)
 
-		toto := []byte("A")
-		subscriber.SendBytes(toto, 0)
-
+		//subscriber.SendBytes([]byte{0x01}, 0)
 		for {
 			//  Read envelope with address
 			//address, _ := subscriber.RecvBytes(0)
