@@ -1,7 +1,7 @@
 package waitergrpc
 
 import (
-	pb "gandalf-go/grpc"
+	"gandalf-go/message"
 )
 
 type WaiterGandalfGrpc struct {
@@ -25,15 +25,15 @@ func NewWaiterGandalfGrpc(identity, waiterCommandGrpcConnection, waiterEventGrpc
 	return
 }
 
-func (wg WaiterGandalfGrpc) WaitEvent(event, topic string) (eventMessage *pb.EventMessage) {
+func (wg WaiterGandalfGrpc) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
 	eventMessage = wg.WaiterEventGrpc.WaitEvent(event, topic)
 	return
 }
 
-func (wg WaiterGandalfGrpc) WaitCommand(uuid string) (commandMessage *pb.CommandMessage) {
+func (wg WaiterGandalfGrpc) WaitCommand(uuid string) (commandMessage message.CommandMessage) {
 	return wg.WaiterCommandGrpc.WaitCommand(uuid)
 }
 
-func (wg WaiterGandalfGrpc) WaitCommandReply(uuid string) (commandMessageReply *pb.CommandMessageReply) {
+func (wg WaiterGandalfGrpc) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {
 	return wg.WaiterCommandGrpc.WaitCommandReply(uuid)
 }

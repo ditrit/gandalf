@@ -93,7 +93,7 @@ func (e EventMessage) From(event []string) {
 	e.Payload = event[7]
 }
 
-func (e EventMessage) FromGrpc(eventMessage pb.EventMessage) {
+func (e EventMessage) FromGrpc(eventMessage *pb.EventMessage) {
 
 	e.Tenant = eventMessage.GetTenant()
 	e.Token = eventMessage.GetToken()
@@ -105,7 +105,7 @@ func (e EventMessage) FromGrpc(eventMessage pb.EventMessage) {
 	e.Payload = eventMessage.GetPayload()
 }
 
-func (e EventMessage) ToGrpc(eventMessage pb.EventMessage) {
+func (e EventMessage) ToGrpc(eventMessage *pb.EventMessage) {
 
 	eventMessage.Tenant = e.Tenant
 	eventMessage.Token = e.Token

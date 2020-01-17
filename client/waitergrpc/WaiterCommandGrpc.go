@@ -4,6 +4,7 @@ import (
 	"context"
 
 	pb "gandalf-go/grpc"
+	"gandalf-go/message"
 
 	"google.golang.org/grpc"
 )
@@ -29,20 +30,22 @@ func NewWaiterCommandGrpc(identity, waiterCommandGrpcConnection string) (waiterC
 	return
 }
 
-func (r WaiterCommandGrpc) WaitCommand(command string) *pb.CommandMessage {
+func (r WaiterCommandGrpc) WaitCommand(command string) (commandMessage message.CommandMessage) {
 	commandMessageWait := new(pb.CommandMessageWait)
 	commandMessageWait.WorkerSource = r.Identity
 	commandMessageWait.Value = command
-	commandMessage, _ := r.client.WaitCommandMessage(context.Background(), commandMessageWait)
-	return commandMessage
+	commandMessageGrpc, _ := r.client.WaitCommandMessage(context.Background(), commandMessageWait)
+	commandMessage.FromGrpc(commandMessageGrpc)
+	return
 
 }
 
-func (r WaiterCommandGrpc) WaitCommandReply(uuid string) *pb.CommandMessageReply {
+func (r WaiterCommandGrpc) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {
 	commandMessageWait := new(pb.CommandMessageWait)
 	commandMessageWait.WorkerSource = r.Identity
 	commandMessageWait.Value = uuid
-	commandMessageReply, _ := r.client.WaitCommandMessageReply(context.Background(), commandMessageWait)
-	return commandMessageReply
+	commandMessageReplyGrpc, _ := r.client.WaitCommandMessageReply(context.Background(), commandMessageWait)
+	commandMessageReply.FromGrpc(commandMessageReplyGrpc)
+	return
 
 }

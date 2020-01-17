@@ -35,28 +35,28 @@ func NewClientGandalfGrpc(identity, senderCommandGrpcConnection, senderEventGrpc
 }
 
 func (cg ClientGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) {
-	cg.SenderGandalf.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
+	cg.SenderGandalfGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
 func (cg ClientGandalfGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) {
-	cg.SenderGandalf.SendCommandReply(commandMessage, reply, payload)
+	cg.SenderGandalfGrpc.SendCommandReply(commandMessage, reply, payload)
 }
 
 func (cg ClientGandalfGrpc) SendEvent(topic, timeout, uuid, event, payload string) {
-	cg.SenderGandalf.SendEvent(topic, timeout, uuid, event, payload)
+	cg.SenderGandalfGrpc.SendEvent(topic, timeout, uuid, event, payload)
 }
 
 func (cg ClientGandalfGrpc) WaitCommand(command string) (commandMessage message.CommandMessage) {
 	//SEND WAIT
-	return cg.WaiterGandalf.WaitCommand(command)
+	return cg.WaiterGandalfGrpc.WaitCommand(command)
 }
 
 func (cg ClientGandalfGrpc) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {
 	//SEND WAIT
-	return cg.WaiterGandalf.WaitCommandReply(uuid)
+	return cg.WaiterGandalfGrpc.WaitCommandReply(uuid)
 }
 
 func (cg ClientGandalfGrpc) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
 	//SEND WAIT
-	return cg.WaiterGandalf.WaitEvent(event, topic)
+	return cg.WaiterGandalfGrpc.WaitEvent(event, topic)
 }

@@ -27,9 +27,9 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	return
 }
 
-func (r SenderCommandGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) *pb.CommandMessageUUID {
+func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorType, commandType, command, payload string) *pb.CommandMessageUUID {
 	commandMessage := new(pb.CommandMessage)
-	commandMessage.Context = context
+	commandMessage.Context = contextCommand
 	commandMessage.Timeout = timeout
 	commandMessage.Uuid = uuid
 	commandMessage.ConnectorType = connectorType

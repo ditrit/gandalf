@@ -4,6 +4,7 @@ import (
 	"context"
 
 	pb "gandalf-go/grpc"
+	"gandalf-go/message"
 
 	"google.golang.org/grpc"
 )
@@ -28,11 +29,12 @@ func NewWaiterEventGrpc(identity, waiterEventGrpcConnection string) (waiterEvent
 	return
 }
 
-func (r WaiterEventGrpc) WaitEvent(event, topic string) (eventMessage *pb.EventMessage) {
+func (r WaiterEventGrpc) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
 	eventMessageWait := new(pb.EventMessageWait)
 	eventMessageWait.WorkerSource = r.Identity
 	eventMessageWait.Topic = topic
 	eventMessageWait.Event = event
-	eventMessage, _ = r.client.WaitEventMessage(context.Background(), eventMessageWait)
+	eventMessageGrpc, _ := r.client.WaitEventMessage(context.Background(), eventMessageWait)
+	eventMessage.FromGrpc(eventMessageGrpc)
 	return
 }
