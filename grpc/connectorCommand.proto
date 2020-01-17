@@ -6,6 +6,8 @@ option java_outer_classname = "ConnectorProto";
 
 package grpc;
 
+import "message.proto";
+
 service ConnectorCommand {
     rpc SendCommandMessage (CommandMessage) returns (CommandMessageUUID) {}
     rpc SendCommandMessageReply (CommandMessageReply) returns (Empty) {}
@@ -58,8 +60,4 @@ message CommandMessageReply {
 	string Uuid = 12;                  
 	string Reply = 13;                 
 	string Payload = 14;               
-}
-
-message Empty {
-
 }

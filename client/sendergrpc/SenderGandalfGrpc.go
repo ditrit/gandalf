@@ -1,6 +1,7 @@
 package sendergrpc
 
 import (
+	pb "gandalf-go/grpc"
 	"gandalf-go/message"
 )
 
@@ -13,7 +14,7 @@ type SenderGandalfGrpc struct {
 }
 
 func NewSenderGandalfGrpc(identity, senderCommandConnection, senderEventConnection string) (senderGandalfGrpc *SenderGandalfGrpc) {
-	senderGandalfGrpc = new(SenderGandalf)
+	senderGandalfGrpc = new(SenderGandalfGrpc)
 	senderGandalfGrpc.Identity = identity
 	senderGandalfGrpc.SenderCommandConnection = senderCommandConnection
 	senderGandalfGrpc.SenderEventConnection = senderEventConnection
@@ -23,14 +24,14 @@ func NewSenderGandalfGrpc(identity, senderCommandConnection, senderEventConnecti
 	return
 }
 
-func (sg SenderGandalfGrpc) SendEvent(topic, timeout, uuid, event, payload string) (*pb.Empty, error) {
-	sg.SenderEventGrpc.SendEvent(topic, timeout, uuid, event, payload)
+func (sg SenderGandalfGrpc) SendEvent(topic, timeout, uuid, event, payload string) *pb.Empty {
+	return sg.SenderEventGrpc.SendEvent(topic, timeout, uuid, event, payload)
 }
 
-func (sg SenderGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) (*pb.CommandMessageUUID, error) {
-	sg.SenderCommandGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
+func (sg SenderGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) *pb.CommandMessageUUID {
+	return sg.SenderCommandGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
-func (sg SenderGandalfGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) (*pb.Empty, error) {
-	sg.SenderCommandGrpc.SendCommandReply(commandMessage, reply, payload)
+func (sg SenderGandalfGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
+	return sg.SenderCommandGrpc.SendCommandReply(commandMessage, reply, payload)
 }

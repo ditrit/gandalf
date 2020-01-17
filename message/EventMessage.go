@@ -3,6 +3,7 @@ package message
 import (
 	"fmt"
 	"gandalf-go/constant"
+	pb "gandalf-go/grpc"
 	"time"
 
 	"github.com/pebbe/zmq4"
@@ -92,10 +93,30 @@ func (e EventMessage) From(event []string) {
 	e.Payload = event[7]
 }
 
-func (e EventMessage) FromGrpc(connectorEvent pb.ConnectorEvent) {
-	e.Topic = connectorEvent.GetTopic()
-	e.Event = connectorEvent.GetEvent()
-	e.Payload = connectorEvent.GetPayload()
+func (e EventMessage) FromGrpc(eventMessage pb.EventMessage) {
+
+	e.Tenant = eventMessage.GetTenant()
+	e.Token = eventMessage.GetToken()
+	e.Timeout = eventMessage.GetTimeout()
+	e.Timestamp = eventMessage.GetTimestamp()
+	e.Uuid = eventMessage.GetUuid()
+	e.Topic = eventMessage.GetTopic()
+	e.Event = eventMessage.GetEvent()
+	e.Payload = eventMessage.GetPayload()
+}
+
+func (e EventMessage) ToGrpc(eventMessage pb.EventMessage) {
+
+	eventMessage.Tenant = e.Tenant
+	eventMessage.Token = e.Token
+	eventMessage.Timeout = e.Timeout
+	eventMessage.Timestamp = e.Timestamp
+	eventMessage.Uuid = e.Uuid
+	eventMessage.Topic = e.Topic
+	eventMessage.Event = e.Event
+	eventMessage.Payload = e.Payload
+
+	return
 }
 
 type EventFunction struct {
@@ -198,10 +219,10 @@ func NewEventMessageWait(workerSource, event, topic string) (eventMessageWait *E
 	return
 }
 
-func (emw EventMessageWait) FromGrpc(connectorEvent pb.ConnectorEvent) {
-	emw.WorkerSource = connectorEvent.GetWorkerSource()
-	emw.Event = connectorEvent.GetEvent()
-	emw.Topic = connectorEvent.GetTopic()
+func (emw EventMessageWait) FromGrpc(eventMessageWait pb.EventMessageWait) {
+	emw.WorkerSource = eventMessageWait.GetWorkerSource()
+	emw.Event = eventMessageWait.GetEvent()
+	emw.Topic = eventMessageWait.GetTopic()
 }
 
 func (emw EventMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {

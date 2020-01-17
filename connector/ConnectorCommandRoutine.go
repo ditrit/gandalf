@@ -188,7 +188,7 @@ func (r ConnectorCommandRoutine) addCommands(commandMessage message.CommandMessa
 }
 
 //TODO
-func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, iterator *Iterator) {
+func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, iterator *Iterator) (interface{}) {
 
 	notfound := true
 	for notfound {
@@ -205,21 +205,19 @@ func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, 
 			if commandType == constant.COMMAND_MESSAGE {
 				commandMessage := (*messageIterator).(message.CommandMessage)
 				if value == commandMessage.Command {
-					commandMessage.SendWith(r.ConnectorCommandSendToWorker, target)
-					notfound = false
+					return commandMessage
 				}
 			} else {
 				commandMessageReply := (*messageIterator).(message.CommandMessageReply)
 				if value == commandMessageReply.Uuid {
-					commandMessageReply.SendWith(r.ConnectorCommandSendToWorker, target)
-					notfound = false
+					return commandMessageReply
 				}
 			}
 		}
 		time.Sleep(time.Duration(2000 * time.Millisecond))
 
 	}
-	delete(r.ConnectorMapWorkerIterators, "target")
+	delete(r.ConnectorMapWorkerIterators, target)
 }
 
 //GRPC
@@ -238,7 +236,7 @@ func (ccg *ConnectorCommandGrpc) SendCommandMessage(ctx context.Context, in *pb.
 	commandMessage.FromGrpc(in)
 	go commandMessage.SendMessageWith(r.ConnectorCommandSendToAggregator)
 	//TODO REPLACE TOTO BY UUID
-	return &pb.CommandMessageUUID{uuid: "TOTO"}, nil
+	return &pb.CommandMessageUUID{uuid: commandMessage.Uuid}, nil
 }
 
 func (ccg *ConnectorCommandGrpc) SendCommandMessageReply(ctx context.Context, in *pb.CommandMessageReply) (*Empty, error) {
@@ -249,10 +247,7 @@ func (ccg *ConnectorCommandGrpc) SendCommandMessageReply(ctx context.Context, in
 	return &pb.Empty{}, nil
 }
 
-func (ccg *ConnectorCommandGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMessageWait) (*CommandMessage, error) {
-	commandMessageWait = new(message.CommandMessageWait)
-	commandMessageWait.FromGrpc(in)
-	go commandMessageReply.SendMessageWith(r.ConnectorCommandSendToAggregator)
+func (ccg *ConnectorCommandGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMessageWait) (*pb.CommandMessage, error) {
 
 	target := commandMessageWait.WorkerSource
 	fmt.Println("QUEUE")
@@ -260,22 +255,24 @@ func (ccg *ConnectorCommandGrpc) WaitCommandMessage(ctx context.Context, in *pb.
 	iterator = NewIterator(r.ConnectorMapCommandNameCommandMessage)
 	
 	r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
-	
-	//REVOIR RUNITERATOR
-	return go r.runIterator(target, commandMessageWait.CommandType, commandMessageWait.Value, iterator)
+
+	//TODO REVOIR
+	commandMessage := go r.runIterator(target, in.GetCommandType(), in.GetValue(), iterator).(message.CommandMessage)
+	commandMessageReply.ToGrpc(message)
+	return 
 }
 
-func (ccg *ConnectorCommandGrpc) WaitCommandMessageReply(ctx context.Context, in *pb.CommandMessageWait) (*CommandMessageReply, error) {
-	commandMessageWait = new(message.CommandMessageWait)
-	commandMessageWait.FromGrpc(in)
+func (ccg *ConnectorCommandGrpc) WaitCommandMessageReply(ctx context.Context, in *pb.CommandMessageWait) (commandMessageReply *pb.CommandMessageReply, error) {
 
-	target := commandMessageWait.WorkerSource
+	target := in.GetWorkerSource()
 	fmt.Println("QUEUE2")
 	fmt.Println(r.ConnectorMapUUIDCommandMessageReply)
 	iterator = NewIterator(r.ConnectorMapUUIDCommandMessageReply)
 
 	r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
 
-	//REVOIR RUNITERATOR
-	return go r.runIterator(target, commandMessageWait.CommandType, commandMessageWait.Value, iterator)
+		//TODO REVOIR
+	commandMessageReply := go r.runIterator(target, in.GetCommandType(), in.GetValue(), iterator).(message.CommandMessageReply)
+	commandMessageReply.ToGrpc(messageReply)
+	return 
 }

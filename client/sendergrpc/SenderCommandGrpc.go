@@ -1,9 +1,17 @@
 package sendergrpc
 
+import (
+	"context"
+	pb "gandalf-go/grpc"
+	"gandalf-go/message"
+
+	"google.golang.org/grpc"
+)
+
 type SenderCommandGrpc struct {
 	SenderCommandGrpcConnection string
-	Identity   string
-	client 	   connectorcommand.ConnectorCommandClient
+	Identity                    string
+	client                      pb.ConnectorCommandClient
 }
 
 func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderCommandGrpc *SenderCommandGrpc) {
@@ -11,17 +19,16 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	senderCommandGrpc.Identity = identity
 	senderCommandGrpc.SenderCommandGrpcConnection = senderCommandGrpcConnection
 
-	conn, err := grpc.Dial(*senderCommandGrpc.SenderCommandGrpcConnection)
+	conn, err := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection)
 	if err != nil {
-		...
 	}
 	defer conn.Close()
-	client := connector.NewConnectorCommandClient(conn)
+	senderCommandGrpc.client = pb.NewConnectorCommandClient(conn)
 	return
 }
 
-func (r SenderCommandGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) (*pb.CommandMessageUUID, error) {
-	commandMessage = new(pb.CommandMessage)
+func (r SenderCommandGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) *pb.CommandMessageUUID {
+	commandMessage := new(pb.CommandMessage)
 	commandMessage.Context = context
 	commandMessage.Timeout = timeout
 	commandMessage.Uuid = uuid
@@ -30,26 +37,27 @@ func (r SenderCommandGrpc) SendCommand(context, timeout, uuid, connectorType, co
 	commandMessage.Command = command
 	commandMessage.Payload = payload
 
-	return r.client.SendCommandMessage(context.Background(), commandMessage)
-}
-
-func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) (*pb.Empty, error) {
-	commandMessageReply = new(pb.CommandMessageReply)
-	SourceAggregator = commandMessage.SourceAggregator   
-	SourceConnector = commandMessage.SourceConnector
-	SourceWorker = commandMessage.SourceWorker 
-	DestinationAggregator = commandMessage.DestinationAggregator
-	DestinationConnector = commandMessage.DestinationConnector 
-	DestinationWorker = commandMessage.DestinationWorker    
-	Tenant = commandMessage.Tenant               
-	Token = commandMessage.Token                
-	Context = commandMessage.Context              
-	Timeout = commandMessage.Timeout             
-	Timestamp = commandMessage.Timestamp            
-	Uuid = commandMessage.Uuid                  
-	Reply = reply                 
-	Payload = payload                 
-	return r.client.SendCommandMessageReply(context.Background(), commandMessageReply)
+	CommandMessageUUID, _ := r.client.SendCommandMessage(context.Background(), commandMessage)
+	return CommandMessageUUID
 
 }
 
+func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
+	commandMessageReply := new(pb.CommandMessageReply)
+	commandMessageReply.SourceAggregator = commandMessage.SourceAggregator
+	commandMessageReply.SourceConnector = commandMessage.SourceConnector
+	commandMessageReply.SourceWorker = commandMessage.SourceWorker
+	commandMessageReply.DestinationAggregator = commandMessage.DestinationAggregator
+	commandMessageReply.DestinationConnector = commandMessage.DestinationConnector
+	commandMessageReply.DestinationWorker = commandMessage.DestinationWorker
+	commandMessageReply.Tenant = commandMessage.Tenant
+	commandMessageReply.Token = commandMessage.Token
+	commandMessageReply.Context = commandMessage.Context
+	commandMessageReply.Timeout = commandMessage.Timeout
+	commandMessageReply.Timestamp = commandMessage.Timestamp
+	commandMessageReply.Uuid = commandMessage.Uuid
+	commandMessageReply.Reply = reply
+	commandMessageReply.Payload = payload
+	empty, _ := r.client.SendCommandMessageReply(context.Background(), commandMessageReply)
+	return empty
+}

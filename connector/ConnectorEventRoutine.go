@@ -222,8 +222,6 @@ func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *pb.Even
 }
 
 func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.EventMessageWait) (*EventMessage, error) {
-	eventMessageWait = new(message.eventMessageWait)
-	eventMessageWait.FromGrpc(in)
 
 	target := eventMessageWait.WorkerSource
 		iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
@@ -233,6 +231,7 @@ func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.Even
 		fmt.Println("ConnectorEventReceiveFromAggregator")
 		fmt.Println(eventMessageWait.Topic)
 
-		//TODO REVOIR ITERATOR
-		return go r.runIterator(target, eventMessageWait.Event, iterator)
+		message.(message.CommandMessage) := go r.runIterator(target, in.GetEvent(), iterator)
+		commandMessageReply.ToGrpc(message)
+		return 
 } 

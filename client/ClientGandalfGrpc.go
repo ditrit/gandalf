@@ -1,9 +1,9 @@
 package client
 
 import (
-	"gandalf-go/client/sender"
-	"gandalf-go/client/waiter"
-	waiter "gandalf-go/client/waitergrpc"
+	"gandalf-go/client/sendergrpc"
+	"gandalf-go/client/waitergrpc"
+
 	"gandalf-go/message"
 )
 
@@ -28,8 +28,8 @@ func NewClientGandalfGrpc(identity, senderCommandGrpcConnection, senderEventGrpc
 	clientGandalfGrpc.WaiterCommandGrpcConnection = waiterCommandGrpcConnection
 	clientGandalfGrpc.WaiterEventGrpcConnection = waiterEventGrpcConnection
 
-	clientGandalfGrpc.SenderGandalfGrpc = sender.NewSenderGandalfGrpc(clientGandalfGrpc.Identity, clientGandalfGrpc.SenderCommandGrpcConnection, clientGandalfGrpc.SenderEventGrpcConnection)
-	clientGandalfGrpc.WaiterGandalfGrpc = waiter.NewWaiterGandalfGrpc(clientGandalfGrpc.Identity, clientGandalfGrpc.WaiterCommandGrpcConnection, clientGandalfGrpc.WaiterEventGrpcConnection)
+	clientGandalfGrpc.SenderGandalfGrpc = sendergrpc.NewSenderGandalfGrpc(clientGandalfGrpc.Identity, clientGandalfGrpc.SenderCommandGrpcConnection, clientGandalfGrpc.SenderEventGrpcConnection)
+	clientGandalfGrpc.WaiterGandalfGrpc = waitergrpc.NewWaiterGandalfGrpc(clientGandalfGrpc.Identity, clientGandalfGrpc.WaiterCommandGrpcConnection, clientGandalfGrpc.WaiterEventGrpcConnection)
 
 	return
 }

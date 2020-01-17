@@ -5,6 +5,7 @@ option java_package = "io.grpc.examples.connector";
 option java_outer_classname = "ConnectorProto";
 
 package grpc;
+import "message.proto";
 
 service ConnectorEvent {
     rpc SendEventMessage (EventMessage) returns (Empty) {}
@@ -28,6 +29,3 @@ message EventMessageWait {
     string Topic = 3;
 }
 
-message Empty {
-
-}

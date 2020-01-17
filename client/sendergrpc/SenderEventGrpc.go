@@ -1,9 +1,16 @@
 package sendergrpc
 
+import (
+	"context"
+	pb "gandalf-go/grpc"
+
+	"google.golang.org/grpc"
+)
+
 type SenderEventGrpc struct {
 	SenderEventGrpcConnection string
-	Identity   string
-	client 	   connectorevent.ConnectorEventClient
+	Identity                  string
+	client                    pb.ConnectorEventClient
 }
 
 func NewSenderEventGrpc(identity, senderEventGrpcConnection string) (senderEventGrpc *SenderEventGrpc) {
@@ -11,23 +18,21 @@ func NewSenderEventGrpc(identity, senderEventGrpcConnection string) (senderEvent
 	senderEventGrpc.Identity = identity
 	senderEventGrpc.SenderEventGrpcConnection = senderEventGrpcConnection
 
-	conn, err := grpc.Dial(*senderEventGrpc.SenderEventGrpcConnection)
+	conn, err := grpc.Dial(senderEventGrpc.SenderEventGrpcConnection)
 	if err != nil {
-		...
 	}
 	defer conn.Close()
-	client := connector.NewConnectorEventClient(conn)
+	senderEventGrpc.client = pb.NewConnectorEventClient(conn)
 	return
 }
 
-func (r SenderEventGrpc) SendEvent(topic, timeout, uuid, event, payload string) (*pb.Empty, error) {
-	eventMessage = new(pb.EventMessage)
+func (r SenderEventGrpc) SendEvent(topic, timeout, uuid, event, payload string) *pb.Empty {
+	eventMessage := new(pb.EventMessage)
 	eventMessage.Topic = topic
 	eventMessage.Timeout = timeout
 	eventMessage.Uuid = uuid
 	eventMessage.Event = event
 	eventMessage.Payload = payload
-
-	return r.client.SendEventMessage(context.Background(), eventMessage)
+	empty, _ := r.client.SendEventMessage(context.Background(), eventMessage)
+	return empty
 }
-
