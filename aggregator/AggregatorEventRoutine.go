@@ -171,6 +171,9 @@ func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
-	eventMessage, _ := message.DecodeEventMessage(event[0])
+	fmt.Println(event)
+	fmt.Println(event[0])
+	fmt.Println(event[1])
+	eventMessage, _ := message.DecodeEventMessage(event[1])
 	go eventMessage.SendMessageWith(r.AggregatorEventSendToCluster)
 }

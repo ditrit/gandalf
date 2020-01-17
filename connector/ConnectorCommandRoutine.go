@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/pebbe/zmq4"
+	"google.golang.org/grpc"
 )
 
 type ConnectorCommandRoutine struct {
@@ -25,7 +26,7 @@ type ConnectorCommandRoutine struct {
 	ConnectorMapUUIDCommandMessageReply              *Queue
 	ConnectorMapWorkerCommands                       map[string][]string
 	ConnectorMapWorkerIterators                      map[string][]*Iterator
-	ConnectorCommandGrpcServer						 grpc.Server
+	ConnectorCommandGrpcServer                       grpc.Server
 }
 
 func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection, connectorCommandReceiveFromWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) (connectorCommandRoutine *ConnectorCommandRoutine) {
@@ -251,7 +252,7 @@ func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, 
 	delete(r.ConnectorMapWorkerIterators, "target")
 }
 
-//GRPC
+/* //GRPC
 func (r ConnectorCommandRoutine) StartGrpcServer(port string) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
@@ -263,17 +264,18 @@ func (r ConnectorCommandRoutine) StartGrpcServer(port string) {
 }
 
 func (ccg *ConnectorCommandGrpc) SendCommandMessage(ctx context.Context, in *CommandMessage) (*CommandMessageUUID, error) {
-	
+
 }
 
 func (ccg *ConnectorCommandGrpc) SendCommandMessageReply(ctx context.Context, in *CommandMessageReply) (*Empty, error) {
-	
+
 }
 
 func (ccg *ConnectorCommandGrpc) WaitCommandMessage(ctx context.Context, in *CommandMessageRequest) (*CommandMessage, error) {
-	
+
 }
 
 func (ccg *ConnectorCommandGrpc) WaitCommandMessageReply(ctx context.Context, in *CommandMessageUUID) (*CommandMessageReply, error) {
 
 }
+*/

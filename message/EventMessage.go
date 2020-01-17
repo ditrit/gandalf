@@ -69,6 +69,7 @@ func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 		fmt.Println("VBLIP3")
 		if err == nil {
 			encoded, _ := EncodeEventMessage(e)
+			fmt.Println(encoded)
 			_, err = socket.SendBytes(encoded, 0)
 			if err == nil {
 				isSend = true

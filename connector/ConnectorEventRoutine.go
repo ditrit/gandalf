@@ -7,6 +7,7 @@ import (
 	"gandalf-go/message"
 
 	"github.com/pebbe/zmq4"
+	"google.golang.org/grpc"
 )
 
 type ConnectorEventRoutine struct {
@@ -23,7 +24,7 @@ type ConnectorEventRoutine struct {
 	ConnectorEventReceiveFromWorker                *zmq4.Socket
 	ConnectorEventReceiveFromWorkerConnection      string
 	Identity                                       string
-	ConnectorEventGrpcServer					  grpc.Server
+	ConnectorEventGrpcServer                       grpc.Server
 }
 
 func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, connectorEventReceiveFromWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) (connectorEventRoutine *ConnectorEventRoutine) {
@@ -161,26 +162,26 @@ func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte)
 	fmt.Println("processEventReceiveFromAggregator")
 	fmt.Println(event)
 	fmt.Println(len(event))
+	fmt.Println(event[1])
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	fmt.Println(eventMessage)
-	fmt.Println(eventMessage)
 	r.ConnectorMapEventNameEventMessage.Push(eventMessage)
-	
+
 	//go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
 }
 
 func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
-/* 	fmt.Println("processEventSendToAggregator")
-	fmt.Println(event)
-	if len(event) == 1 {
-		topic := event[0]
-		fmt.Println("SUB")
-		fmt.Println("ConnectorEventReceiveFromWorker")
-		fmt.Println(topic)
-		fmt.Println(string(topic))
+	/* 	fmt.Println("processEventSendToAggregator")
+	   	fmt.Println(event)
+	   	if len(event) == 1 {
+	   		topic := event[0]
+	   		fmt.Println("SUB")
+	   		fmt.Println("ConnectorEventReceiveFromWorker")
+	   		fmt.Println(topic)
+	   		fmt.Println(string(topic))
 
-		//go message.SendSubscribeTopic(r.ConnectorEventReceiveFromWorker, topic)
-	} */
+	   		//go message.SendSubscribeTopic(r.ConnectorEventReceiveFromWorker, topic)
+	   	} */
 	//eventMessage, _ := message.DecodeEventMessage(event[0])
 	//go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
 }
@@ -199,7 +200,10 @@ func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
 			go eventFunctionReply.SendMessageWith(r.ConnectorEventReceiveFromAggregator)
 		}
 	} else {
+		fmt.Println("BLIP")
+		fmt.Println(event[1])
 		eventMessage, _ := message.DecodeEventMessage(event[1])
+		fmt.Println(eventMessage)
 		go eventMessage.SendMessageWith(r.ConnectorEventSendToAggregator)
 	}
 }
@@ -226,7 +230,7 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 	delete(r.ConnectorMapWorkerIterators, "target")
 }
 
-//GRPC
+/* //GRPC
 func (r ConnectorEventRoutine) StartGrpcServer(port string) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
@@ -244,4 +248,4 @@ func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *EventMe
 
 func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *EventMessageRequest) (*EventMessage, error) {
 
-}
+} */
