@@ -1,7 +1,7 @@
 {
-	"senderCommandConnection": "tcp://127.0.0.1:9241",
-	"senderEventConnection": "tcp://127.0.0.1:9251",
-	"waiterCommandConnection": "tcp://127.0.0.1:9240",
-	"waiterEventConnection": "tcp://127.0.0.1:9250",
+	"senderCommandConnection": "localhost:9240",
+	"senderEventConnection": "localhost:9250",
+	"waiterCommandConnection": "localhost:9240",
+	"waiterEventConnection": "localhost:9250",
 	"identity": "worker2"
 }

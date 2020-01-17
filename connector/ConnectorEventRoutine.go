@@ -203,13 +203,13 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 
 //GRPC
 func (r ConnectorEventRoutine) StartGrpcServer(port string) {
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	r.ConnectorEventGrpcServer = grpc.NewServer()
 	pb.RegisterConnectorEventServer(r.ConnectorEventGrpcServer, &r)
-	r.ConnectorEventGrpcServer.Serve(lis)
+	go r.ConnectorEventGrpcServer.Serve(lis)
 }
 
 //TODO REVOIR SERVICE
