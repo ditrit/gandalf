@@ -1,19 +1,44 @@
 package cluster
 
+import "fmt"
+
 type ClusterGandalf struct {
-	clusterCommandRoutine       ClusterCommandRoutine
-	clusterEventRoutine         ClusterEventRoutine
-	clusterCaptureWorkerRoutine ClusterCaptureWorkerRoutine
+	clusterConfiguration        *ClusterConfiguration
+	clusterCommandRoutine       *ClusterCommandRoutine
+	clusterEventRoutine         *ClusterEventRoutine
+	clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine
+	clusterStopChannel          chan int
 }
 
-func (cg ClusterGandalf) main() {
-	//identity, workerCommandReceiveC2WConnection, workerEventReceiveC2WConnection string, topics *string
-	//LOAD CONF
-	cg.clusterCommandRoutine = ClusterCommandRoutine.new()
-	cg.clusterEventRoutine = ClusterEventRoutine.new()
-	cg.clusterCaptureWorkerRoutine = ClusterCaptureWorkerRoutine.new()
+func NewClusterGandalf(path string) (clusterGandalf *ClusterGandalf) {
+	clusterGandalf = new(ClusterGandalf)
+	clusterGandalf.clusterStopChannel = make(chan int)
 
+	clusterGandalf.clusterConfiguration, _ = LoadConfiguration(path)
+
+	clusterGandalf.clusterCommandRoutine = NewClusterCommandRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.ClusterCommandSendConnection, clusterGandalf.clusterConfiguration.ClusterCommandReceiveConnection, clusterGandalf.clusterConfiguration.ClusterCommandCaptureConnection)
+	clusterGandalf.clusterEventRoutine = NewClusterEventRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.ClusterEventSendConnection, clusterGandalf.clusterConfiguration.ClusterEventReceiveConnection, clusterGandalf.clusterConfiguration.ClusterEventCaptureConnection)
+	clusterGandalf.clusterCaptureWorkerRoutine = NewClusterCaptureWorkerRoutine(clusterGandalf.clusterConfiguration.Identity, clusterGandalf.clusterConfiguration.WorkerCaptureCommandReceiveConnection, clusterGandalf.clusterConfiguration.WorkerCaptureEventReceiveConnection, clusterGandalf.clusterConfiguration.Topics)
+
+	//go clusterGandalf.clusterCommandRoutine.run()
+	//go clusterGandalf.clusterEventRoutine.run()
+	//go clusterGandalf.clusterCaptureWorkerRoutine.run()
+	return
+}
+
+func (cg ClusterGandalf) Run() {
 	go cg.clusterCommandRoutine.run()
 	go cg.clusterEventRoutine.run()
 	go cg.clusterCaptureWorkerRoutine.run()
+	for {
+		select {
+		case <-cg.clusterStopChannel:
+			fmt.Println("quit")
+			break
+		}
+	}
+}
+
+func (cg ClusterGandalf) Stop() {
+	cg.clusterStopChannel <- 0
 }

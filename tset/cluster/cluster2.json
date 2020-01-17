@@ -1,0 +1,9 @@
+{
+	"clusterEventSendConnection": "tcp://*:9200",
+	"clusterEventReceiveConnection": "tcp://*:9201",
+    "clusterEventCaptureConnection": "",
+	"clusterCommandSendConnection": "tcp://*:9210",
+    "clusterCommandReceiveConnection": "tcp://*:9211",
+	"clusterCommandCaptureConnection": "",
+	"identity": "cluster2"
+}

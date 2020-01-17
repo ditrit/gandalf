@@ -1,24 +1,52 @@
 package connector
 
+import "fmt"
+
 type ConnectorGandalf struct {
-	connectorCommandRoutine     ConnectorCommandRoutine
-	connectorEventRoutine       ConnectorEventRoutine
+	connectorConfiguration      *ConnectorConfiguration
+	connectorCommandRoutine     *ConnectorCommandRoutine
+	connectorEventRoutine       *ConnectorEventRoutine
 	connectorCommandsMap        map[string][]string
 	connectorCommandSendFileMap map[string]string
+	connectorStopChannel        chan int
 }
 
-func (cg ConnectorGandalf) new() {
-	cg.connectorCommandsMap = make(map[string][]string)
-	cg.connectorCommandSendFileMap = make(map[string]string)
-	cg.connectorCommandRoutine = ConnectorCommandRoutine.new()
-	cg.connectorEventRoutine = ConnectorEventRoutine.new()
+func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
+	connectorGandalf = new(ConnectorGandalf)
+	connectorGandalf.connectorStopChannel = make(chan int)
+
+	connectorGandalf.connectorConfiguration, _ = LoadConfiguration(path)
+
+	connectorGandalf.connectorCommandsMap = make(map[string][]string)
+	connectorGandalf.connectorCommandSendFileMap = make(map[string]string)
+
+	connectorGandalf.connectorCommandRoutine = NewConnectorCommandRoutine(connectorGandalf.connectorConfiguration.Identity, connectorGandalf.connectorConfiguration.ConnectorCommandSendToWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorCommandReceiveFromWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorCommandReceiveFromAggregatorConnections, connectorGandalf.connectorConfiguration.ConnectorCommandSendToAggregatorConnections)
+	connectorGandalf.connectorEventRoutine = NewConnectorEventRoutine(connectorGandalf.connectorConfiguration.Identity, connectorGandalf.connectorConfiguration.ConnectorEventSendToWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorEventReceiveFromWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorEventReceiveFromAggregatorConnections, connectorGandalf.connectorConfiguration.ConnectorEventSendToAggregatorConnections)
 
 	//RUN
-	go cg.connectorCommandRoutine.run()
-	go cg.connectorEventRoutine.run()
+	//go connectorGandalf.ConnectorCommandRoutine.run()
+	//go connectorGandalf.ConnectorEventRoutine.run()
+
+	return
 }
 
-func (cg ConnectorGandalf) getWorkerCommands(worker string) []string {
+func (cg ConnectorGandalf) Run() {
+	go cg.connectorCommandRoutine.run()
+	go cg.connectorEventRoutine.run()
+	for {
+		select {
+		case <-cg.connectorStopChannel:
+			fmt.Println("quit")
+			break
+		}
+	}
+}
+
+func (cg ConnectorGandalf) Stop() {
+	cg.connectorStopChannel <- 0
+}
+
+func (cg ConnectorGandalf) getWorkerCommands(worker string) (workerCommand []string) {
 	return cg.connectorCommandsMap[worker]
 }
 
@@ -28,7 +56,7 @@ func (cg ConnectorGandalf) addWorkerCommands(worker, command string) {
 
 }
 
-func (cg ConnectorGandalf) getWorkerCommandSendFile(worker string) string {
+func (cg ConnectorGandalf) getWorkerCommandSendFile(worker string) (workerCommandFile string) {
 	return cg.connectorCommandSendFileMap[worker]
 }
 

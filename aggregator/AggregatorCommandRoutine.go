@@ -1,112 +1,101 @@
 package aggregator
 
 import (
+	"errors"
 	"fmt"
+	"gandalf-go/constant"
+	"gandalf-go/message"
 
-	zmq "github.com/zeromq/goczmq"
+	"github.com/pebbe/zmq4"
 )
 
 type AggregatorCommandRoutine struct {
-	aggregatorCommandSendC2CL              zmq.Sock
-	aggregatorCommandSendC2CLConnections   *string
-	aggregatorCommandReceiveC2CL           zmq.Sock
-	aggregatorCommandReceiveC2CLConnection string
-	aggregatorCommandSendCL2C              zmq.Sock
-	aggregatorCommandSendCL2CConnections   *string
-	aggregatorCommandReceiveCL2C           zmq.Sock
-	aggregatorCommandReceiveCL2CConnection string
-	identity                               string
+	context                                         *zmq4.Context
+	aggregatorCommandSendToCluster                  *zmq4.Socket
+	aggregatorCommandSendToClusterConnections       []string
+	aggregatorCommandReceiveFromConnector           *zmq4.Socket
+	aggregatorCommandReceiveFromConnectorConnection string
+	aggregatorCommandSendToConnector                *zmq4.Socket
+	aggregatorCommandSendToConnectorConnection      string
+	aggregatorCommandReceiveFromCluster             *zmq4.Socket
+	aggregatorCommandReceiveFromClusterConnections  []string
+	identity                                        string
 }
 
-func (r AggregatorCommandRoutine) new(identity, aggregatorCommandSendC2CLConnections, aggregatorCommandReceiveC2CLConnection, aggregatorCommandSendCL2CConnections, aggregatorCommandReceiveCL2CConnection string) {
-	r.identity = identity
+func NewAggregatorCommandRoutine(identity, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnection string, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromClusterConnections []string) (aggregatorCommandRoutine *AggregatorCommandRoutine) {
+	aggregatorCommandRoutine = new(AggregatorCommandRoutine)
 
-	r.aggregatorCommandSendC2CLConnections = aggregatorCommandSendC2CLConnections
-	r.aggregatorCommandSendC2CL = zmq.NewDealer(aggregatorCommandSendC2CLConnections)
-	r.aggregatorCommandSendC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendC2CLConnections)
+	aggregatorCommandRoutine.identity = identity
 
-	r.workerEventReceiveC2WConnection = aggregatorCommandReceiveC2CLConnection
-	r.aggregatorCommandReceiveC2CL = zmq.NewSub(aggregatorCommandReceiveC2CLConnection)
-	r.aggregatorCommandReceiveC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorCommandReceiveC2CL connect : " + aggregatorCommandReceiveC2CLConnection)
+	aggregatorCommandRoutine.context, _ = zmq4.NewContext()
+	aggregatorCommandRoutine.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
+	aggregatorCommandRoutine.aggregatorCommandSendToCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.DEALER)
+	aggregatorCommandRoutine.aggregatorCommandSendToCluster.SetIdentity(aggregatorCommandRoutine.identity)
+	for _, connection := range aggregatorCommandRoutine.aggregatorCommandSendToClusterConnections {
+		aggregatorCommandRoutine.aggregatorCommandSendToCluster.Connect(connection)
+		fmt.Println("aggregatorCommandSendToCluster connect : " + connection)
+	}
 
-	r.aggregatorCommandSendCL2CConnections = aggregatorCommandSendCL2CConnections
-	r.aggregatorCommandSendC2CL = zmq.NewSub(aggregatorCommandSendCL2CConnections)
-	r.aggregatorCommandSendC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorCommandSendC2CL connect : " + aggregatorCommandSendCL2CConnections)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromClusterConnections = aggregatorCommandReceiveFromClusterConnections
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster.SetIdentity(aggregatorCommandRoutine.identity)
+	for _, connection := range aggregatorCommandRoutine.aggregatorCommandReceiveFromClusterConnections {
+		aggregatorCommandRoutine.aggregatorCommandReceiveFromCluster.Connect(connection)
+		fmt.Println("aggregatorCommandReceiveFromCluster connect : " + connection)
+	}
 
-	r.aggregatorCommandReceiveC2CLConnection = aggregatorCommandReceiveC2CLConnection
-	r.aggregatorCommandReceiveC2CL = zmq.NewSub(aggregatorCommandReceiveC2CLConnection)
-	r.aggregatorCommandReceiveC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorCommandReceiveC2CL connect : " + aggregatorCommandReceiveC2CLConnection)
+	aggregatorCommandRoutine.aggregatorCommandSendToConnectorConnection = aggregatorCommandSendToConnectorConnection
+	aggregatorCommandRoutine.aggregatorCommandSendToConnector, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.DEALER)
+	aggregatorCommandRoutine.aggregatorCommandSendToConnector.SetIdentity(aggregatorCommandRoutine.identity)
+	aggregatorCommandRoutine.aggregatorCommandSendToConnector.Bind(aggregatorCommandRoutine.aggregatorCommandSendToConnectorConnection)
+	fmt.Println("aggregatorCommandSendToConnector bind : " + aggregatorCommandSendToConnectorConnection)
+
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnectorConnection = aggregatorCommandReceiveFromConnectorConnection
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector, _ = aggregatorCommandRoutine.context.NewSocket(zmq4.ROUTER)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector.SetIdentity(aggregatorCommandRoutine.identity)
+	aggregatorCommandRoutine.aggregatorCommandReceiveFromConnector.Bind(aggregatorCommandRoutine.aggregatorCommandReceiveFromConnectorConnection)
+	fmt.Println("aggregatorCommandReceiveFromConnector bind : " + aggregatorCommandReceiveFromConnectorConnection)
+
+	return
 }
 
 func (r AggregatorCommandRoutine) close() {
-	r.aggregatorCommandSendC2CL.close()
-	r.aggregatorCommandReceiveC2CL.close()
-	r.aggregatorCommandSendC2CL.close()
-	r.aggregatorCommandReceiveC2CL.close()
-	r.Context.close()
+	r.aggregatorCommandSendToCluster.Close()
+	r.aggregatorCommandReceiveFromCluster.Close()
+	r.aggregatorCommandSendToConnector.Close()
+	r.aggregatorCommandReceiveFromConnector.Close()
+	r.context.Term()
 }
 
 func (r AggregatorCommandRoutine) run() {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: aggregatorCommandSendC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandReceiveC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandSendC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorCommandReceiveC2CL, Events: zmq.POLLIN}}
+	poller := zmq4.NewPoller()
+	poller.Add(r.aggregatorCommandReceiveFromConnector, zmq4.POLLIN)
+	poller.Add(r.aggregatorCommandReceiveFromCluster, zmq4.POLLIN)
 
-	var command = [][]byte{}
+	command := [][]byte{}
+	err := errors.New("")
 
 	for {
-		r.sendReadyCommand()
+		fmt.Println("Running AggregatorCommandRoutine")
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
 
-		_, _ = zmq.Poll(pi, -1)
+			switch currentSocket := socket.Socket; currentSocket {
+			case r.aggregatorCommandReceiveFromConnector:
+				command, err = currentSocket.RecvMessageBytes(0)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println("Aggregator receive connector")
+				r.processCommandReceiveFromConnector(command)
+			case r.aggregatorCommandReceiveFromCluster:
 
-		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
-
-			command, err := pi[0].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandSendC2CL(command)
-			if err != nil {
-				panic(err)
-			}
-
-		case pi[1].REvents&zmq.POLLIN != 0:
-
-			command, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandReceiveC2CL(command)
-			if err != nil {
-				panic(err)
-			}
-
-		case pi[2].REvents&zmq.POLLIN != 0:
-
-			command, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandSendC2CL(command)
-			if err != nil {
-				panic(err)
-			}
-
-		case pi[3].REvents&zmq.POLLIN != 0:
-
-			command, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommandReceiveC2CL(command)
-			if err != nil {
-				panic(err)
+				command, err = currentSocket.RecvMessageBytes(0)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println("Aggregator receive cluster")
+				r.processCommandReceiveFromCluster(command)
 			}
 		}
 	}
@@ -114,34 +103,35 @@ func (r AggregatorCommandRoutine) run() {
 	fmt.Println("done")
 }
 
-func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) {
-	command = r.updateHeaderCommandSendC2CL(command)
+func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) {
+
+	fmt.Println("TOTO")
+	fmt.Println(command[0])
+	fmt.Println(string(command[0]))
+	fmt.Println(command[1])
+	fmt.Println(string(command[1]))
+	fmt.Println("TATA")
+	commandType := string(command[1])
+	if commandType == constant.COMMAND_MESSAGE {
+		//COMMAND
+		message, _ := message.DecodeCommandMessage(command[2])
+		fmt.Println("MESSAGE")
+		fmt.Println(message)
+		go message.SendWith(r.aggregatorCommandSendToConnector, message.DestinationConnector)
+	} else {
+		//REPLY
+		messageReply, _ := message.DecodeCommandMessageReply(command[2])
+		go messageReply.SendWith(r.aggregatorCommandSendToConnector, messageReply.DestinationConnector)
+
+	}
 }
 
-func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) {
-
-}
-
-func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) {
-	command = r.updateHeaderCommandReceiveC2CL(command)
-}
-
-func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) {
-
-}
-
-func (r AggregatorCommandRoutine) processCommandSendC2CL(command [][]byte) {
-	command = r.updateHeaderCommandSendC2CL(command)
-}
-
-func (r AggregatorCommandRoutine) updateHeaderCommandSendC2CL(command [][]byte) {
-
-}
-
-func (r AggregatorCommandRoutine) processCommandReceiveC2CL(command [][]byte) {
-	command = r.updateHeaderCommandReceiveC2CL(command)
-}
-
-func (r AggregatorCommandRoutine) updateHeaderCommandReceiveC2CL(command [][]byte) {
-
+func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
+	fmt.Println("TITI")
+	commandMessage, _ := message.DecodeCommandMessage(command[2])
+	fmt.Println("MESSAGE")
+	fmt.Println(commandMessage)
+	//go commandMessage.SendWith(r.aggregatorCommandSendToCluster, commandMessage.DestinationConnector)
+	go commandMessage.SendMessageWith(r.aggregatorCommandSendToCluster)
+	//RECEIVE FROM CONNECTOR
 }

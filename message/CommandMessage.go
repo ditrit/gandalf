@@ -2,82 +2,395 @@ package message
 
 import (
 	"fmt"
+	"gandalf-go/constant"
+	"time"
 
-	msgpack "github.com/shamaton/msgpack"
+	"github.com/pebbe/zmq4"
+	"github.com/shamaton/msgpack"
 )
 
-type Command struct {
-	uuid    string
-	routing string
-	acces   string
-	info    string
+type CommandMessage struct {
+	SourceAggregator      string
+	SourceConnector       string
+	SourceWorker          string
+	DestinationAggregator string
+	DestinationConnector  string
+	DestinationWorker     string
+	Tenant                string
+	Token                 string
+	Context               string
+	Timeout               string
+	Timestamp             string
+	Major                 string
+	Minor                 string
+	Uuid                  string
+	ConnectorType         string
+	CommandType           string
+	Command               string
+	Payload               string
 }
 
-func (c Command) new(uuid, routing, acces, info string) {
-	c.uuid = uuid
-	c.routing = routing
-	c.acces = acces
-	c.info = info
+func NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessage *CommandMessage) {
+	commandMessage = new(CommandMessage)
+
+	commandMessage.Context = context
+	commandMessage.Timeout = timeout
+	commandMessage.Uuid = uuid
+	commandMessage.ConnectorType = connectorType
+	commandMessage.CommandType = commandType
+	commandMessage.Command = command
+	commandMessage.Payload = payload
+	commandMessage.Timestamp = time.Now().String()
+
+	return
 }
 
-func (c Command) sendWith() {
-
+func (c CommandMessage) GetUUID() string {
+	return c.Uuid
 }
 
-func (c Command) from() {
-
+func (c CommandMessage) GetTimeout() string {
+	return c.Timeout
 }
 
-func (c Command) response() {
-
+func (c CommandMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
+	for {
+		isSend = c.SendHeaderWith(socket, header)
+		isSend = isSend && c.SendMessageWith(socket)
+		fmt.Println(isSend)
+		if isSend {
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
 }
 
-func (c Command) encodeCommand() (bytesContent []byte, commandError error) {
-	bytesContent, err := msgpack.Encode(c)
+func (c CommandMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
+	for {
+		_, err := socket.Send(header, zmq4.SNDMORE)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func (c CommandMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
+	for {
+		_, err := socket.Send(constant.COMMAND_MESSAGE, zmq4.SNDMORE)
+		encoded, _ := EncodeCommandMessage(c)
+		_, err = socket.SendBytes(encoded, 0)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func (c CommandMessage) From(command []string) {
+	c.SourceAggregator = command[0]
+	c.SourceConnector = command[1]
+	c.SourceWorker = command[2]
+	c.DestinationAggregator = command[3]
+	c.DestinationConnector = command[4]
+	c.DestinationWorker = command[5]
+	c.Tenant = command[6]
+	c.Token = command[7]
+	c.Context = command[8]
+	c.Timeout = command[9]
+	c.Timestamp = command[10]
+	c.Major = command[11]
+	c.Minor = command[12]
+	c.Uuid = command[13]
+	c.ConnectorType = command[14]
+	c.CommandType = command[15]
+	c.Command = command[16]
+	c.Payload = command[17]
+}
+
+//
+
+type CommandMessageReply struct {
+	SourceAggregator      string
+	SourceConnector       string
+	SourceWorker          string
+	DestinationAggregator string
+	DestinationConnector  string
+	DestinationWorker     string
+	Tenant                string
+	Token                 string
+	Context               string
+	Timeout               string
+	Timestamp             string
+	Uuid                  string
+	Reply                 string
+	Payload               string
+}
+
+func (cr CommandMessageReply) GetUUID() string {
+	return cr.Uuid
+}
+
+func (cr CommandMessageReply) GetTimeout() string {
+	return cr.Timeout
+}
+
+func (cr CommandMessageReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
+	for {
+		isSend = cr.SendHeaderWith(socket, header)
+		isSend = isSend && cr.SendMessageWith(socket)
+		if isSend {
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func (cr CommandMessageReply) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
+	for {
+		_, err := socket.Send(header, zmq4.SNDMORE)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func (cr CommandMessageReply) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
+	for {
+		_, err := socket.Send(constant.COMMAND_MESSAGE_REPLY, zmq4.SNDMORE)
+		encoded, _ := EncodeCommandMessageReply(cr)
+		_, err = socket.SendBytes(encoded, 0)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func (cr CommandMessageReply) From(commandMessage CommandMessage, reply, payload string) {
+	cr.SourceAggregator = commandMessage.SourceAggregator
+	cr.SourceConnector = commandMessage.SourceConnector
+	cr.SourceWorker = commandMessage.SourceWorker
+	cr.DestinationAggregator = commandMessage.DestinationAggregator
+	cr.DestinationConnector = commandMessage.DestinationConnector
+	cr.DestinationWorker = commandMessage.DestinationWorker
+	cr.Tenant = commandMessage.Tenant
+	cr.Token = commandMessage.Token
+	cr.Context = commandMessage.Context
+	cr.Timeout = commandMessage.Timeout
+	cr.Timestamp = commandMessage.Timestamp
+	cr.Uuid = commandMessage.Uuid
+	cr.Reply = reply
+	cr.Payload = payload
+}
+
+//
+
+type CommandFunction struct {
+	Functions []string
+}
+
+func NewCommandFunction(functions []string) (commandFunction *CommandFunction) {
+	commandFunction = new(CommandFunction)
+	commandFunction.Functions = functions
+
+	return
+}
+
+func (cf CommandFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
+	for {
+		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS, zmq4.SNDMORE)
+		if err == nil {
+			encoded, _ := EncodeCommandFunction(cf)
+			_, err = socket.SendBytes(encoded, 0)
+			if err == nil {
+				isSend = true
+				return
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+//
+
+type CommandFunctionReply struct {
+	Validation bool
+}
+
+func NewCommandFunctionReply(validation bool) (commandFunctionReply *CommandFunctionReply) {
+	commandFunctionReply = new(CommandFunctionReply)
+	commandFunctionReply.Validation = validation
+
+	return
+}
+
+func (cfr CommandFunctionReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
+	for {
+		isSend = cfr.SendHeaderWith(socket, header)
+		isSend = isSend && cfr.SendMessageWith(socket)
+		if isSend {
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func (cfr CommandFunctionReply) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
+	for {
+		_, err := socket.Send(header, zmq4.SNDMORE)
+		if err == nil {
+			isSend = true
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func (cfr CommandFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
+	for {
+		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, zmq4.SNDMORE)
+		if err == nil {
+			encoded, _ := EncodeCommandFunctionReply(cfr)
+			_, err = socket.SendBytes(encoded, 0)
+			if err == nil {
+				isSend = true
+				return
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+type CommandMessageWait struct {
+	WorkerSource string
+	Value        string
+	CommandType  string
+}
+
+func NewCommandMessageWait(workerSource, value, commandType string) (commandMessageWait *CommandMessageWait) {
+	commandMessageWait = new(CommandMessageWait)
+	commandMessageWait.WorkerSource = workerSource
+	commandMessageWait.CommandType = commandType
+	commandMessageWait.Value = value
+
+	return
+}
+
+func (cmw CommandMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
+	for {
+		_, err := socket.Send(constant.COMMAND_WAIT, zmq4.SNDMORE)
+		if err == nil {
+			encoded, _ := EncodeCommandMessageWait(cmw)
+			_, err = socket.SendBytes(encoded, 0)
+			if err == nil {
+				isSend = true
+				return
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+//
+
+type CommandMessageReady struct {
+	// ???
+}
+
+func NewCommandMessageReady() (commandMessageReady *CommandMessageReady) {
+	commandMessageReady = new(CommandMessageReady)
+
+	return
+}
+
+func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {
+	for {
+		_, err := socket.Send(constant.COMMAND_READY, zmq4.SNDMORE)
+		if err == nil {
+			encoded, _ := EncodeCommandMessageReady(cry)
+			_, err = socket.SendBytes(encoded, 0)
+			if err == nil {
+				isSend = true
+				return
+			}
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+//
+
+func EncodeCommandMessage(commandMessage CommandMessage) (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(commandMessage)
 	if err != nil {
-		commandError = fmt.Errorf("Command %s", err)
+		commandError = fmt.Errorf("command %s", err)
 		return
 	}
 	return
 }
 
-func (c Command) decodeCommand(bytesContent []byte) (command Command, commandError error) {
-	err := msgpack.Decode(bytesContent, command)
+func EncodeCommandMessageReply(commandMessageReply CommandMessageReply) (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(commandMessageReply)
 	if err != nil {
-		commandError = fmt.Errorf("Command %s", err)
+		commandError = fmt.Errorf("command %s", err)
 		return
 	}
 	return
 }
 
-type CommandResponse struct {
-	command Command
+func EncodeCommandMessageWait(commandMessageWait CommandMessageWait) (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(commandMessageWait)
+	if err != nil {
+		commandError = fmt.Errorf("command %s", err)
+		return
+	}
+	return
 }
 
-func (cr CommandResponse) new(uuid, routing, acces, info string) {
-	cr.command.uuid = uuid
-	cr.command.routing = routing
-	cr.command.acces = acces
-	cr.command.info = info
+func EncodeCommandMessageReady(commandMessageReady CommandMessageReady) (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(commandMessageReady)
+	if err != nil {
+		commandError = fmt.Errorf("command %s", err)
+		return
+	}
+	return
 }
 
-func (cr CommandResponse) sendWith() {
+func EncodeCommandFunction(commandFunction CommandFunction) (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(commandFunction)
+	if err != nil {
+		commandError = fmt.Errorf("command %s", err)
+		return
+	}
+	return
 }
 
-func (cr CommandResponse) from() {
-
+func EncodeCommandFunctionReply(commandFunctionReply CommandFunctionReply) (bytesContent []byte, commandError error) {
+	bytesContent, err := msgpack.Encode(commandFunctionReply)
+	if err != nil {
+		commandError = fmt.Errorf("command %s", err)
+		return
+	}
+	return
 }
 
-func (cr CommandResponse) encode() {
-
+func DecodeCommandMessage(bytesContent []byte) (commandMessage CommandMessage, commandError error) {
+	err := msgpack.Decode(bytesContent, &commandMessage)
+	if err != nil {
+		commandError = fmt.Errorf("command %s", err)
+		return
+	}
+	return
 }
 
-func (cr CommandResponse) decode() {
-
-}
-
-func (cr CommandResponse) encodeCommandResponse() (bytesContent []byte, commandError error) {
-	bytesContent, err := msgpack.Encode(cr)
+func DecodeCommandMessageReply(bytesContent []byte) (commandMessageReply CommandMessageReply, commandError error) {
+	err := msgpack.Decode(bytesContent, &commandMessageReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return
@@ -85,8 +398,35 @@ func (cr CommandResponse) encodeCommandResponse() (bytesContent []byte, commandE
 	return
 }
 
-func (cr CommandResponse) decodeCommandResponse(bytesContent []byte) (commandResponse CommandResponse, commandError error) {
-	err := msgpack.Decode(bytesContent, commandResponse)
+func DecodeCommandMessageReady(bytesContent []byte) (commandMessageReady CommandMessageReady, commandError error) {
+	err := msgpack.Decode(bytesContent, &commandMessageReady)
+	if err != nil {
+		commandError = fmt.Errorf("CommandResponse %s", err)
+		return
+	}
+	return
+}
+
+func DecodeCommandMessageWait(bytesContent []byte) (commandMessageWait CommandMessageWait, commandError error) {
+	err := msgpack.Decode(bytesContent, &commandMessageWait)
+	if err != nil {
+		commandError = fmt.Errorf("CommandResponse %s", err)
+		return
+	}
+	return
+}
+
+func DecodeCommandFunction(bytesContent []byte) (commandFunction CommandFunction, commandError error) {
+	err := msgpack.Decode(bytesContent, &commandFunction)
+	if err != nil {
+		commandError = fmt.Errorf("CommandResponse %s", err)
+		return
+	}
+	return
+}
+
+func DecodeCommandFunctionReply(bytesContent []byte) (commandFunctionReply CommandFunctionReply, commandError error) {
+	err := msgpack.Decode(bytesContent, &commandFunctionReply)
 	if err != nil {
 		commandError = fmt.Errorf("CommandResponse %s", err)
 		return

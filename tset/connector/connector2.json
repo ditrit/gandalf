@@ -1,0 +1,11 @@
+{
+	"connectorCommandSendToWorkerConnection": "tcp://*:9240",
+	"connectorCommandReceiveFromWorkerConnection": "tcp://*:9241",
+	"connectorCommandReceiveFromAggregatorConnections": ["tcp://127.0.0.1:9220", "tcp://127.0.0.1:9220"],
+	"connectorCommandSendToAggregatorConnections": ["tcp://127.0.0.1:9221", "127.0.0.1:9221"],
+	"connectorEventSendToWorkerConnection": "tcp://*:9250",
+	"connectorEventReceiveFromWorkerConnection": "tcp://*:9251",
+	"connectorEventReceiveFromAggregatorConnections": ["tcp://127.0.0.1:9230"],
+	"connectorEventSendToAggregatorConnections": ["tcp://127.0.0.1:9231"],
+	"identity": "connector2"
+}

@@ -1,73 +1,80 @@
 package cluster
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"net/http"
 
-	zmq "github.com/zeromq/goczmq"
+	"github.com/pebbe/zmq4"
 )
 
 type ClusterCaptureWorkerRoutine struct {
-	workerCaptureCommandReceiveCL2W           zmq.Sock
-	workerCaptureCommandReceiveCL2WConnection string
-	workerCaptureEventReceiveCL2W             zmq.Sock
-	workerCaptureEventReceiveCL2WConnection   string
-	identity                                  string
+	Context                               *zmq4.Context
+	WorkerCaptureCommandReceive           *zmq4.Socket
+	WorkerCaptureCommandReceiveConnection string
+	WorkerCaptureEventReceive             *zmq4.Socket
+	WorkerCaptureEventReceiveConnection   string
+	Identity                              string
 }
 
-func (r ClusterCaptureWorkerRoutine) new(identity, workerCaptureCommandReceiveCL2WConnection, workerCaptureEventReceiveC2WConnection string, topics *string) {
-	r.identity = identity
+func NewClusterCaptureWorkerRoutine(identity, workerCaptureCommandReceiveConnection, workerCaptureEventReceiveConnection string, topics []string) (clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine) {
+	clusterCaptureWorkerRoutine = new(ClusterCaptureWorkerRoutine)
 
-	r.workerCaptureCommandReceiveCL2WConnection = workerCaptureCommandReceiveCL2WConnection
-	r.workerCaptureCommandReceiveCL2W = zmq.NewDealer(workerCaptureCommandReceiveCL2WConnection)
-	r.workerCaptureCommandReceiveCL2W.Identity(r.identity)
-	fmt.Printf("workerCaptureCommandReceiveCL2W connect : " + workerCaptureCommandReceiveCL2WConnection)
+	clusterCaptureWorkerRoutine.Identity = identity
 
-	r.workerCaptureEventReceiveCL2WConnection = workerCaptureEventReceiveCL2WConnection
-	r.workerCaptureEventReceiveC2W = zmq.NewSub(workerCaptureEventReceiveCL2WConnection)
-	r.workerCaptureEventReceiveC2W.Identity(r.identity)
-	fmt.Printf("workerCaptureEventReceiveC2W connect : " + workerCaptureEventReceiveCL2WConnection)
+	clusterCaptureWorkerRoutine.Context, _ = zmq4.NewContext()
+	clusterCaptureWorkerRoutine.WorkerCaptureCommandReceiveConnection = workerCaptureCommandReceiveConnection
+	clusterCaptureWorkerRoutine.WorkerCaptureCommandReceive, _ = clusterCaptureWorkerRoutine.Context.NewSocket(zmq4.DEALER)
+	clusterCaptureWorkerRoutine.WorkerCaptureCommandReceive.SetIdentity(clusterCaptureWorkerRoutine.Identity)
+	clusterCaptureWorkerRoutine.WorkerCaptureCommandReceive.Connect(clusterCaptureWorkerRoutine.WorkerCaptureCommandReceiveConnection)
+	fmt.Println("workerCaptureCommandReceive connect : " + workerCaptureCommandReceiveConnection)
+
+	clusterCaptureWorkerRoutine.WorkerCaptureEventReceiveConnection = workerCaptureEventReceiveConnection
+	clusterCaptureWorkerRoutine.WorkerCaptureEventReceive, _ = clusterCaptureWorkerRoutine.Context.NewSocket(zmq4.SUB)
+	clusterCaptureWorkerRoutine.WorkerCaptureEventReceive.SetIdentity(clusterCaptureWorkerRoutine.Identity)
+	clusterCaptureWorkerRoutine.WorkerCaptureEventReceive.Connect(clusterCaptureWorkerRoutine.WorkerCaptureEventReceiveConnection)
+	fmt.Println("workerCaptureEventReceive connect : " + workerCaptureEventReceiveConnection)
+
+	return
 }
 
 func (r ClusterCaptureWorkerRoutine) close() {
-	r.workerCaptureCommandReceiveC2W.close()
-	r.workerCaptureEventReceiveC2W.close()
-	r.Context.close()
+	r.WorkerCaptureCommandReceive.Close()
+	r.WorkerCaptureEventReceive.Close()
+	r.Context.Term()
 }
 
 func (r ClusterCaptureWorkerRoutine) run() {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: workerCaptureCommandReceiveCL2W, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: workerCaptureEventReceiveC2W, Events: zmq.POLLIN}}
+	poller := zmq4.NewPoller()
+	poller.Add(r.WorkerCaptureCommandReceive, zmq4.POLLIN)
+	poller.Add(r.WorkerCaptureEventReceive, zmq4.POLLIN)
 
-	var command = [][]byte{}
-	var event = [][]byte{}
+	command := [][]byte{}
+	event := [][]byte{}
+	err := errors.New("")
 
 	for {
-		r.sendReadyCommand()
 
-		_, _ = zmq.Poll(pi, -1)
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
 
-		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+			switch currentSocket := socket.Socket; currentSocket {
+			case r.WorkerCaptureCommandReceive:
 
-			command, err := pi[0].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processCommand(command)
-			if err != nil {
-				panic(err)
-			}
+				command, err = currentSocket.RecvMessageBytes(0)
+				if err != nil {
+					panic(err)
+				}
+				r.processCommand(command)
 
-		case pi[1].REvents&zmq.POLLIN != 0:
+			case r.WorkerCaptureEventReceive:
 
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEvent(event)
-			if err != nil {
-				panic(err)
+				event, err = currentSocket.RecvMessageBytes(0)
+				if err != nil {
+					panic(err)
+				}
+				r.processEvent(event)
 			}
 		}
 	}
@@ -75,18 +82,15 @@ func (r ClusterCaptureWorkerRoutine) run() {
 }
 
 func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
-	command = r.updateHeaderCommand(command)
-	//CALL API
-}
-
-func (r ClusterCaptureWorkerRoutine) updateHeaderCommand(command [][]byte) {
+	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
+	if err != nil {
+		fmt.Println("The HTTP request failed with error %s\n", err)
+	}
 }
 
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
-	event = r.updateHeaderEvent(event)
-	//CALL API
-
-}
-
-func (r ClusterCaptureWorkerRoutine) updateHeaderEvent(event [][]byte) {
+	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
+	if err != nil {
+		fmt.Println("The HTTP request failed with error %s\n", err)
+	}
 }

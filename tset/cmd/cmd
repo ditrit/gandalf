@@ -1,0 +1,11 @@
+./gandalf-go -m=cluster -c=/home/romain/go/src/gandalf-go/tset/cluster/cluster1.json
+
+./gandalf-go -m=aggregator -c=/home/romain/go/src/gandalf-go/tset/aggregator/aggregator1.json
+
+./gandalf-go -m=connector -c=/home/romain/go/src/gandalf-go/tset/connector/connector1.json
+
+./gandalf-go -m=worker -c=/home/romain/go/src/gandalf-go/tset/worker/worker1.json
+
+./gandalf-go -m=workerTestSend -c=/home/romain/go/src/gandalf-go/tset/worker/worker2.json
+
+./gandalf-go -m=workerTestReceive -c=/home/romain/go/src/gandalf-go/tset/worker/worker1.json

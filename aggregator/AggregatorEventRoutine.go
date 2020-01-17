@@ -1,146 +1,179 @@
 package aggregator
 
 import (
+	"errors"
 	"fmt"
+	"gandalf-go/message"
 
-	zmq "github.com/zeromq/goczmq"
+	"github.com/pebbe/zmq4"
 )
 
 type AggregatorEventRoutine struct {
-	aggregatorEventSendC2CL              zmq.Sock
-	aggregatorEventSendC2CLConnection    string
-	aggregatorEventReceiveC2CL           zmq.Sock
-	aggregatorEventReceiveC2CLConnection string
-	aggregatorEventSendCL2C              zmq.Sock
-	aggregatorEventSendCL2CConnection    string
-	aggregatorEventReceiveCL2C           zmq.Sock
-	aggregatorEventReceiveCL2CConnection string
-	identity                             string
+	Context                                       *zmq4.Context
+	AggregatorEventSendToCluster                  *zmq4.Socket
+	AggregatorEventSendToClusterConnections       []string
+	AggregatorEventReceiveFromConnector           *zmq4.Socket
+	AggregatorEventReceiveFromConnectorConnection string
+	AggregatorEventSendToConnector                *zmq4.Socket
+	AggregatorEventSendToConnectorConnection      string
+	AggregatorEventReceiveFromCluster             *zmq4.Socket
+	AggregatorEventReceiveFromClusterConnections  []string
+	Identity                                      string
 }
 
-func (r AggregatorEventRoutine) new(identity, aggregatorEventSendC2CLConnection, aggregatorEventReceiveC2CLConnection, aggregatorEventSendCL2CConnection, aggregatorEventReceiveCL2CConnection string) {
-	r.identity = identity
+func NewAggregatorEventRoutine(identity, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection string, aggregatorEventSendToClusterConnections, aggregatorEventReceiveFromClusterConnections []string) (aggregatorEventRoutine *AggregatorEventRoutine) {
+	aggregatorEventRoutine = new(AggregatorEventRoutine)
 
-	r.aggregatorEventSendC2CLConnection = aggregatorEventSendC2CLConnection
-	r.aggregatorEventSendC2CL = zmq.NewDealer(aggregatorEventSendC2CLConnection)
-	r.aggregatorEventSendC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorEventSendC2CL connect : " + aggregatorEventSendC2CLConnection)
+	aggregatorEventRoutine.Identity = identity
 
-	r.aggregatorEventReceiveC2CLConnection = aggregatorEventReceiveC2CLConnection
-	r.aggregatorEventReceiveC2CL = zmq.NewSub(aggregatorEventReceiveC2CLConnection)
-	r.aggregatorEventReceiveC2CL.Identity(r.identity)
-	fmt.Printf("aggregatorEventReceiveC2CL connect : " + aggregatorEventReceiveC2CLConnection)
+	aggregatorEventRoutine.Context, _ = zmq4.NewContext()
+	aggregatorEventRoutine.AggregatorEventSendToClusterConnections = aggregatorEventSendToClusterConnections
+	aggregatorEventRoutine.AggregatorEventSendToCluster, _ = aggregatorEventRoutine.Context.NewSocket(zmq4.XPUB)
+	aggregatorEventRoutine.AggregatorEventSendToCluster.SetIdentity(aggregatorEventRoutine.Identity)
+	//aggregatorEventRoutine.aggregatorEventSendToCluster.Connect(aggregatorEventRoutine.aggregatorEventSendToClusterConnections)
+	//fmt.Println("aggregatorEventSendToCluster connect : " + aggregatorEventSendToClusterConnections)
+	for _, connection := range aggregatorEventRoutine.AggregatorEventSendToClusterConnections {
+		aggregatorEventRoutine.AggregatorEventSendToCluster.Connect(connection)
+		fmt.Println("aggregatorEventSendToCluster connect : " + connection)
+	}
 
-	r.aggregatorEventSendCL2CConnection = aggregatorEventSendCL2CConnection
-	r.aggregatorEventSendCL2C = zmq.NewSub(aggregatorEventSendCL2CConnection)
-	r.aggregatorEventSendCL2C.Identity(r.identity)
-	fmt.Printf("aggregatorEventSendCL2C connect : " + aggregatorEventSendCL2CConnection)
+	aggregatorEventRoutine.AggregatorEventReceiveFromClusterConnections = aggregatorEventReceiveFromClusterConnections
+	aggregatorEventRoutine.AggregatorEventReceiveFromCluster, _ = aggregatorEventRoutine.Context.NewSocket(zmq4.XSUB)
+	aggregatorEventRoutine.AggregatorEventReceiveFromCluster.SetIdentity(aggregatorEventRoutine.Identity)
+	//aggregatorEventRoutine.aggregatorEventSendToCluster.Connect(aggregatorEventRoutine.aggregatorEventReceiveFromClusterConnections)
+	//fmt.Println("aggregatorEventReceiveFromCluster connect : " + aggregatorEventReceiveFromClusterConnections)
+	for _, connection := range aggregatorEventRoutine.AggregatorEventReceiveFromClusterConnections {
+		aggregatorEventRoutine.AggregatorEventReceiveFromCluster.Connect(connection)
+		fmt.Println("aggregatorEventReceiveFromCluster connect : " + connection)
+	}
+	aggregatorEventRoutine.AggregatorEventReceiveFromCluster.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
-	r.aggregatorEventReceiveCL2CConnection = aggregatorEventReceiveCL2CConnection
-	r.aggregatorEventReceiveCL2C = zmq.NewSub(aggregatorEventReceiveCL2CConnection)
-	r.aggregatorEventReceiveCL2C.Identity(r.identity)
-	fmt.Printf("aggregatorEventReceiveCL2C connect : " + aggregatorEventReceiveCL2CConnection)
+	aggregatorEventRoutine.AggregatorEventSendToConnectorConnection = aggregatorEventSendToConnectorConnection
+	aggregatorEventRoutine.AggregatorEventSendToConnector, _ = aggregatorEventRoutine.Context.NewSocket(zmq4.XPUB)
+	aggregatorEventRoutine.AggregatorEventSendToConnector.SetIdentity(aggregatorEventRoutine.Identity)
+	aggregatorEventRoutine.AggregatorEventSendToConnector.Bind(aggregatorEventRoutine.AggregatorEventSendToConnectorConnection)
+	fmt.Println("aggregatorEventSendToConnector Bind : " + aggregatorEventSendToConnectorConnection)
+
+	aggregatorEventRoutine.AggregatorEventReceiveFromConnectorConnection = aggregatorEventReceiveFromConnectorConnection
+	aggregatorEventRoutine.AggregatorEventReceiveFromConnector, _ = aggregatorEventRoutine.Context.NewSocket(zmq4.XSUB)
+	aggregatorEventRoutine.AggregatorEventReceiveFromConnector.SetIdentity(aggregatorEventRoutine.Identity)
+	aggregatorEventRoutine.AggregatorEventReceiveFromConnector.Bind(aggregatorEventRoutine.AggregatorEventReceiveFromConnectorConnection)
+	fmt.Println("aggregatorEventReceiveFromConnector Bind : " + aggregatorEventReceiveFromConnectorConnection)
+	aggregatorEventRoutine.AggregatorEventReceiveFromConnector.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
+
+	return
 }
 
 func (r AggregatorEventRoutine) close() {
-	r.aggregatorEventSendC2CL.close()
-	r.aggregatorEventReceiveC2CL.close()
-	r.aggregatorEventSendCL2C.close()
-	r.aggregatorEventReceiveCL2C.close()
-	r.Context.close()
+	r.AggregatorEventSendToCluster.Close()
+	r.AggregatorEventReceiveFromConnector.Close()
+	r.AggregatorEventSendToConnector.Close()
+	r.AggregatorEventReceiveFromCluster.Close()
+	r.Context.Term()
 }
 
 func (r AggregatorEventRoutine) run() {
-	pi := zmq.PollItems{
-		zmq.PollItem{Socket: aggregatorEventSendC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorEventReceiveC2CL, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorEventSendCL2C, Events: zmq.POLLIN},
-		zmq.PollItem{Socket: aggregatorEventReceiveCL2C, Events: zmq.POLLIN}}
+	poller := zmq4.NewPoller()
+	poller.Add(r.AggregatorEventSendToCluster, zmq4.POLLIN)
+	poller.Add(r.AggregatorEventReceiveFromConnector, zmq4.POLLIN)
+	poller.Add(r.AggregatorEventSendToConnector, zmq4.POLLIN)
+	poller.Add(r.AggregatorEventReceiveFromCluster, zmq4.POLLIN)
 
-	var event = [][]byte{}
-
+	event := [][]byte{}
+	err := errors.New("")
 	for {
-		r.sendReadyCommand()
+		fmt.Println("Running AggregatorEventRoutine")
+		sockets, _ := poller.Poll(-1)
+		for _, socket := range sockets {
+			switch currentSocket := socket.Socket; currentSocket {
+			case r.AggregatorEventSendToCluster:
+				fmt.Println("Send Cluster")
+				event, err = currentSocket.RecvMessageBytes(0)
+				if err != nil {
+					panic(err)
+				}
+				r.processEventSendToCluster(event)
 
-		_, _ = zmq.Poll(pi, -1)
+			case r.AggregatorEventReceiveFromConnector:
+				fmt.Println("Receive connector")
+				event, err = currentSocket.RecvMessageBytes(0)
+				if err != nil {
+					panic(err)
+				}
+				r.processEventReceiveFromConnector(event)
 
-		switch {
-		case pi[0].REvents&zmq.POLLIN != 0:
+			case r.AggregatorEventSendToConnector:
+				fmt.Println("send connector")
+				event, err = currentSocket.RecvMessageBytes(0)
+				fmt.Println(event)
+				if err != nil {
+					panic(err)
+				}
+				r.processEventSendToConnector(event)
 
-			event, err := pi[0].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventSendC2CL(event)
-			if err != nil {
-				panic(err)
-			}
-
-		case pi[1].REvents&zmq.POLLIN != 0:
-
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventReceiveC2CL(event)
-			if err != nil {
-				panic(err)
-			}
-
-		case pi[2].REvents&zmq.POLLIN != 0:
-
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventSendC2CL(event)
-			if err != nil {
-				panic(err)
-			}
-
-		case pi[3].REvents&zmq.POLLIN != 0:
-
-			event, err := pi[1].Socket.RecvMessage()
-			if err != nil {
-				panic(err)
-			}
-			err = r.processEventReceiveC2CL(event)
-			if err != nil {
-				panic(err)
+			case r.AggregatorEventReceiveFromCluster:
+				fmt.Println("receive cluster")
+				event, err = currentSocket.RecvMessageBytes(0)
+				if err != nil {
+					panic(err)
+				}
+				r.processEventReceiveFromCluster(event)
 			}
 		}
 	}
 	fmt.Println("done")
 }
 
-func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) {
-	event = r.updateHeaderEventSendC2CL(command)
+func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
+	fmt.Println("processEventSendToCluster")
+	fmt.Println(event)
+
+	if len(event) == 1 {
+		topic := event[0]
+		fmt.Println("SUB")
+		fmt.Println("AggregatorEventReceiveFromConnector")
+		fmt.Println(topic)
+		fmt.Println(string(topic))
+		//r.AggregatorEventReceiveFromConnector.SetSubscribe(string(topic))
+		//go message.SendSubscribeTopic(r.AggregatorEventReceiveFromConnector, topic)
+	} else {
+		eventMessage, _ := message.DecodeEventMessage(event[1])
+		go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromConnector)
+	}
 }
 
-func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) {
-
+func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
+	fmt.Println(event)
+	eventMessage, _ := message.DecodeEventMessage(event[1])
+	fmt.Println(eventMessage)
+	go eventMessage.SendMessageWith(r.AggregatorEventSendToConnector)
 }
 
-func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) {
-	event = r.updateHeaderEventReceiveC2CL(event)
+func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
+	fmt.Println("processEventSendToConnector")
+	fmt.Println(event)
+
+	if len(event) == 1 {
+		topic := event[0]
+		fmt.Println("SUB")
+		fmt.Println("AggregatorEventReceiveFromCluster")
+		fmt.Println(topic)
+		fmt.Println(string(topic))
+		//r.AggregatorEventReceiveFromCluster.SetSubscribe(string(topic))
+		//go message.SendSubscribeTopic(r.AggregatorEventReceiveFromCluster, topic)
+	} else {
+		eventMessage, _ := message.DecodeEventMessage(event[0])
+		fmt.Println("SEN")
+		fmt.Println(event)
+		fmt.Println(eventMessage)
+		go eventMessage.SendMessageWith(r.AggregatorEventReceiveFromCluster)
+	}
 }
 
-func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
-
-}
-
-func (r AggregatorEventRoutine) processEventSendC2CL(event [][]byte) {
-	event = r.updateHeaderEventSendC2CL(event)
-}
-
-func (r AggregatorEventRoutine) updateHeaderEventSendC2CL(event [][]byte) {
-
-}
-
-func (r AggregatorEventRoutine) processEventReceiveC2CL(event [][]byte) {
-	event = r.updateHeaderEventReceiveC2CL(event)
-}
-
-func (r AggregatorEventRoutine) updateHeaderEventReceiveC2CL(event [][]byte) {
-
+func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
+	fmt.Println(event)
+	fmt.Println(event[0])
+	fmt.Println(event[1])
+	eventMessage, _ := message.DecodeEventMessage(event[1])
+	go eventMessage.SendMessageWith(r.AggregatorEventSendToCluster)
 }

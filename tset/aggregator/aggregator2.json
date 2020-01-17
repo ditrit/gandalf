@@ -1,0 +1,11 @@
+{
+	"aggregatorCommandSendToClusterConnections": ["tcp://127.0.0.1:9211"], 
+	"aggregatorCommandReceiveFromClusterConnections": ["tcp://127.0.0.1:9210"],
+	"aggregatorCommandSendToConnectorConnection":   "tcp://127.0.0.1:9220",
+	"aggregatorCommandReceiveFromConnectorConnection": "tcp://127.0.0.1:9221",
+	"aggregatorEventSendToClusterConnections": ["tcp://127.0.0.1:9201", "tcp://127.0.0.1:9101"] , 
+	"aggregatorEventReceiveFromClusterConnections": ["tcp://127.0.0.1:9200", "tcp://127.0.0.1:9100"],
+	"aggregatorEventSendToConnectorConnection": "tcp://*:9230",
+	"aggregatorEventReceiveFromConnectorConnection": "tcp://*:9231",
+	"identity": "aggregator2"
+}

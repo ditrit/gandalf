@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.connector";
+option java_outer_classname = "ConnectorProto";
+
+package connector;
+
+service ConnectorCommand {
+    // Sends a greeting
+    rpc SendCommandMessage (CommandMessage) returns (CommandMessageUUID) {}
+    rpc SendCommandMessageReply (CommandMessageReply) returns (Empty) {}
+    rpc WaitCommandMessage (CommandMessageRequest) returns (CommandMessage) {}
+    rpc WaitCommandMessageReply (CommandMessageUUID) returns (CommandMessageReply) {}
+}
+
+message CommandMessage {
+  string target = 1;
+  string command = 2;
+  string payload = 3;
+}
+
+message CommandMessageRequest {
+  string command = 1;
+}
+
+message CommandMessageUUID {
+  string uuid = 1;
+}
+
+message CommandMessageReply {
+  string uuid = 1;
+  string state = 2;
+  string payload = 3;
+}
+
+message Empty {
+
+}
