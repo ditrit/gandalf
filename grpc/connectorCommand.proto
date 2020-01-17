@@ -4,34 +4,60 @@ option java_multiple_files = true;
 option java_package = "io.grpc.examples.connector";
 option java_outer_classname = "ConnectorProto";
 
-package connector;
+package grpc;
 
 service ConnectorCommand {
-    // Sends a greeting
     rpc SendCommandMessage (CommandMessage) returns (CommandMessageUUID) {}
     rpc SendCommandMessageReply (CommandMessageReply) returns (Empty) {}
-    rpc WaitCommandMessage (CommandMessageRequest) returns (CommandMessage) {}
-    rpc WaitCommandMessageReply (CommandMessageUUID) returns (CommandMessageReply) {}
+    rpc WaitCommandMessage (CommandMessageWait) returns (CommandMessage) {}
+    rpc WaitCommandMessageReply (CommandMessageWait) returns (CommandMessageReply) {}
 }
 
 message CommandMessage {
-  string target = 1;
-  string command = 2;
-  string payload = 3;
-}
-
-message CommandMessageRequest {
-  string command = 1;
+  string SourceAggregator = 1;     
+	string SourceConnector = 2;       
+	string SourceWorker = 3;          
+	string DestinationAggregator = 4; 
+	string DestinationConnector = 5;  
+	string DestinationWorker = 6;     
+	string Tenant = 7;                
+	string Token = 8;                 
+	string Context = 9;               
+	string Timeout = 10;               
+	string Timestamp = 11;             
+	string Major = 12;                 
+	string Minor = 13;                 
+	string Uuid = 14;                  
+	string ConnectorType = 15;         
+	string CommandType = 16;           
+	string Command = 17;               
+	string Payload = 18;               
 }
 
 message CommandMessageUUID {
-  string uuid = 1;
+  string Uuid = 1; 
+}
+
+message CommandMessageWait {
+	string WorkerSource = 1;
+	string Value = 2;        
 }
 
 message CommandMessageReply {
-  string uuid = 1;
-  string state = 2;
-  string payload = 3;
+  string SourceAggregator = 1;      
+	string SourceConnector = 2;       
+	string SourceWorker = 3;          
+	string DestinationAggregator = 4; 
+	string DestinationConnector = 5;  
+	string DestinationWorker = 6;     
+	string Tenant = 7;                
+	string Token = 8;                 
+	string Context = 9;               
+	string Timeout = 10;               
+	string Timestamp = 11;             
+	string Uuid = 12;                  
+	string Reply = 13;                 
+	string Payload = 14;               
 }
 
 message Empty {

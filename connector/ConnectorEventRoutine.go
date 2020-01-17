@@ -8,6 +8,7 @@ import (
 
 	"github.com/pebbe/zmq4"
 	"google.golang.org/grpc"
+	pb "gandalf-go/grpc"
 )
 
 type ConnectorEventRoutine struct {
@@ -15,14 +16,12 @@ type ConnectorEventRoutine struct {
 	ConnectorMapEventNameEventMessage              *Queue
 	ConnectorMapWorkerEvents                       map[string][]string
 	ConnectorMapWorkerIterators                    map[string][]*Iterator
-	ConnectorEventSendToWorker                     *zmq4.Socket
-	ConnectorEventSendToWorkerConnection           string
+	ConnectorEventWorkerConnection           string
 	ConnectorEventReceiveFromAggregator            *zmq4.Socket
 	ConnectorEventReceiveFromAggregatorConnections []string
 	ConnectorEventSendToAggregator                 *zmq4.Socket
 	ConnectorEventSendToAggregatorConnections      []string
-	ConnectorEventReceiveFromWorker                *zmq4.Socket
-	ConnectorEventReceiveFromWorkerConnection      string
+	
 	Identity                                       string
 	ConnectorEventGrpcServer                       grpc.Server
 }
@@ -32,20 +31,6 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 	connectorEventRoutine.Identity = identity
 	connectorEventRoutine.ConnectorMapWorkerIterators = make(map[string][]*Iterator)
 	connectorEventRoutine.ConnectorMapEventNameEventMessage = NewQueue()
-
-	connectorEventRoutine.Context, _ = zmq4.NewContext()
-	connectorEventRoutine.ConnectorEventSendToWorkerConnection = connectorEventSendToWorkerConnection
-	connectorEventRoutine.ConnectorEventSendToWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.ROUTER)
-	connectorEventRoutine.ConnectorEventSendToWorker.SetIdentity(connectorEventRoutine.Identity)
-	connectorEventRoutine.ConnectorEventSendToWorker.Bind(connectorEventRoutine.ConnectorEventSendToWorkerConnection)
-	fmt.Println("connectorEventSendToWorker bind : " + connectorEventSendToWorkerConnection)
-
-	connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection = connectorEventReceiveFromWorkerConnection
-	connectorEventRoutine.ConnectorEventReceiveFromWorker, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
-	connectorEventRoutine.ConnectorEventReceiveFromWorker.SetIdentity(connectorEventRoutine.Identity)
-	connectorEventRoutine.ConnectorEventReceiveFromWorker.Bind(connectorEventRoutine.ConnectorEventReceiveFromWorkerConnection)
-	fmt.Println("connectorEventReceiveFromWorker bind : " + connectorEventReceiveFromWorkerConnection)
-	connectorEventRoutine.ConnectorEventReceiveFromWorker.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
 	connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnections = connectorEventReceiveFromAggregatorConnections
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
@@ -68,14 +53,14 @@ func NewConnectorEventRoutine(identity, connectorEventSendToWorkerConnection, co
 		fmt.Println("connectorEventSendToAggregator connect : " + connection)
 	}
 
+	connectorEventRoutine.StartGrpcServer(ConnectorEventWorkerConnection)
+
 	return
 }
 
 func (r ConnectorEventRoutine) close() {
-	r.ConnectorEventSendToWorker.Close()
 	r.ConnectorEventReceiveFromAggregator.Close()
 	r.ConnectorEventSendToAggregator.Close()
-	r.ConnectorEventReceiveFromWorker.Close()
 	r.Context.Term()
 }
 
@@ -87,10 +72,8 @@ func (r ConnectorEventRoutine) run() {
 	//go r.cleanEventsByTimeout()
 
 	poller := zmq4.NewPoller()
-	poller.Add(r.ConnectorEventSendToWorker, zmq4.POLLIN)
 	poller.Add(r.ConnectorEventReceiveFromAggregator, zmq4.POLLIN)
 	poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
-	poller.Add(r.ConnectorEventReceiveFromWorker, zmq4.POLLIN)
 
 	event := [][]byte{}
 	err := errors.New("")
@@ -99,16 +82,6 @@ func (r ConnectorEventRoutine) run() {
 		fmt.Println("Running ConnectorEventRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
-			switch currentSocket := socket.Socket; currentSocket {
-			case r.ConnectorEventSendToWorker:
-				fmt.Println("SEND WORKER")
-				event, err = currentSocket.RecvMessageBytes(0)
-				fmt.Println(event)
-				if err != nil {
-					panic(err)
-				}
-				r.processEventSendToWorker(event)
-
 			case r.ConnectorEventReceiveFromAggregator:
 				fmt.Println("RECEIVER AGG")
 				event, err = currentSocket.RecvMessageBytes(0)
@@ -123,14 +96,6 @@ func (r ConnectorEventRoutine) run() {
 					panic(err)
 				}
 				r.processEventSendToAggregator(event)
-			case r.ConnectorEventReceiveFromWorker:
-				fmt.Println("RECEIVER WORKER")
-				event, err = currentSocket.RecvMessageBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				r.processEventReceiveFromWorker(event)
-
 			}
 		}
 	}
@@ -230,22 +195,44 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 	delete(r.ConnectorMapWorkerIterators, "target")
 }
 
-/* //GRPC
+//GRPC
 func (r ConnectorEventRoutine) StartGrpcServer(port string) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
 			log.Fatalf("failed to listen: %v", err)
 	}
 	r.ConnectorEventGrpcServer := grpc.NewServer()
-	connector.RegisterConnectorEventServer(r.ConnectorEventGrpcServer, &connectorEventServer{})
+	pb.RegisterConnectorEventServer(r.ConnectorEventGrpcServer, &connectorEventServer{})
 	grpcServer.Serve(lis)
 }
 
 //TODO REVOIR SERVICE
-func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *EventMessage) (*Empty, error) {
-
+func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *pb.EventMessage) (*Empty, error) {
+	fmt.Println(event)
+	fmt.Println(event[0])
+	fmt.Println(event[1])
+	
+	fmt.Println("BLIP")
+	fmt.Println(event[1])
+	eventMessage = new(EventMessage)
+	eventMessage.FromGrpc(in)
+	fmt.Println(eventMessage)
+	go eventMessage.SendMessageWith(r.ConnectorEventSendToAggregator)
+	return &pb.Empty{}, nil	
 }
 
-func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *EventMessageRequest) (*EventMessage, error) {
+func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.EventMessageWait) (*EventMessage, error) {
+	eventMessageWait = new(message.eventMessageWait)
+	eventMessageWait.FromGrpc(in)
 
-} */
+	target := eventMessageWait.WorkerSource
+		iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
+		r.ConnectorMapWorkerIterators[eventMessageWait.Event] = append(r.ConnectorMapWorkerIterators[eventMessageWait.Event], iterator)
+
+		fmt.Println("SUB")
+		fmt.Println("ConnectorEventReceiveFromAggregator")
+		fmt.Println(eventMessageWait.Topic)
+
+		//TODO REVOIR ITERATOR
+		return go r.runIterator(target, eventMessageWait.Event, iterator)
+} 

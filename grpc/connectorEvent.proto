@@ -4,23 +4,28 @@ option java_multiple_files = true;
 option java_package = "io.grpc.examples.connector";
 option java_outer_classname = "ConnectorProto";
 
-package connector;
+package grpc;
 
 service ConnectorEvent {
-    // Sends a greeting
     rpc SendEventMessage (EventMessage) returns (Empty) {}
-    rpc WaitEventMessage (EventMessageRequest) returns (EventMessage) {}
+    rpc WaitEventMessage (EventMessageWait) returns (EventMessage) {}
 }
 
 message EventMessage {
-    string topic = 1;
-    string event = 2;
-    string payload = 3;
+    string Tenant = 1;    
+    string Token = 2;     
+	string Topic = 3;     
+	string Timeout = 4;   
+	string Timestamp = 5; 
+	string Uuid = 6;      
+	string Event = 7;     
+	string Payload = 8;   
 }
 
-message EventMessageRequest {
-    string topic = 1;
-    string event = 2;
+message EventMessageWait {
+    string WorkerSource = 1;
+    string Event = 2;
+    string Topic = 3;
 }
 
 message Empty {

@@ -5,6 +5,8 @@ import (
 	"gandalf-go/constant"
 	"time"
 
+	pb "gandalf-go/grpc"
+
 	"github.com/pebbe/zmq4"
 	"github.com/shamaton/msgpack"
 )
@@ -110,6 +112,13 @@ func (c CommandMessage) From(command []string) {
 	c.Payload = command[17]
 }
 
+func (c CommandMessage) FromGrpc(commandMessage pb.CommandMessage) {
+	c.DestinationConnector = commandMessage.GetWorkertarget()
+	c.ConnectorType = commandMessage.GetConnectorType()
+	c.Command = commandMessage.GetCommand()
+	c.Payload = commandMessage.GetPayload()
+}
+
 //
 
 type CommandMessageReply struct {
@@ -187,6 +196,12 @@ func (cr CommandMessageReply) From(commandMessage CommandMessage, reply, payload
 	cr.Uuid = commandMessage.Uuid
 	cr.Reply = reply
 	cr.Payload = payload
+}
+
+func (cr CommandMessageReply) FromGrpc(commandMessageReply pb.CommandMessageReply) {
+	cr.Uuid = commandMessageReply.GetUUID()
+	cr.Reply = commandMessageReply.GetState()
+	cr.Payload = commandMessageReply.GetPayload()
 }
 
 //
@@ -280,6 +295,12 @@ func NewCommandMessageWait(workerSource, value, commandType string) (commandMess
 	commandMessageWait.Value = value
 
 	return
+}
+
+func (cmw CommandMessageWait) FromGrpc(commandMessageWait pb.CommandMessageWait) {
+	cmw.WorkerSource = commandMessageWait.GetWorkerSource()
+	cmw.CommandType = commandMessageWait.GetCommandType()
+	cmw.Value = commandMessageWait.GetValue()
 }
 
 func (cmw CommandMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {

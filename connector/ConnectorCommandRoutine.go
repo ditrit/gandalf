@@ -1,11 +1,16 @@
 package connector
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
+	"log"
+	"net"
 	"time"
+
+	pb "gandalf-go/grpc"
 
 	"github.com/pebbe/zmq4"
 	"google.golang.org/grpc"
@@ -13,14 +18,11 @@ import (
 
 type ConnectorCommandRoutine struct {
 	Context                                          *zmq4.Context
-	ConnectorCommandSendToWorker                     *zmq4.Socket
-	ConnectorCommandSendToWorkerConnection           string
+	ConnectorCommandWorkerConnection                 string
 	ConnectorCommandReceiveFromAggregator            *zmq4.Socket
 	ConnectorCommandReceiveFromAggregatorConnections []string
 	ConnectorCommandSendToAggregator                 *zmq4.Socket
 	ConnectorCommandSendToAggregatorConnections      []string
-	ConnectorCommandReceiveFromWorker                *zmq4.Socket
-	ConnectorCommandReceiveFromWorkerConnection      string
 	Identity                                         string
 	ConnectorMapCommandNameCommandMessage            *Queue
 	ConnectorMapUUIDCommandMessageReply              *Queue
@@ -36,13 +38,6 @@ func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection
 
 	connectorCommandRoutine.ConnectorMapCommandNameCommandMessage = NewQueue()
 	connectorCommandRoutine.ConnectorMapUUIDCommandMessageReply = NewQueue()
-
-	connectorCommandRoutine.Context, _ = zmq4.NewContext()
-	connectorCommandRoutine.ConnectorCommandSendToWorkerConnection = connectorCommandSendToWorkerConnection
-	connectorCommandRoutine.ConnectorCommandSendToWorker, _ = connectorCommandRoutine.Context.NewSocket(zmq4.DEALER)
-	connectorCommandRoutine.ConnectorCommandSendToWorker.SetIdentity(connectorCommandRoutine.Identity)
-	connectorCommandRoutine.ConnectorCommandSendToWorker.Bind(connectorCommandRoutine.ConnectorCommandSendToWorkerConnection)
-	fmt.Println("connectorCommandSendToWorker bind : " + connectorCommandSendToWorkerConnection)
 
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregatorConnections = connectorCommandReceiveFromAggregatorConnections
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregator, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
@@ -60,20 +55,13 @@ func NewConnectorCommandRoutine(identity, connectorCommandSendToWorkerConnection
 		fmt.Println("connectorCommandSendToAggregator connect : " + connection)
 	}
 
-	connectorCommandRoutine.ConnectorCommandReceiveFromWorkerConnection = connectorCommandReceiveFromWorkerConnection
-	connectorCommandRoutine.ConnectorCommandReceiveFromWorker, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
-	connectorCommandRoutine.ConnectorCommandReceiveFromWorker.SetIdentity(connectorCommandRoutine.Identity)
-	connectorCommandRoutine.ConnectorCommandReceiveFromWorker.Bind(connectorCommandRoutine.ConnectorCommandReceiveFromWorkerConnection)
-	fmt.Println("connectorCommandReceiveFromWorker bind : " + connectorCommandReceiveFromWorkerConnection)
-
+	connectorCommandRoutine.StartGrpcServer(ConnectorCommandWorkerConnection)
 	return
 }
 
 func (r ConnectorCommandRoutine) close() {
-	r.ConnectorCommandSendToWorker.Close()
 	r.ConnectorCommandReceiveFromAggregator.Close()
 	r.ConnectorCommandSendToAggregator.Close()
-	r.ConnectorCommandReceiveFromWorker.Close()
 	r.Context.Term()
 }
 
@@ -85,9 +73,7 @@ func (r ConnectorCommandRoutine) run() {
 	//go r.cleanCommandsByTimeout()
 
 	poller := zmq4.NewPoller()
-	poller.Add(r.ConnectorCommandSendToWorker, zmq4.POLLIN)
 	poller.Add(r.ConnectorCommandReceiveFromAggregator, zmq4.POLLIN)
-	poller.Add(r.ConnectorCommandReceiveFromWorker, zmq4.POLLIN)
 
 	command := [][]byte{}
 	err := errors.New("")
@@ -99,15 +85,6 @@ func (r ConnectorCommandRoutine) run() {
 			fmt.Println("Running ConnectorCommandRoutine2")
 
 			switch currentSocket := socket.Socket; currentSocket {
-			case r.ConnectorCommandSendToWorker:
-				fmt.Println("Connector send worker")
-
-				command, err = currentSocket.RecvMessageBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				r.processCommandSendToWorker(command)
-
 			case r.ConnectorCommandReceiveFromAggregator:
 				fmt.Println("Connector receive aggregator")
 
@@ -116,14 +93,6 @@ func (r ConnectorCommandRoutine) run() {
 					panic(err)
 				}
 				r.processCommandReceiveFromAggregator(command)
-			case r.ConnectorCommandReceiveFromWorker:
-				fmt.Println("Connector receive worker")
-
-				command, err = currentSocket.RecvMessageBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				r.processCommandReceiveFromWorker(command)
 			}
 		}
 	}
@@ -218,6 +187,7 @@ func (r ConnectorCommandRoutine) addCommands(commandMessage message.CommandMessa
 	r.ConnectorMapCommandNameCommandMessage.Push(commandMessage)
 }
 
+//TODO
 func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, iterator *Iterator) {
 
 	notfound := true
@@ -252,30 +222,60 @@ func (r ConnectorCommandRoutine) runIterator(target, commandType, value string, 
 	delete(r.ConnectorMapWorkerIterators, "target")
 }
 
-/* //GRPC
+//GRPC
 func (r ConnectorCommandRoutine) StartGrpcServer(port string) {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
 	if err != nil {
-			log.Fatalf("failed to listen: %v", err)
+		log.Fatalf("failed to listen: %v", err)
 	}
 	r.ConnectorCommandGrpcServer = grpc.NewServer()
-	connector.RegisterConnectorCommandServer(r.ConnectorCommandGrpcServer, &connectorCommandServer{})
+	pb.RegisterConnectorCommandServer(r.ConnectorCommandGrpcServer, &connectorCommandServer{})
 	grpcServer.Serve(lis)
 }
 
-func (ccg *ConnectorCommandGrpc) SendCommandMessage(ctx context.Context, in *CommandMessage) (*CommandMessageUUID, error) {
-
+func (ccg *ConnectorCommandGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (*CommandMessageUUID, error) {
+	commandMessage = new(message.CommandMessage)
+	commandMessage.FromGrpc(in)
+	go commandMessage.SendMessageWith(r.ConnectorCommandSendToAggregator)
+	//TODO REPLACE TOTO BY UUID
+	return &pb.CommandMessageUUID{uuid: "TOTO"}, nil
 }
 
-func (ccg *ConnectorCommandGrpc) SendCommandMessageReply(ctx context.Context, in *CommandMessageReply) (*Empty, error) {
-
+func (ccg *ConnectorCommandGrpc) SendCommandMessageReply(ctx context.Context, in *pb.CommandMessageReply) (*Empty, error) {
+	commandMessageReply = new(message.CommandMessageReply)
+	commandMessageReply.FromGrpc(in)
+	go commandMessageReply.SendMessageWith(r.ConnectorCommandSendToAggregator)
+	//TODO REPLACE TOTO BY UUID
+	return &pb.Empty{}, nil
 }
 
-func (ccg *ConnectorCommandGrpc) WaitCommandMessage(ctx context.Context, in *CommandMessageRequest) (*CommandMessage, error) {
+func (ccg *ConnectorCommandGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMessageWait) (*CommandMessage, error) {
+	commandMessageWait = new(message.CommandMessageWait)
+	commandMessageWait.FromGrpc(in)
+	go commandMessageReply.SendMessageWith(r.ConnectorCommandSendToAggregator)
 
+	target := commandMessageWait.WorkerSource
+	fmt.Println("QUEUE")
+	fmt.Println(r.ConnectorMapCommandNameCommandMessage)
+	iterator = NewIterator(r.ConnectorMapCommandNameCommandMessage)
+	
+	r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
+	
+	//REVOIR RUNITERATOR
+	return go r.runIterator(target, commandMessageWait.CommandType, commandMessageWait.Value, iterator)
 }
 
-func (ccg *ConnectorCommandGrpc) WaitCommandMessageReply(ctx context.Context, in *CommandMessageUUID) (*CommandMessageReply, error) {
+func (ccg *ConnectorCommandGrpc) WaitCommandMessageReply(ctx context.Context, in *pb.CommandMessageWait) (*CommandMessageReply, error) {
+	commandMessageWait = new(message.CommandMessageWait)
+	commandMessageWait.FromGrpc(in)
 
+	target := commandMessageWait.WorkerSource
+	fmt.Println("QUEUE2")
+	fmt.Println(r.ConnectorMapUUIDCommandMessageReply)
+	iterator = NewIterator(r.ConnectorMapUUIDCommandMessageReply)
+
+	r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
+
+	//REVOIR RUNITERATOR
+	return go r.runIterator(target, commandMessageWait.CommandType, commandMessageWait.Value, iterator)
 }
-*/

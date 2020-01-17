@@ -92,6 +92,12 @@ func (e EventMessage) From(event []string) {
 	e.Payload = event[7]
 }
 
+func (e EventMessage) FromGrpc(connectorEvent pb.ConnectorEvent) {
+	e.Topic = connectorEvent.GetTopic()
+	e.Event = connectorEvent.GetEvent()
+	e.Payload = connectorEvent.GetPayload()
+}
+
 type EventFunction struct {
 	Worker    string
 	Functions []string
@@ -118,8 +124,6 @@ func (cf EventFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
 		time.Sleep(2 * time.Second)
 	}
 }
-
-//
 
 type EventFunctionReply struct {
 	Validation bool
@@ -192,6 +196,12 @@ func NewEventMessageWait(workerSource, event, topic string) (eventMessageWait *E
 	eventMessageWait.Event = event
 	eventMessageWait.Topic = topic
 	return
+}
+
+func (emw EventMessageWait) FromGrpc(connectorEvent pb.ConnectorEvent) {
+	emw.WorkerSource = connectorEvent.GetWorkerSource()
+	emw.Event = connectorEvent.GetEvent()
+	emw.Topic = connectorEvent.GetTopic()
 }
 
 func (emw EventMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
