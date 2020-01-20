@@ -1,10 +1,14 @@
 package cluster
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
+	"io/ioutil"
+	"net/http"
 
 	"github.com/pebbe/zmq4"
 )
@@ -94,27 +98,41 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
 		message, _ := message.DecodeCommandMessage(command[2])
-		target := message.DestinationAggregator
-		fmt.Println("target")
-		fmt.Println(target)
+
 		fmt.Println("MESSAGE")
 		fmt.Println(message)
 		//r.processCaptureCommand(message)
-		go message.SendWith(r.ClusterCommandSend, target)
+		r.processRoutingCommandMessage(message)
+		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])
-		target := messageReply.SourceAggregator
-		fmt.Println("targetR")
-		fmt.Println(target)
 		//r.processCaptureCommandReply(messageReply)
-		go messageReply.SendWith(r.ClusterCommandSend, target)
+		go messageReply.SendWith(r.ClusterCommandSend, messageReply.SourceAggregator)
 	}
+}
+
+func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage message.CommandMessage) {
+	jsonData := map[string]string{"firstname": "Nic", "lastname": "Raboy"}
+	jsonValue, _ := json.Marshal(jsonData)
+
+	response, err := http.Post("localhost:4001/db/execute?pretty&timings", "application/json", bytes.NewBuffer(jsonValue))
+	if err != nil {
+		fmt.Printf("The HTTP request failed with error %s\n", err)
+	} else {
+		data, _ := ioutil.ReadAll(response.Body)
+		fmt.Println(string(data))
+	}
+	fmt.Println("Terminating the application...")
+
+	//SET
+	commandMessage.DestinationAggregator = ""
+	commandMessage.DestinationConnector = ""
 }
 
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.CommandMessage) {
 	go commandMessage.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }
 
-func (r ClusterCommandRoutine) processCaptureCommandReply(commandMessageReply message.CommandMessageReply) {
+func (r ClusterCommandRoutine) processCaptureCommandMessageReply(commandMessageReply message.CommandMessageReply) {
 	go commandMessageReply.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

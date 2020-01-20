@@ -35,7 +35,7 @@ func NewClientGandalfGrpc(identity, senderCommandGrpcConnection, senderEventGrpc
 	return
 }
 
-func (cg ClientGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) *message.CommandMessageUUID {
+func (cg ClientGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) message.CommandMessageUUID {
 	return cg.SenderGandalfGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 

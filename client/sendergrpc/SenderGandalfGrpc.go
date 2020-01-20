@@ -28,7 +28,7 @@ func (sg SenderGandalfGrpc) SendEvent(topic, timeout, uuid, event, payload strin
 	return sg.SenderEventGrpc.SendEvent(topic, timeout, uuid, event, payload)
 }
 
-func (sg SenderGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) *message.CommandMessageUUID {
+func (sg SenderGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) message.CommandMessageUUID {
 	return sg.SenderCommandGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 

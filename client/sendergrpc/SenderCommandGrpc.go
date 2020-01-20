@@ -30,7 +30,7 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	return
 }
 
-func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageUUID *message.CommandMessageUUID) {
+func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageUUID message.CommandMessageUUID) {
 	fmt.Println("SEND")
 	commandMessage := new(pb.CommandMessage)
 	commandMessage.Context = contextCommand
@@ -44,8 +44,7 @@ func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorT
 	CommandMessageUUIDGrpc, _ := r.client.SendCommandMessage(context.Background(), commandMessage)
 	fmt.Println("RECEIVE")
 	fmt.Println(CommandMessageUUIDGrpc)
-	commandMessageUUID = new(message.CommandMessageUUID)
-	commandMessageUUID.FromGrpc(CommandMessageUUIDGrpc)
+	commandMessageUUID = message.CommandMessageUUIDFromGrpc(CommandMessageUUIDGrpc)
 	return
 
 }

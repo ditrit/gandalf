@@ -112,7 +112,7 @@ func (c CommandMessage) From(command []string) {
 	c.Payload = command[17]
 }
 
-func (c CommandMessage) FromGrpc(commandMessage *pb.CommandMessage) {
+func CommandMessageFromGrpc(commandMessage *pb.CommandMessage) (c CommandMessage) {
 	c.SourceAggregator = commandMessage.GetSourceAggregator()
 	c.SourceConnector = commandMessage.GetSourceConnector()
 	c.SourceWorker = commandMessage.GetSourceWorker()
@@ -131,9 +131,11 @@ func (c CommandMessage) FromGrpc(commandMessage *pb.CommandMessage) {
 	c.CommandType = commandMessage.GetCommandType()
 	c.Command = commandMessage.GetCommand()
 	c.Payload = commandMessage.GetPayload()
+
+	return
 }
 
-func (c CommandMessage) ToGrpc() (commandMessage *pb.CommandMessage) {
+func CommandMessageToGrpc(c CommandMessage) (commandMessage *pb.CommandMessage) {
 	commandMessage.SourceAggregator = c.SourceAggregator
 	commandMessage.SourceConnector = c.SourceConnector
 	commandMessage.SourceWorker = c.SourceWorker
@@ -235,7 +237,7 @@ func (cr CommandMessageReply) From(commandMessage CommandMessage, reply, payload
 	cr.Payload = payload
 }
 
-func (cr CommandMessageReply) FromGrpc(commandMessageReply *pb.CommandMessageReply) {
+func CommandMessageReplyFromGrpc(commandMessageReply *pb.CommandMessageReply) (cr CommandMessageReply) {
 	cr.SourceAggregator = commandMessageReply.GetSourceAggregator()
 	cr.SourceConnector = commandMessageReply.GetSourceConnector()
 	cr.SourceWorker = commandMessageReply.GetSourceWorker()
@@ -250,9 +252,10 @@ func (cr CommandMessageReply) FromGrpc(commandMessageReply *pb.CommandMessageRep
 	cr.Uuid = commandMessageReply.GetUuid()
 	cr.Reply = commandMessageReply.GetReply()
 	cr.Payload = commandMessageReply.GetPayload()
+	return
 }
 
-func (cr CommandMessageReply) ToGrpc() (commandMessageReply *pb.CommandMessageReply) {
+func CommandMessageReplyToGrpc(cr CommandMessageReply) (commandMessageReply *pb.CommandMessageReply) {
 	commandMessageReply.SourceAggregator = cr.SourceAggregator
 	commandMessageReply.SourceConnector = cr.SourceConnector
 	commandMessageReply.SourceWorker = cr.SourceWorker
@@ -363,10 +366,11 @@ func NewCommandMessageWait(workerSource, value, commandType string) (commandMess
 	return
 }
 
-func (cmw CommandMessageWait) FromGrpc(commandType string, commandMessageWait pb.CommandMessageWait) {
+func CommandMessageWaitFromGrpc(commandType string, commandMessageWait pb.CommandMessageWait) (cmw CommandMessageWait) {
 	cmw.WorkerSource = commandMessageWait.GetWorkerSource()
 	cmw.CommandType = commandType
 	cmw.Value = commandMessageWait.GetValue()
+	return
 }
 
 func (cmw CommandMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
@@ -415,8 +419,9 @@ type CommandMessageUUID struct {
 	Uuid string
 }
 
-func (cmu CommandMessageUUID) FromGrpc(commandMessageUUID *pb.CommandMessageUUID) {
+func CommandMessageUUIDFromGrpc(commandMessageUUID *pb.CommandMessageUUID) (cmu CommandMessageUUID) {
 	cmu.Uuid = commandMessageUUID.GetUuid()
+	return
 }
 
 //

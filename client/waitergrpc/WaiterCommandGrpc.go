@@ -40,7 +40,7 @@ func (r WaiterCommandGrpc) WaitCommand(command string) (commandMessage message.C
 	commandMessageWait.WorkerSource = r.Identity
 	commandMessageWait.Value = command
 	commandMessageGrpc, _ := r.client.WaitCommandMessage(context.Background(), commandMessageWait)
-	commandMessage.FromGrpc(commandMessageGrpc)
+	commandMessage = message.CommandMessageFromGrpc(commandMessageGrpc)
 	return
 
 }
@@ -50,7 +50,7 @@ func (r WaiterCommandGrpc) WaitCommandReply(uuid string) (commandMessageReply me
 	commandMessageWait.WorkerSource = r.Identity
 	commandMessageWait.Value = uuid
 	commandMessageReplyGrpc, _ := r.client.WaitCommandMessageReply(context.Background(), commandMessageWait)
-	commandMessageReply.FromGrpc(commandMessageReplyGrpc)
+	commandMessageReply = message.CommandMessageReplyFromGrpc(commandMessageReplyGrpc)
 	return
 
 }

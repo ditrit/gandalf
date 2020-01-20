@@ -262,17 +262,15 @@ func (r ConnectorCommandRoutine) StartGrpcServer(port string) {
 }
 
 func (r ConnectorCommandRoutine) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (*pb.CommandMessageUUID, error) {
-	fmt.Println("SEND")
-	commandMessage := new(message.CommandMessage)
-	commandMessage.FromGrpc(in)
+
+	commandMessage := message.CommandMessageFromGrpc(in)
 	go commandMessage.SendMessageWith(r.ConnectorCommandSendToAggregator)
 	return &pb.CommandMessageUUID{Uuid: commandMessage.Uuid}, nil
 }
 
 func (r ConnectorCommandRoutine) SendCommandMessageReply(ctx context.Context, in *pb.CommandMessageReply) (*pb.Empty, error) {
 	fmt.Println("SEND REPLY")
-	commandMessageReply := new(message.CommandMessageReply)
-	commandMessageReply.FromGrpc(in)
+	commandMessageReply := message.CommandMessageReplyFromGrpc(in)
 	go commandMessageReply.SendMessageWith(r.ConnectorCommandSendToAggregator)
 	return &pb.Empty{}, nil
 }
@@ -288,9 +286,9 @@ func (r ConnectorCommandRoutine) WaitCommandMessage(ctx context.Context, in *pb.
 
 	go r.runIteratorCommandMessage(target, in.GetValue(), iterator, r.ConnectorCommandChannel)
 	select {
-	case message := <-r.ConnectorCommandChannel:
+	case messageChannel := <-r.ConnectorCommandChannel:
 		fmt.Println("command")
-		commandMessage = message.ToGrpc()
+		commandMessage = message.CommandMessageToGrpc(messageChannel)
 		return
 	default:
 		fmt.Println("nope")
@@ -309,9 +307,9 @@ func (r ConnectorCommandRoutine) WaitCommandMessageReply(ctx context.Context, in
 
 	go r.runIteratorCommandMessageReply(target, in.GetValue(), iterator, r.ConnectorCommandReplyChannel)
 	select {
-	case messageReply := <-r.ConnectorCommandReplyChannel:
+	case messageReplyChannel := <-r.ConnectorCommandReplyChannel:
 		fmt.Println("commandReply")
-		commandMessageReply = messageReply.ToGrpc()
+		commandMessageReply = message.CommandMessageReplyToGrpc(messageReplyChannel)
 		return
 	default:
 		fmt.Println("nope")

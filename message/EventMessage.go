@@ -93,7 +93,7 @@ func (e EventMessage) From(event []string) {
 	e.Payload = event[7]
 }
 
-func (e EventMessage) FromGrpc(eventMessage *pb.EventMessage) {
+func EventMessageFromGrpc(eventMessage *pb.EventMessage) (e EventMessage) {
 
 	e.Tenant = eventMessage.GetTenant()
 	e.Token = eventMessage.GetToken()
@@ -103,9 +103,10 @@ func (e EventMessage) FromGrpc(eventMessage *pb.EventMessage) {
 	e.Topic = eventMessage.GetTopic()
 	e.Event = eventMessage.GetEvent()
 	e.Payload = eventMessage.GetPayload()
+	return
 }
 
-func (e EventMessage) ToGrpc(eventMessage *pb.EventMessage) {
+func EventMessageToGrpc(e EventMessage) (eventMessage *pb.EventMessage) {
 
 	eventMessage.Tenant = e.Tenant
 	eventMessage.Token = e.Token
@@ -219,10 +220,11 @@ func NewEventMessageWait(workerSource, event, topic string) (eventMessageWait *E
 	return
 }
 
-func (emw EventMessageWait) FromGrpc(eventMessageWait pb.EventMessageWait) {
+func EventMessageWaitFromGrpc(eventMessageWait pb.EventMessageWait) (emw EventMessageWait) {
 	emw.WorkerSource = eventMessageWait.GetWorkerSource()
 	emw.Event = eventMessageWait.GetEvent()
 	emw.Topic = eventMessageWait.GetTopic()
+	return
 }
 
 func (emw EventMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {

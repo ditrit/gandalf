@@ -217,8 +217,7 @@ func (r ConnectorEventRoutine) StartGrpcServer(port string) {
 //TODO REVOIR SERVICE
 func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *pb.EventMessage) (*pb.Empty, error) {
 
-	eventMessage := new(message.EventMessage)
-	eventMessage.FromGrpc(in)
+	eventMessage := message.EventMessageFromGrpc(in)
 	fmt.Println(eventMessage)
 	go eventMessage.SendMessageWith(r.ConnectorEventSendToAggregator)
 	return &pb.Empty{}, nil
@@ -236,9 +235,9 @@ func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.Even
 
 	go r.runIterator(target, in.GetEvent(), iterator, r.ConnectorEventChannel)
 	select {
-	case message := <-r.ConnectorEventChannel:
+	case messageChannel := <-r.ConnectorEventChannel:
 		fmt.Println("commandReply")
-		message.ToGrpc(messageEvent)
+		messageEvent = message.EventMessageToGrpc(messageChannel)
 		return
 	default:
 		fmt.Println("nope")
