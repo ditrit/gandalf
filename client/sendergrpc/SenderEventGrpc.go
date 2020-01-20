@@ -2,6 +2,7 @@ package sendergrpc
 
 import (
 	"context"
+	"fmt"
 	pb "gandalf-go/grpc"
 
 	"google.golang.org/grpc"
@@ -18,11 +19,13 @@ func NewSenderEventGrpc(identity, senderEventGrpcConnection string) (senderEvent
 	senderEventGrpc.Identity = identity
 	senderEventGrpc.SenderEventGrpcConnection = senderEventGrpcConnection
 
-	conn, err := grpc.Dial(senderEventGrpc.SenderEventGrpcConnection)
+	conn, err := grpc.Dial(senderEventGrpc.SenderEventGrpcConnection, grpc.WithInsecure())
 	if err != nil {
 	}
 	defer conn.Close()
 	senderEventGrpc.client = pb.NewConnectorEventClient(conn)
+	fmt.Println("senderEventGrpc connect : " + senderEventGrpc.SenderEventGrpcConnection)
+
 	return
 }
 

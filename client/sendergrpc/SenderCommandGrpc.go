@@ -2,6 +2,7 @@ package sendergrpc
 
 import (
 	"context"
+	"fmt"
 	pb "gandalf-go/grpc"
 	"gandalf-go/message"
 
@@ -18,12 +19,12 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	senderCommandGrpc = new(SenderCommandGrpc)
 	senderCommandGrpc.Identity = identity
 	senderCommandGrpc.SenderCommandGrpcConnection = senderCommandGrpcConnection
-
-	conn, err := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection)
+	conn, err := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection, grpc.WithInsecure())
 	if err != nil {
 	}
 	defer conn.Close()
 	senderCommandGrpc.client = pb.NewConnectorCommandClient(conn)
+	fmt.Println("senderCommandGrpc connect : " + senderCommandGrpc.SenderCommandGrpcConnection)
 	return
 }
 

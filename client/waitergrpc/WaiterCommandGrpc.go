@@ -2,6 +2,7 @@ package waitergrpc
 
 import (
 	"context"
+	"fmt"
 
 	pb "gandalf-go/grpc"
 	"gandalf-go/message"
@@ -20,13 +21,17 @@ func NewWaiterCommandGrpc(identity, waiterCommandGrpcConnection string) (waiterC
 
 	waiterCommandGrpc.Identity = identity
 	waiterCommandGrpc.WaiterCommandGrpcConnection = waiterCommandGrpcConnection
+	fmt.Println("waiterCommandGrpc.WaiterCommandGrpcConnection")
+	fmt.Println(waiterCommandGrpc.WaiterCommandGrpcConnection)
 
-	conn, err := grpc.Dial(waiterCommandGrpc.WaiterCommandGrpcConnection)
+	conn, err := grpc.Dial(waiterCommandGrpc.WaiterCommandGrpcConnection, grpc.WithInsecure())
 	if err != nil {
-
+		fmt.Println("ERROR")
 	}
-	defer conn.Close()
+	fmt.Println("CONNN")
+	fmt.Println(conn)
 	waiterCommandGrpc.client = pb.NewConnectorCommandClient(conn)
+	fmt.Println("waiterCommandGrpc connect : " + waiterCommandGrpc.WaiterCommandGrpcConnection)
 	return
 }
 

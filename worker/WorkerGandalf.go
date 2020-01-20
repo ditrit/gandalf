@@ -7,7 +7,7 @@ import (
 
 type WorkerGandalf struct {
 	WorkerConfiguration *WorkerConfiguration
-	ClientGandalf       *client.ClientGandalf
+	ClientGandalfGrpc   *client.ClientGandalfGrpc
 }
 
 func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
@@ -16,8 +16,9 @@ func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	workerGandalf.WorkerConfiguration, _ = LoadConfiguration(path)
 	workerGandalf.loadFunctions()
 
-	workerGandalf.ClientGandalf = client.NewClientGandalf(workerGandalf.WorkerConfiguration.Identity, workerGandalf.WorkerConfiguration.SenderCommandConnection,
-		workerGandalf.WorkerConfiguration.SenderEventConnection, workerGandalf.WorkerConfiguration.WaiterCommandConnection, workerGandalf.WorkerConfiguration.WaiterEventConnection)
+	workerGandalf.ClientGandalfGrpc = client.NewClientGandalfGrpc(workerGandalf.WorkerConfiguration.Identity,
+		workerGandalf.WorkerConfiguration.SenderCommandConnection, workerGandalf.WorkerConfiguration.SenderEventConnection,
+		workerGandalf.WorkerConfiguration.WaiterCommandConnection, workerGandalf.WorkerConfiguration.WaiterEventConnection)
 
 	return
 }

@@ -20,9 +20,11 @@ func (ws WorkerSender) Run() {
 	for {
 		fmt.Println("SEND")
 		//go ws.WorkerGandalf.ClientGandalf.SendCommand("toto", "10000", "toto", "toto", "toto", "toto", "toto")
+		go ws.WorkerGandalf.ClientGandalfGrpc.SendCommand("toto", "10000", "toto", "toto", "toto", "toto", "toto")
 		time.Sleep(time.Second * 10)
 
-		go ws.WorkerGandalf.ClientGandalf.SendEvent("toto", "10000", "toto", "toto", "toto")
+		//go ws.WorkerGandalf.ClientGandalf.SendEvent("toto", "10000", "toto", "toto", "toto")
+		//go ws.WorkerGandalf.ClientGandalfGrpc.SendEvent("toto", "10000", "toto", "toto", "toto")
 	}
 
 }

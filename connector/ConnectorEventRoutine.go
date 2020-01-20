@@ -36,6 +36,7 @@ func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, c
 	connectorEventRoutine.ConnectorEventChannel = make(chan message.EventMessage)
 	connectorEventRoutine.ConnectorMapEventNameEventMessage = NewQueue()
 
+	connectorEventRoutine.Context, _ = zmq4.NewContext()
 	connectorEventRoutine.ConnectorEventReceiveFromAggregatorConnections = connectorEventReceiveFromAggregatorConnections
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XSUB)
 	connectorEventRoutine.ConnectorEventReceiveFromAggregator.SetIdentity(connectorEventRoutine.Identity)
@@ -58,6 +59,7 @@ func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, c
 	}
 	connectorEventRoutine.ConnectorEventWorkerConnection = connectorEventWorkerConnection
 	connectorEventRoutine.StartGrpcServer(connectorEventRoutine.ConnectorEventWorkerConnection)
+	fmt.Println("ConnectorEventWorkerConnection connect : " + connectorEventRoutine.ConnectorEventWorkerConnection)
 
 	return
 }
