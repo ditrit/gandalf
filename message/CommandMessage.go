@@ -411,6 +411,14 @@ func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {
 	}
 }
 
+type CommandMessageUUID struct {
+	Uuid string
+}
+
+func (cmu CommandMessageUUID) FromGrpc(commandMessageUUID *pb.CommandMessageUUID) {
+	cmu.Uuid = commandMessageUUID.GetUuid()
+}
+
 //
 
 func EncodeCommandMessage(commandMessage CommandMessage) (bytesContent []byte, commandError error) {

@@ -61,7 +61,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection strin
 	}
 
 	connectorCommandRoutine.ConnectorCommandWorkerConnection = connectorCommandWorkerConnection
-	connectorCommandRoutine.StartGrpcServer(connectorCommandRoutine.ConnectorCommandWorkerConnection)
+	go connectorCommandRoutine.StartGrpcServer(connectorCommandRoutine.ConnectorCommandWorkerConnection)
 	fmt.Println("ConnectorCommandWorkerConnection connect : " + connectorCommandRoutine.ConnectorCommandWorkerConnection)
 
 	return
@@ -258,7 +258,7 @@ func (r ConnectorCommandRoutine) StartGrpcServer(port string) {
 	}
 	r.ConnectorCommandGrpcServer = grpc.NewServer()
 	pb.RegisterConnectorCommandServer(r.ConnectorCommandGrpcServer, &r)
-	go r.ConnectorCommandGrpcServer.Serve(lis)
+	r.ConnectorCommandGrpcServer.Serve(lis)
 }
 
 func (r ConnectorCommandRoutine) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (*pb.CommandMessageUUID, error) {
@@ -278,7 +278,7 @@ func (r ConnectorCommandRoutine) SendCommandMessageReply(ctx context.Context, in
 }
 
 func (r ConnectorCommandRoutine) WaitCommandMessage(ctx context.Context, in *pb.CommandMessageWait) (commandMessage *pb.CommandMessage, err error) {
-
+	fmt.Println("WAOOOTTTT")
 	target := in.GetWorkerSource()
 	fmt.Println("QUEUE")
 	fmt.Println(r.ConnectorMapCommandNameCommandMessage)

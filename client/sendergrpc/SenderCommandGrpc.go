@@ -21,14 +21,17 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	senderCommandGrpc.SenderCommandGrpcConnection = senderCommandGrpcConnection
 	conn, err := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection, grpc.WithInsecure())
 	if err != nil {
+		fmt.Println("FAIL CONN")
 	}
-	defer conn.Close()
+	fmt.Println("CONNN SENDER COMMAND")
+	fmt.Println(conn)
 	senderCommandGrpc.client = pb.NewConnectorCommandClient(conn)
 	fmt.Println("senderCommandGrpc connect : " + senderCommandGrpc.SenderCommandGrpcConnection)
 	return
 }
 
-func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorType, commandType, command, payload string) *pb.CommandMessageUUID {
+func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageUUID *message.CommandMessageUUID) {
+	fmt.Println("SEND")
 	commandMessage := new(pb.CommandMessage)
 	commandMessage.Context = contextCommand
 	commandMessage.Timeout = timeout
@@ -38,12 +41,18 @@ func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorT
 	commandMessage.Command = command
 	commandMessage.Payload = payload
 
-	CommandMessageUUID, _ := r.client.SendCommandMessage(context.Background(), commandMessage)
-	return CommandMessageUUID
+	CommandMessageUUIDGrpc, _ := r.client.SendCommandMessage(context.Background(), commandMessage)
+	fmt.Println("RECEIVE")
+	fmt.Println(CommandMessageUUIDGrpc)
+	commandMessageUUID = new(message.CommandMessageUUID)
+	commandMessageUUID.FromGrpc(CommandMessageUUIDGrpc)
+	return
 
 }
 
 func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
+	fmt.Println("SEND REPLY")
+
 	commandMessageReply := new(pb.CommandMessageReply)
 	commandMessageReply.SourceAggregator = commandMessage.SourceAggregator
 	commandMessageReply.SourceConnector = commandMessage.SourceConnector

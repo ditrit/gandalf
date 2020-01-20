@@ -28,7 +28,7 @@ func NewWaiterCommandGrpc(identity, waiterCommandGrpcConnection string) (waiterC
 	if err != nil {
 		fmt.Println("ERROR")
 	}
-	fmt.Println("CONNN")
+	fmt.Println("CONNN WAITER COMMAND")
 	fmt.Println(conn)
 	waiterCommandGrpc.client = pb.NewConnectorCommandClient(conn)
 	fmt.Println("waiterCommandGrpc connect : " + waiterCommandGrpc.WaiterCommandGrpcConnection)

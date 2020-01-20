@@ -24,8 +24,10 @@ func NewWaiterEventGrpc(identity, waiterEventGrpcConnection string) (waiterEvent
 
 	conn, err := grpc.Dial(waiterEventGrpc.WaiterEventGrpcConnection, grpc.WithInsecure())
 	if err != nil {
+		fmt.Println("ERROR EVENT")
 	}
-	defer conn.Close()
+	fmt.Println("CONNN WAITER EVENT")
+	fmt.Println(conn)
 	waiterEventGrpc.client = pb.NewConnectorEventClient(conn)
 	fmt.Println("waiterEventGrpc connect : " + waiterEventGrpc.WaiterEventGrpcConnection)
 	return
@@ -37,7 +39,6 @@ func (r WaiterEventGrpc) WaitEvent(event, topic string) (eventMessage message.Ev
 	eventMessageWait.Topic = topic
 	eventMessageWait.Event = event
 	eventMessageGrpc, _ := r.client.WaitEventMessage(context.Background(), eventMessageWait)
-
 	eventMessage.FromGrpc(eventMessageGrpc)
 	return
 }

@@ -21,8 +21,10 @@ func NewSenderEventGrpc(identity, senderEventGrpcConnection string) (senderEvent
 
 	conn, err := grpc.Dial(senderEventGrpc.SenderEventGrpcConnection, grpc.WithInsecure())
 	if err != nil {
+		fmt.Println("FAIL CONN EVENT")
 	}
-	defer conn.Close()
+	fmt.Println("CONNN SENDER EVENT")
+	fmt.Println(conn)
 	senderEventGrpc.client = pb.NewConnectorEventClient(conn)
 	fmt.Println("senderEventGrpc connect : " + senderEventGrpc.SenderEventGrpcConnection)
 
@@ -30,6 +32,7 @@ func NewSenderEventGrpc(identity, senderEventGrpcConnection string) (senderEvent
 }
 
 func (r SenderEventGrpc) SendEvent(topic, timeout, uuid, event, payload string) *pb.Empty {
+	fmt.Println("SEND EVENT")
 	eventMessage := new(pb.EventMessage)
 	eventMessage.Topic = topic
 	eventMessage.Timeout = timeout

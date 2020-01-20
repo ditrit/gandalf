@@ -26,8 +26,7 @@ func NewWaiterGandalfGrpc(identity, waiterCommandGrpcConnection, waiterEventGrpc
 }
 
 func (wg WaiterGandalfGrpc) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
-	eventMessage = wg.WaiterEventGrpc.WaitEvent(event, topic)
-	return
+	return wg.WaiterEventGrpc.WaitEvent(event, topic)
 }
 
 func (wg WaiterGandalfGrpc) WaitCommand(uuid string) (commandMessage message.CommandMessage) {

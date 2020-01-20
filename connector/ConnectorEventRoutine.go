@@ -58,7 +58,7 @@ func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, c
 		fmt.Println("connectorEventSendToAggregator connect : " + connection)
 	}
 	connectorEventRoutine.ConnectorEventWorkerConnection = connectorEventWorkerConnection
-	connectorEventRoutine.StartGrpcServer(connectorEventRoutine.ConnectorEventWorkerConnection)
+	go connectorEventRoutine.StartGrpcServer(connectorEventRoutine.ConnectorEventWorkerConnection)
 	fmt.Println("ConnectorEventWorkerConnection connect : " + connectorEventRoutine.ConnectorEventWorkerConnection)
 
 	return
@@ -211,7 +211,7 @@ func (r ConnectorEventRoutine) StartGrpcServer(port string) {
 	}
 	r.ConnectorEventGrpcServer = grpc.NewServer()
 	pb.RegisterConnectorEventServer(r.ConnectorEventGrpcServer, &r)
-	go r.ConnectorEventGrpcServer.Serve(lis)
+	r.ConnectorEventGrpcServer.Serve(lis)
 }
 
 //TODO REVOIR SERVICE
@@ -225,6 +225,7 @@ func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *pb.Even
 }
 
 func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.EventMessageWait) (messageEvent *pb.EventMessage, err error) {
+	fmt.Println("WAOOOTTTT 2")
 
 	target := in.GetWorkerSource()
 	iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
