@@ -1,9 +1,10 @@
 {
-	"ClusterCommandSendConnection": "tcp://127.0.0.1:9110",
-    "ClusterCommandReceiveConnection": "tcp://127.0.0.1:9111",
-	"ClusterCommandCaptureConnection": "",
-	"ClusterEventSendConnection": "127.0.0.1:9100",
-	"ClusterEventReceiveConnection": "127.0.0.1:9101",
-    "ClusterEventCaptureConnection": "",
-	"Identity": "cluster1"
+	"clusterCommandSendConnection": "tcp://127.0.0.1:9110",
+    "clusterCommandReceiveConnection": "tcp://127.0.0.1:9111",
+	"clusterCommandCaptureConnection": "",
+	"clusterEventSendConnection": "127.0.0.1:9100",
+	"clusterEventReceiveConnection": "127.0.0.1:9101",
+	"clusterEventCaptureConnection": "",
+    "databaseClusterConnections": ["127.0.0.1:9181", "127.0.0.1:9182", "127.0.0.1:9183"],
+	"identity": "cluster1"
 }

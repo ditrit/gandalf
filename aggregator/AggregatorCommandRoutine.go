@@ -20,12 +20,14 @@ type AggregatorCommandRoutine struct {
 	aggregatorCommandReceiveFromCluster             *zmq4.Socket
 	aggregatorCommandReceiveFromClusterConnections  []string
 	identity                                        string
+	tenant                                          string
 }
 
-func NewAggregatorCommandRoutine(identity, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnection string, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromClusterConnections []string) (aggregatorCommandRoutine *AggregatorCommandRoutine) {
+func NewAggregatorCommandRoutine(identity, tenant, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnection string, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromClusterConnections []string) (aggregatorCommandRoutine *AggregatorCommandRoutine) {
 	aggregatorCommandRoutine = new(AggregatorCommandRoutine)
 
 	aggregatorCommandRoutine.identity = identity
+	aggregatorCommandRoutine.tenant = tenant
 
 	aggregatorCommandRoutine.context, _ = zmq4.NewContext()
 	aggregatorCommandRoutine.aggregatorCommandSendToClusterConnections = aggregatorCommandSendToClusterConnections
@@ -129,6 +131,7 @@ func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]b
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
 	fmt.Println("TITI")
 	commandMessage, _ := message.DecodeCommandMessage(command[2])
+	commandMessage.Tenant = r.tenant
 	fmt.Println("MESSAGE")
 	fmt.Println(commandMessage)
 	//go commandMessage.SendWith(r.aggregatorCommandSendToCluster, commandMessage.DestinationConnector)

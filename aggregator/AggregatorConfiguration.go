@@ -14,6 +14,7 @@ type AggregatorConfiguration struct {
 	AggregatorEventSendToConnectorConnection        string
 	AggregatorEventReceiveFromClusterConnections    []string
 	Identity                                        string
+	Tenant                                          string
 }
 
 func LoadConfiguration(path string) (aggregatorConfiguration *AggregatorConfiguration, err error) {

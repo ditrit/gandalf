@@ -7,5 +7,6 @@
 	"aggregatorEventReceiveFromClusterConnections": ["tcp://127.0.0.1:9100", "tcp://127.0.0.1:9200"],
 	"aggregatorEventSendToConnectorConnection": "tcp://*:9130",
 	"aggregatorEventReceiveFromConnectorConnection": "tcp://*:9131",
-	"identity": "aggregator1"
+	"identity": "aggregator1",
+	"tenant": "test"
 }

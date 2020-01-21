@@ -1,15 +1,14 @@
 package cluster
 
 import (
-	"bytes"
-	"encoding/json"
+	"database/sql"
 	"errors"
 	"fmt"
+	"gandalf-go/client/database"
 	"gandalf-go/constant"
 	"gandalf-go/message"
-	"io/ioutil"
-	"net/http"
 
+	"github.com/canonical/go-dqlite/driver"
 	"github.com/pebbe/zmq4"
 )
 
@@ -22,12 +21,16 @@ type ClusterCommandRoutine struct {
 	ClusterCommandCapture           *zmq4.Socket
 	ClusterCommandCaptureConnection string
 	Identity                        string
+	DatabaseClusterConnections      []string
+	DatabaseClient                  *database.DatabaseClient
 }
 
-func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) (clusterCommandRoutine *ClusterCommandRoutine) {
+func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) (clusterCommandRoutine *ClusterCommandRoutine) {
 	clusterCommandRoutine = new(ClusterCommandRoutine)
 
 	clusterCommandRoutine.Identity = identity
+	clusterCommandRoutine.DatabaseClusterConnections = databaseClusterConnections
+	clusterCommandRoutine.DatabaseClient = database.NewDatabaseClient(clusterCommandRoutine.DatabaseClusterConnections)
 
 	clusterCommandRoutine.Context, _ = zmq4.NewContext()
 	clusterCommandRoutine.ClusterCommandSendConnection = clusterCommandSendConnection
@@ -112,18 +115,26 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 }
 
 func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage message.CommandMessage) {
-	jsonData := map[string]string{"firstname": "Nic", "lastname": "Raboy"}
-	jsonValue, _ := json.Marshal(jsonData)
 
-	response, err := http.Post("localhost:4001/db/execute?pretty&timings", "application/json", bytes.NewBuffer(jsonValue))
+	store := r.DatabaseClient.GetStore()
+	driver, err := driver.New(store)
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
-	} else {
-		data, _ := ioutil.ReadAll(response.Body)
-		fmt.Println(string(data))
+		//return errors.Wrapf(err, "failed to create dqlite driver")
 	}
-	fmt.Println("Terminating the application...")
+	sql.Register("dqlite", driver)
 
+	db, err := sql.Open("dqlite", "demo.db")
+	if err != nil {
+		//return errors.Wrap(err, "can't open demo database")
+	}
+	defer db.Close()
+
+	row := db.QueryRow("SELECT value FROM application_context")
+	value := ""
+	if err := row.Scan(&value); err != nil {
+		//return errors.Wrap(err, "failed to get key")
+	}
+	fmt.Println(value)
 	//SET
 	commandMessage.DestinationAggregator = ""
 	commandMessage.DestinationConnector = ""

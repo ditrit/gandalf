@@ -6,6 +6,7 @@ import (
 	"gandalf-go/aggregator"
 	"gandalf-go/cluster"
 	"gandalf-go/connector"
+	"gandalf-go/database"
 	"gandalf-go/tset"
 	"gandalf-go/worker"
 	"time"
@@ -41,6 +42,10 @@ func main() {
 		workerGandalf := worker.NewWorkerGandalf(config)
 		workerGandalf.Run()
 		fmt.Println("Worker " + config)
+	case "database":
+		databaseClusterGandalf := database.NewDatabaseClusterGandalf(config)
+		databaseClusterGandalf.Run()
+		fmt.Println("Database " + config)
 	case "workerTestSend":
 		tset.NewWorkerSender(config).Run()
 		//toto.WorkerGandalf.ClientGandalf.SendCommand("toto", "100000000000000", "toto", "toto", "toto", "toto", "toto")

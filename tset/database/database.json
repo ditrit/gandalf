@@ -1,0 +1,4 @@
+{
+    "databaseClusterConnections": ["127.0.0.1:9181", "127.0.0.1:9182", "127.0.0.1:9183"],
+    "databaseClusterDirectory": "/home/orness/db/"
+}

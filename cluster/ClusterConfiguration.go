@@ -13,6 +13,7 @@ type ClusterConfiguration struct {
 	ClusterCommandCaptureConnection       string
 	WorkerCaptureCommandReceiveConnection string
 	WorkerCaptureEventReceiveConnection   string
+	DatabaseClusterConnections            []string
 	Identity                              string
 	Topics                                []string
 }

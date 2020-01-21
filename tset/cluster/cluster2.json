@@ -5,5 +5,6 @@
 	"clusterCommandSendConnection": "tcp://*:9210",
     "clusterCommandReceiveConnection": "tcp://*:9211",
 	"clusterCommandCaptureConnection": "",
+    "databaseClusterConnections": ["127.0.0.1:9181", "127.0.0.1:9182", "127.0.0.1:9183"],
 	"identity": "cluster2"
 }
