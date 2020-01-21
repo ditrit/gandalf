@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -20,60 +21,67 @@ type DatabaseCluster struct {
 	databaseClusterDirectory   string
 	databaseClusterConnections []string
 	databaseClient             *database.DatabaseClient
-	//databaseCluster            []string
-	//databaseClusterNodes     []*dqlite.Node
+	databaseClusterNodes       map[string]*dqlite.Node
 }
 
 func NewDatabaseCluster(databaseClusterDirectory string, databaseClusterConnections []string) (databaseCluster *DatabaseCluster) {
 	databaseCluster = new(DatabaseCluster)
 	databaseCluster.databaseClusterDirectory = databaseClusterDirectory
 	databaseCluster.databaseClusterConnections = databaseClusterConnections
+	databaseCluster.databaseClusterNodes = make(map[string]*dqlite.Node)
 	databaseCluster.databaseClient = database.NewDatabaseClient(databaseCluster.databaseClusterConnections)
 	return
 }
 
 func (dc DatabaseCluster) Run() {
 	//RUN
-	for id, connection := range dc.databaseClusterConnections {
-		dc.startNode(string(id), dc.databaseClusterDirectory, connection)
-		if id > 0 {
-			dc.addNodesToLeader(string(id), connection)
-		}
+	for id := 0; id < len(dc.databaseClusterConnections); id++ {
+		dc.startNode(id+1, dc.databaseClusterDirectory, dc.databaseClusterConnections[id])
+	}
+	fmt.Println("titi")
+	fmt.Println(dc.databaseClusterNodes)
+
+	for id := 1; id < len(dc.databaseClusterConnections); id++ {
+		dc.addNodesToLeader(id+1, dc.databaseClusterConnections[id])
 	}
 	//INIT DB
 	dc.initDatabaseCluster()
+
 }
 
-func (dc DatabaseCluster) startNode(id, dir, address string) (err error) {
-	var nodeDir string
-	nodeId, err := strconv.Atoi(id)
-	nodeDir = filepath.Join(dir, id)
+func (dc DatabaseCluster) startNode(id int, dir, address string) (err error) {
+	fmt.Println(id)
+	fmt.Println(dir)
+	fmt.Println(address)
+	nodeID := strconv.Itoa(id)
+	nodeDir := filepath.Join(dir, nodeID)
 	if err := os.MkdirAll(nodeDir, 0755); err != nil {
 		return errors.Wrapf(err, "can't create %s", nodeDir)
 	}
 	node, err := dqlite.New(
-		uint64(nodeId), address, nodeDir,
+		uint64(id), address, nodeDir,
 		dqlite.WithBindAddress(address),
 		dqlite.WithNetworkLatency(20*time.Millisecond),
 	)
-	//dc.databaseClusterNodes = append(dc.databaseClusterNodes, node)
+	dc.databaseClusterNodes[nodeID] = node
 	if err != nil {
 		return errors.Wrap(err, "failed to create node")
 	}
 	if err := node.Start(); err != nil {
+		fmt.Println("boop")
 		return errors.Wrap(err, "failed to start node")
 	}
 	return
 }
 
-func (dc DatabaseCluster) addNodesToLeader(id, address string) (err error) {
-	nodeId, err := strconv.Atoi(id)
+func (dc DatabaseCluster) addNodesToLeader(id int, address string) (err error) {
 	info := client.NodeInfo{
-		ID:      uint64(nodeId),
+		ID:      uint64(id),
 		Address: address,
 	}
 
 	client, err := dc.databaseClient.GetLeader()
+	fmt.Println(client)
 	if err != nil {
 		return errors.Wrap(err, "can't connect to cluster leader")
 	}
@@ -88,29 +96,6 @@ func (dc DatabaseCluster) addNodesToLeader(id, address string) (err error) {
 	return
 }
 
-/* func (dc DatabaseCluster) getLeader(cluster []string) (*client.Client, error) {
-	store := dc.getStore(cluster)
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
-	return client.FindLeader(ctx, store, nil)
-}
-
-func (dc DatabaseCluster) getStore(cluster []string) client.NodeStore {
-	store := client.NewInmemNodeStore()
-	if len(cluster) == 0 {
-		dc.databaseCluster = cluster
-	}
-	infos := make([]client.NodeInfo, 3)
-	for i, address := range cluster {
-		infos[i].ID = uint64(i + 1)
-		infos[i].Address = address
-	}
-	store.Set(context.Background(), infos)
-	return store
-} */
-
 func (dc DatabaseCluster) initDatabaseCluster() (err error) {
 	driver, err := driver.New(dc.databaseClient.GetStore())
 	if err != nil {
@@ -119,18 +104,26 @@ func (dc DatabaseCluster) initDatabaseCluster() (err error) {
 	sql.Register("dqlite", driver)
 
 	db, err := sql.Open("dqlite", "demo.db")
+	fmt.Println("TOTO")
 	if err != nil {
+		fmt.Println("FAIL OPEN")
 		return errors.Wrap(err, "can't open demo database")
 	}
 	defer db.Close()
 
+	fmt.Println("CREATEEEE§!!!!!!!!!!!!!!!!")
 	if _, err := db.Exec("CREATE TABLE IF NOT EXISTS application_context (id INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL, tenant TEXT NOT NULL, connector_type TEXT NOT NULL, command_type TEXT NOT NULL, aggregator_destination TEXT NOT NULL, connector_destination TEXT NOT NULL)"); err != nil {
+		fmt.Println("FAIL CREATE")
 		return errors.Wrap(err, "can't create demo table")
 	}
+	fmt.Println("CREATEEEE§!!!!!!!!!!!!!!!!")
 
 	if _, err := db.Exec("INSERT INTO application_context (name, tenant, connector_type, command_type, aggregator_destination, connector_destination) values (?, ?, ?, ?, ?, ?)",
 		"test", "test", "test", "test", "aggregator2", "connector2"); err != nil {
+		fmt.Println("FAIL INSERT")
 		return errors.Wrap(err, "can't update key")
 	}
+	fmt.Println("CREATEEEE§!!!!!!!!!!!!!!!!")
+
 	return
 }

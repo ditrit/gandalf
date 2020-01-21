@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/canonical/go-dqlite/client"
@@ -23,16 +24,15 @@ func (dc DatabaseClient) GetLeader() (*client.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	return client.FindLeader(ctx, store, nil)
+	return client.FindLeader(ctx, store, client.WithLogFunc(logFunc))
 }
 
 func (dc DatabaseClient) GetStore() client.NodeStore {
 	store := client.NewInmemNodeStore()
 	if len(dc.databaseClientCluster) == 0 {
-		//DEFUALT VALUE
-		//dc.databaseClientCluster = ""
+		fmt.Println("BUGGG")
 	}
-	infos := make([]client.NodeInfo, 3)
+	infos := make([]client.NodeInfo, len(dc.databaseClientCluster))
 	for i, address := range dc.databaseClientCluster {
 		infos[i].ID = uint64(i + 1)
 		infos[i].Address = address
@@ -40,3 +40,5 @@ func (dc DatabaseClient) GetStore() client.NodeStore {
 	store.Set(context.Background(), infos)
 	return store
 }
+
+func logFunc(l client.LogLevel, format string, a ...interface{}) {}

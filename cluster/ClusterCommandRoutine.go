@@ -2,7 +2,6 @@ package cluster
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"gandalf-go/client/database"
 	"gandalf-go/constant"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/canonical/go-dqlite/driver"
 	"github.com/pebbe/zmq4"
+	"github.com/pkg/errors"
 )
 
 type ClusterCommandRoutine struct {
@@ -23,6 +23,7 @@ type ClusterCommandRoutine struct {
 	Identity                        string
 	DatabaseClusterConnections      []string
 	DatabaseClient                  *database.DatabaseClient
+	DatabaseDB                      *sql.DB
 }
 
 func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) (clusterCommandRoutine *ClusterCommandRoutine) {
@@ -50,6 +51,16 @@ func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCom
 	clusterCommandRoutine.ClusterCommandCapture.SetIdentity(clusterCommandRoutine.Identity)
 	clusterCommandRoutine.ClusterCommandCapture.Bind(clusterCommandRoutine.ClusterCommandCaptureConnection)
 	fmt.Println("clusterCommandCapture bind : " + clusterCommandCaptureConnection)
+
+	store := clusterCommandRoutine.DatabaseClient.GetStore()
+	driver, err := driver.New(store)
+	if err != nil {
+
+	}
+	sql.Register("cluster", driver)
+	clusterCommandRoutine.DatabaseDB, err = sql.Open("cluster", "demo.db")
+	if err != nil {
+	}
 
 	return
 }
@@ -103,9 +114,13 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 		message, _ := message.DecodeCommandMessage(command[2])
 
 		fmt.Println("MESSAGE")
-		fmt.Println(message)
+		fmt.Println(message.DestinationAggregator)
+		fmt.Println(message.DestinationConnector)
 		//r.processCaptureCommand(message)
-		r.processRoutingCommandMessage(message)
+		r.processRoutingCommandMessage(&message)
+		fmt.Println("MESSAGE")
+		fmt.Println(message.DestinationAggregator)
+		fmt.Println(message.DestinationConnector)
 		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])
@@ -114,30 +129,33 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 	}
 }
 
-func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage message.CommandMessage) {
+func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *message.CommandMessage) (err error) {
 
-	store := r.DatabaseClient.GetStore()
-	driver, err := driver.New(store)
-	if err != nil {
-		//return errors.Wrapf(err, "failed to create dqlite driver")
-	}
-	sql.Register("dqlite", driver)
+	fmt.Println(commandMessage.Tenant)
+	fmt.Println(commandMessage.ConnectorType)
+	fmt.Println(commandMessage.CommandType)
 
-	db, err := sql.Open("dqlite", "demo.db")
-	if err != nil {
-		//return errors.Wrap(err, "can't open demo database")
+	row := r.DatabaseDB.QueryRow("SELECT aggregator_destination, connector_destination FROM application_context WHERE tenant = ? AND connector_type = ? AND command_type = ?", commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
+	aggregator_destination := ""
+	connector_destination := ""
+	if err := row.Scan(&aggregator_destination, &connector_destination); err != nil {
+		fmt.Println("error")
+		fmt.Println(err)
+		return errors.Wrap(err, "failed to get key")
 	}
-	defer db.Close()
+	fmt.Println("aggregator_destination")
+	fmt.Println(aggregator_destination)
 
-	row := db.QueryRow("SELECT value FROM application_context")
-	value := ""
-	if err := row.Scan(&value); err != nil {
-		//return errors.Wrap(err, "failed to get key")
-	}
-	fmt.Println(value)
+	fmt.Println("connector_destination")
+	fmt.Println(connector_destination)
 	//SET
-	commandMessage.DestinationAggregator = ""
-	commandMessage.DestinationConnector = ""
+	commandMessage.DestinationAggregator = aggregator_destination
+	fmt.Println(commandMessage.DestinationAggregator)
+
+	commandMessage.DestinationConnector = connector_destination
+	fmt.Println(commandMessage.DestinationConnector)
+
+	return
 }
 
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.CommandMessage) {
