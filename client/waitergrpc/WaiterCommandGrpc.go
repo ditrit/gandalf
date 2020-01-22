@@ -21,17 +21,10 @@ func NewWaiterCommandGrpc(identity, waiterCommandGrpcConnection string) (waiterC
 
 	waiterCommandGrpc.Identity = identity
 	waiterCommandGrpc.WaiterCommandGrpcConnection = waiterCommandGrpcConnection
-	fmt.Println("waiterCommandGrpc.WaiterCommandGrpcConnection")
-	fmt.Println(waiterCommandGrpc.WaiterCommandGrpcConnection)
-
 	conn, err := grpc.Dial(waiterCommandGrpc.WaiterCommandGrpcConnection, grpc.WithInsecure())
 	if err != nil {
-		fmt.Println("ERROR")
 	}
-	fmt.Println("CONNN WAITER COMMAND")
-	fmt.Println(conn)
 	waiterCommandGrpc.client = pb.NewConnectorCommandClient(conn)
-	fmt.Println("waiterCommandGrpc connect : " + waiterCommandGrpc.WaiterCommandGrpcConnection)
 	return
 }
 

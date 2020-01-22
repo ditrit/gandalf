@@ -30,7 +30,6 @@ func (dc DatabaseClient) GetLeader() (*client.Client, error) {
 func (dc DatabaseClient) GetStore() client.NodeStore {
 	store := client.NewInmemNodeStore()
 	if len(dc.databaseClientCluster) == 0 {
-		fmt.Println("BUGGG")
 	}
 	infos := make([]client.NodeInfo, len(dc.databaseClientCluster))
 	for i, address := range dc.databaseClientCluster {

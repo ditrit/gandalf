@@ -84,19 +84,18 @@ func (r AggregatorCommandRoutine) run() {
 
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.aggregatorCommandReceiveFromConnector:
+				fmt.Println("Receive Connector")
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				fmt.Println("Aggregator receive connector")
 				r.processCommandReceiveFromConnector(command)
 			case r.aggregatorCommandReceiveFromCluster:
-
+				fmt.Println("Receive Cluster")
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				fmt.Println("Aggregator receive cluster")
 				r.processCommandReceiveFromCluster(command)
 			}
 		}
@@ -107,18 +106,11 @@ func (r AggregatorCommandRoutine) run() {
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) {
 
-	fmt.Println("TOTO")
-	fmt.Println(command[0])
-	fmt.Println(string(command[0]))
-	fmt.Println(command[1])
-	fmt.Println(string(command[1]))
-	fmt.Println("TATA")
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
 		//COMMAND
 		message, _ := message.DecodeCommandMessage(command[2])
-		fmt.Println("MESSAGE")
-		fmt.Println(message)
+
 		go message.SendWith(r.aggregatorCommandSendToConnector, message.DestinationConnector)
 	} else {
 		//REPLY
@@ -129,12 +121,8 @@ func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]b
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
-	fmt.Println("TITI")
 	commandMessage, _ := message.DecodeCommandMessage(command[2])
 	commandMessage.Tenant = r.tenant
-	fmt.Println("MESSAGE")
-	fmt.Println(commandMessage)
-	//go commandMessage.SendWith(r.aggregatorCommandSendToCluster, commandMessage.DestinationConnector)
+
 	go commandMessage.SendMessageWith(r.aggregatorCommandSendToCluster)
-	//RECEIVE FROM CONNECTOR
 }

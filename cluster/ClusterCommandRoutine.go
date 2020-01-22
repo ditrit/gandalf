@@ -88,12 +88,11 @@ func (r ClusterCommandRoutine) run() {
 			switch currentSocket := socket.Socket; currentSocket {
 
 			case r.ClusterCommandReceive:
-
+				fmt.Println("Cluster Receive")
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				fmt.Println("Cluster Receive")
 				r.processCommandReceive(command)
 			}
 
@@ -104,23 +103,14 @@ func (r ClusterCommandRoutine) run() {
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
-	fmt.Println("TOTO")
-	fmt.Println(command)
-	fmt.Println(command[0])
-	fmt.Println(command[1])
 
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
 		message, _ := message.DecodeCommandMessage(command[2])
 
-		fmt.Println("MESSAGE")
-		fmt.Println(message.DestinationAggregator)
-		fmt.Println(message.DestinationConnector)
 		//r.processCaptureCommand(message)
 		r.processRoutingCommandMessage(&message)
-		fmt.Println("MESSAGE")
-		fmt.Println(message.DestinationAggregator)
-		fmt.Println(message.DestinationConnector)
+		
 		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])

@@ -97,7 +97,7 @@ func (r AggregatorEventRoutine) run() {
 				r.processEventSendToCluster(event)
 
 			case r.aggregatorEventReceiveFromConnector:
-				fmt.Println("Receive connector")
+				fmt.Println("Receive Connector")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -105,7 +105,7 @@ func (r AggregatorEventRoutine) run() {
 				r.processEventReceiveFromConnector(event)
 
 			case r.aggregatorEventSendToConnector:
-				fmt.Println("send connector")
+				fmt.Println("Send Connector")
 				event, err = currentSocket.RecvMessageBytes(0)
 				fmt.Println(event)
 				if err != nil {
@@ -114,7 +114,7 @@ func (r AggregatorEventRoutine) run() {
 				r.processEventSendToConnector(event)
 
 			case r.aggregatorEventReceiveFromCluster:
-				fmt.Println("receive cluster")
+				fmt.Println("Receive Cluster")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -127,15 +127,9 @@ func (r AggregatorEventRoutine) run() {
 }
 
 func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
-	fmt.Println("processEventSendToCluster")
-	fmt.Println(event)
 
 	if len(event) == 1 {
 		topic := event[0]
-		fmt.Println("SUB")
-		fmt.Println("aggregatorEventReceiveFromConnector")
-		fmt.Println(topic)
-		fmt.Println(string(topic))
 		//r.AggregatorEventReceiveFromConnector.SetSubscribe(string(topic))
 		//go message.SendSubscribeTopic(r.AggregatorEventReceiveFromConnector, topic)
 	} else {
@@ -153,30 +147,21 @@ func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
 
 //UTILE .??
 func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
-	fmt.Println("processEventSendToConnector")
-	fmt.Println(event)
-
+	fmt.Println("EVENT UTILE ?")
 	if len(event) == 1 {
 		topic := event[0]
-		fmt.Println("SUB")
-		fmt.Println("aggregatorEventReceiveFromCluster")
-		fmt.Println(topic)
-		fmt.Println(string(topic))
+	
 		//r.aggregatorEventReceiveFromCluster.SetSubscribe(string(topic))
 		//go message.SendSubscribeTopic(r.aggregatorEventReceiveFromCluster, topic)
 	} else {
 		eventMessage, _ := message.DecodeEventMessage(event[0])
-		fmt.Println("SEN")
-		fmt.Println(event)
-		fmt.Println(eventMessage)
+	
 		go eventMessage.SendMessageWith(r.aggregatorEventReceiveFromCluster)
 	}
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
-	fmt.Println(event)
-	fmt.Println(event[0])
-	fmt.Println(event[1])
+	
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	eventMessage.Tenant = r.tenant
 	go eventMessage.SendMessageWith(r.aggregatorEventSendToCluster)

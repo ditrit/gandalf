@@ -36,8 +36,6 @@ func NewSenderCommandRoutine(identity, senderCommandConnection string) (senderCo
 
 func NewSenderCommandRoutineList(identity string, senderCommandConnections []string) (senderCommandRoutine *SenderCommandRoutine) {
 	senderCommandRoutine = new(SenderCommandRoutine)
-
-	//senderCommandRoutine.Replys = make(chan message.CommandMessageReply)
 	senderCommandRoutine.Identity = identity
 
 	senderCommandRoutine.Context, _ = zmq4.NewContext()
@@ -53,15 +51,6 @@ func NewSenderCommandRoutineList(identity string, senderCommandConnections []str
 	return
 }
 
-/* func (r SenderCommandRoutine) SendCommandSync(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
-	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
-
-	go commandMessage.SendCommandWith(r.SenderCommandSend)
-	commandMessageReply = r.getCommandResultSync(commandMessage.Uuid)
-
-	return
-} */
-
 func (r SenderCommandRoutine) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) {
 	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
 	commandMessage.DestinationAggregator = "aggregator1"
@@ -74,52 +63,6 @@ func (r SenderCommandRoutine) SendCommandReply(commandMessage message.CommandMes
 	commandMessageReply.From(commandMessage, reply, payload)
 	commandMessageReply.SendMessageWith(r.SenderCommandSend)
 }
-
-/* //TEST
-func (r SenderCommandRoutine) SendCommandSyncTEST(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageReply message.CommandMessageReply) {
-	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
-	commandMessage.DestinationAggregator = "aggregator2"
-	commandMessage.DestinationConnector = "connector2"
-	commandMessage.DestinationWorker = "worker2"
-	go commandMessage.SendCommandWith(r.SenderCommandSend)
-	commandMessageReply = r.getCommandResultSync(commandMessage.Uuid)
-
-	return
-}
-
-//FIN TEST
-
-//TODO UTILISATION MAP
-func (r SenderCommandRoutine) getCommandResultSync(uuid string) (commandMessageReply message.CommandMessageReply) {
-	for {
-		command, err := r.SenderCommandSend.RecvMessageBytes(0)
-		if err != nil {
-			panic(err)
-		}
-		commandMessageReply, _ = message.DecodeCommandMessageReply(command[1])
-		return
-	}
-}
-
-func (r SenderCommandRoutine) sendCommandAsync(context, timeout, uuid, connectorType, commandType, command, payload string) {
-	commandMessage := message.NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload)
-
-	go commandMessage.SendCommandWith(r.SenderCommandSend)
-	go r.getCommandResultAsync()
-}
-
-func (r SenderCommandRoutine) getCommandResultAsync() {
-	for {
-		command, err := r.SenderCommandSend.RecvMessageBytes(0)
-		if err != nil {
-			panic(err)
-		}
-		commandMessage, _ := message.DecodeCommandMessageReply(command[1])
-		r.Replys <- commandMessage
-
-		return
-	}
-} */
 
 func (r SenderCommandRoutine) cleanByTimeout() {
 

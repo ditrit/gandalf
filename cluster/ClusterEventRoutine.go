@@ -93,14 +93,10 @@ func (r ClusterEventRoutine) run() {
 }
 
 func (r ClusterEventRoutine) processEventSend(event [][]byte) {
-	fmt.Println("processEventSend")
-	fmt.Println(event)
+	
 	if len(event) == 1 {
+		//UTILE ?
 		topic := event[0]
-		fmt.Println("SUB")
-		fmt.Println("ClusterEventReceive")
-		fmt.Println(topic)
-		fmt.Println(string(topic))
 		//r.ClusterEventReceive.SetSubscribe(string(topic))
 		//go message.SendSubscribeTopic(r.ClusterEventReceive, topic)
 	} else {
@@ -111,7 +107,6 @@ func (r ClusterEventRoutine) processEventSend(event [][]byte) {
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
-	fmt.Println("TRALALALALLA")
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	//r.processCaptureEvent(eventMessage)
 	go eventMessage.SendMessageWith(r.ClusterEventSend)

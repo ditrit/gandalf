@@ -88,17 +88,16 @@ func (r ConnectorEventRoutine) run() {
 		fmt.Println("Running ConnectorEventRoutine")
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
-			fmt.Println("Running ConnectorEventRoutine2")
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ConnectorEventReceiveFromAggregator:
-				fmt.Println("RECEIVER AGG")
+				fmt.Println("Receive Aggregator")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
 				r.processEventReceiveFromAggregator(event)
 			case r.ConnectorEventSendToAggregator:
-				fmt.Println("SEND AGG")
+				fmt.Println("Send Aggregator")
 				event, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
@@ -109,77 +108,11 @@ func (r ConnectorEventRoutine) run() {
 	}
 }
 
-/* func (r ConnectorEventRoutine) processEventSendToWorker(event [][]byte) {
-	fmt.Println("processEventSendToWorker")
-	fmt.Println(event)
-	eventType := string(event[1])
-	if eventType == constant.EVENT_WAIT {
-		fmt.Println(string(event[0]))
-		fmt.Println(string(event[1]))
-		fmt.Println(string(event[2]))
-		eventMessageWait, _ := message.DecodeEventMessageWait(event[2])
-		target := eventMessageWait.WorkerSource
-		iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
-		r.ConnectorMapWorkerIterators[eventMessageWait.Event] = append(r.ConnectorMapWorkerIterators[eventMessageWait.Event], iterator)
-
-		fmt.Println("SUB")
-		fmt.Println("ConnectorEventReceiveFromAggregator")
-		fmt.Println(eventMessageWait.Topic)
-		//go message.SendSubscribeTopic(r.ConnectorEventReceiveFromAggregator, []byte(eventMessageWait.Topic))
-
-		go r.runIterator(target, eventMessageWait.Event, iterator)
-	}
-} */
-
 func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte) {
-	fmt.Println("processEventReceiveFromAggregator")
-	fmt.Println(event)
-	fmt.Println(len(event))
-	fmt.Println(event[1])
 	eventMessage, _ := message.DecodeEventMessage(event[1])
-	fmt.Println(eventMessage)
 	r.ConnectorMapEventNameEventMessage.Push(eventMessage)
-
-	//go eventMessage.SendEventWith(r.ConnectorEventSendToWorker)
 }
 
-func (r ConnectorEventRoutine) processEventSendToAggregator(event [][]byte) {
-	/* 	fmt.Println("processEventSendToAggregator")
-	   	fmt.Println(event)
-	   	if len(event) == 1 {
-	   		topic := event[0]
-	   		fmt.Println("SUB")
-	   		fmt.Println("ConnectorEventReceiveFromWorker")
-	   		fmt.Println(topic)
-	   		fmt.Println(string(topic))
-
-	   		//go message.SendSubscribeTopic(r.ConnectorEventReceiveFromWorker, topic)
-	   	} */
-	//eventMessage, _ := message.DecodeEventMessage(event[0])
-	//go eventMessage.SendEventWith(r.ConnectorEventReceiveFromWorker)
-}
-
-/* func (r ConnectorEventRoutine) processEventReceiveFromWorker(event [][]byte) {
-	//TODO REVOIR EVENT IF
-	fmt.Println(event)
-	fmt.Println(event[0])
-	fmt.Println(event[1])
-	if string(event[0]) == constant.EVENT_VALIDATION_FUNCTIONS {
-		eventFunctions, _ := message.DecodeEventFunction(event[1])
-		result, _ := r.validationEvents(eventFunctions.Worker, eventFunctions.Functions)
-		if result {
-			r.ConnectorMapWorkerEvents[eventFunctions.Worker] = eventFunctions.Functions
-			eventFunctionReply := message.NewEventFunctionReply(result)
-			go eventFunctionReply.SendMessageWith(r.ConnectorEventReceiveFromAggregator)
-		}
-	} else {
-		fmt.Println("BLIP")
-		fmt.Println(event[1])
-		eventMessage, _ := message.DecodeEventMessage(event[1])
-		fmt.Println(eventMessage)
-		go eventMessage.SendMessageWith(r.ConnectorEventSendToAggregator)
-	}
-} */
 
 func (r ConnectorEventRoutine) validationEvents(workerSource string, events []string) (result bool, err error) {
 	//TODO
@@ -194,8 +127,7 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 		if messageIterator != nil {
 			eventMessage := (*messageIterator).(message.EventMessage)
 			if value == eventMessage.Event {
-				fmt.Println("TOTO")
-				channel <- eventMessage
+=				channel <- eventMessage
 				notfound = false
 			}
 		}
@@ -224,14 +156,10 @@ func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *pb.Even
 }
 
 func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.EventMessageWait) (messageEvent *pb.EventMessage, err error) {
-	fmt.Println("WAOOOTTTT 2")
 
 	target := in.GetWorkerSource()
 	iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
 	r.ConnectorMapWorkerIterators[in.GetEvent()] = append(r.ConnectorMapWorkerIterators[in.GetEvent()], iterator)
-
-	fmt.Println("SUB")
-	fmt.Println("ConnectorEventReceiveFromAggregator")
 
 	go r.runIterator(target, in.GetEvent(), iterator, r.ConnectorEventChannel)
 	select {
@@ -240,7 +168,6 @@ func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.Even
 		messageEvent = message.EventMessageToGrpc(messageChannel)
 		return
 	default:
-		fmt.Println("nope")
 	}
 	return
 }
