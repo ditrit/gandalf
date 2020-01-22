@@ -58,7 +58,7 @@ func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCom
 
 	}
 	sql.Register("cluster", driver)
-	clusterCommandRoutine.DatabaseDB, err = sql.Open("cluster", "demo.db")
+	clusterCommandRoutine.DatabaseDB, err = sql.Open("cluster", "context.db")
 	if err != nil {
 	}
 
@@ -121,23 +121,19 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 
 func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *message.CommandMessage) (err error) {
 
-	fmt.Println(commandMessage.Tenant)
-	fmt.Println(commandMessage.ConnectorType)
-	fmt.Println(commandMessage.CommandType)
-
-	row := r.DatabaseDB.QueryRow("SELECT aggregator_destination, connector_destination FROM application_context WHERE tenant = ? AND connector_type = ? AND command_type = ?", commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
+	row := r.DatabaseDB.QueryRow("SELECT aggregator.name, connector.name FROM application_context
+	JOIN tenant ON application_context.tenant = tenant.id
+	JOIN connector_type ON application_context.connector_type = connector_type.id
+	JOIN command_type ON application_context.command_type = command_type.id
+	JOIN aggregator ON application_context.aggregator_destination = aggregator.id
+	JOIN connector ON application_context.connector_destination = connector.id
+	WHERE tenant = ? AND connector_type = ? AND command_type = ?", commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType), commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
 	aggregator_destination := ""
 	connector_destination := ""
 	if err := row.Scan(&aggregator_destination, &connector_destination); err != nil {
-		fmt.Println("error")
-		fmt.Println(err)
 		return errors.Wrap(err, "failed to get key")
 	}
-	fmt.Println("aggregator_destination")
-	fmt.Println(aggregator_destination)
 
-	fmt.Println("connector_destination")
-	fmt.Println(connector_destination)
 	//SET
 	commandMessage.DestinationAggregator = aggregator_destination
 	fmt.Println(commandMessage.DestinationAggregator)
@@ -155,3 +151,4 @@ func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.Comm
 func (r ClusterCommandRoutine) processCaptureCommandMessageReply(commandMessageReply message.CommandMessageReply) {
 	go commandMessageReply.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }
+
