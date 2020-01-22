@@ -68,7 +68,6 @@ func (dc DatabaseCluster) startNode(id int, dir, address string) (err error) {
 		return errors.Wrap(err, "failed to create node")
 	}
 	if err := node.Start(); err != nil {
-		fmt.Println("boop")
 		return errors.Wrap(err, "failed to start node")
 	}
 	return
@@ -104,26 +103,20 @@ func (dc DatabaseCluster) initDatabaseCluster() (err error) {
 	sql.Register("dqlite", driver)
 
 	db, err := sql.Open("dqlite", "demo.db")
-	fmt.Println("TOTO")
 	if err != nil {
-		fmt.Println("FAIL OPEN")
 		return errors.Wrap(err, "can't open demo database")
 	}
 	defer db.Close()
 
-	fmt.Println("CREATEEEE§!!!!!!!!!!!!!!!!")
+	//TODO UPDATE TABLE
 	if _, err := db.Exec("CREATE TABLE IF NOT EXISTS application_context (id INTEGER NOT NULL PRIMARY KEY, name TEXT NOT NULL, tenant TEXT NOT NULL, connector_type TEXT NOT NULL, command_type TEXT NOT NULL, aggregator_destination TEXT NOT NULL, connector_destination TEXT NOT NULL)"); err != nil {
-		fmt.Println("FAIL CREATE")
 		return errors.Wrap(err, "can't create demo table")
 	}
-	fmt.Println("CREATEEEE§!!!!!!!!!!!!!!!!")
 
 	if _, err := db.Exec("INSERT INTO application_context (name, tenant, connector_type, command_type, aggregator_destination, connector_destination) values (?, ?, ?, ?, ?, ?)",
 		"test", "test", "test", "test", "aggregator2", "connector2"); err != nil {
-		fmt.Println("FAIL INSERT")
 		return errors.Wrap(err, "can't update key")
 	}
-	fmt.Println("CREATEEEE§!!!!!!!!!!!!!!!!")
 
 	return
 }
