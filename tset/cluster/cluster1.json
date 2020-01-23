@@ -5,6 +5,6 @@
 	"clusterEventSendConnection": "127.0.0.1:9100",
 	"clusterEventReceiveConnection": "127.0.0.1:9101",
 	"clusterEventCaptureConnection": "",
-    "databaseClusterConnections": ["127.0.0.1:9181", "127.0.0.1:9182", "127.0.0.1:9183"],
+    "databaseClusterConnections": ["127.0.0.1:10000", "127.0.0.1:10001", "127.0.0.1:10002"],
 	"identity": "cluster1"
 }

@@ -110,7 +110,8 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 
 		//r.processCaptureCommand(message)
 		r.processRoutingCommandMessage(&message)
-
+		fmt.Println(message.DestinationAggregator)
+		fmt.Println(message.DestinationConnector)
 		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])
@@ -120,25 +121,25 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 }
 
 func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *message.CommandMessage) (err error) {
-
-	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name, connector.name FROM application_context
+	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name as agg_destination, connector.name as conn_destination FROM application_context
 	JOIN tenant ON application_context.tenant = tenant.id
 	JOIN connector_type ON application_context.connector_type = connector_type.id
 	JOIN command_type ON application_context.command_type = command_type.id
 	JOIN aggregator ON application_context.aggregator_destination = aggregator.id
 	JOIN connector ON application_context.connector_destination = connector.id
-	WHERE tenant = ? AND connector_type = ? AND command_type = ?`, commandMessage.Tenant, commandMessage.ConnectorType)
-	aggregator_destination := ""
-	connector_destination := ""
-	if err := row.Scan(&aggregator_destination, &connector_destination); err != nil {
+	WHERE tenant.name = ? AND connector_type.name = ? AND command_type.name = ?`, commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
+
+	agg_destination := ""
+	conn_destination := ""
+	if err := row.Scan(&agg_destination, &conn_destination); err != nil {
 		return errors.Wrap(err, "failed to get key")
 	}
 
 	//SET
-	commandMessage.DestinationAggregator = aggregator_destination
+	commandMessage.DestinationAggregator = agg_destination
 	fmt.Println(commandMessage.DestinationAggregator)
 
-	commandMessage.DestinationConnector = connector_destination
+	commandMessage.DestinationConnector = conn_destination
 	fmt.Println(commandMessage.DestinationConnector)
 
 	return
