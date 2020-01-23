@@ -128,14 +128,14 @@ func (r AggregatorEventRoutine) run() {
 
 func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
 
-	if len(event) == 1 {
+	/* 	if len(event) == 1 {
 		topic := event[0]
 		//r.AggregatorEventReceiveFromConnector.SetSubscribe(string(topic))
 		//go message.SendSubscribeTopic(r.AggregatorEventReceiveFromConnector, topic)
-	} else {
-		eventMessage, _ := message.DecodeEventMessage(event[1])
-		go eventMessage.SendMessageWith(r.aggregatorEventReceiveFromConnector)
-	}
+	} else { */
+	eventMessage, _ := message.DecodeEventMessage(event[1])
+	go eventMessage.SendMessageWith(r.aggregatorEventReceiveFromConnector)
+	/* } */
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
@@ -147,21 +147,20 @@ func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
 
 //UTILE .??
 func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
-	fmt.Println("EVENT UTILE ?")
-	if len(event) == 1 {
-		topic := event[0]
-	
-		//r.aggregatorEventReceiveFromCluster.SetSubscribe(string(topic))
-		//go message.SendSubscribeTopic(r.aggregatorEventReceiveFromCluster, topic)
-	} else {
-		eventMessage, _ := message.DecodeEventMessage(event[0])
-	
-		go eventMessage.SendMessageWith(r.aggregatorEventReceiveFromCluster)
-	}
+	/* 	fmt.Println("EVENT UTILE ?")
+	   	if len(event) == 1 {
+	   		topic := event[0]
+
+	   		r.aggregatorEventReceiveFromCluster.SetSubscribe(string(topic))
+	   		go message.SendSubscribeTopic(r.aggregatorEventReceiveFromCluster, topic)
+	   	} else { */
+	eventMessage, _ := message.DecodeEventMessage(event[0])
+	go eventMessage.SendMessageWith(r.aggregatorEventReceiveFromCluster)
+	/* } */
 }
 
 func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
-	
+
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	eventMessage.Tenant = r.tenant
 	go eventMessage.SendMessageWith(r.aggregatorEventSendToCluster)

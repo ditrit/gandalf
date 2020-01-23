@@ -2,7 +2,6 @@ package waitergrpc
 
 import (
 	"context"
-	"fmt"
 
 	pb "gandalf-go/grpc"
 	"gandalf-go/message"

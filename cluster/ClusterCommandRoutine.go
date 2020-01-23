@@ -110,7 +110,7 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 
 		//r.processCaptureCommand(message)
 		r.processRoutingCommandMessage(&message)
-		
+
 		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])
@@ -121,13 +121,13 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 
 func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *message.CommandMessage) (err error) {
 
-	row := r.DatabaseDB.QueryRow("SELECT aggregator.name, connector.name FROM application_context
+	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name, connector.name FROM application_context
 	JOIN tenant ON application_context.tenant = tenant.id
 	JOIN connector_type ON application_context.connector_type = connector_type.id
 	JOIN command_type ON application_context.command_type = command_type.id
 	JOIN aggregator ON application_context.aggregator_destination = aggregator.id
 	JOIN connector ON application_context.connector_destination = connector.id
-	WHERE tenant = ? AND connector_type = ? AND command_type = ?", commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType), commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
+	WHERE tenant = ? AND connector_type = ? AND command_type = ?`, commandMessage.Tenant, commandMessage.ConnectorType)
 	aggregator_destination := ""
 	connector_destination := ""
 	if err := row.Scan(&aggregator_destination, &connector_destination); err != nil {
@@ -151,4 +151,3 @@ func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.Comm
 func (r ClusterCommandRoutine) processCaptureCommandMessageReply(commandMessageReply message.CommandMessageReply) {
 	go commandMessageReply.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }
-

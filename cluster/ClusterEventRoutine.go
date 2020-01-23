@@ -93,17 +93,17 @@ func (r ClusterEventRoutine) run() {
 }
 
 func (r ClusterEventRoutine) processEventSend(event [][]byte) {
-	
-	if len(event) == 1 {
+
+	/* 	if len(event) == 1 {
 		//UTILE ?
 		topic := event[0]
 		//r.ClusterEventReceive.SetSubscribe(string(topic))
 		//go message.SendSubscribeTopic(r.ClusterEventReceive, topic)
-	} else {
-		eventMessage, _ := message.DecodeEventMessage(event[1])
-		//r.processCaptureEvent(eventMessage)
-		go eventMessage.SendMessageWith(r.ClusterEventReceive)
-	}
+	} else { */
+	eventMessage, _ := message.DecodeEventMessage(event[1])
+	//r.processCaptureEvent(eventMessage)
+	go eventMessage.SendMessageWith(r.ClusterEventReceive)
+	/* } */
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) {

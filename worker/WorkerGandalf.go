@@ -2,7 +2,6 @@ package worker
 
 import (
 	"gandalf-go/client"
-	"gandalf-go/worker/routine"
 )
 
 type WorkerGandalf struct {
@@ -14,7 +13,7 @@ func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	workerGandalf = new(WorkerGandalf)
 
 	workerGandalf.WorkerConfiguration, _ = LoadConfiguration(path)
-	workerGandalf.loadFunctions()
+	//workerGandalf.loadFunctions()
 
 	workerGandalf.ClientGandalfGrpc = client.NewClientGandalfGrpc(workerGandalf.WorkerConfiguration.Identity,
 		workerGandalf.WorkerConfiguration.SenderCommandConnection, workerGandalf.WorkerConfiguration.SenderEventConnection,
@@ -29,7 +28,7 @@ func (wg WorkerGandalf) Run() {
 	}
 }
 
-//TODO REVOIR
+/* //TODO REVOIR
 func (wg WorkerGandalf) loadFunctions() {
 	wg.loadCommands()
 	wg.loadEvents()
@@ -52,3 +51,4 @@ func (wg WorkerGandalf) loadEvent(event string, eventRoutine routine.EventRoutin
 func (wg WorkerGandalf) loadEvents() {
 	//TODO
 }
+*/

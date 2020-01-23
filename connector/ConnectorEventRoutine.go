@@ -79,7 +79,7 @@ func (r ConnectorEventRoutine) run() {
 
 	poller := zmq4.NewPoller()
 	poller.Add(r.ConnectorEventReceiveFromAggregator, zmq4.POLLIN)
-	poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
+	//poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
 
 	event := [][]byte{}
 	err := errors.New("")
@@ -96,13 +96,14 @@ func (r ConnectorEventRoutine) run() {
 					panic(err)
 				}
 				r.processEventReceiveFromAggregator(event)
-			case r.ConnectorEventSendToAggregator:
-				fmt.Println("Send Aggregator")
-				event, err = currentSocket.RecvMessageBytes(0)
-				if err != nil {
-					panic(err)
-				}
-				r.processEventSendToAggregator(event)
+				/* 	case r.ConnectorEventSendToAggregator:
+					fmt.Println("Send Aggregator")
+					event, err = currentSocket.RecvMessageBytes(0)
+					if err != nil {
+						panic(err)
+					}
+					r.processEventSendToAggregator(event)
+				} */
 			}
 		}
 	}
@@ -112,7 +113,6 @@ func (r ConnectorEventRoutine) processEventReceiveFromAggregator(event [][]byte)
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	r.ConnectorMapEventNameEventMessage.Push(eventMessage)
 }
-
 
 func (r ConnectorEventRoutine) validationEvents(workerSource string, events []string) (result bool, err error) {
 	//TODO
@@ -127,7 +127,7 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 		if messageIterator != nil {
 			eventMessage := (*messageIterator).(message.EventMessage)
 			if value == eventMessage.Event {
-=				channel <- eventMessage
+				channel <- eventMessage
 				notfound = false
 			}
 		}
