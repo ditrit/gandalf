@@ -2,6 +2,7 @@ package waitergrpc
 
 import (
 	"context"
+	"fmt"
 
 	pb "gandalf-go/grpc"
 	"gandalf-go/message"
@@ -32,7 +33,13 @@ func (r WaiterCommandGrpc) WaitCommand(command string) (commandMessage message.C
 	commandMessageWait.WorkerSource = r.Identity
 	commandMessageWait.Value = command
 	commandMessageGrpc, _ := r.client.WaitCommandMessage(context.Background(), commandMessageWait)
-	commandMessage = message.CommandMessageFromGrpc(commandMessageGrpc)
+	fmt.Println(commandMessageGrpc)
+	for {
+		if commandMessageGrpc != nil {
+			commandMessage = message.CommandMessageFromGrpc(commandMessageGrpc)
+			break
+		}
+	}
 	return
 
 }
@@ -42,7 +49,12 @@ func (r WaiterCommandGrpc) WaitCommandReply(uuid string) (commandMessageReply me
 	commandMessageWait.WorkerSource = r.Identity
 	commandMessageWait.Value = uuid
 	commandMessageReplyGrpc, _ := r.client.WaitCommandMessageReply(context.Background(), commandMessageWait)
-	commandMessageReply = message.CommandMessageReplyFromGrpc(commandMessageReplyGrpc)
+	for {
+		if commandMessageReplyGrpc != nil {
+			commandMessageReply = message.CommandMessageReplyFromGrpc(commandMessageReplyGrpc)
+			break
+		}
+	}
 	return
 
 }

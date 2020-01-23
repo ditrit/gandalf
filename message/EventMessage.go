@@ -65,9 +65,7 @@ func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend
 
 func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		fmt.Println("VBLIP2")
 		_, err := socket.SendBytes([]byte(e.Topic), zmq4.SNDMORE)
-		fmt.Println("VBLIP3")
 		if err == nil {
 			encoded, _ := EncodeEventMessage(e)
 			fmt.Println(encoded)
@@ -77,7 +75,6 @@ func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 				return
 			}
 		}
-		fmt.Println("VBLIP4")
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -107,7 +104,7 @@ func EventMessageFromGrpc(eventMessage *pb.EventMessage) (e EventMessage) {
 }
 
 func EventMessageToGrpc(e EventMessage) (eventMessage *pb.EventMessage) {
-
+	eventMessage = new(pb.EventMessage)
 	eventMessage.Tenant = e.Tenant
 	eventMessage.Token = e.Token
 	eventMessage.Timeout = e.Timeout
@@ -224,6 +221,13 @@ func EventMessageWaitFromGrpc(eventMessageWait pb.EventMessageWait) (emw EventMe
 	emw.WorkerSource = eventMessageWait.GetWorkerSource()
 	emw.Event = eventMessageWait.GetEvent()
 	emw.Topic = eventMessageWait.GetTopic()
+	return
+}
+
+func EventMessageWaitToGrpc(emw EventMessageWait) (eventMessageWait pb.EventMessageWait) {
+	eventMessageWait.WorkerSource = emw.WorkerSource
+	eventMessageWait.Event = emw.Event
+	eventMessageWait.Topic = emw.Topic
 	return
 }
 

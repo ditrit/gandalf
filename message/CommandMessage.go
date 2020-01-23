@@ -136,6 +136,7 @@ func CommandMessageFromGrpc(commandMessage *pb.CommandMessage) (c CommandMessage
 }
 
 func CommandMessageToGrpc(c CommandMessage) (commandMessage *pb.CommandMessage) {
+	commandMessage = new(pb.CommandMessage)
 	commandMessage.SourceAggregator = c.SourceAggregator
 	commandMessage.SourceConnector = c.SourceConnector
 	commandMessage.SourceWorker = c.SourceWorker
@@ -256,6 +257,7 @@ func CommandMessageReplyFromGrpc(commandMessageReply *pb.CommandMessageReply) (c
 }
 
 func CommandMessageReplyToGrpc(cr CommandMessageReply) (commandMessageReply *pb.CommandMessageReply) {
+	commandMessageReply = new(pb.CommandMessageReply)
 	commandMessageReply.SourceAggregator = cr.SourceAggregator
 	commandMessageReply.SourceConnector = cr.SourceConnector
 	commandMessageReply.SourceWorker = cr.SourceWorker

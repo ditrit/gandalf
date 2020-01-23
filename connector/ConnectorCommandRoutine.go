@@ -61,7 +61,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection strin
 	}
 
 	connectorCommandRoutine.ConnectorCommandWorkerConnection = connectorCommandWorkerConnection
-	go connectorCommandRoutine.StartGrpcServer(connectorCommandRoutine.ConnectorCommandWorkerConnection)
+	//go connectorCommandRoutine.StartGrpcServer(connectorCommandRoutine.ConnectorCommandWorkerConnection)
 	fmt.Println("ConnectorCommandWorkerConnection connect : " + connectorCommandRoutine.ConnectorCommandWorkerConnection)
 
 	return
@@ -104,7 +104,6 @@ func (r ConnectorCommandRoutine) run() {
 	}
 }
 
-
 func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][]byte) {
 	commandType := string(command[2])
 	if commandType == constant.COMMAND_MESSAGE {
@@ -135,8 +134,8 @@ func (r ConnectorCommandRoutine) runIteratorCommandMessage(target, value string,
 	notfound := true
 	for notfound {
 		iterator.PrintQueue()
-
 		messageIterator := iterator.Get()
+
 		if messageIterator != nil {
 			commandMessage := (*messageIterator).(message.CommandMessage)
 			if value == commandMessage.Command {
@@ -174,8 +173,8 @@ func (r ConnectorCommandRoutine) runIteratorCommandMessageReply(target, value st
 }
 
 //GRPC
-func (r ConnectorCommandRoutine) StartGrpcServer(port string) {
-	lis, err := net.Listen("tcp", port)
+func (r ConnectorCommandRoutine) startGrpcServer() {
+	lis, err := net.Listen("tcp", r.ConnectorCommandWorkerConnection)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -208,13 +207,11 @@ func (r ConnectorCommandRoutine) WaitCommandMessage(ctx context.Context, in *pb.
 	case messageChannel := <-r.ConnectorCommandChannel:
 		commandMessage = message.CommandMessageToGrpc(messageChannel)
 		return
-	default:
 	}
 	return
 }
 
 func (r ConnectorCommandRoutine) WaitCommandMessageReply(ctx context.Context, in *pb.CommandMessageWait) (commandMessageReply *pb.CommandMessageReply, err error) {
-
 	target := in.GetWorkerSource()
 	iterator := NewIterator(r.ConnectorMapUUIDCommandMessageReply)
 
@@ -225,7 +222,6 @@ func (r ConnectorCommandRoutine) WaitCommandMessageReply(ctx context.Context, in
 	case messageReplyChannel := <-r.ConnectorCommandReplyChannel:
 		commandMessageReply = message.CommandMessageReplyToGrpc(messageReplyChannel)
 		return
-	default:
 	}
 	return
 }

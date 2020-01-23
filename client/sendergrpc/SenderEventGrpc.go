@@ -21,7 +21,6 @@ func NewSenderEventGrpc(identity, senderEventGrpcConnection string) (senderEvent
 
 	conn, err := grpc.Dial(senderEventGrpc.SenderEventGrpcConnection, grpc.WithInsecure())
 	if err != nil {
-		fmt.Println("FAIL CONN EVENT")
 	}
 	senderEventGrpc.client = pb.NewConnectorEventClient(conn)
 	fmt.Println("senderEventGrpc connect : " + senderEventGrpc.SenderEventGrpcConnection)

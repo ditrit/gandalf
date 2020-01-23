@@ -32,7 +32,9 @@ func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 
 func (cg ConnectorGandalf) Run() {
 	go cg.connectorCommandRoutine.run()
+	go cg.connectorCommandRoutine.startGrpcServer()
 	go cg.connectorEventRoutine.run()
+	go cg.connectorEventRoutine.startGrpcServer()
 	for {
 		select {
 		case <-cg.connectorStopChannel:

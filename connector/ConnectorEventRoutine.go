@@ -58,7 +58,7 @@ func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, c
 		fmt.Println("connectorEventSendToAggregator connect : " + connection)
 	}
 	connectorEventRoutine.ConnectorEventWorkerConnection = connectorEventWorkerConnection
-	go connectorEventRoutine.StartGrpcServer(connectorEventRoutine.ConnectorEventWorkerConnection)
+	//go connectorEventRoutine.StartGrpcServer(connectorEventRoutine.ConnectorEventWorkerConnection)
 	fmt.Println("ConnectorEventWorkerConnection connect : " + connectorEventRoutine.ConnectorEventWorkerConnection)
 
 	return
@@ -136,8 +136,8 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 }
 
 //GRPC
-func (r ConnectorEventRoutine) StartGrpcServer(port string) {
-	lis, err := net.Listen("tcp", port)
+func (r ConnectorEventRoutine) startGrpcServer() {
+	lis, err := net.Listen("tcp", r.ConnectorEventWorkerConnection)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -156,18 +156,16 @@ func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *pb.Even
 }
 
 func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.EventMessageWait) (messageEvent *pb.EventMessage, err error) {
-
 	target := in.GetWorkerSource()
 	iterator := NewIterator(r.ConnectorMapEventNameEventMessage)
+
 	r.ConnectorMapWorkerIterators[in.GetEvent()] = append(r.ConnectorMapWorkerIterators[in.GetEvent()], iterator)
 
 	go r.runIterator(target, in.GetEvent(), iterator, r.ConnectorEventChannel)
 	select {
 	case messageChannel := <-r.ConnectorEventChannel:
-		fmt.Println("commandReply")
 		messageEvent = message.EventMessageToGrpc(messageChannel)
 		return
-	default:
 	}
 	return
 }

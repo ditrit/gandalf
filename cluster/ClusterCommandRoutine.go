@@ -135,12 +135,8 @@ func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *mess
 		return errors.Wrap(err, "failed to get key")
 	}
 
-	//SET
 	commandMessage.DestinationAggregator = agg_destination
-	fmt.Println(commandMessage.DestinationAggregator)
-
 	commandMessage.DestinationConnector = conn_destination
-	fmt.Println(commandMessage.DestinationConnector)
 
 	return
 }

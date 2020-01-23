@@ -34,6 +34,11 @@ func (r WaiterEventGrpc) WaitEvent(event, topic string) (eventMessage message.Ev
 	eventMessageWait.Topic = topic
 	eventMessageWait.Event = event
 	eventMessageGrpc, _ := r.client.WaitEventMessage(context.Background(), eventMessageWait)
-	eventMessage = message.EventMessageFromGrpc(eventMessageGrpc)
+	for {
+		if eventMessageGrpc != nil {
+			eventMessage = message.EventMessageFromGrpc(eventMessageGrpc)
+			break
+		}
+	}
 	return
 }

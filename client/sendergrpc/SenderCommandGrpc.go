@@ -21,7 +21,6 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	senderCommandGrpc.SenderCommandGrpcConnection = senderCommandGrpcConnection
 	conn, err := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection, grpc.WithInsecure())
 	if err != nil {
-		fmt.Println("FAIL CONN")
 	}
 	senderCommandGrpc.client = pb.NewConnectorCommandClient(conn)
 	fmt.Println("senderCommandGrpc connect : " + senderCommandGrpc.SenderCommandGrpcConnection)
@@ -45,7 +44,6 @@ func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorT
 }
 
 func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
-
 	commandMessageReply := new(pb.CommandMessageReply)
 	commandMessageReply.SourceAggregator = commandMessage.SourceAggregator
 	commandMessageReply.SourceConnector = commandMessage.SourceConnector
@@ -61,6 +59,7 @@ func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessag
 	commandMessageReply.Uuid = commandMessage.Uuid
 	commandMessageReply.Reply = reply
 	commandMessageReply.Payload = payload
+
 	empty, _ := r.client.SendCommandMessageReply(context.Background(), commandMessageReply)
 	return empty
 }

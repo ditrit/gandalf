@@ -19,12 +19,10 @@ func NewWorkerSender(path string) (workerSender *WorkerSender) {
 func (ws WorkerSender) Run() {
 	for {
 		fmt.Println("SEND")
-		//go ws.WorkerGandalf.ClientGandalf.SendCommand("toto", "10000", "toto", "toto", "toto", "toto", "toto")
-		go ws.WorkerGandalf.ClientGandalfGrpc.SendCommand("test", "10000", "test", "test", "test", "test", "test")
+		//go ws.WorkerGandalf.ClientGandalfGrpc.SendCommand("test", "100000000", "test", "test", "test", "test", "test")
 		time.Sleep(time.Second * 10)
 
-		//go ws.WorkerGandalf.ClientGandalf.SendEvent("toto", "10000", "toto", "toto", "toto")
-		//go ws.WorkerGandalf.ClientGandalfGrpc.SendEvent("toto", "10000", "toto", "toto", "toto")
+		go ws.WorkerGandalf.ClientGandalfGrpc.SendEvent("toto", "10000", "toto", "toto", "toto")
 	}
 
 }

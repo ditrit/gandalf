@@ -105,7 +105,6 @@ func (r AggregatorCommandRoutine) run() {
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) {
-
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
 		//COMMAND
@@ -123,6 +122,7 @@ func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]b
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
 	commandMessage, _ := message.DecodeCommandMessage(command[2])
 	commandMessage.Tenant = r.tenant
-
+	commandMessage.SourceAggregator = r.identity
+	commandMessage.SourceConnector = string(command[0])
 	go commandMessage.SendMessageWith(r.aggregatorCommandSendToCluster)
 }
