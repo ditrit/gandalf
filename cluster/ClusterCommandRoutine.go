@@ -1,12 +1,15 @@
 package cluster
 
 import (
-	"errors"
+	"database/sql"
 	"fmt"
+	"gandalf-go/client/database"
 	"gandalf-go/constant"
 	"gandalf-go/message"
 
+	"github.com/canonical/go-dqlite/driver"
 	"github.com/pebbe/zmq4"
+	"github.com/pkg/errors"
 )
 
 type ClusterCommandRoutine struct {
@@ -18,12 +21,17 @@ type ClusterCommandRoutine struct {
 	ClusterCommandCapture           *zmq4.Socket
 	ClusterCommandCaptureConnection string
 	Identity                        string
+	DatabaseClusterConnections      []string
+	DatabaseClient                  *database.DatabaseClient
+	DatabaseDB                      *sql.DB
 }
 
-func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string) (clusterCommandRoutine *ClusterCommandRoutine) {
+func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) (clusterCommandRoutine *ClusterCommandRoutine) {
 	clusterCommandRoutine = new(ClusterCommandRoutine)
 
 	clusterCommandRoutine.Identity = identity
+	clusterCommandRoutine.DatabaseClusterConnections = databaseClusterConnections
+	clusterCommandRoutine.DatabaseClient = database.NewDatabaseClient(clusterCommandRoutine.DatabaseClusterConnections)
 
 	clusterCommandRoutine.Context, _ = zmq4.NewContext()
 	clusterCommandRoutine.ClusterCommandSendConnection = clusterCommandSendConnection
@@ -43,6 +51,16 @@ func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCom
 	clusterCommandRoutine.ClusterCommandCapture.SetIdentity(clusterCommandRoutine.Identity)
 	clusterCommandRoutine.ClusterCommandCapture.Bind(clusterCommandRoutine.ClusterCommandCaptureConnection)
 	fmt.Println("clusterCommandCapture bind : " + clusterCommandCaptureConnection)
+
+	store := clusterCommandRoutine.DatabaseClient.GetStore()
+	driver, err := driver.New(store)
+	if err != nil {
+
+	}
+	sql.Register("cluster", driver)
+	clusterCommandRoutine.DatabaseDB, err = sql.Open("cluster", "context.db")
+	if err != nil {
+	}
 
 	return
 }
@@ -70,12 +88,11 @@ func (r ClusterCommandRoutine) run() {
 			switch currentSocket := socket.Socket; currentSocket {
 
 			case r.ClusterCommandReceive:
-
+				fmt.Println("Cluster Receive")
 				command, err = currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
-				fmt.Println("Cluster Receive")
 				r.processCommandReceive(command)
 			}
 
@@ -86,35 +103,48 @@ func (r ClusterCommandRoutine) run() {
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
-	fmt.Println("TOTO")
-	fmt.Println(command)
-	fmt.Println(command[0])
-	fmt.Println(command[1])
 
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
 		message, _ := message.DecodeCommandMessage(command[2])
-		target := message.DestinationAggregator
-		fmt.Println("target")
-		fmt.Println(target)
-		fmt.Println("MESSAGE")
-		fmt.Println(message)
+
 		//r.processCaptureCommand(message)
-		go message.SendWith(r.ClusterCommandSend, target)
+		r.processRoutingCommandMessage(&message)
+		fmt.Println(message.DestinationAggregator)
+		fmt.Println(message.DestinationConnector)
+		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])
-		target := messageReply.SourceAggregator
-		fmt.Println("targetR")
-		fmt.Println(target)
 		//r.processCaptureCommandReply(messageReply)
-		go messageReply.SendWith(r.ClusterCommandSend, target)
+		go messageReply.SendWith(r.ClusterCommandSend, messageReply.SourceAggregator)
 	}
+}
+
+func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *message.CommandMessage) (err error) {
+	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name as agg_destination, connector.name as conn_destination FROM application_context
+	JOIN tenant ON application_context.tenant = tenant.id
+	JOIN connector_type ON application_context.connector_type = connector_type.id
+	JOIN command_type ON application_context.command_type = command_type.id
+	JOIN aggregator ON application_context.aggregator_destination = aggregator.id
+	JOIN connector ON application_context.connector_destination = connector.id
+	WHERE tenant.name = ? AND connector_type.name = ? AND command_type.name = ?`, commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
+
+	agg_destination := ""
+	conn_destination := ""
+	if err := row.Scan(&agg_destination, &conn_destination); err != nil {
+		return errors.Wrap(err, "failed to get key")
+	}
+
+	commandMessage.DestinationAggregator = agg_destination
+	commandMessage.DestinationConnector = conn_destination
+
+	return
 }
 
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.CommandMessage) {
 	go commandMessage.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }
 
-func (r ClusterCommandRoutine) processCaptureCommandReply(commandMessageReply message.CommandMessageReply) {
+func (r ClusterCommandRoutine) processCaptureCommandMessageReply(commandMessageReply message.CommandMessageReply) {
 	go commandMessageReply.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

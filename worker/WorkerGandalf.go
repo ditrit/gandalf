@@ -2,22 +2,22 @@ package worker
 
 import (
 	"gandalf-go/client"
-	"gandalf-go/worker/routine"
 )
 
 type WorkerGandalf struct {
 	WorkerConfiguration *WorkerConfiguration
-	ClientGandalf       *client.ClientGandalf
+	ClientGandalfGrpc   *client.ClientGandalfGrpc
 }
 
 func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	workerGandalf = new(WorkerGandalf)
 
 	workerGandalf.WorkerConfiguration, _ = LoadConfiguration(path)
-	workerGandalf.loadFunctions()
+	//workerGandalf.loadFunctions()
 
-	workerGandalf.ClientGandalf = client.NewClientGandalf(workerGandalf.WorkerConfiguration.Identity, workerGandalf.WorkerConfiguration.SenderCommandConnection,
-		workerGandalf.WorkerConfiguration.SenderEventConnection, workerGandalf.WorkerConfiguration.WaiterCommandConnection, workerGandalf.WorkerConfiguration.WaiterEventConnection)
+	workerGandalf.ClientGandalfGrpc = client.NewClientGandalfGrpc(workerGandalf.WorkerConfiguration.Identity,
+		workerGandalf.WorkerConfiguration.SenderCommandConnection, workerGandalf.WorkerConfiguration.SenderEventConnection,
+		workerGandalf.WorkerConfiguration.WaiterCommandConnection, workerGandalf.WorkerConfiguration.WaiterEventConnection)
 
 	return
 }
@@ -28,7 +28,7 @@ func (wg WorkerGandalf) Run() {
 	}
 }
 
-//TODO REVOIR
+/* //TODO REVOIR
 func (wg WorkerGandalf) loadFunctions() {
 	wg.loadCommands()
 	wg.loadEvents()
@@ -51,3 +51,4 @@ func (wg WorkerGandalf) loadEvent(event string, eventRoutine routine.EventRoutin
 func (wg WorkerGandalf) loadEvents() {
 	//TODO
 }
+*/

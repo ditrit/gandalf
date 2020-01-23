@@ -3,6 +3,7 @@ package message
 import (
 	"fmt"
 	"gandalf-go/constant"
+	pb "gandalf-go/grpc"
 	"time"
 
 	"github.com/pebbe/zmq4"
@@ -64,9 +65,7 @@ func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend
 
 func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		fmt.Println("VBLIP2")
 		_, err := socket.SendBytes([]byte(e.Topic), zmq4.SNDMORE)
-		fmt.Println("VBLIP3")
 		if err == nil {
 			encoded, _ := EncodeEventMessage(e)
 			fmt.Println(encoded)
@@ -76,7 +75,6 @@ func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 				return
 			}
 		}
-		fmt.Println("VBLIP4")
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -90,6 +88,33 @@ func (e EventMessage) From(event []string) {
 	e.Uuid = event[5]
 	e.Event = event[6]
 	e.Payload = event[7]
+}
+
+func EventMessageFromGrpc(eventMessage *pb.EventMessage) (e EventMessage) {
+
+	e.Tenant = eventMessage.GetTenant()
+	e.Token = eventMessage.GetToken()
+	e.Timeout = eventMessage.GetTimeout()
+	e.Timestamp = eventMessage.GetTimestamp()
+	e.Uuid = eventMessage.GetUuid()
+	e.Topic = eventMessage.GetTopic()
+	e.Event = eventMessage.GetEvent()
+	e.Payload = eventMessage.GetPayload()
+	return
+}
+
+func EventMessageToGrpc(e EventMessage) (eventMessage *pb.EventMessage) {
+	eventMessage = new(pb.EventMessage)
+	eventMessage.Tenant = e.Tenant
+	eventMessage.Token = e.Token
+	eventMessage.Timeout = e.Timeout
+	eventMessage.Timestamp = e.Timestamp
+	eventMessage.Uuid = e.Uuid
+	eventMessage.Topic = e.Topic
+	eventMessage.Event = e.Event
+	eventMessage.Payload = e.Payload
+
+	return
 }
 
 type EventFunction struct {
@@ -118,8 +143,6 @@ func (cf EventFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
 		time.Sleep(2 * time.Second)
 	}
 }
-
-//
 
 type EventFunctionReply struct {
 	Validation bool
@@ -191,6 +214,20 @@ func NewEventMessageWait(workerSource, event, topic string) (eventMessageWait *E
 	eventMessageWait.WorkerSource = workerSource
 	eventMessageWait.Event = event
 	eventMessageWait.Topic = topic
+	return
+}
+
+func EventMessageWaitFromGrpc(eventMessageWait pb.EventMessageWait) (emw EventMessageWait) {
+	emw.WorkerSource = eventMessageWait.GetWorkerSource()
+	emw.Event = eventMessageWait.GetEvent()
+	emw.Topic = eventMessageWait.GetTopic()
+	return
+}
+
+func EventMessageWaitToGrpc(emw EventMessageWait) (eventMessageWait pb.EventMessageWait) {
+	eventMessageWait.WorkerSource = emw.WorkerSource
+	eventMessageWait.Event = emw.Event
+	eventMessageWait.Topic = emw.Topic
 	return
 }
 

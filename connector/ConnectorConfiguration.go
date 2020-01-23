@@ -5,14 +5,12 @@ import (
 )
 
 type ConnectorConfiguration struct {
-	ConnectorEventSendToWorkerConnection             string
+	ConnectorCommandWorkerConnection                 string
 	ConnectorEventReceiveFromAggregatorConnections   []string
 	ConnectorEventSendToAggregatorConnections        []string
-	ConnectorEventReceiveFromWorkerConnection        string
-	ConnectorCommandSendToWorkerConnection           string
+	ConnectorEventWorkerConnection                   string
 	ConnectorCommandReceiveFromAggregatorConnections []string
 	ConnectorCommandSendToAggregatorConnections      []string
-	ConnectorCommandReceiveFromWorkerConnection      string
 	Identity                                         string
 }
 

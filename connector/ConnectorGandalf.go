@@ -20,8 +20,8 @@ func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 	connectorGandalf.connectorCommandsMap = make(map[string][]string)
 	connectorGandalf.connectorCommandSendFileMap = make(map[string]string)
 
-	connectorGandalf.connectorCommandRoutine = NewConnectorCommandRoutine(connectorGandalf.connectorConfiguration.Identity, connectorGandalf.connectorConfiguration.ConnectorCommandSendToWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorCommandReceiveFromWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorCommandReceiveFromAggregatorConnections, connectorGandalf.connectorConfiguration.ConnectorCommandSendToAggregatorConnections)
-	connectorGandalf.connectorEventRoutine = NewConnectorEventRoutine(connectorGandalf.connectorConfiguration.Identity, connectorGandalf.connectorConfiguration.ConnectorEventSendToWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorEventReceiveFromWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorEventReceiveFromAggregatorConnections, connectorGandalf.connectorConfiguration.ConnectorEventSendToAggregatorConnections)
+	connectorGandalf.connectorCommandRoutine = NewConnectorCommandRoutine(connectorGandalf.connectorConfiguration.Identity, connectorGandalf.connectorConfiguration.ConnectorCommandWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorCommandReceiveFromAggregatorConnections, connectorGandalf.connectorConfiguration.ConnectorCommandSendToAggregatorConnections)
+	connectorGandalf.connectorEventRoutine = NewConnectorEventRoutine(connectorGandalf.connectorConfiguration.Identity, connectorGandalf.connectorConfiguration.ConnectorEventWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorEventReceiveFromAggregatorConnections, connectorGandalf.connectorConfiguration.ConnectorEventSendToAggregatorConnections)
 
 	//RUN
 	//go connectorGandalf.ConnectorCommandRoutine.run()
@@ -32,7 +32,9 @@ func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 
 func (cg ConnectorGandalf) Run() {
 	go cg.connectorCommandRoutine.run()
+	go cg.connectorCommandRoutine.startGrpcServer()
 	go cg.connectorEventRoutine.run()
+	go cg.connectorEventRoutine.startGrpcServer()
 	for {
 		select {
 		case <-cg.connectorStopChannel:
