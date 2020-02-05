@@ -1,0 +1,10 @@
+image:
+    name: 'golang:latest'
+
+default:
+    before_script:
+        - go version
+
+test_job:
+    script:
+        - echo "oui"
