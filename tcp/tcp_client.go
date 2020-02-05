@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
 	"time"
@@ -53,35 +54,37 @@ func clientTCP(connect string) {
 
 	for {
 		conn, err := initTLS(connect)
-		defer conn.Close()
 
 		if err != nil {
-			//log.Printf("clientTcp : %s", err)
-		} else {
-			for {
-				reader := bufio.NewReader(os.Stdin)
-				fmt.Print(">> ")
-				text, _ := reader.ReadString('\n')
-				fmt.Print(text + "\n")
+			log.Printf("clientTcp : %s", err)
+			break // TODO : define behaviour
+		}
 
-				_, err := conn.Write([]byte(text))
-				if err != nil {
-					//log.Printf("Client : conn.Write %s", err)
-					break
-				}
+		defer conn.Close()
 
-				bytesRead, err := conn.Read(buffer)
-				if err != nil {
-					//log.Printf("Client: conn.Read %s", err)
-					break
-				}
+		for {
+			reader := bufio.NewReader(os.Stdin)
+			fmt.Print(">> ")
+			text, _ := reader.ReadString('\n')
+			fmt.Print(text + "\n")
 
-				response := string(buffer[0:bytesRead])
-				fmt.Print("->: " + response)
-				if response == "STOP" {
-					fmt.Println("TCP client exiting...")
-					return
-				}
+			_, err := conn.Write([]byte(text))
+			if err != nil {
+				//log.Printf("Client : conn.Write %s", err)
+				break
+			}
+
+			bytesRead, err := conn.Read(buffer)
+			if err != nil {
+				//log.Printf("Client: conn.Read %s", err)
+				break
+			}
+
+			response := string(buffer[0:bytesRead])
+			fmt.Print("->: " + response)
+			if response == "STOP" {
+				fmt.Println("TCP client exiting...")
+				return
 			}
 		}
 

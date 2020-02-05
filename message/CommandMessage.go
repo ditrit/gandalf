@@ -80,9 +80,9 @@ func (c CommandMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSe
 
 func (c CommandMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		_, err := socket.Send(constant.COMMAND_MESSAGE, zmq4.SNDMORE)
+		socket.Send(constant.COMMAND_MESSAGE, zmq4.SNDMORE)
 		encoded, _ := EncodeCommandMessage(c)
-		_, err = socket.SendBytes(encoded, 0)
+		_, err := socket.SendBytes(encoded, 0)
 		if err == nil {
 			isSend = true
 			return
@@ -210,9 +210,9 @@ func (cr CommandMessageReply) SendHeaderWith(socket *zmq4.Socket, header string)
 
 func (cr CommandMessageReply) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
-		_, err := socket.Send(constant.COMMAND_MESSAGE_REPLY, zmq4.SNDMORE)
+		socket.Send(constant.COMMAND_MESSAGE_REPLY, zmq4.SNDMORE)
 		encoded, _ := EncodeCommandMessageReply(cr)
-		_, err = socket.SendBytes(encoded, 0)
+		_, err := socket.SendBytes(encoded, 0)
 		if err == nil {
 			isSend = true
 			return

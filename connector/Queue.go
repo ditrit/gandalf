@@ -35,16 +35,20 @@ func (q *Queue) Init() {
 func (q *Queue) Push(m message.Message) {
 	fmt.Println("Push a message!")
 	fmt.Println(m)
+
 	key := m.GetUUID()
 	timeout, _ := strconv.Atoi(m.GetTimeout())
 	fmt.Println("TIME OUT")
 	fmt.Println(timeout)
+
 	q.m.Lock()
 	defer q.m.Unlock()
+
 	ele := q.dict[key]
 	if ele != nil {
 		return
 	}
+
 	ele = q.qlist.PushFront(m)
 	q.dict[key] = ele
 	go func() {
@@ -52,13 +56,13 @@ func (q *Queue) Push(m message.Message) {
 		fmt.Println("REMOVED")
 		q.remove(key)
 	}()
-	return
 }
 
 // First :
 func (q *Queue) First() *message.Message {
 	q.m.Lock()
 	defer q.m.Unlock()
+
 	ele := q.qlist.Back()
 	if ele != nil {
 		value := ele.Value.(message.Message)

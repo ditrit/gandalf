@@ -35,13 +35,12 @@ func (cg ConnectorGandalf) Run() {
 	go cg.connectorCommandRoutine.startGrpcServer()
 	go cg.connectorEventRoutine.run()
 	go cg.connectorEventRoutine.startGrpcServer()
-	for {
-		select {
-		case <-cg.connectorStopChannel:
-			fmt.Println("quit")
-			break
-		}
-	}
+
+	<-cg.connectorStopChannel
+	fmt.Println("quit")
+
+	cg.connectorCommandRoutine.close()
+	cg.connectorEventRoutine.close()
 }
 
 func (cg ConnectorGandalf) Stop() {
@@ -52,10 +51,8 @@ func (cg ConnectorGandalf) getWorkerCommands(worker string) (workerCommand []str
 	return cg.connectorCommandsMap[worker]
 }
 
-func (cg ConnectorGandalf) addWorkerCommands(worker, command string) {
-	var sizeList = len(cg.connectorCommandsMap[worker])
-	cg.connectorCommandsMap[worker][sizeList] = command
-
+func (cg *ConnectorGandalf) addWorkerCommands(worker, command string) {
+	cg.connectorCommandsMap[worker] = append(cg.connectorCommandsMap[worker], command)
 }
 
 func (cg ConnectorGandalf) getWorkerCommandSendFile(worker string) (workerCommandFile string) {

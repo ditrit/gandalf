@@ -53,14 +53,12 @@ func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCom
 	fmt.Println("clusterCommandCapture bind : " + clusterCommandCaptureConnection)
 
 	store := clusterCommandRoutine.DatabaseClient.GetStore()
-	driver, err := driver.New(store)
-	if err != nil {
+	driver, _ := driver.New(store)
+	// TODO : handle err
 
-	}
 	sql.Register("cluster", driver)
-	clusterCommandRoutine.DatabaseDB, err = sql.Open("cluster", "context.db")
-	if err != nil {
-	}
+	clusterCommandRoutine.DatabaseDB, _ = sql.Open("cluster", "context.db")
+	// TODO : handle err
 
 	return
 }
@@ -77,8 +75,8 @@ func (r ClusterCommandRoutine) run() {
 	poller := zmq4.NewPoller()
 	poller.Add(r.ClusterCommandReceive, zmq4.POLLIN)
 
-	command := [][]byte{}
-	err := errors.New("")
+	var command [][]byte
+	var err error
 
 	for {
 		fmt.Println("Running ClusterCommandRoutine")
@@ -98,8 +96,6 @@ func (r ClusterCommandRoutine) run() {
 
 		}
 	}
-
-	fmt.Println("done")
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
@@ -109,7 +105,11 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 		message, _ := message.DecodeCommandMessage(command[2])
 
 		//r.processCaptureCommand(message)
-		r.processRoutingCommandMessage(&message)
+		err := r.processRoutingCommandMessage(&message)
+		if err != nil {
+			fmt.Println("Unable to process the command : ", err)
+			return
+		}
 		fmt.Println(message.DestinationAggregator)
 		fmt.Println(message.DestinationConnector)
 		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
@@ -121,7 +121,7 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 }
 
 func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *message.CommandMessage) (err error) {
-	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name as agg_destination, connector.name as conn_destination FROM application_context
+	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name as aggDestination, connector.name as connDestination FROM application_context
 	JOIN tenant ON application_context.tenant = tenant.id
 	JOIN connector_type ON application_context.connector_type = connector_type.id
 	JOIN command_type ON application_context.command_type = command_type.id
@@ -129,14 +129,15 @@ func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *mess
 	JOIN connector ON application_context.connector_destination = connector.id
 	WHERE tenant.name = ? AND connector_type.name = ? AND command_type.name = ?`, commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
 
-	agg_destination := ""
-	conn_destination := ""
-	if err := row.Scan(&agg_destination, &conn_destination); err != nil {
+	var aggDestination string
+	var connDestination string
+
+	if err := row.Scan(&aggDestination, &connDestination); err != nil {
 		return errors.Wrap(err, "failed to get key")
 	}
 
-	commandMessage.DestinationAggregator = agg_destination
-	commandMessage.DestinationConnector = conn_destination
+	commandMessage.DestinationAggregator = aggDestination
+	commandMessage.DestinationConnector = connDestination
 
 	return
 }

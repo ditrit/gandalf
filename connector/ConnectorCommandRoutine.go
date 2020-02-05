@@ -2,7 +2,6 @@ package connector
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
@@ -73,9 +72,10 @@ func (r ConnectorCommandRoutine) close() {
 	r.Context.Term()
 }
 
-func (r ConnectorCommandRoutine) reconnectToProxy() {
+// TODO : implement
+// func (r ConnectorCommandRoutine) reconnectToProxy() {
 
-}
+// }
 
 func (r ConnectorCommandRoutine) run() {
 	//go r.cleanCommandsByTimeout()
@@ -83,8 +83,8 @@ func (r ConnectorCommandRoutine) run() {
 	poller := zmq4.NewPoller()
 	poller.Add(r.ConnectorCommandReceiveFromAggregator, zmq4.POLLIN)
 
-	command := [][]byte{}
-	err := errors.New("")
+	var command [][]byte
+	var err error
 
 	for {
 		fmt.Println("Running ConnectorCommandRoutine")
@@ -203,11 +203,8 @@ func (r ConnectorCommandRoutine) WaitCommandMessage(ctx context.Context, in *pb.
 	r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
 
 	go r.runIteratorCommandMessage(target, in.GetValue(), iterator, r.ConnectorCommandChannel)
-	select {
-	case messageChannel := <-r.ConnectorCommandChannel:
-		commandMessage = message.CommandMessageToGrpc(messageChannel)
-		return
-	}
+	messageChannel := <-r.ConnectorCommandChannel
+	commandMessage = message.CommandMessageToGrpc(messageChannel)
 	return
 }
 
@@ -218,10 +215,7 @@ func (r ConnectorCommandRoutine) WaitCommandMessageReply(ctx context.Context, in
 	r.ConnectorMapWorkerIterators[target] = append(r.ConnectorMapWorkerIterators[target], iterator)
 
 	go r.runIteratorCommandMessageReply(target, in.GetValue(), iterator, r.ConnectorCommandReplyChannel)
-	select {
-	case messageReplyChannel := <-r.ConnectorCommandReplyChannel:
-		commandMessageReply = message.CommandMessageReplyToGrpc(messageReplyChannel)
-		return
-	}
+	messageReplyChannel := <-r.ConnectorCommandReplyChannel
+	commandMessageReply = message.CommandMessageReplyToGrpc(messageReplyChannel)
 	return
 }

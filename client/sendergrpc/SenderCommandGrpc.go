@@ -19,9 +19,10 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	senderCommandGrpc = new(SenderCommandGrpc)
 	senderCommandGrpc.Identity = identity
 	senderCommandGrpc.SenderCommandGrpcConnection = senderCommandGrpcConnection
-	conn, err := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection, grpc.WithInsecure())
-	if err != nil {
-	}
+	conn, _ := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection, grpc.WithInsecure())
+	// if err != nil {
+	// 	// TODO implement erreur
+	// }
 	senderCommandGrpc.client = pb.NewConnectorCommandClient(conn)
 	fmt.Println("senderCommandGrpc connect : " + senderCommandGrpc.SenderCommandGrpcConnection)
 	return

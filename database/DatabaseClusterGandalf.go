@@ -21,11 +21,6 @@ func NewDatabaseClusterGandalf(path string) (databaseClusterGandalf *DatabaseClu
 
 func (dc DatabaseClusterGandalf) Run() {
 	dc.databaseCluster.Run()
-	for {
-		select {
-		case <-dc.databaseStopChannel:
-			fmt.Println("quit")
-			break
-		}
-	}
+	<-dc.databaseStopChannel
+	fmt.Println("quit")
 }

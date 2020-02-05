@@ -100,8 +100,6 @@ func (r AggregatorCommandRoutine) run() {
 			}
 		}
 	}
-
-	fmt.Println("done")
 }
 
 func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) {

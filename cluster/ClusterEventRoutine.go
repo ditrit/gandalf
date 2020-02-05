@@ -1,7 +1,6 @@
 package cluster
 
 import (
-	"errors"
 	"fmt"
 	"gandalf-go/constant"
 	"gandalf-go/message"
@@ -28,16 +27,21 @@ func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventRe
 	clusterEventRoutine.Context, _ = zmq4.NewContext()
 	clusterEventRoutine.ClusterEventSendConnection = clusterEventSendConnection
 	clusterEventRoutine.ClusterEventSend, _ = clusterEventRoutine.Context.NewSocket(zmq4.XPUB)
+
 	clusterEventRoutine.ClusterEventSend.SetIdentity(clusterEventRoutine.Identity)
 	clusterEventRoutine.ClusterEventSend.Bind(clusterEventRoutine.ClusterEventSendConnection)
+
 	fmt.Println("clusterEventSend bind : " + clusterEventSendConnection)
 
 	clusterEventRoutine.ClusterEventReceiveConnection = clusterEventReceiveConnection
 	clusterEventRoutine.ClusterEventReceive, _ = clusterEventRoutine.Context.NewSocket(zmq4.XSUB)
+
 	clusterEventRoutine.ClusterEventReceive.SetIdentity(clusterEventRoutine.Identity)
 	clusterEventRoutine.ClusterEventReceive.SetSubscribe("")
 	clusterEventRoutine.ClusterEventReceive.Bind(clusterEventRoutine.ClusterEventReceiveConnection)
+
 	fmt.Println("clusterEventReceive bind : " + clusterEventReceiveConnection)
+
 	clusterEventRoutine.ClusterEventReceive.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
 	clusterEventRoutine.ClusterEventCaptureConnection = clusterEventCaptureConnection
@@ -61,8 +65,8 @@ func (r ClusterEventRoutine) run() {
 	poller.Add(r.ClusterEventSend, zmq4.POLLIN)
 	poller.Add(r.ClusterEventReceive, zmq4.POLLIN)
 
-	event := [][]byte{}
-	err := errors.New("")
+	var event [][]byte
+	var err error
 
 	for {
 		fmt.Println("Running ClusterEventRoutine")
@@ -88,8 +92,6 @@ func (r ClusterEventRoutine) run() {
 			}
 		}
 	}
-
-	fmt.Println("done")
 }
 
 func (r ClusterEventRoutine) processEventSend(event [][]byte) {

@@ -10,7 +10,6 @@ func usage() {
 	fmt.Println("Usage : ")
 	fmt.Println("	tcp --client host:port")
 	fmt.Println("	tcp --server port")
-	return
 }
 
 func main() {

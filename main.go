@@ -3,13 +3,15 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"time"
+
 	"gandalf-go/aggregator"
 	"gandalf-go/cluster"
 	"gandalf-go/connector"
 	"gandalf-go/database"
 	"gandalf-go/tset"
 	"gandalf-go/worker"
-	"time"
 
 	"github.com/pebbe/zmq4"
 )
@@ -18,6 +20,7 @@ func main() {
 
 	var mode string
 	var config string
+	var commandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
 	flag.StringVar(&mode, "m", "", "")
 	flag.StringVar(&mode, "mode", "", "")
@@ -83,15 +86,16 @@ func main() {
 		//  Prepare our publisher
 		publisher, _ := zmq4.NewSocket(zmq4.PUB)
 		defer publisher.Close()
-		publisher.Connect("tcp://localhost:5563")
+
+		_ = publisher.Connect("tcp://localhost:5563")
 		time.Sleep(time.Second)
 
 		for {
 			//  Write two messages, each with an envelope and content
-			publisher.SendBytes([]byte("A"), zmq4.SNDMORE)
-			publisher.SendBytes([]byte("We don't want to see this"), 0)
-			publisher.SendBytes([]byte("B"), zmq4.SNDMORE)
-			publisher.SendBytes([]byte("We would like to see this"), 0)
+			_, _ = publisher.SendBytes([]byte("A"), zmq4.SNDMORE)
+			_, _ = publisher.SendBytes([]byte("We don't want to see this"), 0)
+			_, _ = publisher.SendBytes([]byte("B"), zmq4.SNDMORE)
+			_, _ = publisher.SendBytes([]byte("We would like to see this"), 0)
 
 			contents, _ := publisher.RecvMessageBytes(0)
 			fmt.Println(contents)
@@ -102,7 +106,7 @@ func main() {
 		//  Prepare our subscriber
 		subscriber, _ := zmq4.NewSocket(zmq4.SUB)
 		defer subscriber.Close()
-		subscriber.Bind("tcp://*:5563")
+		_ = subscriber.Bind("tcp://*:5563")
 		subscriber.SetSubscribe("A")
 
 		time.Sleep(time.Second)
@@ -115,5 +119,9 @@ func main() {
 			contents, _ := subscriber.RecvMessageBytes(0)
 			fmt.Println(contents)
 		}
+
+	default:
+		fmt.Fprintf(commandLine.Output(), "Usage of %s:\n", os.Args[0])
+		flag.PrintDefaults()
 	}
 }

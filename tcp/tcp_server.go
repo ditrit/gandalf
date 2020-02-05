@@ -12,9 +12,10 @@ var (
 )
 
 // ServerTCP : Type socket Serveur
-type ServerTCP struct {
-	socket net.Conn
-}
+// type ServerTCP struct {
+// 	socket net.Conn
+// }
+// TODO : check if this struct is useless
 
 func serverTCP(connect string) {
 

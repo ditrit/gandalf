@@ -30,13 +30,13 @@ func (cg ClusterGandalf) Run() {
 	go cg.clusterCommandRoutine.run()
 	go cg.clusterEventRoutine.run()
 	go cg.clusterCaptureWorkerRoutine.run()
-	for {
-		select {
-		case <-cg.clusterStopChannel:
-			fmt.Println("quit")
-			break
-		}
-	}
+
+	defer cg.clusterCommandRoutine.close()
+	defer cg.clusterEventRoutine.close()
+	defer cg.clusterCaptureWorkerRoutine.close()
+
+	<-cg.clusterStopChannel
+	fmt.Println("quit")
 }
 
 func (cg ClusterGandalf) Stop() {

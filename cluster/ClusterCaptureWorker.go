@@ -2,7 +2,6 @@ package cluster
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"net/http"
 
@@ -50,9 +49,9 @@ func (r ClusterCaptureWorkerRoutine) run() {
 	poller.Add(r.WorkerCaptureCommandReceive, zmq4.POLLIN)
 	poller.Add(r.WorkerCaptureEventReceive, zmq4.POLLIN)
 
-	command := [][]byte{}
-	event := [][]byte{}
-	err := errors.New("")
+	var command [][]byte
+	var event [][]byte
+	var err error
 
 	for {
 
@@ -78,19 +77,18 @@ func (r ClusterCaptureWorkerRoutine) run() {
 			}
 		}
 	}
-	fmt.Println("done")
 }
 
 func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
 	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
 	if err != nil {
-		fmt.Println("The HTTP request failed with error %s\n", err)
+		fmt.Printf("The HTTP request failed with error %#v\n", err)
 	}
 }
 
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
 	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
 	if err != nil {
-		fmt.Println("The HTTP request failed with error %s\n", err)
+		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}
 }

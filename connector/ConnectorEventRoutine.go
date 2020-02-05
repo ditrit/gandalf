@@ -2,7 +2,6 @@ package connector
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"gandalf-go/message"
 	"log"
@@ -46,7 +45,7 @@ func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, c
 		connectorEventRoutine.ConnectorEventReceiveFromAggregator.Connect(connection)
 		fmt.Println("connectorEventReceiveFromAggregatorConnections connect : " + connection)
 	}
-	connectorEventRoutine.ConnectorEventReceiveFromAggregator.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
+	_, _ = connectorEventRoutine.ConnectorEventReceiveFromAggregator.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
 	connectorEventRoutine.ConnectorEventSendToAggregatorConnections = connectorEventSendToAggregatorConnections
 	connectorEventRoutine.ConnectorEventSendToAggregator, _ = connectorEventRoutine.Context.NewSocket(zmq4.XPUB)
@@ -70,9 +69,10 @@ func (r ConnectorEventRoutine) close() {
 	r.Context.Term()
 }
 
-func (r ConnectorEventRoutine) reconnectToProxy() {
+// TODO : implement
+// func (r ConnectorEventRoutine) reconnectToProxy() {
 
-}
+// }
 
 func (r ConnectorEventRoutine) run() {
 	//go r.cleanEventsByTimeout()
@@ -81,8 +81,8 @@ func (r ConnectorEventRoutine) run() {
 	poller.Add(r.ConnectorEventReceiveFromAggregator, zmq4.POLLIN)
 	//poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
 
-	event := [][]byte{}
-	err := errors.New("")
+	var event [][]byte
+	var err error
 
 	for {
 		fmt.Println("Running ConnectorEventRoutine")
@@ -162,10 +162,7 @@ func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.Even
 	r.ConnectorMapWorkerIterators[in.GetEvent()] = append(r.ConnectorMapWorkerIterators[in.GetEvent()], iterator)
 
 	go r.runIterator(target, in.GetEvent(), iterator, r.ConnectorEventChannel)
-	select {
-	case messageChannel := <-r.ConnectorEventChannel:
-		messageEvent = message.EventMessageToGrpc(messageChannel)
-		return
-	}
+	messageChannel := <-r.ConnectorEventChannel
+	messageEvent = message.EventMessageToGrpc(messageChannel)
 	return
 }

@@ -28,8 +28,9 @@ func (dc DatabaseClient) GetLeader() (*client.Client, error) {
 
 func (dc DatabaseClient) GetStore() client.NodeStore {
 	store := client.NewInmemNodeStore()
-	if len(dc.databaseClientCluster) == 0 {
-	}
+	// if len(dc.databaseClientCluster) == 0 {
+	// 	// TODO handle this case
+	// }
 	infos := make([]client.NodeInfo, len(dc.databaseClientCluster))
 	for i, address := range dc.databaseClientCluster {
 		infos[i].ID = uint64(i + 1)
