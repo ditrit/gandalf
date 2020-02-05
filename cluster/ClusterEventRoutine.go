@@ -19,8 +19,8 @@ type ClusterEventRoutine struct {
 	Identity                      string
 }
 
-func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) (clusterEventRoutine *ClusterEventRoutine) {
-	clusterEventRoutine = new(ClusterEventRoutine)
+func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) *ClusterEventRoutine {
+	clusterEventRoutine := new(ClusterEventRoutine)
 
 	clusterEventRoutine.Identity = identity
 
@@ -50,7 +50,7 @@ func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventRe
 	clusterEventRoutine.ClusterEventCapture.Bind(clusterEventRoutine.ClusterEventCaptureConnection)
 	fmt.Println("clusterEventCapture bind : " + clusterEventCaptureConnection)
 
-	return
+	return clusterEventRoutine
 }
 
 func (r ClusterEventRoutine) close() {
@@ -65,29 +65,33 @@ func (r ClusterEventRoutine) run() {
 	poller.Add(r.ClusterEventSend, zmq4.POLLIN)
 	poller.Add(r.ClusterEventReceive, zmq4.POLLIN)
 
-	var event [][]byte
-	var err error
-
 	for {
 		fmt.Println("Running ClusterEventRoutine")
-		sockets, _ := poller.Poll(-1)
-		for _, socket := range sockets {
 
+		sockets, _ := poller.Poll(-1)
+
+		for _, socket := range sockets {
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.ClusterEventSend:
 				fmt.Println("Cluster Send")
-				event, err = currentSocket.RecvMessageBytes(0)
+
+				event, err := currentSocket.RecvMessageBytes(0)
+
 				if err != nil {
 					panic(err)
 				}
+
 				r.processEventSend(event)
 
 			case r.ClusterEventReceive:
 				fmt.Println("Cluster Receive")
-				event, err = currentSocket.RecvMessageBytes(0)
+
+				event, err := currentSocket.RecvMessageBytes(0)
+
 				if err != nil {
 					panic(err)
 				}
+
 				r.processEventReceive(event)
 			}
 		}
@@ -95,9 +99,8 @@ func (r ClusterEventRoutine) run() {
 }
 
 func (r ClusterEventRoutine) processEventSend(event [][]byte) {
-
 	/* 	if len(event) == 1 {
-		//UTILE ?
+		//TODO UTILE ?
 		topic := event[0]
 		//r.ClusterEventReceive.SetSubscribe(string(topic))
 		//go message.SendSubscribeTopic(r.ClusterEventReceive, topic)
@@ -107,8 +110,6 @@ func (r ClusterEventRoutine) processEventSend(event [][]byte) {
 		//r.processCaptureEvent(eventMessage)
 		go eventMessage.SendMessageWith(r.ClusterEventReceive)
 	}
-
-	/* } */
 }
 
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) {

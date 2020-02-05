@@ -6,11 +6,12 @@ package grpc
 import (
 	context "context"
 	fmt "fmt"
+	math "math"
+
 	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -30,7 +31,7 @@ type EventMessage struct {
 	Topic                string   `protobuf:"bytes,3,opt,name=Topic,json=topic,proto3" json:"Topic,omitempty"`
 	Timeout              string   `protobuf:"bytes,4,opt,name=Timeout,json=timeout,proto3" json:"Timeout,omitempty"`
 	Timestamp            string   `protobuf:"bytes,5,opt,name=Timestamp,json=timestamp,proto3" json:"Timestamp,omitempty"`
-	Uuid                 string   `protobuf:"bytes,6,opt,name=Uuid,json=uuid,proto3" json:"Uuid,omitempty"`
+	UUID                 string   `protobuf:"bytes,6,opt,name=UUID,json=uuid,proto3" json:"UUID,omitempty"`
 	Event                string   `protobuf:"bytes,7,opt,name=Event,json=event,proto3" json:"Event,omitempty"`
 	Payload              string   `protobuf:"bytes,8,opt,name=Payload,json=payload,proto3" json:"Payload,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -100,7 +101,7 @@ func (m *EventMessage) GetTimestamp() string {
 
 func (m *EventMessage) GetUuid() string {
 	if m != nil {
-		return m.Uuid
+		return m.UUID
 	}
 	return ""
 }

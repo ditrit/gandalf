@@ -33,8 +33,11 @@ output:
 
 linters:
   disable:
-    - errcheck
-    - unused
+    - errcheck          # TODO Later
+    - unused            # TODO Later
+    - gomnd             # TODO Later
+    - lll               # TODO Later
+    - gochecknoglobals  # TODO check Later
   presets:
     - bugs
     - complexity
@@ -42,6 +45,21 @@ linters:
     - performance
     - style
     - unused
+
+issues:
+  exclude-rules:
+
+    # Don't change it
+    # ignore name convention from golint
+    - linters:
+        - golint
+      text: 'type name will be used as'
+    
+    # TODO Later
+    # ignore hugeParam for copying heavy structuing in calling functions
+    - linters:
+        - gocritic
+      text: 'hugeParam'
 
 
   # all available settings of specific linters
@@ -71,10 +89,10 @@ linters-settings:
     # exclude: /path/to/file.txt
   funlen:
     lines: 60
-    statements: 40
+    statements: 50
   gocognit:
     # minimal code complexity to report, 30 by default (but we recommend 10-20)
-    min-complexity: 10
+    min-complexity: 25
   goconst:
     # minimal length of string constant, 3 by default
     min-len: 3

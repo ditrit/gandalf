@@ -25,13 +25,9 @@ func NewAggregatorGandalf(path string) (aggregatorGandalf *AggregatorGandalf) {
 func (ag AggregatorGandalf) Run() {
 	go ag.aggregatorCommandRoutine.run()
 	go ag.aggregatorEventRoutine.run()
-	for {
-		select {
-		case <-ag.aggregatorStopChannel:
-			fmt.Println("quit")
-			break
-		}
-	}
+
+	<-ag.aggregatorStopChannel
+	fmt.Println("quit")
 }
 
 func (ag AggregatorGandalf) Stop() {

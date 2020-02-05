@@ -13,6 +13,7 @@ type WorkerSender struct {
 func NewWorkerSender(path string) (workerSender *WorkerSender) {
 	workerSender = new(WorkerSender)
 	workerSender.WorkerGandalf = worker.NewWorkerGandalf(path)
+
 	return
 }
 
@@ -24,5 +25,4 @@ func (ws WorkerSender) Run() {
 
 		go ws.WorkerGandalf.ClientGandalfGrpc.SendEvent("toto", "10000", "toto", "toto", "toto")
 	}
-
 }

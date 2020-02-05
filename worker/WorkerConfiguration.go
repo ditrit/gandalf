@@ -15,5 +15,6 @@ type WorkerConfiguration struct {
 func LoadConfiguration(path string) (workerConfiguration *WorkerConfiguration, err error) {
 	workerConfiguration = new(WorkerConfiguration)
 	err = gonfig.GetConf(path, workerConfiguration)
+
 	return
 }

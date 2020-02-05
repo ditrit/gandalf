@@ -8,7 +8,7 @@ import (
 type FunctionTest struct {
 }
 
-func (ft FunctionTest) ExecuteCommand(commandMessage message.CommandMessage, Replys chan message.CommandMessageReply) {
+func (ft FunctionTest) ExecuteCommand(commandMessage message.CommandMessage, replys chan message.CommandMessageReply) {
 	fmt.Println("COMMAND")
 	fmt.Println(commandMessage)
 }

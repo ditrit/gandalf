@@ -22,5 +22,6 @@ func LoadConfiguration(path string) (clusterConfiguration *ClusterConfiguration,
 	clusterConfiguration = new(ClusterConfiguration)
 	//clusterConfiguration = ClusterConfiguration{}
 	err = gonfig.GetConf(path, clusterConfiguration)
+
 	return
 }

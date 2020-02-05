@@ -18,13 +18,13 @@ var (
 // TODO : check if this struct is useless
 
 func serverTCP(connect string) {
-
 	cert, _ := tls.LoadX509KeyPair("./cert.pem", "./key.pem")
 	configServer = tls.Config{
 		Certificates: []tls.Certificate{cert},
 	}
 
 	listener, err := net.Listen("tcp", connect)
+
 	if err != nil {
 		log.Printf("server: listen %s", err)
 		return
@@ -37,17 +37,22 @@ func serverTCP(connect string) {
 			log.Printf("server: accept %s", err)
 			break
 		}
+
 		go handleTLSConnection(conn)
 	}
 }
 
 func handleTLSConnection(unencConn net.Conn) {
 	conn := tls.Server(unencConn, &configServer)
-	defer conn.Close()
 	buffer := make([]byte, 1024)
+
+	defer conn.Close()
+
 	conn.Handshake()
+
 	for {
 		bytesRead, err := conn.Read(buffer)
+
 		if err != nil {
 			log.Printf("server: conn.read %s", err)
 			return
@@ -56,6 +61,7 @@ func handleTLSConnection(unencConn net.Conn) {
 		response := strings.TrimSpace(string(buffer[0:bytesRead]))
 
 		_, err = conn.Write([]byte(response + "\n"))
+
 		if err != nil {
 			log.Printf("Server: conn.write %s", err)
 			return
@@ -64,7 +70,7 @@ func handleTLSConnection(unencConn net.Conn) {
 		switch response {
 		case "STOP":
 			log.Printf("Server : exiting TCP server!")
-			conn.Close()
+
 			return
 		case "ADDR":
 			log.Printf("Server : Unencrypting connection from %s", conn.RemoteAddr())

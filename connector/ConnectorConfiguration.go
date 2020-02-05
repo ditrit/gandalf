@@ -17,5 +17,6 @@ type ConnectorConfiguration struct {
 func LoadConfiguration(path string) (connectorConfiguration *ConnectorConfiguration, err error) {
 	connectorConfiguration = new(ConnectorConfiguration)
 	err = gonfig.GetConf(path, connectorConfiguration)
+
 	return
 }

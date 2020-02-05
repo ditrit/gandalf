@@ -16,7 +16,7 @@ type EventMessage struct {
 	Topic     string
 	Timeout   string
 	Timestamp string
-	Uuid      string
+	UUID      string
 	Event     string
 	Payload   string
 }
@@ -26,7 +26,7 @@ func NewEventMessage(topic, timeout, uuid, event, payload string) (eventMessage 
 	eventMessage.Topic = topic
 	eventMessage.Timeout = timeout
 	eventMessage.Timestamp = time.Now().String()
-	eventMessage.Uuid = uuid
+	eventMessage.UUID = uuid
 	eventMessage.Event = event
 	eventMessage.Payload = payload
 
@@ -34,7 +34,7 @@ func NewEventMessage(topic, timeout, uuid, event, payload string) (eventMessage 
 }
 
 func (e EventMessage) GetUUID() string {
-	return e.Uuid
+	return e.UUID
 }
 
 func (e EventMessage) GetTimeout() string {
@@ -44,10 +44,12 @@ func (e EventMessage) GetTimeout() string {
 func (e EventMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = e.SendHeaderWith(socket, header)
+
 		isSend = isSend && e.SendMessageWith(socket)
 		if isSend {
 			return
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -59,6 +61,7 @@ func (e EventMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend
 			isSend = true
 			return
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -70,11 +73,13 @@ func (e EventMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 			encoded, _ := EncodeEventMessage(e)
 			fmt.Println(encoded)
 			_, err = socket.SendBytes(encoded, 0)
+
 			if err == nil {
 				isSend = true
 				return
 			}
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -85,21 +90,21 @@ func (e EventMessage) From(event []string) {
 	e.Topic = event[2]
 	e.Timeout = event[3]
 	e.Timestamp = event[4]
-	e.Uuid = event[5]
+	e.UUID = event[5]
 	e.Event = event[6]
 	e.Payload = event[7]
 }
 
 func EventMessageFromGrpc(eventMessage *pb.EventMessage) (e EventMessage) {
-
 	e.Tenant = eventMessage.GetTenant()
 	e.Token = eventMessage.GetToken()
 	e.Timeout = eventMessage.GetTimeout()
 	e.Timestamp = eventMessage.GetTimestamp()
-	e.Uuid = eventMessage.GetUuid()
+	e.UUID = eventMessage.GetUuid()
 	e.Topic = eventMessage.GetTopic()
 	e.Event = eventMessage.GetEvent()
 	e.Payload = eventMessage.GetPayload()
+
 	return
 }
 
@@ -109,7 +114,7 @@ func EventMessageToGrpc(e EventMessage) (eventMessage *pb.EventMessage) {
 	eventMessage.Token = e.Token
 	eventMessage.Timeout = e.Timeout
 	eventMessage.Timestamp = e.Timestamp
-	eventMessage.Uuid = e.Uuid
+	eventMessage.UUID = e.UUID
 	eventMessage.Topic = e.Topic
 	eventMessage.Event = e.Event
 	eventMessage.Payload = e.Payload
@@ -135,11 +140,13 @@ func (cf EventFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
 		if err == nil {
 			encoded, _ := EncodeEventFunction(cf)
 			_, err = socket.SendBytes(encoded, 0)
+
 			if err == nil {
 				isSend = true
 				return
 			}
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -159,9 +166,11 @@ func (cfr EventFunctionReply) SendWith(socket *zmq4.Socket, header string) (isSe
 	for {
 		isSend = cfr.SendHeaderWith(socket, header)
 		isSend = isSend && cfr.SendMessageWith(socket)
+
 		if isSend {
 			return
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -173,6 +182,7 @@ func (cfr EventFunctionReply) SendHeaderWith(socket *zmq4.Socket, header string)
 			isSend = true
 			return
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -183,11 +193,13 @@ func (cfr EventFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend bool)
 		if err == nil {
 			encoded, _ := EncodeEventFunctionReply(cfr)
 			_, err = socket.SendBytes(encoded, 0)
+
 			if err == nil {
 				isSend = true
 				return
 			}
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -199,6 +211,7 @@ func SendSubscribeTopic(socket *zmq4.Socket, topic []byte) (isSend bool) {
 			isSend = true
 			return
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -214,6 +227,7 @@ func NewEventMessageWait(workerSource, event, topic string) (eventMessageWait *E
 	eventMessageWait.WorkerSource = workerSource
 	eventMessageWait.Event = event
 	eventMessageWait.Topic = topic
+
 	return
 }
 
@@ -221,6 +235,7 @@ func EventMessageWaitFromGrpc(eventMessageWait pb.EventMessageWait) (emw EventMe
 	emw.WorkerSource = eventMessageWait.GetWorkerSource()
 	emw.Event = eventMessageWait.GetEvent()
 	emw.Topic = eventMessageWait.GetTopic()
+
 	return
 }
 
@@ -228,6 +243,7 @@ func EventMessageWaitToGrpc(emw EventMessageWait) (eventMessageWait pb.EventMess
 	eventMessageWait.WorkerSource = emw.WorkerSource
 	eventMessageWait.Event = emw.Event
 	eventMessageWait.Topic = emw.Topic
+
 	return
 }
 
@@ -237,11 +253,13 @@ func (emw EventMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
 		if err == nil {
 			encoded, _ := EncodeEventMessageWait(emw)
 			_, err = socket.SendBytes(encoded, 0)
+
 			if err == nil {
 				isSend = true
 				return
 			}
 		}
+
 		time.Sleep(2 * time.Second)
 	}
 }
@@ -249,71 +267,71 @@ func (emw EventMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
 func EncodeEventMessage(eventMessage EventMessage) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(eventMessage)
 	if err != nil {
-		commandError = fmt.Errorf("Event %s", err)
-		return
+		commandError = fmt.Errorf("event %s", err)
 	}
+
 	return
 }
 
 func DecodeEventMessage(bytesContent []byte) (eventMessage EventMessage, commandError error) {
 	err := msgpack.Decode(bytesContent, &eventMessage)
 	if err != nil {
-		commandError = fmt.Errorf("Event %s", err)
-		return
+		commandError = fmt.Errorf("event %s", err)
 	}
+
 	return
 }
 
 func EncodeEventFunction(eventFunction EventFunction) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(eventFunction)
 	if err != nil {
-		commandError = fmt.Errorf("Event %s", err)
-		return
+		commandError = fmt.Errorf("event %s", err)
 	}
+
 	return
 }
 
 func DecodeEventFunction(bytesContent []byte) (eventFunction EventFunction, commandError error) {
 	err := msgpack.Decode(bytesContent, &eventFunction)
 	if err != nil {
-		commandError = fmt.Errorf("Event %s", err)
-		return
+		commandError = fmt.Errorf("event %s", err)
 	}
+
 	return
 }
 
 func EncodeEventFunctionReply(eventFunctionReply EventFunctionReply) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(eventFunctionReply)
 	if err != nil {
-		commandError = fmt.Errorf("Event %s", err)
-		return
+		commandError = fmt.Errorf("event %s", err)
 	}
+
 	return
 }
 
 func DecodeEventFunctionReply(bytesContent []byte) (eventFunctionReply EventFunctionReply, commandError error) {
 	err := msgpack.Decode(bytesContent, &eventFunctionReply)
 	if err != nil {
-		commandError = fmt.Errorf("Event %s", err)
-		return
+		commandError = fmt.Errorf("event %s", err)
 	}
+
 	return
 }
 
 func EncodeEventMessageWait(eventMessageWait EventMessageWait) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(eventMessageWait)
 	if err != nil {
-		commandError = fmt.Errorf("Event %s", err)
-		return
+		commandError = fmt.Errorf("event %s", err)
 	}
+
 	return
 }
 
 func DecodeEventMessageWait(bytesContent []byte) (eventMessageWait EventMessageWait, commandError error) {
 	err := msgpack.Decode(bytesContent, &eventMessageWait)
 	if err != nil {
-		commandError = fmt.Errorf("Event %s", err)
-		return
+		commandError = fmt.Errorf("event %s", err)
 	}
+
 	return
 }

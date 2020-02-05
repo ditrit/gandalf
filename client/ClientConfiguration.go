@@ -5,15 +5,16 @@ import (
 )
 
 type ClientConfiguration struct {
-	SenderCommandConnection   string
-	SenderEventConnection     string
+	SenderCommandConnection string
+	SenderEventConnection   string
 	WaiterCommandConnection string
 	WaiterEventConnection   string
-	Identity                  string
+	Identity                string
 }
 
 func LoadConfiguration(path string) (clientConfiguration *ClientConfiguration, err error) {
 	clientConfiguration = new(ClientConfiguration)
 	err = gonfig.GetConf(path, clientConfiguration)
+
 	return
 }

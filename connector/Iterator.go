@@ -18,13 +18,14 @@ func NewIterator(queue *Queue) *Iterator {
 	i := new(Iterator)
 	i.Init(queue)
 	queue.iters[i] = true
+
 	return i
 }
 
 // Init : initialisation
 func (i *Iterator) Init(queue *Queue) {
-	i.queue = queue
 	//i.seen = make(map[string]bool)
+	i.queue = queue
 }
 
 // Close : fermeture de l'iterateur
@@ -63,20 +64,6 @@ func (i *Iterator) Get() *message.Message {
 	if message != nil {
 		i.current = (*message).GetUUID() // on pointe dessus
 	}
+
 	return message
-
-	/*
-		// on cherche une valeur qui n'a pas déjà été lue
-		for i.seen[i.current] {
-			message = i.queue.Next(i.current)
-			if message == nil {
-			return nil
-			}
-		}
-	*/
-
-	// la valeur a été vue
-	//i.seen[i.current] = true
-
-	//return message
 }

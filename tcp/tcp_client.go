@@ -17,13 +17,14 @@ var (
 )
 
 func initTLS(connect string) (*tls.Conn, error) {
-
 	CAPool := x509.NewCertPool()
 	serverCert, err := ioutil.ReadFile("./cert.pem")
+
 	if err != nil {
 		//log.Print("initTLs : Could not load server certificate!")
 		return nil, err
 	}
+
 	CAPool.AppendCertsFromPEM(serverCert)
 
 	configClient = tls.Config{
@@ -39,6 +40,7 @@ func initTLS(connect string) (*tls.Conn, error) {
 
 	conn := tls.Client(unencConn, &configClient)
 	err = conn.Handshake()
+
 	if err != nil {
 		//log.Printf("initTLs : tls handshake %s", err)
 		conn.Close()
@@ -49,7 +51,6 @@ func initTLS(connect string) (*tls.Conn, error) {
 }
 
 func clientTCP(connect string) {
-
 	var buffer = make([]byte, 1024)
 
 	for {
@@ -57,16 +58,15 @@ func clientTCP(connect string) {
 
 		if err != nil {
 			log.Printf("clientTcp : %s", err)
-			break // TODO : define behaviour
+			break // TODO : define behavior
 		}
 
 		defer conn.Close()
 
 		for {
 			reader := bufio.NewReader(os.Stdin)
-			fmt.Print(">> ")
 			text, _ := reader.ReadString('\n')
-			fmt.Print(text + "\n")
+			fmt.Println(">> " + text)
 
 			_, err := conn.Write([]byte(text))
 			if err != nil {
@@ -82,6 +82,7 @@ func clientTCP(connect string) {
 
 			response := string(buffer[0:bytesRead])
 			fmt.Print("->: " + response)
+
 			if response == "STOP" {
 				fmt.Println("TCP client exiting...")
 				return
@@ -89,6 +90,6 @@ func clientTCP(connect string) {
 		}
 
 		time.Sleep(100 * time.Millisecond)
-		//fmt.Print("trying to reconnect")
+		fmt.Println("trying to reconnect")
 	}
 }

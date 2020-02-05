@@ -28,8 +28,8 @@ type ConnectorEventRoutine struct {
 	ConnectorEventGrpcServer                       *grpc.Server
 }
 
-func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) (connectorEventRoutine *ConnectorEventRoutine) {
-	connectorEventRoutine = new(ConnectorEventRoutine)
+func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) *ConnectorEventRoutine {
+	connectorEventRoutine := new(ConnectorEventRoutine)
 	connectorEventRoutine.Identity = identity
 	connectorEventRoutine.ConnectorMapWorkerIterators = make(map[string][]*Iterator)
 	connectorEventRoutine.ConnectorEventChannel = make(chan message.EventMessage)
@@ -45,6 +45,7 @@ func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, c
 		connectorEventRoutine.ConnectorEventReceiveFromAggregator.Connect(connection)
 		fmt.Println("connectorEventReceiveFromAggregatorConnections connect : " + connection)
 	}
+
 	_, _ = connectorEventRoutine.ConnectorEventReceiveFromAggregator.SendBytes([]byte{0x01}, 0) //SUBSCRIBE ALL
 
 	connectorEventRoutine.ConnectorEventSendToAggregatorConnections = connectorEventSendToAggregatorConnections
@@ -56,11 +57,12 @@ func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, c
 		connectorEventRoutine.ConnectorEventSendToAggregator.Connect(connection)
 		fmt.Println("connectorEventSendToAggregator connect : " + connection)
 	}
+
 	connectorEventRoutine.ConnectorEventWorkerConnection = connectorEventWorkerConnection
 	//go connectorEventRoutine.StartGrpcServer(connectorEventRoutine.ConnectorEventWorkerConnection)
 	fmt.Println("ConnectorEventWorkerConnection connect : " + connectorEventRoutine.ConnectorEventWorkerConnection)
 
-	return
+	return connectorEventRoutine
 }
 
 func (r ConnectorEventRoutine) close() {
@@ -76,34 +78,28 @@ func (r ConnectorEventRoutine) close() {
 
 func (r ConnectorEventRoutine) run() {
 	//go r.cleanEventsByTimeout()
-
 	poller := zmq4.NewPoller()
+
 	poller.Add(r.ConnectorEventReceiveFromAggregator, zmq4.POLLIN)
 	//poller.Add(r.ConnectorEventSendToAggregator, zmq4.POLLIN)
 
-	var event [][]byte
-	var err error
-
 	for {
 		fmt.Println("Running ConnectorEventRoutine")
+
 		sockets, _ := poller.Poll(-1)
+
 		for _, socket := range sockets {
-			switch currentSocket := socket.Socket; currentSocket {
-			case r.ConnectorEventReceiveFromAggregator:
+			currentSocket := socket.Socket
+			if currentSocket == r.ConnectorEventReceiveFromAggregator {
 				fmt.Println("Receive Aggregator")
-				event, err = currentSocket.RecvMessageBytes(0)
+
+				event, err := currentSocket.RecvMessageBytes(0)
+
 				if err != nil {
 					panic(err)
 				}
+
 				r.processEventReceiveFromAggregator(event)
-				/* 	case r.ConnectorEventSendToAggregator:
-					fmt.Println("Send Aggregator")
-					event, err = currentSocket.RecvMessageBytes(0)
-					if err != nil {
-						panic(err)
-					}
-					r.processEventSendToAggregator(event)
-				} */
 			}
 		}
 	}
@@ -120,6 +116,7 @@ func (r ConnectorEventRoutine) validationEvents(workerSource string, events []st
 	return
 }
 
+//TODO target is unused
 func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Iterator, channel chan message.EventMessage) {
 	notfound := true
 	for notfound {
@@ -128,6 +125,7 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 			eventMessage := (*messageIterator).(message.EventMessage)
 			if value == eventMessage.Event {
 				channel <- eventMessage
+
 				notfound = false
 			}
 		}
@@ -138,9 +136,11 @@ func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Itera
 //GRPC
 func (r ConnectorEventRoutine) startGrpcServer() {
 	lis, err := net.Listen("tcp", r.ConnectorEventWorkerConnection)
+
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+
 	r.ConnectorEventGrpcServer = grpc.NewServer()
 	pb.RegisterConnectorEventServer(r.ConnectorEventGrpcServer, &r)
 	r.ConnectorEventGrpcServer.Serve(lis)
@@ -148,10 +148,11 @@ func (r ConnectorEventRoutine) startGrpcServer() {
 
 //TODO REVOIR SERVICE
 func (r ConnectorEventRoutine) SendEventMessage(ctx context.Context, in *pb.EventMessage) (*pb.Empty, error) {
-
 	eventMessage := message.EventMessageFromGrpc(in)
 	fmt.Println(eventMessage)
+
 	go eventMessage.SendMessageWith(r.ConnectorEventSendToAggregator)
+
 	return &pb.Empty{}, nil
 }
 
@@ -162,7 +163,9 @@ func (r ConnectorEventRoutine) WaitEventMessage(ctx context.Context, in *pb.Even
 	r.ConnectorMapWorkerIterators[in.GetEvent()] = append(r.ConnectorMapWorkerIterators[in.GetEvent()], iterator)
 
 	go r.runIterator(target, in.GetEvent(), iterator, r.ConnectorEventChannel)
+
 	messageChannel := <-r.ConnectorEventChannel
 	messageEvent = message.EventMessageToGrpc(messageChannel)
+
 	return
 }

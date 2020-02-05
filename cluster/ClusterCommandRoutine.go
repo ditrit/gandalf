@@ -26,8 +26,8 @@ type ClusterCommandRoutine struct {
 	DatabaseDB                      *sql.DB
 }
 
-func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) (clusterCommandRoutine *ClusterCommandRoutine) {
-	clusterCommandRoutine = new(ClusterCommandRoutine)
+func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) *ClusterCommandRoutine {
+	clusterCommandRoutine := new(ClusterCommandRoutine)
 
 	clusterCommandRoutine.Identity = identity
 	clusterCommandRoutine.DatabaseClusterConnections = databaseClusterConnections
@@ -60,7 +60,7 @@ func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCom
 	clusterCommandRoutine.DatabaseDB, _ = sql.Open("cluster", "context.db")
 	// TODO : handle err
 
-	return
+	return clusterCommandRoutine
 }
 
 func (r ClusterCommandRoutine) close() {
@@ -71,35 +71,33 @@ func (r ClusterCommandRoutine) close() {
 }
 
 func (r ClusterCommandRoutine) run() {
-
 	poller := zmq4.NewPoller()
 	poller.Add(r.ClusterCommandReceive, zmq4.POLLIN)
 
-	var command [][]byte
-	var err error
-
 	for {
 		fmt.Println("Running ClusterCommandRoutine")
+
 		sockets, _ := poller.Poll(-1)
+
 		for _, socket := range sockets {
+			currentSocket := socket.Socket
 
-			switch currentSocket := socket.Socket; currentSocket {
-
-			case r.ClusterCommandReceive:
+			if currentSocket == r.ClusterCommandReceive {
 				fmt.Println("Cluster Receive")
-				command, err = currentSocket.RecvMessageBytes(0)
+
+				command, err := currentSocket.RecvMessageBytes(0)
+
 				if err != nil {
 					panic(err)
 				}
+
 				r.processCommandReceive(command)
 			}
-
 		}
 	}
 }
 
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
-
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
 		message, _ := message.DecodeCommandMessage(command[2])
@@ -110,8 +108,10 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 			fmt.Println("Unable to process the command : ", err)
 			return
 		}
+
 		fmt.Println(message.DestinationAggregator)
 		fmt.Println(message.DestinationConnector)
+
 		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])
@@ -129,8 +129,10 @@ func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *mess
 	JOIN connector ON application_context.connector_destination = connector.id
 	WHERE tenant.name = ? AND connector_type.name = ? AND command_type.name = ?`, commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
 
-	var aggDestination string
-	var connDestination string
+	var (
+		aggDestination  string
+		connDestination string
+	)
 
 	if err := row.Scan(&aggDestination, &connDestination); err != nil {
 		return errors.Wrap(err, "failed to get key")

@@ -12,5 +12,6 @@ type DatabaseClusterConfiguration struct {
 func LoadConfiguration(path string) (databaseClusterConfiguration *DatabaseClusterConfiguration, err error) {
 	databaseClusterConfiguration = new(DatabaseClusterConfiguration)
 	err = gonfig.GetConf(path, databaseClusterConfiguration)
+
 	return
 }

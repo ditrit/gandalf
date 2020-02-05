@@ -32,8 +32,8 @@ type ConnectorCommandRoutine struct {
 	ConnectorCommandReplyChannel                     chan message.CommandMessageReply
 }
 
-func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) (connectorCommandRoutine *ConnectorCommandRoutine) {
-	connectorCommandRoutine = new(ConnectorCommandRoutine)
+func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) *ConnectorCommandRoutine {
+	connectorCommandRoutine := new(ConnectorCommandRoutine)
 	connectorCommandRoutine.Identity = identity
 	connectorCommandRoutine.ConnectorMapWorkerIterators = make(map[string][]*Iterator)
 	connectorCommandRoutine.ConnectorCommandChannel = make(chan message.CommandMessage)
@@ -46,6 +46,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection strin
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregatorConnections = connectorCommandReceiveFromAggregatorConnections
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregator, _ = connectorCommandRoutine.Context.NewSocket(zmq4.ROUTER)
 	connectorCommandRoutine.ConnectorCommandReceiveFromAggregator.SetIdentity(connectorCommandRoutine.Identity)
+
 	for _, connection := range connectorCommandRoutine.ConnectorCommandReceiveFromAggregatorConnections {
 		connectorCommandRoutine.ConnectorCommandReceiveFromAggregator.Connect(connection)
 		fmt.Println("connectorCommandReceiveFromAggregator connect : " + connection)
@@ -54,6 +55,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection strin
 	connectorCommandRoutine.ConnectorCommandSendToAggregatorConnections = connectorCommandSendToAggregatorConnections
 	connectorCommandRoutine.ConnectorCommandSendToAggregator, _ = connectorCommandRoutine.Context.NewSocket(zmq4.DEALER)
 	connectorCommandRoutine.ConnectorCommandSendToAggregator.SetIdentity(connectorCommandRoutine.Identity)
+
 	for _, connection := range connectorCommandRoutine.ConnectorCommandSendToAggregatorConnections {
 		connectorCommandRoutine.ConnectorCommandSendToAggregator.Connect(connection)
 		fmt.Println("connectorCommandSendToAggregator connect : " + connection)
@@ -63,7 +65,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection strin
 	//go connectorCommandRoutine.StartGrpcServer(connectorCommandRoutine.ConnectorCommandWorkerConnection)
 	fmt.Println("ConnectorCommandWorkerConnection connect : " + connectorCommandRoutine.ConnectorCommandWorkerConnection)
 
-	return
+	return connectorCommandRoutine
 }
 
 func (r ConnectorCommandRoutine) close() {
@@ -79,25 +81,27 @@ func (r ConnectorCommandRoutine) close() {
 
 func (r ConnectorCommandRoutine) run() {
 	//go r.cleanCommandsByTimeout()
-
 	poller := zmq4.NewPoller()
-	poller.Add(r.ConnectorCommandReceiveFromAggregator, zmq4.POLLIN)
 
-	var command [][]byte
-	var err error
+	poller.Add(r.ConnectorCommandReceiveFromAggregator, zmq4.POLLIN)
 
 	for {
 		fmt.Println("Running ConnectorCommandRoutine")
+
 		sockets, _ := poller.Poll(-1)
+
 		for _, socket := range sockets {
-			switch currentSocket := socket.Socket; currentSocket {
-			case r.ConnectorCommandReceiveFromAggregator:
+			currentSocket := socket.Socket
+
+			if currentSocket == r.ConnectorCommandReceiveFromAggregator {
 				fmt.Println("Receive Aggregator")
 
-				command, err = currentSocket.RecvMessageBytes(0)
+				command, err := currentSocket.RecvMessageBytes(0)
+
 				if err != nil {
 					panic(err)
 				}
+
 				r.processCommandReceiveFromAggregator(command)
 			}
 		}
@@ -130,7 +134,6 @@ func (r ConnectorCommandRoutine) addCommands(commandMessage message.CommandMessa
 
 //TODO
 func (r ConnectorCommandRoutine) runIteratorCommandMessage(target, value string, iterator *Iterator, channel chan message.CommandMessage) {
-
 	notfound := true
 	for notfound {
 		iterator.PrintQueue()
@@ -138,20 +141,21 @@ func (r ConnectorCommandRoutine) runIteratorCommandMessage(target, value string,
 
 		if messageIterator != nil {
 			commandMessage := (*messageIterator).(message.CommandMessage)
+
 			if value == commandMessage.Command {
 				channel <- commandMessage
+
 				notfound = false
 			}
 		}
-		time.Sleep(time.Duration(2000 * time.Millisecond))
 
+		time.Sleep(time.Duration(2000) * time.Millisecond)
 	}
 	delete(r.ConnectorMapWorkerIterators, target)
 }
 
 //TODO
 func (r ConnectorCommandRoutine) runIteratorCommandMessageReply(target, value string, iterator *Iterator, channel chan message.CommandMessageReply) {
-
 	notfound := true
 	for notfound {
 		iterator.PrintQueue()
@@ -160,14 +164,14 @@ func (r ConnectorCommandRoutine) runIteratorCommandMessageReply(target, value st
 
 		if messageIterator != nil {
 			commandMessageReply := (*messageIterator).(message.CommandMessageReply)
-			if value == commandMessageReply.Uuid {
+			if value == commandMessageReply.UUID {
 				channel <- commandMessageReply
+
 				notfound = false
 			}
-
 		}
-		time.Sleep(time.Duration(2000 * time.Millisecond))
 
+		time.Sleep(time.Duration(2000) * time.Millisecond)
 	}
 	delete(r.ConnectorMapWorkerIterators, target)
 }
@@ -178,21 +182,26 @@ func (r ConnectorCommandRoutine) startGrpcServer() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
+
 	r.ConnectorCommandGrpcServer = grpc.NewServer()
+
 	pb.RegisterConnectorCommandServer(r.ConnectorCommandGrpcServer, &r)
 	r.ConnectorCommandGrpcServer.Serve(lis)
 }
 
 func (r ConnectorCommandRoutine) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (*pb.CommandMessageUUID, error) {
-
 	commandMessage := message.CommandMessageFromGrpc(in)
+
 	go commandMessage.SendMessageWith(r.ConnectorCommandSendToAggregator)
-	return &pb.CommandMessageUUID{Uuid: commandMessage.Uuid}, nil
+
+	return &pb.CommandMessageUUID{UUID: commandMessage.UUID}, nil
 }
 
 func (r ConnectorCommandRoutine) SendCommandMessageReply(ctx context.Context, in *pb.CommandMessageReply) (*pb.Empty, error) {
 	commandMessageReply := message.CommandMessageReplyFromGrpc(in)
+
 	go commandMessageReply.SendMessageWith(r.ConnectorCommandSendToAggregator)
+
 	return &pb.Empty{}, nil
 }
 
@@ -205,6 +214,7 @@ func (r ConnectorCommandRoutine) WaitCommandMessage(ctx context.Context, in *pb.
 	go r.runIteratorCommandMessage(target, in.GetValue(), iterator, r.ConnectorCommandChannel)
 	messageChannel := <-r.ConnectorCommandChannel
 	commandMessage = message.CommandMessageToGrpc(messageChannel)
+
 	return
 }
 
@@ -217,5 +227,6 @@ func (r ConnectorCommandRoutine) WaitCommandMessageReply(ctx context.Context, in
 	go r.runIteratorCommandMessageReply(target, in.GetValue(), iterator, r.ConnectorCommandReplyChannel)
 	messageReplyChannel := <-r.ConnectorCommandReplyChannel
 	commandMessageReply = message.CommandMessageReplyToGrpc(messageReplyChannel)
+
 	return
 }

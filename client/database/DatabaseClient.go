@@ -14,6 +14,7 @@ type DatabaseClient struct {
 func NewDatabaseClient(cluster []string) (databaseClient *DatabaseClient) {
 	databaseClient = new(DatabaseClient)
 	databaseClient.databaseClientCluster = cluster
+
 	return
 }
 
@@ -23,7 +24,7 @@ func (dc DatabaseClient) GetLeader() (*client.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	return client.FindLeader(ctx, store, client.WithLogFunc(logFunc))
+	return client.FindLeader(ctx, store, client.WithLogFunc(logFuncf))
 }
 
 func (dc DatabaseClient) GetStore() client.NodeStore {
@@ -36,8 +37,10 @@ func (dc DatabaseClient) GetStore() client.NodeStore {
 		infos[i].ID = uint64(i + 1)
 		infos[i].Address = address
 	}
+
 	store.Set(context.Background(), infos)
+
 	return store
 }
 
-func logFunc(l client.LogLevel, format string, a ...interface{}) {}
+func logFuncf(l client.LogLevel, format string, a ...interface{}) {}

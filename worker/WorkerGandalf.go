@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"fmt"
 	"gandalf-go/client"
 )
 
@@ -25,6 +26,7 @@ func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 func (wg WorkerGandalf) Run() {
 	for {
 		//GESTION CHANNEL
+		fmt.Println("Im running into noting TODO me")
 	}
 }
 

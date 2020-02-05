@@ -11,7 +11,7 @@ type FunctionTestSend struct {
 	ClientGandalf *client.ClientGandalfGrpc
 }
 
-func NewFunctionTestSend(clientGandalf client.ClientGandalfGrpc, Replys chan message.CommandMessageReply) {
+func NewFunctionTestSend(clientGandalf client.ClientGandalfGrpc, replys chan message.CommandMessageReply) {
 	fmt.Println("COMMAND")
 }
 
@@ -20,4 +20,5 @@ func (fts FunctionTestSend) ExecuteCommand() {
 
 	// Uncompilable unable to restore
 	// fts.ClientGandalf.SenderGandalfGrpc.SenderCommandRoutine.SendCommandSync("context", "timeout", "uuid", "connectorType", "commandType", "send", "payload")
+	fmt.Println("End Send")
 }

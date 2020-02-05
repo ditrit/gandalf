@@ -25,6 +25,7 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	// }
 	senderCommandGrpc.client = pb.NewConnectorCommandClient(conn)
 	fmt.Println("senderCommandGrpc connect : " + senderCommandGrpc.SenderCommandGrpcConnection)
+
 	return
 }
 
@@ -32,7 +33,7 @@ func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorT
 	commandMessage := new(pb.CommandMessage)
 	commandMessage.Context = contextCommand
 	commandMessage.Timeout = timeout
-	commandMessage.Uuid = uuid
+	commandMessage.UUID = uuid
 	commandMessage.ConnectorType = connectorType
 	commandMessage.CommandType = command
 	commandMessage.Command = command
@@ -40,8 +41,8 @@ func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorT
 
 	CommandMessageUUIDGrpc, _ := r.client.SendCommandMessage(context.Background(), commandMessage)
 	commandMessageUUID = message.CommandMessageUUIDFromGrpc(CommandMessageUUIDGrpc)
-	return
 
+	return
 }
 
 func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
@@ -57,10 +58,11 @@ func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessag
 	commandMessageReply.Context = commandMessage.Context
 	commandMessageReply.Timeout = commandMessage.Timeout
 	commandMessageReply.Timestamp = commandMessage.Timestamp
-	commandMessageReply.Uuid = commandMessage.Uuid
+	commandMessageReply.UUID = commandMessage.UUID
 	commandMessageReply.Reply = reply
 	commandMessageReply.Payload = payload
 
 	empty, _ := r.client.SendCommandMessageReply(context.Background(), commandMessageReply)
+
 	return empty
 }

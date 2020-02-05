@@ -16,11 +16,14 @@ import (
 	"github.com/pebbe/zmq4"
 )
 
+//nolint: funlen, gocyclo
 func main() {
+	var (
+		mode   string
+		config string
+	)
 
-	var mode string
-	var config string
-	var commandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+	commandLine := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
 	flag.StringVar(&mode, "m", "", "")
 	flag.StringVar(&mode, "mode", "", "")
@@ -28,35 +31,32 @@ func main() {
 	flag.StringVar(&config, "config", "", "")
 	flag.Parse()
 
+	fmt.Println("Running Gandalf with:")
+	fmt.Println("  Mode : " + mode)
+	fmt.Println("  Config : " + config)
+
 	switch mode {
 	case "cluster":
 		clusterGandalf := cluster.NewClusterGandalf(config)
 		clusterGandalf.Run()
-		fmt.Println("Cluster " + config)
 	case "aggregator":
 		aggregatorGandalf := aggregator.NewAggregatorGandalf(config)
 		aggregatorGandalf.Run()
-		fmt.Println("Aggregator " + config)
 	case "connector":
 		connectorGandalf := connector.NewConnectorGandalf(config)
 		connectorGandalf.Run()
-		fmt.Println("Connector " + config)
 	case "worker":
 		workerGandalf := worker.NewWorkerGandalf(config)
 		workerGandalf.Run()
-		fmt.Println("Worker " + config)
 	case "database":
 		databaseClusterGandalf := database.NewDatabaseClusterGandalf(config)
 		databaseClusterGandalf.Run()
-		fmt.Println("Database " + config)
 	case "workerTestSend":
 		tset.NewWorkerSender(config).Run()
 		//toto.WorkerGandalf.ClientGandalf.SendCommand("toto", "100000000000000", "toto", "toto", "toto", "toto", "toto")
 		fmt.Println("BOOP")
 		//toto.WorkerGandalf.ClientGandalf.SendEvent("toto", "100", "toto", "toto", "toto")
 		//time.Sleep(time.Second * 5)
-
-		fmt.Println("WorkerSend " + config)
 
 		//clientT := sender.NewSenderGandalf("toto", "tcp://127.0.0.1:9241", "tcp://127.0.0.1:9251")
 		//clientT.SenderCommandRoutine.SendCommand("context", "timeout", "uuid", "connectorType", "commandType", "command", "payload")
@@ -88,6 +88,7 @@ func main() {
 		defer publisher.Close()
 
 		_ = publisher.Connect("tcp://localhost:5563")
+
 		time.Sleep(time.Second)
 
 		for {

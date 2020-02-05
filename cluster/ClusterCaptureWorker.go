@@ -49,30 +49,24 @@ func (r ClusterCaptureWorkerRoutine) run() {
 	poller.Add(r.WorkerCaptureCommandReceive, zmq4.POLLIN)
 	poller.Add(r.WorkerCaptureEventReceive, zmq4.POLLIN)
 
-	var command [][]byte
-	var event [][]byte
-	var err error
-
 	for {
-
 		sockets, _ := poller.Poll(-1)
 		for _, socket := range sockets {
-
 			switch currentSocket := socket.Socket; currentSocket {
 			case r.WorkerCaptureCommandReceive:
-
-				command, err = currentSocket.RecvMessageBytes(0)
+				command, err := currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
+
 				r.processCommand(command)
 
 			case r.WorkerCaptureEventReceive:
-
-				event, err = currentSocket.RecvMessageBytes(0)
+				event, err := currentSocket.RecvMessageBytes(0)
 				if err != nil {
 					panic(err)
 				}
+
 				r.processEvent(event)
 			}
 		}
@@ -80,15 +74,17 @@ func (r ClusterCaptureWorkerRoutine) run() {
 }
 
 func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
-	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
+	resp, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %#v\n", err)
 	}
+	defer resp.Body.Close()
 }
 
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
-	_, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
+	resp, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
 	if err != nil {
 		fmt.Printf("The HTTP request failed with error %s\n", err)
 	}
+	defer resp.Body.Close()
 }

@@ -3,6 +3,7 @@ package waitergrpc
 import (
 	"context"
 	"fmt"
+	"time"
 
 	pb "gandalf-go/grpc"
 	"gandalf-go/message"
@@ -22,41 +23,40 @@ func NewWaiterCommandGrpc(identity, waiterCommandGrpcConnection string) (waiterC
 	waiterCommandGrpc.Identity = identity
 	waiterCommandGrpc.WaiterCommandGrpcConnection = waiterCommandGrpcConnection
 	conn, err := grpc.Dial(waiterCommandGrpc.WaiterCommandGrpcConnection, grpc.WithInsecure())
+
 	if err != nil {
 		//TODO : Handle this case
 		return
 	}
+
 	waiterCommandGrpc.client = pb.NewConnectorCommandClient(conn)
+
 	return
 }
 
-func (r WaiterCommandGrpc) WaitCommand(command string) (commandMessage message.CommandMessage) {
+func (r WaiterCommandGrpc) WaitCommand(command string) message.CommandMessage {
 	commandMessageWait := new(pb.CommandMessageWait)
 	commandMessageWait.WorkerSource = r.Identity
 	commandMessageWait.Value = command
 	commandMessageGrpc, _ := r.client.WaitCommandMessage(context.Background(), commandMessageWait)
 	fmt.Println(commandMessageGrpc)
-	for {
-		if commandMessageGrpc != nil {
-			commandMessage = message.CommandMessageFromGrpc(commandMessageGrpc)
-			break
-		}
-	}
-	return
 
+	for commandMessageGrpc == nil {
+		time.Sleep(time.Duration(1) * time.Millisecond)
+	}
+
+	return message.CommandMessageFromGrpc(commandMessageGrpc)
 }
 
-func (r WaiterCommandGrpc) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {
+func (r WaiterCommandGrpc) WaitCommandReply(uuid string) message.CommandMessageReply {
 	commandMessageWait := new(pb.CommandMessageWait)
 	commandMessageWait.WorkerSource = r.Identity
 	commandMessageWait.Value = uuid
 	commandMessageReplyGrpc, _ := r.client.WaitCommandMessageReply(context.Background(), commandMessageWait)
-	for {
-		if commandMessageReplyGrpc != nil {
-			commandMessageReply = message.CommandMessageReplyFromGrpc(commandMessageReplyGrpc)
-			break
-		}
-	}
-	return
 
+	for commandMessageReplyGrpc == nil {
+		time.Sleep(time.Duration(1) * time.Millisecond)
+	}
+
+	return message.CommandMessageReplyFromGrpc(commandMessageReplyGrpc)
 }
