@@ -1,3 +1,5 @@
+---
+
 image: 'golang:latest'
 
 before_script:
@@ -27,6 +29,7 @@ before_script:
 
 stages:
     - std
+    - lint
 
 build:
     stage: std
@@ -37,3 +40,12 @@ gofmt:
     stage: std
     script:
         - 'gofmt -l .'
+
+golangci-lint:
+    stage: lint
+    script:
+        - 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.3'
+        - 'golangci-lint --version'
+        - 'golangci-lint run -v ./...'
+
+...
