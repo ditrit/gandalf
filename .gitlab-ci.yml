@@ -29,7 +29,7 @@ before_script:
 
 stages:
     - std
-    - lint
+    - lint/test/doc
 
 build:
     stage: std
@@ -42,10 +42,15 @@ gofmt:
         - 'gofmt -l .'
 
 golangci-lint:
-    stage: lint
+    stage: lint/test/doc
     script:
         - 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.3'
         - 'golangci-lint --version'
         - 'golangci-lint run --timeout 5m -v ./...'
+
+go_test:
+    stage: lint/test/doc
+    script:
+        - 'go test'
 
 ...
