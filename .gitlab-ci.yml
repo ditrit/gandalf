@@ -3,18 +3,19 @@ image: 'golang:latest'
 before_script:
     - 'go version'
 
+    # Setup project environment
     - '# DELETE SYMLINK IF EXIST'
     - '! test -f ${GOPATH}/src/gandalf-go || rm -f ${GOPATH}/src/gandalf-go'
-
     - '# SETUP SYMLINK TO MAKE GO WORK PROPERLY'
     - 'ln -s ${PWD} ${GOPATH}/src/gandalf-go'
-
-    - 'go get -d -v ./...'
 
     # Install zeromq
     - 'apt-get update -y'
     - 'apt-get upgrade -y '
     - 'apt-get install -y libzmq3-dev'
+
+    # Get all depedencies
+    - 'go get -d -v ./...'
 
 stages:
     - std
