@@ -9,13 +9,18 @@ before_script:
     - '# SETUP SYMLINK TO MAKE GO WORK PROPERLY'
     - 'ln -s ${PWD} ${GOPATH}/src/gandalf-go'
 
-    # Install zeromq
+    # Install zeromq and libdqlite (needed by 0mq)
     - 'apt-get update -y'
     - 'apt-get upgrade -y '
-    - 'apt-get install -y 
-            libzmq3-dev
-            gcc'
-    ## gcc is needed by bindings for 0mq
+
+    - 'apt-get install -y software-properties-common'
+    - 'add-apt-repository ppa:dqlite/stable'
+    - 'apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 06CD096F50FB3D04'
+
+    - 'apt-get update -y'
+    - 'apt-get install -y
+                libdqlite-dev
+                libzmq3-dev'
 
     # Get all depedencies
     - 'go get -d -v ./...'
