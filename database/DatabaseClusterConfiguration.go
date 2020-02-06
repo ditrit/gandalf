@@ -1,3 +1,5 @@
+//Package database :
+//File DatabaseClusterConfiguration.go
 package database
 
 import (

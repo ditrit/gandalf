@@ -1,3 +1,5 @@
+//Package database :
+//File DatabaseClient.go
 package database
 
 import (

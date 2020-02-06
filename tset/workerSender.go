@@ -1,3 +1,5 @@
+//Package tset :
+//File workerSender.go
 package tset
 
 import (

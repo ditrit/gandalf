@@ -1,3 +1,5 @@
+//Package connector :
+//File Queue.go
 package connector
 
 import (

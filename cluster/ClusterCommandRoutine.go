@@ -1,3 +1,5 @@
+//Package cluster :
+//File ClusterCommandRoutine.go
 package cluster
 
 import (

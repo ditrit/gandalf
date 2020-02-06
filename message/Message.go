@@ -1,3 +1,5 @@
+//Package message :
+//File Message.go
 package message
 
 import (

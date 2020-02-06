@@ -1,3 +1,5 @@
+//Package client :
+//File ClientConfiguration.go
 package client
 
 import (

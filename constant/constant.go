@@ -1,3 +1,5 @@
+//Package constant :
+//File constant.go
 package constant
 
 //nolint:golint,stylecheck
@@ -14,6 +16,7 @@ const (
 	WORKER_SERVICE_CLASS_CAPTURE       string = "WORKER_SERVICE_CLASS_CAPTURE"
 )
 
+//State :
 type State int
 
 //nolint:golint

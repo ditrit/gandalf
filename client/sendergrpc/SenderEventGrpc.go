@@ -1,3 +1,5 @@
+//Package sendergrpc :
+//File SenderEventGrpc.go
 package sendergrpc
 
 import (

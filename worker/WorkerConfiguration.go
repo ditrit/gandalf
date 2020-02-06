@@ -1,3 +1,5 @@
+//Package worker :
+//File WorkerConfiguration.go
 package worker
 
 import (

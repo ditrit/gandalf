@@ -1,3 +1,5 @@
+//Package function :
+//File functionTestSend.go
 package function
 
 import (

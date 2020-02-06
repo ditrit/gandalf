@@ -55,6 +55,12 @@ issues:
     - linters:
         - golint
       text: 'type name will be used as'
+
+    # Don't change it
+    # ignore useless erros from gosec
+    - linters:
+        - gosec
+      text: 'G104'
     
     # TODO Later
     # ignore hugeParam for copying heavy structuing in calling functions

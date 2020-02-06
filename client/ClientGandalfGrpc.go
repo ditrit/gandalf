@@ -1,3 +1,5 @@
+//Package client :
+//File ClientGandalfGrpc.go
 package client
 
 import (

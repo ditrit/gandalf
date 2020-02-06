@@ -1,3 +1,5 @@
+//Package connector :
+//File ConnectorGandalf.go
 package connector
 
 import "fmt"

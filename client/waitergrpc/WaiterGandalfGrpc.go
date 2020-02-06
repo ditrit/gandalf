@@ -1,3 +1,5 @@
+//Package waitergrpc :
+//File WaiterGandalfGrpc.go
 package waitergrpc
 
 import (

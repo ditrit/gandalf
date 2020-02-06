@@ -1,3 +1,5 @@
+//Package sendergrpc :
+//File SenderGandalfGrpc.go
 package sendergrpc
 
 import (

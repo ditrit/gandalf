@@ -1,3 +1,5 @@
+//Package aggregator :
+//File AggregatorGandalf.go
 package aggregator
 
 import "fmt"

@@ -1,3 +1,5 @@
+//Package worker :
+//File WorkerGandalf.go
 package worker
 
 import (

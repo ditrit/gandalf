@@ -1,3 +1,5 @@
+//Package connector :
+//File ConnectorEventRoutine.go
 package connector
 
 import (
@@ -124,6 +126,7 @@ func (r ConnectorEventRoutine) validationEvents(workerSource string, events []st
 
 //runIterator :
 //TODO target is unused
+//nolint: unparam
 func (r ConnectorEventRoutine) runIterator(target, value string, iterator *Iterator, channel chan message.EventMessage) {
 	notfound := true
 	for notfound {

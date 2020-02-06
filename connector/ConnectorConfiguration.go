@@ -1,3 +1,5 @@
+//Package connector :
+//File ConnectorConfiguration.go
 package connector
 
 import (

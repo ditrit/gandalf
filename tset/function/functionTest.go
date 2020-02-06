@@ -1,3 +1,5 @@
+//Package function :
+//File functionTest.go
 package function
 
 import (

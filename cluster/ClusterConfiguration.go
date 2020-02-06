@@ -1,3 +1,5 @@
+//Package cluster :
+//File ClusterConfiguration.go
 package cluster
 
 import (

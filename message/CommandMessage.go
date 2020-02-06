@@ -1,3 +1,5 @@
+//Package message :
+//File CommandMessage.go
 package message
 
 import (
@@ -11,6 +13,7 @@ import (
 	"github.com/shamaton/msgpack"
 )
 
+//CommandMessage :
 type CommandMessage struct {
 	SourceAggregator      string
 	SourceConnector       string
@@ -32,6 +35,7 @@ type CommandMessage struct {
 	Payload               string
 }
 
+//NewCommandMessage :
 func NewCommandMessage(context, timeout, uuid, connectorType, commandType, command, payload string) (commandMessage *CommandMessage) {
 	commandMessage = new(CommandMessage)
 

@@ -1,3 +1,5 @@
+//Package cluster :
+//File ClusterGandalf.go
 package cluster
 
 import "fmt"

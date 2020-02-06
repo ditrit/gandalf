@@ -1,3 +1,5 @@
+//Package connector :
+//File ConnectorCommandRoutine.go
 package connector
 
 import (

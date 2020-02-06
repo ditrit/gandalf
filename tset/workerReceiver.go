@@ -1,3 +1,5 @@
+//Package tset :
+//File workerReceiver.go
 package tset
 
 import (
@@ -18,7 +20,7 @@ func NewWorkerReceiver(path string) (workerReceiver *WorkerReceiver) {
 	return
 }
 
-//NewWorkerReceiver :
+//Run :
 func (wr WorkerReceiver) Run() {
 	//commandMessage := wr.WorkerGandalf.ClientGandalfGrpc.WaitCommand("test")
 	commandMessage := wr.WorkerGandalf.ClientGandalfGrpc.WaitEvent("toto", "toto")

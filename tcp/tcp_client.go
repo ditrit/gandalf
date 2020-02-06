@@ -1,3 +1,5 @@
+//Package tcp :
+//File tcp_client.go
 package main
 
 import (
@@ -30,7 +32,7 @@ func initTLS(connect string) (*tls.Conn, error) {
 
 	configClient = tls.Config{
 		RootCAs:            CAPool,
-		InsecureSkipVerify: true,
+		InsecureSkipVerify: true, //nolint: gosec
 	}
 
 	unencConn, err := net.Dial("tcp", connect)

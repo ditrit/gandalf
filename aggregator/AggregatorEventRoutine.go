@@ -1,3 +1,5 @@
+//Package aggregator :
+//File AggregatorEventRoutine.go
 package aggregator
 
 import (
@@ -78,6 +80,7 @@ func (r AggregatorEventRoutine) close() {
 }
 
 //run :
+//nolint: gocyclo
 func (r AggregatorEventRoutine) run() {
 	poller := zmq4.NewPoller()
 

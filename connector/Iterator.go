@@ -1,3 +1,5 @@
+//Package connector :
+//File Iterator.go
 package connector
 
 import (
@@ -33,11 +35,12 @@ func (i *Iterator) Close() {
 	delete(i.queue.iters, i)
 }
 
-// Print : print la queue
+// PrintQueue : print la queue
 func (i *Iterator) PrintQueue() {
 	i.queue.Print()
 }
 
+// GetQueue :
 func (i *Iterator) GetQueue() (queue *Queue) {
 	return i.queue
 }

@@ -1,3 +1,5 @@
+//Package aggregator :
+//File AggregatorCommandRoutine.go
 package aggregator
 
 import (

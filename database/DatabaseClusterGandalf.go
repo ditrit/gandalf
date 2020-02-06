@@ -1,3 +1,5 @@
+//Package database :
+//File DatabaseClusterGandalf.go
 package database
 
 import "fmt"

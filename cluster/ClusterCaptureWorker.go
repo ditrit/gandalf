@@ -1,3 +1,5 @@
+//Package cluster :
+//File ClusterCaptureWorker.go
 package cluster
 
 import (

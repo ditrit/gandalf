@@ -1,3 +1,5 @@
+//Package aggregator :
+//File AggregatorConfiguration.go
 package aggregator
 
 import (

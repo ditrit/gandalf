@@ -1,3 +1,5 @@
+//Package database :
+//File DatabaseCluster.go
 package database
 
 import (
@@ -55,7 +57,7 @@ func (dc DatabaseCluster) startNode(id int, dir, address string) (err error) {
 	nodeID := strconv.Itoa(id)
 	nodeDir := filepath.Join(dir, nodeID)
 
-	if errOs := os.MkdirAll(nodeDir, 0755); errOs != nil {
+	if errOs := os.MkdirAll(nodeDir, 0750); errOs != nil {
 		return errors.Wrapf(errOs, "can't create %s", nodeDir)
 	}
 
