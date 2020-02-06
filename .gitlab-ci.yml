@@ -2,11 +2,11 @@ image:
     name: 'golang:latest'
 
 before_install:
-    - go version
+    - 'go version'
 
 install:
-    - go dep ./...
+    - 'go dep ./...'
 
 test_job:
     script:
-        - go build
+        - 'go build'
