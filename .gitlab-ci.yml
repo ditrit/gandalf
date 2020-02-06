@@ -2,6 +2,8 @@ image: 'golang:latest'
 
 before_script:
     - 'go version'
+    - '! test -f ${GOPATH}/src/gandalf-go || rm -f ${GOPATH}/src/gandalf-go'
+    - 'ln -s ${PWD} ${GOPATH}/src/gandalf-go'
     - 'echo $GOPATH $PWD'
     - 'go get -d -v ./...'
 
