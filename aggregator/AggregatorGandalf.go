@@ -1,7 +1,10 @@
+//Package aggregator :
+//File AggregatorGandalf.go
 package aggregator
 
 import "fmt"
 
+//AggregatorGandalf :
 type AggregatorGandalf struct {
 	aggregatorConfiguration  *AggregatorConfiguration
 	aggregatorCommandRoutine *AggregatorCommandRoutine
@@ -9,6 +12,7 @@ type AggregatorGandalf struct {
 	aggregatorStopChannel    chan int
 }
 
+//NewAggregatorGandalf :
 func NewAggregatorGandalf(path string) (aggregatorGandalf *AggregatorGandalf) {
 	aggregatorGandalf = new(AggregatorGandalf)
 	aggregatorGandalf.aggregatorStopChannel = make(chan int)
@@ -22,18 +26,16 @@ func NewAggregatorGandalf(path string) (aggregatorGandalf *AggregatorGandalf) {
 	return
 }
 
+//Run :
 func (ag AggregatorGandalf) Run() {
 	go ag.aggregatorCommandRoutine.run()
 	go ag.aggregatorEventRoutine.run()
-	for {
-		select {
-		case <-ag.aggregatorStopChannel:
-			fmt.Println("quit")
-			break
-		}
-	}
+
+	<-ag.aggregatorStopChannel
+	fmt.Println("quit")
 }
 
+//Stop :
 func (ag AggregatorGandalf) Stop() {
 	ag.aggregatorStopChannel <- 0
 }

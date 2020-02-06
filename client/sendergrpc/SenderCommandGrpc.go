@@ -1,3 +1,5 @@
+//Package sendergrpc :
+//File SenderCommandGrpc.go
 package sendergrpc
 
 import (
@@ -9,29 +11,34 @@ import (
 	"google.golang.org/grpc"
 )
 
+//SenderCommandGrpc :
 type SenderCommandGrpc struct {
 	SenderCommandGrpcConnection string
 	Identity                    string
 	client                      pb.ConnectorCommandClient
 }
 
+//NewSenderCommandGrpc :
 func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderCommandGrpc *SenderCommandGrpc) {
 	senderCommandGrpc = new(SenderCommandGrpc)
 	senderCommandGrpc.Identity = identity
 	senderCommandGrpc.SenderCommandGrpcConnection = senderCommandGrpcConnection
-	conn, err := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection, grpc.WithInsecure())
-	if err != nil {
-	}
+	conn, _ := grpc.Dial(senderCommandGrpc.SenderCommandGrpcConnection, grpc.WithInsecure())
+	// if err != nil {
+	// 	// TODO implement erreur
+	// }
 	senderCommandGrpc.client = pb.NewConnectorCommandClient(conn)
 	fmt.Println("senderCommandGrpc connect : " + senderCommandGrpc.SenderCommandGrpcConnection)
+
 	return
 }
 
+//SendCommand :
 func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageUUID message.CommandMessageUUID) {
 	commandMessage := new(pb.CommandMessage)
 	commandMessage.Context = contextCommand
 	commandMessage.Timeout = timeout
-	commandMessage.Uuid = uuid
+	commandMessage.UUID = uuid
 	commandMessage.ConnectorType = connectorType
 	commandMessage.CommandType = command
 	commandMessage.Command = command
@@ -39,10 +46,11 @@ func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorT
 
 	CommandMessageUUIDGrpc, _ := r.client.SendCommandMessage(context.Background(), commandMessage)
 	commandMessageUUID = message.CommandMessageUUIDFromGrpc(CommandMessageUUIDGrpc)
-	return
 
+	return
 }
 
+//SendCommandReply :
 func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
 	commandMessageReply := new(pb.CommandMessageReply)
 	commandMessageReply.SourceAggregator = commandMessage.SourceAggregator
@@ -56,10 +64,11 @@ func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessag
 	commandMessageReply.Context = commandMessage.Context
 	commandMessageReply.Timeout = commandMessage.Timeout
 	commandMessageReply.Timestamp = commandMessage.Timestamp
-	commandMessageReply.Uuid = commandMessage.Uuid
+	commandMessageReply.UUID = commandMessage.UUID
 	commandMessageReply.Reply = reply
 	commandMessageReply.Payload = payload
 
 	empty, _ := r.client.SendCommandMessageReply(context.Background(), commandMessageReply)
+
 	return empty
 }

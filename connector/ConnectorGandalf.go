@@ -1,7 +1,10 @@
+//Package connector :
+//File ConnectorGandalf.go
 package connector
 
 import "fmt"
 
+//ConnectorGandalf :
 type ConnectorGandalf struct {
 	connectorConfiguration      *ConnectorConfiguration
 	connectorCommandRoutine     *ConnectorCommandRoutine
@@ -11,6 +14,7 @@ type ConnectorGandalf struct {
 	connectorStopChannel        chan int
 }
 
+//NewConnectorGandalf :
 func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 	connectorGandalf = new(ConnectorGandalf)
 	connectorGandalf.connectorStopChannel = make(chan int)
@@ -30,38 +34,41 @@ func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 	return
 }
 
+//Run :
 func (cg ConnectorGandalf) Run() {
 	go cg.connectorCommandRoutine.run()
 	go cg.connectorCommandRoutine.startGrpcServer()
 	go cg.connectorEventRoutine.run()
 	go cg.connectorEventRoutine.startGrpcServer()
-	for {
-		select {
-		case <-cg.connectorStopChannel:
-			fmt.Println("quit")
-			break
-		}
-	}
+
+	<-cg.connectorStopChannel
+	fmt.Println("quit")
+
+	cg.connectorCommandRoutine.close()
+	cg.connectorEventRoutine.close()
 }
 
+//Stop :
 func (cg ConnectorGandalf) Stop() {
 	cg.connectorStopChannel <- 0
 }
 
+//getWorkerCommands :
 func (cg ConnectorGandalf) getWorkerCommands(worker string) (workerCommand []string) {
 	return cg.connectorCommandsMap[worker]
 }
 
-func (cg ConnectorGandalf) addWorkerCommands(worker, command string) {
-	var sizeList = len(cg.connectorCommandsMap[worker])
-	cg.connectorCommandsMap[worker][sizeList] = command
-
+//addWorkerCommands :
+func (cg *ConnectorGandalf) addWorkerCommands(worker, command string) {
+	cg.connectorCommandsMap[worker] = append(cg.connectorCommandsMap[worker], command)
 }
 
+//getWorkerCommandSendFile :
 func (cg ConnectorGandalf) getWorkerCommandSendFile(worker string) (workerCommandFile string) {
 	return cg.connectorCommandSendFileMap[worker]
 }
 
+//addWorkerCommandSendFile :
 func (cg ConnectorGandalf) addWorkerCommandSendFile(worker, commandSendFile string) {
 	cg.connectorCommandSendFileMap[worker] = commandSendFile
 }

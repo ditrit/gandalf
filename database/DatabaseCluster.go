@@ -1,3 +1,5 @@
+//Package database :
+//File DatabaseCluster.go
 package database
 
 import (
@@ -17,6 +19,7 @@ import (
 	"gandalf-go/client/database"
 )
 
+//DatabaseCluster :
 type DatabaseCluster struct {
 	databaseClusterDirectory   string
 	databaseClusterConnections []string
@@ -24,15 +27,18 @@ type DatabaseCluster struct {
 	databaseClusterNodes       map[string]*dqlite.Node
 }
 
-func NewDatabaseCluster(databaseClusterDirectory string, databaseClusterConnections []string) (databaseCluster *DatabaseCluster) {
-	databaseCluster = new(DatabaseCluster)
+//NewDatabaseCluster :
+func NewDatabaseCluster(databaseClusterDirectory string, databaseClusterConnections []string) *DatabaseCluster {
+	databaseCluster := new(DatabaseCluster)
 	databaseCluster.databaseClusterDirectory = databaseClusterDirectory
 	databaseCluster.databaseClusterConnections = databaseClusterConnections
 	databaseCluster.databaseClusterNodes = make(map[string]*dqlite.Node)
 	databaseCluster.databaseClient = database.NewDatabaseClient(databaseCluster.databaseClusterConnections)
-	return
+
+	return databaseCluster
 }
 
+//Run :
 func (dc DatabaseCluster) Run() {
 	//RUN
 	for id := 0; id < len(dc.databaseClusterConnections); id++ {
@@ -44,30 +50,36 @@ func (dc DatabaseCluster) Run() {
 	}
 	//INIT DB
 	dc.initDatabaseCluster()
-
 }
 
+//startNode :
 func (dc DatabaseCluster) startNode(id int, dir, address string) (err error) {
 	nodeID := strconv.Itoa(id)
 	nodeDir := filepath.Join(dir, nodeID)
-	if err := os.MkdirAll(nodeDir, 0755); err != nil {
-		return errors.Wrapf(err, "can't create %s", nodeDir)
+
+	if errOs := os.MkdirAll(nodeDir, 0750); errOs != nil {
+		return errors.Wrapf(errOs, "can't create %s", nodeDir)
 	}
+
 	node, err := dqlite.New(
 		uint64(id), address, nodeDir,
 		dqlite.WithBindAddress(address),
 		dqlite.WithNetworkLatency(20*time.Millisecond),
 	)
 	dc.databaseClusterNodes[nodeID] = node
+
 	if err != nil {
 		return errors.Wrap(err, "failed to create node")
 	}
+
 	if err := node.Start(); err != nil {
 		return errors.Wrap(err, "failed to start node")
 	}
+
 	return
 }
 
+//addNodesToLeader :
 func (dc DatabaseCluster) addNodesToLeader(id int, address string) (err error) {
 	info := client.NodeInfo{
 		ID:      uint64(id),
@@ -86,14 +98,18 @@ func (dc DatabaseCluster) addNodesToLeader(id int, address string) (err error) {
 	if err := client.Add(ctx, info); err != nil {
 		return errors.Wrap(err, "can't add node")
 	}
+
 	return
 }
 
-func (dc DatabaseCluster) initDatabaseCluster() (err error) {
+//initDatabaseCluster :
+//nolint: funlen, gocyclo
+func (dc DatabaseCluster) initDatabaseCluster() error {
 	driver, err := driver.New(dc.databaseClient.GetStore())
 	if err != nil {
 		return errors.Wrapf(err, "failed to create dqlite driver")
 	}
+
 	sql.Register("dqlite", driver)
 
 	db, err := sql.Open("dqlite", "context.db")
@@ -107,6 +123,7 @@ func (dc DatabaseCluster) initDatabaseCluster() (err error) {
 		fmt.Println(err)
 		return errors.Wrap(err, "can't create tenant table")
 	}
+
 	if _, err := db.Exec("INSERT INTO tenant (name) values (?)", "test"); err != nil {
 		return errors.Wrap(err, "can't update key")
 	}
@@ -169,5 +186,5 @@ func (dc DatabaseCluster) initDatabaseCluster() (err error) {
 		return errors.Wrap(err, "can't update key")
 	}
 
-	return
+	return nil
 }

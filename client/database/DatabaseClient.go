@@ -1,3 +1,5 @@
+//Package database :
+//File DatabaseClient.go
 package database
 
 import (
@@ -7,36 +9,45 @@ import (
 	"github.com/canonical/go-dqlite/client"
 )
 
+//DatabaseClient :
 type DatabaseClient struct {
 	databaseClientCluster []string
 }
 
+//NewDatabaseClient :
 func NewDatabaseClient(cluster []string) (databaseClient *DatabaseClient) {
 	databaseClient = new(DatabaseClient)
 	databaseClient.databaseClientCluster = cluster
+
 	return
 }
 
+//GetLeader :
 func (dc DatabaseClient) GetLeader() (*client.Client, error) {
 	store := dc.GetStore()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	return client.FindLeader(ctx, store, client.WithLogFunc(logFunc))
+	return client.FindLeader(ctx, store, client.WithLogFunc(logFuncf))
 }
 
+//GetStore :
 func (dc DatabaseClient) GetStore() client.NodeStore {
 	store := client.NewInmemNodeStore()
-	if len(dc.databaseClientCluster) == 0 {
-	}
+	// if len(dc.databaseClientCluster) == 0 {
+	// 	// TODO handle this case
+	// }
 	infos := make([]client.NodeInfo, len(dc.databaseClientCluster))
 	for i, address := range dc.databaseClientCluster {
 		infos[i].ID = uint64(i + 1)
 		infos[i].Address = address
 	}
-	store.Set(context.Background(), infos)
+
+	_ = store.Set(context.Background(), infos)
+
 	return store
 }
 
-func logFunc(l client.LogLevel, format string, a ...interface{}) {}
+//logFuncf :
+func logFuncf(l client.LogLevel, format string, a ...interface{}) {}

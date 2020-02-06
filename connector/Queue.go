@@ -1,3 +1,5 @@
+//Package connector :
+//File Queue.go
 package connector
 
 import (
@@ -21,6 +23,7 @@ type Queue struct {
 func NewQueue() *Queue {
 	q := new(Queue)
 	q.Init()
+
 	return q
 }
 
@@ -35,35 +38,42 @@ func (q *Queue) Init() {
 func (q *Queue) Push(m message.Message) {
 	fmt.Println("Push a message!")
 	fmt.Println(m)
+
 	key := m.GetUUID()
 	timeout, _ := strconv.Atoi(m.GetTimeout())
+
 	fmt.Println("TIME OUT")
 	fmt.Println(timeout)
+
 	q.m.Lock()
 	defer q.m.Unlock()
+
 	ele := q.dict[key]
 	if ele != nil {
 		return
 	}
+
 	ele = q.qlist.PushFront(m)
 	q.dict[key] = ele
+
 	go func() {
 		time.Sleep(time.Duration(timeout) * time.Millisecond)
 		fmt.Println("REMOVED")
 		q.remove(key)
 	}()
-	return
 }
 
 // First :
 func (q *Queue) First() *message.Message {
 	q.m.Lock()
 	defer q.m.Unlock()
+
 	ele := q.qlist.Back()
 	if ele != nil {
 		value := ele.Value.(message.Message)
 		return &value
 	}
+
 	return nil
 }
 
@@ -71,7 +81,9 @@ func (q *Queue) First() *message.Message {
 func (q *Queue) Next(key string) *message.Message {
 	q.m.Lock()
 	defer q.m.Unlock()
+
 	eleFromKey := q.dict[key]
+
 	if eleFromKey != nil {
 		nextEle := eleFromKey.Prev()
 		if nextEle != nil {
@@ -79,6 +91,7 @@ func (q *Queue) Next(key string) *message.Message {
 			return &nextMessage
 		}
 	}
+
 	return nil
 }
 
@@ -94,10 +107,12 @@ func (q *Queue) remove(key string) {
 	// 3. sinon c'est que la queue est vide
 	ele := q.dict[key]
 	nextEle := ele.Prev() // cas 1.
+	nextUUID := ""
+
 	if nextEle == nil {
 		nextEle = ele.Next() // cas 2.
 	}
-	nextUUID := ""
+
 	if nextEle != nil {
 		nextUUID = nextEle.Value.(message.Message).GetUUID()
 	}
@@ -126,10 +141,12 @@ func (q *Queue) IsEmpty() bool {
 // Print :
 func (q *Queue) Print() {
 	ele := q.qlist.Back()
+
 	fmt.Printf("   Queue{\n")
+
 	for ele != nil {
 		fmt.Printf("      %s,\n", ele.Value.(message.Message).GetUUID())
 		ele = ele.Prev()
 	}
-	fmt.Printf("nb eles : %d\n", q.qlist.Len())
+	fmt.Printf("nb elems : %d\n", q.qlist.Len())
 }

@@ -1,14 +1,19 @@
+//Package worker :
+//File WorkerGandalf.go
 package worker
 
 import (
+	"fmt"
 	"gandalf-go/client"
 )
 
+//WorkerGandalf :
 type WorkerGandalf struct {
 	WorkerConfiguration *WorkerConfiguration
 	ClientGandalfGrpc   *client.ClientGandalfGrpc
 }
 
+//NewWorkerGandalf :
 func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	workerGandalf = new(WorkerGandalf)
 
@@ -22,9 +27,11 @@ func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	return
 }
 
+//Run :
 func (wg WorkerGandalf) Run() {
 	for {
 		//GESTION CHANNEL
+		fmt.Println("Im running into noting TODO me")
 	}
 }
 

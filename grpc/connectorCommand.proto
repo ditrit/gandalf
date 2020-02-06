@@ -29,7 +29,7 @@ message CommandMessage {
 	string Timestamp = 11;             
 	string Major = 12;                 
 	string Minor = 13;                 
-	string Uuid = 14;                  
+	string UUID = 14;                  
 	string ConnectorType = 15;         
 	string CommandType = 16;           
 	string Command = 17;               
@@ -37,7 +37,7 @@ message CommandMessage {
 }
 
 message CommandMessageUUID {
-  string Uuid = 1; 
+  string UUID = 1; 
 }
 
 message CommandMessageWait {
@@ -57,7 +57,7 @@ message CommandMessageReply {
 	string Context = 9;               
 	string Timeout = 10;               
 	string Timestamp = 11;             
-	string Uuid = 12;                  
+	string UUID = 12;                  
 	string Reply = 13;                 
 	string Payload = 14;               
 }

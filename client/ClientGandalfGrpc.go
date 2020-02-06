@@ -1,3 +1,5 @@
+//Package client :
+//File ClientGandalfGrpc.go
 package client
 
 import (
@@ -8,6 +10,7 @@ import (
 	"gandalf-go/message"
 )
 
+//ClientGandalfGrpc :
 type ClientGandalfGrpc struct {
 	Identity                    string
 	SenderCommandGrpcConnection string
@@ -19,6 +22,7 @@ type ClientGandalfGrpc struct {
 	ClientStopChannel           chan int
 }
 
+//NewClientGandalfGrpc :
 func NewClientGandalfGrpc(identity, senderCommandGrpcConnection, senderEventGrpcConnection, waiterCommandGrpcConnection, waiterEventGrpcConnection string) (clientGandalfGrpc *ClientGandalfGrpc) {
 	clientGandalfGrpc = new(ClientGandalfGrpc)
 	clientGandalfGrpc.ClientStopChannel = make(chan int)
@@ -35,26 +39,32 @@ func NewClientGandalfGrpc(identity, senderCommandGrpcConnection, senderEventGrpc
 	return
 }
 
+//SendCommand :
 func (cg ClientGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) message.CommandMessageUUID {
 	return cg.SenderGandalfGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
+//SendCommandReply :
 func (cg ClientGandalfGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
 	return cg.SenderGandalfGrpc.SendCommandReply(commandMessage, reply, payload)
 }
 
+//SendEvent :
 func (cg ClientGandalfGrpc) SendEvent(topic, timeout, uuid, event, payload string) *pb.Empty {
 	return cg.SenderGandalfGrpc.SendEvent(topic, timeout, uuid, event, payload)
 }
 
+//WaitCommand :
 func (cg ClientGandalfGrpc) WaitCommand(command string) (commandMessage message.CommandMessage) {
 	return cg.WaiterGandalfGrpc.WaitCommand(command)
 }
 
+//WaitCommandReply :
 func (cg ClientGandalfGrpc) WaitCommandReply(uuid string) (commandMessageReply message.CommandMessageReply) {
 	return cg.WaiterGandalfGrpc.WaitCommandReply(uuid)
 }
 
+//WaitEvent :
 func (cg ClientGandalfGrpc) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
 	return cg.WaiterGandalfGrpc.WaitEvent(event, topic)
 }

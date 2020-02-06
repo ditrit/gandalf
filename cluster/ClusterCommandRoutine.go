@@ -1,3 +1,5 @@
+//Package cluster :
+//File ClusterCommandRoutine.go
 package cluster
 
 import (
@@ -12,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+//ClusterCommandRoutine :
 type ClusterCommandRoutine struct {
 	Context                         *zmq4.Context
 	ClusterCommandSend              *zmq4.Socket
@@ -26,8 +29,9 @@ type ClusterCommandRoutine struct {
 	DatabaseDB                      *sql.DB
 }
 
-func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) (clusterCommandRoutine *ClusterCommandRoutine) {
-	clusterCommandRoutine = new(ClusterCommandRoutine)
+//NewClusterCommandRoutine :
+func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) *ClusterCommandRoutine {
+	clusterCommandRoutine := new(ClusterCommandRoutine)
 
 	clusterCommandRoutine.Identity = identity
 	clusterCommandRoutine.DatabaseClusterConnections = databaseClusterConnections
@@ -53,18 +57,17 @@ func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCom
 	fmt.Println("clusterCommandCapture bind : " + clusterCommandCaptureConnection)
 
 	store := clusterCommandRoutine.DatabaseClient.GetStore()
-	driver, err := driver.New(store)
-	if err != nil {
+	driver, _ := driver.New(store)
+	// TODO : handle err
 
-	}
 	sql.Register("cluster", driver)
-	clusterCommandRoutine.DatabaseDB, err = sql.Open("cluster", "context.db")
-	if err != nil {
-	}
+	clusterCommandRoutine.DatabaseDB, _ = sql.Open("cluster", "context.db")
+	// TODO : handle err
 
-	return
+	return clusterCommandRoutine
 }
 
+//close :
 func (r ClusterCommandRoutine) close() {
 	r.ClusterCommandSend.Close()
 	r.ClusterCommandReceive.Close()
@@ -72,46 +75,50 @@ func (r ClusterCommandRoutine) close() {
 	r.Context.Term()
 }
 
+//run :
 func (r ClusterCommandRoutine) run() {
-
 	poller := zmq4.NewPoller()
 	poller.Add(r.ClusterCommandReceive, zmq4.POLLIN)
 
-	command := [][]byte{}
-	err := errors.New("")
-
 	for {
 		fmt.Println("Running ClusterCommandRoutine")
+
 		sockets, _ := poller.Poll(-1)
+
 		for _, socket := range sockets {
+			currentSocket := socket.Socket
 
-			switch currentSocket := socket.Socket; currentSocket {
-
-			case r.ClusterCommandReceive:
+			if currentSocket == r.ClusterCommandReceive {
 				fmt.Println("Cluster Receive")
-				command, err = currentSocket.RecvMessageBytes(0)
+
+				command, err := currentSocket.RecvMessageBytes(0)
+
 				if err != nil {
 					panic(err)
 				}
+
 				r.processCommandReceive(command)
 			}
-
 		}
 	}
-
-	fmt.Println("done")
 }
 
+//processCommandReceive :
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
-
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
 		message, _ := message.DecodeCommandMessage(command[2])
 
 		//r.processCaptureCommand(message)
-		r.processRoutingCommandMessage(&message)
+		err := r.processRoutingCommandMessage(&message)
+		if err != nil {
+			fmt.Println("Unable to process the command : ", err)
+			return
+		}
+
 		fmt.Println(message.DestinationAggregator)
 		fmt.Println(message.DestinationConnector)
+
 		go message.SendWith(r.ClusterCommandSend, message.DestinationAggregator)
 	} else {
 		messageReply, _ := message.DecodeCommandMessageReply(command[2])
@@ -120,8 +127,9 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 	}
 }
 
+//processRoutingCommandMessage :
 func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *message.CommandMessage) (err error) {
-	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name as agg_destination, connector.name as conn_destination FROM application_context
+	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name as aggDestination, connector.name as connDestination FROM application_context
 	JOIN tenant ON application_context.tenant = tenant.id
 	JOIN connector_type ON application_context.connector_type = connector_type.id
 	JOIN command_type ON application_context.command_type = command_type.id
@@ -129,22 +137,27 @@ func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *mess
 	JOIN connector ON application_context.connector_destination = connector.id
 	WHERE tenant.name = ? AND connector_type.name = ? AND command_type.name = ?`, commandMessage.Tenant, commandMessage.ConnectorType, commandMessage.CommandType)
 
-	agg_destination := ""
-	conn_destination := ""
-	if err := row.Scan(&agg_destination, &conn_destination); err != nil {
+	var (
+		aggDestination  string
+		connDestination string
+	)
+
+	if err := row.Scan(&aggDestination, &connDestination); err != nil {
 		return errors.Wrap(err, "failed to get key")
 	}
 
-	commandMessage.DestinationAggregator = agg_destination
-	commandMessage.DestinationConnector = conn_destination
+	commandMessage.DestinationAggregator = aggDestination
+	commandMessage.DestinationConnector = connDestination
 
 	return
 }
 
+//processCaptureCommand :
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.CommandMessage) {
 	go commandMessage.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }
 
+//processCaptureCommandMessageReply :
 func (r ClusterCommandRoutine) processCaptureCommandMessageReply(commandMessageReply message.CommandMessageReply) {
 	go commandMessageReply.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

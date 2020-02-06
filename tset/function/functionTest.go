@@ -1,3 +1,5 @@
+//Package function :
+//File functionTest.go
 package function
 
 import (
@@ -5,14 +7,17 @@ import (
 	"gandalf-go/message"
 )
 
+//FunctionTest :
 type FunctionTest struct {
 }
 
-func (ft FunctionTest) ExecuteCommand(commandMessage message.CommandMessage, Replys chan message.CommandMessageReply) {
+//ExecuteCommand :
+func (ft FunctionTest) ExecuteCommand(commandMessage message.CommandMessage, replys chan message.CommandMessageReply) {
 	fmt.Println("COMMAND")
 	fmt.Println(commandMessage)
 }
 
+//ExecuteEvent :
 func (ft FunctionTest) ExecuteEvent(eventMessage message.EventMessage) {
 	fmt.Println("EVENT")
 	fmt.Println(eventMessage)

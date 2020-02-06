@@ -18,7 +18,7 @@ message EventMessage {
 	string Topic = 3;     
 	string Timeout = 4;   
 	string Timestamp = 5; 
-	string Uuid = 6;      
+	string UUID = 6;      
 	string Event = 7;     
 	string Payload = 8;   
 }

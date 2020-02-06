@@ -1,7 +1,10 @@
+//Package waitergrpc :
+//File WaiterEventGrpc.go
 package waitergrpc
 
 import (
 	"context"
+	"time"
 
 	pb "gandalf-go/grpc"
 	"gandalf-go/message"
@@ -9,36 +12,40 @@ import (
 	"google.golang.org/grpc"
 )
 
+//WaiterEventGrpc :
 type WaiterEventGrpc struct {
 	WaiterEventGrpcConnection string
 	Identity                  string
 	client                    pb.ConnectorEventClient
 }
 
+//NewWaiterEventGrpc :
 func NewWaiterEventGrpc(identity, waiterEventGrpcConnection string) (waiterEventGrpc *WaiterEventGrpc) {
 	waiterEventGrpc = new(WaiterEventGrpc)
 
 	waiterEventGrpc.Identity = identity
 	waiterEventGrpc.WaiterEventGrpcConnection = waiterEventGrpcConnection
 
-	conn, err := grpc.Dial(waiterEventGrpc.WaiterEventGrpcConnection, grpc.WithInsecure())
-	if err != nil {
-	}
+	conn, _ := grpc.Dial(waiterEventGrpc.WaiterEventGrpcConnection, grpc.WithInsecure())
+	// if err != nil {
+	// 	// TODO Handle error
+	// }
 	waiterEventGrpc.client = pb.NewConnectorEventClient(conn)
+
 	return
 }
 
+//WaitEvent :
 func (r WaiterEventGrpc) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
 	eventMessageWait := new(pb.EventMessageWait)
 	eventMessageWait.WorkerSource = r.Identity
 	eventMessageWait.Topic = topic
 	eventMessageWait.Event = event
 	eventMessageGrpc, _ := r.client.WaitEventMessage(context.Background(), eventMessageWait)
-	for {
-		if eventMessageGrpc != nil {
-			eventMessage = message.EventMessageFromGrpc(eventMessageGrpc)
-			break
-		}
+
+	for eventMessageGrpc == nil {
+		time.Sleep(time.Duration(1) * time.Millisecond)
 	}
-	return
+
+	return message.EventMessageFromGrpc(eventMessageGrpc)
 }

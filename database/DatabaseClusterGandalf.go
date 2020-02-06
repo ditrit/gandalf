@@ -1,13 +1,17 @@
+//Package database :
+//File DatabaseClusterGandalf.go
 package database
 
 import "fmt"
 
+//DatabaseClusterGandalf :
 type DatabaseClusterGandalf struct {
 	databaseStopChannel   chan int
 	databaseConfiguration *DatabaseClusterConfiguration
 	databaseCluster       *DatabaseCluster
 }
 
+//NewDatabaseClusterGandalf :
 func NewDatabaseClusterGandalf(path string) (databaseClusterGandalf *DatabaseClusterGandalf) {
 	databaseClusterGandalf = new(DatabaseClusterGandalf)
 	databaseClusterGandalf.databaseStopChannel = make(chan int)
@@ -19,13 +23,9 @@ func NewDatabaseClusterGandalf(path string) (databaseClusterGandalf *DatabaseClu
 	return
 }
 
+//Run :
 func (dc DatabaseClusterGandalf) Run() {
 	dc.databaseCluster.Run()
-	for {
-		select {
-		case <-dc.databaseStopChannel:
-			fmt.Println("quit")
-			break
-		}
-	}
+	<-dc.databaseStopChannel
+	fmt.Println("quit")
 }

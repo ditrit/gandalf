@@ -1,3 +1,5 @@
+//Package tset :
+//File workerSender.go
 package tset
 
 import (
@@ -6,16 +8,20 @@ import (
 	"time"
 )
 
+//WorkerSender :
 type WorkerSender struct {
 	WorkerGandalf *worker.WorkerGandalf
 }
 
+//NewWorkerSender :
 func NewWorkerSender(path string) (workerSender *WorkerSender) {
 	workerSender = new(WorkerSender)
 	workerSender.WorkerGandalf = worker.NewWorkerGandalf(path)
+
 	return
 }
 
+//Run :
 func (ws WorkerSender) Run() {
 	for {
 		fmt.Println("SEND")
@@ -24,5 +30,4 @@ func (ws WorkerSender) Run() {
 
 		go ws.WorkerGandalf.ClientGandalfGrpc.SendEvent("toto", "10000", "toto", "toto", "toto")
 	}
-
 }
