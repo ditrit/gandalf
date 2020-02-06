@@ -28,7 +28,12 @@ before_script:
 stages:
     - std
 
-test_job:
+build:
     stage: std
     script:
         - 'go build'
+
+gofmt:
+    stage: std
+    script:
+        - 'gofmt -l .'
