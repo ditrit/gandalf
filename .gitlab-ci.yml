@@ -2,7 +2,8 @@ image: 'golang:latest'
 
 before_script:
     - 'go version'
-    - 'go get ./...'
+    - 'echo $GOPATH $PWD'
+    - 'go get -d -v ./...'
 
 stages:
     - std
