@@ -1,11 +1,14 @@
-image:
-    name: 'golang:latest'
+image: 'golang:latest'
 
 default:
     before_script:
         - 'go version'
         - 'go dep ./...'
 
+stages:
+    - std
+
 test_job:
+    stage: std
     script:
         - 'go build'
