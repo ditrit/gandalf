@@ -11,16 +11,10 @@ before_script:
 
     - 'go get -d -v ./...'
 
+    # Install zeromq
     - 'apt-get update -y'
     - 'apt-get upgrade -y '
-    - 'apt-get install -y
-            libtool
-            pkg-config
-            build-essential
-            autoconf
-            automake
-            installed
-            libzmq3-dev'
+    - 'apt-get install -y libzmq3-dev'
 
 stages:
     - std
