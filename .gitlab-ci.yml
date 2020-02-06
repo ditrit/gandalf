@@ -12,7 +12,10 @@ before_script:
     # Install zeromq
     - 'apt-get update -y'
     - 'apt-get upgrade -y '
-    - 'apt-get install -y libzmq3-dev'
+    - 'apt-get install -y 
+            libzmq3-dev
+            gcc'
+    ## gcc is needed by bindings for 0mq
 
     # Get all depedencies
     - 'go get -d -v ./...'
