@@ -47,14 +47,17 @@ func NewCommandMessage(context, timeout, uuid, connectorType, commandType, comma
 	return
 }
 
+//GetUUID :
 func (c CommandMessage) GetUUID() string {
 	return c.UUID
 }
 
+//GetTimeout :
 func (c CommandMessage) GetTimeout() string {
 	return c.Timeout
 }
 
+//SendWith :
 func (c CommandMessage) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = c.SendHeaderWith(socket, header)
@@ -69,6 +72,7 @@ func (c CommandMessage) SendWith(socket *zmq4.Socket, header string) (isSend boo
 	}
 }
 
+//SendHeaderWith :
 func (c CommandMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		_, err := socket.Send(header, zmq4.SNDMORE)
@@ -81,6 +85,7 @@ func (c CommandMessage) SendHeaderWith(socket *zmq4.Socket, header string) (isSe
 	}
 }
 
+//SendMessageWith :
 func (c CommandMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		socket.Send(constant.COMMAND_MESSAGE, zmq4.SNDMORE)
@@ -97,6 +102,7 @@ func (c CommandMessage) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	}
 }
 
+//From :
 func (c CommandMessage) From(command []string) {
 	c.SourceAggregator = command[0]
 	c.SourceConnector = command[1]
@@ -118,6 +124,7 @@ func (c CommandMessage) From(command []string) {
 	c.Payload = command[17]
 }
 
+//CommandMessageFromGrpc :
 func CommandMessageFromGrpc(commandMessage *pb.CommandMessage) (c CommandMessage) {
 	c.SourceAggregator = commandMessage.GetSourceAggregator()
 	c.SourceConnector = commandMessage.GetSourceConnector()
@@ -141,6 +148,7 @@ func CommandMessageFromGrpc(commandMessage *pb.CommandMessage) (c CommandMessage
 	return
 }
 
+//CommandMessageToGrpc :
 func CommandMessageToGrpc(c CommandMessage) (commandMessage *pb.CommandMessage) {
 	commandMessage = new(pb.CommandMessage)
 	commandMessage.SourceAggregator = c.SourceAggregator
@@ -165,8 +173,7 @@ func CommandMessageToGrpc(c CommandMessage) (commandMessage *pb.CommandMessage) 
 	return
 }
 
-//
-
+//CommandMessageReply :
 type CommandMessageReply struct {
 	SourceAggregator      string
 	SourceConnector       string
@@ -184,14 +191,17 @@ type CommandMessageReply struct {
 	Payload               string
 }
 
+//GetUUID :
 func (cr CommandMessageReply) GetUUID() string {
 	return cr.UUID
 }
 
+//GetTimeout :
 func (cr CommandMessageReply) GetTimeout() string {
 	return cr.Timeout
 }
 
+//SendWith :
 func (cr CommandMessageReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = cr.SendHeaderWith(socket, header)
@@ -205,6 +215,7 @@ func (cr CommandMessageReply) SendWith(socket *zmq4.Socket, header string) (isSe
 	}
 }
 
+//SendHeaderWith :
 func (cr CommandMessageReply) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		_, err := socket.Send(header, zmq4.SNDMORE)
@@ -217,6 +228,7 @@ func (cr CommandMessageReply) SendHeaderWith(socket *zmq4.Socket, header string)
 	}
 }
 
+//SendMessageWith :
 func (cr CommandMessageReply) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		socket.Send(constant.COMMAND_MESSAGE_REPLY, zmq4.SNDMORE)
@@ -233,6 +245,7 @@ func (cr CommandMessageReply) SendMessageWith(socket *zmq4.Socket) (isSend bool)
 	}
 }
 
+//From :
 func (cr CommandMessageReply) From(commandMessage CommandMessage, reply, payload string) {
 	cr.SourceAggregator = commandMessage.SourceAggregator
 	cr.SourceConnector = commandMessage.SourceConnector
@@ -250,6 +263,7 @@ func (cr CommandMessageReply) From(commandMessage CommandMessage, reply, payload
 	cr.Payload = payload
 }
 
+//CommandMessageReplyFromGrpc :
 func CommandMessageReplyFromGrpc(commandMessageReply *pb.CommandMessageReply) (cr CommandMessageReply) {
 	cr.SourceAggregator = commandMessageReply.GetSourceAggregator()
 	cr.SourceConnector = commandMessageReply.GetSourceConnector()
@@ -269,6 +283,7 @@ func CommandMessageReplyFromGrpc(commandMessageReply *pb.CommandMessageReply) (c
 	return
 }
 
+//CommandMessageReplyToGrpc :
 func CommandMessageReplyToGrpc(cr CommandMessageReply) (commandMessageReply *pb.CommandMessageReply) {
 	commandMessageReply = new(pb.CommandMessageReply)
 	commandMessageReply.SourceAggregator = cr.SourceAggregator
@@ -289,12 +304,12 @@ func CommandMessageReplyToGrpc(cr CommandMessageReply) (commandMessageReply *pb.
 	return
 }
 
-//
-
+//CommandFunction :
 type CommandFunction struct {
 	Functions []string
 }
 
+//NewCommandFunction :
 func NewCommandFunction(functions []string) (commandFunction *CommandFunction) {
 	commandFunction = new(CommandFunction)
 	commandFunction.Functions = functions
@@ -302,6 +317,7 @@ func NewCommandFunction(functions []string) (commandFunction *CommandFunction) {
 	return
 }
 
+//SendWith :
 func (cf CommandFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS, zmq4.SNDMORE)
@@ -319,12 +335,12 @@ func (cf CommandFunction) SendWith(socket *zmq4.Socket) (isSend bool) {
 	}
 }
 
-//
-
+//CommandFunctionReply :
 type CommandFunctionReply struct {
 	Validation bool
 }
 
+//NewCommandFunctionReply :
 func NewCommandFunctionReply(validation bool) (commandFunctionReply *CommandFunctionReply) {
 	commandFunctionReply = new(CommandFunctionReply)
 	commandFunctionReply.Validation = validation
@@ -332,6 +348,7 @@ func NewCommandFunctionReply(validation bool) (commandFunctionReply *CommandFunc
 	return
 }
 
+//SendWith :
 func (cfr CommandFunctionReply) SendWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		isSend = cfr.SendHeaderWith(socket, header)
@@ -345,6 +362,7 @@ func (cfr CommandFunctionReply) SendWith(socket *zmq4.Socket, header string) (is
 	}
 }
 
+//SendHeaderWith :
 func (cfr CommandFunctionReply) SendHeaderWith(socket *zmq4.Socket, header string) (isSend bool) {
 	for {
 		_, err := socket.Send(header, zmq4.SNDMORE)
@@ -357,6 +375,7 @@ func (cfr CommandFunctionReply) SendHeaderWith(socket *zmq4.Socket, header strin
 	}
 }
 
+//SendMessageWith :
 func (cfr CommandFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_VALIDATION_FUNCTIONS_REPLY, zmq4.SNDMORE)
@@ -374,12 +393,14 @@ func (cfr CommandFunctionReply) SendMessageWith(socket *zmq4.Socket) (isSend boo
 	}
 }
 
+//CommandMessageWait :
 type CommandMessageWait struct {
 	WorkerSource string
 	Value        string
 	CommandType  string
 }
 
+//NewCommandMessageWait :
 func NewCommandMessageWait(workerSource, value, commandType string) (commandMessageWait *CommandMessageWait) {
 	commandMessageWait = new(CommandMessageWait)
 	commandMessageWait.WorkerSource = workerSource
@@ -389,6 +410,7 @@ func NewCommandMessageWait(workerSource, value, commandType string) (commandMess
 	return
 }
 
+//CommandMessageWaitFromGrpc :
 func CommandMessageWaitFromGrpc(commandType string, commandMessageWait pb.CommandMessageWait) (cmw CommandMessageWait) {
 	cmw.WorkerSource = commandMessageWait.GetWorkerSource()
 	cmw.CommandType = commandType
@@ -397,6 +419,7 @@ func CommandMessageWaitFromGrpc(commandType string, commandMessageWait pb.Comman
 	return
 }
 
+//SendWith :
 func (cmw CommandMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_WAIT, zmq4.SNDMORE)
@@ -414,18 +437,19 @@ func (cmw CommandMessageWait) SendWith(socket *zmq4.Socket) (isSend bool) {
 	}
 }
 
-//
-
+//CommandMessageReady :
 type CommandMessageReady struct {
 	// ???
 }
 
+//NewCommandMessageReady :
 func NewCommandMessageReady() (commandMessageReady *CommandMessageReady) {
 	commandMessageReady = new(CommandMessageReady)
 
 	return
 }
 
+//SendWith :
 func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {
 	for {
 		_, err := socket.Send(constant.COMMAND_READY, zmq4.SNDMORE)
@@ -443,17 +467,18 @@ func (cry CommandMessageReady) SendWith(socket *zmq4.Socket) (isSend bool) {
 	}
 }
 
+//CommandMessageUUID :
 type CommandMessageUUID struct {
 	UUID string
 }
 
+//CommandMessageUUIDFromGrpc :
 func CommandMessageUUIDFromGrpc(commandMessageUUID *pb.CommandMessageUUID) (cmu CommandMessageUUID) {
 	cmu.UUID = commandMessageUUID.GetUuid()
 	return
 }
 
-//
-
+//EncodeCommandMessage :
 func EncodeCommandMessage(commandMessage CommandMessage) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandMessage)
 	if err != nil {
@@ -463,6 +488,7 @@ func EncodeCommandMessage(commandMessage CommandMessage) (bytesContent []byte, c
 	return
 }
 
+//EncodeCommandMessageReply :
 func EncodeCommandMessageReply(commandMessageReply CommandMessageReply) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandMessageReply)
 	if err != nil {
@@ -472,6 +498,7 @@ func EncodeCommandMessageReply(commandMessageReply CommandMessageReply) (bytesCo
 	return
 }
 
+//EncodeCommandMessageWait :
 func EncodeCommandMessageWait(commandMessageWait CommandMessageWait) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandMessageWait)
 	if err != nil {
@@ -481,6 +508,7 @@ func EncodeCommandMessageWait(commandMessageWait CommandMessageWait) (bytesConte
 	return
 }
 
+//EncodeCommandMessageReady :
 func EncodeCommandMessageReady(commandMessageReady CommandMessageReady) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandMessageReady)
 	if err != nil {
@@ -490,6 +518,7 @@ func EncodeCommandMessageReady(commandMessageReady CommandMessageReady) (bytesCo
 	return
 }
 
+//EncodeCommandFunction :
 func EncodeCommandFunction(commandFunction CommandFunction) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandFunction)
 	if err != nil {
@@ -499,6 +528,7 @@ func EncodeCommandFunction(commandFunction CommandFunction) (bytesContent []byte
 	return
 }
 
+//EncodeCommandFunctionReply :
 func EncodeCommandFunctionReply(commandFunctionReply CommandFunctionReply) (bytesContent []byte, commandError error) {
 	bytesContent, err := msgpack.Encode(commandFunctionReply)
 	if err != nil {
@@ -508,6 +538,7 @@ func EncodeCommandFunctionReply(commandFunctionReply CommandFunctionReply) (byte
 	return
 }
 
+//DecodeCommandMessage :
 func DecodeCommandMessage(bytesContent []byte) (commandMessage CommandMessage, commandError error) {
 	err := msgpack.Decode(bytesContent, &commandMessage)
 	if err != nil {
@@ -517,46 +548,51 @@ func DecodeCommandMessage(bytesContent []byte) (commandMessage CommandMessage, c
 	return
 }
 
+//DecodeCommandMessageReply :
 func DecodeCommandMessageReply(bytesContent []byte) (commandMessageReply CommandMessageReply, commandError error) {
 	err := msgpack.Decode(bytesContent, &commandMessageReply)
 	if err != nil {
-		commandError = fmt.Errorf("CommandResponse %s", err)
+		commandError = fmt.Errorf("commandResponse %s", err)
 	}
 
 	return
 }
 
+//DecodeCommandMessageReady :
 func DecodeCommandMessageReady(bytesContent []byte) (commandMessageReady CommandMessageReady, commandError error) {
 	err := msgpack.Decode(bytesContent, &commandMessageReady)
 	if err != nil {
-		commandError = fmt.Errorf("CommandResponse %s", err)
+		commandError = fmt.Errorf("commandResponse %s", err)
 	}
 
 	return
 }
 
+//DecodeCommandMessageWait :
 func DecodeCommandMessageWait(bytesContent []byte) (commandMessageWait CommandMessageWait, commandError error) {
 	err := msgpack.Decode(bytesContent, &commandMessageWait)
 	if err != nil {
-		commandError = fmt.Errorf("CommandResponse %s", err)
+		commandError = fmt.Errorf("commandResponse %s", err)
 	}
 
 	return
 }
 
+//DecodeCommandFunction :
 func DecodeCommandFunction(bytesContent []byte) (commandFunction CommandFunction, commandError error) {
 	err := msgpack.Decode(bytesContent, &commandFunction)
 	if err != nil {
-		commandError = fmt.Errorf("CommandResponse %s", err)
+		commandError = fmt.Errorf("commandResponse %s", err)
 	}
 
 	return
 }
 
+//DecodeCommandFunctionReply :
 func DecodeCommandFunctionReply(bytesContent []byte) (commandFunctionReply CommandFunctionReply, commandError error) {
 	err := msgpack.Decode(bytesContent, &commandFunctionReply)
 	if err != nil {
-		commandError = fmt.Errorf("CommandResponse %s", err)
+		commandError = fmt.Errorf("commandResponse %s", err)
 	}
 
 	return

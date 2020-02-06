@@ -5,11 +5,13 @@ import (
 	"gandalf-go/client"
 )
 
+//WorkerGandalf :
 type WorkerGandalf struct {
 	WorkerConfiguration *WorkerConfiguration
 	ClientGandalfGrpc   *client.ClientGandalfGrpc
 }
 
+//NewWorkerGandalf :
 func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	workerGandalf = new(WorkerGandalf)
 
@@ -23,6 +25,7 @@ func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	return
 }
 
+//Run :
 func (wg WorkerGandalf) Run() {
 	for {
 		//GESTION CHANNEL

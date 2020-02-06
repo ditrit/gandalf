@@ -16,6 +16,7 @@ const (
 
 type State int
 
+//nolint:golint
 const (
 	ONGOING State = iota
 	SUCCES

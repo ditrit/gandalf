@@ -4,6 +4,7 @@ import (
 	"github.com/pebbe/zmq4"
 )
 
+//Message :
 //TODO FINIR
 type Message interface {
 	GetUUID() string

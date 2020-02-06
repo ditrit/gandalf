@@ -6,12 +6,14 @@ import (
 	"strconv"
 )
 
+//usage :
 func usage() {
 	fmt.Println("Usage : ")
 	fmt.Println("	tcp --client host:port")
 	fmt.Println("	tcp --server port")
 }
 
+//main :
 func main() {
 	arguments := os.Args
 	fmt.Println("nb args:  " + strconv.Itoa(len(arguments)) + ".")

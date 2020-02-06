@@ -4,6 +4,7 @@ import (
 	gonfig "github.com/tkanos/gonfig"
 )
 
+//AggregatorConfiguration :
 type AggregatorConfiguration struct {
 	AggregatorCommandSendToClusterConnections       []string
 	AggregatorCommandReceiveFromClusterConnections  []string
@@ -17,6 +18,7 @@ type AggregatorConfiguration struct {
 	Tenant                                          string
 }
 
+//LoadConfiguration :
 func LoadConfiguration(path string) (aggregatorConfiguration *AggregatorConfiguration, err error) {
 	aggregatorConfiguration = new(AggregatorConfiguration)
 	err = gonfig.GetConf(path, aggregatorConfiguration)

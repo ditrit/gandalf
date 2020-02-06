@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc"
 )
 
+//ConnectorCommandRoutine :
 type ConnectorCommandRoutine struct {
 	Context                                          *zmq4.Context
 	ConnectorCommandWorkerConnection                 string
@@ -32,6 +33,7 @@ type ConnectorCommandRoutine struct {
 	ConnectorCommandReplyChannel                     chan message.CommandMessageReply
 }
 
+//NewConnectorCommandRoutine :
 func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) *ConnectorCommandRoutine {
 	connectorCommandRoutine := new(ConnectorCommandRoutine)
 	connectorCommandRoutine.Identity = identity
@@ -68,6 +70,7 @@ func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection strin
 	return connectorCommandRoutine
 }
 
+//close :
 func (r ConnectorCommandRoutine) close() {
 	r.ConnectorCommandReceiveFromAggregator.Close()
 	r.ConnectorCommandSendToAggregator.Close()
@@ -79,6 +82,7 @@ func (r ConnectorCommandRoutine) close() {
 
 // }
 
+//run :
 func (r ConnectorCommandRoutine) run() {
 	//go r.cleanCommandsByTimeout()
 	poller := zmq4.NewPoller()
@@ -108,6 +112,7 @@ func (r ConnectorCommandRoutine) run() {
 	}
 }
 
+//processCommandReceiveFromAggregator :
 func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][]byte) {
 	commandType := string(command[2])
 	if commandType == constant.COMMAND_MESSAGE {
@@ -121,6 +126,7 @@ func (r ConnectorCommandRoutine) processCommandReceiveFromAggregator(command [][
 	}
 }
 
+//validationCommands :
 func (r ConnectorCommandRoutine) validationCommands(workerSource string, commands []string) (result bool) {
 	//TODO
 	result = true
@@ -128,10 +134,12 @@ func (r ConnectorCommandRoutine) validationCommands(workerSource string, command
 	return
 }
 
+//addCommands :
 func (r ConnectorCommandRoutine) addCommands(commandMessage message.CommandMessage) {
 	r.ConnectorMapCommandNameCommandMessage.Push(commandMessage)
 }
 
+//runIteratorCommandMessage :
 //TODO
 func (r ConnectorCommandRoutine) runIteratorCommandMessage(target, value string, iterator *Iterator, channel chan message.CommandMessage) {
 	notfound := true
@@ -154,6 +162,7 @@ func (r ConnectorCommandRoutine) runIteratorCommandMessage(target, value string,
 	delete(r.ConnectorMapWorkerIterators, target)
 }
 
+//runIteratorCommandMessageReply :
 //TODO
 func (r ConnectorCommandRoutine) runIteratorCommandMessageReply(target, value string, iterator *Iterator, channel chan message.CommandMessageReply) {
 	notfound := true
@@ -176,6 +185,7 @@ func (r ConnectorCommandRoutine) runIteratorCommandMessageReply(target, value st
 	delete(r.ConnectorMapWorkerIterators, target)
 }
 
+//startGrpcServer :
 //GRPC
 func (r ConnectorCommandRoutine) startGrpcServer() {
 	lis, err := net.Listen("tcp", r.ConnectorCommandWorkerConnection)
@@ -189,6 +199,7 @@ func (r ConnectorCommandRoutine) startGrpcServer() {
 	r.ConnectorCommandGrpcServer.Serve(lis)
 }
 
+//SendCommandMessage :
 func (r ConnectorCommandRoutine) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (*pb.CommandMessageUUID, error) {
 	commandMessage := message.CommandMessageFromGrpc(in)
 
@@ -197,6 +208,7 @@ func (r ConnectorCommandRoutine) SendCommandMessage(ctx context.Context, in *pb.
 	return &pb.CommandMessageUUID{UUID: commandMessage.UUID}, nil
 }
 
+//SendCommandMessageReply :
 func (r ConnectorCommandRoutine) SendCommandMessageReply(ctx context.Context, in *pb.CommandMessageReply) (*pb.Empty, error) {
 	commandMessageReply := message.CommandMessageReplyFromGrpc(in)
 
@@ -205,6 +217,7 @@ func (r ConnectorCommandRoutine) SendCommandMessageReply(ctx context.Context, in
 	return &pb.Empty{}, nil
 }
 
+//WaitCommandMessage :
 func (r ConnectorCommandRoutine) WaitCommandMessage(ctx context.Context, in *pb.CommandMessageWait) (commandMessage *pb.CommandMessage, err error) {
 	target := in.GetWorkerSource()
 	iterator := NewIterator(r.ConnectorMapCommandNameCommandMessage)
@@ -218,6 +231,7 @@ func (r ConnectorCommandRoutine) WaitCommandMessage(ctx context.Context, in *pb.
 	return
 }
 
+//WaitCommandMessageReply :
 func (r ConnectorCommandRoutine) WaitCommandMessageReply(ctx context.Context, in *pb.CommandMessageWait) (commandMessageReply *pb.CommandMessageReply, err error) {
 	target := in.GetWorkerSource()
 	iterator := NewIterator(r.ConnectorMapUUIDCommandMessageReply)

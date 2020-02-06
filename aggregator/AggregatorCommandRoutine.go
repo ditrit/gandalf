@@ -8,6 +8,7 @@ import (
 	"github.com/pebbe/zmq4"
 )
 
+//AggregatorCommandRoutine :
 type AggregatorCommandRoutine struct {
 	context                                         *zmq4.Context
 	aggregatorCommandSendToCluster                  *zmq4.Socket
@@ -22,6 +23,7 @@ type AggregatorCommandRoutine struct {
 	tenant                                          string
 }
 
+//NewAggregatorCommandRoutine :
 func NewAggregatorCommandRoutine(identity, tenant, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnection string, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromClusterConnections []string) *AggregatorCommandRoutine {
 	aggregatorCommandRoutine := new(AggregatorCommandRoutine)
 
@@ -62,6 +64,7 @@ func NewAggregatorCommandRoutine(identity, tenant, aggregatorCommandReceiveFromC
 	return aggregatorCommandRoutine
 }
 
+//close :
 func (r AggregatorCommandRoutine) close() {
 	r.aggregatorCommandSendToCluster.Close()
 	r.aggregatorCommandReceiveFromCluster.Close()
@@ -70,6 +73,7 @@ func (r AggregatorCommandRoutine) close() {
 	r.context.Term()
 }
 
+//run :
 func (r AggregatorCommandRoutine) run() {
 	poller := zmq4.NewPoller()
 
@@ -108,6 +112,7 @@ func (r AggregatorCommandRoutine) run() {
 	}
 }
 
+//processCommandReceiveFromCluster :
 func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]byte) {
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
@@ -122,6 +127,7 @@ func (r AggregatorCommandRoutine) processCommandReceiveFromCluster(command [][]b
 	}
 }
 
+//processCommandReceiveFromConnector :
 func (r AggregatorCommandRoutine) processCommandReceiveFromConnector(command [][]byte) {
 	commandMessage, _ := message.DecodeCommandMessage(command[2])
 	commandMessage.Tenant = r.tenant

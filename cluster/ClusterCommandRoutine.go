@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+//ClusterCommandRoutine :
 type ClusterCommandRoutine struct {
 	Context                         *zmq4.Context
 	ClusterCommandSend              *zmq4.Socket
@@ -26,6 +27,7 @@ type ClusterCommandRoutine struct {
 	DatabaseDB                      *sql.DB
 }
 
+//NewClusterCommandRoutine :
 func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) *ClusterCommandRoutine {
 	clusterCommandRoutine := new(ClusterCommandRoutine)
 
@@ -63,6 +65,7 @@ func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCom
 	return clusterCommandRoutine
 }
 
+//close :
 func (r ClusterCommandRoutine) close() {
 	r.ClusterCommandSend.Close()
 	r.ClusterCommandReceive.Close()
@@ -70,6 +73,7 @@ func (r ClusterCommandRoutine) close() {
 	r.Context.Term()
 }
 
+//run :
 func (r ClusterCommandRoutine) run() {
 	poller := zmq4.NewPoller()
 	poller.Add(r.ClusterCommandReceive, zmq4.POLLIN)
@@ -97,6 +101,7 @@ func (r ClusterCommandRoutine) run() {
 	}
 }
 
+//processCommandReceive :
 func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 	commandType := string(command[1])
 	if commandType == constant.COMMAND_MESSAGE {
@@ -120,6 +125,7 @@ func (r ClusterCommandRoutine) processCommandReceive(command [][]byte) {
 	}
 }
 
+//processRoutingCommandMessage :
 func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *message.CommandMessage) (err error) {
 	row := r.DatabaseDB.QueryRow(`SELECT aggregator.name as aggDestination, connector.name as connDestination FROM application_context
 	JOIN tenant ON application_context.tenant = tenant.id
@@ -144,10 +150,12 @@ func (r ClusterCommandRoutine) processRoutingCommandMessage(commandMessage *mess
 	return
 }
 
+//processCaptureCommand :
 func (r ClusterCommandRoutine) processCaptureCommand(commandMessage message.CommandMessage) {
 	go commandMessage.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }
 
+//processCaptureCommandMessageReply :
 func (r ClusterCommandRoutine) processCaptureCommandMessageReply(commandMessageReply message.CommandMessageReply) {
 	go commandMessageReply.SendWith(r.ClusterCommandCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

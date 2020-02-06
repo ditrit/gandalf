@@ -108,7 +108,7 @@ func main() {
 		subscriber, _ := zmq4.NewSocket(zmq4.SUB)
 		defer subscriber.Close()
 		_ = subscriber.Bind("tcp://*:5563")
-		subscriber.SetSubscribe("A")
+		_ = subscriber.SetSubscribe("A")
 
 		time.Sleep(time.Second)
 

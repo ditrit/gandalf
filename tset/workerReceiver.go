@@ -5,10 +5,12 @@ import (
 	"gandalf-go/worker"
 )
 
+//WorkerReceiver :
 type WorkerReceiver struct {
 	WorkerGandalf *worker.WorkerGandalf
 }
 
+//NewWorkerReceiver :
 func NewWorkerReceiver(path string) (workerReceiver *WorkerReceiver) {
 	workerReceiver = new(WorkerReceiver)
 	workerReceiver.WorkerGandalf = worker.NewWorkerGandalf(path)
@@ -16,6 +18,7 @@ func NewWorkerReceiver(path string) (workerReceiver *WorkerReceiver) {
 	return
 }
 
+//NewWorkerReceiver :
 func (wr WorkerReceiver) Run() {
 	//commandMessage := wr.WorkerGandalf.ClientGandalfGrpc.WaitCommand("test")
 	commandMessage := wr.WorkerGandalf.ClientGandalfGrpc.WaitEvent("toto", "toto")

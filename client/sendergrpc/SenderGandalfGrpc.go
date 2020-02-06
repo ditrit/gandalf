@@ -5,6 +5,7 @@ import (
 	"gandalf-go/message"
 )
 
+//SenderGandalfGrpc :
 type SenderGandalfGrpc struct {
 	Identity                string
 	SenderCommandConnection string
@@ -13,6 +14,7 @@ type SenderGandalfGrpc struct {
 	SenderEventGrpc         *SenderEventGrpc
 }
 
+//NewSenderGandalfGrpc :
 func NewSenderGandalfGrpc(identity, senderCommandConnection, senderEventConnection string) (senderGandalfGrpc *SenderGandalfGrpc) {
 	senderGandalfGrpc = new(SenderGandalfGrpc)
 	senderGandalfGrpc.Identity = identity
@@ -24,14 +26,17 @@ func NewSenderGandalfGrpc(identity, senderCommandConnection, senderEventConnecti
 	return
 }
 
+//SendEvent :
 func (sg SenderGandalfGrpc) SendEvent(topic, timeout, uuid, event, payload string) *pb.Empty {
 	return sg.SenderEventGrpc.SendEvent(topic, timeout, uuid, event, payload)
 }
 
+//SendCommand :
 func (sg SenderGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) message.CommandMessageUUID {
 	return sg.SenderCommandGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
+//SendCommandReply :
 func (sg SenderGandalfGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
 	return sg.SenderCommandGrpc.SendCommandReply(commandMessage, reply, payload)
 }

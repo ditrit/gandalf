@@ -10,12 +10,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+//WaiterEventGrpc :
 type WaiterEventGrpc struct {
 	WaiterEventGrpcConnection string
 	Identity                  string
 	client                    pb.ConnectorEventClient
 }
 
+//NewWaiterEventGrpc :
 func NewWaiterEventGrpc(identity, waiterEventGrpcConnection string) (waiterEventGrpc *WaiterEventGrpc) {
 	waiterEventGrpc = new(WaiterEventGrpc)
 
@@ -31,6 +33,7 @@ func NewWaiterEventGrpc(identity, waiterEventGrpcConnection string) (waiterEvent
 	return
 }
 
+//WaitEvent :
 func (r WaiterEventGrpc) WaitEvent(event, topic string) (eventMessage message.EventMessage) {
 	eventMessageWait := new(pb.EventMessageWait)
 	eventMessageWait.WorkerSource = r.Identity

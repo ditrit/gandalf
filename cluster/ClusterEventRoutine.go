@@ -8,6 +8,7 @@ import (
 	"github.com/pebbe/zmq4"
 )
 
+//ClusterEventRoutine :
 type ClusterEventRoutine struct {
 	Context                       *zmq4.Context
 	ClusterEventSend              *zmq4.Socket
@@ -19,6 +20,7 @@ type ClusterEventRoutine struct {
 	Identity                      string
 }
 
+//NewClusterEventRoutine :
 func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) *ClusterEventRoutine {
 	clusterEventRoutine := new(ClusterEventRoutine)
 
@@ -53,6 +55,7 @@ func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventRe
 	return clusterEventRoutine
 }
 
+//close :
 func (r ClusterEventRoutine) close() {
 	r.ClusterEventSend.Close()
 	r.ClusterEventReceive.Close()
@@ -60,6 +63,7 @@ func (r ClusterEventRoutine) close() {
 	r.Context.Term()
 }
 
+//run :
 func (r ClusterEventRoutine) run() {
 	poller := zmq4.NewPoller()
 	poller.Add(r.ClusterEventSend, zmq4.POLLIN)
@@ -98,6 +102,7 @@ func (r ClusterEventRoutine) run() {
 	}
 }
 
+//processEventSend :
 func (r ClusterEventRoutine) processEventSend(event [][]byte) {
 	/* 	if len(event) == 1 {
 		//TODO UTILE ?
@@ -112,12 +117,14 @@ func (r ClusterEventRoutine) processEventSend(event [][]byte) {
 	}
 }
 
+//processEventReceive :
 func (r ClusterEventRoutine) processEventReceive(event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	//r.processCaptureEvent(eventMessage)
 	go eventMessage.SendMessageWith(r.ClusterEventSend)
 }
 
+//processCaptureEvent :
 func (r ClusterEventRoutine) processCaptureEvent(eventMessage message.EventMessage) {
 	go eventMessage.SendWith(r.ClusterEventCapture, constant.WORKER_SERVICE_CLASS_CAPTURE)
 }

@@ -6,10 +6,12 @@ import (
 	"time"
 )
 
+//WorkerSender :
 type WorkerSender struct {
 	WorkerGandalf *worker.WorkerGandalf
 }
 
+//NewWorkerSender :
 func NewWorkerSender(path string) (workerSender *WorkerSender) {
 	workerSender = new(WorkerSender)
 	workerSender.WorkerGandalf = worker.NewWorkerGandalf(path)
@@ -17,6 +19,7 @@ func NewWorkerSender(path string) (workerSender *WorkerSender) {
 	return
 }
 
+//Run :
 func (ws WorkerSender) Run() {
 	for {
 		fmt.Println("SEND")

@@ -8,12 +8,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+//SenderEventGrpc :
 type SenderEventGrpc struct {
 	SenderEventGrpcConnection string
 	Identity                  string
 	client                    pb.ConnectorEventClient
 }
 
+//NewSenderEventGrpc :
 func NewSenderEventGrpc(identity, senderEventGrpcConnection string) (senderEventGrpc *SenderEventGrpc) {
 	senderEventGrpc = new(SenderEventGrpc)
 	senderEventGrpc.Identity = identity
@@ -31,6 +33,7 @@ func NewSenderEventGrpc(identity, senderEventGrpcConnection string) (senderEvent
 	return
 }
 
+//SendEvent :
 func (r SenderEventGrpc) SendEvent(topic, timeout, uuid, event, payload string) *pb.Empty {
 	eventMessage := new(pb.EventMessage)
 	eventMessage.Topic = topic

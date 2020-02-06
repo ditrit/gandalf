@@ -8,6 +8,7 @@ import (
 	"github.com/pebbe/zmq4"
 )
 
+//ClusterCaptureWorkerRoutine :
 type ClusterCaptureWorkerRoutine struct {
 	Context                               *zmq4.Context
 	WorkerCaptureCommandReceive           *zmq4.Socket
@@ -17,6 +18,7 @@ type ClusterCaptureWorkerRoutine struct {
 	Identity                              string
 }
 
+//NewClusterCaptureWorkerRoutine :
 func NewClusterCaptureWorkerRoutine(identity, workerCaptureCommandReceiveConnection, workerCaptureEventReceiveConnection string, topics []string) (clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine) {
 	clusterCaptureWorkerRoutine = new(ClusterCaptureWorkerRoutine)
 
@@ -38,12 +40,14 @@ func NewClusterCaptureWorkerRoutine(identity, workerCaptureCommandReceiveConnect
 	return
 }
 
+//close :
 func (r ClusterCaptureWorkerRoutine) close() {
 	r.WorkerCaptureCommandReceive.Close()
 	r.WorkerCaptureEventReceive.Close()
 	r.Context.Term()
 }
 
+//run :
 func (r ClusterCaptureWorkerRoutine) run() {
 	poller := zmq4.NewPoller()
 	poller.Add(r.WorkerCaptureCommandReceive, zmq4.POLLIN)
@@ -73,6 +77,7 @@ func (r ClusterCaptureWorkerRoutine) run() {
 	}
 }
 
+//processCommand :
 func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
 	resp, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(command[1]))
 	if err != nil {
@@ -81,6 +86,7 @@ func (r ClusterCaptureWorkerRoutine) processCommand(command [][]byte) {
 	defer resp.Body.Close()
 }
 
+//processEvent :
 func (r ClusterCaptureWorkerRoutine) processEvent(event [][]byte) {
 	resp, err := http.Post("https://httpbin.org/post", "application/json", bytes.NewBuffer(event[0]))
 	if err != nil {

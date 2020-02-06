@@ -7,10 +7,12 @@ import (
 	"github.com/canonical/go-dqlite/client"
 )
 
+//DatabaseClient :
 type DatabaseClient struct {
 	databaseClientCluster []string
 }
 
+//NewDatabaseClient :
 func NewDatabaseClient(cluster []string) (databaseClient *DatabaseClient) {
 	databaseClient = new(DatabaseClient)
 	databaseClient.databaseClientCluster = cluster
@@ -18,6 +20,7 @@ func NewDatabaseClient(cluster []string) (databaseClient *DatabaseClient) {
 	return
 }
 
+//GetLeader :
 func (dc DatabaseClient) GetLeader() (*client.Client, error) {
 	store := dc.GetStore()
 
@@ -27,6 +30,7 @@ func (dc DatabaseClient) GetLeader() (*client.Client, error) {
 	return client.FindLeader(ctx, store, client.WithLogFunc(logFuncf))
 }
 
+//GetStore :
 func (dc DatabaseClient) GetStore() client.NodeStore {
 	store := client.NewInmemNodeStore()
 	// if len(dc.databaseClientCluster) == 0 {
@@ -38,9 +42,10 @@ func (dc DatabaseClient) GetStore() client.NodeStore {
 		infos[i].Address = address
 	}
 
-	store.Set(context.Background(), infos)
+	_ = store.Set(context.Background(), infos)
 
 	return store
 }
 
+//logFuncf :
 func logFuncf(l client.LogLevel, format string, a ...interface{}) {}

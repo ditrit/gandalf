@@ -7,6 +7,7 @@ import (
 	"github.com/pebbe/zmq4"
 )
 
+//AggregatorEventRoutine :
 type AggregatorEventRoutine struct {
 	context                                       *zmq4.Context
 	aggregatorEventSendToCluster                  *zmq4.Socket
@@ -21,6 +22,7 @@ type AggregatorEventRoutine struct {
 	tenant                                        string
 }
 
+//NewAggregatorEventRoutine :
 func NewAggregatorEventRoutine(identity, tenant, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection string, aggregatorEventSendToClusterConnections, aggregatorEventReceiveFromClusterConnections []string) *AggregatorEventRoutine {
 	aggregatorEventRoutine := new(AggregatorEventRoutine)
 
@@ -66,6 +68,7 @@ func NewAggregatorEventRoutine(identity, tenant, aggregatorEventReceiveFromConne
 	return aggregatorEventRoutine
 }
 
+//close :
 func (r AggregatorEventRoutine) close() {
 	r.aggregatorEventSendToCluster.Close()
 	r.aggregatorEventReceiveFromConnector.Close()
@@ -74,6 +77,7 @@ func (r AggregatorEventRoutine) close() {
 	r.context.Term()
 }
 
+//run :
 func (r AggregatorEventRoutine) run() {
 	poller := zmq4.NewPoller()
 
@@ -137,6 +141,7 @@ func (r AggregatorEventRoutine) run() {
 	}
 }
 
+//processEventSendToCluster :
 func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
 	if len(event) > 1 {
 		eventMessage, _ := message.DecodeEventMessage(event[1])
@@ -145,6 +150,7 @@ func (r AggregatorEventRoutine) processEventSendToCluster(event [][]byte) {
 	}
 }
 
+//processEventReceiveFromCluster :
 func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
 	fmt.Println(event)
 	eventMessage, _ := message.DecodeEventMessage(event[1])
@@ -153,6 +159,7 @@ func (r AggregatorEventRoutine) processEventReceiveFromCluster(event [][]byte) {
 	go eventMessage.SendMessageWith(r.aggregatorEventSendToConnector)
 }
 
+//processEventSendToConnector :
 func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
 	if len(event) > 1 {
 		eventMessage, _ := message.DecodeEventMessage(event[0])
@@ -161,6 +168,7 @@ func (r AggregatorEventRoutine) processEventSendToConnector(event [][]byte) {
 	}
 }
 
+//processEventReceiveFromConnector :
 func (r AggregatorEventRoutine) processEventReceiveFromConnector(event [][]byte) {
 	eventMessage, _ := message.DecodeEventMessage(event[1])
 	eventMessage.Tenant = r.tenant

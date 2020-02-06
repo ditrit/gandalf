@@ -16,6 +16,7 @@ var (
 	configClient tls.Config
 )
 
+//initTLS :
 func initTLS(connect string) (*tls.Conn, error) {
 	CAPool := x509.NewCertPool()
 	serverCert, err := ioutil.ReadFile("./cert.pem")
@@ -50,6 +51,7 @@ func initTLS(connect string) (*tls.Conn, error) {
 	return conn, nil
 }
 
+//clientTCP :
 func clientTCP(connect string) {
 	var buffer = make([]byte, 1024)
 

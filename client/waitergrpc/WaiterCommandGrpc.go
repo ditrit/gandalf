@@ -11,12 +11,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+//WaiterCommandGrpc :
 type WaiterCommandGrpc struct {
 	WaiterCommandGrpcConnection string
 	Identity                    string
 	client                      pb.ConnectorCommandClient
 }
 
+//NewWaiterCommandGrpc :
 func NewWaiterCommandGrpc(identity, waiterCommandGrpcConnection string) (waiterCommandGrpc *WaiterCommandGrpc) {
 	waiterCommandGrpc = new(WaiterCommandGrpc)
 
@@ -34,6 +36,7 @@ func NewWaiterCommandGrpc(identity, waiterCommandGrpcConnection string) (waiterC
 	return
 }
 
+//WaitCommand :
 func (r WaiterCommandGrpc) WaitCommand(command string) message.CommandMessage {
 	commandMessageWait := new(pb.CommandMessageWait)
 	commandMessageWait.WorkerSource = r.Identity
@@ -48,6 +51,7 @@ func (r WaiterCommandGrpc) WaitCommand(command string) message.CommandMessage {
 	return message.CommandMessageFromGrpc(commandMessageGrpc)
 }
 
+//WaitCommandReply :
 func (r WaiterCommandGrpc) WaitCommandReply(uuid string) message.CommandMessageReply {
 	commandMessageWait := new(pb.CommandMessageWait)
 	commandMessageWait.WorkerSource = r.Identity

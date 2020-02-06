@@ -17,6 +17,7 @@ import (
 	"gandalf-go/client/database"
 )
 
+//DatabaseCluster :
 type DatabaseCluster struct {
 	databaseClusterDirectory   string
 	databaseClusterConnections []string
@@ -24,6 +25,7 @@ type DatabaseCluster struct {
 	databaseClusterNodes       map[string]*dqlite.Node
 }
 
+//NewDatabaseCluster :
 func NewDatabaseCluster(databaseClusterDirectory string, databaseClusterConnections []string) *DatabaseCluster {
 	databaseCluster := new(DatabaseCluster)
 	databaseCluster.databaseClusterDirectory = databaseClusterDirectory
@@ -34,6 +36,7 @@ func NewDatabaseCluster(databaseClusterDirectory string, databaseClusterConnecti
 	return databaseCluster
 }
 
+//Run :
 func (dc DatabaseCluster) Run() {
 	//RUN
 	for id := 0; id < len(dc.databaseClusterConnections); id++ {
@@ -47,6 +50,7 @@ func (dc DatabaseCluster) Run() {
 	dc.initDatabaseCluster()
 }
 
+//startNode :
 func (dc DatabaseCluster) startNode(id int, dir, address string) (err error) {
 	nodeID := strconv.Itoa(id)
 	nodeDir := filepath.Join(dir, nodeID)
@@ -73,6 +77,7 @@ func (dc DatabaseCluster) startNode(id int, dir, address string) (err error) {
 	return
 }
 
+//addNodesToLeader :
 func (dc DatabaseCluster) addNodesToLeader(id int, address string) (err error) {
 	info := client.NodeInfo{
 		ID:      uint64(id),
@@ -95,6 +100,7 @@ func (dc DatabaseCluster) addNodesToLeader(id int, address string) (err error) {
 	return
 }
 
+//initDatabaseCluster :
 //nolint: funlen, gocyclo
 func (dc DatabaseCluster) initDatabaseCluster() error {
 	driver, err := driver.New(dc.databaseClient.GetStore())

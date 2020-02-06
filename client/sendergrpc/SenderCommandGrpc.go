@@ -9,12 +9,14 @@ import (
 	"google.golang.org/grpc"
 )
 
+//SenderCommandGrpc :
 type SenderCommandGrpc struct {
 	SenderCommandGrpcConnection string
 	Identity                    string
 	client                      pb.ConnectorCommandClient
 }
 
+//NewSenderCommandGrpc :
 func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderCommandGrpc *SenderCommandGrpc) {
 	senderCommandGrpc = new(SenderCommandGrpc)
 	senderCommandGrpc.Identity = identity
@@ -29,6 +31,7 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 	return
 }
 
+//SendCommand :
 func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageUUID message.CommandMessageUUID) {
 	commandMessage := new(pb.CommandMessage)
 	commandMessage.Context = contextCommand
@@ -45,6 +48,7 @@ func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorT
 	return
 }
 
+//SendCommandReply :
 func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
 	commandMessageReply := new(pb.CommandMessageReply)
 	commandMessageReply.SourceAggregator = commandMessage.SourceAggregator

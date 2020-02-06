@@ -17,6 +17,7 @@ var (
 // }
 // TODO : check if this struct is useless
 
+//serverTCP :
 func serverTCP(connect string) {
 	cert, _ := tls.LoadX509KeyPair("./cert.pem", "./key.pem")
 	configServer = tls.Config{
@@ -42,6 +43,7 @@ func serverTCP(connect string) {
 	}
 }
 
+//handleTLSConnection :
 func handleTLSConnection(unencConn net.Conn) {
 	conn := tls.Server(unencConn, &configServer)
 	buffer := make([]byte, 1024)
