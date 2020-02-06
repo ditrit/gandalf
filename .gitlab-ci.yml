@@ -2,9 +2,7 @@ image: 'golang:latest'
 
 before_script:
     - 'go version'
-    - 'apt update'
-    - 'apt install -y go-dep'
-    - 'go dep ./...'
+    - 'go get ./...'
 
 stages:
     - std
