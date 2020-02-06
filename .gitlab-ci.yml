@@ -2,21 +2,24 @@ image: 'golang:latest'
 
 before_script:
     - 'go version'
+
     - '# DELETE SYMLINK IF EXIST'
     - '! test -f ${GOPATH}/src/gandalf-go || rm -f ${GOPATH}/src/gandalf-go'
+
     - '# SETUP SYMLINK TO MAKE GO WORK PROPERLY'
     - 'ln -s ${PWD} ${GOPATH}/src/gandalf-go'
-    - 'echo $GOPATH $PWD'
+
     - 'go get -d -v ./...'
-    - 'apt-get update'
-    - 'apt-get install -y \
-            install \
-            libtool \
-            pkg-config \
-            build-essential \
-            autoconf \
-            automake \
-            installed \
+
+    - 'apt-get update -y'
+    - 'apt-get upgrade -y '
+    - 'apt-get install -y
+            libtool
+            pkg-config
+            build-essential
+            autoconf
+            automake
+            installed
             libzmq3-dev'
 
 stages:
