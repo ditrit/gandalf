@@ -27,28 +27,28 @@ before_script:
     - 'go get -d -v ./...'
 
 stages:
-    - build
-    - lint/test
+    - Build
+    - Lint/Test
 
 build:
-    stage: build
+    stage: Build
     script:
         - 'go build'
 
 go_fmt:
-    stage: lint/test
+    stage: Lint/Test
     script:
         - 'gofmt -l .'
 
 golangci-lint:
-    stage: lint/test
+    stage: Lint/Test
     script:
         - 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.3'
         - 'golangci-lint --version'
         - 'golangci-lint run --timeout 5m -v ./...'
 
 go_test:
-    stage: lint/test
+    stage: Lint/Test
     script:
         - 'go test'
 
