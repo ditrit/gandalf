@@ -32,7 +32,7 @@ golangci-lint:
     script:
         - 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.3'
         - 'golangci-lint --version'
-        - 'golangci-lint run --timeout 5m -v ./...'
+        - 'golangci-lint run --timeout 30m -v ./...'
 
 go_test:
     stage: Lint/Test
