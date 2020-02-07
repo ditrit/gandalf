@@ -35,7 +35,7 @@ build:
     script:
         - 'go build'
 
-gofmt:
+go_fmt:
     stage: lint/test
     script:
         - 'gofmt -l .'
