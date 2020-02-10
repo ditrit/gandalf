@@ -15,8 +15,8 @@ type WorkerConfiguration struct {
 	Identity                string
 }
 
-//LoadConfiguration :
-func LoadConfiguration(path string) (workerConfiguration *WorkerConfiguration, err error) {
+//NewWorkerConfiguration :
+func NewWorkerConfiguration(path string) (workerConfiguration *WorkerConfiguration, err error) {
 	workerConfiguration = new(WorkerConfiguration)
 	err = gonfig.GetConf(path, workerConfiguration)
 

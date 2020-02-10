@@ -4,8 +4,8 @@ package aggregator
 
 import (
 	"fmt"
-	constant "gandalf-go/core"
 	"gandalf-go/commons/message"
+	constant "gandalf-go/core"
 
 	"github.com/pebbe/zmq4"
 )
@@ -26,7 +26,13 @@ type AggregatorCommandRoutine struct {
 }
 
 //NewAggregatorCommandRoutine :
-func NewAggregatorCommandRoutine(identity, tenant, aggregatorCommandReceiveFromConnectorConnection, aggregatorCommandSendToConnectorConnection string, aggregatorCommandSendToClusterConnections, aggregatorCommandReceiveFromClusterConnections []string) *AggregatorCommandRoutine {
+func NewAggregatorCommandRoutine(
+	identity string,
+	tenant string,
+	aggregatorCommandReceiveFromConnectorConnection string,
+	aggregatorCommandSendToConnectorConnection string,
+	aggregatorCommandSendToClusterConnections []string,
+	aggregatorCommandReceiveFromClusterConnections []string) *AggregatorCommandRoutine {
 	aggregatorCommandRoutine := new(AggregatorCommandRoutine)
 
 	aggregatorCommandRoutine.identity = identity

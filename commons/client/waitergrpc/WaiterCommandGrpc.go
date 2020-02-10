@@ -21,7 +21,9 @@ type WaiterCommandGrpc struct {
 }
 
 //NewWaiterCommandGrpc :
-func NewWaiterCommandGrpc(identity, waiterCommandGrpcConnection string) (waiterCommandGrpc *WaiterCommandGrpc) {
+func NewWaiterCommandGrpc(
+	identity string,
+	waiterCommandGrpcConnection string) (waiterCommandGrpc *WaiterCommandGrpc) {
 	waiterCommandGrpc = new(WaiterCommandGrpc)
 
 	waiterCommandGrpc.Identity = identity

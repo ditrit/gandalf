@@ -20,8 +20,8 @@ type AggregatorConfiguration struct {
 	Tenant                                          string
 }
 
-//LoadConfiguration :
-func LoadConfiguration(path string) (aggregatorConfiguration *AggregatorConfiguration, err error) {
+//NewAggregatorConfiguration :
+func NewAggregatorConfiguration(path string) (aggregatorConfiguration *AggregatorConfiguration, err error) {
 	aggregatorConfiguration = new(AggregatorConfiguration)
 	err = gonfig.GetConf(path, aggregatorConfiguration)
 

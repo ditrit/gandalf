@@ -32,7 +32,11 @@ type ConnectorEventRoutine struct {
 }
 
 //NewConnectorEventRoutine :
-func NewConnectorEventRoutine(identity, connectorEventWorkerConnection string, connectorEventReceiveFromAggregatorConnections, connectorEventSendToAggregatorConnections []string) *ConnectorEventRoutine {
+func NewConnectorEventRoutine(
+	identity string,
+	connectorEventWorkerConnection string,
+	connectorEventReceiveFromAggregatorConnections []string,
+	connectorEventSendToAggregatorConnections []string) *ConnectorEventRoutine {
 	connectorEventRoutine := new(ConnectorEventRoutine)
 	connectorEventRoutine.Identity = identity
 	connectorEventRoutine.ConnectorMapWorkerIterators = make(map[string][]*Iterator)

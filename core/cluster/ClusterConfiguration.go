@@ -21,8 +21,8 @@ type ClusterConfiguration struct {
 	Topics                                []string
 }
 
-//LoadConfiguration :
-func LoadConfiguration(path string) (clusterConfiguration *ClusterConfiguration, err error) {
+//NewClusterConfiguration :
+func NewClusterConfiguration(path string) (clusterConfiguration *ClusterConfiguration, err error) {
 	clusterConfiguration = new(ClusterConfiguration)
 	//clusterConfiguration = ClusterConfiguration{}
 	err = gonfig.GetConf(path, clusterConfiguration)

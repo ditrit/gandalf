@@ -25,7 +25,13 @@ type AggregatorEventRoutine struct {
 }
 
 //NewAggregatorEventRoutine :
-func NewAggregatorEventRoutine(identity, tenant, aggregatorEventReceiveFromConnectorConnection, aggregatorEventSendToConnectorConnection string, aggregatorEventSendToClusterConnections, aggregatorEventReceiveFromClusterConnections []string) *AggregatorEventRoutine {
+func NewAggregatorEventRoutine(
+	identity string,
+	tenant string,
+	aggregatorEventReceiveFromConnectorConnection string,
+	aggregatorEventSendToConnectorConnection string,
+	aggregatorEventSendToClusterConnections []string,
+	aggregatorEventReceiveFromClusterConnections []string) *AggregatorEventRoutine {
 	aggregatorEventRoutine := new(AggregatorEventRoutine)
 
 	aggregatorEventRoutine.identity = identity

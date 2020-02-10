@@ -21,7 +21,11 @@ type ClusterCaptureWorkerRoutine struct {
 }
 
 //NewClusterCaptureWorkerRoutine :
-func NewClusterCaptureWorkerRoutine(identity, workerCaptureCommandReceiveConnection, workerCaptureEventReceiveConnection string, topics []string) (clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine) {
+func NewClusterCaptureWorkerRoutine(
+	identity string,
+	workerCaptureCommandReceiveConnection string,
+	workerCaptureEventReceiveConnection string,
+	topics []string) (clusterCaptureWorkerRoutine *ClusterCaptureWorkerRoutine) {
 	clusterCaptureWorkerRoutine = new(ClusterCaptureWorkerRoutine)
 
 	clusterCaptureWorkerRoutine.Identity = identity

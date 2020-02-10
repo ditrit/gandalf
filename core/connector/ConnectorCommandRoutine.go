@@ -5,8 +5,8 @@ package connector
 import (
 	"context"
 	"fmt"
-	constant "gandalf-go/core"
 	"gandalf-go/commons/message"
+	constant "gandalf-go/core"
 	"log"
 	"net"
 	"time"
@@ -36,7 +36,11 @@ type ConnectorCommandRoutine struct {
 }
 
 //NewConnectorCommandRoutine :
-func NewConnectorCommandRoutine(identity, connectorCommandWorkerConnection string, connectorCommandReceiveFromAggregatorConnections, connectorCommandSendToAggregatorConnections []string) *ConnectorCommandRoutine {
+func NewConnectorCommandRoutine(
+	identity string,
+	connectorCommandWorkerConnection string,
+	connectorCommandReceiveFromAggregatorConnections []string,
+	connectorCommandSendToAggregatorConnections []string) *ConnectorCommandRoutine {
 	connectorCommandRoutine := new(ConnectorCommandRoutine)
 	connectorCommandRoutine.Identity = identity
 	connectorCommandRoutine.ConnectorMapWorkerIterators = make(map[string][]*Iterator)

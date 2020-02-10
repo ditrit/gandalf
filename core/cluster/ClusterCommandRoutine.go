@@ -6,8 +6,8 @@ import (
 	"database/sql"
 	"fmt"
 	"gandalf-go/commons/client/database"
-	constant "gandalf-go/core"
 	"gandalf-go/commons/message"
+	constant "gandalf-go/core"
 
 	"github.com/canonical/go-dqlite/driver"
 	"github.com/pebbe/zmq4"
@@ -30,7 +30,12 @@ type ClusterCommandRoutine struct {
 }
 
 //NewClusterCommandRoutine :
-func NewClusterCommandRoutine(identity, clusterCommandSendConnection, clusterCommandReceiveConnection, clusterCommandCaptureConnection string, databaseClusterConnections []string) *ClusterCommandRoutine {
+func NewClusterCommandRoutine(
+	identity string,
+	clusterCommandSendConnection string,
+	clusterCommandReceiveConnection string,
+	clusterCommandCaptureConnection string,
+	databaseClusterConnections []string) *ClusterCommandRoutine {
 	clusterCommandRoutine := new(ClusterCommandRoutine)
 
 	clusterCommandRoutine.Identity = identity

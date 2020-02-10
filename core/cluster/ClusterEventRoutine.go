@@ -4,8 +4,8 @@ package cluster
 
 import (
 	"fmt"
-	constant "gandalf-go/core"
 	"gandalf-go/commons/message"
+	constant "gandalf-go/core"
 
 	"github.com/pebbe/zmq4"
 )
@@ -23,7 +23,11 @@ type ClusterEventRoutine struct {
 }
 
 //NewClusterEventRoutine :
-func NewClusterEventRoutine(identity, clusterEventSendConnection, clusterEventReceiveConnection, clusterEventCaptureConnection string) *ClusterEventRoutine {
+func NewClusterEventRoutine(
+	identity string,
+	clusterEventSendConnection string,
+	clusterEventReceiveConnection string,
+	clusterEventCaptureConnection string) *ClusterEventRoutine {
 	clusterEventRoutine := new(ClusterEventRoutine)
 
 	clusterEventRoutine.Identity = identity

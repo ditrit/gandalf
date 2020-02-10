@@ -19,13 +19,21 @@ func NewConnectorGandalf(path string) (connectorGandalf *ConnectorGandalf) {
 	connectorGandalf = new(ConnectorGandalf)
 	connectorGandalf.connectorStopChannel = make(chan int)
 
-	connectorGandalf.connectorConfiguration, _ = LoadConfiguration(path)
+	connectorGandalf.connectorConfiguration, _ = NewConnectorConfiguration(path)
 
 	connectorGandalf.connectorCommandsMap = make(map[string][]string)
 	connectorGandalf.connectorCommandSendFileMap = make(map[string]string)
 
-	connectorGandalf.connectorCommandRoutine = NewConnectorCommandRoutine(connectorGandalf.connectorConfiguration.Identity, connectorGandalf.connectorConfiguration.ConnectorCommandWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorCommandReceiveFromAggregatorConnections, connectorGandalf.connectorConfiguration.ConnectorCommandSendToAggregatorConnections)
-	connectorGandalf.connectorEventRoutine = NewConnectorEventRoutine(connectorGandalf.connectorConfiguration.Identity, connectorGandalf.connectorConfiguration.ConnectorEventWorkerConnection, connectorGandalf.connectorConfiguration.ConnectorEventReceiveFromAggregatorConnections, connectorGandalf.connectorConfiguration.ConnectorEventSendToAggregatorConnections)
+	connectorGandalf.connectorCommandRoutine = NewConnectorCommandRoutine(
+		connectorGandalf.connectorConfiguration.Identity,
+		connectorGandalf.connectorConfiguration.ConnectorCommandWorkerConnection,
+		connectorGandalf.connectorConfiguration.ConnectorCommandReceiveFromAggregatorConnections,
+		connectorGandalf.connectorConfiguration.ConnectorCommandSendToAggregatorConnections)
+	connectorGandalf.connectorEventRoutine = NewConnectorEventRoutine(
+		connectorGandalf.connectorConfiguration.Identity,
+		connectorGandalf.connectorConfiguration.ConnectorEventWorkerConnection,
+		connectorGandalf.connectorConfiguration.ConnectorEventReceiveFromAggregatorConnections,
+		connectorGandalf.connectorConfiguration.ConnectorEventSendToAggregatorConnections)
 
 	//RUN
 	//go connectorGandalf.ConnectorCommandRoutine.run()

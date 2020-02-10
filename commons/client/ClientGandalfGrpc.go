@@ -23,7 +23,12 @@ type ClientGandalfGrpc struct {
 }
 
 //NewClientGandalfGrpc :
-func NewClientGandalfGrpc(identity, senderCommandGrpcConnection, senderEventGrpcConnection, waiterCommandGrpcConnection, waiterEventGrpcConnection string) (clientGandalfGrpc *ClientGandalfGrpc) {
+func NewClientGandalfGrpc(
+	identity string,
+	senderCommandGrpcConnection string,
+	senderEventGrpcConnection string,
+	waiterCommandGrpcConnection string,
+	waiterEventGrpcConnection string) (clientGandalfGrpc *ClientGandalfGrpc) {
 	clientGandalfGrpc = new(ClientGandalfGrpc)
 	clientGandalfGrpc.ClientStopChannel = make(chan int)
 
@@ -33,18 +38,26 @@ func NewClientGandalfGrpc(identity, senderCommandGrpcConnection, senderEventGrpc
 	clientGandalfGrpc.WaiterCommandGrpcConnection = waiterCommandGrpcConnection
 	clientGandalfGrpc.WaiterEventGrpcConnection = waiterEventGrpcConnection
 
-	clientGandalfGrpc.SenderGandalfGrpc = sendergrpc.NewSenderGandalfGrpc(clientGandalfGrpc.Identity, clientGandalfGrpc.SenderCommandGrpcConnection, clientGandalfGrpc.SenderEventGrpcConnection)
-	clientGandalfGrpc.WaiterGandalfGrpc = waitergrpc.NewWaiterGandalfGrpc(clientGandalfGrpc.Identity, clientGandalfGrpc.WaiterCommandGrpcConnection, clientGandalfGrpc.WaiterEventGrpcConnection)
+	clientGandalfGrpc.SenderGandalfGrpc = sendergrpc.NewSenderGandalfGrpc(
+		clientGandalfGrpc.Identity,
+		clientGandalfGrpc.SenderCommandGrpcConnection,
+		clientGandalfGrpc.SenderEventGrpcConnection)
+	clientGandalfGrpc.WaiterGandalfGrpc = waitergrpc.NewWaiterGandalfGrpc(
+		clientGandalfGrpc.Identity,
+		clientGandalfGrpc.WaiterCommandGrpcConnection,
+		clientGandalfGrpc.WaiterEventGrpcConnection)
 
 	return
 }
 
 //SendCommand :
+//nolint: lll
 func (cg ClientGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) message.CommandMessageUUID {
 	return cg.SenderGandalfGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
 //SendCommandReply :
+//nolint: lll
 func (cg ClientGandalfGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
 	return cg.SenderGandalfGrpc.SendCommandReply(commandMessage, reply, payload)
 }

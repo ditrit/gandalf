@@ -17,7 +17,10 @@ type SenderGandalfGrpc struct {
 }
 
 //NewSenderGandalfGrpc :
-func NewSenderGandalfGrpc(identity, senderCommandConnection, senderEventConnection string) (senderGandalfGrpc *SenderGandalfGrpc) {
+func NewSenderGandalfGrpc(
+	identity string,
+	senderCommandConnection string,
+	senderEventConnection string) (senderGandalfGrpc *SenderGandalfGrpc) {
 	senderGandalfGrpc = new(SenderGandalfGrpc)
 	senderGandalfGrpc.Identity = identity
 	senderGandalfGrpc.SenderCommandConnection = senderCommandConnection
@@ -34,11 +37,13 @@ func (sg SenderGandalfGrpc) SendEvent(topic, timeout, uuid, event, payload strin
 }
 
 //SendCommand :
+//nolint: lll
 func (sg SenderGandalfGrpc) SendCommand(context, timeout, uuid, connectorType, commandType, command, payload string) message.CommandMessageUUID {
 	return sg.SenderCommandGrpc.SendCommand(context, timeout, uuid, connectorType, commandType, command, payload)
 }
 
 //SendCommandReply :
+//nolint: lll
 func (sg SenderGandalfGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
 	return sg.SenderCommandGrpc.SendCommandReply(commandMessage, reply, payload)
 }

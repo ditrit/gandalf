@@ -17,12 +17,15 @@ type WorkerGandalf struct {
 func NewWorkerGandalf(path string) (workerGandalf *WorkerGandalf) {
 	workerGandalf = new(WorkerGandalf)
 
-	workerGandalf.WorkerConfiguration, _ = LoadConfiguration(path)
+	workerGandalf.WorkerConfiguration, _ = NewWorkerConfiguration(path)
 	//workerGandalf.loadFunctions()
 
-	workerGandalf.ClientGandalfGrpc = client.NewClientGandalfGrpc(workerGandalf.WorkerConfiguration.Identity,
-		workerGandalf.WorkerConfiguration.SenderCommandConnection, workerGandalf.WorkerConfiguration.SenderEventConnection,
-		workerGandalf.WorkerConfiguration.WaiterCommandConnection, workerGandalf.WorkerConfiguration.WaiterEventConnection)
+	workerGandalf.ClientGandalfGrpc = client.NewClientGandalfGrpc(
+		workerGandalf.WorkerConfiguration.Identity,
+		workerGandalf.WorkerConfiguration.SenderCommandConnection,
+		workerGandalf.WorkerConfiguration.SenderEventConnection,
+		workerGandalf.WorkerConfiguration.WaiterCommandConnection,
+		workerGandalf.WorkerConfiguration.WaiterEventConnection)
 
 	return
 }

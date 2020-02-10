@@ -16,15 +16,22 @@ type WaiterGandalfGrpc struct {
 }
 
 //NewWaiterGandalfGrpc :
-func NewWaiterGandalfGrpc(identity, waiterCommandGrpcConnection, waiterEventGrpcConnection string) (waiterGandalfGrpc *WaiterGandalfGrpc) {
+func NewWaiterGandalfGrpc(
+	identity string,
+	waiterCommandGrpcConnection string,
+	waiterEventGrpcConnection string) (waiterGandalfGrpc *WaiterGandalfGrpc) {
 	waiterGandalfGrpc = new(WaiterGandalfGrpc)
 
 	waiterGandalfGrpc.Identity = identity
 	waiterGandalfGrpc.WaiterCommandGrpcConnection = waiterCommandGrpcConnection
 	waiterGandalfGrpc.WaiterEventGrpcConnection = waiterEventGrpcConnection
 
-	waiterGandalfGrpc.WaiterCommandGrpc = NewWaiterCommandGrpc(waiterGandalfGrpc.Identity, waiterGandalfGrpc.WaiterCommandGrpcConnection)
-	waiterGandalfGrpc.WaiterEventGrpc = NewWaiterEventGrpc(waiterGandalfGrpc.Identity, waiterGandalfGrpc.WaiterEventGrpcConnection)
+	waiterGandalfGrpc.WaiterCommandGrpc = NewWaiterCommandGrpc(
+		waiterGandalfGrpc.Identity,
+		waiterGandalfGrpc.WaiterCommandGrpcConnection)
+	waiterGandalfGrpc.WaiterEventGrpc = NewWaiterEventGrpc(
+		waiterGandalfGrpc.Identity,
+		waiterGandalfGrpc.WaiterEventGrpcConnection)
 
 	return
 }

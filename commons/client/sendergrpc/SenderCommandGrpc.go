@@ -19,7 +19,9 @@ type SenderCommandGrpc struct {
 }
 
 //NewSenderCommandGrpc :
-func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderCommandGrpc *SenderCommandGrpc) {
+func NewSenderCommandGrpc(
+	identity string,
+	senderCommandGrpcConnection string) (senderCommandGrpc *SenderCommandGrpc) {
 	senderCommandGrpc = new(SenderCommandGrpc)
 	senderCommandGrpc.Identity = identity
 	senderCommandGrpc.SenderCommandGrpcConnection = senderCommandGrpcConnection
@@ -34,7 +36,14 @@ func NewSenderCommandGrpc(identity, senderCommandGrpcConnection string) (senderC
 }
 
 //SendCommand :
-func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorType, commandType, command, payload string) (commandMessageUUID message.CommandMessageUUID) {
+func (r SenderCommandGrpc) SendCommand(
+	contextCommand string,
+	timeout string,
+	uuid string,
+	connectorType string,
+	commandType string,
+	command string,
+	payload string) (commandMessageUUID message.CommandMessageUUID) {
 	commandMessage := new(pb.CommandMessage)
 	commandMessage.Context = contextCommand
 	commandMessage.Timeout = timeout
@@ -51,7 +60,10 @@ func (r SenderCommandGrpc) SendCommand(contextCommand, timeout, uuid, connectorT
 }
 
 //SendCommandReply :
-func (r SenderCommandGrpc) SendCommandReply(commandMessage message.CommandMessage, reply, payload string) *pb.Empty {
+func (r SenderCommandGrpc) SendCommandReply(
+	commandMessage message.CommandMessage,
+	reply string,
+	payload string) *pb.Empty {
 	commandMessageReply := new(pb.CommandMessageReply)
 	commandMessageReply.SourceAggregator = commandMessage.SourceAggregator
 	commandMessageReply.SourceConnector = commandMessage.SourceConnector

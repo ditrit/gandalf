@@ -18,7 +18,9 @@ func NewDatabaseClusterGandalf(path string) (databaseClusterGandalf *DatabaseClu
 
 	databaseClusterGandalf.databaseConfiguration, _ = LoadConfiguration(path)
 
-	databaseClusterGandalf.databaseCluster = NewDatabaseCluster(databaseClusterGandalf.databaseConfiguration.DatabaseClusterDirectory, databaseClusterGandalf.databaseConfiguration.DatabaseClusterConnections)
+	databaseClusterGandalf.databaseCluster = NewDatabaseCluster(
+		databaseClusterGandalf.databaseConfiguration.DatabaseClusterDirectory,
+		databaseClusterGandalf.databaseConfiguration.DatabaseClusterConnections)
 
 	return
 }
