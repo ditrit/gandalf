@@ -1,7 +1,0 @@
-{
-	"senderCommandConnection": "localhost:9140",
-	"senderEventConnection": "localhost:9150",
-	"waiterCommandConnection": "localhost:9140",
-	"waiterEventConnection": "localhost:9150",
-	"identity": "worker1"
-}
