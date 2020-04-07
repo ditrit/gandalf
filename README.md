@@ -10,10 +10,11 @@ https://ditrit.io/gandalf/
 ## Architecture :
 
 ### Cluster :
-
+Le cluster Gandalf trace et fait transiter les commandes et les événements.
 ### Aggregator :
-
+Les agrégateurs Gandalf cloisonnent et simplifient l’architecture réseau.
 ### Connector : 
+Les connecteurs Gandalf assurent la communication avec les briques du SI.   
 
 ## Build :
 
@@ -24,6 +25,75 @@ go build -tags libsqlite3
 ## Documentation
 
 https://taiga.orness.com/project/xavier-namt/wiki/home
+
+
+## CLI
+L'ensemble d'une solution gandalf est piloté par un unique binaire **'gandalf'**.
+
+gandalf mode command [options]
+mode : connector|aggregator|cluster|agent
+
+### Common options :
+-c config_file
+--config=config_file
+config_file : default value is '/etc/gandalf.[json|ini|yaml]'
+
+### Cluster mode usage :
+usage:
+gandalf cluster init logical_name bind_address
+gandalf cluster join logical_name bind_address join_address
+
+*   init command is used to setup a new global Gandalf instance. Output provides the key to be used by super-admin.
+*   join command is used to add a new member to an existing cluster
+
+
+**Fichier de configuration gandalf en mode cluster (by exemple) :**
+
+```
+mode: cluster
+logical_name: toto
+bind_address: 192.168.22.10
+[join_address : 192.168.22.11]
+```
+
+### Aggregator mode usage :
+usage:
+gandalf aggregator init logical_name tenant bind_address link_address
+gandalf aggregator join logical_name tenant bind_address link_address join_address
+
+*   init command is used to setup a new aggregator group.
+*   join command is used to add a new member to an existing group
+
+**Fichier de configuration gandalf en mode aggregator (by exemple) :**
+
+```
+mode: aggregator
+logical_name: toto
+tenant: tata
+bind_address: 192.168.22.10
+link_address: 192.168.22.11
+[join_address : 192.168.22.12]
+```
+
+### Connector mode usage :
+usage:
+gandalf connector init logical_name tenant bind_address grpc_bind_address link_address
+gandalf connector join logical_name tenant bind_address grpc_bind_address link_address join_address
+
+*   init command is used to setup a new connector group.
+*   join command is used to add a new member to an existing group
+
+**Fichier de configuration gandalf en mode connector (by exemple) :**
+
+```
+mode: connector
+logical_name: toto
+tenant: tata
+bind_address: 192.168.22.10
+grpc_bind_address: 192.168.22.11
+link_address: 192.168.22.12
+[join_address : 192.168.22.12]
+```
 
 ## Demo
 ```
