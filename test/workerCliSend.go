@@ -1,11 +1,12 @@
 package test
 
-import "fmt"
-
-var sendIndex = 0
+import (
+	"fmt"
+	"libraries/goclient"
+)
 
 type WorkerCliSend struct {
-	clients     []*ClientGrpcTest
+	client      *goclient.ClientGandalf
 	messageType string
 	value       string
 	topic       string
@@ -18,22 +19,25 @@ func NewWorkerCliSend(identity, messageType, value, payload, topic string, conne
 	workerCliSend.value = value
 	workerCliSend.topic = topic
 	workerCliSend.payload = payload
-	for _, connection := range connections {
-		workerCliSend.clients = append(workerCliSend.clients, NewClientGrpcTest(identity, connection))
-	}
+	workerCliSend.client = goclient.NewClientGandalf(identity, connections)
+
 	//workerCliSend.client = NewClientGrpcTest(identity, connection)
 
 	return workerCliSend
 }
 
 func (r WorkerCliSend) Run() {
-	client := r.clients[getSendIndex(r.clients)]
 	if r.messageType == "cmd" {
-		commandUUID := client.SendCommand("100000", "test", r.value, r.payload)
+		commandUUID := r.client.SendCommand("100000", "test", r.value, r.payload)
+		fmt.Println("commandUUID")
+		fmt.Println(commandUUID)
+		fmt.Println("commandUUID")
 		if commandUUID != nil {
-			id := client.CreateIteratorEvent()
+			id := r.client.CreateIteratorEvent()
+			fmt.Println(id)
 			for {
-				event := client.WaitTopic(commandUUID.GetUUID(), id)
+
+				event := r.client.WaitTopic(commandUUID.GetUUID(), id)
 				fmt.Println(event)
 
 				if event.GetEvent() == "SUCCES" || event.GetEvent() == "FAIL" {
@@ -43,17 +47,8 @@ func (r WorkerCliSend) Run() {
 			}
 		}
 	} else if r.messageType == "evt" {
-		client.SendEvent(r.topic, "100000", r.value, r.payload)
+		r.client.SendEvent(r.topic, "100000", r.value, r.payload)
 	}
 
 	//r.client.SendEvent("test", "10000", "test", "test", "test")
-}
-
-func getSendIndex(conns []*ClientGrpcTest) int {
-	aux := sendIndex
-	sendIndex++
-	if sendIndex >= len(conns) {
-		sendIndex = 0
-	}
-	return aux
 }

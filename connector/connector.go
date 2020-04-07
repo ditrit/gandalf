@@ -46,10 +46,10 @@ func (m *ConnectorMember) GrpcBind(addr string) (err error) {
 	return err
 }
 
-/* // Join :
+// Join :
 func (m *ConnectorMember) Join(addr string) (*sn.ShosetConn, error) {
 	return m.chaussette.Join(addr)
-} */
+}
 
 // Link :
 func (m *ConnectorMember) Link(addr string) (*sn.ShosetConn, error) {
@@ -80,7 +80,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 	return member
 }
 
-/* func ConnectorMemberJoin(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, joinAddress string, timeoutMax int64) (connectorMember *ConnectorMember) {
+func ConnectorMemberJoin(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, joinAddress string, timeoutMax int64) (connectorMember *ConnectorMember) {
 
 	member := NewConnectorMember(logicalName, tenant)
 	member.timeoutMax = timeoutMax
@@ -94,4 +94,4 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 	fmt.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
 	return member
-} */
+}

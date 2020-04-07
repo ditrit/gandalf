@@ -79,8 +79,8 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 		timeoutSend := time.Duration((int(cmd.GetTimeout()) / len(shosets)))
 
 		messageChannel := <-r.ValidationChannel
+
 		if messageChannel != nil {
-			fmt.Println("break")
 			notSend = false
 			break
 		}

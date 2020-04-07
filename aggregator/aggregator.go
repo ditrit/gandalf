@@ -32,11 +32,11 @@ func (m *AggregatorMember) Bind(addr string) error {
 	return err
 }
 
-/* // Join :
+// Join :
 func (m *AggregatorMember) Join(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Join(addr)
 }
-*/
+
 // Link :
 func (m *AggregatorMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Link(addr)
@@ -62,7 +62,6 @@ func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress string) 
 	return member
 }
 
-/*
 func AggregatorMemberJoin(logicalName, tenant, bindAddress, linkAddress, joinAddress string) (aggregatorMember *AggregatorMember) {
 
 	member := NewAggregatorMember(logicalName, tenant)
@@ -75,4 +74,3 @@ func AggregatorMemberJoin(logicalName, tenant, bindAddress, linkAddress, joinAdd
 
 	return member
 }
-*/
