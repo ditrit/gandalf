@@ -1,0 +1,24 @@
+//Package worker :
+//File WorkerConfiguration.go
+package worker
+
+import (
+	gonfig "github.com/tkanos/gonfig"
+)
+
+//WorkerConfiguration :
+type WorkerConfiguration struct {
+	SenderCommandConnection string
+	SenderEventConnection   string
+	WaiterCommandConnection string
+	WaiterEventConnection   string
+	Identity                string
+}
+
+//NewWorkerConfiguration :
+func NewWorkerConfiguration(path string) (workerConfiguration *WorkerConfiguration, err error) {
+	workerConfiguration = new(WorkerConfiguration)
+	err = gonfig.GetConf(path, workerConfiguration)
+
+	return
+}

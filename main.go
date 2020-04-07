@@ -8,12 +8,14 @@ import (
 	"os"
 	"time"
 
-	"gandalf-go/aggregator"
-	"gandalf-go/cluster"
-	"gandalf-go/connector"
-	"gandalf-go/database"
-	"gandalf-go/tset"
-	"gandalf-go/worker"
+	"gandalf-go/core/aggregator"
+	"gandalf-go/core/cluster"
+	"gandalf-go/core/connector"
+	"gandalf-go/core/worker"
+
+	"gandalf-go/commons/database"
+
+	"gandalf-go/test"
 
 	"github.com/pebbe/zmq4"
 )
@@ -54,7 +56,7 @@ func main() {
 		databaseClusterGandalf := database.NewDatabaseClusterGandalf(config)
 		databaseClusterGandalf.Run()
 	case "workerTestSend":
-		tset.NewWorkerSender(config).Run()
+		test.NewWorkerSender(config).Run()
 		//toto.WorkerGandalf.ClientGandalf.SendCommand("toto", "100000000000000", "toto", "toto", "toto", "toto", "toto")
 		fmt.Println("BOOP")
 		//toto.WorkerGandalf.ClientGandalf.SendEvent("toto", "100", "toto", "toto", "toto")
@@ -65,7 +67,7 @@ func main() {
 		//time.Sleep(time.Second * 5)
 		//clientT.SenderEventRoutine.SendEvent("topic", "timeout", "uuid", "event", "payload")
 	case "workerTestReceive":
-		tset.NewWorkerReceiver(config).Run()
+		test.NewWorkerReceiver(config).Run()
 		/* commandsRoutine := make(map[string][]routine.CommandRoutine)
 		command := new(function.FunctionTest)
 		fmt.Println("BEFORE")

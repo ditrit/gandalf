@@ -1,6 +1,5 @@
 ---
-
-image: 'golang:latest'
+image: 'ditrit/gandalf-min'
 
 before_script:
     - 'go version'
@@ -11,41 +10,33 @@ before_script:
     - '# SETUP SYMLINK TO MAKE GO WORK PROPERLY'
     - 'ln -s ${PWD} ${GOPATH}/src/gandalf-go'
 
-    # Install zeromq and libdqlite (needed by 0mq)
-    - 'apt-get update -y'
-    - 'apt-get upgrade -y '
-
-    - 'apt-get install -y software-properties-common'
-    - 'add-apt-repository ppa:dqlite/stable'
-    - 'apt-key adv --recv-keys --keyserver keyserver.ubuntu.com 06CD096F50FB3D04'
-
-    - 'apt-get update -y'
-    - 'apt-get install -y
-                libdqlite-dev
-                libzmq3-dev'
-
     # Get all depedencies
     - 'go get -d -v ./...'
 
 stages:
-    - std
-    - lint
+    - Build
+    - Lint/Test
 
 build:
-    stage: std
+    stage: Build
     script:
         - 'go build'
 
-gofmt:
-    stage: std
+go_fmt:
+    stage: Lint/Test
     script:
         - 'gofmt -l .'
 
 golangci-lint:
-    stage: lint
+    stage: Lint/Test
     script:
         - 'curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.3'
         - 'golangci-lint --version'
-        - 'golangci-lint run --timeout 5m -v ./...'
+        - 'golangci-lint run --timeout 30m -v ./...'
+
+go_test:
+    stage: Lint/Test
+    script:
+        - 'go test'
 
 ...
