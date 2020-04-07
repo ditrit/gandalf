@@ -39,9 +39,9 @@ mode : connector|aggregator|cluster|agent
 config_file : default value is '/etc/gandalf.[json|ini|yaml]'
 
 ### Cluster mode usage :
-usage:
-gandalf cluster init logical_name bind_address
-gandalf cluster join logical_name bind_address join_address
+usage:  
+gandalf cluster init logical_name bind_address  
+gandalf cluster join logical_name bind_address join_address  
 
 *   init command is used to setup a new global Gandalf instance. Output provides the key to be used by super-admin.
 *   join command is used to add a new member to an existing cluster
@@ -57,9 +57,12 @@ bind_address: 192.168.22.10
 ```
 
 ### Aggregator mode usage :
-usage:
-gandalf aggregator init logical_name tenant bind_address link_address
-gandalf aggregator join logical_name tenant bind_address link_address join_address
+usage:  
+
+gandalf aggregator init logical_name tenant bind_address link_address  
+
+gandalf aggregator join logical_name tenant bind_address link_address join_address  
+
 
 *   init command is used to setup a new aggregator group.
 *   join command is used to add a new member to an existing group
@@ -76,9 +79,10 @@ link_address: 192.168.22.11
 ```
 
 ### Connector mode usage :
-usage:
-gandalf connector init logical_name tenant bind_address grpc_bind_address link_address
-gandalf connector join logical_name tenant bind_address grpc_bind_address link_address join_address
+usage:  \n
+gandalf connector init logical_name tenant bind_address grpc_bind_address link_address  \n
+gandalf connector join logical_name tenant bind_address grpc_bind_address link_address join_address  \n
+
 
 *   init command is used to setup a new connector group.
 *   join command is used to add a new member to an existing group
