@@ -18,7 +18,7 @@ Les connecteurs Gandalf assurent la communication avec les briques du SI.
 
 ## Build :
 
-```
+```bash
 go build -tags libsqlite3
 ```
 
@@ -49,7 +49,7 @@ gandalf cluster join logical_name bind_address join_address
 
 **Fichier de configuration gandalf en mode cluster (by exemple) :**
 
-```
+```bash
 mode: cluster
 logical_name: toto
 bind_address: 192.168.22.10
@@ -67,7 +67,7 @@ gandalf aggregator join logical_name tenant bind_address link_address join_addre
 
 **Fichier de configuration gandalf en mode aggregator (by exemple) :**
 
-```
+```bash
 mode: aggregator
 logical_name: toto
 tenant: tata
@@ -87,7 +87,7 @@ gandalf connector join logical_name tenant bind_address grpc_bind_address link_a
 
 **Fichier de configuration gandalf en mode connector (by exemple) :**
 
-```
+```bash
 mode: connector
 logical_name: toto
 tenant: tata
@@ -98,14 +98,14 @@ link_address: 192.168.22.12
 ```
 
 ## Demo
-```
+```bash
 Cluster :
 ./garcimore cluster init cluster 127.0.0.1:9000 &
 ./garcimore cluster join cluster 127.0.0.1:9001 127.0.0.1:9000 &
 ./garcimore cluster join cluster 127.0.0.1:9002 127.0.0.1:9000 &
 ```
 
-```
+```bash
 Aggregator :
 ./garcimore aggregator init agg1 titi 127.0.0.1:8000 127.0.0.1:9000 &
 ./garcimore aggregator init agg2 titi 127.0.0.1:8100 127.0.0.1:9000 &
@@ -113,7 +113,7 @@ Aggregator :
 ./garcimore aggregator join agg2 titi 127.0.0.1:8101 127.0.0.1:9000 127.0.0.1:8100 &
 ```
 
-```
+```bash
 Connector :
 ./garcimore connector init con1 titi 127.0.0.1:7000 127.0.0.1:7010 127.0.0.1:8000 &
 ./garcimore connector init con2 titi 127.0.0.1:7100 127.0.0.1:7110 127.0.0.1:8100 &
