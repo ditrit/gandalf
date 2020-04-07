@@ -58,9 +58,7 @@ bind_address: 192.168.22.10
 
 ### Aggregator mode usage :
 usage:  
-
 gandalf aggregator init logical_name tenant bind_address link_address  
-
 gandalf aggregator join logical_name tenant bind_address link_address join_address  
 
 
@@ -79,9 +77,9 @@ link_address: 192.168.22.11
 ```
 
 ### Connector mode usage :
-usage:  \n
-gandalf connector init logical_name tenant bind_address grpc_bind_address link_address  \n
-gandalf connector join logical_name tenant bind_address grpc_bind_address link_address join_address  \n
+usage:  
+gandalf connector init logical_name tenant bind_address grpc_bind_address link_address  
+gandalf connector join logical_name tenant bind_address grpc_bind_address link_address join_address  
 
 
 *   init command is used to setup a new connector group.
