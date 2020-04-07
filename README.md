@@ -7,6 +7,14 @@ https://ditrit.io/gandalf/
 ![alt text](images/schemagandalf.png "gandalf schéma")
 
 
+## Architecture :
+
+### Cluster :
+
+### Aggregator :
+
+### Connector : 
+
 ## Build :
 
 ```
