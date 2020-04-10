@@ -83,7 +83,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 	return member
 }
 
-func ConnectorMemberJoin(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, joinAddress string, timeoutMax int64) (connectorMember *ConnectorMember) {
+/* func ConnectorMemberJoin(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, joinAddress string, timeoutMax int64) (connectorMember *ConnectorMember) {
 
 	member := NewConnectorMember(logicalName, tenant)
 	member.timeoutMax = timeoutMax
@@ -98,3 +98,4 @@ func ConnectorMemberJoin(logicalName, tenant, bindAddress, grpcBindAddress, link
 
 	return member
 }
+*/

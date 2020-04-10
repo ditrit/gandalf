@@ -64,7 +64,7 @@ func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress string) 
 	return member
 }
 
-func AggregatorMemberJoin(logicalName, tenant, bindAddress, linkAddress, joinAddress string) (aggregatorMember *AggregatorMember) {
+/* func AggregatorMemberJoin(logicalName, tenant, bindAddress, linkAddress, joinAddress string) (aggregatorMember *AggregatorMember) {
 
 	member := NewAggregatorMember(logicalName, tenant)
 	member.Bind(bindAddress)
@@ -75,4 +75,4 @@ func AggregatorMemberJoin(logicalName, tenant, bindAddress, linkAddress, joinAdd
 	fmt.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
 	return member
-}
+} */
