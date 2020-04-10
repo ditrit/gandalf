@@ -1,8 +1,9 @@
 package connector
 
 import (
-	"core/log"
+	coreLog "core/log"
 	"fmt"
+	"log"
 	sn "shoset/net"
 	"time"
 )
@@ -23,7 +24,7 @@ func NewConnectorMember(logicalName, tenant string) *ConnectorMember {
 	member.chaussette.Handle["cmd"] = HandleCommand
 	member.chaussette.Handle["evt"] = HandleEvent
 	//member.connectorGrpc = NewConnectorGrpc("", member.chaussette.)
-	log.OpenLogFile("/home/dev-ubuntu/logs/connector")
+	coreLog.OpenLogFile("/home/dev-ubuntu/logs/connector")
 
 	return member
 }
@@ -72,10 +73,11 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 
 	member := NewConnectorMember(logicalName, tenant)
 	member.timeoutMax = timeoutMax
-
 	member.Bind(bindAddress)
 	member.GrpcBind(grpcBindAddress)
 	member.Link(linkAddress)
+
+	log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 
 	time.Sleep(time.Second * time.Duration(5))
 	fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))

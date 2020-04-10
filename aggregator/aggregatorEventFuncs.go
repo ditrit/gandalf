@@ -1,21 +1,23 @@
 package aggregator
 
 import (
+	"errors"
 	"log"
 	"shoset/msg"
 	"shoset/net"
 )
 
 // HandleEvent :
-func HandleEvent(c *net.ShosetConn, message msg.Message) error {
+func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	evt := message.(msg.Event)
 	ch := c.GetCh()
 	dir := c.GetDir()
 	thisOne := ch.GetBindAddr()
-	log.Println("HANDLE EVENT")
+	err = nil
+
+	log.Println("Handle event")
 	log.Println(evt)
 
-	//TODO VERIF TENANT
 	if evt.GetTenant() == ch.Context["tenant"] {
 		ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
 		if ok {
@@ -25,7 +27,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) error {
 
 						if key != c.GetBindAddr() && key != thisOne && val.ShosetType == "cl" {
 							val.SendMessage(evt)
-							// fmt.Printf("%s : send event new 'member' %s to %s\n", thisOne, newMember, key)
+							log.Printf("%s : send in event %s to %s\n", thisOne, evt.GetEvent(), val)
 						}
 					},
 				)
@@ -37,13 +39,19 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) error {
 
 						if key != c.GetBindAddr() && key != thisOne && val.ShosetType == "c" {
 							val.SendMessage(evt)
-							// fmt.Printf("%s : send event new 'member' %s to %s\n", thisOne, newMember, key)
+							log.Printf("%s : send out event %s to %s\n", thisOne, evt.GetEvent(), val)
 						}
 					},
 				)
 			}
+		} else {
+			log.Println("Can't push to queue")
+			err = errors.New("Can't push to queue")
 		}
+	} else {
+		log.Println("Wrong tenant")
+		err = errors.New("Wrong tenant")
 	}
 
-	return nil
+	return err
 }

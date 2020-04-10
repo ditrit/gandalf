@@ -1,9 +1,9 @@
 package cluster
 
 import (
-	"core/log"
-	"fmt"
+	coreLog "core/log"
 	"garcimore/database"
+	"log"
 	"shoset/net"
 	"time"
 
@@ -29,7 +29,7 @@ func NewClusterMember(logicalName string) *ClusterMember {
 	member.chaussette.Handle["cmd"] = HandleCommand
 	member.chaussette.Handle["evt"] = HandleEvent
 
-	log.OpenLogFile("/home/dev-ubuntu/logs/cluster")
+	coreLog.OpenLogFile("/home/dev-ubuntu/logs/cluster")
 
 	return member
 }
@@ -62,30 +62,37 @@ func getBrothers(address string, member *ClusterMember) []string {
 	return bros
 }
 
-func ClusterMemberInit(logicalName, bindAddress string) (clusterMember *ClusterMember) {
+func ClusterMemberInit(logicalName, bindAddress string) *ClusterMember {
 	member := NewClusterMember(logicalName)
 	member.Bind(bindAddress)
+	log.Printf("New Aggregator member %s command %s bind on %s \n", logicalName, "init", bindAddress)
 
 	time.Sleep(time.Second * time.Duration(5))
-	fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+	log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
 	//context db
 
 	return member
 }
 
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress string) (clusterMember *ClusterMember) {
-
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress string) *ClusterMember {
 	member := NewClusterMember(logicalName)
 	member.Bind(bindAddress)
 	member.Join(joinAddress)
 
+	log.Printf("New Aggregator member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
+
 	time.Sleep(time.Second * time.Duration(5))
-	fmt.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+	log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
 	member.Store = CreateStore(getBrothers(bindAddress, member))
-	fmt.Println("Store")
-	fmt.Println(member.Store)
+
+	if len(*member.Store) == 0 {
+		log.Println("Store empty")
+	} else {
+		log.Println("Store")
+		log.Println(member.Store)
+	}
 
 	return member
 }

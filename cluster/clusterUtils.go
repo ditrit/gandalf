@@ -24,8 +24,10 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 	return
 }
 
+//TODO REVOIR
 // CaptureCommand
-func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) {
+func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
+	ok := true
 	if msgType == "cmd" {
 		currentMsg := models.FromShosetCommand(message.(msg.Command))
 		client.Create(&currentMsg)
@@ -33,6 +35,7 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) {
 		currentMsg := models.FromShosetEvent(message.(msg.Event))
 		client.Create(&currentMsg)
 	}
+	return ok
 }
 
 // CaptureEvent

@@ -1,8 +1,8 @@
 package aggregator
 
 import (
-	"core/log"
-	"fmt"
+	coreLog "core/log"
+	"log"
 	"shoset/net"
 	"time"
 )
@@ -21,7 +21,7 @@ func NewAggregatorMember(logicalName, tenant string) *AggregatorMember {
 	member.chaussette.Handle["cmd"] = HandleCommand
 	member.chaussette.Handle["evt"] = HandleEvent
 
-	log.OpenLogFile("/home/dev-ubuntu/logs/aggregator")
+	coreLog.OpenLogFile("/home/dev-ubuntu/logs/aggregator")
 	return member
 }
 
@@ -53,13 +53,15 @@ func getBrothers(address string, member *AggregatorMember) []string {
 	return bros
 }
 
+//AggregatorMemberInit
 func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress string) (aggregatorMember *AggregatorMember) {
 	member := NewAggregatorMember(logicalName, tenant)
 	member.Bind(bindAddress)
 	member.Link(linkAddress)
+	log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
 
 	time.Sleep(time.Second * time.Duration(5))
-	fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+	log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
 	return member
 }
