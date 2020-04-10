@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -39,16 +40,19 @@ func DatabaseMemberInit(add string, id int) {
 }
 
 func (dn DatabaseNode) startNode(id uint64, dir, address string) (err error) {
-
+	err = nil
 	if id == 0 {
-		return fmt.Errorf("ID must be greater than zero")
+		log.Println("Id must be greater than zero")
+		err = errors.New("Id must be greater than zero")
+
 	}
 	if address == "" {
 		address = fmt.Sprintf("%s%d", defaultBaseAdd, id)
 	}
 	dir = filepath.Join(dir, strconv.FormatUint(id, 10))
 	if err := os.MkdirAll(dir, 0755); err != nil {
-		return errors.Wrapf(err, "can't create %s", dir)
+		log.Printf("Can't create %s", dir)
+		err = errors.New("Can't create " + dir)
 	}
 	node, err := dqlite.New(
 		uint64(id), address, dir,
@@ -56,10 +60,12 @@ func (dn DatabaseNode) startNode(id uint64, dir, address string) (err error) {
 		dqlite.WithNetworkLatency(20*time.Millisecond),
 	)
 	if err != nil {
-		return errors.Wrap(err, "failed to create node")
+		log.Printf("Failed to create node")
+		err = errors.New("Failed to create node")
 	}
 	if err := node.Start(); err != nil {
-		return errors.Wrap(err, "failed to start node")
+		log.Printf("Failed to start node")
+		err = errors.New("Failed to start node")
 	}
-	return
+	return err
 }

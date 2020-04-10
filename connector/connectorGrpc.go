@@ -2,7 +2,7 @@ package connector
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	pb "garcimore/grpc"
 	"garcimore/utils"
 	"log"
@@ -57,39 +57,46 @@ func (r ConnectorGrpc) startGrpcServer() {
 }
 
 //SendCommandMessage :
-func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (*pb.CommandMessageUUID, error) {
+func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (commandMessageUUID *pb.CommandMessageUUID, err error) {
 	cmd := pb.CommandFromGrpc(in)
 	cmd.Tenant = r.Shoset.Context["tenant"].(string)
 	shosets := utils.GetByType(r.Shoset.ConnsByAddr, "a")
-
-	if cmd.GetTimeout() > r.timeoutMax {
-		cmd.Timeout = r.timeoutMax
-	}
-
-	iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
-	iterator := r.MapIterators[iteratorMessage.GetId()]
-	go r.runIterator(iteratorMessage.GetId(), cmd.GetUUID(), "validation", iterator, r.ValidationChannel)
-
-	notSend := true
-	for notSend {
-
-		index := getSendIndex(shosets)
-		shosets[index].SendMessage(cmd)
-
-		timeoutSend := time.Duration((int(cmd.GetTimeout()) / len(shosets)))
-
-		messageChannel := <-r.ValidationChannel
-
-		if messageChannel != nil {
-			notSend = false
-			break
+	if len(shosets) != 0 {
+		if cmd.GetTimeout() > r.timeoutMax {
+			cmd.Timeout = r.timeoutMax
 		}
-		time.Sleep(timeoutSend)
+
+		iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
+		iterator := r.MapIterators[iteratorMessage.GetId()]
+		go r.runIterator(iteratorMessage.GetId(), cmd.GetUUID(), "validation", iterator, r.ValidationChannel)
+
+		notSend := true
+		for notSend {
+
+			index := getSendIndex(shosets)
+			shosets[index].SendMessage(cmd)
+			log.Printf("%s : send command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(cmd.GetTimeout()) / len(shosets)))
+
+			messageChannel := <-r.ValidationChannel
+			log.Printf("%s : receive validation event for command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
+
+			if messageChannel != nil {
+				notSend = false
+				break
+			}
+			time.Sleep(timeoutSend)
+		}
+		if notSend {
+			return nil, nil
+		}
+		commandMessageUUID = &pb.CommandMessageUUID{UUID: cmd.UUID}
+	} else {
+		log.Println("Can't find aggregators to send")
+		err = errors.New("Can't find aggregators to send")
 	}
-	if notSend {
-		return nil, nil
-	}
-	return &pb.CommandMessageUUID{UUID: cmd.UUID}, nil
+	return commandMessageUUID, nil
 }
 
 //WaitCommandMessage :
@@ -114,6 +121,7 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 		func(key string, val *sn.ShosetConn) {
 			if key != r.Shoset.GetBindAddr() && key != thisOne && val.ShosetType == "a" {
 				val.SendMessage(evt)
+				log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
 			}
 		},
 	)
@@ -208,7 +216,6 @@ func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *
 				message := (messageIterator.GetMessage()).(msg.Event)
 
 				if value == message.ReferencesUUID && message.Event == "TAKEN" {
-					fmt.Println("return gi")
 					channel <- message
 					break
 				}

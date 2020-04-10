@@ -2,6 +2,7 @@ package database
 
 import (
 	"garcimore/models"
+	"log"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
@@ -10,7 +11,7 @@ import (
 func NewDatabaseClient(tenant string) *gorm.DB {
 	databaseClient, err := gorm.Open("sqlite3", tenant+".db")
 	if err != nil {
-		panic("failed to connect database")
+		log.Println("failed to connect database")
 	}
 	InitTenantDatabase(databaseClient)
 

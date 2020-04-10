@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/canonical/go-dqlite/client"
@@ -43,12 +44,14 @@ func getStore(cluster []string) client.NodeStore {
 func AddNodesToLeader(id int, nodeConnection string, defaultcluster []string) (err error) {
 	var cluster *[]string
 	cluster = &defaultcluster
-
+	err = nil
 	if err != nil {
-		return errors.Wrapf(err, "%s is not a number", id)
+		log.Printf("%d is not a number", id)
+		err = errors.New(string(id) + " is not a number")
 	}
 	if id == 0 {
-		return fmt.Errorf("ID must be greater than zero")
+		log.Println("Id must be greater than zero")
+		err = errors.New("Id must be greater than zero")
 	}
 	if nodeConnection == "" {
 		nodeConnection = fmt.Sprintf("%s%d", defaultBaseAdd, id)
@@ -61,7 +64,8 @@ func AddNodesToLeader(id int, nodeConnection string, defaultcluster []string) (e
 
 	client, err := getLeader(*cluster)
 	if err != nil {
-		return errors.Wrap(err, "can't connect to cluster leader")
+		log.Println("Can't connect to cluster leader")
+		err = errors.New("Can't connect to cluster leader")
 	}
 	defer client.Close()
 
@@ -69,19 +73,22 @@ func AddNodesToLeader(id int, nodeConnection string, defaultcluster []string) (e
 	defer cancel()
 
 	if err := client.Add(ctx, info); err != nil {
-		return errors.Wrap(err, "can't add node")
+		log.Println("Can't add node")
+		err = errors.New("Can't add node")
 	}
 
-	return nil
+	return err
 }
 
-func List(defaultcluster []string) error {
+func List(defaultcluster []string) (err error) {
 	var cluster *[]string
 	cluster = &defaultcluster
+	err = nil
 
 	client, err := getLeader(*cluster)
 	if err != nil {
-		return errors.Wrap(err, "can't connect to cluster leader")
+		log.Println("Can't connect to cluster leader")
+		err = errors.New("Can't connect to cluster leader")
 	}
 	defer client.Close()
 
@@ -91,16 +98,18 @@ func List(defaultcluster []string) error {
 	var leader *dqclient.NodeInfo
 	var nodes []dqclient.NodeInfo
 	if leader, err = client.Leader(ctx); err != nil {
-		return errors.Wrap(err, "can't get leader")
+		log.Println("Can't get leader")
+		err = errors.New("Can't get leader")
 	}
 
 	if nodes, err = client.Cluster(ctx); err != nil {
-		return errors.Wrap(err, "can't get cluster")
+		log.Println("Can't get cluster")
+		err = errors.New("Can't get cluster")
 	}
 
-	fmt.Printf("ID \tLeader \tAddress\n")
+	log.Printf("ID \tLeader \tAddress\n")
 	for _, node := range nodes {
-		fmt.Printf("%d \t%v \t%s\n", node.ID, node.ID == leader.ID, node.Address)
+		log.Printf("%d \t%v \t%s\n", node.ID, node.ID == leader.ID, node.Address)
 	}
-	return nil
+	return err
 }
