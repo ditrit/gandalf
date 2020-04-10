@@ -1,6 +1,7 @@
 package connector
 
 import (
+	"core/log"
 	"fmt"
 	sn "shoset/net"
 	"time"
@@ -22,6 +23,8 @@ func NewConnectorMember(logicalName, tenant string) *ConnectorMember {
 	member.chaussette.Handle["cmd"] = HandleCommand
 	member.chaussette.Handle["evt"] = HandleEvent
 	//member.connectorGrpc = NewConnectorGrpc("", member.chaussette.)
+	log.OpenLogFile("/home/dev-ubuntu/logs/connector")
+
 	return member
 }
 

@@ -1,7 +1,7 @@
 package cluster
 
 import (
-	"fmt"
+	"log"
 	"shoset/msg"
 	"shoset/net"
 
@@ -14,8 +14,8 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) error {
 	ch := c.GetCh()
 	thisOne := ch.GetBindAddr()
 
-	fmt.Println("HANDLE EVENT")
-	fmt.Println(evt)
+	log.Println("HANDLE EVENT")
+	log.Println(evt)
 
 	ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
 

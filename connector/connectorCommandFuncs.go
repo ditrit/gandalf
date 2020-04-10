@@ -1,7 +1,7 @@
 package connector
 
 import (
-	"fmt"
+	"log"
 	"shoset/msg"
 	"shoset/net"
 )
@@ -12,10 +12,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) error {
 	ch := c.GetCh()
 	thisOne := ch.GetBindAddr()
 
-	fmt.Println("HANDLE COMMAND")
-	fmt.Println(cmd)
+	log.Println("HANDLE COMMAND")
+	log.Println(cmd)
 	ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
-	fmt.Println(ok)
 	if ok {
 		ch.ConnsByAddr.Iterate(
 			func(key string, val *net.ShosetConn) {

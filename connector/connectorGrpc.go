@@ -174,8 +174,8 @@ func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (i
 func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *msg.Iterator, channel chan msg.Message) {
 
 	for {
-		fmt.Println("ITERATOR QUEUE")
-		iterator.PrintQueue()
+		//fmt.Println("ITERATOR QUEUE")
+		//iterator.PrintQueue()
 		messageIterator := iterator.Get()
 
 		if messageIterator != nil {
@@ -218,28 +218,6 @@ func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *
 	}
 	//delete(r.MapIterators, iteratorId)
 }
-
-/* func (r ConnectorGrpc) runIteratorValidation(iteratorId, value string, iterator *msg.Iterator, channel chan msg.Message) {
-
-	for {
-		fmt.Println("ITERATOR QUEUE")
-		iterator.PrintQueue()
-		messageIterator := iterator.Get()
-
-		if messageIterator != nil {
-			message := (messageIterator.GetMessage()).(msg.Event)
-
-			if value == message.ReferencesUUID {
-				fmt.Println("return gi")
-				channel <- message
-				break
-			}
-		}
-
-		time.Sleep(time.Duration(2000) * time.Millisecond)
-	}
-	delete(r.MapIterators, iteratorId)
-} */
 
 func getSendIndex(conns []*sn.ShosetConn) int {
 	aux := sendIndex

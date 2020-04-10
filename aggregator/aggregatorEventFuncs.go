@@ -1,7 +1,7 @@
 package aggregator
 
 import (
-	"fmt"
+	"log"
 	"shoset/msg"
 	"shoset/net"
 )
@@ -12,8 +12,8 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) error {
 	ch := c.GetCh()
 	dir := c.GetDir()
 	thisOne := ch.GetBindAddr()
-	fmt.Println("HANDLE EVENT")
-	fmt.Println(evt)
+	log.Println("HANDLE EVENT")
+	log.Println(evt)
 
 	//TODO VERIF TENANT
 	if evt.GetTenant() == ch.Context["tenant"] {

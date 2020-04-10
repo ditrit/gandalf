@@ -1,8 +1,8 @@
 package aggregator
 
 import (
-	"fmt"
 	"garcimore/utils"
+	"log"
 	"shoset/msg"
 	"shoset/net"
 )
@@ -15,8 +15,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) error {
 	ch := c.GetCh()
 	dir := c.GetDir()
 	//thisOne := ch.GetBindAddr()
-	fmt.Println("HANDLE COMMAND")
-	fmt.Println(cmd)
+	log.Println("HANDLE COMMAND")
+	log.Println(cmd)
 	if dir == "in" {
 		if cmd.GetTenant() == ch.Context["tenant"] {
 			ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())

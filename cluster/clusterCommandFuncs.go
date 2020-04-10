@@ -1,9 +1,9 @@
 package cluster
 
 import (
-	"fmt"
 	"garcimore/models"
 	"garcimore/utils"
+	"log"
 	"shoset/msg"
 	"shoset/net"
 
@@ -16,8 +16,8 @@ var sendIndex = 0
 func HandleCommand(c *net.ShosetConn, message msg.Message) error {
 	cmd := message.(msg.Command)
 	ch := c.GetCh()
-	fmt.Println("HANDLE COMMAND")
-	fmt.Println(cmd)
+	log.Println("HANDLE COMMAND")
+	log.Println(cmd)
 
 	ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 	if ok {

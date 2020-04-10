@@ -1,7 +1,7 @@
 package connector
 
 import (
-	"fmt"
+	"log"
 	"shoset/msg"
 	"shoset/net"
 )
@@ -10,8 +10,8 @@ import (
 func HandleEvent(c *net.ShosetConn, message msg.Message) error {
 	evt := message.(msg.Event)
 	ch := c.GetCh()
-	fmt.Println("HANDLE EVENT")
-	fmt.Println(evt)
+	log.Println("HANDLE EVENT")
+	log.Println(evt)
 
 	ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
 

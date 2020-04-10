@@ -1,6 +1,7 @@
 package aggregator
 
 import (
+	"core/log"
 	"fmt"
 	"shoset/net"
 	"time"
@@ -20,6 +21,7 @@ func NewAggregatorMember(logicalName, tenant string) *AggregatorMember {
 	member.chaussette.Handle["cmd"] = HandleCommand
 	member.chaussette.Handle["evt"] = HandleEvent
 
+	log.OpenLogFile("/home/dev-ubuntu/logs/aggregator")
 	return member
 }
 

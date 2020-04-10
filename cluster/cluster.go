@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"core/log"
 	"fmt"
 	"garcimore/database"
 	"shoset/net"
@@ -24,10 +25,11 @@ func NewClusterMember(logicalName string) *ClusterMember {
 	member.MapDatabaseClient = make(map[string]*gorm.DB)
 
 	member.chaussette.Context["database"] = member.MapDatabaseClient
-
 	member.chaussette.Handle["cfgjoin"] = HandleConfigJoin
 	member.chaussette.Handle["cmd"] = HandleCommand
 	member.chaussette.Handle["evt"] = HandleEvent
+
+	log.OpenLogFile("/home/dev-ubuntu/logs/cluster")
 
 	return member
 }
