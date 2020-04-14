@@ -124,13 +124,13 @@ func main() {
 				flag.Usage()
 			}
 		case "aggregator":
-			if len(args) >= 6 {
+			if len(args) >= 5 {
 				done := make(chan bool)
 
-				LogicalName := args[2]
-				Tenant := args[3]
-				BindAdd := args[4]
-				LinkAdd := args[5]
+				LogicalName := args[1]
+				Tenant := args[2]
+				BindAdd := args[3]
+				LinkAdd := args[4]
 
 				//CREATE AGGREGATOR
 				fmt.Println("Running Gandalf with:")
@@ -147,17 +147,17 @@ func main() {
 			break
 		case "connector":
 			TimeoutMax := int64(100000)
-			if len(args) >= 7 {
+			if len(args) >= 6 {
 				done := make(chan bool)
 
-				LogicalName := args[2]
-				Tenant := args[3]
-				BindAdd := args[4]
-				GrpcBindAdd := args[5]
-				LinkAdd := args[6]
+				LogicalName := args[1]
+				Tenant := args[2]
+				BindAdd := args[3]
+				GrpcBindAdd := args[4]
+				LinkAdd := args[5]
 
-				if len(args) >= 8 {
-					TimeoutMax, _ = strconv.ParseInt(args[7], 10, 64)
+				if len(args) >= 7 {
+					TimeoutMax, _ = strconv.ParseInt(args[6], 10, 64)
 				}
 
 				//CREATE CONNECTOR

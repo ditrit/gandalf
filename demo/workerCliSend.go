@@ -27,6 +27,7 @@ func NewWorkerCliSend(identity, messageType, value, payload, topic string, conne
 }
 
 func (r WorkerCliSend) Run() {
+
 	if r.messageType == "cmd" {
 		commandUUID := r.client.SendCommand("100000", "test", r.value, r.payload)
 		fmt.Println("commandUUID")

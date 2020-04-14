@@ -25,7 +25,6 @@ func NewConnectorMember(logicalName, tenant string) *ConnectorMember {
 	member.chaussette.Handle["evt"] = HandleEvent
 	//member.connectorGrpc = NewConnectorGrpc("", member.chaussette.)
 	coreLog.OpenLogFile("/home/dev-ubuntu/logs/connector")
-
 	return member
 }
 
