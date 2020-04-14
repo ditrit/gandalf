@@ -167,7 +167,7 @@ func main() {
 				fmt.Println("  Bind Address : " + BindAdd)
 				fmt.Println("  Grpc Bind Address : " + GrpcBindAdd)
 				fmt.Println("  Link Address : " + LinkAdd)
-				fmt.Println("  Timeout Max : " + string(TimeoutMax))
+				fmt.Printf("   Timeout Max : %d \n", TimeoutMax)
 				fmt.Println("  Config : " + config)
 
 				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, TimeoutMax)
