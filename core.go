@@ -16,6 +16,7 @@ import (
 func main() {
 
 	var (
+		debug  bool
 		config string
 	)
 	flag.Usage = func() {
@@ -39,12 +40,18 @@ func main() {
 		fmt.Printf("  		  bind address    \n")
 		fmt.Printf("  		  bind grpc address    \n")
 		fmt.Printf("  		  link address     \n")
+		fmt.Printf("  		  timeout max     \n")
 	}
 
+	flag.BoolVar(&debug, "d", false, "")
+	flag.BoolVar(&debug, "debug", false, "")
 	flag.StringVar(&config, "c", "", "")
 	flag.StringVar(&config, "config", "", "")
 	flag.Parse()
 	args := flag.Args()
+
+	fmt.Println("debug")
+	fmt.Println(debug)
 
 	if len(args) >= 1 {
 		mode := args[0]
@@ -160,6 +167,7 @@ func main() {
 				fmt.Println("  Bind Address : " + BindAdd)
 				fmt.Println("  Grpc Bind Address : " + GrpcBindAdd)
 				fmt.Println("  Link Address : " + LinkAdd)
+				fmt.Println("  Timeout Max : " + string(TimeoutMax))
 				fmt.Println("  Config : " + config)
 
 				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, TimeoutMax)
