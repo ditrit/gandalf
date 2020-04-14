@@ -1,8 +1,8 @@
-package cluster
+package utils
 
 import (
-	"garcimore/database"
-	"garcimore/models"
+	"core/database"
+	"core/models"
 	"log"
 	"shoset/msg"
 

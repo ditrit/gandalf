@@ -1,6 +1,7 @@
 package aggregator
 
 import (
+	"core/aggregator/shoset"
 	coreLog "core/log"
 	"log"
 	"shoset/net"
@@ -17,9 +18,9 @@ func NewAggregatorMember(logicalName, tenant string) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")
 	member.chaussette.Context["tenant"] = tenant
-	member.chaussette.Handle["cfgjoin"] = HandleConfigJoin
-	member.chaussette.Handle["cmd"] = HandleCommand
-	member.chaussette.Handle["evt"] = HandleEvent
+	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
+	member.chaussette.Handle["cmd"] = shoset.HandleCommand
+	member.chaussette.Handle["evt"] = shoset.HandleEvent
 
 	coreLog.OpenLogFile("/home/dev-ubuntu/logs/aggregator")
 	return member

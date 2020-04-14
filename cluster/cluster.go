@@ -1,8 +1,9 @@
 package cluster
 
 import (
+	"core/cluster/shoset"
+	"core/database"
 	coreLog "core/log"
-	"garcimore/database"
 	"log"
 	"shoset/net"
 	"time"
@@ -25,9 +26,9 @@ func NewClusterMember(logicalName string) *ClusterMember {
 	member.MapDatabaseClient = make(map[string]*gorm.DB)
 
 	member.chaussette.Context["database"] = member.MapDatabaseClient
-	member.chaussette.Handle["cfgjoin"] = HandleConfigJoin
-	member.chaussette.Handle["cmd"] = HandleCommand
-	member.chaussette.Handle["evt"] = HandleEvent
+	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
+	member.chaussette.Handle["cmd"] = shoset.HandleCommand
+	member.chaussette.Handle["evt"] = shoset.HandleEvent
 
 	coreLog.OpenLogFile("/home/dev-ubuntu/logs/cluster")
 

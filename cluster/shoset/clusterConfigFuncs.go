@@ -1,4 +1,4 @@
-package aggregator
+package shoset
 
 import (
 	"log"
@@ -33,11 +33,12 @@ func HandleConfigJoin(c *net.ShosetConn, message msg.Message) error {
 			},
 		)
 		/* 		if dir == "out" {
-		   		} */
-
+		   		}
+		*/
 	case "member":
 		ch.Join(newMember)
 		log.Printf("%s : event 'member' received from %s\n", thisOne, newMember)
+
 	}
 	return nil
 }

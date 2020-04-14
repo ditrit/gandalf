@@ -1,6 +1,8 @@
 package connector
 
 import (
+	"core/connector/grpc"
+	"core/connector/shoset"
 	coreLog "core/log"
 	"fmt"
 	"log"
@@ -11,7 +13,7 @@ import (
 // ConnectorMember :
 type ConnectorMember struct {
 	chaussette    *sn.Shoset
-	connectorGrpc ConnectorGrpc
+	connectorGrpc grpc.ConnectorGrpc
 	timeoutMax    int64
 }
 
@@ -20,9 +22,9 @@ func NewConnectorMember(logicalName, tenant string) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.chaussette = sn.NewShoset(logicalName, "c")
 	member.chaussette.Context["tenant"] = tenant
-	member.chaussette.Handle["cfgjoin"] = HandleConfigJoin
-	member.chaussette.Handle["cmd"] = HandleCommand
-	member.chaussette.Handle["evt"] = HandleEvent
+	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
+	member.chaussette.Handle["cmd"] = shoset.HandleCommand
+	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	//member.connectorGrpc = NewConnectorGrpc("", member.chaussette.)
 	coreLog.OpenLogFile("/home/dev-ubuntu/logs/connector")
 	return member
@@ -43,8 +45,8 @@ func (m *ConnectorMember) Bind(addr string) error {
 // Bind :
 func (m *ConnectorMember) GrpcBind(addr string) (err error) {
 
-	m.connectorGrpc, err = NewConnectorGrpc(addr, m.timeoutMax, m.chaussette)
-	go m.connectorGrpc.startGrpcServer()
+	m.connectorGrpc, err = grpc.NewConnectorGrpc(addr, m.timeoutMax, m.chaussette)
+	go m.connectorGrpc.StartGrpcServer()
 
 	return err
 }

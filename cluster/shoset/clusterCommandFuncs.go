@@ -1,9 +1,10 @@
-package cluster
+package shoset
 
 import (
+	cutils "core/cluster/utils"
+	"core/models"
+	"core/utils"
 	"errors"
-	"garcimore/models"
-	"garcimore/utils"
 	"log"
 	"shoset/msg"
 	"shoset/net"
@@ -27,16 +28,16 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 		mapDatabaseClient := ch.Context["database"].(map[string]*gorm.DB)
 		if mapDatabaseClient != nil {
-			databaseClient := GetDatabaseClientByTenant(cmd.GetTenant(), mapDatabaseClient)
+			databaseClient := cutils.GetDatabaseClientByTenant(cmd.GetTenant(), mapDatabaseClient)
 			if databaseClient != nil {
-				ok := CaptureMessage(message, "cmd", databaseClient)
+				ok := cutils.CaptureMessage(message, "cmd", databaseClient)
 				if ok {
 					log.Printf("Succes capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
 				} else {
 					log.Printf("Fail capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
 					err = errors.New("Fail capture command" + cmd.GetCommand() + " on tenant" + cmd.GetTenant())
 				}
-				app := GetApplicationContext(cmd, databaseClient)
+				app := cutils.GetApplicationContext(cmd, databaseClient)
 				if app != (models.Application{}) {
 
 					cmd.Target = app.Connector

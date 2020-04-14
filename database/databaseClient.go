@@ -1,7 +1,7 @@
 package database
 
 import (
-	"garcimore/models"
+	"core/models"
 	"log"
 
 	"github.com/jinzhu/gorm"

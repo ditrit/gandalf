@@ -1,6 +1,7 @@
-package cluster
+package shoset
 
 import (
+	"core/cluster/utils"
 	"errors"
 	"log"
 	"shoset/msg"
@@ -23,9 +24,9 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	if ok {
 		mapDatabaseClient := ch.Context["database"].(map[string]*gorm.DB)
 		if mapDatabaseClient != nil {
-			databaseClient := GetDatabaseClientByTenant(evt.GetTenant(), mapDatabaseClient)
+			databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), mapDatabaseClient)
 			if databaseClient != nil {
-				ok := CaptureMessage(message, "evt", databaseClient)
+				ok := utils.CaptureMessage(message, "evt", databaseClient)
 				if ok {
 					log.Printf("Succes capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
 				} else {
