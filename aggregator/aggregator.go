@@ -56,12 +56,20 @@ func getBrothers(address string, member *AggregatorMember) []string {
 //AggregatorMemberInit
 func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress string) (aggregatorMember *AggregatorMember) {
 	member := NewAggregatorMember(logicalName, tenant)
-	member.Bind(bindAddress)
-	member.Link(linkAddress)
-	log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
+	err := member.Bind(bindAddress)
+	if err == nil {
+		_, err = member.Link(linkAddress)
+		if err == nil {
+			log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
 
-	time.Sleep(time.Second * time.Duration(5))
-	log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+			time.Sleep(time.Second * time.Duration(5))
+			log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+		} else {
+			log.Printf("Can't link shoset on %s", linkAddress)
+		}
+	} else {
+		log.Printf("Can't bind shoset on %s", bindAddress)
+	}
 
 	return member
 }

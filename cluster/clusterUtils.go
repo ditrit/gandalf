@@ -3,6 +3,7 @@ package cluster
 import (
 	"garcimore/database"
 	"garcimore/models"
+	"log"
 	"shoset/msg"
 
 	"github.com/jinzhu/gorm"
@@ -34,13 +35,9 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 	} else if msgType == "evt" {
 		currentMsg := models.FromShosetEvent(message.(msg.Event))
 		client.Create(&currentMsg)
+	} else {
+		ok = false
+		log.Println("Can't capture this message")
 	}
 	return ok
-}
-
-// CaptureEvent
-func CaptureEvent(evt msg.Event, client *gorm.DB) {
-
-	client.Create(evt)
-
 }

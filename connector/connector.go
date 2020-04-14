@@ -73,14 +73,25 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 
 	member := NewConnectorMember(logicalName, tenant)
 	member.timeoutMax = timeoutMax
-	member.Bind(bindAddress)
-	member.GrpcBind(grpcBindAddress)
-	member.Link(linkAddress)
+	err := member.Bind(bindAddress)
+	if err == nil {
+		err = member.GrpcBind(grpcBindAddress)
+		if err == nil {
+			_, err = member.Link(linkAddress)
+			if err == nil {
+				log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 
-	log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-
-	time.Sleep(time.Second * time.Duration(5))
-	fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+				time.Sleep(time.Second * time.Duration(5))
+				fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+			} else {
+				log.Printf("Can't link shoset on %s", linkAddress)
+			}
+		} else {
+			log.Printf("Can't Grpc bind shoset on %s", grpcBindAddress)
+		}
+	} else {
+		log.Printf("Can't bind shoset on %s", bindAddress)
+	}
 
 	return member
 }

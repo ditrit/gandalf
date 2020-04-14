@@ -64,34 +64,43 @@ func getBrothers(address string, member *ClusterMember) []string {
 
 func ClusterMemberInit(logicalName, bindAddress string) *ClusterMember {
 	member := NewClusterMember(logicalName)
-	member.Bind(bindAddress)
-	log.Printf("New Aggregator member %s command %s bind on %s \n", logicalName, "init", bindAddress)
+	err := member.Bind(bindAddress)
+	if err == nil {
+		log.Printf("New Aggregator member %s command %s bind on %s \n", logicalName, "init", bindAddress)
 
-	time.Sleep(time.Second * time.Duration(5))
-	log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-
-	//context db
+		time.Sleep(time.Second * time.Duration(5))
+		log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+	} else {
+		log.Printf("Can't bind shoset on %s", bindAddress)
+	}
 
 	return member
 }
 
 func ClusterMemberJoin(logicalName, bindAddress, joinAddress string) *ClusterMember {
 	member := NewClusterMember(logicalName)
-	member.Bind(bindAddress)
-	member.Join(joinAddress)
+	err := member.Bind(bindAddress)
+	if err == nil {
+		_, err = member.Join(joinAddress)
+		if err == nil {
+			log.Printf("New Aggregator member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
 
-	log.Printf("New Aggregator member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
+			time.Sleep(time.Second * time.Duration(5))
+			log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
-	time.Sleep(time.Second * time.Duration(5))
-	log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+			member.Store = CreateStore(getBrothers(bindAddress, member))
 
-	member.Store = CreateStore(getBrothers(bindAddress, member))
-
-	if len(*member.Store) == 0 {
-		log.Println("Store empty")
+			if len(*member.Store) == 0 {
+				log.Println("Store empty")
+			} else {
+				log.Println("Store")
+				log.Println(member.Store)
+			}
+		} else {
+			log.Printf("Can't join shoset on %s", joinAddress)
+		}
 	} else {
-		log.Println("Store")
-		log.Println(member.Store)
+		log.Printf("Can't bind shoset on %s", bindAddress)
 	}
 
 	return member
