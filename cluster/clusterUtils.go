@@ -25,7 +25,7 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 }
 
 //TODO REVOIR
-// CaptureCommand
+// CaptureMessage
 func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 	ok := true
 	if msgType == "cmd" {

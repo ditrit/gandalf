@@ -58,6 +58,8 @@ func (r ConnectorGrpc) startGrpcServer() {
 
 //SendCommandMessage :
 func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (commandMessageUUID *pb.CommandMessageUUID, err error) {
+	log.Println("Handle send command")
+
 	cmd := pb.CommandFromGrpc(in)
 	cmd.Tenant = r.Shoset.Context["tenant"].(string)
 	shosets := utils.GetByType(r.Shoset.ConnsByAddr, "a")
@@ -101,10 +103,12 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 
 //WaitCommandMessage :
 func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMessageWait) (commandMessage *pb.CommandMessage, err error) {
+	log.Println("Handle wait command")
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
 	go r.runIterator(in.GetIteratorId(), in.GetValue(), "cmd", iterator, r.CommandChannel)
+
 	messageChannel := <-r.CommandChannel
 	commandMessage = pb.CommandToGrpc(messageChannel.(msg.Command))
 
@@ -113,6 +117,8 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 
 //SendEventMessage :
 func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (*pb.Empty, error) {
+	log.Println("Handle send event")
+
 	evt := pb.EventFromGrpc(in)
 	evt.Tenant = r.Shoset.Context["tenant"].(string)
 	thisOne := r.Shoset.GetBindAddr()
@@ -131,6 +137,7 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 
 //WaitEventMessage :
 func (r ConnectorGrpc) WaitEventMessage(ctx context.Context, in *pb.EventMessageWait) (messageEvent *pb.EventMessage, err error) {
+	log.Println("Handle wait event")
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
@@ -144,6 +151,7 @@ func (r ConnectorGrpc) WaitEventMessage(ctx context.Context, in *pb.EventMessage
 
 //WaitEventMessage :
 func (r ConnectorGrpc) WaitTopicMessage(ctx context.Context, in *pb.TopicMessageWait) (messageEvent *pb.EventMessage, err error) {
+	log.Println("Handle wait event by topic")
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
@@ -158,8 +166,12 @@ func (r ConnectorGrpc) WaitTopicMessage(ctx context.Context, in *pb.TopicMessage
 //TODO REFACTORING
 //CreateIteratorCommand :
 func (r ConnectorGrpc) CreateIteratorCommand(ctx context.Context, in *pb.Empty) (iteratorMessage *pb.IteratorMessage, err error) {
+	log.Println("Handle create iterator command")
+
 	iterator := msg.NewIterator(r.Shoset.Queue["cmd"])
 	index := uuid.New()
+	log.Printf("Create new iterator command: %s", index)
+
 	//r.MapWorkerIterators[index.String()] = append(r.MapWorkerIterators[index.String()], iterator)
 	r.MapIterators[index.String()] = iterator
 
@@ -170,8 +182,12 @@ func (r ConnectorGrpc) CreateIteratorCommand(ctx context.Context, in *pb.Empty) 
 
 //CreateIteratorEvent :
 func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (iteratorMessage *pb.IteratorMessage, err error) {
+	log.Println("Handle create iterator event")
+
 	iterator := msg.NewIterator(r.Shoset.Queue["evt"])
 	index := uuid.New()
+	log.Printf("Create new iterator event: %s", index)
+
 	//r.MapWorkerIterators[index.String()] = append(r.MapWorkerIterators[index.String()], iterator)
 	r.MapIterators[index.String()] = iterator
 
@@ -181,6 +197,8 @@ func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (i
 
 func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *msg.Iterator, channel chan msg.Message) {
 
+	log.Printf("Run iterator %s on value %s", msgtype, value)
+
 	for {
 		//fmt.Println("ITERATOR QUEUE")
 		//iterator.PrintQueue()
@@ -188,10 +206,12 @@ func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *
 
 		if messageIterator != nil {
 			if msgtype == "cmd" {
-
 				message := (messageIterator.GetMessage()).(msg.Command)
 
 				if value == message.GetCommand() {
+					log.Println("Get iterator command")
+					log.Println(message)
+
 					channel <- message
 
 					break
@@ -200,6 +220,9 @@ func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *
 				message := (messageIterator.GetMessage()).(msg.Event)
 
 				if value == message.Event {
+					log.Println("Get iterator event")
+					log.Println(message)
+
 					channel <- message
 
 					break
@@ -208,6 +231,9 @@ func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *
 				message := (messageIterator.GetMessage()).(msg.Event)
 
 				if value == message.Topic {
+					log.Println("Get iterator event by topic")
+					log.Println(message)
+
 					channel <- message
 
 					break
@@ -216,6 +242,9 @@ func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *
 				message := (messageIterator.GetMessage()).(msg.Event)
 
 				if value == message.ReferencesUUID && message.Event == "TAKEN" {
+					log.Println("Get iterator event validation")
+					log.Println(message)
+
 					channel <- message
 					break
 				}
