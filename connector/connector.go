@@ -6,13 +6,13 @@ import (
 	coreLog "core/log"
 	"fmt"
 	"log"
-	sn "shoset/net"
+	"shoset/net"
 	"time"
 )
 
 // ConnectorMember :
 type ConnectorMember struct {
-	chaussette    *sn.Shoset
+	chaussette    *net.Shoset
 	connectorGrpc grpc.ConnectorGrpc
 	timeoutMax    int64
 }
@@ -20,19 +20,34 @@ type ConnectorMember struct {
 // NewClusterMember :
 func NewConnectorMember(logicalName, tenant string) *ConnectorMember {
 	member := new(ConnectorMember)
-	member.chaussette = sn.NewShoset(logicalName, "c")
+	member.chaussette = net.NewShoset(logicalName, "c")
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	//member.connectorGrpc = NewConnectorGrpc("", member.chaussette.)
-	coreLog.OpenLogFile("/home/dev-ubuntu/logs/connector")
+	coreLog.OpenLogFile("/var/log")
 	return member
+}
+
+//GetChaussette
+func (m *ConnectorMember) GetChaussette() *net.Shoset {
+	return m.chaussette
+}
+
+//GetChaussette
+func (m *ConnectorMember) GetConnectorGrpc() grpc.ConnectorGrpc {
+	return m.connectorGrpc
+}
+
+//GetChaussette
+func (m *ConnectorMember) GetTimeoutMax() int64 {
+	return m.timeoutMax
 }
 
 // Bind :
 func (m *ConnectorMember) Bind(addr string) error {
-	ipAddr, err := sn.GetIP(addr)
+	ipAddr, err := net.GetIP(addr)
 	if err == nil {
 		err = m.chaussette.Bind(ipAddr)
 	}
@@ -52,25 +67,25 @@ func (m *ConnectorMember) GrpcBind(addr string) (err error) {
 }
 
 // Join :
-func (m *ConnectorMember) Join(addr string) (*sn.ShosetConn, error) {
+func (m *ConnectorMember) Join(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Join(addr)
 }
 
 // Link :
-func (m *ConnectorMember) Link(addr string) (*sn.ShosetConn, error) {
+func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Link(addr)
 }
 
 func getBrothers(address string, member *ConnectorMember) []string {
 	bros := []string{address}
 	member.chaussette.ConnsJoin.Iterate(
-		func(key string, val *sn.ShosetConn) {
+		func(key string, val *net.ShosetConn) {
 			bros = append(bros, key)
 		})
 	return bros
 }
 
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress string, timeoutMax int64) (connectorMember *ConnectorMember) {
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress string, timeoutMax int64) *ConnectorMember {
 
 	member := NewConnectorMember(logicalName, tenant)
 	member.timeoutMax = timeoutMax

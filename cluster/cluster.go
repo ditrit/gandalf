@@ -30,9 +30,19 @@ func NewClusterMember(logicalName string) *ClusterMember {
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 
-	coreLog.OpenLogFile("/home/dev-ubuntu/logs/cluster")
+	coreLog.OpenLogFile("/var/log")
 
 	return member
+}
+
+//GetChaussette
+func (m *ClusterMember) GetChaussette() *net.Shoset {
+	return m.chaussette
+}
+
+//GetChaussette
+func (m *ClusterMember) GetDatabaseNode() *database.DatabaseNode {
+	return m.databaseNode
 }
 
 // Bind :
