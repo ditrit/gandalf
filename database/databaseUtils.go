@@ -12,7 +12,7 @@ import (
 )
 
 const defaultBaseAdd = "127.0.0.1:900"
-const DefaultNodeDirectory = "/home/dev-ubuntu/db/"
+const DefaultNodeDirectory = "/var/lib/dqlite/data/"
 
 var DefaultCluster = []string{"127.0.0.1:9000", "127.0.0.1:9001", "127.0.0.1:9002"}
 
