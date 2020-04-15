@@ -23,6 +23,10 @@ func InitTenantDatabase(databaseClient *gorm.DB) (err error) {
 	databaseClient.AutoMigrate(&models.Aggregator{}, &models.Application{},
 		&models.ConnectorType{}, &models.Connector{}, &models.Event{}, &models.Command{})
 
+	return
+}
+
+func DemoPopulateTenantDatabase(databaseClient *gorm.DB) (err error) {
 	databaseClient.Create(&models.Aggregator{Name: "Aggregator1"})
 	databaseClient.Create(&models.Aggregator{Name: "Aggregator2"})
 	databaseClient.Create(&models.Aggregator{Name: "titi"})
