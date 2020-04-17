@@ -14,7 +14,7 @@ func NewDatabaseClient(tenant string) *gorm.DB {
 		log.Println("failed to connect database")
 	}
 	InitTenantDatabase(databaseClient)
-
+	DemoPopulateTenantDatabase(databaseClient)
 	return databaseClient
 }
 
