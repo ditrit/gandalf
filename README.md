@@ -58,12 +58,7 @@ bind_address: 192.168.22.10
 
 ### Aggregator mode usage :
 usage:  
-gandalf aggregator init logical_name tenant bind_address link_address  
-gandalf aggregator join logical_name tenant bind_address link_address join_address  
-
-
-*   init command is used to setup a new aggregator group.
-*   join command is used to add a new member to an existing group
+gandalf aggregator logical_name tenant bind_address link_address  
 
 **Fichier de configuration gandalf en mode aggregator (by exemple) :**
 
@@ -73,17 +68,11 @@ logical_name: toto
 tenant: tata
 bind_address: 192.168.22.10
 link_address: 192.168.22.11
-[join_address : 192.168.22.12]
 ```
 
 ### Connector mode usage :
 usage:  
-gandalf connector init logical_name tenant bind_address grpc_bind_address link_address  
-gandalf connector join logical_name tenant bind_address grpc_bind_address link_address join_address  
-
-
-*   init command is used to setup a new connector group.
-*   join command is used to add a new member to an existing group
+gandalf connector  logical_name tenant bind_address grpc_bind_address link_address  
 
 **Fichier de configuration gandalf en mode connector (by exemple) :**
 
@@ -94,7 +83,6 @@ tenant: tata
 bind_address: 192.168.22.10
 grpc_bind_address: 192.168.22.11
 link_address: 192.168.22.12
-[join_address : 192.168.22.12]
 ```
 
 ## Demo
@@ -107,18 +95,18 @@ Cluster :
 
 ```bash
 Aggregator :
-./garcimore aggregator init agg1 titi 127.0.0.1:8000 127.0.0.1:9000 &
-./garcimore aggregator init agg2 titi 127.0.0.1:8100 127.0.0.1:9000 &
-./garcimore aggregator join agg1 titi 127.0.0.1:8001 127.0.0.1:9000 127.0.0.1:8000 &
-./garcimore aggregator join agg2 titi 127.0.0.1:8101 127.0.0.1:9000 127.0.0.1:8100 &
+./garcimore aggregator agg1 titi 127.0.0.1:8000 127.0.0.1:9000 &
+./garcimore aggregator agg2 titi 127.0.0.1:8100 127.0.0.1:9000 &
+./garcimore aggregator agg1 titi 127.0.0.1:8001 127.0.0.1:9000 &
+./garcimore aggregator agg2 titi 127.0.0.1:8101 127.0.0.1:9000 &
 ```
 
 ```bash
 Connector :
-./garcimore connector init con1 titi 127.0.0.1:7000 127.0.0.1:7010 127.0.0.1:8000 &
-./garcimore connector init con2 titi 127.0.0.1:7100 127.0.0.1:7110 127.0.0.1:8100 &
-./garcimore connector join con1 titi 127.0.0.1:7001 127.0.0.1:7011 127.0.0.1:8000 127.0.0.1:7000 &
-./garcimore connector join con2 titi 127.0.0.1:7101 127.0.0.1:7111 127.0.0.1:8100 127.0.0.1:7100 &
+./garcimore connector con1 titi 127.0.0.1:7000 127.0.0.1:7010 127.0.0.1:8000 &
+./garcimore connector con2 titi 127.0.0.1:7100 127.0.0.1:7110 127.0.0.1:8100 &
+./garcimore connector con1 titi 127.0.0.1:7001 127.0.0.1:7011 127.0.0.1:8000 &
+./garcimore connector con2 titi 127.0.0.1:7101 127.0.0.1:7111 127.0.0.1:8100 &
 ```
 
 ```
