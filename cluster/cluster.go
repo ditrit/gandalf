@@ -20,7 +20,7 @@ type ClusterMember struct {
 }
 
 // NewClusterMember :
-func NewClusterMember(logicalName string) *ClusterMember {
+func NewClusterMember(logicalName, logPath string) *ClusterMember {
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
 	member.MapDatabaseClient = make(map[string]*gorm.DB)
@@ -30,7 +30,9 @@ func NewClusterMember(logicalName string) *ClusterMember {
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 
-	coreLog.OpenLogFile("/var/log")
+	//TODO
+	//coreLog.OpenLogFile("/var/log")
+	coreLog.OpenLogFile(logPath)
 
 	return member
 }
@@ -73,8 +75,8 @@ func getBrothers(address string, member *ClusterMember) []string {
 	return bros
 }
 
-func ClusterMemberInit(logicalName, bindAddress string) *ClusterMember {
-	member := NewClusterMember(logicalName)
+func ClusterMemberInit(logicalName, bindAddress, logPath string) *ClusterMember {
+	member := NewClusterMember(logicalName, logPath)
 	err := member.Bind(bindAddress)
 	if err == nil {
 		log.Printf("New Aggregator member %s command %s bind on %s \n", logicalName, "init", bindAddress)
@@ -88,8 +90,8 @@ func ClusterMemberInit(logicalName, bindAddress string) *ClusterMember {
 	return member
 }
 
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress string) *ClusterMember {
-	member := NewClusterMember(logicalName)
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress, logPath string) *ClusterMember {
+	member := NewClusterMember(logicalName, logPath)
 	err := member.Bind(bindAddress)
 	if err == nil {
 		_, err = member.Join(joinAddress)

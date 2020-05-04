@@ -18,7 +18,7 @@ type ConnectorMember struct {
 }
 
 // NewClusterMember :
-func NewConnectorMember(logicalName, tenant string) *ConnectorMember {
+func NewConnectorMember(logicalName, tenant, logPath string) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.chaussette.Context["tenant"] = tenant
@@ -26,7 +26,10 @@ func NewConnectorMember(logicalName, tenant string) *ConnectorMember {
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	//member.connectorGrpc = NewConnectorGrpc("", member.chaussette.)
-	coreLog.OpenLogFile("/var/log")
+
+	//coreLog.OpenLogFile("/var/log")
+	coreLog.OpenLogFile(logPath)
+
 	return member
 }
 
@@ -85,9 +88,9 @@ func getBrothers(address string, member *ConnectorMember) []string {
 	return bros
 }
 
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress string, timeoutMax int64) *ConnectorMember {
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, logPath string, timeoutMax int64) *ConnectorMember {
 
-	member := NewConnectorMember(logicalName, tenant)
+	member := NewConnectorMember(logicalName, tenant, logPath)
 	member.timeoutMax = timeoutMax
 	err := member.Bind(bindAddress)
 	if err == nil {

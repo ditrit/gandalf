@@ -34,8 +34,8 @@ func (dn DatabaseNode) Run() {
 	time.Sleep(time.Second * time.Duration(5))
 }
 
-func DatabaseMemberInit(add string, id int) {
-	databaseNode := NewDatabaseNode(DefaultNodeDirectory, add, uint64(id))
+func DatabaseMemberInit(add, dbPath string, id int) {
+	databaseNode := NewDatabaseNode(dbPath, add, uint64(id))
 	databaseNode.Run()
 }
 

@@ -67,17 +67,31 @@ func main() {
 
 						LogicalName := args[2]
 						BindAdd := args[3]
+
+						home, _ := os.UserHomeDir()
+						LogPath := home + "/logs/cluster/"
+						if len(args) >= 6 {
+							LogPath = args[5]
+						}
+
+						dbPath := home + "/db/"
+						if len(args) >= 7 {
+							dbPath = args[6]
+						}
+
 						//CREATE CLUSTER
 						fmt.Println("Running Gandalf with:")
 						fmt.Println("  Mode : " + mode)
 						fmt.Println("  Logical Name : " + LogicalName)
 						fmt.Println("  Bind Address : " + BindAdd)
+						fmt.Println("  Log Path : " + LogPath)
+						fmt.Println("  DB Path : " + dbPath)
 						fmt.Println("  Config : " + config)
 
-						cluster.ClusterMemberInit(LogicalName, BindAdd)
+						cluster.ClusterMemberInit(LogicalName, BindAdd, LogPath)
 
 						add, _ := net.DeltaAddress(BindAdd, 1000)
-						go database.DatabaseMemberInit(add, 1)
+						go database.DatabaseMemberInit(add, dbPath, 1)
 						database.List([]string{add})
 
 						<-done
@@ -92,20 +106,34 @@ func main() {
 						LogicalName := args[2]
 						BindAdd := args[3]
 						JoinAdd := args[4]
+
+						home, _ := os.UserHomeDir()
+						LogPath := home + "/logs/cluster/"
+						if len(args) >= 6 {
+							LogPath = args[5]
+						}
+
+						dbPath := home + "/db/"
+						if len(args) >= 7 {
+							dbPath = args[6]
+						}
+
 						//CREATE CLUSTER
 						fmt.Println("Running Gandalf with:")
 						fmt.Println("  Mode : " + mode)
 						fmt.Println("  Logical Name : " + LogicalName)
 						fmt.Println("  Bind Address : " + BindAdd)
 						fmt.Println("  Join Address : " + JoinAdd)
+						fmt.Println("  Log Path : " + LogPath)
+						fmt.Println("  DB Path : " + dbPath)
 						fmt.Println("  Config : " + config)
 
-						member := cluster.ClusterMemberJoin(LogicalName, BindAdd, JoinAdd)
+						member := cluster.ClusterMemberJoin(LogicalName, BindAdd, JoinAdd, LogPath)
 
 						add, _ := net.DeltaAddress(BindAdd, 1000)
 						id := len(*member.Store)
 
-						go database.DatabaseMemberInit(add, id)
+						go database.DatabaseMemberInit(add, dbPath, id)
 
 						err := database.AddNodesToLeader(id, add, *member.Store)
 						fmt.Println(err)
@@ -132,21 +160,27 @@ func main() {
 				BindAdd := args[3]
 				LinkAdd := args[4]
 
+				home, _ := os.UserHomeDir()
+				LogPath := home + "/logs/aggregator/"
+				if len(args) >= 6 {
+					LogPath = args[5]
+				}
+
 				//CREATE AGGREGATOR
 				fmt.Println("Running Gandalf with:")
 				fmt.Println("  Logical Name : " + LogicalName)
 				fmt.Println("  Tenant : " + Tenant)
 				fmt.Println("  Bind Address : " + BindAdd)
 				fmt.Println("  Link Address : " + LinkAdd)
+				fmt.Println("  Log Path : " + LogPath)
 				fmt.Println("  Config : " + config)
 
-				aggregator.AggregatorMemberInit(LogicalName, Tenant, BindAdd, LinkAdd)
+				aggregator.AggregatorMemberInit(LogicalName, Tenant, BindAdd, LinkAdd, LogPath)
 
 				<-done
 			}
 			break
 		case "connector":
-			TimeoutMax := int64(100000)
 			if len(args) >= 6 {
 				done := make(chan bool)
 
@@ -156,8 +190,15 @@ func main() {
 				GrpcBindAdd := args[4]
 				LinkAdd := args[5]
 
+				TimeoutMax := int64(100000)
 				if len(args) >= 7 {
 					TimeoutMax, _ = strconv.ParseInt(args[6], 10, 64)
+				}
+
+				home, _ := os.UserHomeDir()
+				LogPath := home + "/logs/connector/"
+				if len(args) >= 6 {
+					LogPath = args[5]
 				}
 
 				//CREATE CONNECTOR
@@ -167,10 +208,11 @@ func main() {
 				fmt.Println("  Bind Address : " + BindAdd)
 				fmt.Println("  Grpc Bind Address : " + GrpcBindAdd)
 				fmt.Println("  Link Address : " + LinkAdd)
+				fmt.Println("  Log Path : " + LogPath)
 				fmt.Printf("   Timeout Max : %d \n", TimeoutMax)
 				fmt.Println("  Config : " + config)
 
-				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, TimeoutMax)
+				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, LogPath, TimeoutMax)
 
 				<-done
 

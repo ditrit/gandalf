@@ -14,7 +14,7 @@ type AggregatorMember struct {
 }
 
 // NewClusterMember :
-func NewAggregatorMember(logicalName, tenant string) *AggregatorMember {
+func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")
 	member.chaussette.Context["tenant"] = tenant
@@ -22,7 +22,10 @@ func NewAggregatorMember(logicalName, tenant string) *AggregatorMember {
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 
-	coreLog.OpenLogFile("/var/log")
+	//coreLog.OpenLogFile("/var/log")
+
+	coreLog.OpenLogFile(logPath)
+
 	return member
 }
 
@@ -60,8 +63,8 @@ func getBrothers(address string, member *AggregatorMember) []string {
 }
 
 //AggregatorMemberInit
-func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress string) *AggregatorMember {
-	member := NewAggregatorMember(logicalName, tenant)
+func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath string) *AggregatorMember {
+	member := NewAggregatorMember(logicalName, tenant, logPath)
 	err := member.Bind(bindAddress)
 	if err == nil {
 		_, err = member.Link(linkAddress)
