@@ -3,6 +3,7 @@ package demo
 import (
 	"fmt"
 	"libraries/goclient"
+	"libraries/goclient/models"
 	"strconv"
 	"time"
 )
@@ -19,7 +20,7 @@ func NewWorkerCliReceive(identity, messageType, value, topic string, connections
 	workerCliReceive.messageType = messageType
 	workerCliReceive.value = value
 	workerCliReceive.topic = topic
-	workerCliReceive.client = goclient.NewClientGandalf(identity, connections)
+	workerCliReceive.client = goclient.NewClientGandalf(identity, "", connections)
 
 	//workerCliReceive.clients = append() NewClientGrpcTest(identity, connection)
 
@@ -35,11 +36,11 @@ func (r WorkerCliReceive) Run() {
 		//id := r.client.CreateIteratorEvent()
 		//event := r.client.WaitEvent("test", "test", id)
 		for i := 1; i <= 10; i++ {
-			r.client.SendEvent(command.GetUUID(), "10000", strconv.Itoa(i*10), "test")
+			r.client.SendEvent(command.GetUUID(), strconv.Itoa(i*10), models.NewOptions("", "test"))
 			time.Sleep(time.Duration(500) * time.Millisecond)
 
 		}
-		r.client.SendEvent(command.GetUUID(), "10000", "SUCCES", "test")
+		r.client.SendEvent(command.GetUUID(), "SUCCES", models.NewOptions("", "test"))
 
 	} else if r.messageType == "evt" {
 		id := r.client.CreateIteratorEvent()

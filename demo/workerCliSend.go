@@ -3,6 +3,7 @@ package demo
 import (
 	"fmt"
 	"libraries/goclient"
+	"libraries/goclient/models"
 )
 
 type WorkerCliSend struct {
@@ -19,7 +20,7 @@ func NewWorkerCliSend(identity, messageType, value, payload, topic string, conne
 	workerCliSend.value = value
 	workerCliSend.topic = topic
 	workerCliSend.payload = payload
-	workerCliSend.client = goclient.NewClientGandalf(identity, connections)
+	workerCliSend.client = goclient.NewClientGandalf(identity, "", connections)
 
 	//workerCliSend.client = NewClientGrpcTest(identity, connection)
 
@@ -29,7 +30,7 @@ func NewWorkerCliSend(identity, messageType, value, payload, topic string, conne
 func (r WorkerCliSend) Run() {
 
 	if r.messageType == "cmd" {
-		commandUUID := r.client.SendCommand("100000", "test", r.value, r.payload)
+		commandUUID := r.client.SendCommand("test."+r.value, models.NewOptions("", r.payload))
 		fmt.Println("commandUUID")
 		fmt.Println(commandUUID)
 		fmt.Println("commandUUID")
@@ -48,7 +49,7 @@ func (r WorkerCliSend) Run() {
 			}
 		}
 	} else if r.messageType == "evt" {
-		r.client.SendEvent(r.topic, "100000", r.value, r.payload)
+		r.client.SendEvent(r.topic, r.value, models.NewOptions("", r.payload))
 	}
 
 	//r.client.SendEvent("test", "10000", "test", "test", "test")
