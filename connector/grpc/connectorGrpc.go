@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	pb "garcimore/grpc"
 	"garcimore/utils"
 	"log"
@@ -22,7 +23,7 @@ type ConnectorGrpc struct {
 	Shoset         sn.Shoset
 	//MapWorkerIterators map[string][]*msg.Iterator
 	MapIterators      map[string]*msg.Iterator
-	CommandChannel    chan msg.Message
+	MapCommandChannel map[string]chan msg.Message
 	EventChannel      chan msg.Message
 	ValidationChannel chan msg.Message
 	timeoutMax        int64
@@ -34,7 +35,7 @@ func NewConnectorGrpc(GrpcConnection string, timeoutMax int64, shoset *sn.Shoset
 	connectorGrpc.timeoutMax = timeoutMax
 	//connectorGrpc.MapWorkerIterators = make(map[string][]*msg.Iterator)
 	connectorGrpc.MapIterators = make(map[string]*msg.Iterator)
-	connectorGrpc.CommandChannel = make(chan msg.Message)
+	connectorGrpc.MapCommandChannel = make(map[string]chan msg.Message)
 	connectorGrpc.EventChannel = make(chan msg.Message)
 	connectorGrpc.ValidationChannel = make(chan msg.Message)
 
@@ -107,9 +108,9 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIterator(in.GetIteratorId(), in.GetValue(), "cmd", iterator, r.CommandChannel)
+	go r.runIterator(in.GetIteratorId(), in.GetValue(), "cmd", iterator, r.MapCommandChannel[in.GetIteratorId()])
 
-	messageChannel := <-r.CommandChannel
+	messageChannel := <-r.MapCommandChannel[in.GetIteratorId()]
 	commandMessage = pb.CommandToGrpc(messageChannel.(msg.Command))
 
 	return
@@ -174,7 +175,7 @@ func (r ConnectorGrpc) CreateIteratorCommand(ctx context.Context, in *pb.Empty) 
 
 	//r.MapWorkerIterators[index.String()] = append(r.MapWorkerIterators[index.String()], iterator)
 	r.MapIterators[index.String()] = iterator
-
+	r.MapCommandChannel[index.String()] = make(chan msg.Message)
 	iteratorMessage = &pb.IteratorMessage{Id: index.String()}
 
 	return
@@ -207,7 +208,10 @@ func (r ConnectorGrpc) runIterator(iteratorId, value, msgtype string, iterator *
 		if messageIterator != nil {
 			if msgtype == "cmd" {
 				message := (messageIterator.GetMessage()).(msg.Command)
-
+				fmt.Println("value")
+				fmt.Println(value)
+				fmt.Println("message.GetCommand()")
+				fmt.Println(message.GetCommand())
 				if value == message.GetCommand() {
 					log.Println("Get iterator command")
 					log.Println(message)
