@@ -201,8 +201,8 @@ func main() {
 
 				home, _ := os.UserHomeDir()
 				LogPath := home + "/logs/connector/"
-				if len(args) >= 6 {
-					LogPath = args[5]
+				if len(args) >= 8 {
+					LogPath = args[7]
 				}
 
 				//CREATE CONNECTOR
