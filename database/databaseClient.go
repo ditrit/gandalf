@@ -30,14 +30,17 @@ func DemoPopulateTenantDatabase(databaseClient *gorm.DB) (err error) {
 	databaseClient.Create(&models.Aggregator{Name: "Aggregator1"})
 	databaseClient.Create(&models.Aggregator{Name: "Aggregator2"})
 	databaseClient.Create(&models.Aggregator{Name: "Aggregator3"})
+	databaseClient.Create(&models.Aggregator{Name: "Aggregator4"})
 
 	databaseClient.Create(&models.Connector{Name: "Connector1"})
 	databaseClient.Create(&models.Connector{Name: "Connector2"})
 	databaseClient.Create(&models.Connector{Name: "Connector3"})
+	databaseClient.Create(&models.Connector{Name: "Connector4"})
 
 	databaseClient.Create(&models.ConnectorType{Name: "Utils"})
 	databaseClient.Create(&models.ConnectorType{Name: "Workflow"})
 	databaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
+	databaseClient.Create(&models.ConnectorType{Name: "Azure"})
 
 	var Aggregator models.Aggregator
 	var Connector models.Connector
@@ -69,6 +72,15 @@ func DemoPopulateTenantDatabase(databaseClient *gorm.DB) (err error) {
 		Aggregator:    "Aggregator3",
 		Connector:     "Connector3",
 		ConnectorType: "Gitlab"})
+
+	databaseClient.Where("name = ?", "Aggregator4").First(&Aggregator)
+	databaseClient.Where("name = ?", "Connector4").First(&Connector)
+	databaseClient.Where("name = ?", "Azure").First(&ConnectorType)
+
+	databaseClient.Create(&models.Application{Name: "Application4",
+		Aggregator:    "Aggregator4",
+		Connector:     "Connector4",
+		ConnectorType: "Azure"})
 
 	return
 }
