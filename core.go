@@ -96,7 +96,7 @@ func main() {
 
 						add, _ := net.DeltaAddress(BindAdd, 1000)
 						go database.DatabaseMemberInit(add, dbPath, 1)
-						database.List([]string{add})
+						//database.List([]string{add})
 
 						<-done
 					} else {
@@ -141,7 +141,7 @@ func main() {
 
 						err := database.AddNodesToLeader(id, add, *member.Store)
 						fmt.Println(err)
-						database.List([]string{add})
+						//database.List([]string{add})
 
 						<-done
 
