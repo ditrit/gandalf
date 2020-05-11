@@ -5,7 +5,6 @@ import (
 	"core/cluster"
 	"core/connector"
 	"core/database"
-	"core/demo"
 	"flag"
 	"fmt"
 	"os"
@@ -53,9 +52,6 @@ func main() {
 	flag.StringVar(&config, "config", "", "")
 	flag.Parse()
 	args := flag.Args()
-
-	fmt.Println("debug")
-	fmt.Println(debug)
 
 	if len(args) >= 1 {
 		mode := args[0]
@@ -225,43 +221,11 @@ func main() {
 			if len(args) >= 1 {
 				command := args[1]
 				switch command {
-				case "send":
-					if len(args) >= 5 {
-						messageType := args[2]
-						value := args[3]
-						payload := args[4]
-						var topic = ""
-
-						if len(args) >= 6 {
-							topic = args[5]
-						}
-
-						done := make(chan bool)
-						tutu := demo.NewWorkerCliSend("test", messageType, value, payload, topic, []string{"127.0.0.1:7010", "127.0.0.1:7011"})
-						go tutu.Run()
-						<-done
-					}
-
-					break
-				case "receive":
-					if len(args) >= 4 {
-						messageType := args[2]
-						value := args[3]
-						var topic = ""
-
-						if len(args) >= 5 {
-							topic = args[4]
-						}
-
-						done := make(chan bool)
-						tutu := demo.NewWorkerCliReceive("test", messageType, value, topic, []string{"127.0.0.1:7110", "127.0.0.1:7111"})
-						go tutu.Run()
-						<-done
-					}
-					break
-				default:
+				case "list":
 					fmt.Println("LIST")
 					database.List([]string{"127.0.0.1:10000", "127.0.0.1:10001", "127.0.0.1:10002"})
+					break
+				default:
 					break
 				}
 			} else {
