@@ -1,3 +1,4 @@
+//Package shoset :
 package shoset
 
 import (

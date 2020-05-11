@@ -1,3 +1,4 @@
+//Package main :
 package main
 
 import (
@@ -13,7 +14,6 @@ import (
 )
 
 func main() {
-
 	var (
 		debug  bool
 		config string
@@ -139,7 +139,6 @@ func main() {
 						fmt.Println(err)
 
 						<-done
-
 					} else {
 						flag.Usage()
 					}
@@ -214,7 +213,6 @@ func main() {
 				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, LogPath, TimeoutMax)
 
 				<-done
-
 			}
 			break
 		case "test":
@@ -234,7 +232,6 @@ func main() {
 		default:
 			break
 		}
-
 	} else {
 		flag.Usage()
 	}

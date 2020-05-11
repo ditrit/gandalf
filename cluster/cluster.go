@@ -1,3 +1,4 @@
+//Package cluster :
 package cluster
 
 import (
@@ -30,8 +31,6 @@ func NewClusterMember(logicalName, logPath string) *ClusterMember {
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 
-	//TODO
-	//coreLog.OpenLogFile("/var/log")
 	coreLog.OpenLogFile(logPath)
 
 	return member

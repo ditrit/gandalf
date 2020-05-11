@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/canonical/go-dqlite/client"
-	dqclient "github.com/canonical/go-dqlite/client"
 	"github.com/pkg/errors"
 )
 
@@ -80,24 +79,24 @@ func List(defaultcluster []string) (err error) {
 	cluster = &defaultcluster
 	err = nil
 
-	client, err := getLeader(*cluster)
+	clientLeader, err := getLeader(*cluster)
 	if err != nil {
 		log.Println("Can't connect to cluster leader")
 		err = errors.New("Can't connect to cluster leader")
 	}
-	defer client.Close()
+	defer clientLeader.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	var leader *dqclient.NodeInfo
-	var nodes []dqclient.NodeInfo
-	if leader, err = client.Leader(ctx); err != nil {
+	var leader *client.NodeInfo
+	var nodes []client.NodeInfo
+	if leader, err = clientLeader.Leader(ctx); err != nil {
 		log.Println("Can't get leader")
 		err = errors.New("Can't get leader")
 	}
 
-	if nodes, err = client.Cluster(ctx); err != nil {
+	if nodes, err = clientLeader.Cluster(ctx); err != nil {
 		log.Println("Can't get cluster")
 		err = errors.New("Can't get cluster")
 	}

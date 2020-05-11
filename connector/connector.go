@@ -1,3 +1,4 @@
+//Package connector :
 package connector
 
 import (
@@ -25,9 +26,7 @@ func NewConnectorMember(logicalName, tenant, logPath string) *ConnectorMember {
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
-	//member.connectorGrpc = NewConnectorGrpc("", member.chaussette.)
 
-	//coreLog.OpenLogFile("/var/log")
 	coreLog.OpenLogFile(logPath)
 
 	return member
