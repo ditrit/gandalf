@@ -141,7 +141,6 @@ func main() {
 
 						err := database.AddNodesToLeader(id, add, *member.Store)
 						fmt.Println(err)
-						//database.List([]string{add})
 
 						<-done
 
@@ -261,6 +260,8 @@ func main() {
 					}
 					break
 				default:
+					fmt.Println("LIST")
+					database.List([]string{"127.0.0.1:10000", "127.0.0.1:10001", "127.0.0.1:10002"})
 					break
 				}
 			} else {
