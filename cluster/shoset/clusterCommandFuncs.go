@@ -15,7 +15,7 @@ import (
 
 var sendIndex = 0
 
-// HandleCommand :
+// HandleCommand : Cluster handle command function.
 func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	cmd := message.(msg.Command)
 	ch := c.GetCh()
@@ -25,8 +25,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(cmd)
 
 	ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
-	if ok {
 
+	if ok {
 		mapDatabaseClient := ch.Context["database"].(map[string]*gorm.DB)
 		if mapDatabaseClient != nil {
 			databaseClient := cutils.GetDatabaseClientByTenant(cmd.GetTenant(), mapDatabaseClient)
@@ -38,11 +38,13 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 					log.Printf("Fail capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
 					err = errors.New("Fail capture command" + cmd.GetCommand() + " on tenant" + cmd.GetTenant())
 				}
-				app := cutils.GetApplicationContext(cmd, databaseClient)
-				if app != (models.Application{}) {
 
+				app := cutils.GetApplicationContext(cmd, databaseClient)
+
+				if app != (models.Application{}) {
 					cmd.Target = app.Connector
 					shosets := utils.GetByType(ch.ConnsByName.Get(app.Aggregator), "a")
+
 					if len(shosets) != 0 {
 						index := getSendIndex(shosets)
 						shosets[index].SendMessage(cmd)
@@ -50,7 +52,6 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 						log.Println("Can't find aggregators to send")
 						err = errors.New("Can't find aggregators to send")
 					}
-
 				} else {
 					log.Println("Can't find application context")
 					err = errors.New("Can't find application context")
@@ -71,11 +72,14 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	return err
 }
 
+// getSendIndex : Cluster getSendIndex function.
 func getSendIndex(conns []*net.ShosetConn) int {
 	aux := sendIndex
 	sendIndex++
+
 	if sendIndex >= len(conns) {
 		sendIndex = 0
 	}
+
 	return aux
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// HandleEvent :
+// HandleEvent : Cluster handle event function.
 func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	evt := message.(msg.Event)
 	ch := c.GetCh()
@@ -22,6 +22,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(evt)
 
 	ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
+
 	if ok {
 		mapDatabaseClient := ch.Context["database"].(map[string]*gorm.DB)
 		if mapDatabaseClient != nil {

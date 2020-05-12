@@ -7,7 +7,7 @@ import (
 	"shoset/net"
 )
 
-// HandleConfigJoin :
+// HandleConfigJoin : Cluster handle config function.
 func HandleConfigJoin(c *net.ShosetConn, message msg.Message) error {
 	cfg := message.(msg.ConfigJoin)
 	ch := c.GetCh()
@@ -24,7 +24,9 @@ func HandleConfigJoin(c *net.ShosetConn, message msg.Message) error {
 			ch.Join(newMember)
 			log.Printf("%s : in event 'join' received from %s\n", thisOne, newMember)
 		}
+
 		cfgNewMember := msg.NewCfgMember(newMember)
+
 		ch.ConnsJoin.Iterate(
 			func(key string, val *net.ShosetConn) {
 				if key != newMember && key != thisOne {
@@ -33,13 +35,11 @@ func HandleConfigJoin(c *net.ShosetConn, message msg.Message) error {
 				}
 			},
 		)
-		/* 		if dir == "out" {
-		   		}
-		*/
+
 	case "member":
 		ch.Join(newMember)
 		log.Printf("%s : event 'member' received from %s\n", thisOne, newMember)
-
 	}
+
 	return nil
 }

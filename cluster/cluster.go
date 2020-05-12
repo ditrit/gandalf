@@ -1,4 +1,4 @@
-//Package cluster :
+//Package cluster : Main function for cluster
 package cluster
 
 import (
@@ -12,7 +12,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// ClusterMember :
+// ClusterMember : Cluster struct.
 type ClusterMember struct {
 	chaussette        *net.Shoset
 	databaseNode      *database.DatabaseNode
@@ -20,7 +20,7 @@ type ClusterMember struct {
 	MapDatabaseClient map[string]*gorm.DB
 }
 
-// NewClusterMember :
+// NewClusterMember : Cluster struct constructor.
 func NewClusterMember(logicalName, logPath string) *ClusterMember {
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
@@ -36,47 +36,53 @@ func NewClusterMember(logicalName, logPath string) *ClusterMember {
 	return member
 }
 
-//GetChaussette
+// GetChaussette : Cluster chaussette getter.
 func (m *ClusterMember) GetChaussette() *net.Shoset {
 	return m.chaussette
 }
 
-//GetChaussette
+// GetDatabaseNode : Cluster databaseNode getter.
 func (m *ClusterMember) GetDatabaseNode() *database.DatabaseNode {
 	return m.databaseNode
 }
 
-// Bind :
+// Bind : Cluster bind function.
 func (m *ClusterMember) Bind(addr string) error {
 	ipAddr, err := net.GetIP(addr)
 	if err == nil {
 		err = m.chaussette.Bind(ipAddr)
 	}
+
 	return err
 }
 
-// Join :
+// Join : Cluster join function.
 func (m *ClusterMember) Join(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Join(addr)
 }
 
-// Link :
+// Link : Cluster link function.
 func (m *ClusterMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Link(addr)
 }
 
+// getBrothers : Cluster list brothers function.
 func getBrothers(address string, member *ClusterMember) []string {
 	bros := []string{address}
+
 	member.chaussette.ConnsJoin.Iterate(
 		func(key string, val *net.ShosetConn) {
 			bros = append(bros, key)
 		})
+
 	return bros
 }
 
+// ClusterMemberInit : Cluster init function.
 func ClusterMemberInit(logicalName, bindAddress, logPath string) *ClusterMember {
 	member := NewClusterMember(logicalName, logPath)
 	err := member.Bind(bindAddress)
+
 	if err == nil {
 		log.Printf("New Aggregator member %s command %s bind on %s \n", logicalName, "init", bindAddress)
 
@@ -89,9 +95,11 @@ func ClusterMemberInit(logicalName, bindAddress, logPath string) *ClusterMember 
 	return member
 }
 
+// ClusterMemberJoin : Cluster join function.
 func ClusterMemberJoin(logicalName, bindAddress, joinAddress, logPath string) *ClusterMember {
 	member := NewClusterMember(logicalName, logPath)
 	err := member.Bind(bindAddress)
+
 	if err == nil {
 		_, err = member.Join(joinAddress)
 		if err == nil {
@@ -118,6 +126,7 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, logPath string) *C
 	return member
 }
 
+// CreateStore : Cluster create store function.
 func CreateStore(bros []string) *[]string {
 	store := []string{}
 
