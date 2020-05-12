@@ -1,4 +1,4 @@
-//Package aggregator :
+//Package aggregator : Main function for aggregator
 package aggregator
 
 import (
@@ -9,12 +9,12 @@ import (
 	"time"
 )
 
-// AggregatorMember :
+// AggregatorMember : Aggregator struct.
 type AggregatorMember struct {
 	chaussette *net.Shoset
 }
 
-// NewClusterMember :
+// NewAggregatorMember : Aggregator struct constructor.
 func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")
@@ -30,43 +30,48 @@ func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember 
 	return member
 }
 
-//GetChaussette
+// GetChaussette : Aggregator chaussette getter.
 func (m *AggregatorMember) GetChaussette() *net.Shoset {
 	return m.chaussette
 }
 
-// Bind :
+// Bind : Aggregator bind function.
 func (m *AggregatorMember) Bind(addr string) error {
 	ipAddr, err := net.GetIP(addr)
 	if err == nil {
 		err = m.chaussette.Bind(ipAddr)
 	}
+
 	return err
 }
 
-// Join :
+// Join : Aggregator join function.
 func (m *AggregatorMember) Join(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Join(addr)
 }
 
-// Link :
+// Link : Aggregator link function.
 func (m *AggregatorMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Link(addr)
 }
 
+// getBrothers : Aggregator list brothers function.
 func getBrothers(address string, member *AggregatorMember) []string {
 	bros := []string{address}
+
 	member.chaussette.ConnsJoin.Iterate(
 		func(key string, val *net.ShosetConn) {
 			bros = append(bros, key)
 		})
+
 	return bros
 }
 
-//AggregatorMemberInit
+// AggregatorMemberInit : Aggregator init function.
 func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath string) *AggregatorMember {
 	member := NewAggregatorMember(logicalName, tenant, logPath)
 	err := member.Bind(bindAddress)
+
 	if err == nil {
 		_, err = member.Link(linkAddress)
 		if err == nil {

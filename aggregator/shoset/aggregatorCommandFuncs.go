@@ -11,7 +11,7 @@ import (
 
 var sendIndex = 0
 
-// HandleCommand :
+// HandleCommand : Aggregator handle command function.
 func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	cmd := message.(msg.Command)
 	ch := c.GetCh()
@@ -24,6 +24,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	if cmd.GetTenant() == ch.Context["tenant"] {
 		ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
+
 		if ok {
 			if dir == "in" {
 				if c.GetShosetType() == "c" {
@@ -33,14 +34,15 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 						shosets[index].SendMessage(cmd)
 						log.Printf("%s : send in command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
 					} else {
-						log.Println("Can't find clusters to send")
-						err = errors.New("Can't find clusters to send")
+						log.Println("can't find clusters to send")
+						err = errors.New("can't find clusters to send")
 					}
 				} else {
-					log.Println("Wrong Shoset type")
-					err = errors.New("Wrong Shoset type")
+					log.Println("wrong Shoset type")
+					err = errors.New("wrong Shoset type")
 				}
 			}
+
 			if dir == "out" {
 				if c.GetShosetType() == "cl" {
 					shosets := utils.GetByType(ch.ConnsByName.Get(cmd.GetTarget()), "c")
@@ -49,30 +51,34 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 						shosets[index].SendMessage(cmd)
 						log.Printf("%s : send out command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
 					} else {
-						log.Println("Can't find connectors to send")
-						err = errors.New("Can't find connectors to send")
+						log.Println("can't find connectors to send")
+						err = errors.New("can't find connectors to send")
 					}
 				} else {
-					log.Println("Wrong Shoset type")
-					err = errors.New("Wrong Shoset type")
+					log.Println("wrong Shoset type")
+					err = errors.New("wrong Shoset type")
 				}
 			}
 		} else {
-			log.Println("Can't push to queue")
-			err = errors.New("Can't push to queue")
+			log.Println("can't push to queue")
+			err = errors.New("can't push to queue")
 		}
 	} else {
-		log.Println("Wrong tenant")
-		err = errors.New("Wrong tenant")
+		log.Println("wrong tenant")
+		err = errors.New("wrong tenant")
 	}
+
 	return err
 }
 
+// getSendIndex : Aggregator getSendIndex function.
 func getSendIndex(conns []*net.ShosetConn) int {
 	aux := sendIndex
 	sendIndex++
+
 	if sendIndex >= len(conns) {
 		sendIndex = 0
 	}
+
 	return aux
 }

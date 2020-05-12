@@ -8,7 +8,7 @@ import (
 	"shoset/net"
 )
 
-// HandleEvent :
+// HandleEvent : Aggregator handle event function.
 func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	evt := message.(msg.Event)
 	ch := c.GetCh()
@@ -25,19 +25,17 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 			if dir == "in" {
 				ch.ConnsByAddr.Iterate(
 					func(key string, val *net.ShosetConn) {
-
 						if key != c.GetBindAddr() && key != thisOne && val.ShosetType == "cl" {
 							val.SendMessage(evt)
 							log.Printf("%s : send in event %s to %s\n", thisOne, evt.GetEvent(), val)
 						}
 					},
 				)
-
 			}
+
 			if dir == "out" {
 				ch.ConnsByAddr.Iterate(
 					func(key string, val *net.ShosetConn) {
-
 						if key != c.GetBindAddr() && key != thisOne && val.ShosetType == "c" {
 							val.SendMessage(evt)
 							log.Printf("%s : send out event %s to %s\n", thisOne, evt.GetEvent(), val)
@@ -46,12 +44,12 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 				)
 			}
 		} else {
-			log.Println("Can't push to queue")
-			err = errors.New("Can't push to queue")
+			log.Println("can't push to queue")
+			err = errors.New("can't push to queue")
 		}
 	} else {
-		log.Println("Wrong tenant")
-		err = errors.New("Wrong tenant")
+		log.Println("wrong tenant")
+		err = errors.New("wrong tenant")
 	}
 
 	return err

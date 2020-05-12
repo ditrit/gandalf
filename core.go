@@ -18,6 +18,7 @@ func main() {
 		debug  bool
 		config string
 	)
+
 	flag.Usage = func() {
 		fmt.Printf("Usage of %s:\n", os.Args[0])
 		fmt.Printf("  gandalf mode command [options]")
@@ -70,6 +71,7 @@ func main() {
 
 						home, _ := os.UserHomeDir()
 						LogPath := home + "/logs/cluster/"
+
 						if len(args) >= 6 {
 							LogPath = args[5]
 						}
@@ -98,7 +100,9 @@ func main() {
 					} else {
 						flag.Usage()
 					}
-					break
+
+					//break
+
 				case "join": //join
 					if len(args) >= 5 {
 						done := make(chan bool)
@@ -109,6 +113,7 @@ func main() {
 
 						home, _ := os.UserHomeDir()
 						LogPath := home + "/logs/cluster/"
+
 						if len(args) >= 6 {
 							LogPath = args[5]
 						}
@@ -142,7 +147,9 @@ func main() {
 					} else {
 						flag.Usage()
 					}
-					break
+
+					//break
+
 				default:
 					break
 				}
@@ -160,6 +167,7 @@ func main() {
 
 				home, _ := os.UserHomeDir()
 				LogPath := home + "/logs/aggregator/"
+
 				if len(args) >= 6 {
 					LogPath = args[5]
 				}
@@ -177,7 +185,9 @@ func main() {
 
 				<-done
 			}
-			break
+
+			//break
+
 		case "connector":
 			if len(args) >= 6 {
 				done := make(chan bool)
@@ -189,12 +199,14 @@ func main() {
 				LinkAdd := args[5]
 
 				TimeoutMax := int64(100000)
+
 				if len(args) >= 7 {
 					TimeoutMax, _ = strconv.ParseInt(args[6], 10, 64)
 				}
 
 				home, _ := os.UserHomeDir()
 				LogPath := home + "/logs/connector/"
+
 				if len(args) >= 8 {
 					LogPath = args[7]
 				}
@@ -214,7 +226,9 @@ func main() {
 
 				<-done
 			}
-			break
+
+			//break
+
 		case "test":
 			if len(args) >= 1 {
 				command := args[1]
@@ -222,7 +236,9 @@ func main() {
 				case "list":
 					fmt.Println("LIST")
 					database.List([]string{"127.0.0.1:10000", "127.0.0.1:10001", "127.0.0.1:10002"})
-					break
+
+					//break
+
 				default:
 					break
 				}
