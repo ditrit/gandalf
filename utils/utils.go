@@ -6,8 +6,9 @@ import (
 )
 
 //TODO PUT IN SHOSET
-func GetByType(m *net.MapSafeConn, shosetType string) []*net.ShosetConn {
 
+// GetByType : Get shoset by type.
+func GetByType(m *net.MapSafeConn, shosetType string) []*net.ShosetConn {
 	var result []*net.ShosetConn
 	//m.Lock()
 	for _, val := range m.GetM() {
