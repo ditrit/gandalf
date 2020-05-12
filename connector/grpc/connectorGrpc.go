@@ -223,7 +223,6 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-
 			} else if msgtype == "evt" {
 				message := (messageIterator.GetMessage()).(msg.Event)
 
@@ -235,7 +234,6 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-
 			} else if msgtype == "topic" {
 				message := (messageIterator.GetMessage()).(msg.Event)
 
@@ -247,7 +245,6 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-
 			} else if msgtype == "validation" {
 				message := (messageIterator.GetMessage()).(msg.Event)
 
