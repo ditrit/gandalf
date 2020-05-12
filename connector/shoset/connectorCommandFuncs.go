@@ -9,14 +9,16 @@ import (
 	"shoset/net"
 )
 
-// HandleCommand :
+// HandleCommand : Connector handle command function.
 func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	cmd := message.(msg.Command)
 	ch := c.GetCh()
 	thisOne := ch.GetBindAddr()
 	err = nil
+
 	log.Println("Handle command")
 	log.Println(cmd)
+
 	ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 	if ok {
 		ch.ConnsByAddr.Iterate(
@@ -28,9 +30,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			},
 		)
 	} else {
-		log.Println("Can't push to queue")
-		err = errors.New("Can't push to queue")
+		log.Println("can't push to queue")
+		err = errors.New("can't push to queue")
 	}
 
-	return nil
+	return err
 }

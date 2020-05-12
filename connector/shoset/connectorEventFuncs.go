@@ -8,7 +8,7 @@ import (
 	"shoset/net"
 )
 
-// HandleEvent :
+// HandleEvent : Connector handle event function.
 func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	evt := message.(msg.Event)
 	ch := c.GetCh()
@@ -18,6 +18,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(evt)
 
 	ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
+
 	if ok {
 		log.Printf("%s : push event %s to queue \n", thisOne, evt.GetEvent())
 	} else {
@@ -25,5 +26,5 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 		err = errors.New("Can't push to queue")
 	}
 
-	return nil
+	return err
 }

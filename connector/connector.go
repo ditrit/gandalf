@@ -1,4 +1,4 @@
-//Package connector :
+//Package connector : Main function for connector
 package connector
 
 import (
@@ -11,14 +11,14 @@ import (
 	"time"
 )
 
-// ConnectorMember :
+// ConnectorMember : Connector struct.
 type ConnectorMember struct {
 	chaussette    *net.Shoset
 	connectorGrpc grpc.ConnectorGrpc
 	timeoutMax    int64
 }
 
-// NewClusterMember :
+// NewConnectorMember : Connector struct constructor.
 func NewConnectorMember(logicalName, tenant, logPath string) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.chaussette = net.NewShoset(logicalName, "c")
@@ -32,66 +32,67 @@ func NewConnectorMember(logicalName, tenant, logPath string) *ConnectorMember {
 	return member
 }
 
-//GetChaussette
+// GetChaussette : Connector chaussette getter.
 func (m *ConnectorMember) GetChaussette() *net.Shoset {
 	return m.chaussette
 }
 
-//GetChaussette
+// GetConnectorGrpc : Connector grpc getter.
 func (m *ConnectorMember) GetConnectorGrpc() grpc.ConnectorGrpc {
 	return m.connectorGrpc
 }
 
-//GetChaussette
+// GetTimeoutMax : Connector timeoutmax getter.
 func (m *ConnectorMember) GetTimeoutMax() int64 {
 	return m.timeoutMax
 }
 
-// Bind :
+// Bind : Connector bind function.
 func (m *ConnectorMember) Bind(addr string) error {
 	ipAddr, err := net.GetIP(addr)
 	if err == nil {
 		err = m.chaussette.Bind(ipAddr)
 	}
-	//TODO
-	//member.connectorGrpc = NewConnectorGrpc()
 
 	return err
 }
 
-// Bind :
+// GrpcBind : Connector grpcbind function.
 func (m *ConnectorMember) GrpcBind(addr string) (err error) {
-
 	m.connectorGrpc, err = grpc.NewConnectorGrpc(addr, m.timeoutMax, m.chaussette)
 	go m.connectorGrpc.StartGrpcServer()
 
 	return err
 }
 
-// Join :
+// Join : Connector join function.
 func (m *ConnectorMember) Join(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Join(addr)
 }
 
-// Link :
+// Link : Connector link function.
 func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Link(addr)
 }
 
+// getBrothers : Connector list brothers function.
 func getBrothers(address string, member *ConnectorMember) []string {
 	bros := []string{address}
+
 	member.chaussette.ConnsJoin.Iterate(
 		func(key string, val *net.ShosetConn) {
 			bros = append(bros, key)
 		})
+
 	return bros
 }
 
+// ConnectorMemberInit : Connector init function.
 func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, logPath string, timeoutMax int64) *ConnectorMember {
-
 	member := NewConnectorMember(logicalName, tenant, logPath)
 	member.timeoutMax = timeoutMax
 	err := member.Bind(bindAddress)
+
 	if err == nil {
 		err = member.GrpcBind(grpcBindAddress)
 		if err == nil {
