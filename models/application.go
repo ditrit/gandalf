@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Application : Application struct.
 type Application struct {
 	gorm.Model
 	Name string

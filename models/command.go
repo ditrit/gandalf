@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Command : Command struct.
 type Command struct {
 	gorm.Model
 	UUID      string
@@ -21,8 +22,8 @@ type Command struct {
 	Command   string
 }
 
+// FromShosetCommand : Shoset command to core command.
 func FromShosetCommand(mcommand msg.Command) (command Command) {
-
 	command.UUID = mcommand.GetUUID()
 	command.Tenant = mcommand.GetTenant()
 	command.Token = mcommand.GetToken()

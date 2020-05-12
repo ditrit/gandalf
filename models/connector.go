@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Connector : Connector struct.
 type Connector struct {
 	gorm.Model
 	Name string
