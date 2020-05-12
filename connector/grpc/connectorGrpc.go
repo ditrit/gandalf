@@ -204,7 +204,7 @@ func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (i
 	return
 }
 
-//runIterator : run iterator function.
+// runIterator : Iterator run function.
 func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator, channel chan msg.Message) {
 	log.Printf("Run iterator %s on value %s", msgtype, value)
 
@@ -212,8 +212,7 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 		messageIterator := iterator.Get()
 
 		if messageIterator != nil {
-			switch msgtype {
-			case "cmd":
+			if msgtype == "cmd" {
 				message := (messageIterator.GetMessage()).(msg.Command)
 
 				if value == message.GetCommand() {
@@ -224,7 +223,8 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-			case "evt":
+
+			} else if msgtype == "evt" {
 				message := (messageIterator.GetMessage()).(msg.Event)
 
 				if value == message.Event {
@@ -235,7 +235,8 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-			case "topic":
+
+			} else if msgtype == "topic" {
 				message := (messageIterator.GetMessage()).(msg.Event)
 
 				if value == message.Topic {
@@ -246,7 +247,8 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-			case "validation":
+
+			} else if msgtype == "validation" {
 				message := (messageIterator.GetMessage()).(msg.Event)
 
 				if value == message.ReferencesUUID && message.Event == "TAKEN" {
@@ -259,9 +261,9 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 				}
 			}
 		}
-
 		time.Sleep(time.Duration(2000) * time.Millisecond)
 	}
+	//delete(r.MapIterators, iteratorId)
 }
 
 // getSendIndex : Connector getSendIndex function.
