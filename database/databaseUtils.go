@@ -1,3 +1,4 @@
+//Package database :
 package database
 
 import (
@@ -12,8 +13,8 @@ import (
 
 const defaultBaseAdd = "127.0.0.1:900"
 
+// getLeader : Get database leader.
 func getLeader(cluster []string) (*client.Client, error) {
-
 	store := getStore(cluster)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -22,67 +23,74 @@ func getLeader(cluster []string) (*client.Client, error) {
 	return client.FindLeader(ctx, store)
 }
 
+// getStore : Get database store.
 func getStore(cluster []string) client.NodeStore {
-
 	store := client.NewInmemNodeStore()
 	infos := make([]client.NodeInfo, 3)
+
 	for i, address := range cluster {
 		infos[i].ID = uint64(i + 1)
 		infos[i].Address = address
 	}
+
 	store.Set(context.Background(), infos)
+
 	return store
 }
 
+// AddNodesToLeader : Add node to cluster leader.
 func AddNodesToLeader(id int, nodeConnection string, defaultcluster []string) (err error) {
-	var cluster *[]string
-	cluster = &defaultcluster
+	var cluster = &defaultcluster
+
 	err = nil
-	if err != nil {
-		log.Printf("%d is not a number", id)
-		err = errors.New(string(id) + " is not a number")
-	}
+
 	if id == 0 {
-		log.Println("Id must be greater than zero")
-		err = errors.New("Id must be greater than zero")
+		log.Println("id must be greater than zero")
+
+		err = errors.New("id must be greater than zero")
 	}
+
 	if nodeConnection == "" {
 		nodeConnection = fmt.Sprintf("%s%d", defaultBaseAdd, id)
-
 	}
+
 	info := client.NodeInfo{
 		ID:      uint64(id),
 		Address: nodeConnection,
 	}
 
 	client, err := getLeader(*cluster)
+
 	if err != nil {
-		log.Println("Can't connect to cluster leader")
-		err = errors.New("Can't connect to cluster leader")
+		log.Println("can't connect to cluster leader")
+
+		err = errors.New("can't connect to cluster leader")
 	}
 	defer client.Close()
+
 	if client != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 
-		if err := client.Add(ctx, info); err != nil {
-			log.Println("Can't add node")
-			err = errors.New("Can't add node")
+		if err = client.Add(ctx, info); err != nil {
+			log.Println("can't add node")
+
+			err = errors.New("can't add node")
 		}
 	}
 
 	return err
 }
 
-func List(defaultcluster []string) (err error) {
-	var cluster *[]string
-	cluster = &defaultcluster
-	err = nil
+// List : List cluster.
+func List(defaultcluster []string) error {
+	var cluster = &defaultcluster
 
 	clientLeader, err := getLeader(*cluster)
 	if err != nil {
-		log.Println("Can't connect to cluster leader")
-		err = errors.New("Can't connect to cluster leader")
+		log.Println("can't connect to cluster leader")
+
+		err = errors.New("can't connect to cluster leader")
 	}
 	defer clientLeader.Close()
 
@@ -90,20 +98,26 @@ func List(defaultcluster []string) (err error) {
 	defer cancel()
 
 	var leader *client.NodeInfo
+
 	var nodes []client.NodeInfo
+
 	if leader, err = clientLeader.Leader(ctx); err != nil {
-		log.Println("Can't get leader")
-		err = errors.New("Can't get leader")
+		log.Println("can't get leader")
+
+		err = errors.New("can't get leader")
 	}
 
 	if nodes, err = clientLeader.Cluster(ctx); err != nil {
-		log.Println("Can't get cluster")
-		err = errors.New("Can't get cluster")
+		log.Println("can't get cluster")
+
+		err = errors.New("can't get cluster")
 	}
 
 	log.Printf("ID \tLeader \tAddress\n")
+
 	for _, node := range nodes {
 		log.Printf("%d \t%v \t%s\n", node.ID, node.ID == leader.ID, node.Address)
 	}
+
 	return err
 }
