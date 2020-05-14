@@ -11,10 +11,10 @@ import (
 var gandalfDatabaseClient *gorm.DB = nil
 
 // NewGandalfDatabaseClient : Database client constructor.
-func NewGandalfDatabaseClient(tenant string) *gorm.DB {
+func NewGandalfDatabaseClient(tenant, databasePath string) *gorm.DB {
 
 	if gandalfDatabaseClient == nil {
-		gandalfDatabaseClient, err := gorm.Open("sqlite3", "gandalf.db")
+		gandalfDatabaseClient, err := gorm.Open("sqlite3", databasePath+"/gandalf.db")
 
 		if err != nil {
 			log.Println("failed to connect database")

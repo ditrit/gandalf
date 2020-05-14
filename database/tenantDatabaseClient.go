@@ -9,8 +9,8 @@ import (
 )
 
 // NewTenantDatabaseClient : Database client constructor.
-func NewTenantDatabaseClient(tenant string) *gorm.DB {
-	tenantDatabaseClient, err := gorm.Open("sqlite3", tenant+".db")
+func NewTenantDatabaseClient(tenant, databasePath string) *gorm.DB {
+	tenantDatabaseClient, err := gorm.Open("sqlite3", databasePath+"/"+tenant+".db")
 
 	if err != nil {
 		log.Println("failed to connect database")

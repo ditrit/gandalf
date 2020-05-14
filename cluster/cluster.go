@@ -21,11 +21,12 @@ type ClusterMember struct {
 }
 
 // NewClusterMember : Cluster struct constructor.
-func NewClusterMember(logicalName, logPath string) *ClusterMember {
+func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember {
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
 	member.MapDatabaseClient = make(map[string]*gorm.DB)
 
+	member.chaussette.Context["databasePath"] = databasePath
 	member.chaussette.Context["database"] = member.MapDatabaseClient
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
@@ -79,8 +80,8 @@ func getBrothers(address string, member *ClusterMember) []string {
 }
 
 // ClusterMemberInit : Cluster init function.
-func ClusterMemberInit(logicalName, bindAddress, logPath string) *ClusterMember {
-	member := NewClusterMember(logicalName, logPath)
+func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *ClusterMember {
+	member := NewClusterMember(logicalName, databasePath, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
@@ -96,8 +97,8 @@ func ClusterMemberInit(logicalName, bindAddress, logPath string) *ClusterMember 
 }
 
 // ClusterMemberJoin : Cluster join function.
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress, logPath string) *ClusterMember {
-	member := NewClusterMember(logicalName, logPath)
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logPath string) *ClusterMember {
+	member := NewClusterMember(logicalName, databasePath, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {

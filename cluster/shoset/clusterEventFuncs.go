@@ -25,8 +25,9 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 
 	if ok {
 		mapDatabaseClient := ch.Context["database"].(map[string]*gorm.DB)
+		databasePath := ch.Context["databasePath"].(string)
 		if mapDatabaseClient != nil {
-			databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), mapDatabaseClient)
+			databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), databasePath, mapDatabaseClient)
 			if databaseClient != nil {
 				ok := utils.CaptureMessage(message, "evt", databaseClient)
 				if ok {

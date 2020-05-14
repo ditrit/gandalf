@@ -11,9 +11,9 @@ import (
 )
 
 // GetDatabaseClientByTenant : Cluster database client getter by tenant.
-func GetDatabaseClientByTenant(tenant string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
+func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
 	if _, ok := mapDatabaseClient[tenant]; !ok {
-		mapDatabaseClient[tenant] = database.NewTenantDatabaseClient(tenant)
+		mapDatabaseClient[tenant] = database.NewTenantDatabaseClient(tenant, databasePath)
 	}
 
 	return mapDatabaseClient[tenant]

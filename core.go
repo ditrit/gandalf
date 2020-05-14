@@ -76,7 +76,7 @@ func main() {
 							LogPath = args[5]
 						}
 
-						dbPath := home + "/db/"
+						dbPath := home + "/database/"
 						if len(args) >= 7 {
 							dbPath = args[6]
 						}
@@ -90,7 +90,7 @@ func main() {
 						fmt.Println("  Db Path : " + dbPath)
 						fmt.Println("  Config : " + config)
 
-						cluster.ClusterMemberInit(LogicalName, BindAdd, LogPath)
+						cluster.ClusterMemberInit(LogicalName, BindAdd, dbPath, LogPath)
 
 						add, _ := net.DeltaAddress(BindAdd, 1000)
 						go database.DatabaseMemberInit(add, dbPath, 1)
@@ -118,7 +118,7 @@ func main() {
 							LogPath = args[5]
 						}
 
-						dbPath := home + "/db/"
+						dbPath := home + "/database/"
 						if len(args) >= 7 {
 							dbPath = args[6]
 						}
@@ -133,7 +133,7 @@ func main() {
 						fmt.Println("  Db Path : " + dbPath)
 						fmt.Println("  Config : " + config)
 
-						member := cluster.ClusterMemberJoin(LogicalName, BindAdd, JoinAdd, LogPath)
+						member := cluster.ClusterMemberJoin(LogicalName, BindAdd, JoinAdd, dbPath, LogPath)
 
 						add, _ := net.DeltaAddress(BindAdd, 1000)
 						id := len(*member.Store)
