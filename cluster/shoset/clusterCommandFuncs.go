@@ -4,7 +4,6 @@ package shoset
 import (
 	cutils "core/cluster/utils"
 	"core/models"
-	"core/utils"
 	"errors"
 	"log"
 	"shoset/msg"
@@ -43,7 +42,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 				if app != (models.Application{}) {
 					cmd.Target = app.Connector
-					shosets := utils.GetByType(ch.ConnsByName.Get(app.Aggregator), "a")
+					shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator), "a")
 
 					if len(shosets) != 0 {
 						index := getSendIndex(shosets)

@@ -2,7 +2,6 @@
 package shoset
 
 import (
-	"core/utils"
 	"errors"
 	"log"
 	"shoset/msg"
@@ -28,7 +27,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 		if ok {
 			if dir == "in" {
 				if c.GetShosetType() == "c" {
-					shosets := utils.GetByType(ch.ConnsByAddr, "cl")
+					shosets := net.GetByType(ch.ConnsByAddr, "cl")
 					if len(shosets) != 0 {
 						index := getSendIndex(shosets)
 						shosets[index].SendMessage(cmd)
@@ -45,7 +44,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 			if dir == "out" {
 				if c.GetShosetType() == "cl" {
-					shosets := utils.GetByType(ch.ConnsByName.Get(cmd.GetTarget()), "c")
+					shosets := net.GetByType(ch.ConnsByName.Get(cmd.GetTarget()), "c")
 					if len(shosets) != 0 {
 						index := getSendIndex(shosets)
 						shosets[index].SendMessage(cmd)

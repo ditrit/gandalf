@@ -4,7 +4,6 @@ package grpc
 import (
 	"context"
 	pb "core/grpc"
-	"core/utils"
 	"errors"
 	"log"
 	"net"
@@ -64,7 +63,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	cmd := pb.CommandFromGrpc(in)
 	cmd.Tenant = r.Shoset.Context["tenant"].(string)
-	shosets := utils.GetByType(r.Shoset.ConnsByAddr, "a")
+	shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
 		if cmd.GetTimeout() > r.timeoutMax {
