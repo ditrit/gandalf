@@ -6,7 +6,9 @@ import (
 	"core/connector/shoset"
 	coreLog "core/log"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os/exec"
 	"shoset/net"
 	"time"
 )
@@ -15,12 +17,14 @@ import (
 type ConnectorMember struct {
 	chaussette    *net.Shoset
 	connectorGrpc grpc.ConnectorGrpc
+	connectorType string
 	timeoutMax    int64
 }
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, tenant, logPath string) *ConnectorMember {
+func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *ConnectorMember {
 	member := new(ConnectorMember)
+	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
@@ -75,6 +79,32 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Link(addr)
 }
 
+// StartWorkers : start workers
+func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, workersPath string) (err error) {
+	files, err := ioutil.ReadDir(workersPath)
+	if err != nil {
+		panic(err)
+	}
+	args := []string{logicalName, grpcBindAddress}
+
+	for _, fileInfo := range files {
+		if fileInfo.IsDir() {
+
+			cmd := exec.Command("./"+fileInfo.Name(), args...)
+			cmd.Dir = workersPath
+			cmd.Start()
+		}
+	}
+
+	return nil
+}
+
+// ConfigurationValidation : validation configuration
+func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (err error) {
+	//VERIF COMMANDS CONFIGURATION
+	return nil
+}
+
 // getBrothers : Connector list brothers function.
 func getBrothers(address string, member *ConnectorMember) []string {
 	bros := []string{address}
@@ -88,8 +118,8 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, logPath string, timeoutMax int64) *ConnectorMember {
-	member := NewConnectorMember(logicalName, tenant, logPath)
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, workerPath, logPath string, timeoutMax int64) *ConnectorMember {
+	member := NewConnectorMember(logicalName, tenant, connectorType, logPath)
 	member.timeoutMax = timeoutMax
 	err := member.Bind(bindAddress)
 
@@ -98,10 +128,20 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 		if err == nil {
 			_, err = member.Link(linkAddress)
 			if err == nil {
-				log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+				err = member.StartWorkers(logicalName, grpcBindAddress, workerPath)
+				if err == nil {
+					err = member.ConfigurationValidation(tenant, connectorType)
+					if err == nil {
+						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 
-				time.Sleep(time.Second * time.Duration(5))
-				fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+						time.Sleep(time.Second * time.Duration(5))
+						fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+					} else {
+						log.Printf("Configuration validation failed")
+					}
+				} else {
+					log.Printf("Can't start workers in %s", workerPath)
+				}
 			} else {
 				log.Printf("Can't link shoset on %s", linkAddress)
 			}

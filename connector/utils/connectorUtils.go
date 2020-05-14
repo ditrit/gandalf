@@ -17,3 +17,7 @@ func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) 
 
 	return
 }
+
+func ExecuteWorker() {
+
+}

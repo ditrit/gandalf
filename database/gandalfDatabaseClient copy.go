@@ -8,31 +8,34 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// NewDatabaseClient : Database client constructor.
-func NewDatabaseClient(tenant string) *gorm.DB {
-	databaseClient, err := gorm.Open("sqlite3", tenant+".db")
+var gandalfDatabaseClient *gorm.DB = nil
 
-	if err != nil {
-		log.Println("failed to connect database")
+// NewGandalfDatabaseClient : Database client constructor.
+func NewGandalfDatabaseClient(tenant string) *gorm.DB {
+
+	if gandalfDatabaseClient == nil {
+		gandalfDatabaseClient, err := gorm.Open("sqlite3", "gandalf.db")
+
+		if err != nil {
+			log.Println("failed to connect database")
+		}
+
+		InitGandalfDatabase(gandalfDatabaseClient)
+		DemoPopulateGandalfDatabase(gandalfDatabaseClient)
 	}
-
-	InitTenantDatabase(databaseClient)
-
-	DemoPopulateTenantDatabase(databaseClient)
-
-	return databaseClient
+	return gandalfDatabaseClient
 }
 
-// InitTenantDatabase : Tenant database init.
-func InitTenantDatabase(databaseClient *gorm.DB) (err error) {
+// InitGandalfDatabase : Gandalf database init.
+func InitGandalfDatabase(databaseClient *gorm.DB) (err error) {
 	databaseClient.AutoMigrate(&models.Aggregator{}, &models.Application{},
 		&models.ConnectorType{}, &models.Connector{}, &models.Event{}, &models.Command{})
 
 	return
 }
 
-// DemoPopulateTenantDatabase : Populate database demo.
-func DemoPopulateTenantDatabase(databaseClient *gorm.DB) {
+// DemoPopulateGandalfDatabase : Populate database demo.
+func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 	databaseClient.Create(&models.Aggregator{Name: "Aggregator1"})
 	databaseClient.Create(&models.Aggregator{Name: "Aggregator2"})
 	databaseClient.Create(&models.Aggregator{Name: "Aggregator3"})
