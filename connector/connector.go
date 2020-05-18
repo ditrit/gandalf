@@ -2,10 +2,10 @@
 package connector
 
 import (
-	"core/connector/grpc"
-	"core/connector/shoset"
-	coreLog "core/log"
 	"fmt"
+	"gandalf-core/connector/grpc"
+	"gandalf-core/connector/shoset"
+	coreLog "gandalf-core/log"
 	"io/ioutil"
 	"log"
 	"os/exec"
@@ -30,6 +30,7 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *Con
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
+	member.chaussette.Handle["worker"] = shoset.HandleWorker
 
 	coreLog.OpenLogFile(logPath)
 
@@ -79,6 +80,12 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Link(addr)
 }
 
+// GetConfiguration : GetConfiguration
+func (m *ConnectorMember) GetConfiguration(logicalName, grpcBindAddress, workersPath string) (err error) {
+
+	return nil
+}
+
 // StartWorkers : start workers
 func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, workersPath string) (err error) {
 	files, err := ioutil.ReadDir(workersPath)
@@ -121,26 +128,31 @@ func getBrothers(address string, member *ConnectorMember) []string {
 func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, workerPath, logPath string, timeoutMax int64) *ConnectorMember {
 	member := NewConnectorMember(logicalName, tenant, connectorType, logPath)
 	member.timeoutMax = timeoutMax
-	err := member.Bind(bindAddress)
 
+	err := member.Bind(bindAddress)
 	if err == nil {
 		err = member.GrpcBind(grpcBindAddress)
 		if err == nil {
 			_, err = member.Link(linkAddress)
 			if err == nil {
-				err = member.StartWorkers(logicalName, grpcBindAddress, workerPath)
+				err = member.GetConfiguration(logicalName, grpcBindAddress, workerPath)
 				if err == nil {
-					err = member.ConfigurationValidation(tenant, connectorType)
+					err = member.StartWorkers(logicalName, grpcBindAddress, workerPath)
 					if err == nil {
-						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+						err = member.ConfigurationValidation(tenant, connectorType)
+						if err == nil {
+							log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 
-						time.Sleep(time.Second * time.Duration(5))
-						fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+							time.Sleep(time.Second * time.Duration(5))
+							fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+						} else {
+							log.Printf("Configuration validation failed")
+						}
 					} else {
-						log.Printf("Configuration validation failed")
+						log.Printf("Can't start workers in %s", workerPath)
 					}
 				} else {
-					log.Printf("Can't start workers in %s", workerPath)
+					log.Printf("Can't get cofiguration in %s", workerPath)
 				}
 			} else {
 				log.Printf("Can't link shoset on %s", linkAddress)

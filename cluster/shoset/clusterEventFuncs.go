@@ -2,8 +2,8 @@
 package shoset
 
 import (
-	"core/cluster/utils"
 	"errors"
+	"gandalf-core/cluster/utils"
 	"log"
 	"shoset/msg"
 	"shoset/net"

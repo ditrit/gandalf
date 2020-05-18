@@ -2,8 +2,8 @@
 package shoset
 
 import (
-	cutils "core/connector/utils"
 	"errors"
+	cutils "gandalf-core/connector/utils"
 	"log"
 	"shoset/msg"
 	"shoset/net"

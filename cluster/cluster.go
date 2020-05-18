@@ -2,9 +2,9 @@
 package cluster
 
 import (
-	"core/cluster/shoset"
-	"core/database"
-	coreLog "core/log"
+	"gandalf-core/cluster/shoset"
+	"gandalf-core/database"
+	coreLog "gandalf-core/log"
 	"log"
 	"shoset/net"
 	"time"
@@ -31,6 +31,7 @@ func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember 
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
+	member.chaussette.Handle["worker"] = shoset.HandleWorker
 
 	coreLog.OpenLogFile(logPath)
 

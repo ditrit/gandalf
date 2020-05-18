@@ -2,9 +2,9 @@
 package shoset
 
 import (
-	cutils "core/cluster/utils"
-	"core/models"
 	"errors"
+	cutils "gandalf-core/cluster/utils"
+	"gandalf-core/models"
 	"log"
 	"shoset/msg"
 	"shoset/net"

@@ -2,7 +2,7 @@
 package database
 
 import (
-	"core/models"
+	"gandalf-core/models"
 	"log"
 
 	"github.com/jinzhu/gorm"

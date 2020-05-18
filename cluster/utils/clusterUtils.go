@@ -2,13 +2,15 @@
 package utils
 
 import (
-	"core/database"
-	"core/models"
+	"gandalf-core/database"
+	"gandalf-core/models"
 	"log"
 	"shoset/msg"
 
 	"github.com/jinzhu/gorm"
 )
+
+var gandalfDatabaseClient *gorm.DB = nil
 
 // GetDatabaseClientByTenant : Cluster database client getter by tenant.
 func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
@@ -19,9 +21,25 @@ func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient ma
 	return mapDatabaseClient[tenant]
 }
 
+// GetGandalfDatabaseClient : Database client constructor.
+func GetGandalfDatabaseClient(databasePath string) *gorm.DB {
+
+	if gandalfDatabaseClient == nil {
+		gandalfDatabaseClient = database.NewGandalfDatabaseClient(databasePath)
+	}
+	return gandalfDatabaseClient
+}
+
 // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
 	client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&applicationContext)
+
+	return
+}
+
+// GetConnectorConfiguration : Cluster application context getter.
+func GetConnectorConfiguration(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
+	//client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&applicationContext)
 
 	return
 }

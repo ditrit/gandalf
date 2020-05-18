@@ -3,8 +3,8 @@ package grpc
 
 import (
 	"context"
-	pb "core/grpc"
 	"errors"
+	pb "gandalf-core/grpc"
 	"log"
 	"net"
 	"shoset/msg"

@@ -2,27 +2,24 @@
 package database
 
 import (
-	"core/models"
+	"gandalf-core/models"
 	"log"
 
 	"github.com/jinzhu/gorm"
 )
 
-var gandalfDatabaseClient *gorm.DB = nil
-
 // NewGandalfDatabaseClient : Database client constructor.
-func NewGandalfDatabaseClient(tenant, databasePath string) *gorm.DB {
+func NewGandalfDatabaseClient(databasePath string) *gorm.DB {
 
-	if gandalfDatabaseClient == nil {
-		gandalfDatabaseClient, err := gorm.Open("sqlite3", databasePath+"/gandalf.db")
+	gandalfDatabaseClient, err := gorm.Open("sqlite3", databasePath+"/gandalf.db")
 
-		if err != nil {
-			log.Println("failed to connect database")
-		}
-
-		InitGandalfDatabase(gandalfDatabaseClient)
-		DemoPopulateGandalfDatabase(gandalfDatabaseClient)
+	if err != nil {
+		log.Println("failed to connect database")
 	}
+
+	InitGandalfDatabase(gandalfDatabaseClient)
+	DemoPopulateGandalfDatabase(gandalfDatabaseClient)
+
 	return gandalfDatabaseClient
 }
 

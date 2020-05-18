@@ -2,8 +2,8 @@
 package aggregator
 
 import (
-	"core/aggregator/shoset"
-	coreLog "core/log"
+	"gandalf-core/aggregator/shoset"
+	coreLog "gandalf-core/log"
 	"log"
 	"shoset/net"
 	"time"
@@ -22,6 +22,7 @@ func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember 
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
+	member.chaussette.Handle["worker"] = shoset.HandleWorker
 
 	//coreLog.OpenLogFile("/var/log")
 
