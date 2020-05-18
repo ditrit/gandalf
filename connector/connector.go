@@ -19,6 +19,7 @@ type ConnectorMember struct {
 	connectorGrpc grpc.ConnectorGrpc
 	connectorType string
 	timeoutMax    int64
+	commands      []string
 }
 
 // NewConnectorMember : Connector struct constructor.
@@ -82,8 +83,7 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 
 // GetConfiguration : GetConfiguration
 func (m *ConnectorMember) GetConfiguration(logicalName, grpcBindAddress, workersPath string) (err error) {
-
-	return nil
+	SendCommandConfig()
 }
 
 // StartWorkers : start workers

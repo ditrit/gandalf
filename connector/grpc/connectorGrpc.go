@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-var sendIndex = 0
+var grpcSendIndex = 0
 
 // ConnectorGrpc : ConnectorGrpc struct.
 type ConnectorGrpc struct {
@@ -77,7 +77,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 
 		notSend := true
 		for notSend {
-			index := getSendIndex(shosets)
+			index := getGrpcSendIndex(shosets)
 			shosets[index].SendMessage(cmd)
 			log.Printf("%s : send command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
 
@@ -262,13 +262,13 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 	//delete(r.MapIterators, iteratorId)
 }
 
-// getSendIndex : Connector getSendIndex function.
-func getSendIndex(conns []*sn.ShosetConn) int {
-	aux := sendIndex
-	sendIndex++
+// getGrpcSendIndex : Connector getGrpcSendIndex function.
+func getGrpcSendIndex(conns []*sn.ShosetConn) int {
+	aux := grpcSendIndex
+	grpcSendIndex++
 
-	if sendIndex >= len(conns) {
-		sendIndex = 0
+	if grpcSendIndex >= len(conns) {
+		grpcSendIndex = 0
 	}
 
 	return aux

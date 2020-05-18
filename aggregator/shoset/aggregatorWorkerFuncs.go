@@ -29,6 +29,7 @@ func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
 				if c.GetShosetType() == "c" {
 					shosets := net.GetByType(ch.ConnsByAddr, "cl")
 					if len(shosets) != 0 {
+						cmd.Target = thisOne
 						index := getWorkerSendIndex(shosets)
 						shosets[index].SendMessage(cmd)
 						log.Printf("%s : send in command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
@@ -44,15 +45,8 @@ func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
 
 			if dir == "out" {
 				if c.GetShosetType() == "cl" {
-					shosets := net.GetByType(ch.ConnsByName.Get(cmd.GetTarget()), "c")
-					if len(shosets) != 0 {
-						index := getWorkerSendIndex(shosets)
-						shosets[index].SendMessage(cmd)
-						log.Printf("%s : send out command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
-					} else {
-						log.Println("can't find connectors to send")
-						err = errors.New("can't find connectors to send")
-					}
+					shoset := ch.ConnsByAddr.Get(cmd.GetTarget())
+					shoset.SendMessage(cmd)
 				} else {
 					log.Println("wrong Shoset type")
 					err = errors.New("wrong Shoset type")

@@ -2,6 +2,7 @@
 package shoset
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	cutils "gandalf-core/cluster/utils"
@@ -14,6 +15,8 @@ import (
 func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
 	cmd := message.(msg.Command)
 	ch := c.GetCh()
+	thisOne := ch.GetBindAddr()
+
 	err = nil
 
 	log.Println("Handle worker")
@@ -32,23 +35,18 @@ func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
 			err = errors.New("Fail capture command" + cmd.GetCommand() + " on tenant" + cmd.GetTenant())
 		}
 
-		app := cutils.GetConnectorConfiguration(cmd, databaseClient)
-		fmt.Println(app)
-		/* 		if app != (models.Application{}) {
-		   			cmd.Target = app.Connector
-		   			shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator), "a")
+		//TODO REVOIR
+		conf := cutils.GetConnectorConfiguration(cmd, databaseClient)
+		jsonData, err := json.Marshal(conf)
 
-		   			if len(shosets) != 0 {
-		   				index := getSendIndex(shosets)
-		   				shosets[index].SendMessage(cmd)
-		   			} else {
-		   				log.Println("Can't find aggregators to send")
-		   				err = errors.New("Can't find aggregators to send")
-		   			}
-		   		} else {
-		   			log.Println("Can't find application context")
-		   			err = errors.New("Can't find application context")
-		   		} */
+		fmt.Println(conf)
+		fmt.Println(err)
+
+		cmdReply := msg.NewCommand(cmd.GetTarget(), "CONF_REPLY", string(jsonData))
+
+		shoset := ch.ConnsByAddr.Get(thisOne)
+		shoset.SendMessage(cmdReply)
+
 	} else {
 		log.Println("Can't get database client by tenant")
 		err = errors.New("Can't get database client by tenant")
