@@ -52,9 +52,19 @@ func (r ConnectorGrpc) StartGrpcServer() {
 
 	connectorGrpcServer := grpc.NewServer()
 
+	pb.RegisterConnectorServer(connectorGrpcServer, &r)
 	pb.RegisterConnectorCommandServer(connectorGrpcServer, &r)
 	pb.RegisterConnectorEventServer(connectorGrpcServer, &r)
 	connectorGrpcServer.Serve(lis)
+}
+
+//SendCommandList : Connector send command list function.
+func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
+	log.Println("Handle send command list")
+
+	r.Shoset.Context["connectorCommands"] = append(r.Shoset.Context["connectorCommands"].([]string), in.GetCommands()...)
+
+	return &pb.Empty{}, nil
 }
 
 //SendCommandMessage : Connector send command function.
