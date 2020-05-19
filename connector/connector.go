@@ -6,6 +6,7 @@ import (
 	"gandalf-core/connector/grpc"
 	"gandalf-core/connector/shoset"
 	coreLog "gandalf-core/log"
+	"gandalf-core/models"
 	"io/ioutil"
 	"log"
 	"os/exec"
@@ -15,11 +16,12 @@ import (
 
 // ConnectorMember : Connector struct.
 type ConnectorMember struct {
-	chaussette    *net.Shoset
-	connectorGrpc grpc.ConnectorGrpc
-	connectorType string
-	timeoutMax    int64
-	commands      []string
+	chaussette      *net.Shoset
+	connectorGrpc   grpc.ConnectorGrpc
+	connectorType   string
+	timeoutMax      int64
+	connectorConfig *models.ConnectorConfig
+	commands        []string
 }
 
 // NewConnectorMember : Connector struct constructor.
@@ -28,6 +30,7 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *Con
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.chaussette.Context["tenant"] = tenant
+	member.chaussette.Context["connectorConfig"] = member.connectorConfig
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
@@ -82,10 +85,11 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 }
 
 // GetConfiguration : GetConfiguration
-func (m *ConnectorMember) GetConfiguration(logicalName, grpcBindAddress, workersPath string) (err error) {
-	SendCommandConfig()
+func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64) (err error) {
+	return shoset.SendCommandConfig(nshoset, timeoutMax)
 }
 
+//TODO REVOIR CONFIG
 // StartWorkers : start workers
 func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, workersPath string) (err error) {
 	files, err := ioutil.ReadDir(workersPath)
@@ -135,7 +139,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 		if err == nil {
 			_, err = member.Link(linkAddress)
 			if err == nil {
-				err = member.GetConfiguration(logicalName, grpcBindAddress, workerPath)
+				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				if err == nil {
 					err = member.StartWorkers(logicalName, grpcBindAddress, workerPath)
 					if err == nil {

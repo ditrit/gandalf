@@ -4,7 +4,6 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	cutils "gandalf-core/cluster/utils"
 	"log"
 	"shoset/msg"
@@ -24,7 +23,6 @@ func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
 
 	databasePath := ch.Context["databasePath"].(string)
 
-	// TODO REVOIR
 	databaseClient := cutils.GetGandalfDatabaseClient(databasePath)
 	if databaseClient != nil {
 		ok := cutils.CaptureMessage(message, "cmd", databaseClient)
@@ -35,17 +33,17 @@ func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
 			err = errors.New("Fail capture command" + cmd.GetCommand() + " on tenant" + cmd.GetTenant())
 		}
 
-		//TODO REVOIR
 		conf := cutils.GetConnectorConfiguration(cmd, databaseClient)
 		jsonData, err := json.Marshal(conf)
 
-		fmt.Println(conf)
-		fmt.Println(err)
-
-		cmdReply := msg.NewCommand(cmd.GetTarget(), "CONF_REPLY", string(jsonData))
-
-		shoset := ch.ConnsByAddr.Get(thisOne)
-		shoset.SendMessage(cmdReply)
+		if err == nil {
+			cmdReply := msg.NewCommand(cmd.GetTarget(), "CONF_REPLY", string(jsonData))
+			shoset := ch.ConnsByAddr.Get(thisOne)
+			shoset.SendMessage(cmdReply)
+		} else {
+			log.Println("Can't unmarshall configuration")
+			err = errors.New("Can't unmarshall configuration")
+		}
 
 	} else {
 		log.Println("Can't get database client by tenant")

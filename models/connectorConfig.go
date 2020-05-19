@@ -8,5 +8,7 @@ import (
 // ConnectorConfig : ConnectorConfig struct.
 type ConnectorConfig struct {
 	gorm.Model
-	Name string
+	Name          string
+	ConnectorType string
+	Commands      []string
 }

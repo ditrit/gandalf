@@ -2,12 +2,12 @@
 package main
 
 import (
-	"core/aggregator"
-	"core/cluster"
-	"core/connector"
-	"core/database"
 	"flag"
 	"fmt"
+	"gandalf-core/aggregator"
+	"gandalf-core/cluster"
+	"gandalf-core/connector"
+	"gandalf-core/database"
 	"os"
 	"shoset/net"
 	"strconv"
