@@ -36,7 +36,7 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *Con
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
-	member.chaussette.Handle["worker"] = shoset.HandleWorker
+	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
 
 	coreLog.OpenLogFile(logPath)
 
@@ -88,7 +88,8 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 
 // GetConfiguration : GetConfiguration
 func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64) (err error) {
-	return shoset.SendCommandConfig(nshoset, timeoutMax)
+	fmt.Println("SEND")
+	return shoset.SendConnectorConfig(nshoset, timeoutMax)
 }
 
 // StartWorkers : start workers
@@ -114,7 +115,12 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 // ConfigurationValidation : validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
 	commands := m.chaussette.Context["connectorCommands"].([]string)
-	config := m.chaussette.Context["connectorConfig"].(models.ConnectorConfig)
+	config := m.chaussette.Context["connectorConfig"].(*models.ConnectorConfig)
+
+	fmt.Println("commands")
+	fmt.Println(commands)
+	fmt.Println("config")
+	fmt.Println(config)
 
 	return reflect.DeepEqual(commands, config.Commands)
 }
@@ -141,6 +147,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 		err = member.GrpcBind(grpcBindAddress)
 		if err == nil {
 			_, err = member.Link(linkAddress)
+			time.Sleep(time.Second * time.Duration(5))
 			if err == nil {
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				if err == nil {
@@ -150,7 +157,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 						if result {
 							log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 
-							time.Sleep(time.Second * time.Duration(5))
+							//time.Sleep(time.Second * time.Duration(5))
 							fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 						} else {
 							log.Printf("Configuration validation failed")

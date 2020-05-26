@@ -38,7 +38,7 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 }
 
 // GetConnectorConfiguration : Cluster application context getter.
-func GetConnectorConfiguration(cmd msg.Command, client *gorm.DB) (connectorConfiguration models.ConnectorConfig) {
+func GetConnectorConfiguration(cmd msg.Config, client *gorm.DB) (connectorConfiguration models.ConnectorConfig) {
 	client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&connectorConfiguration)
 
 	return

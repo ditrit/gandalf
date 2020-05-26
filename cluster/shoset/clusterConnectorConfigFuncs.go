@@ -10,16 +10,16 @@ import (
 	"shoset/net"
 )
 
-// HandleWorker : Cluster handle worker function.
-func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
-	cmd := message.(msg.Command)
+// HandleConnectorConfig : Cluster handle connector config function.
+func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
+	conf := message.(msg.Config)
 	ch := c.GetCh()
 	thisOne := ch.GetBindAddr()
 
 	err = nil
 
-	log.Println("Handle worker")
-	log.Println(cmd)
+	log.Println("Handle connector config")
+	log.Println(conf)
 
 	databasePath := ch.Context["databasePath"].(string)
 
@@ -27,17 +27,17 @@ func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
 	if databaseClient != nil {
 		ok := cutils.CaptureMessage(message, "cmd", databaseClient)
 		if ok {
-			log.Printf("Succes capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
+			log.Printf("Succes capture command %s on tenant %s \n", conf.GetCommand(), conf.GetTenant())
 		} else {
-			log.Printf("Fail capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
-			err = errors.New("Fail capture command" + cmd.GetCommand() + " on tenant" + cmd.GetTenant())
+			log.Printf("Fail capture command %s on tenant %s \n", conf.GetCommand(), conf.GetTenant())
+			err = errors.New("Fail capture command" + conf.GetCommand() + " on tenant" + conf.GetTenant())
 		}
 
-		conf := cutils.GetConnectorConfiguration(cmd, databaseClient)
-		jsonData, err := json.Marshal(conf)
+		configuration := cutils.GetConnectorConfiguration(conf, databaseClient)
+		jsonData, err := json.Marshal(configuration)
 
 		if err == nil {
-			cmdReply := msg.NewCommand(cmd.GetTarget(), "CONF_REPLY", string(jsonData))
+			cmdReply := msg.NewConfig(conf.GetTarget(), "CONF_REPLY", string(jsonData))
 			shoset := ch.ConnsByAddr.Get(thisOne)
 			shoset.SendMessage(cmdReply)
 		} else {

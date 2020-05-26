@@ -18,6 +18,7 @@ func NewGandalfDatabaseClient(databasePath string) *gorm.DB {
 	}
 
 	InitGandalfDatabase(gandalfDatabaseClient)
+
 	DemoPopulateGandalfDatabase(gandalfDatabaseClient)
 
 	return gandalfDatabaseClient

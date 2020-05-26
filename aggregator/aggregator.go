@@ -22,7 +22,7 @@ func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember 
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
-	member.chaussette.Handle["worker"] = shoset.HandleWorker
+	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
 
 	//coreLog.OpenLogFile("/var/log")
 

@@ -10,5 +10,5 @@ type ConnectorConfig struct {
 	gorm.Model
 	Name          string
 	ConnectorType string
-	Commands      []string
+	Commands      []ConnectorTypeCommand
 }

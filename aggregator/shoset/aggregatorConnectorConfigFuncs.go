@@ -10,29 +10,29 @@ import (
 
 var workerSendIndex = 0
 
-// HandleWorker : Aggregator handle worker function.
-func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
-	cmd := message.(msg.Command)
+// HandleConnectorConfig : Aggregator handle connector config function.
+func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
+	conf := message.(msg.Config)
 	ch := c.GetCh()
 	dir := c.GetDir()
 	err = nil
 	thisOne := ch.GetBindAddr()
 
-	log.Println("Handle worker")
-	log.Println(cmd)
+	log.Println("Handle connector config")
+	log.Println(conf)
 
-	if cmd.GetTenant() == ch.Context["tenant"] {
-		ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
+	if conf.GetTenant() == ch.Context["tenant"] {
+		ok := ch.Queue["config"].Push(conf, c.ShosetType, c.GetBindAddr())
 
 		if ok {
 			if dir == "in" {
 				if c.GetShosetType() == "c" {
 					shosets := net.GetByType(ch.ConnsByAddr, "cl")
 					if len(shosets) != 0 {
-						cmd.Target = thisOne
+						conf.Target = thisOne
 						index := getWorkerSendIndex(shosets)
-						shosets[index].SendMessage(cmd)
-						log.Printf("%s : send in command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
+						shosets[index].SendMessage(conf)
+						log.Printf("%s : send in command %s to %s\n", thisOne, conf.GetCommand(), shosets[index])
 					} else {
 						log.Println("can't find clusters to send")
 						err = errors.New("can't find clusters to send")
@@ -45,8 +45,8 @@ func HandleWorker(c *net.ShosetConn, message msg.Message) (err error) {
 
 			if dir == "out" {
 				if c.GetShosetType() == "cl" {
-					shoset := ch.ConnsByAddr.Get(cmd.GetTarget())
-					shoset.SendMessage(cmd)
+					shoset := ch.ConnsByAddr.Get(conf.GetTarget())
+					shoset.SendMessage(conf)
 				} else {
 					log.Println("wrong Shoset type")
 					err = errors.New("wrong Shoset type")

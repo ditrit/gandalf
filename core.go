@@ -70,13 +70,13 @@ func main() {
 						BindAdd := args[3]
 
 						home, _ := os.UserHomeDir()
-						LogPath := home + "/logs/cluster/"
+						LogPath := home + "/gandalf/logs/cluster/"
 
 						if len(args) >= 6 {
 							LogPath = args[5]
 						}
 
-						dbPath := home + "/database/"
+						dbPath := home + "/gandalf/database/"
 						if len(args) >= 7 {
 							dbPath = args[6]
 						}
@@ -112,13 +112,13 @@ func main() {
 						JoinAdd := args[4]
 
 						home, _ := os.UserHomeDir()
-						LogPath := home + "/logs/cluster/"
+						LogPath := home + "/gandalf/logs/cluster/"
 
 						if len(args) >= 6 {
 							LogPath = args[5]
 						}
 
-						dbPath := home + "/database/"
+						dbPath := home + "/gandalf/database/"
 						if len(args) >= 7 {
 							dbPath = args[6]
 						}
@@ -166,7 +166,7 @@ func main() {
 				LinkAdd := args[4]
 
 				home, _ := os.UserHomeDir()
-				LogPath := home + "/logs/aggregator/"
+				LogPath := home + "/gandalf/logs/aggregator/"
 
 				if len(args) >= 6 {
 					LogPath = args[5]
@@ -189,7 +189,7 @@ func main() {
 			//break
 
 		case "connector":
-			if len(args) >= 6 {
+			if len(args) >= 7 {
 				done := make(chan bool)
 
 				LogicalName := args[1]
@@ -198,16 +198,21 @@ func main() {
 				GrpcBindAdd := args[4]
 				LinkAdd := args[5]
 				ConnectorType := args[6]
-				TargetAdd := args[7]
+
+				TargetAdd := ""
+
+				if len(args) >= 8 {
+					TargetAdd = args[7]
+				}
 
 				home, _ := os.UserHomeDir()
-				WorkerPath := home + "/workers/" + ConnectorType + "/"
+				WorkerPath := home + "/gandalf/workers/" + ConnectorType + "/"
 
 				if len(args) >= 9 {
 					WorkerPath = args[8]
 				}
 
-				LogPath := home + "/logs/connector/"
+				LogPath := home + "/gandalf/logs/connector/"
 
 				if len(args) >= 10 {
 					LogPath = args[9]
