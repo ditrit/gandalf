@@ -31,6 +31,7 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *Con
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.chaussette.Context["tenant"] = tenant
+	member.chaussette.Context["connectorType"] = connectorType
 	member.chaussette.Context["connectorConfig"] = member.connectorConfig
 	member.chaussette.Context["connectorCommands"] = member.connectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
@@ -122,7 +123,7 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 	fmt.Println("config")
 	fmt.Println(config)
 
-	return reflect.DeepEqual(commands, config.Commands)
+	return reflect.DeepEqual(commands, config.ConnectorTypeCommands)
 }
 
 // getBrothers : Connector list brothers function.

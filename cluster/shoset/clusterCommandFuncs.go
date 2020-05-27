@@ -42,8 +42,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 				app := cutils.GetApplicationContext(cmd, databaseClient)
 
 				if app != (models.Application{}) {
-					cmd.Target = app.Connector
-					shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator), "a")
+					cmd.Target = app.Connector.Name
+					shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator.Name), "a")
 
 					if len(shosets) != 0 {
 						index := getSendIndex(shosets)

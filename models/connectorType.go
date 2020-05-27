@@ -9,4 +9,5 @@ import (
 type ConnectorType struct {
 	gorm.Model
 	Name string
+	//Commands []ConnectorTypeCommand
 }

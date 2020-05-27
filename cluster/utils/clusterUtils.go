@@ -32,14 +32,18 @@ func GetGandalfDatabaseClient(databasePath string) *gorm.DB {
 
 // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
-	client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&applicationContext)
+
+	client.Where("connector_type = ?", cmd.GetContext()["connectorType"].(string)).First(&applicationContext)
 
 	return
 }
 
 // GetConnectorConfiguration : Cluster application context getter.
-func GetConnectorConfiguration(cmd msg.Config, client *gorm.DB) (connectorConfiguration models.ConnectorConfig) {
-	client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&connectorConfiguration)
+func GetConnectorConfiguration(conf msg.Config, client *gorm.DB) (connectorConfiguration models.ConnectorConfig) {
+	//client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&connectorConfiguration)
+	var connectorType models.ConnectorType
+	client.Where("name = ?", conf.GetContext()["connectorType"].(string)).First(&connectorType)
+	client.Where("connector_type_id = ?", connectorType.ID).Preload("ConnectorTypeCommands").First(&connectorConfiguration)
 
 	return
 }
@@ -54,6 +58,9 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 		client.Create(&currentMsg)
 	case "evt":
 		currentMsg := models.FromShosetEvent(message.(msg.Event))
+		client.Create(&currentMsg)
+	case "config":
+		currentMsg := models.FromShosetConfig(message.(msg.Config))
 		client.Create(&currentMsg)
 	default:
 		ok = false

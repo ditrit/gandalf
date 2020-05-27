@@ -66,7 +66,7 @@ func AddNodesToLeader(id int, nodeConnection string, defaultcluster []string) (e
 
 		err = errors.New("can't connect to cluster leader")
 	}
-	defer client.Close()
+	//defer client.Close()
 
 	if client != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second)

@@ -26,13 +26,16 @@ func NewTenantDatabaseClient(tenant, databasePath string) *gorm.DB {
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
 	tenantDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Application{},
-		&models.ConnectorType{}, &models.Connector{}, &models.Event{}, &models.Command{})
+		&models.ConnectorType{}, &models.Connector{}, &models.Tenant{}, &models.Event{}, &models.Command{}, &models.Config{})
 
 	return
 }
 
 // DemoPopulateTenantDatabase : Populate database demo.
 func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
+
+	tenantDatabaseClient.Create(&models.Tenant{Name: "Tenant1"})
+
 	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator1"})
 	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator2"})
 	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator3"})
@@ -48,45 +51,53 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
 
+	var Tenant models.Tenant
+
 	var Aggregator models.Aggregator
 
 	var Connector models.Connector
 
 	var ConnectorType models.ConnectorType
 
+	tenantDatabaseClient.Where("name = ?", "Tenant1").First(&Tenant)
 	tenantDatabaseClient.Where("name = ?", "Aggregator1").First(&Aggregator)
 	tenantDatabaseClient.Where("name = ?", "Connector1").First(&Connector)
 	tenantDatabaseClient.Where("name = ?", "Utils").First(&ConnectorType)
 
 	tenantDatabaseClient.Create(&models.Application{Name: "Application1",
-		Aggregator:    "Aggregator1",
-		Connector:     "Connector1",
-		ConnectorType: "Utils"})
+		Tenant:        Tenant,
+		Aggregator:    Aggregator,
+		Connector:     Connector,
+		ConnectorType: ConnectorType})
 
 	tenantDatabaseClient.Where("name = ?", "Aggregator2").First(&Aggregator)
 	tenantDatabaseClient.Where("name = ?", "Connector2").First(&Connector)
 	tenantDatabaseClient.Where("name = ?", "Workflow").First(&ConnectorType)
 
 	tenantDatabaseClient.Create(&models.Application{Name: "Application2",
-		Aggregator:    "Aggregator2",
-		Connector:     "Connector2",
-		ConnectorType: "Workflow"})
+		Tenant:        Tenant,
+		Aggregator:    Aggregator,
+		Connector:     Connector,
+		ConnectorType: ConnectorType})
 
 	tenantDatabaseClient.Where("name = ?", "Aggregator3").First(&Aggregator)
 	tenantDatabaseClient.Where("name = ?", "Connector3").First(&Connector)
 	tenantDatabaseClient.Where("name = ?", "Gitlab").First(&ConnectorType)
 
 	tenantDatabaseClient.Create(&models.Application{Name: "Application3",
-		Aggregator:    "Aggregator3",
-		Connector:     "Connector3",
-		ConnectorType: "Gitlab"})
+		Tenant:        Tenant,
+		Aggregator:    Aggregator,
+		Connector:     Connector,
+		ConnectorType: ConnectorType})
 
 	tenantDatabaseClient.Where("name = ?", "Aggregator4").First(&Aggregator)
 	tenantDatabaseClient.Where("name = ?", "Connector4").First(&Connector)
 	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorType)
 
 	tenantDatabaseClient.Create(&models.Application{Name: "Application4",
-		Aggregator:    "Aggregator4",
-		Connector:     "Connector4",
-		ConnectorType: "Azure"})
+		Tenant:        Tenant,
+		Aggregator:    Aggregator,
+		Connector:     Connector,
+		ConnectorType: ConnectorType})
+
 }

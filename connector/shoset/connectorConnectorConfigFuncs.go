@@ -35,6 +35,7 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 	conf := msg.NewConfig("", "CONFIG", "")
 	conf.Tenant = shoset.Context["tenant"].(string)
+	conf.GetContext()["connectorType"] = shoset.Context["connectorType"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 

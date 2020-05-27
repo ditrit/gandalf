@@ -24,7 +24,7 @@ func CommandFromGrpc(commandMessage *CommandMessage) (c msg.Command) {
 	c.Minor = int8(minorInt)
 	c.UUID = commandMessage.GetUUID()
 	c.Context = make(map[string]interface{})
-	c.Context["ConnectorType"] = commandMessage.GetConnectorType()
+	c.Context["connectorType"] = commandMessage.GetConnectorType()
 	//c.CommandType = commandMessage.GetCommandType()
 	c.Command = commandMessage.GetCommand()
 	c.Payload = commandMessage.GetPayload()

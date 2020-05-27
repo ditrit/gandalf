@@ -8,7 +8,7 @@ import (
 // ConnectorConfig : ConnectorConfig struct.
 type ConnectorConfig struct {
 	gorm.Model
-	Name          string
-	ConnectorType string
-	Commands      []ConnectorTypeCommand
+	Name                  string
+	ConnectorTypeID       uint
+	ConnectorTypeCommands []ConnectorTypeCommand `gorm:"many2many:config_commands;"`
 }
