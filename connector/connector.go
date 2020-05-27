@@ -92,20 +92,14 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 
 // GetConfiguration : GetConfiguration
 func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64) (err error) {
-	fmt.Println("SEND")
 	return shoset.SendConnectorConfig(nshoset, timeoutMax)
 }
 
 // StartWorkers : start workers
 func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string) (err error) {
-	fmt.Println("workerPath")
-	fmt.Println(workersPath)
 	files, err := ioutil.ReadDir(workersPath)
-	fmt.Println("filr")
-	fmt.Println(files)
 
 	if err != nil {
-		fmt.Println(err)
 		panic(err)
 	}
 	args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
@@ -113,9 +107,6 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 	for _, fileInfo := range files {
 		if !fileInfo.IsDir() {
 			if utils.IsExecAll(fileInfo.Mode().Perm()) {
-				fmt.Println("fileInfo")
-				fmt.Println(fileInfo)
-				fmt.Println(fileInfo.Name())
 				cmd := exec.Command("./"+fileInfo.Name(), args...)
 				cmd.Dir = workersPath
 				cmd.Stdout = os.Stdout
@@ -133,20 +124,10 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 	commands := m.chaussette.Context["connectorCommands"].([]string)
 	config := m.chaussette.Context["connectorConfig"].(models.ConnectorConfig)
 
-	fmt.Println("commands")
-	fmt.Println(commands)
-	fmt.Println("config")
-	fmt.Println(config.ConnectorTypeCommands)
-
 	var configCommands []string
 	for _, command := range config.ConnectorTypeCommands {
 		configCommands = append(configCommands, command.Name)
 	}
-
-	fmt.Println("commands")
-	fmt.Println(commands)
-	fmt.Println("config2")
-	fmt.Println(configCommands)
 
 	return reflect.DeepEqual(commands, configCommands)
 }
