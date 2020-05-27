@@ -1,7 +1,10 @@
 //Package utils :
 package utils
 
-import "shoset/msg"
+import (
+	"os"
+	"shoset/msg"
+)
 
 // CreateValidationEvent : Connector create validation event functions.
 func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) {
@@ -16,4 +19,9 @@ func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) 
 	evt.Timeout = 100000
 
 	return
+}
+
+//
+func IsExecAll(mode os.FileMode) bool {
+	return mode&0111 == 0111
 }

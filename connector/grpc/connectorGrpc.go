@@ -4,6 +4,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	pb "gandalf-core/grpc"
 	"log"
 	"net"
@@ -61,9 +62,11 @@ func (r ConnectorGrpc) StartGrpcServer() {
 //SendCommandList : Connector send command list function.
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
 	log.Println("Handle send command list")
-
+	fmt.Println(in.GetCommands())
+	fmt.Println("in.GetCommands()")
 	r.Shoset.Context["connectorCommands"] = append(r.Shoset.Context["connectorCommands"].([]string), in.GetCommands()...)
-
+	fmt.Println(r.Shoset.Context["connectorCommands"])
+	fmt.Println("connectorCommands")
 	return &pb.Empty{}, nil
 }
 

@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"gandalf-core/connector/grpc"
 	"gandalf-core/connector/shoset"
+	"gandalf-core/connector/utils"
 	coreLog "gandalf-core/log"
 	"gandalf-core/models"
 	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
 	"reflect"
 	"shoset/net"
+	"strconv"
 	"time"
 )
 
@@ -95,18 +98,30 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 
 // StartWorkers : start workers
 func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string) (err error) {
+	fmt.Println("workerPath")
+	fmt.Println(workersPath)
 	files, err := ioutil.ReadDir(workersPath)
+	fmt.Println("filr")
+	fmt.Println(files)
+
 	if err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
-	args := []string{logicalName, grpcBindAddress, targetAdd}
+	args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
 
 	for _, fileInfo := range files {
-		if fileInfo.IsDir() {
-
-			cmd := exec.Command("./"+fileInfo.Name(), args...)
-			cmd.Dir = workersPath
-			cmd.Start()
+		if !fileInfo.IsDir() {
+			if utils.IsExecAll(fileInfo.Mode().Perm()) {
+				fmt.Println("fileInfo")
+				fmt.Println(fileInfo)
+				fmt.Println(fileInfo.Name())
+				cmd := exec.Command("./"+fileInfo.Name(), args...)
+				cmd.Dir = workersPath
+				cmd.Stdout = os.Stdout
+				err := cmd.Start()
+				fmt.Println(err)
+			}
 		}
 	}
 
@@ -116,14 +131,24 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 // ConfigurationValidation : validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
 	commands := m.chaussette.Context["connectorCommands"].([]string)
-	config := m.chaussette.Context["connectorConfig"].(*models.ConnectorConfig)
+	config := m.chaussette.Context["connectorConfig"].(models.ConnectorConfig)
 
 	fmt.Println("commands")
 	fmt.Println(commands)
 	fmt.Println("config")
-	fmt.Println(config)
+	fmt.Println(config.ConnectorTypeCommands)
 
-	return reflect.DeepEqual(commands, config.ConnectorTypeCommands)
+	var configCommands []string
+	for _, command := range config.ConnectorTypeCommands {
+		configCommands = append(configCommands, command.Name)
+	}
+
+	fmt.Println("commands")
+	fmt.Println(commands)
+	fmt.Println("config2")
+	fmt.Println(configCommands)
+
+	return reflect.DeepEqual(commands, configCommands)
 }
 
 // getBrothers : Connector list brothers function.
@@ -154,6 +179,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 				if err == nil {
 					err = member.StartWorkers(logicalName, grpcBindAddress, targetAdd, workerPath)
 					if err == nil {
+						time.Sleep(time.Second * time.Duration(5))
 						result := member.ConfigurationValidation(tenant, connectorType)
 						if result {
 							log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
@@ -167,7 +193,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 						log.Printf("Can't start workers in %s", workerPath)
 					}
 				} else {
-					log.Printf("Can't get cofiguration in %s", workerPath)
+					log.Printf("Can't get configuration in %s", workerPath)
 				}
 			} else {
 				log.Printf("Can't link shoset on %s", linkAddress)
