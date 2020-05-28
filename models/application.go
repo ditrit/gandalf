@@ -8,9 +8,13 @@ import (
 // Application : Application struct.
 type Application struct {
 	gorm.Model
-	Name          string
-	Tenant        Tenant
-	Aggregator    Aggregator
-	Connector     Connector
-	ConnectorType ConnectorType
+	Name            string
+	TenantID        uint
+	Tenant          Tenant
+	AggregatorID    uint
+	Aggregator      Aggregator
+	ConnectorID     uint
+	Connector       Connector
+	ConnectorTypeID uint
+	ConnectorType   ConnectorType
 }

@@ -32,8 +32,13 @@ func GetGandalfDatabaseClient(databasePath string) *gorm.DB {
 
 // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
+	var connectorType models.ConnectorType
+	client.Where("name = ?", cmd.GetContext()["connectorType"].(string)).First(&connectorType)
 
-	client.Where("connector_type = ?", cmd.GetContext()["connectorType"].(string)).First(&applicationContext)
+	var tenant models.Tenant
+	client.Where("name = ?", cmd.GetTenant()).First(&tenant)
+
+	client.Where("connector_type_id = ? AND tenant_id = ?", connectorType.ID, tenant.ID).Preload("Tenant").Preload("Aggregator").Preload("Connector").Preload("ConnectorType").First(&applicationContext)
 
 	return
 }
@@ -43,6 +48,7 @@ func GetConnectorConfiguration(conf msg.Config, client *gorm.DB) (connectorConfi
 	//client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&connectorConfiguration)
 	var connectorType models.ConnectorType
 	client.Where("name = ?", conf.GetContext()["connectorType"].(string)).First(&connectorType)
+
 	client.Where("connector_type_id = ?", connectorType.ID).Preload("ConnectorTypeCommands").First(&connectorConfiguration)
 
 	return
