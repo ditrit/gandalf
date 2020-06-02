@@ -40,8 +40,8 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 	databaseClient.Create(&models.ConnectorType{Name: "Utils"})
 	databaseClient.Where("name = ?", "Utils").First(&ConnectorType)
 
-	databaseClient.Create(&models.ConnectorTypeCommand{Name: "SEND_AUTH_MAIL"})
-	databaseClient.Create(&models.ConnectorTypeCommand{Name: "CREATE_FORM"})
+	databaseClient.Create(&models.ConnectorTypeCommand{Name: "SEND_AUTH_MAIL", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/MailPayload","definitions":{"MailPayload":{"required":["Sender","Body","Receivers","Identity","Username","Password","Host"],"properties":{"Sender":{"type":"string"},"Body":{"type":"string"},"Receivers":{"items":{"type":"string"},"type":"array"},"Identity":{"type":"string"},"Username":{"type":"string"},"Password":{"type":"string"},"Host":{"type":"string"}},"additionalProperties":false,"type":"object"}}}`})
+	databaseClient.Create(&models.ConnectorTypeCommand{Name: "CREATE_FORM", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/FormPayload","definitions":{"Field":{"required":["Name","HtmlType","Value"],"properties":{"Name":{"type":"string"},"HtmlType":{"type":"string"},"Value":{"additionalProperties":true}},"additionalProperties":false,"type":"object"},"FormPayload":{"required":["Fields"],"properties":{"Fields":{"items":{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/Field"},"type":"array"}},"additionalProperties":false,"type":"object"}}}`})
 
 	databaseClient.Where("name IN (?)", []string{"SEND_AUTH_MAIL", "CREATE_FORM"}).Find(&ConnectorTypeCommands)
 
@@ -61,9 +61,9 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 	databaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
 	databaseClient.Where("name = ?", "Gitlab").First(&ConnectorType)
 
-	databaseClient.Create(&models.ConnectorTypeCommand{Name: "Gitlab1"})
-	databaseClient.Create(&models.ConnectorTypeCommand{Name: "Gitlab2"})
-	databaseClient.Create(&models.ConnectorTypeCommand{Name: "Gitlab3"})
+	databaseClient.Create(&models.ConnectorTypeCommand{Name: "Gitlab1", Schema: ""})
+	databaseClient.Create(&models.ConnectorTypeCommand{Name: "Gitlab2", Schema: ""})
+	databaseClient.Create(&models.ConnectorTypeCommand{Name: "Gitlab3", Schema: ""})
 
 	databaseClient.Where("name IN (?)", []string{"Gitlab1", "Gitlab2", "Gitlab3"}).Find(&ConnectorTypeCommands)
 
@@ -74,7 +74,7 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 	databaseClient.Create(&models.ConnectorType{Name: "Azure"})
 	databaseClient.Where("name = ?", "Azure").First(&ConnectorType)
 
-	databaseClient.Create(&models.ConnectorTypeCommand{Name: "CREATE_VM_BY_JSON"})
+	databaseClient.Create(&models.ConnectorTypeCommand{Name: "CREATE_VM_BY_JSON", Schema: ""})
 
 	databaseClient.Where("name IN (?)", []string{"CREATE_VM_BY_JSON"}).Find(&ConnectorTypeCommands)
 
