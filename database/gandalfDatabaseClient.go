@@ -74,7 +74,7 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 	databaseClient.Create(&models.ConnectorType{Name: "Azure"})
 	databaseClient.Where("name = ?", "Azure").First(&ConnectorType)
 
-	databaseClient.Create(&models.ConnectorTypeCommand{Name: "CREATE_VM_BY_JSON", Schema: ""})
+	databaseClient.Create(&models.ConnectorTypeCommand{Name: "CREATE_VM_BY_JSON", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/ComputeByJSONPayload","definitions":{"ComputeByJSONPayload":{"required":["ResourceGroupName","ResourceGroupLocation","DeploymentName","TemplateFile","ParametersFile"],"properties":{"ResourceGroupName":{"type":"string"},"ResourceGroupLocation":{"type":"string"},"DeploymentName":{"type":"string"},"TemplateFile":{"type":"string"},"ParametersFile":{"type":"string"}},"additionalProperties":false,"type":"object"}}}`})
 
 	databaseClient.Where("name IN (?)", []string{"CREATE_VM_BY_JSON"}).Find(&ConnectorTypeCommands)
 
