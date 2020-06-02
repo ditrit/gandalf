@@ -47,6 +47,7 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 func GetConnectorConfiguration(conf msg.Config, client *gorm.DB) (connectorConfiguration models.ConnectorConfig) {
 	//client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&connectorConfiguration)
 	var connectorType models.ConnectorType
+
 	client.Where("name = ?", conf.GetContext()["connectorType"].(string)).First(&connectorType)
 
 	client.Where("connector_type_id = ?", connectorType.ID).Preload("ConnectorTypeCommands").First(&connectorConfiguration)
