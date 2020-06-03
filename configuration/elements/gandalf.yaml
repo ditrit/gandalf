@@ -1,0 +1,12 @@
+logical_name: toto
+gandalf_type: connector
+certpem: /home/.../cert.pem
+keypem: /home/.../key.pem
+tenant: tenant1
+category: svn
+product: kafka
+aggregators: address1:9800,address2:6400,address3
+gandalf_secret: /home/zippo/go/src/core/configuration/elements/test.txt
+product_url: url1,url2,url3
+log_path: /home/.../log
+max_timeout: 10000

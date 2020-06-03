@@ -8,13 +8,17 @@ import (
 	"github.com/ditrit/gandalf-core/cluster"
 	"github.com/ditrit/gandalf-core/connector"
 	"github.com/ditrit/gandalf-core/database"
+	"github.com/ditrit/gandalf-core/configuration"
 	"os"
 	net "github.com/ditrit/shoset"
 	"strconv"
 )
 
+
 func main() {
-	var (
+
+	/*var (
+>>>>>>> configuration des connecteurs, flags et fichier de conf
 		debug  bool
 		config string
 	)
@@ -266,5 +270,11 @@ func main() {
 		}
 	} else {
 		flag.Usage()
-	}
+	}  */
+
+	configuration.SetConnectorFlags()
+
+	configuration.ChangeConfig()
+	fmt.Println("new config:")
+	configuration.PrintConfig()
 }
