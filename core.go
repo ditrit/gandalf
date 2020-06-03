@@ -1,24 +1,17 @@
 package main
 
 import (
-	"core/aggregator"
-	"core/cluster"
-	"core/connector"
-	"core/database"
-	"core/demo"
-	"flag"
+	"core/configuration"
 	"fmt"
-	"os"
-	"shoset/net"
-	"strconv"
 )
 
 func main() {
 
-	var (
+	/*var (
 		debug  bool
 		config string
 	)
+
 	flag.Usage = func() {
 		fmt.Printf("Usage of %s:\n", os.Args[0])
 		fmt.Printf("  gandalf mode command [options]")
@@ -272,5 +265,11 @@ func main() {
 
 	} else {
 		flag.Usage()
-	}
+	}  */
+
+	configuration.SetConnectorFlags()
+
+	configuration.ChangeConfig()
+	fmt.Println("new config:")
+	configuration.PrintConfig()
 }
