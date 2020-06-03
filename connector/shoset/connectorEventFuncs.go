@@ -3,9 +3,12 @@ package shoset
 
 import (
 	"errors"
+	"gandalf-core/models"
 	"log"
 	"shoset/msg"
 	"shoset/net"
+
+	"github.com/xeipuuv/gojsonschema"
 )
 
 // HandleEvent : Connector handle event function.
@@ -17,13 +20,30 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle event")
 	log.Println(evt)
 
-	ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
+	configuration := ch.Context["connectorConfig"].(models.ConnectorConfig)
+	var eventConf models.ConnectorTypeEvent
+	for _, event := range configuration.ConnectorTypeEvents {
+		if evt.GetEvent() == event.Name {
+			eventConf = event
+		}
+	}
+	//VALIDATION SCHEMA
+	schemaLoader := gojsonschema.NewReferenceLoader(eventConf.Schema)
+	documentLoader := gojsonschema.NewReferenceLoader(evt.GetPayload())
 
-	if ok {
-		log.Printf("%s : push event %s to queue \n", thisOne, evt.GetEvent())
+	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
+	if result.Valid() {
+		ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
+
+		if ok {
+			log.Printf("%s : push event %s to queue \n", thisOne, evt.GetEvent())
+		} else {
+			log.Println("Can't push to queue")
+			err = errors.New("Can't push to queue")
+		}
 	} else {
-		log.Println("Can't push to queue")
-		err = errors.New("Can't push to queue")
+		log.Println("invalid payload")
+		err = errors.New("invalid payload")
 	}
 
 	return err

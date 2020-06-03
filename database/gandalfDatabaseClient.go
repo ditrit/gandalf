@@ -53,7 +53,8 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 
 	databaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
 		ConnectorTypeID:       ConnectorTypeUtils.ID,
-		ConnectorTypeCommands: ConnectorTypeUtilsCommands})
+		ConnectorTypeCommands: ConnectorTypeUtilsCommands,
+		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
 	databaseClient.Create(&models.ConnectorType{Name: "Workflow"})
 	databaseClient.Where("name = ?", "Workflow").First(&ConnectorTypeWorkflow)
@@ -62,7 +63,8 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 
 	databaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig2",
 		ConnectorTypeID:       ConnectorTypeWorkflow.ID,
-		ConnectorTypeCommands: ConnectorTypeWorkflowCommands})
+		ConnectorTypeCommands: ConnectorTypeWorkflowCommands,
+		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
 	databaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
 	databaseClient.Where("name = ?", "Gitlab").First(&ConnectorTypeGitlab)
@@ -75,7 +77,8 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 
 	databaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig3",
 		ConnectorTypeID:       ConnectorTypeGitlab.ID,
-		ConnectorTypeCommands: ConnectorTypeGitlabCommands})
+		ConnectorTypeCommands: ConnectorTypeGitlabCommands,
+		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
 	databaseClient.Create(&models.ConnectorType{Name: "Azure"})
 	databaseClient.Where("name = ?", "Azure").First(&ConnectorTypeAzure)
@@ -86,6 +89,7 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 
 	databaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig4",
 		ConnectorTypeID:       ConnectorTypeAzure.ID,
-		ConnectorTypeCommands: ConnectorTypeAzureCommands})
+		ConnectorTypeCommands: ConnectorTypeAzureCommands,
+		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
 }

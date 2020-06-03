@@ -11,4 +11,5 @@ type ConnectorConfig struct {
 	Name                  string
 	ConnectorTypeID       uint
 	ConnectorTypeCommands []ConnectorTypeCommand `gorm:"many2many:config_commands;"`
+	ConnectorTypeEvents   []ConnectorTypeEvent   `gorm:"many2many:config_events;"`
 }
