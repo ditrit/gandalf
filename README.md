@@ -88,25 +88,25 @@ link_address: 192.168.22.12
 ## Demo
 ```bash
 Cluster :
-./garcimore cluster init cluster 127.0.0.1:9000 &
-./garcimore cluster join cluster 127.0.0.1:9001 127.0.0.1:9000 &
-./garcimore cluster join cluster 127.0.0.1:9002 127.0.0.1:9000 &
+./gandalf-core cluster init cluster 127.0.0.1:9000 
+./gandalf-core cluster join cluster 127.0.0.1:9001 127.0.0.1:9000 
+./gandalf-core cluster join cluster 127.0.0.1:9002 127.0.0.1:9000 
 ```
 
 ```bash
 Aggregator :
-./garcimore aggregator agg1 titi 127.0.0.1:8000 127.0.0.1:9000 &
-./garcimore aggregator agg2 titi 127.0.0.1:8100 127.0.0.1:9000 &
-./garcimore aggregator agg1 titi 127.0.0.1:8001 127.0.0.1:9000 &
-./garcimore aggregator agg2 titi 127.0.0.1:8101 127.0.0.1:9000 &
+./gandalf-core aggregator Aggregator1 tenant1 127.0.0.1:8000 127.0.0.1:9000
+./gandalf-core aggregator Aggregator2 tenant1 127.0.0.1:8100 127.0.0.1:9000
+./gandalf-core aggregator Aggregator3 tenant1 127.0.0.1:8200 127.0.0.1:9000
+./gandalf-core aggregator Aggregator4 tenant1 127.0.0.1:8300 127.0.0.1:9000
 ```
 
 ```bash
 Connector :
-./garcimore connector con1 titi 127.0.0.1:7000 127.0.0.1:7010 127.0.0.1:8000 &
-./garcimore connector con2 titi 127.0.0.1:7100 127.0.0.1:7110 127.0.0.1:8100 &
-./garcimore connector con1 titi 127.0.0.1:7001 127.0.0.1:7011 127.0.0.1:8000 &
-./garcimore connector con2 titi 127.0.0.1:7101 127.0.0.1:7111 127.0.0.1:8100 &
+./gandalf-core connector Connector1 tenant1 127.0.0.1:7000 127.0.0.1:7010 127.0.0.1:8000 Utils
+./gandalf-core connector Connector2 tenant1 127.0.0.1:7100 127.0.0.1:7110 127.0.0.1:8100 Workflow
+./gandalf-core connector Connector3 tenant1 127.0.0.1:7200 127.0.0.1:7210 127.0.0.1:8200 Azure
+./gandalf-core connector Connector4 tenant1 127.0.0.1:7300 127.0.0.1:7310 127.0.0.1:8300 Gitlab
 ```
 
 ```
