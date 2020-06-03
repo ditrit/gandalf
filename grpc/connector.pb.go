@@ -4,9 +4,14 @@
 package grpc
 
 import (
+	context "context"
 	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
 	math "math"
+
+	proto "github.com/golang/protobuf/proto"
+	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -20,6 +25,45 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
+type CommandList struct {
+	Commands             []string `protobuf:"bytes,1,rep,name=Commands,proto3" json:"Commands,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CommandList) Reset()         { *m = CommandList{} }
+func (m *CommandList) String() string { return proto.CompactTextString(m) }
+func (*CommandList) ProtoMessage()    {}
+func (*CommandList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9a0c0da548590a25, []int{0}
+}
+
+func (m *CommandList) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CommandList.Unmarshal(m, b)
+}
+func (m *CommandList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CommandList.Marshal(b, m, deterministic)
+}
+func (m *CommandList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CommandList.Merge(m, src)
+}
+func (m *CommandList) XXX_Size() int {
+	return xxx_messageInfo_CommandList.Size(m)
+}
+func (m *CommandList) XXX_DiscardUnknown() {
+	xxx_messageInfo_CommandList.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CommandList proto.InternalMessageInfo
+
+func (m *CommandList) GetCommands() []string {
+	if m != nil {
+		return m.Commands
+	}
+	return nil
+}
+
 type Empty struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -30,7 +74,7 @@ func (m *Empty) Reset()         { *m = Empty{} }
 func (m *Empty) String() string { return proto.CompactTextString(m) }
 func (*Empty) ProtoMessage()    {}
 func (*Empty) Descriptor() ([]byte, []int) {
-	return fileDescriptor_9a0c0da548590a25, []int{0}
+	return fileDescriptor_9a0c0da548590a25, []int{1}
 }
 
 func (m *Empty) XXX_Unmarshal(b []byte) error {
@@ -62,7 +106,7 @@ func (m *IteratorMessage) Reset()         { *m = IteratorMessage{} }
 func (m *IteratorMessage) String() string { return proto.CompactTextString(m) }
 func (*IteratorMessage) ProtoMessage()    {}
 func (*IteratorMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_9a0c0da548590a25, []int{1}
+	return fileDescriptor_9a0c0da548590a25, []int{2}
 }
 
 func (m *IteratorMessage) XXX_Unmarshal(b []byte) error {
@@ -91,6 +135,7 @@ func (m *IteratorMessage) GetId() string {
 }
 
 func init() {
+	proto.RegisterType((*CommandList)(nil), "grpc.CommandList")
 	proto.RegisterType((*Empty)(nil), "grpc.Empty")
 	proto.RegisterType((*IteratorMessage)(nil), "grpc.IteratorMessage")
 }
@@ -100,14 +145,97 @@ func init() {
 }
 
 var fileDescriptor_9a0c0da548590a25 = []byte{
-	// 134 bytes of a gzipped FileDescriptorProto
+	// 192 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x4f, 0xce, 0xcf, 0xcb,
 	0x4b, 0x4d, 0x2e, 0xc9, 0x2f, 0xd2, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x49, 0x2f, 0x2a,
-	0x48, 0x56, 0x62, 0xe7, 0x62, 0x75, 0xcd, 0x2d, 0x28, 0xa9, 0x54, 0x52, 0xe4, 0xe2, 0xf7, 0x2c,
-	0x49, 0x2d, 0x4a, 0x04, 0x2a, 0xf0, 0x4d, 0x2d, 0x2e, 0x4e, 0x4c, 0x4f, 0x15, 0xe2, 0xe3, 0x62,
-	0xf2, 0x4c, 0x91, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x02, 0xb2, 0x9c, 0x0c, 0xb8, 0x64, 0x92,
-	0xf3, 0x73, 0xf5, 0x52, 0x32, 0x4b, 0x8a, 0x32, 0x4b, 0xf4, 0xd2, 0x13, 0xf3, 0x52, 0x12, 0x73,
-	0xd2, 0xf4, 0xb2, 0x12, 0xcb, 0x12, 0xf5, 0x40, 0x66, 0x39, 0xf1, 0x39, 0xc3, 0xac, 0x08, 0x00,
-	0xd9, 0x10, 0xc0, 0x98, 0xc4, 0x06, 0xb6, 0xca, 0x18, 0x10, 0x00, 0x00, 0xff, 0xff, 0x2d, 0xaf,
-	0x48, 0xd4, 0x7d, 0x00, 0x00, 0x00,
+	0x48, 0x56, 0xd2, 0xe4, 0xe2, 0x76, 0xce, 0xcf, 0xcd, 0x4d, 0xcc, 0x4b, 0xf1, 0xc9, 0x2c, 0x2e,
+	0x11, 0x92, 0xe2, 0xe2, 0x80, 0x72, 0x8b, 0x25, 0x18, 0x15, 0x98, 0x35, 0x38, 0x83, 0xe0, 0x7c,
+	0x25, 0x76, 0x2e, 0x56, 0xd7, 0xdc, 0x82, 0x92, 0x4a, 0x25, 0x45, 0x2e, 0x7e, 0xcf, 0x92, 0xd4,
+	0xa2, 0x44, 0xa0, 0x59, 0xbe, 0xa9, 0xc5, 0xc5, 0x89, 0xe9, 0xa9, 0x42, 0x7c, 0x5c, 0x4c, 0x9e,
+	0x29, 0x40, 0x1d, 0x8c, 0x40, 0x1d, 0x40, 0x96, 0x91, 0x03, 0x17, 0xa7, 0x33, 0xcc, 0x3e, 0x21,
+	0x63, 0x2e, 0xfe, 0xe0, 0xd4, 0xbc, 0x14, 0x64, 0x7b, 0x04, 0xf5, 0x40, 0xb6, 0xeb, 0x21, 0x09,
+	0x49, 0x71, 0x43, 0x84, 0x20, 0x56, 0x30, 0x38, 0x19, 0x70, 0xc9, 0x24, 0xe7, 0xe7, 0xea, 0xa5,
+	0x64, 0x96, 0x14, 0x65, 0x96, 0xe8, 0xa5, 0x03, 0x55, 0x25, 0xe6, 0xa4, 0xe9, 0x65, 0x25, 0x96,
+	0x25, 0x82, 0xd5, 0x39, 0xf1, 0xc1, 0xcd, 0x0f, 0x00, 0x79, 0x27, 0x80, 0x31, 0x89, 0x0d, 0xec,
+	0x2f, 0x63, 0x40, 0x00, 0x00, 0x00, 0xff, 0xff, 0xed, 0xf9, 0x7f, 0x9b, 0xea, 0x00, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConnInterface
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion6
+
+// ConnectorClient is the client API for Connector service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type ConnectorClient interface {
+	SendCommandList(ctx context.Context, in *CommandList, opts ...grpc.CallOption) (*Empty, error)
+}
+
+type connectorClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewConnectorClient(cc grpc.ClientConnInterface) ConnectorClient {
+	return &connectorClient{cc}
+}
+
+func (c *connectorClient) SendCommandList(ctx context.Context, in *CommandList, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, "/grpc.Connector/SendCommandList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// ConnectorServer is the server API for Connector service.
+type ConnectorServer interface {
+	SendCommandList(context.Context, *CommandList) (*Empty, error)
+}
+
+// UnimplementedConnectorServer can be embedded to have forward compatible implementations.
+type UnimplementedConnectorServer struct {
+}
+
+func (*UnimplementedConnectorServer) SendCommandList(ctx context.Context, req *CommandList) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendCommandList not implemented")
+}
+
+func RegisterConnectorServer(s *grpc.Server, srv ConnectorServer) {
+	s.RegisterService(&_Connector_serviceDesc, srv)
+}
+
+func _Connector_SendCommandList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CommandList)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectorServer).SendCommandList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.Connector/SendCommandList",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectorServer).SendCommandList(ctx, req.(*CommandList))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Connector_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "grpc.Connector",
+	HandlerType: (*ConnectorServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SendCommandList",
+			Handler:    _Connector_SendCommandList_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "connector.proto",
 }

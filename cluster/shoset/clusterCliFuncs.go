@@ -1,0 +1,2 @@
+//Package shoset :
+package shoset

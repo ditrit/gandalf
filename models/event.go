@@ -1,3 +1,4 @@
+//Package models :
 package models
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Event : Event struct.
 type Event struct {
 	gorm.Model
 	UUID           string
@@ -21,8 +23,8 @@ type Event struct {
 	ReferencesUUID string
 }
 
+// FromShosetEvent : Shoset event to core event.
 func FromShosetEvent(mevent msg.Event) (event Event) {
-
 	event.UUID = mevent.GetUUID()
 	event.Tenant = mevent.GetTenant()
 	event.Token = mevent.GetToken()

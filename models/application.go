@@ -1,19 +1,20 @@
+//Package models :
 package models
 
 import (
 	"github.com/jinzhu/gorm"
 )
 
+// Application : Application struct.
 type Application struct {
 	gorm.Model
-	Name string
-	/* Aggregator      Aggregator
+	Name            string
+	TenantID        uint
+	Tenant          Tenant
 	AggregatorID    uint
-	Connector       Connector
+	Aggregator      Aggregator
 	ConnectorID     uint
+	Connector       Connector
+	ConnectorTypeID uint
 	ConnectorType   ConnectorType
-	ConnectorTypeID uint */
-	Aggregator    string
-	Connector     string
-	ConnectorType string
 }
