@@ -19,6 +19,16 @@ type ClusterMember struct {
 	MapDatabaseClient map[string]*gorm.DB
 }
 
+type clusterConfigKey struct {
+	configType    string
+	description   string
+	configDefault interface{}
+	shortName     string
+	mandatory     bool
+}
+
+var clusterConfigKeys map[string]clusterConfigKey
+
 // NewClusterMember :
 func NewClusterMember(logicalName, logPath string) *ClusterMember {
 	member := new(ClusterMember)

@@ -2,10 +2,11 @@ package main
 
 import (
 	"core/configuration"
-	"fmt"
 )
 
 func main() {
+
+
 
 	/*var (
 		debug  bool
@@ -267,9 +268,12 @@ func main() {
 		flag.Usage()
 	}  */
 
-	configuration.SetConnectorFlags()
 
-	configuration.ChangeConfig()
-	fmt.Println("new config:")
-	configuration.PrintConfig()
+	configuration.SetCoreFlags()
+	configuration.SetCoreConfig()
+	configuration.PrintCoreConfig()
+
+	configuration.SetConnectorFlags()
+	configuration.SetConnectorConfig()
+	configuration.PrintConnectorConfig()
 }

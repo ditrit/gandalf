@@ -13,6 +13,16 @@ type AggregatorMember struct {
 	chaussette *net.Shoset
 }
 
+type aggregatorConfigKey struct {
+	configType    string
+	description   string
+	configDefault interface{}
+	shortName     string
+	mandatory     bool
+}
+
+var aggregatorConfigKeys map[string]aggregatorConfigKey
+
 // NewClusterMember :
 func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)

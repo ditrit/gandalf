@@ -17,6 +17,16 @@ type ConnectorMember struct {
 	timeoutMax    int64
 }
 
+type connectorConfigKey struct {
+	keyType    string
+	description   string
+	configDefault interface{}
+	shortName     string
+	mandatory     bool
+}
+
+var connectorConfigKeys map[string]connectorConfigKey
+
 // NewClusterMember :
 func NewConnectorMember(logicalName, tenant, logPath string) *ConnectorMember {
 	member := new(ConnectorMember)
