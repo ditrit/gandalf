@@ -22,6 +22,7 @@ type ClusterMember struct {
 
 // NewClusterMember : Cluster struct constructor.
 func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember {
+
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
 	member.MapDatabaseClient = make(map[string]*gorm.DB)

@@ -15,6 +15,7 @@ type AggregatorMember struct {
 }
 
 // NewAggregatorMember : Aggregator struct constructor.
+
 func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")

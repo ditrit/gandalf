@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	//"core/connector"
 	"flag"
 	"fmt"
 	"gopkg.in/yaml.v2"
@@ -10,10 +11,7 @@ import (
 
 type config struct {
 	configurationFilePath string
-	logicalName string
-	gandalfType string
-	certPem string
-	keyPem string
+
 	tenant string
 	category string
 	product string
@@ -40,19 +38,12 @@ type yamlConfig struct {
 	MaxTimeout int64 `yaml:"max_timeout"`
 }
 
-type FlagConfig struct {
-
-}
 var (
 	gandalfConfig config
 
 	defaultYamlPath = "configuration/elements/gandalf.yaml"
 
-	YamlPathFlag string
-	LogicalNameFlag string
- 	GandalfTypeFlag string
-	CertPemFlag string
-	KeyPemFlag string
+
 	TenantFlag string
 	CategoryFlag string
 	ProductFlag string
@@ -68,14 +59,6 @@ var (
 
 //flags to retrieve the settings of a component
 func SetConnectorFlags(){
-	flag.StringVar(&YamlPathFlag,"configfile","","set the path for the configuration file")
-	flag.StringVar(&YamlPathFlag,"f","","set the path for the configuration file")
-	flag.StringVar(&LogicalNameFlag,"lname","","Set the logical name of a component")
-	flag.StringVar(&LogicalNameFlag,"l","","Set the logical name of a component")
-	flag.StringVar(&GandalfTypeFlag,"gandalf_type","","Set the type of a component")
-	flag.StringVar(&GandalfTypeFlag,"g","","Set the type of a component")
-	flag.StringVar(&CertPemFlag,"cert_pem","","Set the certificate value")
-	flag.StringVar(&KeyPemFlag,"key_pem","","Set the key value")
 	flag.StringVar(&TenantFlag,"tenant","","Set the tenant of a component")
 	flag.StringVar(&TenantFlag,"t","","Set the tenant of a component")
 	flag.StringVar(&CategoryFlag,"category","","Set the category of a connector")
@@ -97,11 +80,9 @@ func SetConnectorFlags(){
 
 
 
-func PrintConfig() {
-
+func PrintConnectorConfig() {
+	fmt.Println("Connector config:")
 	fmt.Println("Configuration file path: ",gandalfConfig.configurationFilePath)
-	fmt.Println("Logical name: ", gandalfConfig.logicalName)
-	fmt.Println("Gandalf type: ",gandalfConfig.gandalfType)
 	fmt.Println("Tenant:",gandalfConfig.tenant)
 	fmt.Println("Category:",gandalfConfig.category)
 	fmt.Println("Product:",gandalfConfig.product)
@@ -118,7 +99,7 @@ func PrintConfig() {
 
 }
 
-func ChangeConfig(){
+func SetConnectorConfig(){
 	gandalfConfig.setConfig()
 }
 
@@ -156,29 +137,7 @@ func (c *config) setConfig() {
 		c.configurationFilePath = defaultYamlPath
 	}
 
-	if LogicalNameFlag != "" {
-		c.logicalName = LogicalNameFlag
-	}else {
-		c.logicalName = yamlConfiguration.LogicalName
-	}
 
-	if GandalfTypeFlag != "" {
-		c.gandalfType = GandalfTypeFlag
-	}else{
-		c.gandalfType = yamlConfiguration.GandalfType
-	}
-
-	if CertPemFlag != "" {
-		c.certPem = CertPemFlag
-	}else{
-		c.certPem = yamlConfiguration.CertPem
-	}
-
-	if KeyPemFlag != ""{
-		c.keyPem = KeyPemFlag
-	}else{
-		c.keyPem = yamlConfiguration.KeyPem
-	}
 
 	if TenantFlag != "" {
 		c.tenant = TenantFlag
