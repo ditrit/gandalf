@@ -274,12 +274,6 @@ func main() {
 		flag.Usage()
 	}  */
 
-
-	configuration.SetCoreFlags()
-	configuration.SetCoreConfig()
-	configuration.PrintCoreConfig()
-
-	configuration.SetConnectorFlags()
-	configuration.SetConnectorConfig()
-	configuration.PrintConnectorConfig()
+	configuration.SetConfiguration()
+	//configuration.PrintConfig()
 }
