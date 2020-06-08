@@ -4,10 +4,8 @@ package grpc
 import (
 	"context"
 	"errors"
-	"gandalf-core/connector/utils"
 	pb "gandalf-core/grpc"
 
-	"gandalf-core/models"
 	"log"
 	"net"
 	"shoset/msg"
@@ -74,56 +72,56 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	cmd := pb.CommandFromGrpc(in)
 
-	config := r.Shoset.Context["connectorConfig"].(models.ConnectorConfig)
-	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), config.ConnectorTypeCommands)
-	validate := utils.ValidateCommandPayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+	/* 	config := r.Shoset.Context["connectorConfig"].(models.ConnectorConfig)
+	   	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), config.ConnectorTypeCommands)
+	   	validate := utils.ValidateCommandPayload(cmd.GetPayload(), connectorTypeCommand.Schema)
 
-	if validate {
-		cmd.Tenant = r.Shoset.Context["tenant"].(string)
-		shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
+	   	if validate { */
+	cmd.Tenant = r.Shoset.Context["tenant"].(string)
+	shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
 
-		if len(shosets) != 0 {
-			if cmd.GetTimeout() > r.timeoutMax {
-				cmd.Timeout = r.timeoutMax
-			}
-
-			iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
-			iterator := r.MapIterators[iteratorMessage.GetId()]
-
-			go r.runIterator(cmd.GetUUID(), "validation", iterator, r.ValidationChannel)
-
-			notSend := true
-			for notSend {
-				index := getGrpcSendIndex(shosets)
-				shosets[index].SendMessage(cmd)
-				log.Printf("%s : send command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
-
-				timeoutSend := time.Duration((int(cmd.GetTimeout()) / len(shosets)))
-
-				messageChannel := <-r.ValidationChannel
-				log.Printf("%s : receive validation event for command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
-
-				if messageChannel != nil {
-					notSend = false
-					break
-				}
-
-				time.Sleep(timeoutSend)
-			}
-
-			if notSend {
-				return nil, nil
-			}
-
-			commandMessageUUID = &pb.CommandMessageUUID{UUID: cmd.UUID}
-		} else {
-			log.Println("can't find aggregators to send")
-			err = errors.New("can't find aggregators to send")
+	if len(shosets) != 0 {
+		if cmd.GetTimeout() > r.timeoutMax {
+			cmd.Timeout = r.timeoutMax
 		}
+
+		iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
+		iterator := r.MapIterators[iteratorMessage.GetId()]
+
+		go r.runIterator(cmd.GetUUID(), "validation", iterator, r.ValidationChannel)
+
+		notSend := true
+		for notSend {
+			index := getGrpcSendIndex(shosets)
+			shosets[index].SendMessage(cmd)
+			log.Printf("%s : send command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(cmd.GetTimeout()) / len(shosets)))
+
+			messageChannel := <-r.ValidationChannel
+			log.Printf("%s : receive validation event for command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
+
+			if messageChannel != nil {
+				notSend = false
+				break
+			}
+
+			time.Sleep(timeoutSend)
+		}
+
+		if notSend {
+			return nil, nil
+		}
+
+		commandMessageUUID = &pb.CommandMessageUUID{UUID: cmd.UUID}
 	} else {
+		log.Println("can't find aggregators to send")
+		err = errors.New("can't find aggregators to send")
+	}
+	/* 	} else {
 		log.Println("wrong payload command")
 		err = errors.New("wrong payload command")
-	}
+	} */
 
 	return commandMessageUUID, err
 }
