@@ -88,7 +88,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 		iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
 		iterator := r.MapIterators[iteratorMessage.GetId()]
 
-		go r.runIterator(cmd.GetUUID(), "validation", iterator, r.ValidationChannel)
+		go r.runIteratorEvent(cmd.GetCommand(), "TAKEN", cmd.GetUUID(), iterator, r.ValidationChannel)
 
 		notSend := true
 		for notSend {
@@ -132,7 +132,7 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIterator(in.GetValue(), "cmd", iterator, r.MapCommandChannel[in.GetIteratorId()])
+	go r.runIteratorCommand(in.GetValue(), iterator, r.MapCommandChannel[in.GetIteratorId()])
 
 	messageChannel := <-r.MapCommandChannel[in.GetIteratorId()]
 	commandMessage = pb.CommandToGrpc(messageChannel.(msg.Command))
@@ -166,7 +166,7 @@ func (r ConnectorGrpc) WaitEventMessage(ctx context.Context, in *pb.EventMessage
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIterator(in.GetEvent(), "evt", iterator, r.EventChannel)
+	go r.runIteratorEvent(in.GetTopic(), in.GetEvent(), in.GetReferenceUUID(), iterator, r.EventChannel)
 
 	messageChannel := <-r.EventChannel
 	messageEvent = pb.EventToGrpc(messageChannel.(msg.Event))
@@ -180,7 +180,7 @@ func (r ConnectorGrpc) WaitTopicMessage(ctx context.Context, in *pb.TopicMessage
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIterator(in.GetTopic(), "topic", iterator, r.EventChannel)
+	go r.runIteratorTopic(in.GetTopic(), in.GetReferenceUUID(), iterator, r.EventChannel)
 
 	messageChannel := <-r.EventChannel
 	messageEvent = pb.EventToGrpc(messageChannel.(msg.Event))
@@ -223,39 +223,83 @@ func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (i
 }
 
 // runIterator : Iterator run function.
-func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator, channel chan msg.Message) {
-	log.Printf("Run iterator %s on value %s", msgtype, value)
+func (r ConnectorGrpc) runIteratorCommand(command string, iterator *msg.Iterator, channel chan msg.Message) {
+	log.Printf("Run iterator command on command %s", command)
 
 	for {
 		messageIterator := iterator.Get()
 
 		if messageIterator != nil {
-			if msgtype == "cmd" {
-				message := (messageIterator.GetMessage()).(msg.Command)
+			message := (messageIterator.GetMessage()).(msg.Command)
 
-				if value == message.GetCommand() {
-					log.Println("Get iterator command")
+			if command == message.GetCommand() {
+				log.Println("Get iterator command")
+				log.Println(message)
+
+				channel <- message
+
+				break
+			}
+		}
+		time.Sleep(time.Duration(2000) * time.Millisecond)
+	}
+	//delete(r.MapIterators, iteratorId)
+}
+
+// runIteratorEvent : Iterator run function.
+func (r ConnectorGrpc) runIteratorEvent(topic, event, refUUID string, iterator *msg.Iterator, channel chan msg.Message) {
+	log.Printf("Run iterator event on topic %s, event %s, ref %s", topic, event, refUUID)
+
+	for {
+		messageIterator := iterator.Get()
+
+		if messageIterator != nil {
+			message := (messageIterator.GetMessage()).(msg.Event)
+			if topic == message.Topic {
+				if event == message.Event {
+					if refUUID != "" && refUUID == message.ReferencesUUID {
+						log.Println("Get iterator event")
+						log.Println(message)
+
+						channel <- message
+
+						break
+					} else {
+						log.Println("Get iterator event")
+						log.Println(message)
+
+						channel <- message
+
+						break
+					}
+				}
+			}
+		}
+		time.Sleep(time.Duration(2000) * time.Millisecond)
+	}
+	//delete(r.MapIterators, iteratorId)
+}
+
+// runIteratorTopic : Iterator run function.
+func (r ConnectorGrpc) runIteratorTopic(topic, refUUID string, iterator *msg.Iterator, channel chan msg.Message) {
+	log.Printf("Run iterator topic on topic %s ref %s", topic, refUUID)
+
+	for {
+		messageIterator := iterator.Get()
+
+		if messageIterator != nil {
+			message := (messageIterator.GetMessage()).(msg.Event)
+
+			if topic == message.Topic {
+
+				if refUUID != "" && refUUID == message.ReferencesUUID {
+					log.Println("Get iterator event by topic and ref")
 					log.Println(message)
 
 					channel <- message
 
 					break
-				}
-			} else if msgtype == "evt" {
-				message := (messageIterator.GetMessage()).(msg.Event)
-
-				if value == message.Event {
-					log.Println("Get iterator event")
-					log.Println(message)
-
-					channel <- message
-
-					break
-				}
-			} else if msgtype == "topic" {
-				message := (messageIterator.GetMessage()).(msg.Event)
-
-				if value == message.Topic {
+				} else {
 					log.Println("Get iterator event by topic")
 					log.Println(message)
 
@@ -263,18 +307,9 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-			} else if msgtype == "validation" {
-				message := (messageIterator.GetMessage()).(msg.Event)
 
-				if value == message.ReferencesUUID && message.Event == "TAKEN" {
-					log.Println("Get iterator event validation")
-					log.Println(message)
-
-					channel <- message
-
-					break
-				}
 			}
+
 		}
 		time.Sleep(time.Duration(2000) * time.Millisecond)
 	}

@@ -12,7 +12,7 @@ import (
 // CreateValidationEvent : Connector create validation event functions.
 func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) {
 	var tab = map[string]string{
-		"topic":          command.GetUUID(),
+		"topic":          command.GetCommand(),
 		"event":          "TAKEN",
 		"payload":        "",
 		"referencesUUID": command.GetUUID()}
