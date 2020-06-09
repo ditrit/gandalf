@@ -2,7 +2,7 @@ package main
 
 import (
 	"core/configuration"
-)
+	)
 
 func main() {
 
@@ -269,5 +269,5 @@ func main() {
 	}  */
 
 	configuration.SetConfiguration()
-	//configuration.PrintConfig()
+
 }

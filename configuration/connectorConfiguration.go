@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"strings"
 )
 
 type config struct {
@@ -97,4 +98,107 @@ func PrintConnectorConfig() {
 
 }
 
+func SetConnectorConfig(){
+	gandalfConfig.setConfig()
+}
 
+
+
+/*func (c *yamlConfig) yamlToStruct(path string){
+	yamlPath, err := ioutil.ReadFile(path)
+	if err !=nil{
+		fmt.Println("Error while finding the file:", err)
+	}
+	err = yaml.Unmarshal(yamlPath,c)
+	if err !=nil{
+		fmt.Printf("Unmarshal: %v\n", err)
+	}
+}
+
+func(c *yamlConfig) getYamlConfig() *yamlConfig{
+	if YamlPathFlag != "" {
+		c.yamlToStruct(YamlPathFlag)
+	} else {
+		c.yamlToStruct(defaultYamlPath)
+	}
+
+	return c
+}*/
+
+func (c *config) setConfig() {
+	yamlConfiguration := new(yamlConfig)
+	//yamlConfiguration.getYamlConfig()
+	defaultPort := ":9800"
+
+	/*if YamlPathFlag != ""{
+		c.configurationFilePath = YamlPathFlag
+	} else {
+		c.configurationFilePath = defaultYamlPath
+	}*/
+
+
+
+	if TenantFlag != "" {
+		c.tenant = TenantFlag
+	}else{
+		c.tenant = yamlConfiguration.Tenant
+	}
+
+	if  CategoryFlag != "" {
+		c.category = CategoryFlag
+	}else{
+		c.category = yamlConfiguration.Category
+	}
+
+	if ProductFlag != "" {
+		c.product = ProductFlag
+	}else{
+		c.product = yamlConfiguration.Product
+	}
+
+	if AggregatorFlag != ""{
+		c.aggregators = strings.Split(AggregatorFlag,",")
+		for i ,_ := range c.aggregators {
+			temp := strings.Split(c.aggregators[i],":")
+			if len(temp) == 1{
+				temp[0] += defaultPort
+				c.aggregators[i] = temp[0]
+			}
+		}
+
+	}else{
+		c.aggregators = strings.Split(yamlConfiguration.Aggregators,",")
+		for i ,_ := range c.aggregators {
+			temp := strings.Split(c.aggregators[i],":")
+				if len(temp) == 1{
+					temp[0] += defaultPort
+					c.aggregators[i] = temp[0]
+				}
+		}
+
+	}
+
+	if GandalfSecretFlag != "" {
+		c.gandalfSecret = GandalfSecretFlag
+	}else{
+		c.gandalfSecret = yamlConfiguration.GandalfSecret
+	}
+
+	if ProductUrlFlag != "" {
+		c.productUrl = strings.Split(ProductUrlFlag,",")
+	}else{
+		c.productUrl = strings.Split(yamlConfiguration.ProductUrl,",")
+	}
+
+	if LogPathFlag != ""{
+		c.logPath = LogPathFlag
+	}else{
+		c.logPath = yamlConfiguration.LogPath
+	}
+
+	if MaxTimeoutFlag != 0 {
+		c.maxTimeout = MaxTimeoutFlag
+	}else {
+		c.maxTimeout = yamlConfiguration.MaxTimeout
+	}
+}
