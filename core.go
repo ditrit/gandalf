@@ -20,7 +20,6 @@ func main() {
 
 
 	/*var (
->>>>>>> configuration des connecteurs, flags et fichier de conf
 		debug  bool
 		config string
 	)
@@ -275,5 +274,5 @@ func main() {
 	}  */
 
 	configuration.SetConfiguration()
-	//configuration.PrintConfig()
+
 }

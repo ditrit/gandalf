@@ -36,20 +36,26 @@ func SetConfiguration() {
 		"cert_pem":     {"string", "chemin vers le certificat TLS", "/etc/gandalf/cert/cert.pem", nil, "", false, nil},
 		"key_pem":      {"string", "chemin vers la clef privée TLS", "/etc/gandalf/cert/key.pem", nil, "", false, nil},
 	}
+
 	// recuperer les valeurs passées en paramètre
 	for gtype, _ := range CoreConfigKeys {
 		for key, _ := range CoreConfigKeys[gtype] {
-			flag.StringVar(&NewFlag,key, "", CoreConfigKeys[gtype][key].Description)
+			flag.StringVar(&NewFlag,key, "test", CoreConfigKeys[gtype][key].Description)
 			fmt.Println(key)
-			//fmt.Println("Flag value: ",NewFlag)
 			CoreConfigKeys[gtype][key].Value = NewFlag
-			fmt.Println("long name value: ",CoreConfigKeys[gtype][key].Value)
+			fmt.Println("Value: ",CoreConfigKeys[gtype][key].Value,"\n")
 			if CoreConfigKeys[gtype][key].ShortName != "" {
-				flag.StringVar(&NewFlag, CoreConfigKeys[gtype][key].ShortName, "", CoreConfigKeys[gtype][key].Description)
+				flag.StringVar(&NewFlag, CoreConfigKeys[gtype][key].ShortName, "toto", CoreConfigKeys[gtype][key].Description)
 				CoreConfigKeys[gtype][key].Value = NewFlag
 			}
 		}
-		flag.Parse()
+	}
+	flag.Parse()
+
+	for gtype,_ := range CoreConfigKeys {
+		for key,_ := range CoreConfigKeys[gtype] {
+			fmt.Println(key,": ",CoreConfigKeys[gtype][key].Value)
+		}
 	}
 
 }
@@ -58,7 +64,6 @@ func SetConfiguration() {
 
 
 /*
-
 // recuperer les valeurs passées en variables d'envrionnement si pas de valeur déjà passée en paramètre
 for gtype, _ = range ConfigKeys {
 for key, _ := range ConfigKeys[gtype] {
@@ -76,9 +81,7 @@ ConfigKeys[gtype][key].Value.(int) = strconv.ParseInt((strval, 10, 64)
 }
 }
 }
-
 config_file := ConfigKeys["core"]["config_file"]
-
 // recuperer les valeurs du fichier de configuration si pas de valeur déjà obtenue
 nodes := yamlv3.Unmarshal(config_file)
 for gtype, _ = range ConfigKeys {
@@ -86,7 +89,6 @@ for key, _ := range ConfigKeys[gtype] {
 // si key est dans nodes et pas et si ConfigKeys[gtype][key].Value pas définie ("" pour string ou -1 pour int) alors affecter
 }
 }
-
 // recuperer les valeurs par defaut si pas de valeur déjà obtenue et verifier si allowed value
 for gtype, _ = range ConfigKeys {
 for key, _ := range ConfigKeys[gtype] {
@@ -102,10 +104,7 @@ ConfigKeys[gtype][key].Value.(int) = ConfigKeys[gtype][key].Default
 }
 }
 }
-
-
 var ConfigVals = make(map[string]interface{})
-
 // valider que les valeurs obligatoires sont fournies
 gandalf_type := configKeys["core"]["gandalf_type"].Value.(string)
 if gandalf_type == "" {
@@ -131,8 +130,5 @@ ConfigVals[key] = ConfigKeys[gtype][key].Value
 }
 }
 }
-
-
-
 }
 */
