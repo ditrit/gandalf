@@ -13,7 +13,7 @@ import (
 func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) {
 	var tab = map[string]string{
 		"topic":          command.GetCommand(),
-		"event":          "TAKEN",
+		"event":          "ON_GOING",
 		"payload":        "",
 		"referencesUUID": command.GetUUID()}
 

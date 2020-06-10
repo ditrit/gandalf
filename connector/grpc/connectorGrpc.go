@@ -88,7 +88,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 		iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
 		iterator := r.MapIterators[iteratorMessage.GetId()]
 
-		go r.runIteratorEvent(cmd.GetCommand(), "TAKEN", cmd.GetUUID(), iterator, r.ValidationChannel)
+		go r.runIteratorEvent(cmd.GetCommand(), "ON_GOING", cmd.GetUUID(), iterator, r.ValidationChannel)
 
 		notSend := true
 		for notSend {
