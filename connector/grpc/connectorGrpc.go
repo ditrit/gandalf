@@ -247,8 +247,8 @@ func (r ConnectorGrpc) runIteratorCommand(command string, iterator *msg.Iterator
 }
 
 // runIteratorEvent : Iterator run function.
-func (r ConnectorGrpc) runIteratorEvent(topic, event, refUUID string, iterator *msg.Iterator, channel chan msg.Message) {
-	log.Printf("Run iterator event on topic %s, event %s, ref %s", topic, event, refUUID)
+func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iterator *msg.Iterator, channel chan msg.Message) {
+	log.Printf("Run iterator event on topic %s, event %s, ref %s", topic, event, referenceUUID)
 
 	for {
 		messageIterator := iterator.Get()
@@ -257,7 +257,7 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, refUUID string, iterator *
 			message := (messageIterator.GetMessage()).(msg.Event)
 			if topic == message.Topic {
 				if event == message.Event {
-					if refUUID != "" && refUUID == message.ReferencesUUID {
+					if referenceUUID != "" && referenceUUID == message.GetReferenceUUID() {
 						log.Println("Get iterator event")
 						log.Println(message)
 
@@ -281,8 +281,8 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, refUUID string, iterator *
 }
 
 // runIteratorTopic : Iterator run function.
-func (r ConnectorGrpc) runIteratorTopic(topic, refUUID string, iterator *msg.Iterator, channel chan msg.Message) {
-	log.Printf("Run iterator topic on topic %s ref %s", topic, refUUID)
+func (r ConnectorGrpc) runIteratorTopic(topic, referenceUUID string, iterator *msg.Iterator, channel chan msg.Message) {
+	log.Printf("Run iterator topic on topic %s ref %s", topic, referenceUUID)
 
 	for {
 		messageIterator := iterator.Get()
@@ -292,7 +292,7 @@ func (r ConnectorGrpc) runIteratorTopic(topic, refUUID string, iterator *msg.Ite
 
 			if topic == message.Topic {
 
-				if refUUID != "" && refUUID == message.ReferencesUUID {
+				if referenceUUID != "" && referenceUUID == message.GetReferenceUUID() {
 					log.Println("Get iterator event by topic and ref")
 					log.Println(message)
 
