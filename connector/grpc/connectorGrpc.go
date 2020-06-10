@@ -4,7 +4,9 @@ package grpc
 import (
 	"context"
 	"errors"
+	"gandalf-core/connector/utils"
 	pb "gandalf-core/grpc"
+	"gandalf-core/models"
 
 	"log"
 	"net"
@@ -141,23 +143,34 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 }
 
 //SendEventMessage : Connector send event function.
-func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (*pb.Empty, error) {
+func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (empty *pb.Empty, err error) {
 	log.Println("Handle send event")
-
+	validate := true
 	evt := pb.EventFromGrpc(in)
 	evt.Tenant = r.Shoset.Context["tenant"].(string)
 	thisOne := r.Shoset.GetBindAddr()
 
-	r.Shoset.ConnsByAddr.Iterate(
-		func(key string, val *sn.ShosetConn) {
-			if key != r.Shoset.GetBindAddr() && key != thisOne && val.ShosetType == "a" {
-				val.SendMessage(evt)
-				log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
-			}
-		},
-	)
+	if evt.GetReferenceUUID() == "" {
+		config := r.Shoset.Context["connectorConfig"].(models.ConnectorConfig)
+		connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), config.ConnectorTypeEvents)
+		validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
+	}
 
-	return &pb.Empty{}, nil
+	if validate {
+		r.Shoset.ConnsByAddr.Iterate(
+			func(key string, val *sn.ShosetConn) {
+				if key != r.Shoset.GetBindAddr() && key != thisOne && val.ShosetType == "a" {
+					val.SendMessage(evt)
+					log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
+				}
+			},
+		)
+	} else {
+		log.Println("wrong payload command")
+		err = errors.New("wrong payload command")
+	}
+
+	return &pb.Empty{}, err
 }
 
 //WaitEventMessage : Connector wait event function.

@@ -22,7 +22,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	config := ch.Context["connectorConfig"].(models.ConnectorConfig)
 	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), config.ConnectorTypeCommands)
-	validate := utils.ValidateCommandPayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+	validate := utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
 
 	if validate {
 		ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())

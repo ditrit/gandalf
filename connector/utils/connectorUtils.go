@@ -29,7 +29,7 @@ func IsExecAll(mode os.FileMode) bool {
 	return mode&0111 == 0111
 }
 
-//
+//TODO REVOIR INTERFACE
 func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeCommand) (result models.ConnectorTypeCommand) {
 	for _, command := range list {
 		if command.Name == commandName {
@@ -40,8 +40,19 @@ func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeComm
 	return result
 }
 
+//TODO REVOIR INTERFACE
+func GetConnectorTypeEvent(eventName string, list []models.ConnectorTypeEvent) (result models.ConnectorTypeEvent) {
+	for _, event := range list {
+		if event.Name == eventName {
+			result = event
+			break
+		}
+	}
+	return result
+}
+
 //
-func ValidateCommandPayload(payload, payloadSchema string) (result bool) {
+func ValidatePayload(payload, payloadSchema string) (result bool) {
 
 	payloadloader := gojsonschema.NewStringLoader(payload)
 	payloadSchemaloader := gojsonschema.NewStringLoader(payloadSchema)

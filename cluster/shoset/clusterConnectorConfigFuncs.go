@@ -34,14 +34,7 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 			err = errors.New("Fail capture command" + conf.GetCommand() + " on tenant" + conf.GetTenant())
 		}
 
-	} else {
-		log.Println("Can't get database client by tenant")
-		err = errors.New("Can't get database client by tenant")
-	}
-
-	gandalfdatabaseClient := cutils.GetGandalfDatabaseClient(databasePath)
-	if gandalfdatabaseClient != nil {
-		configuration := cutils.GetConnectorConfiguration(conf, gandalfdatabaseClient)
+		configuration := cutils.GetConnectorConfiguration(conf, databaseClient)
 		jsonData, err := json.Marshal(configuration)
 
 		if err == nil {
@@ -53,10 +46,19 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 			log.Println("Can't unmarshall configuration")
 			err = errors.New("Can't unmarshall configuration")
 		}
+
 	} else {
-		log.Println("Can't get gandalf database client")
-		err = errors.New("Can't get gandalf database client")
+		log.Println("Can't get database client by tenant")
+		err = errors.New("Can't get database client by tenant")
 	}
+
+	/* 	gandalfdatabaseClient := cutils.GetGandalfDatabaseClient(databasePath)
+	   	if gandalfdatabaseClient != nil {
+
+	   	} else {
+	   		log.Println("Can't get gandalf database client")
+	   		err = errors.New("Can't get gandalf database client")
+	   	} */
 
 	return err
 }

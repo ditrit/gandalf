@@ -67,6 +67,7 @@ func EventFromGrpc(eventMessage *EventMessage) (e msg.Event) {
 	e.Topic = eventMessage.GetTopic()
 	e.Event = eventMessage.GetEvent()
 	e.Payload = eventMessage.GetPayload()
+	e.ReferenceUUID = eventMessage.GetReferenceUUID()
 
 	return
 }
@@ -82,6 +83,7 @@ func EventToGrpc(e msg.Event) (eventMessage *EventMessage) {
 	eventMessage.Topic = e.Topic
 	eventMessage.Event = e.Event
 	eventMessage.Payload = e.Payload
+	eventMessage.ReferenceUUID = e.ReferenceUUID
 
 	return
 }
