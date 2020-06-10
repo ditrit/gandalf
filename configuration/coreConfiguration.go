@@ -3,6 +3,7 @@ package configuration
 import (
 	"flag"
 	"fmt"
+	"os"
 )
 
 type ConfigKey struct {
@@ -12,51 +13,73 @@ type ConfigKey struct {
 	AllowedValues []string
 	ShortName     string
 	Mandatory     bool
-	Value         interface{}
+	Value         *string
 }
 
 var (
-	CoreConfigKeys = map[string]map[string]*ConfigKey{}
-	NewFlag string
+	CoreConfigKeys = map[string]map[string]ConfigKey{}
 )
 
-func PrintConfig(){
-	for gtype,_ := range CoreConfigKeys {
-		for key,_ := range CoreConfigKeys[gtype] {
-			fmt.Println(key,": ",CoreConfigKeys[gtype][key].Value)
-		}
-	}
-}
-
-func SetConfiguration() {
-	CoreConfigKeys["core"] = map[string]*ConfigKey{
+func initConfig(){
+	CoreConfigKeys["core"] = map[string]ConfigKey{
 		"config_file":  {"string", "chemin vers le fichier le configuration", "/etc/gandalf/gandalf.yaml", nil, "f", false, nil},
 		"logical_name": {"string", "nom logique", "", nil, "l", true, nil},
 		"gandalf_type": {"string", "mode de démarrage (connector|aggregator|cluster)", "", []string{"connector", "aggregator", "cluster"}, "g", true, nil},
 		"cert_pem":     {"string", "chemin vers le certificat TLS", "/etc/gandalf/cert/cert.pem", nil, "", false, nil},
 		"key_pem":      {"string", "chemin vers la clef privée TLS", "/etc/gandalf/cert/key.pem", nil, "", false, nil},
+		"test": {"string", "test", "", nil, "", false, nil},
 	}
+}
 
-	// recuperer les valeurs passées en paramètre
-	for gtype, _ := range CoreConfigKeys {
-		for key, _ := range CoreConfigKeys[gtype] {
-			flag.StringVar(&NewFlag,key, "test", CoreConfigKeys[gtype][key].Description)
-			fmt.Println(key)
-			CoreConfigKeys[gtype][key].Value = NewFlag
-			fmt.Println("Value: ",CoreConfigKeys[gtype][key].Value,"\n")
-			if CoreConfigKeys[gtype][key].ShortName != "" {
-				flag.StringVar(&NewFlag, CoreConfigKeys[gtype][key].ShortName, "toto", CoreConfigKeys[gtype][key].Description)
-				CoreConfigKeys[gtype][key].Value = NewFlag
-			}
-		}
-	}
-	flag.Parse()
+
+func SetConfiguration() {
+	initConfig()
+	envConfiguration()
+
+
 
 	for gtype,_ := range CoreConfigKeys {
 		for key,_ := range CoreConfigKeys[gtype] {
 			fmt.Println(key,": ",CoreConfigKeys[gtype][key].Value)
 		}
 	}
+
+}
+
+func flagConfiguration(){
+	// recuperer les valeurs passées en paramètre
+	for gandalfType, _ := range CoreConfigKeys {
+		for key, _ := range CoreConfigKeys[gandalfType] {
+			flag.StringVar(CoreConfigKeys[gandalfType][key].Value,key, "test", CoreConfigKeys[gandalfType][key].Description)
+			if CoreConfigKeys[gandalfType][key].ShortName != "" {
+				flag.StringVar(CoreConfigKeys[gandalfType][key].Value, CoreConfigKeys[gandalfType][key].ShortName, "toto", CoreConfigKeys[gandalfType][key].Description)
+			}
+		}
+	}
+	flag.Parse()
+}
+
+func envConfiguration(){
+	// recuperer les valeurs passées en variables d'envrionnement si pas de valeur déjà passée en paramètre
+	os.Setenv("GANDALF_test","testEnv")
+	for gandalfType, _ := range CoreConfigKeys {
+		for key, _ := range CoreConfigKeys[gandalfType] {
+			stringVal := os.Getenv("GANDALF_"+ key)
+			fmt.Println(stringVal)
+			if len(stringVal) > 0 {
+					if CoreConfigKeys[gandalfType][key].Value == nil {
+						*CoreConfigKeys[gandalfType][key].Value = stringVal
+					}
+				}
+			}
+		}
+}
+
+func yamlConfiguration(){
+
+}
+
+func defaultConfiguration(){
 
 }
 

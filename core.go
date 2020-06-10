@@ -268,6 +268,6 @@ func main() {
 		flag.Usage()
 	}  */
 
-	configuration.SetConfiguration()
+	configuration.ConfigMain()
 
 }
