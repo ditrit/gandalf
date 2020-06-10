@@ -10,17 +10,17 @@ import (
 // Event : Event struct.
 type Event struct {
 	gorm.Model
-	UUID           string
-	Tenant         string
-	Token          string
-	Timeout        int64
-	Timestamp      int64
-	Payload        string
-	Major          int8
-	Minor          int8
-	Topic          string
-	Event          string
-	ReferencesUUID string
+	UUID          string
+	Tenant        string
+	Token         string
+	Timeout       int64
+	Timestamp     int64
+	Payload       string
+	Major         int8
+	Minor         int8
+	Topic         string
+	Event         string
+	ReferenceUUID string
 }
 
 // FromShosetEvent : Shoset event to core event.
@@ -35,7 +35,7 @@ func FromShosetEvent(mevent msg.Event) (event Event) {
 	event.Minor = mevent.GetMinor()
 	event.Topic = mevent.GetTopic()
 	event.Event = mevent.GetEvent()
-	event.ReferencesUUID = mevent.GetReferencesUUID()
+	event.ReferenceUUID = mevent.GetReferenceUUID()
 
 	return
 }
