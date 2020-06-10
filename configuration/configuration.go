@@ -58,11 +58,6 @@ func GetIntegerConfig(keyName string) (int, error) {
 	if keyDef.valType != "integer" {
 		return -1, errors.New("The key " + keyName + " is of type integer")
 	}
-	if *(keyDef.value) == "" {
-		//temporaire le temps de set les default values
-		intValue,err := strconv.Atoi(keyDef.defaultVal)
-		return intValue,err
-	}
 	intValue, err := strconv.Atoi(*(keyDef.value))
 	if err != nil {
 		return -1, errors.New("The value '" + *keyDef.value + "' privided for the key '" + keyName + "' can not be parsed as an integer.")
@@ -70,25 +65,29 @@ func GetIntegerConfig(keyName string) (int, error) {
 	return intValue, nil
 }
 
-func initCfgKeys() {
-	_ = SetStringKeyConfig("core", "testFlag", "t", "", "a string test paramater for core")
-	_ = SetIntegerKeyConfig("core", "test2", "u", 9, "an integer test parameter for core")
+func InitCfgKeys() {
+	_ = SetStringKeyConfig("TEST core", "testFlag", "flag", "", "a string test paramater for core")
+	_ = SetIntegerKeyConfig("TEST core", "test2", "", 9, "an integer test parameter for core")
 
-	_ = SetStringKeyConfig("connector", "connectorFlag", "v", "", "a string parameter for connectors")
-	_ = SetIntegerKeyConfig("connector", "connector2", "w", 22, "an integer parameter for connectors")
+	_ = SetStringKeyConfig("TEST connector", "connectorFlag", "v", "", "a string parameter for connectors")
+	_ = SetIntegerKeyConfig("TEST connector", "connector2", "w", 22, "an integer parameter for connectors")
 }
+
 
 func argParse() {
 	// parse CLI parameters
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		flag.StringVar(keyDef.value, keyName, "", keyDef.usage)
-		flag.StringVar(keyDef.value, keyDef.shortName, "", keyDef.usage)
+		if keyDef.shortName != "" {
+			flag.StringVar(keyDef.value, keyDef.shortName, "", keyDef.usage)
+		}
 	}
 	flag.Parse()
 }
 
 func tempEnvVarSet(){
+	//temporary environment variables setter
 	os.Setenv("GANDALF_connectorFlag","testENV")
 	os.Setenv("GANDALF_connector2","25")
 }
@@ -104,30 +103,45 @@ func envParse(){
 	}
 }
 
+func yamlFileParse(){
+
+}
+
+func defaultParse(){
+	// parse default values
+	for keyName := range ConfigKeys {
+		keyDef := ConfigKeys[keyName]
+		if *(keyDef.value) == "" {
+			*(keyDef.value) = keyDef.defaultVal
+		}
+	}
+}
+
 func printCfKeys() error {
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
+		componentType := keyDef.component
 		if keyDef.valType == "string" {
 			strVal, err := GetStringConfig(keyName)
 			if err != nil {
 				return err
 			}
-			fmt.Println(keyName + ": " + strVal)
+			fmt.Println(componentType + ": " + keyName + ": " + strVal)
 		} else {
 			intVal, err := GetIntegerConfig(keyName)
 			if err != nil {
 				return err
 			}
-			fmt.Println(keyName + ": " + strconv.Itoa(intVal))
+			fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
 		}
 	}
 	return nil
 }
 
 func ConfigMain() {
-	initCfgKeys()
 	argParse()
 	tempEnvVarSet()
 	envParse()
+	defaultParse()
 	_ = printCfKeys()
 }

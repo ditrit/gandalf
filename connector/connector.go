@@ -2,6 +2,13 @@
 package connector
 
 import (
+<<<<<<< HEAD
+=======
+	"core/configuration"
+	"core/connector/grpc"
+	"core/connector/shoset"
+	coreLog "core/log"
+>>>>>>> Parse des valeurs par défaut + initiation des clefs connecteur
 	"fmt"
 	"github.com/ditrit/gandalf-core/connector/grpc"
 	"github.com/ditrit/gandalf-core/connector/shoset"
