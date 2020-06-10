@@ -2,7 +2,7 @@
 package models
 
 import (
-	"shoset/msg"
+	"github.com/mathieucaroff/shoset/msg"
 
 	"github.com/jinzhu/gorm"
 )

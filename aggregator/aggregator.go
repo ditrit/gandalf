@@ -2,10 +2,10 @@
 package aggregator
 
 import (
-	"gandalf-core/aggregator/shoset"
-	coreLog "gandalf-core/log"
+	"github.com/mathieucaroff/gandalf-core/aggregator/shoset"
+	coreLog "github.com/mathieucaroff/gandalf-core/log"
 	"log"
-	"shoset/net"
+	net "github.com/mathieucaroff/shoset"
 	"time"
 )
 

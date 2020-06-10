@@ -4,12 +4,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gandalf-core/aggregator"
-	"gandalf-core/cluster"
-	"gandalf-core/connector"
-	"gandalf-core/database"
+	"github.com/mathieucaroff/gandalf-core/aggregator"
+	"github.com/mathieucaroff/gandalf-core/cluster"
+	"github.com/mathieucaroff/gandalf-core/connector"
+	"github.com/mathieucaroff/gandalf-core/database"
 	"os"
-	"shoset/net"
+	net "github.com/mathieucaroff/shoset"
 	"strconv"
 )
 

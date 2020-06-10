@@ -4,8 +4,8 @@ package shoset
 import (
 	"errors"
 	"log"
-	"shoset/msg"
-	"shoset/net"
+	"github.com/mathieucaroff/shoset/msg"
+	net "github.com/mathieucaroff/shoset"
 )
 
 var commandSendIndex = 0

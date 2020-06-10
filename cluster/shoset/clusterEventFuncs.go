@@ -3,10 +3,10 @@ package shoset
 
 import (
 	"errors"
-	"gandalf-core/cluster/utils"
+	"github.com/mathieucaroff/gandalf-core/cluster/utils"
 	"log"
-	"shoset/msg"
-	"shoset/net"
+	"github.com/mathieucaroff/shoset/msg"
+	net "github.com/mathieucaroff/shoset"
 
 	"github.com/jinzhu/gorm"
 )

@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	"shoset/msg"
+	"github.com/mathieucaroff/shoset/msg"
 	"strconv"
 )
 

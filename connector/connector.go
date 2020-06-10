@@ -3,17 +3,17 @@ package connector
 
 import (
 	"fmt"
-	"gandalf-core/connector/grpc"
-	"gandalf-core/connector/shoset"
-	"gandalf-core/connector/utils"
-	coreLog "gandalf-core/log"
-	"gandalf-core/models"
+	"github.com/mathieucaroff/gandalf-core/connector/grpc"
+	"github.com/mathieucaroff/gandalf-core/connector/shoset"
+	"github.com/mathieucaroff/gandalf-core/connector/utils"
+	coreLog "github.com/mathieucaroff/gandalf-core/log"
+	"github.com/mathieucaroff/gandalf-core/models"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"reflect"
-	"shoset/net"
+	net "github.com/mathieucaroff/shoset"
 	"strconv"
 	"time"
 )

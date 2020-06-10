@@ -3,8 +3,8 @@ package shoset
 
 import (
 	"log"
-	"shoset/msg"
-	"shoset/net"
+	"github.com/mathieucaroff/shoset/msg"
+	net "github.com/mathieucaroff/shoset"
 )
 
 // HandleConfigJoin : Connector handle config function.

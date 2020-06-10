@@ -4,10 +4,10 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	cutils "gandalf-core/cluster/utils"
+	cutils "github.com/mathieucaroff/gandalf-core/cluster/utils"
 	"log"
-	"shoset/msg"
-	"shoset/net"
+	"github.com/mathieucaroff/shoset/msg"
+	net "github.com/mathieucaroff/shoset"
 
 	"github.com/jinzhu/gorm"
 )
