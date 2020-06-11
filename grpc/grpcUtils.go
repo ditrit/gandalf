@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	"shoset/msg"
+	"github.com/ditrit/shoset/msg"
 	"strconv"
 )
 

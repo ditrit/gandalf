@@ -1,7 +1,7 @@
 package cluster
 
 import (
-	"core/cluster"
+	"github.com/ditrit/gandalf-core/cluster"
 	"testing"
 )
 

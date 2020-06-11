@@ -1,7 +1,7 @@
 package grpc
 
 import (
-	"core/grpc"
+	"github.com/ditrit/gandalf-core/grpc"
 	"strconv"
 	"testing"
 )

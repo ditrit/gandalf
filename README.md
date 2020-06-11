@@ -16,6 +16,29 @@ Les agrégateurs Gandalf cloisonnent et simplifient l’architecture réseau.
 ### Connector : 
 Les connecteurs Gandalf assurent la communication avec les briques du SI.   
 
+## Installation
+
+Gandalf peux être installé sur Ubuntu. Il peux aussi être installé sur les OS sur lesquelles [`dqlite`](https://dqlite.io/) peut être installé.
+
+```
+# Cloner ce repository
+git clone https://github.com/ditrit/gandalf-core
+cd gandalf-core
+
+# Installer les dependences go
+go get
+
+## Installer gcc, pour sqlite et dqlite
+sudo apt install build-essential
+
+## Installer libsqlite
+sudo apt install sqlite3 libsqlite3-dev
+
+## Installer dqlite
+### Ubuntu https://dqlite.io/
+sudo add-apt-repository -y ppa:dqlite/stable && sudo apt install dqlite
+```
+
 ## Build :
 
 ```bash

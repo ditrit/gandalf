@@ -4,10 +4,10 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	"gandalf-core/models"
+	"github.com/ditrit/gandalf-core/models"
 	"log"
-	"shoset/msg"
-	"shoset/net"
+	"github.com/ditrit/shoset/msg"
+	net "github.com/ditrit/shoset"
 	"time"
 )
 
