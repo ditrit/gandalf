@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"core/configuration"
 	"core/cluster/shoset"
 	"core/database"
 	coreLog "core/log"
@@ -19,15 +20,11 @@ type ClusterMember struct {
 	MapDatabaseClient map[string]*gorm.DB
 }
 
-type clusterConfigKey struct {
-	configType    string
-	description   string
-	configDefault interface{}
-	shortName     string
-	mandatory     bool
+func InitClusterKeys(){
+	_ = configuration.SetStringKeyConfig("cluster","join","j","clusterAddress","link the cluster member to another one")
+	_ = configuration.SetStringKeyConfig("cluster","cluster_log","","/etc/gandalf/log","path of the log file")
+	_ = configuration.SetStringKeyConfig("cluster","gandalf_db","d","pathToTheDB","path for the gandalf database")
 }
-
-var clusterConfigKeys map[string]clusterConfigKey
 
 // NewClusterMember :
 func NewClusterMember(logicalName, logPath string) *ClusterMember {

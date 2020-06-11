@@ -2,6 +2,7 @@ package aggregator
 
 import (
 	"core/aggregator/shoset"
+	"core/configuration"
 	coreLog "core/log"
 	"log"
 	"shoset/net"
@@ -13,15 +14,11 @@ type AggregatorMember struct {
 	chaussette *net.Shoset
 }
 
-type aggregatorConfigKey struct {
-	configType    string
-	description   string
-	configDefault interface{}
-	shortName     string
-	mandatory     bool
+func InitAggregatorKeys(){
+	_ = configuration.SetStringKeyConfig("aggregator","aggregator_tenant","","tenant1","tenant of the aggregator")
+	_ = configuration.SetStringKeyConfig("aggregator","cluster","","address1[:9800],address2[:6300],address3","clusters addresses linked to the aggregator")
+	_ = configuration.SetStringKeyConfig("aggregator","aggregator_log","","/etc/gandalf/log","path of the log file")
 }
-
-var aggregatorConfigKeys map[string]aggregatorConfigKey
 
 // NewClusterMember :
 func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
