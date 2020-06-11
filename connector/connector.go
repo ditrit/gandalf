@@ -2,13 +2,6 @@
 package connector
 
 import (
-<<<<<<< HEAD
-=======
-	"core/configuration"
-	"core/connector/grpc"
-	"core/connector/shoset"
-	coreLog "core/log"
->>>>>>> Parse des valeurs par défaut + initiation des clefs connecteur
 	"fmt"
 	"github.com/ditrit/gandalf-core/connector/grpc"
 	"github.com/ditrit/gandalf-core/connector/shoset"
@@ -34,9 +27,20 @@ type ConnectorMember struct {
 	connectorConfig   *models.ConnectorConfig
 	connectorCommands []string
 }
+func InitConnectorKeys(){
+	_ = configuration.SetStringKeyConfig("connector","tenant","t","tenant1","tenant of the connector")
+	_ = configuration.SetStringKeyConfig("connector","category","c","svn","category of the connector")
+	_ = configuration.SetStringKeyConfig("connector", "product","p","product1","product of the connector")
+	_ = configuration.SetStringKeyConfig("connector","aggregators", "a","address1:9800,address2:6400,address3","aggregators addresses linked to the connector")
+	_ = configuration.SetStringKeyConfig("connector","gandalf_secret","s","/etc/gandalf/gandalfSecret","path of the gandalf secret")
+	_ = configuration.SetStringKeyConfig("connector","product_url","u","url1,url2,url3","product url list of the connector")
+	_ = configuration.SetStringKeyConfig("connector","connector_log","","/etc/gandalf/log","path of the log file")
+	_ = configuration.SetIntegerKeyConfig("connector","max_timeout","",100,"maximum timeout of the connector")
+}
 
 // NewConnectorMember : Connector struct constructor.
 func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *ConnectorMember {
+
 
 	member := new(ConnectorMember)
 	member.connectorType = connectorType
