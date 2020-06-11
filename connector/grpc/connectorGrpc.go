@@ -4,14 +4,14 @@ package grpc
 import (
 	"context"
 	"errors"
-	"github.com/mathieucaroff/gandalf-core/connector/utils"
-	pb "github.com/mathieucaroff/gandalf-core/grpc"
+	"github.com/ditrit/gandalf-core/connector/utils"
+	pb "github.com/ditrit/gandalf-core/grpc"
 
-	"github.com/mathieucaroff/gandalf-core/models"
+	"github.com/ditrit/gandalf-core/models"
 	"log"
 	"net"
-	"github.com/mathieucaroff/shoset/msg"
-	sn "github.com/mathieucaroff/shoset"
+	"github.com/ditrit/shoset/msg"
+	sn "github.com/ditrit/shoset"
 	"time"
 
 	"github.com/google/uuid"

@@ -22,7 +22,7 @@ Gandalf peux être installé sur Ubuntu. Il peux aussi être installé sur les O
 
 ```
 # Cloner ce repository
-git clone https://github.com/mathieucaroff/gandalf-core
+git clone https://github.com/ditrit/gandalf-core
 cd gandalf-core
 
 # Installer les dependences go

@@ -2,11 +2,11 @@
 package cluster
 
 import (
-	"github.com/mathieucaroff/gandalf-core/cluster/shoset"
-	"github.com/mathieucaroff/gandalf-core/database"
-	coreLog "github.com/mathieucaroff/gandalf-core/log"
+	"github.com/ditrit/gandalf-core/cluster/shoset"
+	"github.com/ditrit/gandalf-core/database"
+	coreLog "github.com/ditrit/gandalf-core/log"
 	"log"
-	net "github.com/mathieucaroff/shoset"
+	net "github.com/ditrit/shoset"
 	"time"
 
 	"github.com/jinzhu/gorm"

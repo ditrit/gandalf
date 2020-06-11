@@ -1,7 +1,7 @@
 package aggregator
 
 import (
-	"github.com/mathieucaroff/gandalf-core/aggregator"
+	"github.com/ditrit/gandalf-core/aggregator"
 	"testing"
 )
 

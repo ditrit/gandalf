@@ -3,11 +3,11 @@ package shoset
 
 import (
 	"errors"
-	cutils "github.com/mathieucaroff/gandalf-core/connector/utils"
-	"github.com/mathieucaroff/gandalf-core/models"
+	cutils "github.com/ditrit/gandalf-core/connector/utils"
+	"github.com/ditrit/gandalf-core/models"
 	"log"
-	"github.com/mathieucaroff/shoset/msg"
-	net "github.com/mathieucaroff/shoset"
+	"github.com/ditrit/shoset/msg"
+	net "github.com/ditrit/shoset"
 
 	"github.com/xeipuuv/gojsonschema"
 )

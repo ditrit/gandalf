@@ -4,8 +4,8 @@ package shoset
 import (
 	"errors"
 	"log"
-	"github.com/mathieucaroff/shoset/msg"
-	net "github.com/mathieucaroff/shoset"
+	"github.com/ditrit/shoset/msg"
+	net "github.com/ditrit/shoset"
 )
 
 // HandleEvent : Aggregator handle event function.

@@ -3,8 +3,8 @@ package shoset
 
 import (
 	"log"
-	"github.com/mathieucaroff/shoset/msg"
-	net "github.com/mathieucaroff/shoset"
+	"github.com/ditrit/shoset/msg"
+	net "github.com/ditrit/shoset"
 )
 
 // HandleConfigJoin : Cluster handle config function.

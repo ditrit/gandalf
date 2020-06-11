@@ -2,9 +2,9 @@
 package utils
 
 import (
-	"github.com/mathieucaroff/gandalf-core/models"
+	"github.com/ditrit/gandalf-core/models"
 	"os"
-	"github.com/mathieucaroff/shoset/msg"
+	"github.com/ditrit/shoset/msg"
 
 	"github.com/xeipuuv/gojsonschema"
 )

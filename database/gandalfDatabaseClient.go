@@ -2,7 +2,7 @@
 package database
 
 import (
-	"github.com/mathieucaroff/gandalf-core/models"
+	"github.com/ditrit/gandalf-core/models"
 	"log"
 
 	"github.com/jinzhu/gorm"

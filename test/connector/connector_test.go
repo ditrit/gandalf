@@ -1,7 +1,7 @@
 package connector
 
 import (
-	"github.com/mathieucaroff/gandalf-core/connector"
+	"github.com/ditrit/gandalf-core/connector"
 	"testing"
 )
 
