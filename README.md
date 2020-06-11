@@ -25,16 +25,20 @@ cd gandalf-core
 # Installer les dependences
 go mod install
 
+## Installer gcc, pour sqlite et dqlite
+sudo apt install build-essential
+
 ## Installer libsqlite
 ### Pour Debian et Ubuntu:
-apt-get install sqlite3 libsqlite3-dev
+sudo apt install sqlite3 libsqlite3-dev
 
-## Dqlite
+## Installer dqlite
 ### Ubuntu https://dqlite.io/
 sudo add-apt-repository -y ppa:dqlite/stable && sudo apt install dqlite
 
 ### Debian
 # ???
+# `sudo add-apt-repository -y ppa:dqlite/stable` échoue en raison d'un problème de clé GPG
 
 ### Pour Windows, c'est peut-être possible mais cela necessite au moins un compilateur C
 ```

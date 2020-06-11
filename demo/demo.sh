@@ -2,19 +2,21 @@
 echo 'Running Demo'   
 
 echo 'Build' 
-cd /home/dev-ubuntu/go/src/gandalf-core
+cd "${BASH_SOURCE%/*}/.."
 go build -tags libsqlite3
+
+mkdir -p ~/gandalf/logs/{aggregator/,cluster/}
 
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
-./gandalf-core cluster init cluster 127.0.0.1:9000
+./gandalf-core cluster init cluster 127.0.0.1:9000 &
 sleep 5
 echo 'Join ClusterMember' 
-./gandalf-core cluster join cluster 127.0.0.1:9001 127.0.0.1:9000
+./gandalf-core cluster join cluster 127.0.0.1:9001 127.0.0.1:9000 &
 sleep 5
 echo 'Join ClusterMember' 
-./gandalf-core cluster join cluster 127.0.0.1:9002 127.0.0.1:9000
+./gandalf-core cluster join cluster 127.0.0.1:9002 127.0.0.1:9000 &
 sleep 5
 
 echo 'Aggregator' 
@@ -41,5 +43,3 @@ sleep 5
 #./garcimore test receive evt test test
 
 #export AZURE_AUTH_LOCATION=/home/dev-ubuntu/connecteur_azure.auth
-
- 
