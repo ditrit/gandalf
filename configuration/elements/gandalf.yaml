@@ -1,8 +1,3 @@
-TEST:
-  testFlag: yaml flag testing
-  test2: 10
-  connectorFlag : connector flag test
-
 core:
   logical_name: titi
   gandalf_type: connector
@@ -16,4 +11,12 @@ connector:
   gandalf_secret: /home/zippo/go/src/core/configuration/elements/test.txt
   product_url: url1,url2,url3
   log_path: /home/.../log
-  max_timeout: 10000
+  max_timeout: 100
+aggregator:
+  aggregator_tenant: tenant2
+  cluster: address1:4500
+  aggregator_log: path
+cluster:
+  join: cluster address
+  cluster_log: path
+  gandalf_db: DB path
