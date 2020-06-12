@@ -63,21 +63,16 @@ func GetIntegerConfig(keyName string) (int, error) {
 	}
 	intValue, err := strconv.Atoi(*(keyDef.value))
 	if err != nil {
-		return -1, errors.New("The value '" + *keyDef.value + "' privided for the key '" + keyName + "' can not be parsed as an integer.")
+		return -1, errors.New("The value '" + *keyDef.value + "' provided for the key '" + keyName + "' can not be parsed as an integer.")
 	}
 	return intValue, nil
 }
 
 func InitMainConfigKeys() {
-	InitCfgKeys()
 	InitCoreKeys()
-}
-
-func InitCfgKeys() {
-	_ = SetStringKeyConfig("TEST", "testFlag", "flag", "", "a string test paramater for core")
-	_ = SetIntegerKeyConfig("TEST", "test2", "", 9, "an integer test parameter for core")
-	_ = SetStringKeyConfig("TEST", "connectorFlag", "v", "", "a string parameter for connectors")
-	_ = SetIntegerKeyConfig("TEST", "connector2", "w", 22, "an integer parameter for connectors")
+	InitConnectorKeys()
+	InitAggregatorKeys()
+	InitClusterKeys()
 }
 
 func InitCoreKeys() {
@@ -86,6 +81,29 @@ func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "gandalf type", "launch mode (connector|aggregator|cluster)")
 	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate")
 	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key")
+}
+
+func InitConnectorKeys(){
+	_ = SetStringKeyConfig("connector","tenant","t","tenant1","tenant of the connector")
+	_ = SetStringKeyConfig("connector","category","c","svn","category of the connector")
+	_ = SetStringKeyConfig("connector", "product","p","product1","product of the connector")
+	_ = SetStringKeyConfig("connector","aggregators", "a","address1:9800,address2:6400,address3","aggregators addresses linked to the connector")
+	_ = SetStringKeyConfig("connector","gandalf_secret","s","/etc/gandalf/gandalfSecret","path of the gandalf secret")
+	_ = SetStringKeyConfig("connector","product_url","u","url1,url2,url3","product url list of the connector")
+	_ = SetStringKeyConfig("connector","connector_log","","/etc/gandalf/log","path of the log file")
+	_ = SetIntegerKeyConfig("connector","max_timeout","",100,"maximum timeout of the connector")
+}
+
+func InitAggregatorKeys(){
+	_ = SetStringKeyConfig("aggregator","aggregator_tenant","","tenant1","tenant of the aggregator")
+	_ = SetStringKeyConfig("aggregator","cluster","","address1[:9800],address2[:6300],address3","clusters addresses linked to the aggregator")
+	_ = SetStringKeyConfig("aggregator","aggregator_log","","/etc/gandalf/log","path of the log file")
+}
+
+func InitClusterKeys(){
+	_ = SetStringKeyConfig("cluster","join","j","clusterAddress","link the cluster member to another one")
+	_ = SetStringKeyConfig("cluster","cluster_log","","/etc/gandalf/log","path of the log file")
+	_ = SetStringKeyConfig("cluster","gandalf_db","d","pathToTheDB","path for the gandalf database")
 }
 
 func argParse() {
@@ -98,6 +116,15 @@ func argParse() {
 		}
 	}
 	flag.Parse()
+	for keyName := range ConfigKeys {
+		keyDef := ConfigKeys[keyName]
+		if keyDef.valType == "integer" && *(keyDef.value) != "" {
+			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
+				newErr := errors.New("The CLI parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
+				log.Fatalf("error while parsing a CLI parameter: %v",newErr)
+			}
+		}
+	}
 }
 
 func tempEnvVarSet() {
@@ -106,54 +133,55 @@ func tempEnvVarSet() {
 	_ = os.Setenv("GANDALF_connector2", "12")
 }
 
-func envParse() error {
+func envParse() {
 	// parse environment variables
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		strVal := os.Getenv("GANDALF_" + keyName)
-		/*if keyDef.valType == "integer"{
-			_, err := strconv.Atoi(strVal)
-			println(err)
-			if err != nil {
-				newErr := errors.New("The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer" )
+		if keyDef.valType == "integer" && strVal != "" {
+			if _, err := strconv.Atoi(strVal); err != nil {
+				newErr := errors.New("The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer using the value: " + strVal)
 				fmt.Println(newErr)
-				return newErr
+				log.Fatalf("error while parsing an environment variable: %v",newErr)
 			}
-		}*/
+		}
 		if len(strVal) > 0 && *(keyDef.value) == "" {
 			*(keyDef.value) = strVal
 		}
 	}
-	return nil
 }
 
 func yamlFileToMap() map[interface{}]map[interface{}]string {
+	//Set a map from config yaml file
 	keyDef := ConfigKeys["config_file"]
-	filePath := ""
 	if *(keyDef.value) == "" {
-		filePath = keyDef.defaultVal
-	} else {
-		filePath = *(keyDef.value)
+		*(keyDef.value) = keyDef.defaultVal
 	}
 
 	yamlMap := make(map[interface{}]map[interface{}]string)
-	yamlFile, err := ioutil.ReadFile(filePath)
+	yamlFile, err := ioutil.ReadFile(*(keyDef.value))
 	err = yaml.Unmarshal(yamlFile, &yamlMap)
 	if err != nil {
-		log.Fatalf("error: %v", err)
+		log.Fatalf("error while parsing the file: %v", err)
 	}
 	return yamlMap
 }
 
 func yamlFileParse() {
+	//Parse the yaml parameters
 	tempMap := yamlFileToMap()
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if *(keyDef.value) == "" {
 			*(keyDef.value) = tempMap[keyDef.component][keyName]
 		}
+		if keyDef.valType == "integer" && *(keyDef.value) != "" {
+			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
+				newErr := errors.New("The Yaml parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
+				log.Fatalf("error while parsing a Yaml parameter: %v",newErr)
+			}
+		}
 	}
-
 }
 
 func defaultParse() {
@@ -190,7 +218,7 @@ func printCfKeys() error {
 func parseConfig() {
 	argParse()
 	tempEnvVarSet()
-	_ = envParse()
+	envParse()
 	yamlFileParse()
 	defaultParse()
 }
