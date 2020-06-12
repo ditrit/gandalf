@@ -4,6 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 )
@@ -65,14 +68,25 @@ func GetIntegerConfig(keyName string) (int, error) {
 	return intValue, nil
 }
 
-func InitCfgKeys() {
-	_ = SetStringKeyConfig("TEST core", "testFlag", "flag", "", "a string test paramater for core")
-	_ = SetIntegerKeyConfig("TEST core", "test2", "", 9, "an integer test parameter for core")
-
-	_ = SetStringKeyConfig("TEST connector", "connectorFlag", "v", "", "a string parameter for connectors")
-	_ = SetIntegerKeyConfig("TEST connector", "connector2", "w", 22, "an integer parameter for connectors")
+func InitMainConfigKeys() {
+	InitCfgKeys()
+	InitCoreKeys()
 }
 
+func InitCfgKeys() {
+	_ = SetStringKeyConfig("TEST", "testFlag", "flag", "", "a string test paramater for core")
+	_ = SetIntegerKeyConfig("TEST", "test2", "", 9, "an integer test parameter for core")
+	_ = SetStringKeyConfig("TEST", "connectorFlag", "v", "", "a string parameter for connectors")
+	_ = SetIntegerKeyConfig("TEST", "connector2", "w", 22, "an integer parameter for connectors")
+}
+
+func InitCoreKeys() {
+	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file")
+	_ = SetStringKeyConfig("core", "logical_name", "l", "logical name", "logical name of the component")
+	_ = SetStringKeyConfig("core", "gandalf_type", "g", "gandalf type", "launch mode (connector|aggregator|cluster)")
+	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate")
+	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key")
+}
 
 func argParse() {
 	// parse CLI parameters
@@ -86,28 +100,63 @@ func argParse() {
 	flag.Parse()
 }
 
-func tempEnvVarSet(){
+func tempEnvVarSet() {
 	//temporary environment variables setter
-	os.Setenv("GANDALF_connectorFlag","testENV")
-	os.Setenv("GANDALF_connector2","25")
+	_ = os.Setenv("GANDALF_connectorFlag", "testENV")
+	_ = os.Setenv("GANDALF_connector2", "12")
 }
 
-func envParse(){
+func envParse() error {
 	// parse environment variables
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
-		strVal := os.Getenv("GANDALF_"+ keyName)
-		if len(strVal) > 0 && *(keyDef.value) == ""{
+		strVal := os.Getenv("GANDALF_" + keyName)
+		/*if keyDef.valType == "integer"{
+			_, err := strconv.Atoi(strVal)
+			println(err)
+			if err != nil {
+				newErr := errors.New("The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer" )
+				fmt.Println(newErr)
+				return newErr
+			}
+		}*/
+		if len(strVal) > 0 && *(keyDef.value) == "" {
 			*(keyDef.value) = strVal
 		}
 	}
+	return nil
 }
 
-func yamlFileParse(){
+func yamlFileToMap() map[interface{}]map[interface{}]string {
+	keyDef := ConfigKeys["config_file"]
+	filePath := ""
+	if *(keyDef.value) == "" {
+		filePath = keyDef.defaultVal
+	} else {
+		filePath = *(keyDef.value)
+	}
+
+	yamlMap := make(map[interface{}]map[interface{}]string)
+	yamlFile, err := ioutil.ReadFile(filePath)
+	err = yaml.Unmarshal(yamlFile, &yamlMap)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	return yamlMap
+}
+
+func yamlFileParse() {
+	tempMap := yamlFileToMap()
+	for keyName := range ConfigKeys {
+		keyDef := ConfigKeys[keyName]
+		if *(keyDef.value) == "" {
+			*(keyDef.value) = tempMap[keyDef.component][keyName]
+		}
+	}
 
 }
 
-func defaultParse(){
+func defaultParse() {
 	// parse default values
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
@@ -138,10 +187,16 @@ func printCfKeys() error {
 	return nil
 }
 
-func ConfigMain() {
+func parseConfig() {
 	argParse()
 	tempEnvVarSet()
-	envParse()
+	_ = envParse()
+	yamlFileParse()
 	defaultParse()
+}
+
+func ConfigMain() {
+	InitMainConfigKeys()
+	parseConfig()
 	_ = printCfKeys()
 }

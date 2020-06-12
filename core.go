@@ -2,14 +2,8 @@ package main
 
 import (
 	"core/configuration"
-	"core/connector"
 )
 
-func InitConfigurationKeys(){
-	configuration.InitCfgKeys()
-	configuration.InitCoreKeys()
-	connector.InitConnectorKeys()
-}
 
 func main() {
 
@@ -275,7 +269,6 @@ func main() {
 		flag.Usage()
 	}  */
 
-	InitConfigurationKeys()
 	configuration.ConfigMain()
 
 }
