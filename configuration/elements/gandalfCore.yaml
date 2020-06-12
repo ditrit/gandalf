@@ -1,4 +1,0 @@
-logical_name: toto
-gandalf_type: connector
-certpem: /home/.../cert.pem
-keypem: /home/.../key.pem

@@ -273,7 +273,6 @@ func main() {
 		flag.Usage()
 	}  */
 
-	InitConfigurationKeys()
 	configuration.ConfigMain()
 
 }
