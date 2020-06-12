@@ -34,8 +34,8 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 			err = errors.New("Fail capture command" + conf.GetCommand() + " on tenant" + conf.GetTenant())
 		}
 
-		configuration := cutils.GetConnectorConfiguration(conf, databaseClient)
-		jsonData, err := json.Marshal(configuration)
+		configurations := cutils.GetConnectorsConfiguration(conf, databaseClient)
+		jsonData, err := json.Marshal(configurations)
 
 		if err == nil {
 			cmdReply := msg.NewConfig(conf.GetTarget(), "CONF_REPLY", string(jsonData))

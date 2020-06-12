@@ -24,7 +24,7 @@ type ConnectorMember struct {
 	connectorGrpc     grpc.ConnectorGrpc
 	connectorType     string
 	timeoutMax        int64
-	connectorConfig   *models.ConnectorConfig
+	connectorsConfig   []*models.ConnectorConfig
 	connectorCommands []string
 }
 
@@ -35,7 +35,7 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *Con
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
-	member.chaussette.Context["connectorConfig"] = member.connectorConfig
+	member.chaussette.Context["connectorsConfig"] = member.connectorsConfig
 	member.chaussette.Context["connectorCommands"] = member.connectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand

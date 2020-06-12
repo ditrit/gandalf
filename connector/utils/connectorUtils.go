@@ -29,6 +29,16 @@ func IsExecAll(mode os.FileMode) bool {
 	return mode&0111 == 0111
 }
 
+func GetConnectorType(connectorTypeName string, list []models.ConnectorConfig) (result models.ConnectorConfig) {
+	for _, connectorType := range list {
+		if connectorType.Name == connectorTypeName {
+			result = connectorType
+			break
+		}
+	}
+	return result
+}
+
 //TODO REVOIR INTERFACE
 func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeCommand) (result models.ConnectorTypeCommand) {
 	for _, command := range list {

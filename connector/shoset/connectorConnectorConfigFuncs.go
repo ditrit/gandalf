@@ -23,10 +23,10 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(conf)
 
 	if conf.GetCommand() == "CONF_REPLY" {
-		var connectorConfig models.ConnectorConfig
-		err = json.Unmarshal([]byte(conf.GetPayload()), &connectorConfig)
+		var connectorsConfig []*models.ConnectorConfig
+		err = json.Unmarshal([]byte(conf.GetPayload()), &connectorsConfig)
 		if err == nil {
-			ch.Context["connectorConfig"] = connectorConfig
+			ch.Context["connectorsConfig"] = connectorsConfig
 		}
 	}
 

@@ -20,8 +20,10 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle command")
 	log.Println(cmd)
 
-	config := ch.Context["connectorConfig"].(models.ConnectorConfig)
-	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), config.ConnectorTypeCommands)
+	config := ch.Context["connectorsConfig"].([]models.ConnectorConfig)
+	connectorType := ch.Context["connectorType"].(string)
+	connectorTypeConfig := utils.GetConnectorType(connectorType, config)
+	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
 	validate := utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
 
 	if validate {
