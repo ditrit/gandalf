@@ -4,8 +4,9 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	cutils "gandalf-core/cluster/utils"
 	"log"
+
+	cutils "github.com/ditrit/gandalf-core/cluster/utils"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"

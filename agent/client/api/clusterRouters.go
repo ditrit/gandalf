@@ -1,8 +1,9 @@
 package api
 
 import (
-	"github.com/go-chi/chi"
 	"gandalf-ui/controllers"
+
+	"github.com/go-chi/chi"
 )
 
 func GetRouter() *Mux {

@@ -2,9 +2,10 @@
 package utils
 
 import (
-	"gandalf-core/database"
-	"gandalf-core/models"
 	"log"
+
+	"github.com/ditrit/gandalf-core/database"
+	"github.com/ditrit/gandalf-core/models"
 
 	"github.com/ditrit/shoset/msg"
 

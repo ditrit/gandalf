@@ -2,8 +2,9 @@
 package utils
 
 import (
-	"gandalf-core/models"
 	"os"
+
+	"github.com/ditrit/gandalf-core/models"
 
 	"github.com/ditrit/shoset/msg"
 

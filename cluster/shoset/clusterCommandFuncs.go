@@ -3,9 +3,10 @@ package shoset
 
 import (
 	"errors"
-	cutils "gandalf-core/cluster/utils"
-	"gandalf-core/models"
 	"log"
+
+	cutils "github.com/ditrit/gandalf-core/cluster/utils"
+	"github.com/ditrit/gandalf-core/models"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
