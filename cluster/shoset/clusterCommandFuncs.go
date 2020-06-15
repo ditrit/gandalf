@@ -6,9 +6,9 @@ import (
 	cutils "gandalf-core/cluster/utils"
 	"gandalf-core/models"
 	"log"
-	"shoset/msg"
-	"shoset/net"
 
+	net "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
 	"github.com/jinzhu/gorm"
 )
 

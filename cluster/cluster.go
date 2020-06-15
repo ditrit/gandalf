@@ -6,8 +6,9 @@ import (
 	"gandalf-core/database"
 	coreLog "gandalf-core/log"
 	"log"
-	"shoset/net"
 	"time"
+
+	net "github.com/ditrit/shoset"
 
 	"github.com/jinzhu/gorm"
 )

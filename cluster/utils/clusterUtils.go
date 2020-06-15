@@ -5,7 +5,8 @@ import (
 	"gandalf-core/database"
 	"gandalf-core/models"
 	"log"
-	"shoset/msg"
+
+	"github.com/ditrit/shoset/msg"
 
 	"github.com/jinzhu/gorm"
 )
@@ -38,7 +39,7 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 	//var tenant models.Tenant
 	//client.Where("name = ?", cmd.GetTenant()).First(&tenant)
 
-	client.Where("connector_type_id = ?", connectorType.ID) .Preload("Aggregator").Preload("Connector").Preload("ConnectorType").First(&applicationContext)
+	client.Where("connector_type_id = ?", connectorType.ID).Preload("Aggregator").Preload("Connector").Preload("ConnectorType").First(&applicationContext)
 
 	return
 }

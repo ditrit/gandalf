@@ -5,8 +5,9 @@ import (
 	"gandalf-core/aggregator/shoset"
 	coreLog "gandalf-core/log"
 	"log"
-	"shoset/net"
 	"time"
+
+	net "github.com/ditrit/shoset"
 )
 
 // AggregatorMember : Aggregator struct.

@@ -1,8 +1,9 @@
 package grpc
 
 import (
-	"shoset/msg"
 	"strconv"
+
+	"github.com/ditrit/shoset/msg"
 )
 
 //CommandMessageFromGrpc :

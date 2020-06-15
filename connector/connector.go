@@ -13,7 +13,9 @@ import (
 	"os"
 	"os/exec"
 	"reflect"
-	"shoset/net"
+
+	net "github.com/ditrit/shoset"
+
 	"strconv"
 	"time"
 )

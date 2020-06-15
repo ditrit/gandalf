@@ -4,7 +4,8 @@ package utils
 import (
 	"gandalf-core/models"
 	"os"
-	"shoset/msg"
+
+	"github.com/ditrit/shoset/msg"
 
 	"github.com/xeipuuv/gojsonschema"
 )

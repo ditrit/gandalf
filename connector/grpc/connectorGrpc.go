@@ -10,9 +10,10 @@ import (
 
 	"log"
 	"net"
-	"shoset/msg"
-	sn "shoset/net"
 	"time"
+
+	sn "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -74,8 +75,8 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	cmd := pb.CommandFromGrpc(in)
 
-	config := ch.Context["connectorsConfig"].([]models.ConnectorConfig)
-	connectorType := ch.Context["connectorType"].(string)
+	config := r.Shoset.Context["connectorsConfig"].([]models.ConnectorConfig)
+	connectorType := r.Shoset.Context["connectorType"].(string)
 	connectorTypeConfig := utils.GetConnectorType(connectorType, config)
 	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
 	validate := utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)

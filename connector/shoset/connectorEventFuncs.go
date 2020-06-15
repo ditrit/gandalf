@@ -4,8 +4,9 @@ package shoset
 import (
 	"errors"
 	"log"
-	"shoset/msg"
-	"shoset/net"
+
+	net "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
 )
 
 // HandleEvent : Connector handle event function.

@@ -9,8 +9,9 @@ import (
 	"gandalf-core/connector"
 	"gandalf-core/database"
 	"os"
-	"shoset/net"
 	"strconv"
+
+	net "github.com/ditrit/shoset"
 )
 
 func main() {
