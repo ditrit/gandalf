@@ -52,7 +52,7 @@ func GetConnectorsConfiguration(conf msg.Config, client *gorm.DB) (connectorsCon
 
 	//client.Where("name = ?", conf.GetContext()["connectorType"].(string)).First(&connectorType)
 
-	client.Preload("ConnectorTypeCommands").Preload("ConnectorTypeEvents").Find(&connectorsConfiguration)
+	client.Preload("ConnectorType").Preload("ConnectorTypeCommands").Preload("ConnectorTypeEvents").Find(&connectorsConfiguration)
 
 	return
 }

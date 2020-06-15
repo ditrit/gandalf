@@ -30,8 +30,9 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 		err = json.Unmarshal([]byte(conf.GetPayload()), &connectorsConfig)
 		if err == nil {
 			var mapConnectorsConfig map[string]*models.ConnectorConfig
+			mapConnectorsConfig = make(map[string]*models.ConnectorConfig)
 			for _, config := range connectorsConfig {
-				mapConnectorsConfig[config.Name] = config
+				mapConnectorsConfig[config.ConnectorType.Name] = config
 			}
 			ch.Context["mapConnectorsConfig"] = mapConnectorsConfig
 		}
@@ -61,7 +62,7 @@ func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 
 			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 
-			if shoset.Context["connectorConfig"] != nil {
+			if shoset.Context["mapConnectorsConfig"] != nil {
 				notSend = false
 				break
 			}

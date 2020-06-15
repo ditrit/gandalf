@@ -125,10 +125,13 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 // ConfigurationValidation : validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
 	commands := m.chaussette.Context["connectorCommands"].([]string)
-	config := m.chaussette.Context["connectorConfig"].(models.ConnectorConfig)
-
+	fmt.Println("m.chaussette.Context[mapConnectorsConfig]")
+	fmt.Println(m.chaussette.Context["mapConnectorsConfig"])
+	config := m.chaussette.Context["mapConnectorsConfig"].(map[string]*models.ConnectorConfig)
+	fmt.Println("config")
+	fmt.Println(config)
 	var configCommands []string
-	for _, command := range config.ConnectorTypeCommands {
+	for _, command := range config[connectorType].ConnectorTypeCommands {
 		configCommands = append(configCommands, command.Name)
 	}
 

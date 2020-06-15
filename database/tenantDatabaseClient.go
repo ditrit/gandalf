@@ -119,7 +119,7 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Where("name IN (?)", []string{"NEW_APP"}).Find(&ConnectorTypeUtilsEvents)
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
-		ConnectorTypeID:       ConnectorTypeUtils.ID,
+		ConnectorType:         ConnectorTypeUtils,
 		ConnectorTypeCommands: ConnectorTypeUtilsCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
@@ -129,7 +129,7 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Where("name IN (?)", []string{}).Find(&ConnectorTypeWorkflowCommands)
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig2",
-		ConnectorTypeID:       ConnectorTypeWorkflow.ID,
+		ConnectorType:         ConnectorTypeWorkflow,
 		ConnectorTypeCommands: ConnectorTypeWorkflowCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
@@ -143,7 +143,7 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Where("name IN (?)", []string{"Gitlab1", "Gitlab2", "Gitlab3"}).Find(&ConnectorTypeGitlabCommands)
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig3",
-		ConnectorTypeID:       ConnectorTypeGitlab.ID,
+		ConnectorType:         ConnectorTypeGitlab,
 		ConnectorTypeCommands: ConnectorTypeGitlabCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
@@ -155,7 +155,7 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Where("name IN (?)", []string{"CREATE_VM_BY_JSON"}).Find(&ConnectorTypeAzureCommands)
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig4",
-		ConnectorTypeID:       ConnectorTypeAzure.ID,
+		ConnectorType:         ConnectorTypeAzure,
 		ConnectorTypeCommands: ConnectorTypeAzureCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
