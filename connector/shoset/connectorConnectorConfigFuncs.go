@@ -29,7 +29,11 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 		var connectorsConfig []*models.ConnectorConfig
 		err = json.Unmarshal([]byte(conf.GetPayload()), &connectorsConfig)
 		if err == nil {
-			ch.Context["connectorsConfig"] = connectorsConfig
+			var mapConnectorsConfig map[string]*models.ConnectorConfig
+			for _, config := range connectorsConfig {
+				mapConnectorsConfig[config.Name] = config
+			}
+			ch.Context["mapConnectorsConfig"] = mapConnectorsConfig
 		}
 	}
 
