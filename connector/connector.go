@@ -24,7 +24,7 @@ type ConnectorMember struct {
 	connectorGrpc     grpc.ConnectorGrpc
 	connectorType     string
 	timeoutMax        int64
-	connectorsConfig   []*models.ConnectorConfig
+	connectorsConfig  []*models.ConnectorConfig
 	connectorCommands []string
 }
 
