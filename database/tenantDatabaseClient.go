@@ -133,6 +133,13 @@ func DemoCreateConfigurationUtils(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
 		ConnectorType:         ConnectorTypeUtils,
+		Version:               "0",
+		ConnectorTypeCommands: ConnectorTypeUtilsCommands,
+		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
+
+	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
+		ConnectorType:         ConnectorTypeUtils,
+		Version:               "1",
 		ConnectorTypeCommands: ConnectorTypeUtilsCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
@@ -149,6 +156,7 @@ func DemoCreateConfigurationWorkflow(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig2",
 		ConnectorType:         ConnectorTypeWorkflow,
+		Version:               "0",
 		ConnectorTypeCommands: ConnectorTypeWorkflowCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 }
@@ -156,9 +164,13 @@ func DemoCreateConfigurationWorkflow(tenantDatabaseClient *gorm.DB) {
 func DemoCreateConfigurationAzure(tenantDatabaseClient *gorm.DB) {
 	var ConnectorTypeAzureCommands []models.ConnectorTypeCommand
 	var ConnectorTypeAzure models.ConnectorType
+	var ConnectorProductAzure models.ConnectorProduct
 
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
 	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorTypeAzure)
+
+	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Azure", Version: "0"})
+	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorProductAzure)
 
 	tenantDatabaseClient.Create(&models.ConnectorTypeCommand{Name: "CREATE_VM_BY_JSON", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/ComputeByJSONPayload","definitions":{"ComputeByJSONPayload":{"required":["ResourceGroupName","ResourceGroupLocation","DeploymentName","TemplateFile","ParametersFile"],"properties":{"ResourceGroupName":{"type":"string"},"ResourceGroupLocation":{"type":"string"},"DeploymentName":{"type":"string"},"TemplateFile":{"type":"string"},"ParametersFile":{"type":"string"}},"additionalProperties":false,"type":"object"}}}`})
 
@@ -166,6 +178,8 @@ func DemoCreateConfigurationAzure(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig4",
 		ConnectorType:         ConnectorTypeAzure,
+		Version:               "0",
+		ConnectorProduct:      ConnectorProductAzure,
 		ConnectorTypeCommands: ConnectorTypeAzureCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 }
@@ -173,9 +187,13 @@ func DemoCreateConfigurationAzure(tenantDatabaseClient *gorm.DB) {
 func DemoCreateConfigurationGitlab(tenantDatabaseClient *gorm.DB) {
 	var ConnectorTypeGitlabCommands []models.ConnectorTypeCommand
 	var ConnectorTypeGitlab models.ConnectorType
+	var ConnectorProductGitlab models.ConnectorProduct
 
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
 	tenantDatabaseClient.Where("name = ?", "Gitlab").First(&ConnectorTypeGitlab)
+
+	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Gitlab", Version: "0"})
+	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorProductGitlab)
 
 	tenantDatabaseClient.Create(&models.ConnectorTypeCommand{Name: "Gitlab1", Schema: ""})
 	tenantDatabaseClient.Create(&models.ConnectorTypeCommand{Name: "Gitlab2", Schema: ""})
@@ -185,6 +203,8 @@ func DemoCreateConfigurationGitlab(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig3",
 		ConnectorType:         ConnectorTypeGitlab,
+		Version:               "0",
+		ConnectorProduct:      ConnectorProductGitlab,
 		ConnectorTypeCommands: ConnectorTypeGitlabCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
