@@ -26,18 +26,20 @@ type ConnectorMember struct {
 	chaussette        *net.Shoset
 	connectorGrpc     grpc.ConnectorGrpc
 	connectorType     string
+	version           string
 	timeoutMax        int64
 	connectorsConfig  []*models.ConnectorConfig
 	connectorCommands []string
 }
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *ConnectorMember {
+func NewConnectorMember(logicalName, tenant, connectorType, version, logPath string) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
+	member.chaussette.Context["version"] = version
 	member.chaussette.Context["connectorsConfig"] = member.connectorsConfig
 	member.chaussette.Context["connectorCommands"] = member.connectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
@@ -123,7 +125,7 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 }
 
 // ConfigurationValidation : validation configuration
-func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
+func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType, version string) (result bool) {
 	commands := m.chaussette.Context["connectorCommands"].([]string)
 	fmt.Println("m.chaussette.Context[mapConnectorsConfig]")
 	fmt.Println(m.chaussette.Context["mapConnectorsConfig"])
@@ -131,7 +133,8 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 	fmt.Println("config")
 	fmt.Println(config)
 	var configCommands []string
-	for _, command := range config[connectorType][0].ConnectorTypeCommands {
+	connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
+	for _, command := range connectorConfig.ConnectorTypeCommands {
 		configCommands = append(configCommands, command.Name)
 	}
 
@@ -151,8 +154,8 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerPath, logPath string, timeoutMax int64) *ConnectorMember {
-	member := NewConnectorMember(logicalName, tenant, connectorType, logPath)
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, version, targetAdd, workerPath, logPath string, timeoutMax int64) *ConnectorMember {
+	member := NewConnectorMember(logicalName, tenant, connectorType, version, logPath)
 	member.timeoutMax = timeoutMax
 
 	err := member.Bind(bindAddress)
@@ -167,7 +170,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 					err = member.StartWorkers(logicalName, grpcBindAddress, targetAdd, workerPath)
 					if err == nil {
 						time.Sleep(time.Second * time.Duration(5))
-						result := member.ConfigurationValidation(tenant, connectorType)
+						result := member.ConfigurationValidation(tenant, connectorType, version)
 						if result {
 							log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 

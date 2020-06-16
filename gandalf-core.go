@@ -206,29 +206,35 @@ func main() {
 				LinkAdd := args[5]
 				ConnectorType := args[6]
 
-				TargetAdd := ""
+				Version := ""
 
 				if len(args) >= 8 {
-					TargetAdd = args[7]
+					Version = args[7]
+				}
+
+				TargetAdd := ""
+
+				if len(args) >= 9 {
+					TargetAdd = args[8]
 				}
 
 				home, _ := os.UserHomeDir()
 				WorkerPath := home + "/gandalf/workers/" + ConnectorType + "/"
 
-				if len(args) >= 9 {
-					WorkerPath = args[8]
+				if len(args) >= 10 {
+					WorkerPath = args[9]
 				}
 
 				LogPath := home + "/gandalf/logs/connector/"
 
-				if len(args) >= 10 {
-					LogPath = args[9]
+				if len(args) >= 11 {
+					LogPath = args[10]
 				}
 
 				TimeoutMax := int64(100000)
 
-				if len(args) >= 11 {
-					TimeoutMax, _ = strconv.ParseInt(args[10], 10, 64)
+				if len(args) >= 12 {
+					TimeoutMax, _ = strconv.ParseInt(args[11], 10, 64)
 				}
 
 				//CREATE CONNECTOR
@@ -239,13 +245,14 @@ func main() {
 				fmt.Println("  Grpc Bind Address : " + GrpcBindAdd)
 				fmt.Println("  Link Address : " + LinkAdd)
 				fmt.Println("  Connector Type : " + ConnectorType)
+				fmt.Println("  Version : " + Version)
 				fmt.Println("  Target Address : " + TargetAdd)
 				fmt.Println("  Worker Path : " + WorkerPath)
 				fmt.Println("  Log Path : " + LogPath)
 				fmt.Printf("  Timeout Max : %d \n", TimeoutMax)
 				fmt.Println("  Config : " + config)
 
-				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, ConnectorType, TargetAdd, WorkerPath, LogPath, TimeoutMax)
+				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, ConnectorType, Version, TargetAdd, WorkerPath, LogPath, TimeoutMax)
 
 				<-done
 			}
