@@ -23,14 +23,14 @@ func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient ma
 	return mapDatabaseClient[tenant]
 }
 
-// GetGandalfDatabaseClient : Database client constructor.
+/* // GetGandalfDatabaseClient : Database client constructor.
 func GetGandalfDatabaseClient(databasePath string) *gorm.DB {
 
 	if gandalfDatabaseClient == nil {
 		gandalfDatabaseClient = database.NewGandalfDatabaseClient(databasePath)
 	}
 	return gandalfDatabaseClient
-}
+} */
 
 // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
