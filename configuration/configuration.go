@@ -18,27 +18,28 @@ type configKey struct {
 	valType    string  // 'string' or 'integer' type of the value
 	defaultVal string  // default value to use
 	usage      string  // usage string (CLI)
+	mandatory  bool    // is the value mandatory
 }
 
 var ConfigKeys = make(map[string]configKey)
 
 // SetStringKeyConfig :
-func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string) error {
+func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string, mandatory bool) error {
 	keyDef, exists := ConfigKeys[keyName]
 	if exists {
 		return errors.New("The key " + keyName + "is already defined ( for component " + keyDef.component + ")")
 	}
-	ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "string", defaultValue, usage}
+	ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "string", defaultValue, usage, mandatory}
 	return nil
 }
 
 // SetIntegerKeyConfig :
-func SetIntegerKeyConfig(componentType string, keyName string, shortName string, defaultValue int, usage string) error {
+func SetIntegerKeyConfig(componentType string, keyName string, shortName string, defaultValue int, usage string, mandatory bool) error {
 	keyDef, exists := ConfigKeys[keyName]
 	if exists {
 		return errors.New("The key " + keyName + "is already defined ( for component " + keyDef.component + ")")
 	}
-	ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "integer", strconv.Itoa(defaultValue), usage}
+	ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "integer", strconv.Itoa(defaultValue), usage, mandatory}
 	return nil
 }
 
@@ -76,34 +77,34 @@ func InitMainConfigKeys() {
 }
 
 func InitCoreKeys() {
-	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file")
-	_ = SetStringKeyConfig("core", "logical_name", "l", "logical name", "logical name of the component")
-	_ = SetStringKeyConfig("core", "gandalf_type", "g", "gandalf type", "launch mode (connector|aggregator|cluster)")
-	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate")
-	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key")
+	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
+	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
+	_ = SetStringKeyConfig("core", "gandalf_type", "g", "gandalf type", "launch mode (connector|aggregator|cluster)", true)
+	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate", true)
+	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key", true)
 }
 
-func InitConnectorKeys(){
-	_ = SetStringKeyConfig("connector","tenant","t","tenant1","tenant of the connector")
-	_ = SetStringKeyConfig("connector","category","c","svn","category of the connector")
-	_ = SetStringKeyConfig("connector", "product","p","product1","product of the connector")
-	_ = SetStringKeyConfig("connector","aggregators", "a","address1:9800,address2:6400,address3","aggregators addresses linked to the connector")
-	_ = SetStringKeyConfig("connector","gandalf_secret","s","/etc/gandalf/gandalfSecret","path of the gandalf secret")
-	_ = SetStringKeyConfig("connector","product_url","u","url1,url2,url3","product url list of the connector")
-	_ = SetStringKeyConfig("connector","connector_log","","/etc/gandalf/log","path of the log file")
-	_ = SetIntegerKeyConfig("connector","max_timeout","",100,"maximum timeout of the connector")
+func InitConnectorKeys() {
+	_ = SetStringKeyConfig("connector", "tenant", "t", "", "tenant of the connector", true)
+	_ = SetStringKeyConfig("connector", "category", "c", "svn", "category of the connector", true)
+	_ = SetStringKeyConfig("connector", "product", "p", "product1", "product of the connector", true)
+	_ = SetStringKeyConfig("connector", "aggregators", "a", "address1:9800,address2:6400,address3", "aggregators addresses linked to the connector", true)
+	_ = SetStringKeyConfig("connector", "gandalf_secret", "s", "/etc/gandalf/gandalfSecret", "path of the gandalf secret", true)
+	_ = SetStringKeyConfig("connector", "product_url", "u", "url1,url2,url3", "product url list of the connector", true)
+	_ = SetStringKeyConfig("connector", "connector_log", "", "/etc/gandalf/log", "path of the log file", true)
+	_ = SetIntegerKeyConfig("connector", "max_timeout", "", 100, "maximum timeout of the connector", true)
 }
 
-func InitAggregatorKeys(){
-	_ = SetStringKeyConfig("aggregator","aggregator_tenant","","tenant1","tenant of the aggregator")
-	_ = SetStringKeyConfig("aggregator","cluster","","address1[:9800],address2[:6300],address3","clusters addresses linked to the aggregator")
-	_ = SetStringKeyConfig("aggregator","aggregator_log","","/etc/gandalf/log","path of the log file")
+func InitAggregatorKeys() {
+	_ = SetStringKeyConfig("aggregator", "aggregator_tenant", "", "tenant1", "tenant of the aggregator", true)
+	_ = SetStringKeyConfig("aggregator", "cluster", "", "address1[:9800],address2[:6300],address3", "clusters addresses linked to the aggregator", true)
+	_ = SetStringKeyConfig("aggregator", "aggregator_log", "", "/etc/gandalf/log", "path of the log file", true)
 }
 
-func InitClusterKeys(){
-	_ = SetStringKeyConfig("cluster","join","j","clusterAddress","link the cluster member to another one")
-	_ = SetStringKeyConfig("cluster","cluster_log","","/etc/gandalf/log","path of the log file")
-	_ = SetStringKeyConfig("cluster","gandalf_db","d","pathToTheDB","path for the gandalf database")
+func InitClusterKeys() {
+	_ = SetStringKeyConfig("cluster", "join", "j", "clusterAddress", "link the cluster member to another one", true)
+	_ = SetStringKeyConfig("cluster", "cluster_log", "", "/etc/gandalf/log", "path of the log file", true)
+	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "pathToTheDB", "path for the gandalf database", true)
 }
 
 func argParse() {
@@ -121,16 +122,10 @@ func argParse() {
 		if keyDef.valType == "integer" && *(keyDef.value) != "" {
 			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
 				newErr := errors.New("The CLI parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
-				log.Fatalf("error while parsing a CLI parameter: %v",newErr)
+				log.Fatalf("error while parsing a CLI parameter: %v", newErr)
 			}
 		}
 	}
-}
-
-func tempEnvVarSet() {
-	//temporary environment variables setter
-	_ = os.Setenv("GANDALF_connectorFlag", "testENV")
-	_ = os.Setenv("GANDALF_connector2", "12")
 }
 
 func envParse() {
@@ -142,7 +137,7 @@ func envParse() {
 			if _, err := strconv.Atoi(strVal); err != nil {
 				newErr := errors.New("The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer using the value: " + strVal)
 				fmt.Println(newErr)
-				log.Fatalf("error while parsing an environment variable: %v",newErr)
+				log.Fatalf("error while parsing an environment variable: %v", newErr)
 			}
 		}
 		if len(strVal) > 0 && *(keyDef.value) == "" {
@@ -156,6 +151,9 @@ func yamlFileToMap() map[interface{}]map[interface{}]string {
 	keyDef := ConfigKeys["config_file"]
 	if *(keyDef.value) == "" {
 		*(keyDef.value) = keyDef.defaultVal
+	}
+	if _, err := os.Stat(*(keyDef).value); os.IsNotExist(err) {
+		log.Fatalf("%v", err)
 	}
 
 	yamlMap := make(map[interface{}]map[interface{}]string)
@@ -178,7 +176,7 @@ func yamlFileParse() {
 		if keyDef.valType == "integer" && *(keyDef.value) != "" {
 			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
 				newErr := errors.New("The Yaml parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
-				log.Fatalf("error while parsing a Yaml parameter: %v",newErr)
+				log.Fatalf("error while parsing a Yaml parameter: %v", newErr)
 			}
 		}
 	}
@@ -194,22 +192,77 @@ func defaultParse() {
 	}
 }
 
+func isConfigValid() {
+	gandalfType := *(ConfigKeys["gandalf_type"].value)
+	for keyName := range ConfigKeys {
+		keyDef := ConfigKeys[keyName]
+		if gandalfType == "connector" && keyDef.component == "core" || keyDef.component == "connector"{
+				if keyDef.mandatory == true && *(keyDef.value) == "" {
+					log.Fatalf(keyName+" is mandatory but has an invalid value" )
+				}
+		}
+		if gandalfType == "aggregator" && keyDef.component == "core" || keyDef.component == "aggregator" {
+			if keyDef.mandatory == true && *(keyDef.value) == "" {
+				log.Fatalf(keyName+" is mandatory but has an invalid value")
+			}
+		}
+		if gandalfType == "cluster" && keyDef.component == "core" || keyDef.component == "cluster"  {
+				if keyDef.mandatory == true && *(keyDef.value) == "" {
+					log.Fatalf(keyName+" is mandatory but has an invalid value")
+				}
+		}
+	}
+}
+
 func printCfKeys() error {
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		componentType := keyDef.component
-		if keyDef.valType == "string" {
-			strVal, err := GetStringConfig(keyName)
-			if err != nil {
-				return err
-			}
-			fmt.Println(componentType + ": " + keyName + ": " + strVal)
-		} else {
-			intVal, err := GetIntegerConfig(keyName)
-			if err != nil {
-				return err
-			}
-			fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
+		gandalfType := *(ConfigKeys["gandalf_type"].value)
+		if gandalfType == "connector" &&  componentType == "core" || componentType == "connector"  {
+				if keyDef.valType == "string" {
+					strVal, err := GetStringConfig(keyName)
+					if err != nil {
+						return err
+					}
+					fmt.Println(componentType + ": " + keyName + ": " + strVal)
+				} else {
+					intVal, err := GetIntegerConfig(keyName)
+					if err != nil {
+						return err
+					}
+					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
+				}
+		}
+		if gandalfType == "aggregator" && componentType == "core" || componentType == "aggregator" {
+				if keyDef.valType == "string" {
+					strVal, err := GetStringConfig(keyName)
+					if err != nil {
+						return err
+					}
+					fmt.Println(componentType + ": " + keyName + ": " + strVal)
+				} else {
+					intVal, err := GetIntegerConfig(keyName)
+					if err != nil {
+						return err
+					}
+					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
+				}
+		}
+		if gandalfType == "cluster" && componentType == "core" || componentType == "cluster"  {
+				if keyDef.valType == "string" {
+					strVal, err := GetStringConfig(keyName)
+					if err != nil {
+						return err
+					}
+					fmt.Println(componentType + ": " + keyName + ": " + strVal)
+				} else {
+					intVal, err := GetIntegerConfig(keyName)
+					if err != nil {
+						return err
+					}
+					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
+				}
 		}
 	}
 	return nil
@@ -217,7 +270,6 @@ func printCfKeys() error {
 
 func parseConfig() {
 	argParse()
-	tempEnvVarSet()
 	envParse()
 	yamlFileParse()
 	defaultParse()
@@ -226,5 +278,6 @@ func parseConfig() {
 func ConfigMain() {
 	InitMainConfigKeys()
 	parseConfig()
+	isConfigValid()
 	_ = printCfKeys()
 }

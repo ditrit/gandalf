@@ -1,6 +1,6 @@
 core:
-  logical_name: titi
-  gandalf_type: connector
+  logical_name:
+  gandalf_type: aggregator
   certpem: /home/.../cert.pem
   keypem: /home/.../key.pem
 connector:
@@ -8,7 +8,7 @@ connector:
   category: svn
   product: kafka
   aggregators: address1:9800,address2:6400,address3
-  gandalf_secret: /home/zippo/go/src/core/configuration/elements/test.txt
+  gandalf_secret: path to the secret
   product_url: url1,url2,url3
   log_path: /home/.../log
   max_timeout: 100
@@ -18,5 +18,5 @@ aggregator:
   aggregator_log: path
 cluster:
   join: cluster address
-  cluster_log: path
+  cluster_log:
   gandalf_db: DB path
