@@ -1,4 +1,4 @@
-//Package database :
+/* //Package database :
 package database
 
 import (
@@ -99,3 +99,4 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
 }
+ */
