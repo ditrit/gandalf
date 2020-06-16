@@ -41,6 +41,21 @@ func GetConnectorType(connectorTypeName string, list []models.ConnectorConfig) (
 	return result
 }
 
+func GetConnectorTypeConfigByVersion(version string, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
+	if version == "" {
+		result = list[0]
+	} else {
+		for _, connectorConfig := range list {
+			if connectorConfig.Version == version {
+				result = connectorConfig
+				break
+			}
+		}
+	}
+
+	return result
+}
+
 //TODO REVOIR INTERFACE
 func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeCommand) (result models.ConnectorTypeCommand) {
 	for _, command := range list {

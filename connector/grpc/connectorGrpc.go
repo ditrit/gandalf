@@ -77,10 +77,11 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	cmd := pb.CommandFromGrpc(in)
 
-	config := r.Shoset.Context["mapConnectorsConfig"].(map[string]*models.ConnectorConfig)
+	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	connectorType := r.Shoset.Context["connectorType"].(string)
 	validate := false
-	if connectorTypeConfig, ok := config[connectorType]; ok {
+	if listConnectorTypeConfig, ok := config[connectorType]; ok {
+		connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(string(cmd.GetMajor()), listConnectorTypeConfig)
 		connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
 		validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
 	}

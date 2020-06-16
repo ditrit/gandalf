@@ -26,7 +26,7 @@ func NewTenantDatabaseClient(tenant, databasePath string) *gorm.DB {
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
-	tenantDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Application{}, &models.Connector{}, &models.Tenant{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorTypeCommand{}, &models.ConnectorTypeEvent{})
+	tenantDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Application{}, &models.Connector{}, &models.Tenant{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorTypeCommand{}, &models.ConnectorTypeEvent{}, &models.ConnectorProduct{})
 
 	return
 }
