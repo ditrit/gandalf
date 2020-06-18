@@ -1,12 +1,6 @@
 package api
 
-import (
-	"gandalf-ui/controllers"
-
-	"github.com/go-chi/chi"
-)
-
-func GetRouter() *Mux {
+/* func GetRouter() *Mux {
 
 	mux := chi.NewRouter()
 	//mux.Use(logger, nosurfing, ab.LoadClientStateMiddleware, remember.Middleware(ab), dataInjector)
@@ -22,12 +16,12 @@ func GetRouter() *Mux {
 		mux.MethodFunc("GET", url_patterns.CLUSTER_PATH_DELETE, controllers.ClusterControllerDelete)
 	})
 
-	/* 	// Routes
+	 	// Routes
 	   	mux.Group(func(mux chi.Router) {
 	   		mux.Use(authboss.ModuleListMiddleware(ab))
 	   		mux.Mount("/auth", http.StripPrefix("/auth", ab.Config.Core.Router))
-	   	}) */
+	   	})
 
 	return mux
 
-}
+} */

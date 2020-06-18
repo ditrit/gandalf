@@ -1,6 +1,6 @@
 package api
 
-type urls struct {
+/* type urls struct {
 	STATIC_PATH string
 
 	GANDALF_PATH string
@@ -28,3 +28,4 @@ func ReturnURLS() urls {
 
 	return url_patterns
 }
+*/
