@@ -83,7 +83,7 @@ func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate", false)
 	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key", false)
-	_ = SetStringKeyConfig("core", "log", "", "/etc/gandalf/log", "path of the log file", true)
+	_ = SetStringKeyConfig("core", "gandalf_log", "", "/etc/gandalf/log", "path of the log file", false)
 }
 
 func InitTenantKey(){
@@ -91,22 +91,22 @@ func InitTenantKey(){
 }
 
 func InitConnectorKeys() {
-	_ = SetStringKeyConfig("connector", "connector_type", "c", "svn", "category of the connector", true)
-	_ = SetStringKeyConfig("connector", "product_type", "p", "product1", "product of the connector", true)
+	_ = SetStringKeyConfig("connector", "connector_type", "y", "svn", "category of the connector", true)
+	_ = SetStringKeyConfig("connector", "product_name", "p", "product1", "product of the connector", true)
 	_ = SetStringKeyConfig("connector", "aggregators", "a", "address1:9800,address2:6400,address3", "aggregators addresses linked to the connector", true)
 	_ = SetStringKeyConfig("connector", "gandalf_secret", "s", "/etc/gandalf/gandalfSecret", "path of the gandalf secret", true)
-	_ = SetStringKeyConfig("connector", "product_url", "u", "url1,url2,url3", "product url list of the connector", true)
-	_ = SetStringKeyConfig("connector","workers","w","/etc/gandalf/workers","path for the workers configuration",true)
-	_ = SetIntegerKeyConfig("connector", "max_timeout", "", 100, "maximum timeout of the connector", true)
+	_ = SetStringKeyConfig("connector", "product_url", "u", "url1,url2,url3", "product url list of the connector", false)
+	_ = SetStringKeyConfig("connector","workers","w","/etc/gandalf/workers","path for the workers configuration",false)
+	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
 }
 
 func InitAggregatorKeys() {
-	_ = SetStringKeyConfig("aggregator", "clusters", "", "address1[:9800],address2[:6300],address3", "clusters addresses linked to the aggregator", true)
+	_ = SetStringKeyConfig("aggregator", "clusters", "c", "address1[:9800],address2[:6300],address3", "clusters addresses linked to the aggregator", true)
 }
 
 func InitClusterKeys() {
-	_ = SetStringKeyConfig("cluster", "cluster_command", "", "clusterAddress", "cluster command (init|join)", true)
-	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "pathToTheDB", "path for the gandalf database", true)
+	_ = SetStringKeyConfig("cluster", "cluster_join", "j", "clusterAddress", "cluster command (join)", true)
+	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "pathToTheDB", "path for the gandalf database", false)
 }
 
 func argParse() error {

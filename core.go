@@ -27,7 +27,7 @@ func main() {
 	flag.Usage = func() {
 		fmt.Printf("Usage of %s:\n", os.Args[0])
 		fmt.Printf("  gandalf mode command [options]")
-		fmt.Printf("  mode : cluster, aggragor, connector, agent\n")
+		fmt.Printf("  mode : cluster, aggregator, connector, agent\n")
 		fmt.Printf("    mode : cluster\n")
 		fmt.Printf("	  cluster command : init, join\n")
 		fmt.Printf("        arguments:\n")
