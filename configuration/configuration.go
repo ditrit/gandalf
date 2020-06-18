@@ -197,35 +197,36 @@ func defaultParse() error {
 	return nil
 }
 
-func isConfigValid() {
+func isConfigValid() error{
 	gandalfType := *(ConfigKeys["gandalf_type"].value)
 	if gandalfType != "connector" && gandalfType != "cluster" && gandalfType != "aggregator" {
-		log.Fatalf("gandalf type isn't valid")
+		return errors.New("gandalf type isn't valid")
 	}
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if gandalfType == "connector" {
 			if keyDef.component == "core" || keyDef.component == "connector" || keyDef.component == "connector/aggregator"{
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
-					log.Fatalf(keyName + " is mandatory but has an invalid value")
+					return errors.New(keyName + " is mandatory but has an invalid value")
 				}
 			}
 		}
 		if gandalfType == "aggregator" {
 			if keyDef.component == "core" || keyDef.component == "aggregator" || keyDef.component == "connector/aggregator" {
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
-					log.Fatalf(keyName + " is mandatory but has an invalid value")
+					return errors.New(keyName + " is mandatory but has an invalid value")
 				}
 			}
 		}
 		if gandalfType == "cluster" {
 			if keyDef.component == "core" || keyDef.component == "cluster" {
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
-					log.Fatalf(keyName + " is mandatory but has an invalid value")
+					return errors.New(keyName + " is mandatory but has an invalid value")
 				}
 			}
 		}
 	}
+	return nil
 }
 
 func printCfKeys() error {
@@ -310,7 +311,13 @@ func ParseConfig() error {
 
 func ConfigMain() {
 	InitMainConfigKeys()
-	_ = ParseConfig()
-	isConfigValid()
+	err := ParseConfig()
+	if err != nil {
+		log.Fatalf("%v",err)
+	}
+	err = isConfigValid()
+	if err != nil {
+		log.Fatalf("%v",err)
+	}
 	_ = printCfKeys()
 }
