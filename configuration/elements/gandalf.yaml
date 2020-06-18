@@ -1,21 +1,21 @@
 core:
   logical_name:
   gandalf_type:
-  certpem: /home/.../cert.pem
-  keypem: /home/.../key.pem
-  log:
+  cert_pem: /home/.../cert.pem
+  key_pem: /home/.../key.pem
+  gandalf_log:
 connector/aggregator:
   tenant:
 connector:
-  category: svn
-  product: kafka
+  connector_type: svn
+  product_name: kafka
   aggregators: address1:9800,address2:6400,address3
   gandalf_secret: path to the secret
   product_url: url1,url2,url3
   workers:
   max_timeout: 100
 aggregator:
-  cluster: address1:4500
+  clusters: address1:4500
 cluster:
-  join: cluster address
+  cluster_join: cluster address
   gandalf_db: DB path
