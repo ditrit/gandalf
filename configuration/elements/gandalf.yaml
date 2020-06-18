@@ -1,6 +1,6 @@
 core:
   logical_name:
-  gandalf_type: aggregator
+  gandalf_type:
   certpem: /home/.../cert.pem
   keypem: /home/.../key.pem
 connector:

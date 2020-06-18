@@ -79,7 +79,7 @@ func InitMainConfigKeys() {
 func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
-	_ = SetStringKeyConfig("core", "gandalf_type", "g", "gandalf type", "launch mode (connector|aggregator|cluster)", true)
+	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate", true)
 	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key", true)
 }
@@ -107,7 +107,7 @@ func InitClusterKeys() {
 	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "pathToTheDB", "path for the gandalf database", true)
 }
 
-func argParse() {
+func argParse() error {
 	// parse CLI parameters
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
@@ -121,29 +121,30 @@ func argParse() {
 		keyDef := ConfigKeys[keyName]
 		if keyDef.valType == "integer" && *(keyDef.value) != "" {
 			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
-				newErr := errors.New("The CLI parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
-				log.Fatalf("error while parsing a CLI parameter: %v", newErr)
+				fmt.Println("error while parsing a CLI parameter: ")
+				return errors.New("The CLI parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
 			}
 		}
 	}
+	return nil
 }
 
-func envParse() {
+func envParse() error {
 	// parse environment variables
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		strVal := os.Getenv("GANDALF_" + keyName)
 		if keyDef.valType == "integer" && strVal != "" {
 			if _, err := strconv.Atoi(strVal); err != nil {
-				newErr := errors.New("The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer using the value: " + strVal)
-				fmt.Println(newErr)
-				log.Fatalf("error while parsing an environment variable: %v", newErr)
+				fmt.Println("error while parsing an environment variable: ")
+				return errors.New("The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer using the value: " + strVal)
 			}
 		}
 		if len(strVal) > 0 && *(keyDef.value) == "" {
 			*(keyDef.value) = strVal
 		}
 	}
+	return nil
 }
 
 func yamlFileToMap() map[interface{}]map[interface{}]string {
@@ -165,7 +166,7 @@ func yamlFileToMap() map[interface{}]map[interface{}]string {
 	return yamlMap
 }
 
-func yamlFileParse() {
+func yamlFileParse() error {
 	//Parse the yaml parameters
 	tempMap := yamlFileToMap()
 	for keyName := range ConfigKeys {
@@ -175,14 +176,15 @@ func yamlFileParse() {
 		}
 		if keyDef.valType == "integer" && *(keyDef.value) != "" {
 			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
-				newErr := errors.New("The Yaml parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
-				log.Fatalf("error while parsing a Yaml parameter: %v", newErr)
+				fmt.Println("error while parsing a Yaml parameter: ")
+				return errors.New("The Yaml parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
 			}
 		}
 	}
+	return nil
 }
 
-func defaultParse() {
+func defaultParse() error {
 	// parse default values
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
@@ -190,26 +192,36 @@ func defaultParse() {
 			*(keyDef.value) = keyDef.defaultVal
 		}
 	}
+	return nil
 }
 
 func isConfigValid() {
 	gandalfType := *(ConfigKeys["gandalf_type"].value)
+	if gandalfType != "connector" && gandalfType != "cluster" && gandalfType != "aggregator" {
+		log.Fatalf("gandalf type isn't valid")
+	}
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
-		if gandalfType == "connector" && keyDef.component == "core" || keyDef.component == "connector"{
+		if gandalfType == "connector" {
+			if keyDef.component == "core" || keyDef.component == "connector" {
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
-					log.Fatalf(keyName+" is mandatory but has an invalid value" )
+					log.Fatalf(keyName + " is mandatory but has an invalid value")
 				}
-		}
-		if gandalfType == "aggregator" && keyDef.component == "core" || keyDef.component == "aggregator" {
-			if keyDef.mandatory == true && *(keyDef.value) == "" {
-				log.Fatalf(keyName+" is mandatory but has an invalid value")
 			}
 		}
-		if gandalfType == "cluster" && keyDef.component == "core" || keyDef.component == "cluster"  {
+		if gandalfType == "aggregator" {
+			if keyDef.component == "core" || keyDef.component == "aggregator" {
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
-					log.Fatalf(keyName+" is mandatory but has an invalid value")
+					log.Fatalf(keyName + " is mandatory but has an invalid value")
 				}
+			}
+		}
+		if gandalfType == "cluster" {
+			if keyDef.component == "core" || keyDef.component == "cluster" {
+				if keyDef.mandatory == true && *(keyDef.value) == "" {
+					log.Fatalf(keyName + " is mandatory but has an invalid value")
+				}
+			}
 		}
 	}
 }
@@ -219,7 +231,8 @@ func printCfKeys() error {
 		keyDef := ConfigKeys[keyName]
 		componentType := keyDef.component
 		gandalfType := *(ConfigKeys["gandalf_type"].value)
-		if gandalfType == "connector" &&  componentType == "core" || componentType == "connector"  {
+		if gandalfType == "connector" {
+			if componentType == "core" || componentType == "connector" {
 				if keyDef.valType == "string" {
 					strVal, err := GetStringConfig(keyName)
 					if err != nil {
@@ -233,8 +246,10 @@ func printCfKeys() error {
 					}
 					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
 				}
+			}
 		}
-		if gandalfType == "aggregator" && componentType == "core" || componentType == "aggregator" {
+		if gandalfType == "aggregator" {
+			if componentType == "core" || componentType == "aggregator" {
 				if keyDef.valType == "string" {
 					strVal, err := GetStringConfig(keyName)
 					if err != nil {
@@ -248,8 +263,10 @@ func printCfKeys() error {
 					}
 					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
 				}
+			}
 		}
-		if gandalfType == "cluster" && componentType == "core" || componentType == "cluster"  {
+		if gandalfType == "cluster" {
+			if componentType == "core" || componentType == "cluster" {
 				if keyDef.valType == "string" {
 					strVal, err := GetStringConfig(keyName)
 					if err != nil {
@@ -263,21 +280,35 @@ func printCfKeys() error {
 					}
 					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
 				}
+			}
 		}
 	}
 	return nil
 }
 
-func parseConfig() {
-	argParse()
-	envParse()
-	yamlFileParse()
-	defaultParse()
+func ParseConfig() error {
+	err := argParse()
+	if err != nil {
+		return err
+	}
+	err = envParse()
+	if err != nil {
+		return err
+	}
+	err = yamlFileParse()
+	if err != nil {
+		return err
+	}
+	err = defaultParse()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func ConfigMain() {
 	InitMainConfigKeys()
-	parseConfig()
+	_ = ParseConfig()
 	isConfigValid()
 	_ = printCfKeys()
 }
