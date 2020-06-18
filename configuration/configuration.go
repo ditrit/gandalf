@@ -71,6 +71,7 @@ func GetIntegerConfig(keyName string) (int, error) {
 
 func InitMainConfigKeys() {
 	InitCoreKeys()
+	InitTenantKey()
 	InitConnectorKeys()
 	InitAggregatorKeys()
 	InitClusterKeys()
@@ -80,30 +81,31 @@ func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
-	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate", true)
-	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key", true)
+	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate", false)
+	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key", false)
+	_ = SetStringKeyConfig("core", "log", "", "/etc/gandalf/log", "path of the log file", true)
+}
+
+func InitTenantKey(){
+	_ = SetStringKeyConfig("connector/aggregator","tenant","t","","tenant of the component",true)
 }
 
 func InitConnectorKeys() {
-	_ = SetStringKeyConfig("connector", "tenant", "t", "", "tenant of the connector", true)
-	_ = SetStringKeyConfig("connector", "category", "c", "svn", "category of the connector", true)
-	_ = SetStringKeyConfig("connector", "product", "p", "product1", "product of the connector", true)
+	_ = SetStringKeyConfig("connector", "connector_type", "c", "svn", "category of the connector", true)
+	_ = SetStringKeyConfig("connector", "product_type", "p", "product1", "product of the connector", true)
 	_ = SetStringKeyConfig("connector", "aggregators", "a", "address1:9800,address2:6400,address3", "aggregators addresses linked to the connector", true)
 	_ = SetStringKeyConfig("connector", "gandalf_secret", "s", "/etc/gandalf/gandalfSecret", "path of the gandalf secret", true)
 	_ = SetStringKeyConfig("connector", "product_url", "u", "url1,url2,url3", "product url list of the connector", true)
-	_ = SetStringKeyConfig("connector", "connector_log", "", "/etc/gandalf/log", "path of the log file", true)
+	_ = SetStringKeyConfig("connector","workers","w","/etc/gandalf/workers","path for the workers configuration",true)
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "", 100, "maximum timeout of the connector", true)
 }
 
 func InitAggregatorKeys() {
-	_ = SetStringKeyConfig("aggregator", "aggregator_tenant", "", "tenant1", "tenant of the aggregator", true)
-	_ = SetStringKeyConfig("aggregator", "cluster", "", "address1[:9800],address2[:6300],address3", "clusters addresses linked to the aggregator", true)
-	_ = SetStringKeyConfig("aggregator", "aggregator_log", "", "/etc/gandalf/log", "path of the log file", true)
+	_ = SetStringKeyConfig("aggregator", "clusters", "", "address1[:9800],address2[:6300],address3", "clusters addresses linked to the aggregator", true)
 }
 
 func InitClusterKeys() {
-	_ = SetStringKeyConfig("cluster", "join", "j", "clusterAddress", "link the cluster member to another one", true)
-	_ = SetStringKeyConfig("cluster", "cluster_log", "", "/etc/gandalf/log", "path of the log file", true)
+	_ = SetStringKeyConfig("cluster", "cluster_command", "", "clusterAddress", "cluster command (init|join)", true)
 	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "pathToTheDB", "path for the gandalf database", true)
 }
 
@@ -203,14 +205,14 @@ func isConfigValid() {
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if gandalfType == "connector" {
-			if keyDef.component == "core" || keyDef.component == "connector" {
+			if keyDef.component == "core" || keyDef.component == "connector" || keyDef.component == "connector/aggregator"{
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
 					log.Fatalf(keyName + " is mandatory but has an invalid value")
 				}
 			}
 		}
 		if gandalfType == "aggregator" {
-			if keyDef.component == "core" || keyDef.component == "aggregator" {
+			if keyDef.component == "core" || keyDef.component == "aggregator" || keyDef.component == "connector/aggregator" {
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
 					log.Fatalf(keyName + " is mandatory but has an invalid value")
 				}
@@ -232,7 +234,7 @@ func printCfKeys() error {
 		componentType := keyDef.component
 		gandalfType := *(ConfigKeys["gandalf_type"].value)
 		if gandalfType == "connector" {
-			if componentType == "core" || componentType == "connector" {
+			if componentType == "core" || componentType == "connector" || keyDef.component == "connector/aggregator"{
 				if keyDef.valType == "string" {
 					strVal, err := GetStringConfig(keyName)
 					if err != nil {
@@ -249,7 +251,7 @@ func printCfKeys() error {
 			}
 		}
 		if gandalfType == "aggregator" {
-			if componentType == "core" || componentType == "aggregator" {
+			if componentType == "core" || componentType == "aggregator" || keyDef.component == "connector/aggregator" {
 				if keyDef.valType == "string" {
 					strVal, err := GetStringConfig(keyName)
 					if err != nil {
