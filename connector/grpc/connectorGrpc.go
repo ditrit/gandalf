@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/ditrit/gandalf-core/connector/utils"
@@ -145,7 +146,7 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIteratorCommand(in.GetValue(), iterator, r.MapCommandChannel[in.GetIteratorId()])
+	go r.runIteratorCommand(in.GetValue(), in.GetVersion(), iterator, r.MapCommandChannel[in.GetIteratorId()])
 
 	messageChannel := <-r.MapCommandChannel[in.GetIteratorId()]
 	commandMessage = pb.CommandToGrpc(messageChannel.(msg.Command))
@@ -247,7 +248,7 @@ func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (i
 }
 
 // runIterator : Iterator run function.
-func (r ConnectorGrpc) runIteratorCommand(command string, iterator *msg.Iterator, channel chan msg.Message) {
+func (r ConnectorGrpc) runIteratorCommand(command, version string, iterator *msg.Iterator, channel chan msg.Message) {
 	log.Printf("Run iterator command on command %s", command)
 
 	for {
@@ -257,12 +258,15 @@ func (r ConnectorGrpc) runIteratorCommand(command string, iterator *msg.Iterator
 			message := (messageIterator.GetMessage()).(msg.Command)
 
 			if command == message.GetCommand() {
-				log.Println("Get iterator command")
-				log.Println(message)
+				major := strconv.Itoa(int(message.GetMajor()))
+				if version == "" || (version != "" && major == version) {
+					log.Println("Get iterator command")
+					log.Println(message)
 
-				channel <- message
+					channel <- message
 
-				break
+					break
+				}
 			}
 		}
 		time.Sleep(time.Duration(2000) * time.Millisecond)

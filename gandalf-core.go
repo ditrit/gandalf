@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/ditrit/gandalf-core/aggregator"
 	"github.com/ditrit/gandalf-core/cluster"
@@ -206,10 +207,10 @@ func main() {
 				LinkAdd := args[5]
 				ConnectorType := args[6]
 
-				Version := ""
+				Versions := []string{""}
 
 				if len(args) >= 8 {
-					Version = args[7]
+					Versions = strings.Split(args[7], ";")
 				}
 
 				TargetAdd := ""
@@ -245,14 +246,14 @@ func main() {
 				fmt.Println("  Grpc Bind Address : " + GrpcBindAdd)
 				fmt.Println("  Link Address : " + LinkAdd)
 				fmt.Println("  Connector Type : " + ConnectorType)
-				fmt.Println("  Version : " + Version)
+				//fmt.Println("  Versions : " + Versions)
 				fmt.Println("  Target Address : " + TargetAdd)
 				fmt.Println("  Worker Path : " + WorkerPath)
 				fmt.Println("  Log Path : " + LogPath)
 				fmt.Printf("  Timeout Max : %d \n", TimeoutMax)
 				fmt.Println("  Config : " + config)
 
-				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, ConnectorType, Version, TargetAdd, WorkerPath, LogPath, TimeoutMax)
+				connector.ConnectorMemberInit(LogicalName, Tenant, BindAdd, GrpcBindAdd, LinkAdd, ConnectorType, TargetAdd, WorkerPath, LogPath, TimeoutMax, Versions)
 
 				<-done
 			}
