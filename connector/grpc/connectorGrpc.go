@@ -67,7 +67,10 @@ func (r ConnectorGrpc) StartGrpcServer() {
 //SendCommandList : Connector send command list function.
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
 	log.Println("Handle send command list")
-	r.Shoset.Context["connectorCommands"] = append(r.Shoset.Context["connectorCommands"].([]string), in.GetCommands()...)
+	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[string][]string)
+	mapVersionConnectorCommands[in.GetVersion()] = append(mapVersionConnectorCommands[in.GetVersion()], in.GetCommands()...)
+	r.Shoset.Context["mapVersionConnectorCommands"] = mapVersionConnectorCommands
+	//r.Shoset.Context["mapVersionConnectorCommands"] = append(r.Shoset.Context["connectorCommands"].([]string), in.GetCommands()...)
 	return &pb.Empty{}, nil
 }
 
