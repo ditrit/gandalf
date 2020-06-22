@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type configKey struct {
@@ -86,8 +87,8 @@ func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "gandalf_log", "", "/etc/gandalf/log", "path of the log file", false)
 }
 
-func InitTenantKey(){
-	_ = SetStringKeyConfig("connector/aggregator","tenant","t","","tenant of the component",true)
+func InitTenantKey() {
+	_ = SetStringKeyConfig("connector/aggregator", "tenant", "t", "", "tenant of the component", true)
 }
 
 func InitConnectorKeys() {
@@ -96,12 +97,13 @@ func InitConnectorKeys() {
 	_ = SetStringKeyConfig("connector", "aggregators", "a", "address1:9800,address2:6400,address3", "aggregators addresses linked to the connector", true)
 	_ = SetStringKeyConfig("connector", "gandalf_secret", "s", "/etc/gandalf/gandalfSecret", "path of the gandalf secret", true)
 	_ = SetStringKeyConfig("connector", "product_url", "u", "url1,url2,url3", "product url list of the connector", false)
-	_ = SetStringKeyConfig("connector","workers","w","/etc/gandalf/workers","path for the workers configuration",false)
+	_ = SetStringKeyConfig("connector", "workers", "w", "/etc/gandalf/workers", "path for the workers configuration", false)
+	_ = SetStringKeyConfig("connector", "versions", "v", "v1,v2,v3", "versions of a connector", true)
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
 }
 
 func InitAggregatorKeys() {
-	_ = SetStringKeyConfig("aggregator", "clusters", "c", "address1[:9800],address2[:6300],address3", "clusters addresses linked to the aggregator", true)
+	_ = SetStringKeyConfig("aggregator", "clusters", "c", "address1:9800,address2:6300,address3", "clusters addresses linked to the aggregator", true)
 }
 
 func InitClusterKeys() {
@@ -197,7 +199,7 @@ func defaultParse() error {
 	return nil
 }
 
-func isConfigValid() error{
+func isConfigValid() error {
 	gandalfType := *(ConfigKeys["gandalf_type"].value)
 	if gandalfType != "connector" && gandalfType != "cluster" && gandalfType != "aggregator" {
 		return errors.New("gandalf type isn't valid")
@@ -205,7 +207,7 @@ func isConfigValid() error{
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if gandalfType == "connector" {
-			if keyDef.component == "core" || keyDef.component == "connector" || keyDef.component == "connector/aggregator"{
+			if keyDef.component == "core" || keyDef.component == "connector" || keyDef.component == "connector/aggregator" {
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
 					return errors.New(keyName + " is mandatory but has an invalid value")
 				}
@@ -235,7 +237,7 @@ func printCfKeys() error {
 		componentType := keyDef.component
 		gandalfType := *(ConfigKeys["gandalf_type"].value)
 		if gandalfType == "connector" {
-			if componentType == "core" || componentType == "connector" || keyDef.component == "connector/aggregator"{
+			if componentType == "core" || componentType == "connector" || keyDef.component == "connector/aggregator" {
 				if keyDef.valType == "string" {
 					strVal, err := GetStringConfig(keyName)
 					if err != nil {
@@ -289,6 +291,20 @@ func printCfKeys() error {
 	return nil
 }
 
+func GetAddressesList(strVal string) []string {
+	var resultList []string
+
+	resultList = strings.Split(strVal, ",")
+	for i, _ := range resultList {
+		temp := strings.Split(resultList[i], ":")
+		if len(temp) == 1 {
+			temp[0] += ":9800"
+			resultList[i] = temp[0]
+		}
+	}
+	return resultList
+}
+
 func ParseConfig() error {
 	err := argParse()
 	if err != nil {
@@ -313,11 +329,13 @@ func ConfigMain() {
 	InitMainConfigKeys()
 	err := ParseConfig()
 	if err != nil {
-		log.Fatalf("%v",err)
+		log.Fatalf("%v", err)
 	}
 	err = isConfigValid()
 	if err != nil {
-		log.Fatalf("%v",err)
+		log.Fatalf("%v", err)
 	}
 	_ = printCfKeys()
+	fmt.Println("coucou : ", GetAddressesList(*ConfigKeys["aggregators"].value))
+	fmt.Println("coucou : ", GetAddressesList(*ConfigKeys["clusters"].value))
 }
