@@ -13,9 +13,10 @@ connector:
   gandalf_secret: path to the secret
   product_url: url1,url2,url3
   workers:
+  versions:
   max_timeout: 100
 aggregator:
-  clusters: address1:4500
+  clusters:
 cluster:
   cluster_join: cluster address
   gandalf_db: DB path
