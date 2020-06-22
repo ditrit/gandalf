@@ -1,6 +1,7 @@
 core:
   logical_name:
   gandalf_type:
+  bind_address: localhost:8000
   cert_pem: /home/.../cert.pem
   key_pem: /home/.../key.pem
   gandalf_log:
@@ -14,6 +15,7 @@ connector:
   product_url: url1,url2,url3
   workers:
   versions:
+  grpc_bind_address: localhost:9000
   max_timeout: 100
 aggregator:
   clusters:
