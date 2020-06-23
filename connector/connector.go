@@ -110,7 +110,7 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 		files, err := ioutil.ReadDir(workersPathVersion)
 
 		if err != nil {
-			panic(err)
+			log.Printf("Can't find workers directory %s", workersPathVersion)
 		}
 		args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
 
@@ -121,7 +121,10 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 					cmd.Dir = workersPathVersion
 					cmd.Stdout = os.Stdout
 					err := cmd.Start()
-					fmt.Println(err)
+
+					if err != nil {
+						log.Printf("Can't start worker %s", fileInfo.Name())
+					}
 				}
 			}
 		}
@@ -130,17 +133,27 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 	return nil
 }
 
+//TODO VERIFICATION ERROR
 // ConfigurationValidation : validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
 	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[string][]string)
+	if mapVersionConnectorCommands == nil {
+		log.Printf("Can't find map version/commands")
+	}
 
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	if config == nil {
+		log.Printf("Can't find connector configuration")
+	}
+
 	result = true
 
 	for version, commands := range mapVersionConnectorCommands {
 		var configCommands []string
 		connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
-
+		if connectorConfig == nil {
+			log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
+		}
 		for _, command := range connectorConfig.ConnectorTypeCommands {
 			configCommands = append(configCommands, command.Name)
 		}
