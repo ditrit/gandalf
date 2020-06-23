@@ -4,6 +4,7 @@ package shoset
 import (
 	"errors"
 	"log"
+	"strconv"
 
 	"github.com/ditrit/gandalf-core/connector/utils"
 	"github.com/ditrit/gandalf-core/models"
@@ -22,7 +23,21 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle command")
 	log.Println(cmd)
 
-	config := ch.Context["connectorsConfig"].([]models.ConnectorConfig)
+	mapconfig := ch.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	var config []*models.ConnectorConfig
+
+	//TODO REVOIR MAJOR STRING
+	if cmd.Major == 0 {
+		versions := ch.Context["versions"].([]string)
+		lastVersion := versions[len(versions)-1]
+		config = mapconfig[lastVersion]
+		lastVersionInt, _ := strconv.ParseInt(lastVersion, 10, 8)
+		cmd.Major = int8(lastVersionInt)
+	} else {
+		config = mapconfig[strconv.Itoa(int(cmd.Major))]
+	}
+
+	//config := ch.Context["connectorsConfig"].([]models.ConnectorConfig)
 	connectorType := ch.Context["connectorType"].(string)
 	connectorTypeConfig := utils.GetConnectorType(connectorType, config)
 	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)

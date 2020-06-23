@@ -31,7 +31,7 @@ func IsExecAll(mode os.FileMode) bool {
 	return mode&0111 == 0111
 }
 
-func GetConnectorType(connectorTypeName string, list []models.ConnectorConfig) (result models.ConnectorConfig) {
+func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
 	for _, connectorType := range list {
 		if connectorType.Name == connectorTypeName {
 			result = connectorType
