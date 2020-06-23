@@ -210,7 +210,7 @@ func main() {
 				Versions := []string{""}
 
 				if len(args) >= 8 {
-					Versions = strings.Split(args[7], ";")
+					Versions = strings.Split(args[7], ",")
 				}
 
 				TargetAdd := ""

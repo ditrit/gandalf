@@ -103,22 +103,26 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 }
 
 // StartWorkers : start workers
-func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string) (err error) {
-	files, err := ioutil.ReadDir(workersPath)
+func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string, versions []string) (err error) {
 
-	if err != nil {
-		panic(err)
-	}
-	args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
+	for _, version := range versions {
+		workersPathVersion := workersPath + "/" + version
+		files, err := ioutil.ReadDir(workersPathVersion)
 
-	for _, fileInfo := range files {
-		if !fileInfo.IsDir() {
-			if utils.IsExecAll(fileInfo.Mode().Perm()) {
-				cmd := exec.Command("./"+fileInfo.Name(), args...)
-				cmd.Dir = workersPath
-				cmd.Stdout = os.Stdout
-				err := cmd.Start()
-				fmt.Println(err)
+		if err != nil {
+			panic(err)
+		}
+		args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
+
+		for _, fileInfo := range files {
+			if !fileInfo.IsDir() {
+				if utils.IsExecAll(fileInfo.Mode().Perm()) {
+					cmd := exec.Command("./"+fileInfo.Name(), args...)
+					cmd.Dir = workersPathVersion
+					cmd.Stdout = os.Stdout
+					err := cmd.Start()
+					fmt.Println(err)
+				}
 			}
 		}
 	}
@@ -129,12 +133,14 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 // ConfigurationValidation : validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
 	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[string][]string)
+
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	result = false
+	result = true
 
 	for version, commands := range mapVersionConnectorCommands {
 		var configCommands []string
 		connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
+
 		for _, command := range connectorConfig.ConnectorTypeCommands {
 			configCommands = append(configCommands, command.Name)
 		}
@@ -171,7 +177,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			if err == nil {
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				if err == nil {
-					err = member.StartWorkers(logicalName, grpcBindAddress, targetAdd, workerPath)
+					err = member.StartWorkers(logicalName, grpcBindAddress, targetAdd, workerPath, versions)
 					if err == nil {
 						time.Sleep(time.Second * time.Duration(5))
 						result := member.ConfigurationValidation(tenant, connectorType)
