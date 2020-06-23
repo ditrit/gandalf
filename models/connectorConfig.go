@@ -11,7 +11,7 @@ type ConnectorConfig struct {
 	Name                  string
 	ConnectorTypeID       uint
 	ConnectorType         ConnectorType
-	Version               string
+	Version               int
 	ConnectorProductID    uint
 	ConnectorProduct      ConnectorProduct
 	ConnectorTypeCommands []ConnectorTypeCommand `gorm:"many2many:config_commands;"`

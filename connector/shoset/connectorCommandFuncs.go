@@ -4,7 +4,6 @@ package shoset
 import (
 	"errors"
 	"log"
-	"strconv"
 
 	"github.com/ditrit/gandalf-core/connector/utils"
 	"github.com/ditrit/gandalf-core/models"
@@ -13,6 +12,7 @@ import (
 	"github.com/ditrit/shoset/msg"
 )
 
+//TODO REVOIR ALL
 // HandleCommand : Connector handle command function.
 func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	cmd := message.(msg.Command)
@@ -23,23 +23,22 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle command")
 	log.Println(cmd)
 
-	mapconfig := ch.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	var config []*models.ConnectorConfig
+	config := ch.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	connectorType := ch.Context["connectorType"].(string)
+	//connectorTypeConfig := utils.GetConnectorType(connectorType, config)
+	var connectorTypeConfig *models.ConnectorConfig
 
-	//TODO REVOIR MAJOR STRING
 	if cmd.Major == 0 {
-		versions := ch.Context["versions"].([]string)
+		versions := ch.Context["versions"].([]int64)
 		lastVersion := versions[len(versions)-1]
-		config = mapconfig[lastVersion]
-		lastVersionInt, _ := strconv.ParseInt(lastVersion, 10, 8)
-		cmd.Major = int8(lastVersionInt)
+		connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(lastVersion, config[connectorType])
+		cmd.Major = int8(lastVersion)
 	} else {
-		config = mapconfig[strconv.Itoa(int(cmd.Major))]
+		connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(cmd.Major), config[connectorType])
 	}
 
 	//config := ch.Context["connectorsConfig"].([]models.ConnectorConfig)
-	connectorType := ch.Context["connectorType"].(string)
-	connectorTypeConfig := utils.GetConnectorType(connectorType, config)
+
 	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
 	validate := utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
 

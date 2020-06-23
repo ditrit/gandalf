@@ -41,12 +41,13 @@ func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) 
 	return result
 }
 
-func GetConnectorTypeConfigByVersion(version string, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
-	if version == "" {
+//TODO REVOIR
+func GetConnectorTypeConfigByVersion(version int64, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
+	if version == 0 {
 		result = list[0]
 	} else {
 		for _, connectorConfig := range list {
-			if connectorConfig.Version == version {
+			if int64(connectorConfig.Version) == version {
 				result = connectorConfig
 				break
 			}

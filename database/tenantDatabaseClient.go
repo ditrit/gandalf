@@ -133,13 +133,13 @@ func DemoCreateConfigurationUtils(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
 		ConnectorType:         ConnectorTypeUtils,
-		Version:               "0",
+		Version:               1,
 		ConnectorTypeCommands: ConnectorTypeUtilsCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
 		ConnectorType:         ConnectorTypeUtils,
-		Version:               "1",
+		Version:               2,
 		ConnectorTypeCommands: ConnectorTypeUtilsCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
@@ -156,7 +156,7 @@ func DemoCreateConfigurationWorkflow(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig2",
 		ConnectorType:         ConnectorTypeWorkflow,
-		Version:               "0",
+		Version:               1,
 		ConnectorTypeCommands: ConnectorTypeWorkflowCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 }
@@ -178,7 +178,7 @@ func DemoCreateConfigurationAzure(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig4",
 		ConnectorType:         ConnectorTypeAzure,
-		Version:               "0",
+		Version:               1,
 		ConnectorProduct:      ConnectorProductAzure,
 		ConnectorTypeCommands: ConnectorTypeAzureCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
@@ -203,7 +203,7 @@ func DemoCreateConfigurationGitlab(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig3",
 		ConnectorType:         ConnectorTypeGitlab,
-		Version:               "0",
+		Version:               1,
 		ConnectorProduct:      ConnectorProductGitlab,
 		ConnectorTypeCommands: ConnectorTypeGitlabCommands,
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})

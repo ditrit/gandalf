@@ -26,23 +26,24 @@ type ConnectorMember struct {
 	chaussette                  *net.Shoset
 	connectorGrpc               grpc.ConnectorGrpc
 	connectorType               string
-	versions                    []string
+	versions                    []int
 	timeoutMax                  int64
-	connectorsConfig            []*models.ConnectorConfig
-	mapVersionConnectorCommands map[string][]string
+	mapConnectorsConfig         map[string][]*models.ConnectorConfig
+	mapVersionConnectorCommands map[int64][]string
 }
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, tenant, connectorType, logPath string, versions []string) *ConnectorMember {
+func NewConnectorMember(logicalName, tenant, connectorType, logPath string, versions []int) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.versions = versions
-	member.mapVersionConnectorCommands = make(map[string][]string)
+	member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
+	member.mapVersionConnectorCommands = make(map[int64][]string)
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
 	member.chaussette.Context["versions"] = versions
-	member.chaussette.Context["connectorsConfig"] = member.connectorsConfig
+	member.chaussette.Context["mapConnectorsConfig"] = member.mapConnectorsConfig
 	member.chaussette.Context["mapVersionConnectorCommands"] = member.mapVersionConnectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
@@ -103,10 +104,10 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 }
 
 // StartWorkers : start workers
-func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string, versions []string) (err error) {
+func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string, versions []int) (err error) {
 
 	for _, version := range versions {
-		workersPathVersion := workersPath + "/" + version
+		workersPathVersion := workersPath + "/" + strconv.Itoa(version)
 		files, err := ioutil.ReadDir(workersPathVersion)
 
 		if err != nil {
@@ -133,10 +134,9 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 	return nil
 }
 
-//TODO VERIFICATION ERROR
 // ConfigurationValidation : validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
-	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[string][]string)
+	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[int64][]string)
 	if mapVersionConnectorCommands == nil {
 		log.Printf("Can't find map version/commands")
 	}
@@ -177,7 +177,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerPath, logPath string, timeoutMax int64, versions []string) *ConnectorMember {
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerPath, logPath string, timeoutMax int64, versions []int) *ConnectorMember {
 	member := NewConnectorMember(logicalName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 
