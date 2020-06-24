@@ -4,6 +4,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"time"
@@ -79,11 +80,22 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	log.Println("Handle send command")
 
 	cmd := pb.CommandFromGrpc(in)
-
+	fmt.Println("cmd")
+	fmt.Println(cmd)
+	fmt.Println(cmd.GetCommand())
+	fmt.Println(cmd.GetContext())
+	fmt.Println(cmd.GetContext()["connectorType"])
 	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	connectorType := r.Shoset.Context["connectorType"].(string)
+	//connectorType := r.Shoset.Context["connectorType"].(string)
+	connectorType := cmd.GetContext()["connectorType"].(string)
+	fmt.Println("config")
+	fmt.Println(config)
+	fmt.Println("connectorType")
+	fmt.Println(connectorType)
+
 	validate := false
 	if listConnectorTypeConfig, ok := config[connectorType]; ok {
+		fmt.Println("validation")
 		connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
 		connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
 		validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
@@ -153,6 +165,7 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 	return
 }
 
+//TODO REVOIR
 //SendEventMessage : Connector send event function.
 func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (empty *pb.Empty, err error) {
 	log.Println("Handle send event")
@@ -162,8 +175,43 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 	thisOne := r.Shoset.GetBindAddr()
 
 	if evt.GetReferenceUUID() == "" {
-		config := r.Shoset.Context["connectorConfig"].(models.ConnectorConfig)
-		connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), config.ConnectorTypeEvents)
+		config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+		connectorType := r.Shoset.Context["connectorType"].(string)
+
+		//connectorType := strings.Split(evt.GetEvent(), ".")[0]
+
+		var connectorTypeConfig *models.ConnectorConfig
+
+		if evt.Major == 0 {
+			fmt.Println("MAJOR UP")
+			//REVOIR POUR MAX VERSIONS
+			versions := r.Shoset.Context["versions"].([]int64)
+			fmt.Println("Version")
+			fmt.Println(versions)
+
+			maxVersion := utils.GetMaxVersion(versions)
+			evt.Major = int8(maxVersion)
+			fmt.Println("maxVersion")
+			fmt.Println(maxVersion)
+
+			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, config[connectorType])
+		} else {
+			fmt.Println("MAJOR DOWN")
+			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(evt.Major), config[connectorType])
+
+		}
+		fmt.Println("connectorTypeConfig")
+		fmt.Println(connectorTypeConfig)
+
+		fmt.Println("connectorTypeConfig.ConnectorTypeEvents")
+		fmt.Println(connectorTypeConfig.ConnectorTypeEvents)
+		//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+		connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), connectorTypeConfig.ConnectorTypeEvents)
+
+		fmt.Println("connectorTypeEvent")
+		fmt.Println(connectorTypeEvent)
+		fmt.Println("connectorTypeEvent.Schema")
+		fmt.Println(connectorTypeEvent.Schema)
 		validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
 	}
 

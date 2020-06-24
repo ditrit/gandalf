@@ -2,6 +2,8 @@
 package utils
 
 import (
+	"fmt"
+	"log"
 	"os"
 
 	"github.com/ditrit/gandalf-core/models"
@@ -29,6 +31,17 @@ func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) 
 //
 func IsExecAll(mode os.FileMode) bool {
 	return mode&0111 == 0111
+}
+
+//GetMaxVersion
+func GetMaxVersion(versions []int64) (maxversion int64) {
+	maxversion = -1
+	for _, version := range versions {
+		if version > maxversion {
+			maxversion = version
+		}
+	}
+	return
 }
 
 func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
@@ -79,28 +92,34 @@ func GetConnectorTypeEvent(eventName string, list []models.ConnectorTypeEvent) (
 	return result
 }
 
-//
+//ValidatePayload
 func ValidatePayload(payload, payloadSchema string) (result bool) {
+	result = false
 
+	fmt.Println(payload)
+	fmt.Println(payloadSchema)
 	payloadloader := gojsonschema.NewStringLoader(payload)
 	payloadSchemaloader := gojsonschema.NewStringLoader(payloadSchema)
 
-	validate, err := gojsonschema.Validate(payloadloader, payloadSchemaloader)
-	if err != nil {
-		panic(err.Error())
-	}
+	fmt.Println("payloadloader")
+	fmt.Println(payloadloader)
+	fmt.Println("payloadSchemaloader")
+	fmt.Println(payloadSchemaloader)
 
-	if validate.Valid() {
-		//LOG
-		//fmt.Printf("The document is valid\n")
-		result = true
+	validate, err := gojsonschema.Validate(payloadSchemaloader, payloadloader)
+	if err != nil {
+		//TODO REVOIR
+		os.Exit(1)
+		log.Printf("Error on validation payload : %s", err)
 	} else {
-		/*fmt.Printf("The document is not valid. see errors :\n")
-		for _, desc := range result.Errors() {
-			fmt.Printf("- %s\n", desc)
-		}*/
-		result = false
+		if validate.Valid() {
+			//LOG
+			//fmt.Printf("The document is valid\n")
+			result = true
+		}
 	}
+	fmt.Println("RESULT")
+	fmt.Println(result)
 	return result
 
 }

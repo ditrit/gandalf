@@ -26,14 +26,14 @@ type ConnectorMember struct {
 	chaussette                  *net.Shoset
 	connectorGrpc               grpc.ConnectorGrpc
 	connectorType               string
-	versions                    []int
+	versions                    []int64
 	timeoutMax                  int64
 	mapConnectorsConfig         map[string][]*models.ConnectorConfig
 	mapVersionConnectorCommands map[int64][]string
 }
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, tenant, connectorType, logPath string, versions []int) *ConnectorMember {
+func NewConnectorMember(logicalName, tenant, connectorType, logPath string, versions []int64) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
@@ -104,10 +104,10 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 }
 
 // StartWorkers : start workers
-func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string, versions []int) (err error) {
+func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string, versions []int64) (err error) {
 
 	for _, version := range versions {
-		workersPathVersion := workersPath + "/" + strconv.Itoa(version)
+		workersPathVersion := workersPath + "/" + strconv.Itoa(int(version))
 		files, err := ioutil.ReadDir(workersPathVersion)
 
 		if err != nil {
@@ -177,7 +177,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerPath, logPath string, timeoutMax int64, versions []int) *ConnectorMember {
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
 	member := NewConnectorMember(logicalName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 

@@ -135,13 +135,13 @@ func DemoCreateConfigurationUtils(tenantDatabaseClient *gorm.DB) {
 		ConnectorType:         ConnectorTypeUtils,
 		Version:               1,
 		ConnectorTypeCommands: ConnectorTypeUtilsCommands,
-		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
+		ConnectorTypeEvents:   ConnectorTypeUtilsEvents})
 
-	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
+	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig2",
 		ConnectorType:         ConnectorTypeUtils,
 		Version:               2,
 		ConnectorTypeCommands: ConnectorTypeUtilsCommands,
-		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
+		ConnectorTypeEvents:   ConnectorTypeUtilsEvents})
 
 }
 
@@ -154,7 +154,7 @@ func DemoCreateConfigurationWorkflow(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Where("name IN (?)", []string{}).Find(&ConnectorTypeWorkflowCommands)
 
-	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig2",
+	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig3",
 		ConnectorType:         ConnectorTypeWorkflow,
 		Version:               1,
 		ConnectorTypeCommands: ConnectorTypeWorkflowCommands,
@@ -201,7 +201,7 @@ func DemoCreateConfigurationGitlab(tenantDatabaseClient *gorm.DB) {
 
 	tenantDatabaseClient.Where("name IN (?)", []string{"Gitlab1", "Gitlab2", "Gitlab3"}).Find(&ConnectorTypeGitlabCommands)
 
-	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig3",
+	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig5",
 		ConnectorType:         ConnectorTypeGitlab,
 		Version:               1,
 		ConnectorProduct:      ConnectorProductGitlab,

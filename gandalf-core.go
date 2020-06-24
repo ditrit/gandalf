@@ -207,13 +207,13 @@ func main() {
 				LinkAdd := args[5]
 				ConnectorType := args[6]
 
-				Versions := []int{}
+				Versions := []int64{}
 
 				if len(args) >= 8 {
 					VersionsSplit := strings.Split(args[7], ",")
 					for _, version := range VersionsSplit {
 						versionInt, _ := strconv.Atoi(version) // int 32bit
-						Versions = append(Versions, versionInt)
+						Versions = append(Versions, int64(versionInt))
 					}
 				}
 
