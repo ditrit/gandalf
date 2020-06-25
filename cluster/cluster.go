@@ -3,9 +3,11 @@ package cluster
 
 import (
 	"github.com/ditrit/gandalf-core/cluster/shoset"
+	//"github.com/ditrit/gandalf-core/configuration"
 	"github.com/ditrit/gandalf-core/database"
 	coreLog "github.com/ditrit/gandalf-core/log"
 	net "github.com/ditrit/shoset"
+	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -19,11 +21,13 @@ type ClusterMember struct {
 	MapDatabaseClient map[string]*gorm.DB
 }
 
+/*
 func InitClusterKeys(){
 	_ = configuration.SetStringKeyConfig("cluster","join","j","clusterAddress","link the cluster member to another one")
 	_ = configuration.SetStringKeyConfig("cluster","cluster_log","","/etc/gandalf/log","path of the log file")
 	_ = configuration.SetStringKeyConfig("cluster","gandalf_db","d","pathToTheDB","path for the gandalf database")
 }
+*/
 // NewClusterMember : Cluster struct constructor.
 func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember {
 

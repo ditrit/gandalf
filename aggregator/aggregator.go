@@ -3,6 +3,7 @@ package aggregator
 
 import (
 	"github.com/ditrit/gandalf-core/aggregator/shoset"
+	//"github.com/ditrit/gandalf-core/configuration"
 	coreLog "github.com/ditrit/gandalf-core/log"
 	"log"
 	net "github.com/ditrit/shoset"
@@ -15,11 +16,11 @@ type AggregatorMember struct {
 }
 
 
-func InitAggregatorKeys(){
+/*func InitAggregatorKeys(){
 	_ = configuration.SetStringKeyConfig("aggregator","aggregator_tenant","","tenant1","tenant of the aggregator")
 	_ = configuration.SetStringKeyConfig("aggregator","cluster","","address1[:9800],address2[:6300],address3","clusters addresses linked to the aggregator")
 	_ = configuration.SetStringKeyConfig("aggregator","aggregator_log","","/etc/gandalf/log","path of the log file")
-}
+}*/
 
 func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)

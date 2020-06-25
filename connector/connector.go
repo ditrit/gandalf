@@ -3,6 +3,7 @@ package connector
 
 import (
 	"fmt"
+	//"github.com/ditrit/gandalf-core/configuration"
 	"github.com/ditrit/gandalf-core/connector/grpc"
 	"github.com/ditrit/gandalf-core/connector/shoset"
 	"github.com/ditrit/gandalf-core/connector/utils"
@@ -27,6 +28,7 @@ type ConnectorMember struct {
 	connectorConfig   *models.ConnectorConfig
 	connectorCommands []string
 }
+/*
 func InitConnectorKeys(){
 	_ = configuration.SetStringKeyConfig("connector","tenant","t","tenant1","tenant of the connector")
 	_ = configuration.SetStringKeyConfig("connector","category","c","svn","category of the connector")
@@ -36,7 +38,7 @@ func InitConnectorKeys(){
 	_ = configuration.SetStringKeyConfig("connector","product_url","u","url1,url2,url3","product url list of the connector")
 	_ = configuration.SetStringKeyConfig("connector","connector_log","","/etc/gandalf/log","path of the log file")
 	_ = configuration.SetIntegerKeyConfig("connector","max_timeout","",100,"maximum timeout of the connector")
-}
+}*/
 
 // NewConnectorMember : Connector struct constructor.
 func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *ConnectorMember {

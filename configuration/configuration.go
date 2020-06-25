@@ -79,7 +79,7 @@ func InitMainConfigKeys() {
 }
 
 func InitCoreKeys() {
-	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
+	_ = SetStringKeyConfig("core", "config_file", "f", "/home/zippo/go/src/core/configuration/elements/gandalf.yaml", "path to the configuration file", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core","bind_address","b","","Bind address",true)
@@ -201,7 +201,7 @@ func defaultParse() error {
 	return nil
 }
 
-func isConfigValid() error {
+func IsConfigValid() error {
 	gandalfType := *(ConfigKeys["gandalf_type"].value)
 	if gandalfType != "connector" && gandalfType != "cluster" && gandalfType != "aggregator" {
 		return errors.New("gandalf type isn't valid")
@@ -333,7 +333,7 @@ func ConfigMain() {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	err = isConfigValid()
+	err = IsConfigValid()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
