@@ -43,7 +43,6 @@ func InitConnectorKeys(){
 // NewConnectorMember : Connector struct constructor.
 func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *ConnectorMember {
 
-
 	member := new(ConnectorMember)
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")

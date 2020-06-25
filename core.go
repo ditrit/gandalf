@@ -43,7 +43,6 @@ func main() {
 					done := make(chan bool)
 					//CREATE CLUSTER
 					fmt.Println("Running Gandalf with:")
-					fmt.Println("  Mode : " + mode)
 					fmt.Println("  Logical Name : " + gandalfLogicalName)
 					fmt.Println("  Bind Address : " + gandalfBindAddress)
 					fmt.Println("  Log Path : " + gandalfLogPath)
@@ -56,13 +55,13 @@ func main() {
 					done := make(chan bool)
 					//CREATE CLUSTER
 					fmt.Println("Running Gandalf with:")
-					fmt.Println("  Mode : " + mode)
 					fmt.Println("  Logical Name : " + gandalfLogicalName)
 					fmt.Println("  Bind Address : " + gandalfBindAddress)
 					fmt.Println("  Join Address : " + gandalfJoin)
 					fmt.Println("  Log Path : " + gandalfLogPath)
 					fmt.Println("  Db Path : " + gandalfDBPath)
 					member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
+
 					add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 					id := len(*member.Store)
 
@@ -75,7 +74,6 @@ func main() {
 			break
 		case "aggregator":
 			//CREATE AGGREGATOR
-
 			gandalfTenant, err := configuration.GetStringConfig("tenant")
 			if err != nil {
 				log.Fatalf("no valid tenant : %v", err)
@@ -131,7 +129,7 @@ func main() {
 			fmt.Println("  Grpc Bind Address : " + gandalfGRPCBindAddress)
 			fmt.Println("  Link Address : " + gandalfAggregatorLink)
 			fmt.Println("  Log Path : " + gandalfLogPath)
-			fmt.Printf("   Timeout Max : %d \n", gandalfMaxTimeout)
+			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 			done := make(chan bool)
 			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProductUrl, gandalfWorkers, gandalfLogPath, int64(gandalfMaxTimeout))
 			<-done
@@ -141,3 +139,5 @@ func main() {
 			break
 		}
 	}
+
+}

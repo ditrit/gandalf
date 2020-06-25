@@ -27,10 +27,10 @@ func InitClusterKeys(){
 	_ = configuration.SetStringKeyConfig("cluster","cluster_log","","/etc/gandalf/log","path of the log file")
 	_ = configuration.SetStringKeyConfig("cluster","gandalf_db","d","pathToTheDB","path for the gandalf database")
 }
+<<<<<<< HEAD
 */
 // NewClusterMember : Cluster struct constructor.
 func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember {
-
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
 	member.MapDatabaseClient = make(map[string]*gorm.DB)

@@ -22,6 +22,7 @@ type AggregatorMember struct {
 	_ = configuration.SetStringKeyConfig("aggregator","aggregator_log","","/etc/gandalf/log","path of the log file")
 }*/
 
+// NewAggregatorMember :
 func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")
