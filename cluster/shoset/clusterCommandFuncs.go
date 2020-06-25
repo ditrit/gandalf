@@ -3,12 +3,14 @@ package shoset
 
 import (
 	"errors"
+	"fmt"
+	"log"
+
 	cutils "github.com/ditrit/gandalf-core/cluster/utils"
 	"github.com/ditrit/gandalf-core/models"
-	"log"
-	"github.com/ditrit/shoset/msg"
-	net "github.com/ditrit/shoset"
 
+	net "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
 	"github.com/jinzhu/gorm"
 )
 
@@ -40,7 +42,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 				}
 
 				app := cutils.GetApplicationContext(cmd, databaseClient)
-
+				fmt.Println(cmd)
+				fmt.Println(app)
 				if app != (models.Application{}) {
 					cmd.Target = app.Connector.Name
 					shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator.Name), "a")

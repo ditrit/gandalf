@@ -2,11 +2,14 @@
 package aggregator
 
 import (
-	"github.com/ditrit/gandalf-core/aggregator/shoset"
-	coreLog "github.com/ditrit/gandalf-core/log"
 	"log"
-	net "github.com/ditrit/shoset"
 	"time"
+
+	coreLog "github.com/ditrit/gandalf-core/log"
+
+	"github.com/ditrit/gandalf-core/aggregator/shoset"
+
+	net "github.com/ditrit/shoset"
 )
 
 // AggregatorMember : Aggregator struct.
@@ -14,7 +17,14 @@ type AggregatorMember struct {
 	chaussette *net.Shoset
 }
 
-// NewAggregatorMember : Aggregator struct constructor.
+
+/*func InitAggregatorKeys(){
+	_ = configuration.SetStringKeyConfig("aggregator","aggregator_tenant","","tenant1","tenant of the aggregator")
+	_ = configuration.SetStringKeyConfig("aggregator","cluster","","address1[:9800],address2[:6300],address3","clusters addresses linked to the aggregator")
+	_ = configuration.SetStringKeyConfig("aggregator","aggregator_log","","/etc/gandalf/log","path of the log file")
+}*/
+
+// NewAggregatorMember :
 func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")

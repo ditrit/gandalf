@@ -4,15 +4,19 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
+	"net"
+	"time"
+
 	"github.com/ditrit/gandalf-core/connector/utils"
+
 	pb "github.com/ditrit/gandalf-core/grpc"
 
 	"github.com/ditrit/gandalf-core/models"
-	"log"
-	"net"
-	"github.com/ditrit/shoset/msg"
+
 	sn "github.com/ditrit/shoset"
-	"time"
+	"github.com/ditrit/shoset/msg"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -64,7 +68,10 @@ func (r ConnectorGrpc) StartGrpcServer() {
 //SendCommandList : Connector send command list function.
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
 	log.Println("Handle send command list")
-	r.Shoset.Context["connectorCommands"] = append(r.Shoset.Context["connectorCommands"].([]string), in.GetCommands()...)
+	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int64][]string)
+	mapVersionConnectorCommands[in.GetMajor()] = append(mapVersionConnectorCommands[in.GetMajor()], in.GetCommands()...)
+	r.Shoset.Context["mapVersionConnectorCommands"] = mapVersionConnectorCommands
+	//r.Shoset.Context["mapVersionConnectorCommands"] = append(r.Shoset.Context["connectorCommands"].([]string), in.GetCommands()...)
 	return &pb.Empty{}, nil
 }
 
@@ -73,10 +80,26 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	log.Println("Handle send command")
 
 	cmd := pb.CommandFromGrpc(in)
+	fmt.Println("cmd")
+	fmt.Println(cmd)
+	fmt.Println(cmd.GetCommand())
+	fmt.Println(cmd.GetContext())
+	fmt.Println(cmd.GetContext()["connectorType"])
+	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	//connectorType := r.Shoset.Context["connectorType"].(string)
+	connectorType := cmd.GetContext()["connectorType"].(string)
+	fmt.Println("config")
+	fmt.Println(config)
+	fmt.Println("connectorType")
+	fmt.Println(connectorType)
 
-	config := r.Shoset.Context["connectorConfig"].(models.ConnectorConfig)
-	connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), config.ConnectorTypeCommands)
-	validate := utils.ValidateCommandPayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+	validate := false
+	if listConnectorTypeConfig, ok := config[connectorType]; ok {
+		fmt.Println("validation")
+		connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+		connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
+		validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+	}
 
 	if validate {
 		cmd.Tenant = r.Shoset.Context["tenant"].(string)
@@ -90,7 +113,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 			iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
 			iterator := r.MapIterators[iteratorMessage.GetId()]
 
-			go r.runIterator(cmd.GetUUID(), "validation", iterator, r.ValidationChannel)
+			go r.runIteratorEvent(cmd.GetCommand(), "ON_GOING", cmd.GetUUID(), iterator, r.ValidationChannel)
 
 			notSend := true
 			for notSend {
@@ -134,7 +157,7 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIterator(in.GetValue(), "cmd", iterator, r.MapCommandChannel[in.GetIteratorId()])
+	go r.runIteratorCommand(in.GetValue(), in.GetMajor(), iterator, r.MapCommandChannel[in.GetIteratorId()])
 
 	messageChannel := <-r.MapCommandChannel[in.GetIteratorId()]
 	commandMessage = pb.CommandToGrpc(messageChannel.(msg.Command))
@@ -142,24 +165,71 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 	return
 }
 
+//TODO REVOIR
 //SendEventMessage : Connector send event function.
-func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (*pb.Empty, error) {
+func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (empty *pb.Empty, err error) {
 	log.Println("Handle send event")
-
+	validate := true
 	evt := pb.EventFromGrpc(in)
 	evt.Tenant = r.Shoset.Context["tenant"].(string)
 	thisOne := r.Shoset.GetBindAddr()
 
-	r.Shoset.ConnsByAddr.Iterate(
-		func(key string, val *sn.ShosetConn) {
-			if key != r.Shoset.GetBindAddr() && key != thisOne && val.ShosetType == "a" {
-				val.SendMessage(evt)
-				log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
-			}
-		},
-	)
+	if evt.GetReferenceUUID() == "" {
+		config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+		connectorType := r.Shoset.Context["connectorType"].(string)
 
-	return &pb.Empty{}, nil
+		//connectorType := strings.Split(evt.GetEvent(), ".")[0]
+
+		var connectorTypeConfig *models.ConnectorConfig
+
+		if evt.Major == 0 {
+			fmt.Println("MAJOR UP")
+			//REVOIR POUR MAX VERSIONS
+			versions := r.Shoset.Context["versions"].([]int64)
+			fmt.Println("Version")
+			fmt.Println(versions)
+
+			maxVersion := utils.GetMaxVersion(versions)
+			evt.Major = int8(maxVersion)
+			fmt.Println("maxVersion")
+			fmt.Println(maxVersion)
+
+			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, config[connectorType])
+		} else {
+			fmt.Println("MAJOR DOWN")
+			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(evt.Major), config[connectorType])
+
+		}
+		fmt.Println("connectorTypeConfig")
+		fmt.Println(connectorTypeConfig)
+
+		fmt.Println("connectorTypeConfig.ConnectorTypeEvents")
+		fmt.Println(connectorTypeConfig.ConnectorTypeEvents)
+		//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+		connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), connectorTypeConfig.ConnectorTypeEvents)
+
+		fmt.Println("connectorTypeEvent")
+		fmt.Println(connectorTypeEvent)
+		fmt.Println("connectorTypeEvent.Schema")
+		fmt.Println(connectorTypeEvent.Schema)
+		validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
+	}
+
+	if validate {
+		r.Shoset.ConnsByAddr.Iterate(
+			func(key string, val *sn.ShosetConn) {
+				if key != r.Shoset.GetBindAddr() && key != thisOne && val.ShosetType == "a" {
+					val.SendMessage(evt)
+					log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
+				}
+			},
+		)
+	} else {
+		log.Println("wrong payload command")
+		err = errors.New("wrong payload command")
+	}
+
+	return &pb.Empty{}, err
 }
 
 //WaitEventMessage : Connector wait event function.
@@ -168,7 +238,7 @@ func (r ConnectorGrpc) WaitEventMessage(ctx context.Context, in *pb.EventMessage
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIterator(in.GetEvent(), "evt", iterator, r.EventChannel)
+	go r.runIteratorEvent(in.GetTopic(), in.GetEvent(), in.GetReferenceUUID(), iterator, r.EventChannel)
 
 	messageChannel := <-r.EventChannel
 	messageEvent = pb.EventToGrpc(messageChannel.(msg.Event))
@@ -182,7 +252,7 @@ func (r ConnectorGrpc) WaitTopicMessage(ctx context.Context, in *pb.TopicMessage
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIterator(in.GetTopic(), "topic", iterator, r.EventChannel)
+	go r.runIteratorTopic(in.GetTopic(), in.GetReferenceUUID(), iterator, r.EventChannel)
 
 	messageChannel := <-r.EventChannel
 	messageEvent = pb.EventToGrpc(messageChannel.(msg.Event))
@@ -225,17 +295,18 @@ func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (i
 }
 
 // runIterator : Iterator run function.
-func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator, channel chan msg.Message) {
-	log.Printf("Run iterator %s on value %s", msgtype, value)
+func (r ConnectorGrpc) runIteratorCommand(command string, version int64, iterator *msg.Iterator, channel chan msg.Message) {
+	log.Printf("Run iterator command on command %s", command)
 
 	for {
 		messageIterator := iterator.Get()
 
 		if messageIterator != nil {
-			if msgtype == "cmd" {
-				message := (messageIterator.GetMessage()).(msg.Command)
+			message := (messageIterator.GetMessage()).(msg.Command)
 
-				if value == message.GetCommand() {
+			if command == message.GetCommand() {
+				major := int64(message.GetMajor())
+				if version == 0 || (version != 0 && major == version) {
 					log.Println("Get iterator command")
 					log.Println(message)
 
@@ -243,21 +314,67 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-			} else if msgtype == "evt" {
-				message := (messageIterator.GetMessage()).(msg.Event)
+			}
+		}
+		time.Sleep(time.Duration(2000) * time.Millisecond)
+	}
+	//delete(r.MapIterators, iteratorId)
+}
 
-				if value == message.Event {
-					log.Println("Get iterator event")
+// runIteratorEvent : Iterator run function.
+func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iterator *msg.Iterator, channel chan msg.Message) {
+	log.Printf("Run iterator event on topic %s, event %s, ref %s", topic, event, referenceUUID)
+
+	for {
+		messageIterator := iterator.Get()
+
+		if messageIterator != nil {
+			message := (messageIterator.GetMessage()).(msg.Event)
+			if topic == message.Topic {
+				if event == message.Event {
+					if referenceUUID != "" && referenceUUID == message.GetReferenceUUID() {
+						log.Println("Get iterator event")
+						log.Println(message)
+
+						channel <- message
+
+						break
+					} else {
+						log.Println("Get iterator event")
+						log.Println(message)
+
+						channel <- message
+
+						break
+					}
+				}
+			}
+		}
+		time.Sleep(time.Duration(2000) * time.Millisecond)
+	}
+	//delete(r.MapIterators, iteratorId)
+}
+
+// runIteratorTopic : Iterator run function.
+func (r ConnectorGrpc) runIteratorTopic(topic, referenceUUID string, iterator *msg.Iterator, channel chan msg.Message) {
+	log.Printf("Run iterator topic on topic %s ref %s", topic, referenceUUID)
+
+	for {
+		messageIterator := iterator.Get()
+
+		if messageIterator != nil {
+			message := (messageIterator.GetMessage()).(msg.Event)
+
+			if topic == message.Topic {
+
+				if referenceUUID != "" && referenceUUID == message.GetReferenceUUID() {
+					log.Println("Get iterator event by topic and ref")
 					log.Println(message)
 
 					channel <- message
 
 					break
-				}
-			} else if msgtype == "topic" {
-				message := (messageIterator.GetMessage()).(msg.Event)
-
-				if value == message.Topic {
+				} else {
 					log.Println("Get iterator event by topic")
 					log.Println(message)
 
@@ -265,18 +382,9 @@ func (r ConnectorGrpc) runIterator(value, msgtype string, iterator *msg.Iterator
 
 					break
 				}
-			} else if msgtype == "validation" {
-				message := (messageIterator.GetMessage()).(msg.Event)
 
-				if value == message.ReferencesUUID && message.Event == "TAKEN" {
-					log.Println("Get iterator event validation")
-					log.Println(message)
-
-					channel <- message
-
-					break
-				}
 			}
+
 		}
 		time.Sleep(time.Duration(2000) * time.Millisecond)
 	}

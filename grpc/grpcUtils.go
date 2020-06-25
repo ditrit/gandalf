@@ -1,8 +1,9 @@
 package grpc
 
 import (
-	"github.com/ditrit/shoset/msg"
 	"strconv"
+
+	"github.com/ditrit/shoset/msg"
 )
 
 //CommandMessageFromGrpc :
@@ -18,10 +19,8 @@ func CommandFromGrpc(commandMessage *CommandMessage) (c msg.Command) {
 	//c.Context = commandMessage.GetContext()
 	c.Timeout, _ = strconv.ParseInt(commandMessage.GetTimeout(), 10, 64)
 	c.Timestamp, _ = strconv.ParseInt(commandMessage.GetTimestamp(), 10, 64)
-	majorInt, _ := strconv.ParseInt(commandMessage.GetMajor(), 10, 8)
-	c.Major = int8(majorInt)
-	minorInt, _ := strconv.ParseInt(commandMessage.GetMinor(), 10, 8)
-	c.Minor = int8(minorInt)
+	c.Major = int8(commandMessage.GetMajor())
+	c.Minor = int8(commandMessage.GetMinor())
 	c.UUID = commandMessage.GetUUID()
 	c.Context = make(map[string]interface{})
 	c.Context["connectorType"] = commandMessage.GetConnectorType()
@@ -46,8 +45,8 @@ func CommandToGrpc(c msg.Command) (commandMessage *CommandMessage) {
 	//commandMessage.Context = c.Context
 	commandMessage.Timeout = strconv.Itoa(int(c.Timeout))
 	commandMessage.Timestamp = strconv.Itoa(int(c.Timestamp))
-	commandMessage.Major = strconv.Itoa(int(c.Major))
-	commandMessage.Minor = strconv.Itoa(int(c.Minor))
+	commandMessage.Major = int64(c.Major)
+	commandMessage.Minor = int64(c.Minor)
 	commandMessage.UUID = c.UUID
 	//commandMessage.ConnectorType = c.ConnectorType
 	//commandMessage.CommandType = c.CommandType
@@ -67,6 +66,7 @@ func EventFromGrpc(eventMessage *EventMessage) (e msg.Event) {
 	e.Topic = eventMessage.GetTopic()
 	e.Event = eventMessage.GetEvent()
 	e.Payload = eventMessage.GetPayload()
+	e.ReferenceUUID = eventMessage.GetReferenceUUID()
 
 	return
 }
@@ -82,6 +82,7 @@ func EventToGrpc(e msg.Event) (eventMessage *EventMessage) {
 	eventMessage.Topic = e.Topic
 	eventMessage.Event = e.Event
 	eventMessage.Payload = e.Payload
+	eventMessage.ReferenceUUID = e.ReferenceUUID
 
 	return
 }

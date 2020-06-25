@@ -4,10 +4,12 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	cutils "github.com/ditrit/gandalf-core/cluster/utils"
 	"log"
-	"github.com/ditrit/shoset/msg"
+
+	cutils "github.com/ditrit/gandalf-core/cluster/utils"
+
 	net "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
 
 	"github.com/jinzhu/gorm"
 )
@@ -34,15 +36,8 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 			err = errors.New("Fail capture command" + conf.GetCommand() + " on tenant" + conf.GetTenant())
 		}
 
-	} else {
-		log.Println("Can't get database client by tenant")
-		err = errors.New("Can't get database client by tenant")
-	}
-
-	gandalfdatabaseClient := cutils.GetGandalfDatabaseClient(databasePath)
-	if gandalfdatabaseClient != nil {
-		configuration := cutils.GetConnectorConfiguration(conf, gandalfdatabaseClient)
-		jsonData, err := json.Marshal(configuration)
+		configurations := cutils.GetConnectorsConfiguration(conf, databaseClient)
+		jsonData, err := json.Marshal(configurations)
 
 		if err == nil {
 			cmdReply := msg.NewConfig(conf.GetTarget(), "CONF_REPLY", string(jsonData))
@@ -53,10 +48,19 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 			log.Println("Can't unmarshall configuration")
 			err = errors.New("Can't unmarshall configuration")
 		}
+
 	} else {
-		log.Println("Can't get gandalf database client")
-		err = errors.New("Can't get gandalf database client")
+		log.Println("Can't get database client by tenant")
+		err = errors.New("Can't get database client by tenant")
 	}
+
+	/* 	gandalfdatabaseClient := cutils.GetGandalfDatabaseClient(databasePath)
+	   	if gandalfdatabaseClient != nil {
+
+	   	} else {
+	   		log.Println("Can't get gandalf database client")
+	   		err = errors.New("Can't get gandalf database client")
+	   	} */
 
 	return err
 }

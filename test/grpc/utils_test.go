@@ -1,9 +1,10 @@
 package grpc
 
 import (
-	"github.com/ditrit/gandalf-core/grpc"
 	"strconv"
 	"testing"
+
+	"github.com/ditrit/gandalf-core/grpc"
 )
 
 func TestCommandFromGrpc(t *testing.T) {
