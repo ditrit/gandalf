@@ -1,8 +1,9 @@
 package test
 
 import (
-	"core/configuration"
 	"testing"
+
+	"github.com/ditrit/gandalf-core/configuration"
 )
 
 func TestSetStringKeyConfig(t *testing.T) {
@@ -22,23 +23,21 @@ func TestSetIntegerKeyConfig(t *testing.T) {
 }
 
 func TestGetStringConfig(t *testing.T) {
-	strVal,err := configuration.GetStringConfig("testStrKey")
+	strVal, err := configuration.GetStringConfig("testStrKey")
 
 	if err != nil {
 		t.Errorf("GetStringConfig shouldn't have failed because the key exists")
 	}
 
-	if strVal != ""{
+	if strVal != "" {
 		t.Errorf("the value of testKey shoud be an empty string")
 	}
 }
 
 func TestGetIntegerConfig(t *testing.T) {
-	_ ,err := configuration.GetIntegerConfig("testIntKey")
+	_, err := configuration.GetIntegerConfig("testIntKey")
 
 	if err == nil {
 		t.Errorf("GetIntegerConfig should fail because testIntKey is an empty string")
 	}
 }
-
-
