@@ -42,7 +42,7 @@ func main() {
 				if gandalfJoin == "" {
 					done := make(chan bool)
 					//CREATE CLUSTER
-					fmt.Println("Running Gandalf with:")
+					fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 					fmt.Println("  Logical Name : " + gandalfLogicalName)
 					fmt.Println("  Bind Address : " + gandalfBindAddress)
 					fmt.Println("  Log Path : " + gandalfLogPath)
@@ -54,7 +54,7 @@ func main() {
 				} else {
 					done := make(chan bool)
 					//CREATE CLUSTER
-					fmt.Println("Running Gandalf with:")
+					fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 					fmt.Println("  Logical Name : " + gandalfLogicalName)
 					fmt.Println("  Bind Address : " + gandalfBindAddress)
 					fmt.Println("  Join Address : " + gandalfJoin)
@@ -82,7 +82,7 @@ func main() {
 			if err != nil {
 				log.Fatalf("no valid cluster address: %v", err)
 			}
-			fmt.Println("Running Gandalf with:")
+			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 			fmt.Println("  Logical Name : " + gandalfLogicalName)
 			fmt.Println("  Tenant : " + gandalfTenant)
 			fmt.Println("  Bind Address : " + gandalfBindAddress)
@@ -95,39 +95,47 @@ func main() {
 		case "connector":
 			gandalfTenant, err := configuration.GetStringConfig("tenant")
 			if err != nil {
-				log.Fatalf("no valid tenant : %v", err)
+				log.Fatalf("Invalid tenant : %v", err)
 			}
 			gandalfGRPCBindAddress, err := configuration.GetStringConfig("grpc_bind_address")
 			if err != nil {
-				log.Fatalf("no valid tenant : %v", err)
+				log.Fatalf("Invalid  bind address : %v", err)
 			}
 			gandalfAggregatorLink, err := configuration.GetStringConfig("aggregators")
 			if err != nil {
-				log.Fatalf("no valid tenant : %v", err)
+				log.Fatalf("Invalid aggregator address to link to : %v", err)
 			}
 			gandalfConnectorType, err := configuration.GetStringConfig("connector_type")
 			if err != nil {
-				log.Fatalf("no valid connector type : %v", err)
+				log.Fatalf("Invalid connector type : %v", err)
+			}
+			gandalfProduct, err := configuration.GetStringConfig("product_name")
+			if err != nil {
+				log.Fatalf("Invalid product: %v", err)
 			}
 			gandalfProductUrl, err := configuration.GetStringConfig("product_url")
 			if err != nil {
-				log.Fatalf("no valid product url : %v", err)
+				log.Fatalf("Invalid product url : %v", err)
 			}
 			gandalfWorkers, err := configuration.GetStringConfig("workers")
 			if err != nil {
-				log.Fatalf("no valid workers path: %v", err)
+				log.Fatalf("Invalid workers path: %v", err)
 			}
 			gandalfMaxTimeout, err := configuration.GetIntegerConfig("max_timeout")
 			if err != nil {
-				log.Fatalf("no valid tenant : %v", err)
+				log.Fatalf("Invalid maximum timeout : %v", err)
 			}
 			//CREATE CONNECTOR
-			fmt.Println("Running Gandalf with:")
+			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 			fmt.Println("  Logical Name : " + gandalfLogicalName)
 			fmt.Println("  Tenant : " + gandalfTenant)
 			fmt.Println("  Bind Address : " + gandalfBindAddress)
 			fmt.Println("  Grpc Bind Address : " + gandalfGRPCBindAddress)
 			fmt.Println("  Link Address : " + gandalfAggregatorLink)
+			fmt.Println("  Connector Type : " + gandalfConnectorType)
+			fmt.Println("  Product : " + gandalfProduct)
+			fmt.Println("  Product Url : " + gandalfProductUrl)
+			fmt.Println("  Workers Path : " + gandalfWorkers)
 			fmt.Println("  Log Path : " + gandalfLogPath)
 			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 			done := make(chan bool)

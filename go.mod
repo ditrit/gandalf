@@ -7,6 +7,7 @@ require (
 	github.com/canonical/go-dqlite v1.5.2
 	github.com/ditrit/shoset v0.0.0-20200611153715-07e7c3d8ae04
 	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
 	github.com/jinzhu/gorm v1.9.12

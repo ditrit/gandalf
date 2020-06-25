@@ -21,7 +21,6 @@ type configKey struct {
 	usage      string  // usage string (CLI)
 	mandatory  bool    // is the value mandatory
 }
-
 var ConfigKeys = make(map[string]configKey)
 
 // SetStringKeyConfig :
@@ -79,7 +78,7 @@ func InitMainConfigKeys() {
 }
 
 func InitCoreKeys() {
-	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
+	_ = SetStringKeyConfig("core", "config_file", "f", "/home/zippo/go/src/core/configuration/elements/gandalf.yaml", "path to the configuration file", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core","bind_address","b","","Bind address",true)
@@ -337,7 +336,4 @@ func ConfigMain() {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	_ = printCfKeys()
-	fmt.Println("coucou : ", GetAddressesList(*ConfigKeys["aggregators"].value))
-	fmt.Println("coucou : ", GetAddressesList(*ConfigKeys["clusters"].value))
 }
