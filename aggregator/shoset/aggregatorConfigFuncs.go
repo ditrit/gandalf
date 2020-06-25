@@ -3,8 +3,9 @@ package shoset
 
 import (
 	"log"
-	"github.com/ditrit/shoset/msg"
+
 	net "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
 )
 
 // HandleConfigJoin : Aggregator handle config function.

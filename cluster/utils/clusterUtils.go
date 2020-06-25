@@ -2,9 +2,11 @@
 package utils
 
 import (
+	"log"
+
 	"github.com/ditrit/gandalf-core/database"
 	"github.com/ditrit/gandalf-core/models"
-	"log"
+
 	"github.com/ditrit/shoset/msg"
 
 	"github.com/jinzhu/gorm"
@@ -21,36 +23,36 @@ func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient ma
 	return mapDatabaseClient[tenant]
 }
 
-// GetGandalfDatabaseClient : Database client constructor.
+/* // GetGandalfDatabaseClient : Database client constructor.
 func GetGandalfDatabaseClient(databasePath string) *gorm.DB {
 
 	if gandalfDatabaseClient == nil {
 		gandalfDatabaseClient = database.NewGandalfDatabaseClient(databasePath)
 	}
 	return gandalfDatabaseClient
-}
+} */
 
 // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
 	var connectorType models.ConnectorType
 	client.Where("name = ?", cmd.GetContext()["connectorType"].(string)).First(&connectorType)
 
-	var tenant models.Tenant
-	client.Where("name = ?", cmd.GetTenant()).First(&tenant)
+	//var tenant models.Tenant
+	//client.Where("name = ?", cmd.GetTenant()).First(&tenant)
 
-	client.Where("connector_type_id = ? AND tenant_id = ?", connectorType.ID, tenant.ID).Preload("Tenant").Preload("Aggregator").Preload("Connector").Preload("ConnectorType").First(&applicationContext)
+	client.Where("connector_type_id = ?", connectorType.ID).Preload("Aggregator").Preload("Connector").Preload("ConnectorType").First(&applicationContext)
 
 	return
 }
 
 // GetConnectorConfiguration : Cluster application context getter.
-func GetConnectorConfiguration(conf msg.Config, client *gorm.DB) (connectorConfiguration models.ConnectorConfig) {
+func GetConnectorsConfiguration(conf msg.Config, client *gorm.DB) (connectorsConfiguration []models.ConnectorConfig) {
 	//client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&connectorConfiguration)
-	var connectorType models.ConnectorType
+	//var connectorsType []models.ConnectorType
 
-	client.Where("name = ?", conf.GetContext()["connectorType"].(string)).First(&connectorType)
+	//client.Where("name = ?", conf.GetContext()["connectorType"].(string)).First(&connectorType)
 
-	client.Where("connector_type_id = ?", connectorType.ID).Preload("ConnectorTypeCommands").First(&connectorConfiguration)
+	client.Order("connector_type_id, connector_product_id, version desc").Preload("ConnectorType").Preload("ConnectorProduct").Preload("ConnectorTypeCommands").Preload("ConnectorTypeEvents").Find(&connectorsConfiguration)
 
 	return
 }

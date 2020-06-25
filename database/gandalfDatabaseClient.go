@@ -1,9 +1,11 @@
 //Package database :
 package database
 
+/*
 import (
-	"github.com/ditrit/gandalf-core/models"
 	"log"
+
+	"github.com/ditrit/gandalf-core/models"
 
 	"github.com/jinzhu/gorm"
 )
@@ -26,7 +28,7 @@ func NewGandalfDatabaseClient(databasePath string) *gorm.DB {
 
 // InitGandalfDatabase : Gandalf database init.
 func InitGandalfDatabase(databaseClient *gorm.DB) (err error) {
-	databaseClient.AutoMigrate(&models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorTypeCommand{})
+	databaseClient.AutoMigrate(&models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorTypeCommand{}, &models.ConnectorTypeEvent{})
 
 	return
 }
@@ -39,6 +41,7 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 	var ConnectorTypeGitlab models.ConnectorType
 	var ConnectorTypeAzure models.ConnectorType
 	var ConnectorTypeUtilsCommands []models.ConnectorTypeCommand
+	var ConnectorTypeUtilsEvents []models.ConnectorTypeEvent
 	var ConnectorTypeWorkflowCommands []models.ConnectorTypeCommand
 	var ConnectorTypeGitlabCommands []models.ConnectorTypeCommand
 	var ConnectorTypeAzureCommands []models.ConnectorTypeCommand
@@ -50,6 +53,10 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 	databaseClient.Create(&models.ConnectorTypeCommand{Name: "CREATE_FORM", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/FormPayload","definitions":{"Field":{"required":["Name","HtmlType","Value"],"properties":{"Name":{"type":"string"},"HtmlType":{"type":"string"},"Value":{"additionalProperties":true}},"additionalProperties":false,"type":"object"},"FormPayload":{"required":["Fields"],"properties":{"Fields":{"items":{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/Field"},"type":"array"}},"additionalProperties":false,"type":"object"}}}`})
 
 	databaseClient.Where("name IN (?)", []string{"SEND_AUTH_MAIL", "CREATE_FORM"}).Find(&ConnectorTypeUtilsCommands)
+
+	databaseClient.Create(&models.ConnectorTypeEvent{Name: "NEW_APP", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/FormPayload","definitions":{"Field":{"required":["Name","HtmlType","Value"],"properties":{"Name":{"type":"string"},"HtmlType":{"type":"string"},"Value":{"additionalProperties":true}},"additionalProperties":false,"type":"object"},"FormPayload":{"required":["Fields"],"properties":{"Fields":{"items":{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/Field"},"type":"array"}},"additionalProperties":false,"type":"object"}}}`})
+
+	databaseClient.Where("name IN (?)", []string{"NEW_APP"}).Find(&ConnectorTypeUtilsEvents)
 
 	databaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
 		ConnectorTypeID:       ConnectorTypeUtils.ID,
@@ -93,3 +100,4 @@ func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 
 }
+*/

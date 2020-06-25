@@ -3,13 +3,14 @@ package main
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/ditrit/gandalf-core/aggregator"
 	"github.com/ditrit/gandalf-core/cluster"
 	"github.com/ditrit/gandalf-core/configuration"
 	"github.com/ditrit/gandalf-core/connector"
 	"github.com/ditrit/gandalf-core/database"
 	net "github.com/ditrit/shoset"
-	"log"
 )
 
 func main() {
@@ -125,6 +126,12 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid maximum timeout : %v", err)
 			}
+			gandalfVersionsString, err := configuration.GetStringConfig("versions")
+			if err != nil {
+				log.Fatalf("no valid tenant : %v", err)
+			}
+			gandalfVersions := configuration.GetVersionsList(gandalfVersionsString)
+
 			//CREATE CONNECTOR
 			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 			fmt.Println("  Logical Name : " + gandalfLogicalName)
@@ -139,7 +146,8 @@ func main() {
 			fmt.Println("  Log Path : " + gandalfLogPath)
 			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 			done := make(chan bool)
-			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProductUrl, gandalfWorkers, gandalfLogPath, int64(gandalfMaxTimeout))
+
+			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProductUrl, gandalfWorkers, gandalfLogPath, int64(gandalfMaxTimeout), gandalfVersions)
 			<-done
 			break
 

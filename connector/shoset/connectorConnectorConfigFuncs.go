@@ -4,10 +4,13 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	"github.com/ditrit/gandalf-core/models"
 	"log"
-	"github.com/ditrit/shoset/msg"
+
+	"github.com/ditrit/gandalf-core/models"
+
 	net "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
+
 	"time"
 )
 
@@ -23,10 +26,15 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(conf)
 
 	if conf.GetCommand() == "CONF_REPLY" {
-		var connectorConfig models.ConnectorConfig
-		err = json.Unmarshal([]byte(conf.GetPayload()), &connectorConfig)
+		var connectorsConfig []*models.ConnectorConfig
+		err = json.Unmarshal([]byte(conf.GetPayload()), &connectorsConfig)
 		if err == nil {
-			ch.Context["connectorConfig"] = connectorConfig
+			var mapConnectorsConfig map[string][]*models.ConnectorConfig
+			mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
+			for _, config := range connectorsConfig {
+				mapConnectorsConfig[config.ConnectorType.Name] = append(mapConnectorsConfig[config.ConnectorType.Name], config)
+			}
+			ch.Context["mapConnectorsConfig"] = mapConnectorsConfig
 		}
 	}
 
@@ -54,7 +62,7 @@ func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 
 			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 
-			if shoset.Context["connectorConfig"] != nil {
+			if shoset.Context["mapConnectorsConfig"] != nil {
 				notSend = false
 				break
 			}

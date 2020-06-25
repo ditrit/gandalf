@@ -1,8 +1,9 @@
 package connector
 
 import (
-	"github.com/ditrit/gandalf-core/connector"
 	"testing"
+
+	"github.com/ditrit/gandalf-core/connector"
 )
 
 func TestNewConnectorMember(t *testing.T) {

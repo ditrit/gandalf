@@ -2,12 +2,14 @@
 package aggregator
 
 import (
-	"github.com/ditrit/gandalf-core/aggregator/shoset"
-	//"github.com/ditrit/gandalf-core/configuration"
-	coreLog "github.com/ditrit/gandalf-core/log"
 	"log"
-	net "github.com/ditrit/shoset"
 	"time"
+
+	coreLog "github.com/ditrit/gandalf-core/log"
+
+	"github.com/ditrit/gandalf-core/aggregator/shoset"
+
+	net "github.com/ditrit/shoset"
 )
 
 // AggregatorMember : Aggregator struct.

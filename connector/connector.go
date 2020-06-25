@@ -3,31 +3,35 @@ package connector
 
 import (
 	"fmt"
-	//"github.com/ditrit/gandalf-core/configuration"
-	"github.com/ditrit/gandalf-core/connector/grpc"
-	"github.com/ditrit/gandalf-core/connector/shoset"
-	"github.com/ditrit/gandalf-core/connector/utils"
-	coreLog "github.com/ditrit/gandalf-core/log"
-	"github.com/ditrit/gandalf-core/models"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"reflect"
+
+	"github.com/ditrit/gandalf-core/connector/grpc"
+	"github.com/ditrit/gandalf-core/connector/shoset"
+	"github.com/ditrit/gandalf-core/connector/utils"
+	coreLog "github.com/ditrit/gandalf-core/log"
+	"github.com/ditrit/gandalf-core/models"
+
 	net "github.com/ditrit/shoset"
+
 	"strconv"
 	"time"
 )
 
 // ConnectorMember : Connector struct.
 type ConnectorMember struct {
-	chaussette        *net.Shoset
-	connectorGrpc     grpc.ConnectorGrpc
-	connectorType     string
-	timeoutMax        int64
-	connectorConfig   *models.ConnectorConfig
-	connectorCommands []string
+	chaussette                  *net.Shoset
+	connectorGrpc               grpc.ConnectorGrpc
+	connectorType               string
+	versions                    []int64
+	timeoutMax                  int64
+	mapConnectorsConfig         map[string][]*models.ConnectorConfig
+	mapVersionConnectorCommands map[int64][]string
 }
+
 /*
 func InitConnectorKeys(){
 	_ = configuration.SetStringKeyConfig("connector","tenant","t","tenant1","tenant of the connector")
@@ -41,15 +45,18 @@ func InitConnectorKeys(){
 }*/
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, tenant, connectorType, logPath string) *ConnectorMember {
-
+func NewConnectorMember(logicalName, tenant, connectorType, logPath string, versions []int64) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
+	member.versions = versions
+	member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
+	member.mapVersionConnectorCommands = make(map[int64][]string)
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
-	member.chaussette.Context["connectorConfig"] = member.connectorConfig
-	member.chaussette.Context["connectorCommands"] = member.connectorCommands
+	member.chaussette.Context["versions"] = versions
+	member.chaussette.Context["mapConnectorsConfig"] = member.mapConnectorsConfig
+	member.chaussette.Context["mapVersionConnectorCommands"] = member.mapVersionConnectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
@@ -109,22 +116,29 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 }
 
 // StartWorkers : start workers
-func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string) (err error) {
-	files, err := ioutil.ReadDir(workersPath)
+func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string, versions []int64) (err error) {
 
-	if err != nil {
-		panic(err)
-	}
-	args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
+	for _, version := range versions {
+		workersPathVersion := workersPath + "/" + strconv.Itoa(int(version))
+		files, err := ioutil.ReadDir(workersPathVersion)
 
-	for _, fileInfo := range files {
-		if !fileInfo.IsDir() {
-			if utils.IsExecAll(fileInfo.Mode().Perm()) {
-				cmd := exec.Command("./"+fileInfo.Name(), args...)
-				cmd.Dir = workersPath
-				cmd.Stdout = os.Stdout
-				err := cmd.Start()
-				fmt.Println(err)
+		if err != nil {
+			log.Printf("Can't find workers directory %s", workersPathVersion)
+		}
+		args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
+
+		for _, fileInfo := range files {
+			if !fileInfo.IsDir() {
+				if utils.IsExecAll(fileInfo.Mode().Perm()) {
+					cmd := exec.Command("./"+fileInfo.Name(), args...)
+					cmd.Dir = workersPathVersion
+					cmd.Stdout = os.Stdout
+					err := cmd.Start()
+
+					if err != nil {
+						log.Printf("Can't start worker %s", fileInfo.Name())
+					}
+				}
 			}
 		}
 	}
@@ -134,15 +148,32 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, 
 
 // ConfigurationValidation : validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
-	commands := m.chaussette.Context["connectorCommands"].([]string)
-	config := m.chaussette.Context["connectorConfig"].(models.ConnectorConfig)
-
-	var configCommands []string
-	for _, command := range config.ConnectorTypeCommands {
-		configCommands = append(configCommands, command.Name)
+	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[int64][]string)
+	if mapVersionConnectorCommands == nil {
+		log.Printf("Can't find map version/commands")
 	}
 
-	return reflect.DeepEqual(commands, configCommands)
+	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	if config == nil {
+		log.Printf("Can't find connector configuration")
+	}
+
+	result = true
+
+	for version, commands := range mapVersionConnectorCommands {
+		var configCommands []string
+		connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
+		if connectorConfig == nil {
+			log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
+		}
+		for _, command := range connectorConfig.ConnectorTypeCommands {
+			configCommands = append(configCommands, command.Name)
+		}
+
+		result = result && reflect.DeepEqual(commands, configCommands)
+	}
+
+	return
 }
 
 // getBrothers : Connector list brothers function.
@@ -158,8 +189,8 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerPath, logPath string, timeoutMax int64) *ConnectorMember {
-	member := NewConnectorMember(logicalName, tenant, connectorType, logPath)
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
+	member := NewConnectorMember(logicalName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 
 	err := member.Bind(bindAddress)
@@ -171,7 +202,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			if err == nil {
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				if err == nil {
-					err = member.StartWorkers(logicalName, grpcBindAddress, targetAdd, workerPath)
+					err = member.StartWorkers(logicalName, grpcBindAddress, targetAdd, workerPath, versions)
 					if err == nil {
 						time.Sleep(time.Second * time.Duration(5))
 						result := member.ConfigurationValidation(tenant, connectorType)
