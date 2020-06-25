@@ -5,6 +5,8 @@ echo 'Build'
 cd "${BASH_SOURCE%/*}/.."
 go build -tags libsqlite3
 
+mkdir -p ~/gandalf/logs/{aggregator/,cluster/}
+
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
@@ -42,5 +44,3 @@ sleep 5
 #./garcimore test receive evt test test
 
 #export AZURE_AUTH_LOCATION=/home/dev-ubuntu/connecteur_azure.auth
-
- 

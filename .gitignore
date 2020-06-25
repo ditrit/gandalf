@@ -16,3 +16,14 @@
 
 # custom
 gandalf-go
+
+/*
+!/*/
+!.gitignore
+!.golangci.yml
+!CONTRIBUTING.md
+!core.go
+!go.mod
+!go.sum
+!Makefile
+!README.md
