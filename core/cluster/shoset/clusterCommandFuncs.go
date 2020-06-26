@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"log"
 
-	cutils "github.com/ditrit/gandalf-core/cluster/utils"
-	"github.com/ditrit/gandalf-core/models"
+	cutils "github.com/ditrit/gandalf-core/core/cluster/utils"
+	"github.com/ditrit/gandalf-core/core/models"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"

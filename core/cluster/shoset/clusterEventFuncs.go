@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/ditrit/gandalf-core/cluster/utils"
+	"github.com/ditrit/gandalf-core/core/cluster/utils"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"

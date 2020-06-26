@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ditrit/gandalf-core/models"
+	"github.com/ditrit/gandalf-core/core/models"
 
 	"github.com/ditrit/shoset/msg"
 

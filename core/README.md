@@ -42,7 +42,7 @@ sudo add-apt-repository -y ppa:dqlite/stable && sudo apt install dqlite
 ## Build :
 
 ```bash
-go build -tags libsqlite3
+go build -tags libsqlite3 -o gandalf
 ```
 
 ## Documentation
@@ -111,17 +111,17 @@ link_address: 192.168.22.12
 ## Demo
 ```bash
 Cluster :
-./gandalf-core cluster init cluster 127.0.0.1:9000 
-./gandalf-core cluster join cluster 127.0.0.1:9001 127.0.0.1:9000 
-./gandalf-core cluster join cluster 127.0.0.1:9002 127.0.0.1:9000 
+./gandalf cluster init cluster 127.0.0.1:9000 
+./gandalf cluster join cluster 127.0.0.1:9001 127.0.0.1:9000 
+./gandalf cluster join cluster 127.0.0.1:9002 127.0.0.1:9000 
 ```
 
 ```bash
 Aggregator :
-./gandalf-core aggregator Aggregator1 tenant1 127.0.0.1:8000 127.0.0.1:9000
-./gandalf-core aggregator Aggregator2 tenant1 127.0.0.1:8100 127.0.0.1:9000
-./gandalf-core aggregator Aggregator3 tenant1 127.0.0.1:8200 127.0.0.1:9000
-./gandalf-core aggregator Aggregator4 tenant1 127.0.0.1:8300 127.0.0.1:9000
+./gandalf aggregator Aggregator1 tenant1 127.0.0.1:8000 127.0.0.1:9000
+./gandalf aggregator Aggregator2 tenant1 127.0.0.1:8100 127.0.0.1:9000
+./gandalf aggregator Aggregator3 tenant1 127.0.0.1:8200 127.0.0.1:9000
+./gandalf aggregator Aggregator4 tenant1 127.0.0.1:8300 127.0.0.1:9000
 ```
 
 ```bash
@@ -137,10 +137,10 @@ go build gandalf-connectors-goutils
 
 ```bash
 Connector :
-./gandalf-core connector Connector1 tenant1 127.0.0.1:7000 127.0.0.1:7010 127.0.0.1:8000 Utils
-./gandalf-core connector Connector2 tenant1 127.0.0.1:7100 127.0.0.1:7110 127.0.0.1:8100 Workflow
-./gandalf-core connector Connector3 tenant1 127.0.0.1:7200 127.0.0.1:7210 127.0.0.1:8200 Azure
-./gandalf-core connector Connector4 tenant1 127.0.0.1:7300 127.0.0.1:7310 127.0.0.1:8300 Gitlab
+./gandalf connector Connector1 tenant1 127.0.0.1:7000 127.0.0.1:7010 127.0.0.1:8000 Utils
+./gandalf connector Connector2 tenant1 127.0.0.1:7100 127.0.0.1:7110 127.0.0.1:8100 Workflow
+./gandalf connector Connector3 tenant1 127.0.0.1:7200 127.0.0.1:7210 127.0.0.1:8200 Azure
+./gandalf connector Connector4 tenant1 127.0.0.1:7300 127.0.0.1:7310 127.0.0.1:8300 Gitlab
 ```
 
 ```bash

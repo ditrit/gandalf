@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/ditrit/gandalf-core/grpc"
+	"github.com/ditrit/gandalf-core/core/grpc"
 )
 
 func TestCommandFromGrpc(t *testing.T) {

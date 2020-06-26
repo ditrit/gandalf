@@ -3,7 +3,7 @@ package cluster
 import (
 	"testing"
 
-	"github.com/ditrit/gandalf-core/cluster"
+	"github.com/ditrit/gandalf-core/core/cluster"
 )
 
 func TestNewClusterMember(t *testing.T) {

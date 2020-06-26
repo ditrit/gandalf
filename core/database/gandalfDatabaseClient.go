@@ -5,7 +5,7 @@ package database
 import (
 	"log"
 
-	"github.com/ditrit/gandalf-core/models"
+	"github.com/ditrit/gandalf-core/core/models"
 
 	"github.com/jinzhu/gorm"
 )

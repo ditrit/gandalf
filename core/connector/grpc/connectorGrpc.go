@@ -9,11 +9,11 @@ import (
 	"net"
 	"time"
 
-	"github.com/ditrit/gandalf-core/connector/utils"
+	"github.com/ditrit/gandalf-core/core/connector/utils"
 
-	pb "github.com/ditrit/gandalf-core/grpc"
+	pb "github.com/ditrit/gandalf-core/core/grpc"
 
-	"github.com/ditrit/gandalf-core/models"
+	"github.com/ditrit/gandalf-core/core/models"
 
 	sn "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"

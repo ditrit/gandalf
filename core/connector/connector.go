@@ -9,11 +9,11 @@ import (
 	"os/exec"
 	"reflect"
 
-	"github.com/ditrit/gandalf-core/connector/grpc"
-	"github.com/ditrit/gandalf-core/connector/shoset"
-	"github.com/ditrit/gandalf-core/connector/utils"
-	coreLog "github.com/ditrit/gandalf-core/log"
-	"github.com/ditrit/gandalf-core/models"
+	"github.com/ditrit/gandalf-core/core/connector/grpc"
+	"github.com/ditrit/gandalf-core/core/connector/shoset"
+	"github.com/ditrit/gandalf-core/core/connector/utils"
+	coreLog "github.com/ditrit/gandalf-core/core/log"
+	"github.com/ditrit/gandalf-core/core/models"
 
 	net "github.com/ditrit/shoset"
 
