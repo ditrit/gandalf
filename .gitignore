@@ -18,11 +18,13 @@
 gandalf-go
 
 /*
-!/*/
+!/core/
+!/connectors/
+!/libraries/
+
 !.gitignore
 !.golangci.yml
 !CONTRIBUTING.md
-!core.go
 !go.mod
 !go.sum
 !Makefile
