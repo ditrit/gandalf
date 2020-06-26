@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ditrit/gandalf-core/core/aggregator"
-	"github.com/ditrit/gandalf-core/core/cluster"
-	"github.com/ditrit/gandalf-core/core/configuration"
-	"github.com/ditrit/gandalf-core/core/connector"
-	"github.com/ditrit/gandalf-core/core/database"
+	"github.com/ditrit/gandalf/core/aggregator"
+	"github.com/ditrit/gandalf/core/cluster"
+	"github.com/ditrit/gandalf/core/configuration"
+	"github.com/ditrit/gandalf/core/connector"
+	"github.com/ditrit/gandalf/core/database"
 	net "github.com/ditrit/shoset"
 )
 
