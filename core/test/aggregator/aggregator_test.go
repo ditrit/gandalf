@@ -3,7 +3,7 @@ package aggregator
 import (
 	"testing"
 
-	"github.com/ditrit/gandalf-core/aggregator"
+	"github.com/ditrit/gandalf-core/core/aggregator"
 )
 
 func TestNewAggregatorMember(t *testing.T) {

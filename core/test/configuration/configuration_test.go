@@ -1,7 +1,7 @@
 package configuration
 
 import (
-	"github.com/ditrit/gandalf-core/configuration"
+	"github.com/ditrit/gandalf-core/core/configuration"
 	"testing"
 )
 

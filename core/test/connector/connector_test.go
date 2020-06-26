@@ -3,7 +3,7 @@ package connector
 import (
 	"testing"
 
-	"github.com/ditrit/gandalf-core/connector"
+	"github.com/ditrit/gandalf-core/core/connector"
 )
 
 func TestNewConnectorMember(t *testing.T) {

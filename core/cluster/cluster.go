@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/ditrit/gandalf-core/cluster/shoset"
-	"github.com/ditrit/gandalf-core/database"
-	coreLog "github.com/ditrit/gandalf-core/log"
+	"github.com/ditrit/gandalf-core/core/cluster/shoset"
+	"github.com/ditrit/gandalf-core/core/database"
+	coreLog "github.com/ditrit/gandalf-core/core/log"
 
 	net "github.com/ditrit/shoset"
 
