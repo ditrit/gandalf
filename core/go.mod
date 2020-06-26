@@ -1,4 +1,4 @@
-module github.com/ditrit/gandalf-core
+module github.com/ditrit/gandalf-core/core
 
 go 1.14
 
