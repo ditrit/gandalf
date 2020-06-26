@@ -127,11 +127,11 @@ Aggregator :
 ```bash
 Clone workers and configure them :
 cd ~/gandalf/workers/workflow
-git clone https://github.com/ditrit/gandalf-connectors-goworkflow.git
+git clone https://github.com/ditrit/gandalf/connectors/goworkflow.git
 go build gandalf-connectors-goworkflow
 
 cd ~/gandalf/workers/Utils
-git clone https://github.com/ditrit/gandalf-connectors-goutils.git
+git clone https://github.com/ditrit/gandalf/connectors/goutils.git
 go build gandalf-connectors-goutils
 ```
 

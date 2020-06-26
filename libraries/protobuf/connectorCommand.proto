@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.ditrit.gandalf.java.grpc";
+option java_outer_classname = "ConnectorCommandProto";
+
+package grpc;
+
+import "connector.proto";
+
+service ConnectorCommand {
+    rpc SendCommandMessage (CommandMessage) returns (CommandMessageUUID) {}
+    rpc WaitCommandMessage (CommandMessageWait) returns (CommandMessage) {}
+	rpc CreateIteratorCommand (Empty) returns (IteratorMessage) {}
+}
+
+message CommandMessage {
+  	string SourceAggregator = 1;     
+	string SourceConnector = 2;       
+	string SourceWorker = 3;          
+	string DestinationAggregator = 4; 
+	string DestinationConnector = 5;  
+	string DestinationWorker = 6;     
+	string Tenant = 7;                
+	string Token = 8;                 
+	string Context = 9;               
+	string Timeout = 10;               
+	string Timestamp = 11;             
+	int64 Major = 12;                 
+	int64 Minor = 13;                 
+	string UUID = 14;                  
+	string ConnectorType = 15;         
+	string CommandType = 16;           
+	string Command = 17;               
+	string Payload = 18;               
+}
+
+message CommandMessageUUID {
+  	string UUID = 1; 
+}
+
+message CommandMessageWait {
+	string WorkerSource = 1;
+	string Value = 2;  
+	string IteratorId = 3;
+	int64 Major = 4; 
+}

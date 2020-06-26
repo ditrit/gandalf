@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.ditrit.gandalf.java.grpc";
+option java_outer_classname = "ConnectorEventProto";
+
+package grpc;
+import "connector.proto";
+
+service ConnectorEvent {
+    rpc SendEventMessage (EventMessage) returns (Empty) {}
+    rpc WaitEventMessage (EventMessageWait) returns (EventMessage) {}
+    rpc WaitTopicMessage (TopicMessageWait) returns (EventMessage) {}
+    rpc CreateIteratorEvent (Empty) returns (IteratorMessage) {}
+}
+
+message EventMessage {
+    string Tenant = 1;    
+    string Token = 2;     
+	string Topic = 3;     
+	string Timeout = 4;   
+	string Timestamp = 5; 
+	string UUID = 6;      
+	string Event = 7;     
+	string Payload = 8;  
+    string ReferenceUUID = 9; 
+}
+
+message EventMessageWait {
+    string WorkerSource = 1;
+    string Event = 2;
+    string Topic = 3;
+    string IteratorId = 4;
+    string ReferenceUUID = 5;
+}
+
+message TopicMessageWait {
+    string WorkerSource = 1;
+    string Topic = 2;
+    string IteratorId = 3;
+    string ReferenceUUID = 4;
+}
