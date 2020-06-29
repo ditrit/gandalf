@@ -2,9 +2,9 @@ core:
   logical_name:
   gandalf_type:
   bind_address: localhost:8000
-  cert_pem: /home/.../cert.pem
-  key_pem: /home/.../key.pem
-  gandalf_log:
+  cert_pem: /home/romainfairant/go/src/gandalf/core/certs/cert.pem
+  key_pem: /home/romainfairant/go/src/gandalf/core/certs/ckey.pem
+  gandalf_log: /home/romainfairant/gandalf/logs
 connector/aggregator:
   tenant:
 connector:
@@ -16,9 +16,9 @@ connector:
   workers:
   versions:
   grpc_bind_address: localhost:9000
-  max_timeout: 100
+  max_timeout: 1000
 aggregator:
   clusters:
 cluster:
-  cluster_join: cluster address
-  gandalf_db: DB path
+  cluster_join: 
+  gandalf_db: /home/romainfairant/gandalf/database

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"connectors/gandalf-core/connectors/goworkflow/workers"
 	"encoding/json"
 	"os"
+
+	"github.com/ditrit/gandalf/connectors/goworkflow/workers"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 

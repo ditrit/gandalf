@@ -1,9 +1,10 @@
 package workers
 
 import (
-	"connectors/gandalf-core/connectors/goutils/form"
 	"encoding/json"
 	"fmt"
+
+	"github.com/ditrit/gandalf/connectors/goutils/form"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 	models "github.com/ditrit/gandalf/libraries/goclient/models"

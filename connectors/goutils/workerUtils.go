@@ -1,9 +1,10 @@
 package main
 
 import (
-	"connectors/gandalf-core/connectors/goutils/workers"
 	"encoding/json"
 	"os"
+
+	"github.com/ditrit/gandalf/connectors/goutils/workers"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 

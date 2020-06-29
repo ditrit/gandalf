@@ -1,7 +1,7 @@
 package workers
 
 import (
-	"connectors/gandalf-core/connectors/goworkflow/upload"
+	"github.com/ditrit/gandalf/connectors/goworkflow/upload"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 

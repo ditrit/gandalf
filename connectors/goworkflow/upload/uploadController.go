@@ -1,10 +1,11 @@
 package upload
 
 import (
-	"connectors/gandalf-core/connectors/goworkflow/workflow"
 	"crypto/md5"
 	"fmt"
 	"io"
+
+	"github.com/ditrit/gandalf/connectors/goworkflow/workflow"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 

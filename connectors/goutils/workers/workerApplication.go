@@ -1,9 +1,10 @@
 package workers
 
 import (
-	"connectors/gandalf-core/connectors/goutils/app"
 	"log"
 	"net/http"
+
+	"github.com/ditrit/gandalf/connectors/goutils/app"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 
