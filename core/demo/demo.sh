@@ -5,8 +5,6 @@ echo 'Build'
 cd "${BASH_SOURCE%/*}/.."
 go build -tags libsqlite3 -o gandalf
 
-mkdir -p ~/gandalf/logs/{aggregator/,cluster/}
-
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
