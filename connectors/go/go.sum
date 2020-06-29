@@ -3,6 +3,7 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
+github.com/ditrit/gandalf v0.0.0-20200626141445-daa8a3bd1d8d h1:YOeG4gcm0ooeEJNnXxrWPcY0glgn1MsEE0WbsF7Nkuk=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d h1:u0lxU752ovbor3TyiYIQ70uJS3Iy41wQ++uG88Q20rk=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d/go.mod h1:D58ElO9o9XrrmZ+0/Xbau8JhqAWtH+QFMKacCRxxw5Y=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8 h1:4EZDkbB9fqaH9jqsTxBIxQVzvt3ZTC4Ya4MpLguxfNw=
