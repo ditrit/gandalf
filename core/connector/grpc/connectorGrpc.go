@@ -301,13 +301,14 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iter
 
 	for {
 		messageIterator := iterator.Get()
+
 		if messageIterator != nil {
 			message := (messageIterator.GetMessage()).(msg.Event)
 			if topic == message.Topic {
 				if event == message.Event {
 					if referenceUUID != "" {
 						if referenceUUID == message.GetReferenceUUID() {
-							log.Println("Get iterator event")
+							log.Println("Get iterator event by ref")
 							log.Println(message)
 
 							channel <- message
@@ -322,7 +323,6 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iter
 
 						break
 					}
-
 				}
 			}
 		}
@@ -343,13 +343,15 @@ func (r ConnectorGrpc) runIteratorTopic(topic, referenceUUID string, iterator *m
 
 			if topic == message.Topic {
 
-				if referenceUUID != "" && referenceUUID == message.GetReferenceUUID() {
-					log.Println("Get iterator event by topic and ref")
-					log.Println(message)
+				if referenceUUID != "" {
+					if referenceUUID == message.GetReferenceUUID() {
+						log.Println("Get iterator event by topic and ref")
+						log.Println(message)
 
-					channel <- message
+						channel <- message
 
-					break
+						break
+					}
 				} else {
 					log.Println("Get iterator event by topic")
 					log.Println(message)
@@ -358,7 +360,6 @@ func (r ConnectorGrpc) runIteratorTopic(topic, referenceUUID string, iterator *m
 
 					break
 				}
-
 			}
 
 		}

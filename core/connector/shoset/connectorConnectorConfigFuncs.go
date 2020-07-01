@@ -4,7 +4,6 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/models"
