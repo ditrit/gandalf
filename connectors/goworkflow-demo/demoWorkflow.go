@@ -26,12 +26,10 @@ func main() {
 		//CREATE FORM
 
 		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-		fmt.Println("TATA")
 
+		//commandMessageUUID := client.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
 		commandMessageUUID := client.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
 		formUUID := commandMessageUUID.GetUUID()
-		fmt.Println("FORMUUID")
-		fmt.Println(formUUID)
 		event = client.WaitReplyByEvent("CREATE_FORM", "SUCCES", formUUID, id)
 		fmt.Println(event)
 
