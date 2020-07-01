@@ -116,10 +116,10 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 }
 
 // StartWorkers : start workers
-func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, targetAdd, workersPath string, versions []int64) (err error) {
+func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workersPath string, versions []int64) (err error) {
 
 	for _, version := range versions {
-		workersPathVersion := workersPath + "/" + strconv.Itoa(int(version))
+		workersPathVersion := workersPath + "/" + connectorType + "/" + strconv.Itoa(int(version))
 		files, err := ioutil.ReadDir(workersPathVersion)
 
 		if err != nil {
@@ -158,10 +158,11 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 		log.Printf("Can't find connector configuration")
 	}
 
-	result = true
-
+	result = false
+	validation := true
 	for version, commands := range mapVersionConnectorCommands {
 		var configCommands []string
+
 		connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 		if connectorConfig == nil {
 			log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
@@ -170,7 +171,8 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 			configCommands = append(configCommands, command.Name)
 		}
 
-		result = result && reflect.DeepEqual(commands, configCommands)
+		validation = validation && reflect.DeepEqual(commands, configCommands)
+		result = validation
 	}
 
 	return
@@ -202,7 +204,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			if err == nil {
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				if err == nil {
-					err = member.StartWorkers(logicalName, grpcBindAddress, targetAdd, workerPath, versions)
+					err = member.StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workerPath, versions)
 					if err == nil {
 						time.Sleep(time.Second * time.Duration(5))
 						result := member.ConfigurationValidation(tenant, connectorType)

@@ -131,10 +131,9 @@ func main() {
 			}
 			gandalfVersionsString, err := configuration.GetStringConfig("versions")
 			if err != nil {
-				log.Fatalf("no valid tenant : %v", err)
+				log.Fatalf("no valid versions : %v", err)
 			}
 			gandalfVersions := configuration.GetVersionsList(gandalfVersionsString)
-
 			//CREATE CONNECTOR
 			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 			fmt.Println("  Logical Name : " + gandalfLogicalName)
@@ -148,6 +147,7 @@ func main() {
 			fmt.Println("  Workers Path : " + gandalfWorkers)
 			fmt.Println("  Log Path : " + gandalfLogPath)
 			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
+			fmt.Println("  Versions :", gandalfVersionsString)
 
 			done := make(chan bool)
 			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProductUrl, gandalfWorkers, gandalfLogPath, int64(gandalfMaxTimeout), gandalfVersions)

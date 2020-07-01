@@ -4,7 +4,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"time"
@@ -80,22 +79,13 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	log.Println("Handle send command")
 
 	cmd := pb.CommandFromGrpc(in)
-	fmt.Println("cmd")
-	fmt.Println(cmd)
-	fmt.Println(cmd.GetCommand())
-	fmt.Println(cmd.GetContext())
-	fmt.Println(cmd.GetContext()["connectorType"])
+
 	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	//connectorType := r.Shoset.Context["connectorType"].(string)
 	connectorType := cmd.GetContext()["connectorType"].(string)
-	fmt.Println("config")
-	fmt.Println(config)
-	fmt.Println("connectorType")
-	fmt.Println(connectorType)
 
 	validate := false
 	if listConnectorTypeConfig, ok := config[connectorType]; ok {
-		fmt.Println("validation")
 		connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
 		connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
 		validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
@@ -183,35 +173,19 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 		var connectorTypeConfig *models.ConnectorConfig
 
 		if evt.Major == 0 {
-			fmt.Println("MAJOR UP")
-			//REVOIR POUR MAX VERSIONS
 			versions := r.Shoset.Context["versions"].([]int64)
-			fmt.Println("Version")
-			fmt.Println(versions)
 
 			maxVersion := utils.GetMaxVersion(versions)
 			evt.Major = int8(maxVersion)
-			fmt.Println("maxVersion")
-			fmt.Println(maxVersion)
 
 			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, config[connectorType])
 		} else {
-			fmt.Println("MAJOR DOWN")
 			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(evt.Major), config[connectorType])
 
 		}
-		fmt.Println("connectorTypeConfig")
-		fmt.Println(connectorTypeConfig)
-
-		fmt.Println("connectorTypeConfig.ConnectorTypeEvents")
-		fmt.Println(connectorTypeConfig.ConnectorTypeEvents)
 		//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 		connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), connectorTypeConfig.ConnectorTypeEvents)
 
-		fmt.Println("connectorTypeEvent")
-		fmt.Println(connectorTypeEvent)
-		fmt.Println("connectorTypeEvent.Schema")
-		fmt.Println(connectorTypeEvent.Schema)
 		validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
 	}
 
@@ -316,7 +290,7 @@ func (r ConnectorGrpc) runIteratorCommand(command string, version int64, iterato
 				}
 			}
 		}
-		time.Sleep(time.Duration(2000) * time.Millisecond)
+		time.Sleep(time.Duration(500) * time.Millisecond)
 	}
 	//delete(r.MapIterators, iteratorId)
 }
@@ -327,18 +301,19 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iter
 
 	for {
 		messageIterator := iterator.Get()
-
 		if messageIterator != nil {
 			message := (messageIterator.GetMessage()).(msg.Event)
 			if topic == message.Topic {
 				if event == message.Event {
-					if referenceUUID != "" && referenceUUID == message.GetReferenceUUID() {
-						log.Println("Get iterator event")
-						log.Println(message)
+					if referenceUUID != "" {
+						if referenceUUID == message.GetReferenceUUID() {
+							log.Println("Get iterator event")
+							log.Println(message)
 
-						channel <- message
+							channel <- message
 
-						break
+							break
+						}
 					} else {
 						log.Println("Get iterator event")
 						log.Println(message)
@@ -347,10 +322,11 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iter
 
 						break
 					}
+
 				}
 			}
 		}
-		time.Sleep(time.Duration(2000) * time.Millisecond)
+		time.Sleep(time.Duration(500) * time.Millisecond)
 	}
 	//delete(r.MapIterators, iteratorId)
 }
@@ -386,7 +362,7 @@ func (r ConnectorGrpc) runIteratorTopic(topic, referenceUUID string, iterator *m
 			}
 
 		}
-		time.Sleep(time.Duration(2000) * time.Millisecond)
+		time.Sleep(time.Duration(500) * time.Millisecond)
 	}
 	//delete(r.MapIterators, iteratorId)
 }

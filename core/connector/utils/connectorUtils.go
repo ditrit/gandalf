@@ -2,7 +2,6 @@
 package utils
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -16,10 +15,10 @@ import (
 // CreateValidationEvent : Connector create validation event functions.
 func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) {
 	var tab = map[string]string{
-		"topic":          command.GetCommand(),
-		"event":          "ON_GOING",
-		"payload":        "",
-		"referencesUUID": command.GetUUID()}
+		"topic":         command.GetCommand(),
+		"event":         "ON_GOING",
+		"payload":       "",
+		"referenceUUID": command.GetUUID()}
 
 	evt = msg.NewEvent(tab)
 	evt.Tenant = tenant
@@ -96,30 +95,17 @@ func GetConnectorTypeEvent(eventName string, list []models.ConnectorTypeEvent) (
 func ValidatePayload(payload, payloadSchema string) (result bool) {
 	result = false
 
-	fmt.Println(payload)
-	fmt.Println(payloadSchema)
 	payloadloader := gojsonschema.NewStringLoader(payload)
 	payloadSchemaloader := gojsonschema.NewStringLoader(payloadSchema)
 
-	fmt.Println("payloadloader")
-	fmt.Println(payloadloader)
-	fmt.Println("payloadSchemaloader")
-	fmt.Println(payloadSchemaloader)
-
 	validate, err := gojsonschema.Validate(payloadSchemaloader, payloadloader)
 	if err != nil {
-		//TODO REVOIR
-		os.Exit(1)
 		log.Printf("Error on validation payload : %s", err)
 	} else {
 		if validate.Valid() {
-			//LOG
-			//fmt.Printf("The document is valid\n")
 			result = true
 		}
 	}
-	fmt.Println("RESULT")
-	fmt.Println(result)
 	return result
 
 }

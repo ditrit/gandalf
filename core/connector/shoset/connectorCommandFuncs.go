@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/connector/utils"
@@ -30,16 +29,11 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	var connectorTypeConfig *models.ConnectorConfig
 
 	if cmd.Major == 0 {
-		fmt.Println("MAJOR UP")
 		versions := ch.Context["versions"].([]int64)
-		//REVOIR POUR MAX VERSIONS
 		maxVersion := utils.GetMaxVersion(versions)
-		fmt.Println("maxVersion")
-		fmt.Println(maxVersion)
 		connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, config[connectorType])
 		cmd.Major = int8(maxVersion)
 	} else {
-		fmt.Println("MAJOR DOWN")
 		connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(cmd.Major), config[connectorType])
 	}
 
