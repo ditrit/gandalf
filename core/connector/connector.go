@@ -148,31 +148,34 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, connectorTy
 
 // ConfigurationValidation : validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
-	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[int64][]string)
-	if mapVersionConnectorCommands == nil {
-		log.Printf("Can't find map version/commands")
-	}
-
-	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	if config == nil {
-		log.Printf("Can't find connector configuration")
-	}
-
 	result = false
 	validation := true
-	for version, commands := range mapVersionConnectorCommands {
-		var configCommands []string
 
-		connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
-		if connectorConfig == nil {
-			log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
-		}
-		for _, command := range connectorConfig.ConnectorTypeCommands {
-			configCommands = append(configCommands, command.Name)
-		}
+	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[int64][]string)
+	if mapVersionConnectorCommands != nil {
+		config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+		if config != nil {
+			for version, commands := range mapVersionConnectorCommands {
+				var configCommands []string
 
-		validation = validation && reflect.DeepEqual(commands, configCommands)
-		result = validation
+				connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
+				if connectorConfig != nil {
+					for _, command := range connectorConfig.ConnectorTypeCommands {
+						configCommands = append(configCommands, command.Name)
+					}
+
+					validation = validation && reflect.DeepEqual(commands, configCommands)
+					result = validation
+				} else {
+					log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
+				}
+			}
+		} else {
+			log.Printf("Connectors configuration not found")
+		}
+	} else {
+		log.Printf("Map version/commands not found")
+
 	}
 
 	return

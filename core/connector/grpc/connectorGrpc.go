@@ -68,8 +68,14 @@ func (r ConnectorGrpc) StartGrpcServer() {
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
 	log.Println("Handle send command list")
 	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int64][]string)
-	mapVersionConnectorCommands[in.GetMajor()] = append(mapVersionConnectorCommands[in.GetMajor()], in.GetCommands()...)
-	r.Shoset.Context["mapVersionConnectorCommands"] = mapVersionConnectorCommands
+	if mapVersionConnectorCommands != nil {
+		if _, ok := mapVersionConnectorCommands[in.GetMajor()]; ok {
+			mapVersionConnectorCommands[in.GetMajor()] = append(mapVersionConnectorCommands[in.GetMajor()], in.GetCommands()...)
+			r.Shoset.Context["mapVersionConnectorCommands"] = mapVersionConnectorCommands
+		}
+	}
+	//mapVersionConnectorCommands[in.GetMajor()] = append(mapVersionConnectorCommands[in.GetMajor()], in.GetCommands()...)
+	//r.Shoset.Context["mapVersionConnectorCommands"] = mapVersionConnectorCommands
 	//r.Shoset.Context["mapVersionConnectorCommands"] = append(r.Shoset.Context["connectorCommands"].([]string), in.GetCommands()...)
 	return &pb.Empty{}, nil
 }
@@ -85,10 +91,37 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	connectorType := cmd.GetContext()["connectorType"].(string)
 
 	validate := false
+	var connectorTypeConfig *models.ConnectorConfig
 	if listConnectorTypeConfig, ok := config[connectorType]; ok {
-		connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-		connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
-		validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+
+		if cmd.Major == 0 {
+			versions := r.Shoset.Context["versions"].([]int64)
+			if versions != nil {
+				maxVersion := utils.GetMaxVersion(versions)
+				cmd.Major = int8(maxVersion)
+				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+				connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
+
+			} else {
+				log.Println("Versions not found")
+			}
+		} else {
+			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(cmd.Major), listConnectorTypeConfig)
+		}
+
+		//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+		if connectorTypeConfig != nil {
+			connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
+			if connectorTypeCommand != (models.ConnectorTypeCommand{}) {
+				validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+			} else {
+				log.Println("Connector type commands not found")
+			}
+		} else {
+			log.Println("Connector type configuration by version not found")
+		}
+	} else {
+		log.Printf("Connector configuration by type %s not found \n", connectorType)
 	}
 
 	if validate {
@@ -155,7 +188,6 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 	return
 }
 
-//TODO REVOIR
 //SendEventMessage : Connector send event function.
 func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (empty *pb.Empty, err error) {
 	log.Println("Handle send event")
@@ -167,26 +199,48 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 	if evt.GetReferenceUUID() == "" {
 		config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 		connectorType := r.Shoset.Context["connectorType"].(string)
+		if config != nil {
+			if connectorType != "" {
+				var connectorTypeConfig *models.ConnectorConfig
+				if listConnectorTypeConfig, ok := config[connectorType]; ok {
+					if evt.Major == 0 {
+						versions := r.Shoset.Context["versions"].([]int64)
+						if versions != nil {
+							maxVersion := utils.GetMaxVersion(versions)
+							evt.Major = int8(maxVersion)
 
-		//connectorType := strings.Split(evt.GetEvent(), ".")[0]
+							connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
 
-		var connectorTypeConfig *models.ConnectorConfig
+						} else {
+							log.Println("Versions not found")
+						}
+					} else {
+						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(evt.Major), listConnectorTypeConfig)
+					}
 
-		if evt.Major == 0 {
-			versions := r.Shoset.Context["versions"].([]int64)
+					if connectorTypeConfig != nil {
+						//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+						connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), connectorTypeConfig.ConnectorTypeEvents)
+						if connectorTypeEvent != (models.ConnectorTypeEvent{}) {
+							validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
+						} else {
+							log.Println("Connector type events not found")
+						}
+					} else {
+						validate = false
+						log.Println("Connector type configuration by version not found")
+					}
+				} else {
+					log.Printf("Connector configuration by type %s not found \n", connectorType)
+				}
 
-			maxVersion := utils.GetMaxVersion(versions)
-			evt.Major = int8(maxVersion)
-
-			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, config[connectorType])
+			} else {
+				log.Println("Connectors configuration not found")
+			}
 		} else {
-			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(evt.Major), config[connectorType])
-
+			log.Println("connectorType empty")
 		}
-		//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-		connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), connectorTypeConfig.ConnectorTypeEvents)
 
-		validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
 	}
 
 	if validate {
