@@ -1,16 +1,15 @@
 package configuration
 
 import (
+	"bytes"
 	"errors"
 	"flag"
-	"fmt"
+	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
 	"strings"
-
-	"gopkg.in/yaml.v3"
 )
 
 type configKey struct {
@@ -22,6 +21,7 @@ type configKey struct {
 	usage      string  // usage string (CLI)
 	mandatory  bool    // is the value mandatory
 }
+
 var ConfigKeys = make(map[string]configKey)
 
 // SetStringKeyConfig :
@@ -39,6 +39,9 @@ func SetIntegerKeyConfig(componentType string, keyName string, shortName string,
 	keyDef, exists := ConfigKeys[keyName]
 	if exists {
 		return errors.New("The key " + keyName + "is already defined ( for component " + keyDef.component + ")")
+	}
+	if defaultValue == -1 {
+		ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "integer", "", usage, mandatory}
 	}
 	ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "integer", strconv.Itoa(defaultValue), usage, mandatory}
 	return nil
@@ -79,12 +82,15 @@ func InitMainConfigKeys() {
 }
 
 func InitCoreKeys() {
-	_ = SetStringKeyConfig("core", "config_file", "f", "/home/zippo/go/src/core/configuration/elements/gandalf.yaml", "path to the configuration file", true)
+	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
-	_ = SetStringKeyConfig("core", "bind_address", "b", "", "Bind address", true)
-	_ = SetStringKeyConfig("core", "cert_pem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate", false)
-	_ = SetStringKeyConfig("core", "key_pem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key", false)
+	_ = SetStringKeyConfig("core", "bind_address", "b", "a", "Bind address", true)
+	_ = SetStringKeyConfig("core", "certDir", "", "/etc/gandalf/certs", "path of the TLS repository", false)
+	_ = SetStringKeyConfig("core", "certPem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate", false)
+	_ = SetStringKeyConfig("core", "caCertPem", "", "/etc/gandalf/cert/ca.pem", "path of the CA certificate", false)
+	_ = SetStringKeyConfig("core", "caKeyPem", "", "/etc/gandalf/cert/ca_key.pem", "path of the CA key", false)
+	_ = SetStringKeyConfig("core", "keyPem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key", false)
 	_ = SetStringKeyConfig("core", "gandalf_log", "", "/etc/gandalf/log", "path of the log file", false)
 }
 
@@ -113,22 +119,28 @@ func InitClusterKeys() {
 	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "pathToTheDB", "path for the gandalf database", false)
 }
 
-func argParse() error {
+func argParse(programName string, args []string) error {
 	// parse CLI parameters
+	flags := flag.NewFlagSet(programName, flag.ContinueOnError)
+	var buf bytes.Buffer
+	flags.SetOutput(&buf)
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
-		flag.StringVar(keyDef.value, keyName, "", keyDef.usage)
+		flags.StringVar(keyDef.value, keyName, "", keyDef.usage)
 		if keyDef.shortName != "" {
-			flag.StringVar(keyDef.value, keyDef.shortName, "", keyDef.usage)
+			flags.StringVar(keyDef.value, keyDef.shortName, "", keyDef.usage)
 		}
 	}
-	flag.Parse()
+	err := flags.Parse(args)
+	if err != nil {
+		return err
+	}
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if keyDef.valType == "integer" && *(keyDef.value) != "" {
 			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
-				fmt.Println("error while parsing a CLI parameter: ")
-				return errors.New("The CLI parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
+				return errors.New("error while parsing a CLI parameter: \n The CLI parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
+
 			}
 		}
 	}
@@ -142,8 +154,7 @@ func envParse() error {
 		strVal := os.Getenv("GANDALF_" + keyName)
 		if keyDef.valType == "integer" && strVal != "" {
 			if _, err := strconv.Atoi(strVal); err != nil {
-				fmt.Println("error while parsing an environment variable: ")
-				return errors.New("The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer using the value: " + strVal)
+				return errors.New("error while parsing an environment variable:\n The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer using the value: " + strVal)
 			}
 		}
 		if len(strVal) > 0 && *(keyDef.value) == "" {
@@ -153,28 +164,31 @@ func envParse() error {
 	return nil
 }
 
-func yamlFileToMap() map[interface{}]map[interface{}]string {
+func yamlFileToMap() (map[interface{}]map[interface{}]string, error) {
 	//Set a map from config yaml file
 	keyDef := ConfigKeys["config_file"]
 	if *(keyDef.value) == "" {
 		*(keyDef.value) = keyDef.defaultVal
 	}
 	if _, err := os.Stat(*(keyDef).value); os.IsNotExist(err) {
-		log.Fatalf("%v", err)
+		return nil, err
 	}
 
 	yamlMap := make(map[interface{}]map[interface{}]string)
 	yamlFile, err := ioutil.ReadFile(*(keyDef.value))
 	err = yaml.Unmarshal(yamlFile, &yamlMap)
 	if err != nil {
-		log.Fatalf("error while parsing the file: %v", err)
+		return nil, errors.New("error while parsing the file")
 	}
-	return yamlMap
+	return yamlMap, nil
 }
 
 func yamlFileParse() error {
 	//Parse the yaml parameters
-	tempMap := yamlFileToMap()
+	tempMap, err := yamlFileToMap()
+	if err != nil {
+		return errors.New("error while parsing the file into a map")
+	}
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if *(keyDef.value) == "" {
@@ -182,8 +196,7 @@ func yamlFileParse() error {
 		}
 		if keyDef.valType == "integer" && *(keyDef.value) != "" {
 			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
-				fmt.Println("error while parsing a Yaml parameter: ")
-				return errors.New("The Yaml parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
+				return errors.New("error while parsing a Yaml parameter:\n The Yaml parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
 			}
 		}
 	}
@@ -233,94 +246,21 @@ func IsConfigValid() error {
 	return nil
 }
 
-func printCfKeys() error {
-	for keyName := range ConfigKeys {
-		keyDef := ConfigKeys[keyName]
-		componentType := keyDef.component
-		gandalfType := *(ConfigKeys["gandalf_type"].value)
-		if gandalfType == "connector" {
-			if componentType == "core" || componentType == "connector" || keyDef.component == "connector/aggregator" {
-				if keyDef.valType == "string" {
-					strVal, err := GetStringConfig(keyName)
-					if err != nil {
-						return err
-					}
-					fmt.Println(componentType + ": " + keyName + ": " + strVal)
-				} else {
-					intVal, err := GetIntegerConfig(keyName)
-					if err != nil {
-						return err
-					}
-					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
-				}
-			}
-		}
-		if gandalfType == "aggregator" {
-			if componentType == "core" || componentType == "aggregator" || keyDef.component == "connector/aggregator" {
-				if keyDef.valType == "string" {
-					strVal, err := GetStringConfig(keyName)
-					if err != nil {
-						return err
-					}
-					fmt.Println(componentType + ": " + keyName + ": " + strVal)
-				} else {
-					intVal, err := GetIntegerConfig(keyName)
-					if err != nil {
-						return err
-					}
-					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
-				}
-			}
-		}
-		if gandalfType == "cluster" {
-			if componentType == "core" || componentType == "cluster" {
-				if keyDef.valType == "string" {
-					strVal, err := GetStringConfig(keyName)
-					if err != nil {
-						return err
-					}
-					fmt.Println(componentType + ": " + keyName + ": " + strVal)
-				} else {
-					intVal, err := GetIntegerConfig(keyName)
-					if err != nil {
-						return err
-					}
-					fmt.Println(componentType + ": " + keyName + ": " + strconv.Itoa(intVal))
-				}
-			}
-		}
-	}
-	return nil
-}
-
-func GetAddressesList(strVal string) []string {
-	var resultList []string
-
-	resultList = strings.Split(strVal, ",")
-	for i, _ := range resultList {
-		temp := strings.Split(resultList[i], ":")
-		if len(temp) == 1 {
-			temp[0] += ":9800"
-			resultList[i] = temp[0]
-		}
-	}
-	return resultList
-}
-
-func GetVersionsList(strVal string) []int64 {
+func GetVersionsList(strVal string) ([]int64,error) {
 	var resultList []int64
 
 	for _, val := range strings.Split(strVal, ",") {
 		valint64, err := strconv.ParseInt(val, 10, 64)
-		if err == nil {
-			resultList = append(resultList, valint64)
+		if err != nil {
+			return nil,err
 		}
+		resultList = append(resultList, valint64)
 	}
-	return resultList
+	return resultList,nil
 }
 
-func ParseConfig() error {
-	err := argParse()
+func ParseConfig(programName string, args []string) error {
+	err := argParse(programName, args)
 	if err != nil {
 		return err
 	}
@@ -333,15 +273,12 @@ func ParseConfig() error {
 		return err
 	}
 	err = defaultParse()
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
-func ConfigMain() {
+func ConfigMain(programName string, args []string) {
 	InitMainConfigKeys()
-	err := ParseConfig()
+	err := ParseConfig(programName, args)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}

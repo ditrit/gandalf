@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/ditrit/gandalf/core/aggregator"
 	"github.com/ditrit/gandalf/core/cluster"
@@ -15,7 +16,7 @@ import (
 
 func main() {
 
-	configuration.ConfigMain()
+	configuration.ConfigMain(os.Args[0],os.Args[1:])
 
 	gandalfLogicalName, err := configuration.GetStringConfig("logical_name")
 	if err != nil {
@@ -128,7 +129,7 @@ func main() {
 			}
 			gandalfVersionsString, err := configuration.GetStringConfig("versions")
 			if err != nil {
-				log.Fatalf("no valid tenant : %v", err)
+				log.Fatalf("Invalid versions : %v", err)
 			}
 			gandalfVersions := configuration.GetVersionsList(gandalfVersionsString)
 
