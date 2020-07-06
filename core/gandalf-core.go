@@ -121,6 +121,10 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid product url : %v", err)
 			}
+			gandalfWorkersUrl, err := configuration.GetStringConfig("workers_url")
+			if err != nil {
+				log.Fatalf("Invalid workers path: %v", err)
+			}
 			gandalfWorkers, err := configuration.GetStringConfig("workers")
 			if err != nil {
 				log.Fatalf("Invalid workers path: %v", err)
@@ -144,13 +148,14 @@ func main() {
 			fmt.Println("  Connector Type : " + gandalfConnectorType)
 			fmt.Println("  Product : " + gandalfProduct)
 			fmt.Println("  Product Url : " + gandalfProductUrl)
+			fmt.Println("  Workers Url : " + gandalfWorkersUrl)
 			fmt.Println("  Workers Path : " + gandalfWorkers)
 			fmt.Println("  Log Path : " + gandalfLogPath)
 			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 			fmt.Println("  Versions :", gandalfVersionsString)
 
 			done := make(chan bool)
-			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProductUrl, gandalfWorkers, gandalfLogPath, int64(gandalfMaxTimeout), gandalfVersions)
+			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProductUrl, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, int64(gandalfMaxTimeout), gandalfVersions)
 			<-done
 			break
 

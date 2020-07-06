@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"reflect"
+	"strings"
 
 	"github.com/ditrit/gandalf/core/connector/grpc"
 	"github.com/ditrit/gandalf/core/connector/shoset"
@@ -115,6 +116,30 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 	return shoset.SendConnectorConfig(nshoset, timeoutMax)
 }
 
+// GetWorker : GetWorker
+func (m *ConnectorMember) GetWorkers(url, workerPath, connectorType string) (err error) {
+	//DOWNLOAD
+	urlSplit := strings.Split(url, "/")
+	name := strings.Split(urlSplit[len(urlSplit)-1], ".")[0]
+
+	src := workerPath + "/" + name + ".zip"
+	dest := workerPath
+	err = utils.DownloadWorkers(url, src)
+
+	if err == nil {
+		//UNZIP
+		_, err = utils.Unzip(src, dest)
+		if err != nil {
+			fmt.Println(err)
+			log.Println("Can't unzip workers")
+		}
+	} else {
+		fmt.Println(err)
+		log.Println("Can't download workers")
+	}
+	return
+}
+
 // StartWorkers : start workers
 func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workersPath string, versions []int64) (err error) {
 
@@ -163,7 +188,6 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 					for _, command := range connectorConfig.ConnectorTypeCommands {
 						configCommands = append(configCommands, command.Name)
 					}
-
 					validation = validation && reflect.DeepEqual(commands, configCommands)
 					result = validation
 				} else {
@@ -194,7 +218,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerUrl, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
 	member := NewConnectorMember(logicalName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 
@@ -207,20 +231,26 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			if err == nil {
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				if err == nil {
-					err = member.StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workerPath, versions)
+					//GET WORKER
+					err = member.GetWorkers(workerUrl, workerPath, connectorType)
 					if err == nil {
-						time.Sleep(time.Second * time.Duration(5))
-						result := member.ConfigurationValidation(tenant, connectorType)
-						if result {
-							log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+						err = member.StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workerPath, versions)
+						if err == nil {
+							time.Sleep(time.Second * time.Duration(5))
+							result := member.ConfigurationValidation(tenant, connectorType)
+							if result {
+								log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 
-							//time.Sleep(time.Second * time.Duration(5))
-							fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+								//time.Sleep(time.Second * time.Duration(5))
+								fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+							} else {
+								log.Printf("Configuration validation failed")
+							}
 						} else {
-							log.Printf("Configuration validation failed")
+							log.Printf("Can't start workers in %s", workerPath)
 						}
 					} else {
-						log.Printf("Can't start workers in %s", workerPath)
+						log.Printf("Can't get workers in %s", workerPath)
 					}
 				} else {
 					log.Printf("Can't get configuration in %s", workerPath)
