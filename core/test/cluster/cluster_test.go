@@ -26,6 +26,10 @@ func TestNewClusterMember(t *testing.T) {
 		t.Errorf("Should be equal")
 	}
 
+	if connectorMember.GetChaussette().Get() != shosetType {
+		t.Errorf("Should be equal")
+	}
+
 	if connectorMember.MapDatabaseClient == nil {
 		t.Errorf("Should not be nil")
 	}
