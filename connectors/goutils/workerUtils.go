@@ -15,16 +15,17 @@ type WorkerUtils struct {
 	SendAuthMail      func(clientGandalf *goclient.ClientGandalf)
 }
 
-func NewWorkerWorkflow(version int64, commandes []string) *WorkerWorkflow {
+func NewWorkerWorkflow(version int64, commandes []string) *WorkerUtils {
 	workerUtils := new(WorkerUtils)
 	workerUtils.worker = worker.NewWorker(version, commandes)
+	workerUtils.worker.Execute = workerUtils.Execute
 
 	return workerUtils
 }
 
-func (wu WorkerUtils) Run() {
+func (wu WorkerUtils) Execute() {
 	wu.worker.Run()
-	wu.CreateApplication(wu.worker.clientGandalf)
-	wu.CreateForm(wu.worker.clientGandalf)
-	wu.SendAuthMail(wu.worker.clientGandalf)
+	wu.CreateApplication(wu.worker.clientGandalf, wu.worker.version)
+	wu.CreateForm(wu.worker.clientGandalf, wu.worker.version)
+	wu.SendAuthMail(wu.worker.clientGandalf, wu.worker.version)
 }

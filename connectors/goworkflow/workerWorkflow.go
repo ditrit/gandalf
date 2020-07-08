@@ -16,11 +16,11 @@ type WorkerWorkflow struct {
 func NewWorkerWorkflow(version int64, commandes []string) *WorkerWorkflow {
 	workerWorkflow := new(WorkerWorkflow)
 	workerWorkflow.worker = worker.NewWorker(version, commandes)
+	workerWorkflow.worker.Execute = workerWorkflow.Execute
 
 	return workerWorkflow
 }
 
-func (ww WorkerWorkflow) Run() {
-	ww.worker.Run()
-	ww.Upload(ww.worker.clientGandalf)
+func (ww WorkerWorkflow) Execute() {
+	ww.Upload(ww.worker.clientGandalf, ww.worker.version)
 }

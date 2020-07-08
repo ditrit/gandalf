@@ -20,7 +20,7 @@ func main() {
 }
 
 //Upload
-func Upload(clientGandalf *goclient.ClientGandalf) {
+func Upload(clientGandalf *goclient.ClientGandalf, version int64) {
 	/* var configuration Configuration
 	mydir, _ := os.Getwd()
 	file, _ := os.Open(mydir + "/test.json")

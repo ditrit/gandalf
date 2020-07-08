@@ -13,7 +13,7 @@ type Worker struct {
 
 	Start        func() *goclient.ClientGandalf
 	SendCommands func(clientGandalf *goclient.ClientGandalf, version int64, commandes []string)
-	Execute      func(clientGandalf *goclient.ClientGandalf, version int64)
+	Execute      func()
 }
 
 //NewWorker
@@ -35,6 +35,6 @@ func (w Worker) Run() {
 
 	done := make(chan bool)
 	//START WORKER ADMIN
-	w.Execute(w.clientGandalf, w.version)
+	w.Execute()
 	<-done
 }
