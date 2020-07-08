@@ -1,49 +1,23 @@
-package main
+package goutils
 
 import (
-	"encoding/json"
-	"os"
+	"gandalf/libraries/goclient"
 
-	"github.com/ditrit/gandalf/connectors/goutils/workers"
-
-	worker "github.com/ditrit/gandalf/connectors/go"
-
-	goclient "github.com/ditrit/gandalf/libraries/goclient"
+	"github.com/ditrit/gandalf/connectors/go/worker"
 )
 
-func main() {
+//Worker
+type WorkerWorkflow struct {
+	worker worker.Worker
 
-	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
-	var version = int64(2)
-
-	workerUtils := worker.NewWorker(version, commands)
-	workerUtils.Execute = Execute
-
-	workerUtils.Run()
+	CreateApplication func(clientGandalf *goclient.ClientGandalf)
+	CreateForm        func(clientGandalf *goclient.ClientGandalf)
+	SendAuthMail      func(clientGandalf *goclient.ClientGandalf)
 }
 
-//
-func Execute(clientGandalf *goclient.ClientGandalf, version int64) {
-	var configuration Configuration
-	mydir, _ := os.Getwd()
-	file, _ := os.Open(mydir + "/test.json")
-	decoder := json.NewDecoder(file)
-	decoder.Decode(&configuration)
+func NewWorkerWorkflow(version int64, commandes []string) *WorkerWorkflow {
+	workerWorkflow := new(WorkerWorkflow)
+	workerWorkflow.worker = worker.NewWorker(version, commandes)
 
-	workerForm := workers.NewWorkerForm(clientGandalf, version)
-	go workerForm.Run()
-
-	workerMail := workers.NewWorkerMail(configuration.Address, configuration.Port, clientGandalf, version)
-	go workerMail.Run()
-
-	workerApp := workers.NewWorkerApplication(clientGandalf, version)
-	go workerApp.Run()
-}
-
-type Configuration struct {
-	Address string
-	Port    string
-	Contact string
-	Pwd     string
-	Mail    string
+	return workerWorkflow
 }
