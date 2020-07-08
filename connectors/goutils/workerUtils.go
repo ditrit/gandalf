@@ -7,7 +7,7 @@ import (
 )
 
 //Worker
-type WorkerWorkflow struct {
+type WorkerUtils struct {
 	worker worker.Worker
 
 	CreateApplication func(clientGandalf *goclient.ClientGandalf)
@@ -16,8 +16,15 @@ type WorkerWorkflow struct {
 }
 
 func NewWorkerWorkflow(version int64, commandes []string) *WorkerWorkflow {
-	workerWorkflow := new(WorkerWorkflow)
-	workerWorkflow.worker = worker.NewWorker(version, commandes)
+	workerUtils := new(WorkerUtils)
+	workerUtils.worker = worker.NewWorker(version, commandes)
 
-	return workerWorkflow
+	return workerUtils
+}
+
+func (wu WorkerUtils) Run() {
+	wu.worker.Run()
+	wu.CreateApplication(wu.worker.clientGandalf)
+	wu.CreateForm(wu.worker.clientGandalf)
+	wu.SendAuthMail(wu.worker.clientGandalf)
 }

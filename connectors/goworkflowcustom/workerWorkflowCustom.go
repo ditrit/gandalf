@@ -13,13 +13,13 @@ func main() {
 	var commands = []string{}
 	var version = int64(1)
 
-	workerUtils := workerworkflow.NewWorkerWorkflow(version, commands)
-	workerUtils.Upload = Upload
+	workerWorkflow := workerworkflow.NewWorkerWorkflow(version, commands)
+	workerWorkflow.Upload = Upload
 
-	workerUtils.Run()
+	workerWorkflow.Run()
 }
 
-//
+//Upload
 func Upload(clientGandalf *goclient.ClientGandalf) {
 	/* var configuration Configuration
 	mydir, _ := os.Getwd()

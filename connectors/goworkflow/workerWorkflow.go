@@ -19,3 +19,8 @@ func NewWorkerWorkflow(version int64, commandes []string) *WorkerWorkflow {
 
 	return workerWorkflow
 }
+
+func (ww WorkerWorkflow) Run() {
+	ww.worker.Run()
+	ww.Upload(ww.worker.clientGandalf)
+}

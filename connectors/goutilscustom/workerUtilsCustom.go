@@ -26,7 +26,7 @@ func main() {
 	workerUtils.Run()
 }
 
-//
+//CreateApplication
 func CreateApplication(clientGandalf *goclient.ClientGandalf, version int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
@@ -38,6 +38,7 @@ func CreateApplication(clientGandalf *goclient.ClientGandalf, version int64) {
 	go workerApp.Run()
 }
 
+//CreateForm
 func CreateForm(clientGandalf *goclient.ClientGandalf, version int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
@@ -49,6 +50,7 @@ func CreateForm(clientGandalf *goclient.ClientGandalf, version int64) {
 	go workerForm.Run()
 }
 
+//SendAuthMail
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, version int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
