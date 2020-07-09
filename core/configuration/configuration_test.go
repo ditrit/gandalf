@@ -292,10 +292,8 @@ func TestIsConfigValid(t *testing.T) {
 }
 
 func TestConfigMain(t *testing.T){
-	t.Run("config main test", func(t *testing.T) {
 		var configTest = []string{"-t2", "10", "-l", "toto", "-g", "cluster", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml","-testCluster","test"}
 		ConfigMain("test config", configTest)
-	})
 }
 
 func TestGetTlS(t *testing.T) {

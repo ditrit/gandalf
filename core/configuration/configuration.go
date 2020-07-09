@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"flag"
+	"fmt"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	"log"
@@ -26,7 +27,7 @@ type configKey struct {
 var ConfigKeys = make(map[string]configKey)
 var homePath = "/home/zippo/go/src"
 
-// SetStringKeyConfig :
+//Set a string type key
 func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string, mandatory bool) error {
 	keyDef, exists := ConfigKeys[keyName]
 	if exists {
@@ -36,7 +37,7 @@ func SetStringKeyConfig(componentType string, keyName string, shortName string, 
 	return nil
 }
 
-// SetIntegerKeyConfig :
+//Set an integer type key
 func SetIntegerKeyConfig(componentType string, keyName string, shortName string, defaultValue int, usage string, mandatory bool) error {
 	keyDef, exists := ConfigKeys[keyName]
 	if exists {
@@ -49,6 +50,7 @@ func SetIntegerKeyConfig(componentType string, keyName string, shortName string,
 	return nil
 }
 
+//Get the value of a string type key
 func GetStringConfig(keyName string) (string, error) {
 	keyDef, exists := ConfigKeys[keyName]
 	if !exists {
@@ -60,6 +62,7 @@ func GetStringConfig(keyName string) (string, error) {
 	return *(keyDef.value), nil
 }
 
+//Get the value of an integer type key
 func GetIntegerConfig(keyName string) (int, error) {
 	keyDef, exists := ConfigKeys[keyName]
 	if !exists {
@@ -75,6 +78,7 @@ func GetIntegerConfig(keyName string) (int, error) {
 	return intValue, nil
 }
 
+//launch all initiation functions
 func InitMainConfigKeys() {
 	InitCoreKeys()
 	InitTenantKey()
@@ -83,6 +87,7 @@ func InitMainConfigKeys() {
 	InitClusterKeys()
 }
 
+//initiation of the core keys
 func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
@@ -96,10 +101,12 @@ func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "gandalf_log", "", "/home/zippo/log/", "path of the log file", false)
 }
 
+//initiation of the tenant key for connectors and aggregators
 func InitTenantKey() {
 	_ = SetStringKeyConfig("connector/aggregator", "tenant", "t", "", "tenant of the component", true)
 }
 
+//initiation of the connector keys
 func InitConnectorKeys() {
 	_ = SetStringKeyConfig("connector", "connector_type", "y", "svn", "category of the connector", true)
 	_ = SetStringKeyConfig("connector", "product_name", "p", "product1", "product of the connector", true)
@@ -112,15 +119,18 @@ func InitConnectorKeys() {
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
 }
 
+//initiation of the aggregator keys
 func InitAggregatorKeys() {
 	_ = SetStringKeyConfig("aggregator", "clusters", "c", "address1:9800,address2:6300,address3", "clusters addresses linked to the aggregator", true)
 }
 
+//initiation of the cluster keys
 func InitClusterKeys() {
 	_ = SetStringKeyConfig("cluster", "cluster_join", "j", "", "cluster command (join)", false)
 	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "/home/zippo/db", "path for the gandalf database", false)
 }
 
+//parse the configuration from the CLI parameters
 func argParse(programName string, args []string) error {
 	// parse CLI parameters
 	flags := flag.NewFlagSet(programName, flag.ContinueOnError)
@@ -149,8 +159,8 @@ func argParse(programName string, args []string) error {
 	return nil
 }
 
+//parse the configuration from the environment variables
 func envParse() error {
-	// parse environment variables
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		strVal := os.Getenv("GANDALF_" + keyName)
@@ -166,6 +176,7 @@ func envParse() error {
 	return nil
 }
 
+//Set the map with all the values given in the yaml file
 func yamlFileToMap() (map[interface{}]map[interface{}]string, error) {
 	//Set a map from config yaml file
 	keyDef := ConfigKeys["config_file"]
@@ -185,8 +196,8 @@ func yamlFileToMap() (map[interface{}]map[interface{}]string, error) {
 	return yamlMap, nil
 }
 
+//parse the configuration from the given yaml file
 func yamlFileParse() error {
-	//Parse the yaml parameters
 	tempMap, err := yamlFileToMap()
 	if err != nil {
 		return errors.New("error while parsing the file into a map")
@@ -205,8 +216,8 @@ func yamlFileParse() error {
 	return nil
 }
 
+//parse the configuration with the default values
 func defaultParse() error {
-	// parse default values
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if *(keyDef.value) == "" {
@@ -216,6 +227,7 @@ func defaultParse() error {
 	return nil
 }
 
+//Check if the configuration is valid (no invalid or missing values)
 func IsConfigValid() error {
 	gandalfType := *(ConfigKeys["gandalf_type"].value)
 	if gandalfType != "connector" && gandalfType != "cluster" && gandalfType != "aggregator" {
@@ -248,6 +260,7 @@ func IsConfigValid() error {
 	return nil
 }
 
+//Set the list for all versions of a component
 func GetVersionsList(strVal string) ([]int64,error) {
 	var resultList []int64
 
@@ -261,34 +274,36 @@ func GetVersionsList(strVal string) ([]int64,error) {
 	return resultList,nil
 }
 
+//set the map with the paths for the TLS keys
 func setPathMap() map[string]string {
 	certDir := *(ConfigKeys["certDir"].value)
 	if filepath.IsAbs(certDir) {
 		pathMap := map[string]string{
-			"certPem" : certDir + "/cert.pem",
-			"keyPem" : certDir + "/key.pem",
-			"caCertPem" : certDir + "/ca.pem",
-			"caKeyPem" : certDir + "/cakey.pem",
+			"cert" : certDir + "/cert.pem",
+			"key" : certDir + "/key.pem",
+			"ca" : certDir + "/ca.pem",
+			"cakey" : certDir + "/cakey.pem",
 		}
 		return pathMap
 	}else {
 		pathMap := map[string]string{
-			"certPem" : *(ConfigKeys["certPem"].value),
-			"keyPem" : *(ConfigKeys["keyPem"].value),
-			"caCertPem" : *(ConfigKeys["caCertPem"].value),
-			"caKeyPem" : *(ConfigKeys["caKeyPem"].value),
+			"cert" : *(ConfigKeys["certPem"].value),
+			"key" : *(ConfigKeys["keyPem"].value),
+			"ca" : *(ConfigKeys["caCertPem"].value),
+			"cakey" : *(ConfigKeys["caKeyPem"].value),
 		}
 		return pathMap
 	}
 }
 
+//get the different TLS keys from the configuration
 func GetTLS() (map[string][]byte,error){
 	pathMap := setPathMap()
 	certMap := map[string][]byte{
-		"certPem": []byte(""),
-		"keyPem": []byte(""),
-		"caCertPem" : []byte(""),
-		"caKeyPem": []byte(""),
+		"cert": []byte(""),
+		"key": []byte(""),
+		"ca" : []byte(""),
+		"cakey": []byte(""),
 	}
 
 	for certMapKey := range certMap{
@@ -296,7 +311,8 @@ func GetTLS() (map[string][]byte,error){
 			if certMapKey == pathKey{
 				data, err := ioutil.ReadFile(pathMap[pathKey])
 				if err != nil {
-					return nil,err
+					certMap[certMapKey] = nil
+					return certMap,err
 				}
 				certMap[certMapKey] = data
 			}
@@ -305,6 +321,8 @@ func GetTLS() (map[string][]byte,error){
 	return certMap,nil
 }
 
+
+//Parse the configuration using the different parsing methods
 func ParseConfig(programName string, args []string) error {
 	err := argParse(programName, args)
 	if err != nil {
@@ -322,13 +340,19 @@ func ParseConfig(programName string, args []string) error {
 	return nil
 }
 
+
+//Launching configuration and testing if the configuration is valid
 func ConfigMain(programName string, args []string) {
 	InitMainConfigKeys()
 	err := ParseConfig(programName, args)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	//testTLS,_ := GetTLS()
+	testTLS,err := GetTLS()
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+	fmt.Println(testTLS)
 	err = IsConfigValid()
 	if err != nil {
 		log.Fatalf("%v", err)
