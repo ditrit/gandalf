@@ -1,31 +1,37 @@
 package goutils
 
 import (
-	"gandalf/libraries/goclient"
+	goclient "github.com/ditrit/gandalf/libraries/goclient"
 
-	"github.com/ditrit/gandalf/connectors/go/worker"
+	worker "github.com/ditrit/gandalf/connectors/go"
 )
 
-//Worker
-type WorkerUtils struct {
-	worker worker.Worker
-
-	CreateApplication func(clientGandalf *goclient.ClientGandalf)
-	CreateForm        func(clientGandalf *goclient.ClientGandalf)
-	SendAuthMail      func(clientGandalf *goclient.ClientGandalf)
+type WorkerUtils interface {
+	CreateApplication(clientGandalf *goclient.ClientGandalf, version int64)
+	CreateForm(clientGandalf *goclient.ClientGandalf, version int64)
+	SendAuthMail(clientGandalf *goclient.ClientGandalf, version int64)
 }
 
-func NewWorkerWorkflow(version int64, commandes []string) *WorkerUtils {
-	workerUtils := new(WorkerUtils)
+//Worker
+type workerUtils struct {
+	worker *worker.Worker
+
+	CreateApplication func(clientGandalf *goclient.ClientGandalf, version int64)
+	CreateForm        func(clientGandalf *goclient.ClientGandalf, version int64)
+	SendAuthMail      func(clientGandalf *goclient.ClientGandalf, version int64)
+}
+
+func NewWorkerUtils(version int64, commandes []string) *workerUtils {
+	workerUtils := new(workerUtils)
 	workerUtils.worker = worker.NewWorker(version, commandes)
 	workerUtils.worker.Execute = workerUtils.Execute
 
 	return workerUtils
 }
 
-func (wu WorkerUtils) Execute() {
+func (wu workerUtils) Execute() {
 	wu.worker.Run()
-	wu.CreateApplication(wu.worker.clientGandalf, wu.worker.version)
-	wu.CreateForm(wu.worker.clientGandalf, wu.worker.version)
-	wu.SendAuthMail(wu.worker.clientGandalf, wu.worker.version)
+	wu.CreateApplication(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	wu.CreateForm(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	wu.SendAuthMail(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
 }
