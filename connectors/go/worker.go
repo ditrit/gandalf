@@ -27,6 +27,16 @@ func NewWorker(version int64, commandes []string) *Worker {
 	return worker
 }
 
+//GetClientGandalf
+func (w Worker) GetClientGandalf() *goclient.ClientGandalf {
+	return w.clientGandalf
+}
+
+//GetVersion
+func (w Worker) GetVersion() int64 {
+	return w.version
+}
+
 //Run
 func (w Worker) Run() {
 	w.clientGandalf = w.Start()
