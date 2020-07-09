@@ -82,9 +82,9 @@ func GetIntegerConfig(keyName string) (int, error) {
 func InitMainConfigKeys() {
 	InitCoreKeys()
 	InitTenantKey()
-	InitConnectorKeys()
-	InitAggregatorKeys()
 	InitClusterKeys()
+	InitAggregatorKeys()
+	InitConnectorKeys()
 }
 
 //initiation of the core keys
@@ -202,6 +202,17 @@ func yamlFileParse() error {
 	if err != nil {
 		return errors.New("error while parsing the file into a map")
 	}
+
+	for typeKey := range tempMap {
+		for tempKeyName := range tempMap[typeKey] {
+			keyName := fmt.Sprintf("%v", tempKeyName)
+			_, found := ConfigKeys[keyName]
+			if !found {
+				return errors.New("The yaml key : " + keyName + " isn't needed by the gandalf configuration")
+			}
+		}
+	}
+
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if *(keyDef.value) == "" {
@@ -261,17 +272,17 @@ func IsConfigValid() error {
 }
 
 //Set the list for all versions of a component
-func GetVersionsList(strVal string) ([]int64,error) {
+func GetVersionsList(strVal string) ([]int64, error) {
 	var resultList []int64
 
 	for _, val := range strings.Split(strVal, ",") {
 		valint64, err := strconv.ParseInt(val, 10, 64)
 		if err != nil {
-			return nil,err
+			return nil, err
 		}
 		resultList = append(resultList, valint64)
 	}
-	return resultList,nil
+	return resultList, nil
 }
 
 //set the map with the paths for the TLS keys
@@ -279,48 +290,47 @@ func setPathMap() map[string]string {
 	certDir := *(ConfigKeys["certDir"].value)
 	if filepath.IsAbs(certDir) {
 		pathMap := map[string]string{
-			"cert" : certDir + "/cert.pem",
-			"key" : certDir + "/key.pem",
-			"ca" : certDir + "/ca.pem",
-			"cakey" : certDir + "/cakey.pem",
+			"cert":  certDir + "/cert.pem",
+			"key":   certDir + "/key.pem",
+			"ca":    certDir + "/ca.pem",
+			"cakey": certDir + "/cakey.pem",
 		}
 		return pathMap
-	}else {
+	} else {
 		pathMap := map[string]string{
-			"cert" : *(ConfigKeys["certPem"].value),
-			"key" : *(ConfigKeys["keyPem"].value),
-			"ca" : *(ConfigKeys["caCertPem"].value),
-			"cakey" : *(ConfigKeys["caKeyPem"].value),
+			"cert":  *(ConfigKeys["certPem"].value),
+			"key":   *(ConfigKeys["keyPem"].value),
+			"ca":    *(ConfigKeys["caCertPem"].value),
+			"cakey": *(ConfigKeys["caKeyPem"].value),
 		}
 		return pathMap
 	}
 }
 
 //get the different TLS keys from the configuration
-func GetTLS() (map[string][]byte,error){
+func GetTLS() (map[string][]byte, error) {
 	pathMap := setPathMap()
 	certMap := map[string][]byte{
-		"cert": []byte(""),
-		"key": []byte(""),
-		"ca" : []byte(""),
+		"cert":  []byte(""),
+		"key":   []byte(""),
+		"ca":    []byte(""),
 		"cakey": []byte(""),
 	}
 
-	for certMapKey := range certMap{
-		for pathKey := range pathMap{
-			if certMapKey == pathKey{
+	for certMapKey := range certMap {
+		for pathKey := range pathMap {
+			if certMapKey == pathKey {
 				data, err := ioutil.ReadFile(pathMap[pathKey])
 				if err != nil {
 					certMap[certMapKey] = nil
-					return certMap,err
+					return certMap, err
 				}
 				certMap[certMapKey] = data
 			}
 		}
 	}
-	return certMap,nil
+	return certMap, nil
 }
-
 
 //Parse the configuration using the different parsing methods
 func ParseConfig(programName string, args []string) error {
@@ -340,7 +350,6 @@ func ParseConfig(programName string, args []string) error {
 	return nil
 }
 
-
 //Launching configuration and testing if the configuration is valid
 func ConfigMain(programName string, args []string) {
 	InitMainConfigKeys()
@@ -348,11 +357,11 @@ func ConfigMain(programName string, args []string) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	testTLS,err := GetTLS()
+	/*testTLS,err := GetTLS()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	fmt.Println(testTLS)
+	fmt.Println(testTLS)*/
 	err = IsConfigValid()
 	if err != nil {
 		log.Fatalf("%v", err)

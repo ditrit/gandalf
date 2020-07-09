@@ -104,7 +104,7 @@ func TestYamlFileToMap(t *testing.T) {
 
 	//error because we try to unmarshal a wrong file
 	t.Run("test yaml to map with wrong file", func(t *testing.T) {
-		var wrongFileTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/elements/test_error.txt"}
+		var wrongFileTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/test_error.txt"}
 		err := argParse("test config", wrongFileTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -125,7 +125,7 @@ func TestYamlFileParse(t *testing.T) {
 
 	//error when parsing a value of the yaml file
 	t.Run("yaml parsing error", func(t *testing.T) {
-		var wrongPathTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml"}
+		var wrongPathTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/test_file.yaml"}
 		err := argParse("test config", wrongPathTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -138,7 +138,7 @@ func TestYamlFileParse(t *testing.T) {
 
 	//expected case
 	t.Run("yaml parsing test", func(t *testing.T) {
-		var yamlTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml"}
+		var yamlTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/test_file.yaml"}
 		err := argParse("test config", yamlTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -160,7 +160,7 @@ func TestDefaultParse(t *testing.T) {
 func TestParseConfig(t *testing.T) {
 	//error while parsing CLI parameters
 	t.Run("arg parse error", func(t *testing.T) {
-		var parseConfigTest = []string{"-t2", "test", "-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml"}
+		var parseConfigTest = []string{"-t2", "test", "-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/test_file.yaml"}
 		err := ParseConfig("global parse test", parseConfigTest)
 		if err == nil {
 			t.Errorf("Expected error: %v", err)
@@ -169,7 +169,7 @@ func TestParseConfig(t *testing.T) {
 
 	//error while parsing environment variables
 	t.Run("env parse error", func(t *testing.T) {
-		var parseConfigTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml"}
+		var parseConfigTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/test_file.yaml"}
 		_ = os.Setenv("GANDALF_testIntKey", "test")
 		err := ParseConfig("global parse test", parseConfigTest)
 		_ = os.Unsetenv("GANDALF_testIntKey")
@@ -189,7 +189,7 @@ func TestParseConfig(t *testing.T) {
 
 	//expected case
 	t.Run("Expected parse", func(t *testing.T) {
-		var parseConfigTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml"}
+		var parseConfigTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/test_file.yaml"}
 		err := ParseConfig("global parse test", parseConfigTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -199,7 +199,7 @@ func TestParseConfig(t *testing.T) {
 
 func TestGetVersionsList(t *testing.T) {
 	t.Run("unexpected GetVersionsList", func(t *testing.T) {
-		var parseConfigTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-v", "test,test2", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml"}
+		var parseConfigTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-v", "test,test2", "-f", homePath + "/gandalf/core/configuration/test/test_file.yaml"}
 		err := ParseConfig("global parse test", parseConfigTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -212,7 +212,7 @@ func TestGetVersionsList(t *testing.T) {
 	})
 
 	t.Run("expected GetVersionsList", func(t *testing.T) {
-		var parseConfigTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-v", "1,2", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml"}
+		var parseConfigTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-v", "1,2", "-f", homePath + "/gandalf/core/configuration/test/test_file.yaml"}
 		err := ParseConfig("global parse test", parseConfigTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -292,7 +292,7 @@ func TestIsConfigValid(t *testing.T) {
 }
 
 func TestConfigMain(t *testing.T){
-		var configTest = []string{"-t2", "10", "-l", "toto", "-g", "cluster", "-f", homePath + "/gandalf/core/configuration/elements/test_file.yaml","-testCluster","test"}
+		var configTest = []string{"-t2", "10", "-l", "toto", "-g", "cluster", "-f", homePath + "/gandalf/core/configuration/test/test_file.yaml","-testCluster","test"}
 		ConfigMain("test config", configTest)
 }
 

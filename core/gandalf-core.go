@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
 	"github.com/ditrit/gandalf/core/aggregator"
 	"github.com/ditrit/gandalf/core/cluster"
 	"github.com/ditrit/gandalf/core/configuration"

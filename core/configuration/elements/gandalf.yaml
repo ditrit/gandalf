@@ -2,8 +2,11 @@ core:
   logical_name: test
   gandalf_type:
   bind_address: 127.0.0.1:8000
-  cert_pem:
-  key_pem:
+  certDir:
+  certPem:
+  keyPem:
+  caCertPem:
+  caKeyPem:
   gandalf_log:
 connector/aggregator:
   tenant:

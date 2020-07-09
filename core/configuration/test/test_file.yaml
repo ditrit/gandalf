@@ -2,8 +2,11 @@ core:
   logical_name:
   gandalf_type:
   bind_address: localhost:8000
-  cert_pem: /home/.../cert.pem
-  key_pem: /home/.../key.pem
+  certDir:
+  certPem:
+  keyPem:
+  caCertPem:
+  caKeyPem:
   gandalf_log: path
 connector/aggregator:
   tenant: tenant
