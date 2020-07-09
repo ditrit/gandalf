@@ -1,9 +1,9 @@
 core:
-  logical_name:
+  logical_name: test
   gandalf_type:
-  bind_address: localhost:8000
-  cert_pem: /home/.../cert.pem
-  key_pem: /home/.../key.pem
+  bind_address: 127.0.0.1:8000
+  cert_pem:
+  key_pem:
   gandalf_log:
 connector/aggregator:
   tenant:
@@ -20,5 +20,5 @@ connector:
 aggregator:
   clusters:
 cluster:
-  cluster_join: cluster address
-  gandalf_db: DB path
+  cluster_join:
+  gandalf_db:

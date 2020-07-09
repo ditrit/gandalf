@@ -63,7 +63,7 @@ func main() {
 					fmt.Println("  Log Path : " + gandalfLogPath)
 					fmt.Println("  Db Path : " + gandalfDBPath)
 					member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
-
+					fmt.Println(member)
 					add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 					id := len(*member.Store)
 
@@ -131,7 +131,10 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid versions : %v", err)
 			}
-			gandalfVersions := configuration.GetVersionsList(gandalfVersionsString)
+			gandalfVersions,err := configuration.GetVersionsList(gandalfVersionsString)
+			if err != nil {
+				log.Fatalf("Invalid versions : %v", err)
+			}
 
 			//CREATE CONNECTOR
 			fmt.Println("Running Gandalf for a " + gandalfType + " with :")

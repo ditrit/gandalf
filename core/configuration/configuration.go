@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 )
@@ -23,6 +24,7 @@ type configKey struct {
 }
 
 var ConfigKeys = make(map[string]configKey)
+var homePath = "/home/zippo/go/src"
 
 // SetStringKeyConfig :
 func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string, mandatory bool) error {
@@ -85,13 +87,13 @@ func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
-	_ = SetStringKeyConfig("core", "bind_address", "b", "a", "Bind address", true)
-	_ = SetStringKeyConfig("core", "certDir", "", "/etc/gandalf/certs", "path of the TLS repository", false)
-	_ = SetStringKeyConfig("core", "certPem", "", "/etc/gandalf/cert/cert.pem", "path of the TLS certificate", false)
-	_ = SetStringKeyConfig("core", "caCertPem", "", "/etc/gandalf/cert/ca.pem", "path of the CA certificate", false)
-	_ = SetStringKeyConfig("core", "caKeyPem", "", "/etc/gandalf/cert/ca_key.pem", "path of the CA key", false)
-	_ = SetStringKeyConfig("core", "keyPem", "", "/etc/gandalf/cert/key.pem", "path of the TLS private key", false)
-	_ = SetStringKeyConfig("core", "gandalf_log", "", "/etc/gandalf/log", "path of the log file", false)
+	_ = SetStringKeyConfig("core", "bind_address", "b", "", "Bind address", true)
+	_ = SetStringKeyConfig("core", "certDir", "", homePath+"/gandalf/core/certs", "path of the TLS repository", false)
+	_ = SetStringKeyConfig("core", "certPem", "", homePath+"/gandalf/core/certs/cert.pem", "path of the TLS certificate", false)
+	_ = SetStringKeyConfig("core", "keyPem", "", homePath+"/gandalf/core/certs/key.pem", "path of the TLS private key", false)
+	_ = SetStringKeyConfig("core", "caCertPem", "", homePath+"/gandalf/core/certs/ca.pem", "path of the CA certificate", false)
+	_ = SetStringKeyConfig("core", "caKeyPem", "", homePath+"/gandalf/core/certs/cakey.pem", "path of the CA key", false)
+	_ = SetStringKeyConfig("core", "gandalf_log", "", "/home/zippo/log/", "path of the log file", false)
 }
 
 func InitTenantKey() {
@@ -105,7 +107,7 @@ func InitConnectorKeys() {
 	_ = SetStringKeyConfig("connector", "gandalf_secret", "s", "/etc/gandalf/gandalfSecret", "path of the gandalf secret", true)
 	_ = SetStringKeyConfig("connector", "product_url", "u", "url1,url2,url3", "product url list of the connector", false)
 	_ = SetStringKeyConfig("connector", "workers", "w", "/etc/gandalf/workers", "path for the workers configuration", false)
-	_ = SetStringKeyConfig("connector", "versions", "v", "v1,v2,v3", "versions of a connector", true)
+	_ = SetStringKeyConfig("connector", "versions", "v", "1,2", "versions of a connector", true)
 	_ = SetStringKeyConfig("connector", "grpc_bind_address", "r", "", "GRPC bind address", true)
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
 }
@@ -115,8 +117,8 @@ func InitAggregatorKeys() {
 }
 
 func InitClusterKeys() {
-	_ = SetStringKeyConfig("cluster", "cluster_join", "j", "clusterAddress", "cluster command (join)", true)
-	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "pathToTheDB", "path for the gandalf database", false)
+	_ = SetStringKeyConfig("cluster", "cluster_join", "j", "", "cluster command (join)", false)
+	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "/home/zippo/db", "path for the gandalf database", false)
 }
 
 func argParse(programName string, args []string) error {
@@ -259,6 +261,50 @@ func GetVersionsList(strVal string) ([]int64,error) {
 	return resultList,nil
 }
 
+func setPathMap() map[string]string {
+	certDir := *(ConfigKeys["certDir"].value)
+	if filepath.IsAbs(certDir) {
+		pathMap := map[string]string{
+			"certPem" : certDir + "/cert.pem",
+			"keyPem" : certDir + "/key.pem",
+			"caCertPem" : certDir + "/ca.pem",
+			"caKeyPem" : certDir + "/cakey.pem",
+		}
+		return pathMap
+	}else {
+		pathMap := map[string]string{
+			"certPem" : *(ConfigKeys["certPem"].value),
+			"keyPem" : *(ConfigKeys["keyPem"].value),
+			"caCertPem" : *(ConfigKeys["caCertPem"].value),
+			"caKeyPem" : *(ConfigKeys["caKeyPem"].value),
+		}
+		return pathMap
+	}
+}
+
+func GetTLS() (map[string][]byte,error){
+	pathMap := setPathMap()
+	certMap := map[string][]byte{
+		"certPem": []byte(""),
+		"keyPem": []byte(""),
+		"caCertPem" : []byte(""),
+		"caKeyPem": []byte(""),
+	}
+
+	for certMapKey := range certMap{
+		for pathKey := range pathMap{
+			if certMapKey == pathKey{
+				data, err := ioutil.ReadFile(pathMap[pathKey])
+				if err != nil {
+					return nil,err
+				}
+				certMap[certMapKey] = data
+			}
+		}
+	}
+	return certMap,nil
+}
+
 func ParseConfig(programName string, args []string) error {
 	err := argParse(programName, args)
 	if err != nil {
@@ -282,6 +328,7 @@ func ConfigMain(programName string, args []string) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
+	//testTLS,_ := GetTLS()
 	err = IsConfigValid()
 	if err != nil {
 		log.Fatalf("%v", err)

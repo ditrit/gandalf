@@ -164,7 +164,7 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 		var configCommands []string
 		connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 		if connectorConfig == nil {
-			log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
+			log.Printf("Can't get connector configuration with connector type %s, and version %v", connectorType, version)
 		}
 		for _, command := range connectorConfig.ConnectorTypeCommands {
 			configCommands = append(configCommands, command.Name)
