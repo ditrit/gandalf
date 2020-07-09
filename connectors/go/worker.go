@@ -28,17 +28,17 @@ func NewWorker(version int64, commandes []string) *Worker {
 }
 
 //GetClientGandalf
-func (w *Worker) GetClientGandalf() *goclient.ClientGandalf {
+func (w Worker) GetClientGandalf() *goclient.ClientGandalf {
 	return w.clientGandalf
 }
 
 //GetVersion
-func (w *Worker) GetVersion() int64 {
+func (w Worker) GetVersion() int64 {
 	return w.version
 }
 
 //Run
-func (w *Worker) Run() {
+func (w Worker) Run() {
 	w.clientGandalf = w.Start()
 
 	w.SendCommands(w.clientGandalf, w.version, w.commandes)
