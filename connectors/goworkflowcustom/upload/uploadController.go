@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ditrit/gandalf/connectors/goworkflow/workflow"
+	"github.com/ditrit/gandalf/connectors/goworkflowcustom/workflow"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 

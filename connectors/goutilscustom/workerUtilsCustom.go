@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/ditrit/gandalf/connectors/goutils/workers"
+	"github.com/ditrit/gandalf/connectors/goutilscustom/workers"
 
-	worker "github.com/ditrit/gandalf/connectors/go"
+	goutils "github.com/ditrit/gandalf/connectors/goutils"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
@@ -16,7 +16,7 @@ func main() {
 	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
 	var version = int64(2)
 
-	workerUtils := worker.NewWorker(version, commands)
+	workerUtils := goutils.NewWorkerUtils(version, commands)
 	//workerUtils.Execute = Execute
 
 	workerUtils.CreateApplication = CreateApplication

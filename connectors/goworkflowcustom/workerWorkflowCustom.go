@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/ditrit/gandalf/connectors/goworkflowcustom/workers"
 
-	workerworkflow "github.com/ditrit/gandalf/connectors/goworkflow"
+	goworkflow "github.com/ditrit/gandalf/connectors/goworkflow"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
@@ -13,7 +13,7 @@ func main() {
 	var commands = []string{}
 	var version = int64(1)
 
-	workerWorkflow := workerworkflow.NewWorkerWorkflow(version, commands)
+	workerWorkflow := goworkflow.NewWorkerWorkflow(version, commands)
 	workerWorkflow.Upload = Upload
 
 	workerWorkflow.Run()

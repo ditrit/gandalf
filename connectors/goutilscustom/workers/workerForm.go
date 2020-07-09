@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/ditrit/gandalf/connectors/goutils/form"
+	"github.com/ditrit/gandalf/connectors/goutilscustom/form"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 	models "github.com/ditrit/gandalf/libraries/goclient/models"

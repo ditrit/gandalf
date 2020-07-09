@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ditrit/gandalf/connectors/goutils/app"
+	"github.com/ditrit/gandalf/connectors/goutilscustom/app"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 
