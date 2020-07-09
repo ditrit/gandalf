@@ -27,3 +27,7 @@ func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
 func (ww workerWorkflow) Execute() {
 	ww.Upload(ww.worker.GetClientGandalf(), ww.worker.GetVersion())
 }
+
+func (ww workerWorkflow) Run() {
+	ww.worker.Run()
+}

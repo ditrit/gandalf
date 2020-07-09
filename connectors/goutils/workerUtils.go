@@ -30,8 +30,11 @@ func NewWorkerUtils(version int64, commandes []string) *workerUtils {
 }
 
 func (wu workerUtils) Execute() {
-	wu.worker.Run()
 	wu.CreateApplication(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
 	wu.CreateForm(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
 	wu.SendAuthMail(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+}
+
+func (wu workerUtils) Run() {
+	wu.worker.Run()
 }
