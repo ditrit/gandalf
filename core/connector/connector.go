@@ -3,12 +3,12 @@ package connector
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"reflect"
-	"strings"
 
 	"github.com/ditrit/gandalf/core/connector/grpc"
 	"github.com/ditrit/gandalf/core/connector/shoset"
@@ -118,7 +118,7 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 
 //TODO REVOIR
 // GetKeys : GetKeys
-func (m *ConnectorMember) GetKeys(connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (connectorTypeKeys, productKeys string, err error) {
+func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (connectorTypeKeys, productKeys string, err error) {
 
 	//VEIRFICATION EXISTANCE KEYS
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
@@ -129,12 +129,12 @@ func (m *ConnectorMember) GetKeys(connectorType, product string, versions []int6
 				save := false
 				if connectorConfig.ConnectorTypeKeys == "" {
 					//DOWNLOAD
-					connectorConfig.ConnectorTypeKeys = utils.DownloadConfigurationsKeys(url, "/"+connectorType+"/configuration.yaml")
+					connectorConfig.ConnectorTypeKeys = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/configuration.yaml")
 					save = true
 				}
 				if connectorConfig.ProductKeys == "" {
 					//DOWNLOAD
-					connectorConfig.ProductKeys = utils.DownloadConfigurationsKeys(url, "/"+connectorType+"/"+product+"/configuration.yaml")
+					connectorConfig.ProductKeys = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/configuration.yaml")
 					save = true
 				}
 
@@ -157,13 +157,14 @@ func (m *ConnectorMember) GetKeys(connectorType, product string, versions []int6
 
 //TODO REVOIR
 // GetWorker : GetWorker
-func (m *ConnectorMember) GetWorkers(url, workerPath, connectorType string) (err error) {
+func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, filename, workerPath string) (err error) {
 	//DOWNLOAD
-	urlSplit := strings.Split(url, "/")
-	name := strings.Split(urlSplit[len(urlSplit)-1], ".")[0]
-
-	src := workerPath + "/" + name + ".zip"
-	dest := workerPath
+	//urlSplit := strings.Split(url, "/")
+	//name := strings.Split(urlSplit[len(urlSplit)-1], ".")[0]
+	ressource := "/" + connectortype + "/" + product + "/"
+	url := baseurl + ressource + filename + ".zip"
+	src := workerPath + ressource + filename + ".zip"
+	dest := workerPath + ressource
 	err = utils.DownloadWorkers(url, src)
 
 	if err == nil {
@@ -181,7 +182,7 @@ func (m *ConnectorMember) GetWorkers(url, workerPath, connectorType string) (err
 }
 
 // StartWorkers : start workers
-func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workersPath string, versions []int64) (err error) {
+func (m *ConnectorMember) StartWorkers(args, connectorType, targetAdd, workersPath string, versions []int64) (err error) {
 
 	for _, version := range versions {
 		workersPathVersion := workersPath + "/" + connectorType + "/" + strconv.Itoa(int(version))
@@ -190,19 +191,27 @@ func (m *ConnectorMember) StartWorkers(logicalName, grpcBindAddress, connectorTy
 		if err != nil {
 			log.Printf("Can't find workers directory %s", workersPathVersion)
 		}
-		args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
+		//args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
 
 		for _, fileInfo := range files {
 			if !fileInfo.IsDir() {
 				if utils.IsExecAll(fileInfo.Mode().Perm()) {
-					cmd := exec.Command("./"+fileInfo.Name(), args...)
+					cmd := exec.Command("./" + fileInfo.Name())
 					cmd.Dir = workersPathVersion
 					cmd.Stdout = os.Stdout
-					err := cmd.Start()
 
+					stdin, err := cmd.StdinPipe()
+					if err != nil {
+						fmt.Println(err) //replace with logger, or anything you want
+					}
+					defer stdin.Close()
+
+					err = cmd.Start()
 					if err != nil {
 						log.Printf("Can't start worker %s", fileInfo.Name())
 					}
+
+					io.WriteString(stdin, args)
 				}
 			}
 		}
