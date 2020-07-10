@@ -4,8 +4,9 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	"gandalf/core/models"
 	"log"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
@@ -50,7 +51,7 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 				err = errors.New("Can't unmarshall configuration")
 			}
 		} else if conf.GetCommand() == "SAVE_CONFIG" {
-			connectorConfig := conf.GetContext()["connectorConfig"].(*models.ConnectorConfig)
+			connectorConfig := conf.GetContext()["connectorConfig"].(models.ConnectorConfig)
 			cutils.SaveConnectorsConfiguration(connectorConfig, databaseClient)
 		}
 

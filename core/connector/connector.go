@@ -129,12 +129,12 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 				save := false
 				if connectorConfig.ConnectorTypeKeys == "" {
 					//DOWNLOAD
-					connectorConfig.ConnectorTypeKeys = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/configuration.yaml")
+					connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/configuration.yaml")
 					save = true
 				}
 				if connectorConfig.ProductKeys == "" {
 					//DOWNLOAD
-					connectorConfig.ProductKeys = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/configuration.yaml")
+					connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/configuration.yaml")
 					save = true
 				}
 
@@ -157,7 +157,7 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 
 //TODO REVOIR
 // GetWorker : GetWorker
-func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, filename, workerPath string) (err error) {
+func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string) (err error) {
 	//DOWNLOAD
 	//urlSplit := strings.Split(url, "/")
 	//name := strings.Split(urlSplit[len(urlSplit)-1], ".")[0]
@@ -182,10 +182,10 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, filename, 
 }
 
 // StartWorkers : start workers
-func (m *ConnectorMember) StartWorkers(args, connectorType, targetAdd, workersPath string, versions []int64) (err error) {
+func (m *ConnectorMember) StartWorkers(args, connectorType, product, workersPath string, versions []int64) (err error) {
 
 	for _, version := range versions {
-		workersPathVersion := workersPath + "/" + connectorType + "/" + strconv.Itoa(int(version))
+		workersPathVersion := workersPath + "/" + connectorType + "/" + product + "/" + strconv.Itoa(int(version))
 		files, err := ioutil.ReadDir(workersPathVersion)
 
 		if err != nil {
@@ -267,7 +267,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, targetAdd, workerUrl, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, targetAdd, workerUrl, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
 	member := NewConnectorMember(logicalName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 
@@ -281,11 +281,13 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				if err == nil {
 					//GET KEYS
-					err = member.GetKeys(workerUrl, workerPath, connectorType)
+					var connectorTypeKeys, productKeys string
+					connectorTypeKeys, productKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
 					if err == nil {
-						err = member.GetWorkers(workerUrl, workerPath, connectorType)
+						err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
 						if err == nil {
-							err = member.StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workerPath, versions)
+							var args string
+							err = member.StartWorkers(args, connectorType, product, workerPath, versions)
 							if err == nil {
 								time.Sleep(time.Second * time.Duration(5))
 								result := member.ConfigurationValidation(tenant, connectorType)
