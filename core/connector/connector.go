@@ -162,8 +162,8 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, filename, 
 	//urlSplit := strings.Split(url, "/")
 	//name := strings.Split(urlSplit[len(urlSplit)-1], ".")[0]
 	ressource := "/" + connectortype + "/" + product + "/"
-	url := baseurl + ressource + filename + ".zip"
-	src := workerPath + ressource + filename + ".zip"
+	url := baseurl + ressource + "workers.zip"
+	src := workerPath + ressource + "workers.zip"
 	dest := workerPath + ressource
 	err = utils.DownloadWorkers(url, src)
 
