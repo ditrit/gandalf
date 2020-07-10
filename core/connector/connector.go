@@ -116,6 +116,46 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 	return shoset.SendConnectorConfig(nshoset, timeoutMax)
 }
 
+//TODO REVOIR
+// GetKeys : GetKeys
+func (m *ConnectorMember) GetKeys(connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (connectorTypeKeys, productKeys string, err error) {
+
+	//VEIRFICATION EXISTANCE KEYS
+	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	if config != nil {
+		for _, version := range versions {
+			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
+			if connectorConfig != nil {
+				save := false
+				if connectorConfig.ConnectorTypeKeys == "" {
+					//DOWNLOAD
+					connectorConfig.ConnectorTypeKeys = utils.DownloadConfigurationsKeys(url, "/"+connectorType+"/configuration.yaml")
+					save = true
+				}
+				if connectorConfig.ProductKeys == "" {
+					//DOWNLOAD
+					connectorConfig.ProductKeys = utils.DownloadConfigurationsKeys(url, "/"+connectorType+"/"+product+"/configuration.yaml")
+					save = true
+				}
+
+				if save {
+					//SAVE IN DB
+					shoset.SendSaveConnectorConfig(nshoset, timeoutMax, connectorConfig)
+				}
+
+				return connectorConfig.ConnectorTypeKeys, connectorConfig.ProductKeys, nil
+			} else {
+				log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
+			}
+		}
+	} else {
+		log.Printf("Connectors configuration not found")
+	}
+	//RETURN KEYS
+	return "", "", err
+}
+
+//TODO REVOIR
 // GetWorker : GetWorker
 func (m *ConnectorMember) GetWorkers(url, workerPath, connectorType string) (err error) {
 	//DOWNLOAD
@@ -231,26 +271,31 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			if err == nil {
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				if err == nil {
-					//GET WORKER
-					err = member.GetWorkers(workerUrl, workerPath, connectorType)
+					//GET KEYS
+					err = member.GetKeys(workerUrl, workerPath, connectorType)
 					if err == nil {
-						err = member.StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workerPath, versions)
+						err = member.GetWorkers(workerUrl, workerPath, connectorType)
 						if err == nil {
-							time.Sleep(time.Second * time.Duration(5))
-							result := member.ConfigurationValidation(tenant, connectorType)
-							if result {
-								log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+							err = member.StartWorkers(logicalName, grpcBindAddress, connectorType, targetAdd, workerPath, versions)
+							if err == nil {
+								time.Sleep(time.Second * time.Duration(5))
+								result := member.ConfigurationValidation(tenant, connectorType)
+								if result {
+									log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 
-								//time.Sleep(time.Second * time.Duration(5))
-								fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+									//time.Sleep(time.Second * time.Duration(5))
+									fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+								} else {
+									log.Printf("Configuration validation failed")
+								}
 							} else {
-								log.Printf("Configuration validation failed")
+								log.Printf("Can't start workers in %s", workerPath)
 							}
 						} else {
-							log.Printf("Can't start workers in %s", workerPath)
+							log.Printf("Can't get workers in %s", workerPath)
 						}
 					} else {
-						log.Printf("Can't get workers in %s", workerPath)
+						log.Printf("Can't get keys")
 					}
 				} else {
 					log.Printf("Can't get configuration in %s", workerPath)

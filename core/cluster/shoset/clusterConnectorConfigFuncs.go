@@ -40,7 +40,7 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 		jsonData, err := json.Marshal(configurations)
 
 		if err == nil {
-			cmdReply := msg.NewConfig(conf.GetTarget(), "CONF_REPLY", string(jsonData))
+			cmdReply := msg.NewConfig(conf.GetTarget(), "CONFIG_REPLY", string(jsonData))
 			shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
 			shoset.SendMessage(cmdReply)
