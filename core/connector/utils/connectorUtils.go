@@ -5,6 +5,7 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -121,7 +122,7 @@ func ValidatePayload(payload, payloadSchema string) (result bool) {
 
 //TODO REVOIR
 //DownloadWorkers
-func DownloadConfigurationsKeys(url, ressource string) (err error) {
+func DownloadConfigurationsKeys(url, ressource string) (body string, err error) {
 	// Create the file
 	resp, err := http.Get(url + ressource)
 	if err != nil {
@@ -135,22 +136,13 @@ func DownloadConfigurationsKeys(url, ressource string) (err error) {
 		return
 	}
 
-	// Create the file
-	out, err := os.Create(filePath)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("err: %s", err)
-		return
+		log.Fatal(err)
 	}
-	defer out.Close()
+	bodyString := string(bodyBytes)
 
-	// Write the body to file
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		log.Printf("err: %s", err)
-		return
-	}
-
-	return nil
+	return bodyString, nil
 }
 
 //DownloadWorkers

@@ -37,22 +37,21 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 	var connectorType models.ConnectorType
 	client.Where("name = ?", cmd.GetContext()["connectorType"].(string)).First(&connectorType)
 
-	//var tenant models.Tenant
-	//client.Where("name = ?", cmd.GetTenant()).First(&tenant)
-
 	client.Where("connector_type_id = ?", connectorType.ID).Preload("Aggregator").Preload("Connector").Preload("ConnectorType").First(&applicationContext)
 
 	return
 }
 
 // GetConnectorConfiguration : Cluster application context getter.
-func GetConnectorsConfiguration(conf msg.Config, client *gorm.DB) (connectorsConfiguration []models.ConnectorConfig) {
-	//client.Where("connector_type = ?", cmd.GetContext()["ConnectorType"].(string)).First(&connectorConfiguration)
-	//var connectorsType []models.ConnectorType
-
-	//client.Where("name = ?", conf.GetContext()["connectorType"].(string)).First(&connectorType)
-
+func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []models.ConnectorConfig) {
 	client.Order("connector_type_id, connector_product_id, version desc").Preload("ConnectorType").Preload("ConnectorProduct").Preload("ConnectorTypeCommands").Preload("ConnectorTypeEvents").Find(&connectorsConfiguration)
+
+	return
+}
+
+// GetConnectorConfiguration : Cluster application context getter.
+func SaveConnectorsConfiguration(connectorConfig models.ConnectorConfig, client *gorm.DB) {
+	client.Save(connectorConfig)
 
 	return
 }

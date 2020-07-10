@@ -4,6 +4,7 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"gandalf/core/models"
 	"log"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
@@ -35,18 +36,22 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 			log.Printf("Fail capture config %s on tenant %s \n", conf.GetCommand(), conf.GetTenant())
 			err = errors.New("Fail capture command" + conf.GetCommand() + " on tenant" + conf.GetTenant())
 		}
+		if conf.GetCommand() == "CONFIG" {
+			configurations := cutils.GetConnectorsConfiguration(databaseClient)
+			jsonData, err := json.Marshal(configurations)
 
-		configurations := cutils.GetConnectorsConfiguration(conf, databaseClient)
-		jsonData, err := json.Marshal(configurations)
+			if err == nil {
+				cmdReply := msg.NewConfig(conf.GetTarget(), "CONFIG_REPLY", string(jsonData))
+				shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
-		if err == nil {
-			cmdReply := msg.NewConfig(conf.GetTarget(), "CONFIG_REPLY", string(jsonData))
-			shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-
-			shoset.SendMessage(cmdReply)
-		} else {
-			log.Println("Can't unmarshall configuration")
-			err = errors.New("Can't unmarshall configuration")
+				shoset.SendMessage(cmdReply)
+			} else {
+				log.Println("Can't unmarshall configuration")
+				err = errors.New("Can't unmarshall configuration")
+			}
+		} else if conf.GetCommand() == "SAVE_CONFIG" {
+			connectorConfig := conf.GetContext()["connectorConfig"].(*models.ConnectorConfig)
+			cutils.SaveConnectorsConfiguration(connectorConfig, databaseClient)
 		}
 
 	} else {
