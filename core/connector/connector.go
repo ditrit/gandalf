@@ -118,43 +118,31 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 
 //TODO REVOIR
 // GetKeys : GetKeys
-func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (connectorTypeKeys, productKeys string, err error) {
-
-	//VEIRFICATION EXISTANCE KEYS
+func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (mapVersionsConnectorTypeKeys map[int64]string, mapVersionsProductKeys map[int64]string, err error) {
+	mapVersionsConnectorTypeKeys = make(map[int64]string)
+	mapVersionsProductKeys = make(map[int64]string)
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	fmt.Println("config")
-	fmt.Println(config)
+
 	if config != nil {
 		for _, version := range versions {
 			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 			if connectorConfig != nil {
 				save := false
-				fmt.Println("connectorConfig.ConnectorTypeKeys")
-				fmt.Println(connectorConfig.ConnectorTypeKeys)
 				if connectorConfig.ConnectorTypeKeys == "" {
-					//DOWNLOAD
-					fmt.Println("download connector type")
-					fmt.Println(baseurl + "/" + connectorType + "/configuration.yaml")
 					connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/configuration.yaml")
 					save = true
 				}
-				fmt.Println("connectorConfig.ProductKeys")
-				fmt.Println(connectorConfig.ProductKeys)
 				if connectorConfig.ProductKeys == "" {
-					//DOWNLOAD
-					fmt.Println("download product")
-					fmt.Println(baseurl + "/" + connectorType + "/" + product + "/configuration.yaml")
 					connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/configuration.yaml")
 					save = true
 				}
 
 				if save {
-					//SAVE IN DB
-					fmt.Println("save")
 					shoset.SendSaveConnectorConfig(nshoset, timeoutMax, connectorConfig)
 				}
-
-				return connectorConfig.ConnectorTypeKeys, connectorConfig.ProductKeys, nil
+				mapVersionsConnectorTypeKeys[version] = connectorConfig.ConnectorTypeKeys
+				mapVersionsProductKeys[version] = connectorConfig.ProductKeys
+				//return connectorConfig.ConnectorTypeKeys, connectorConfig.ProductKeys, nil
 			} else {
 				log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
 			}
@@ -162,8 +150,7 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 	} else {
 		log.Printf("Connectors configuration not found")
 	}
-	//RETURN KEYS
-	return "", "", err
+	return
 }
 
 //TODO REVOIR
@@ -302,12 +289,12 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 				if err == nil {
 					//GET KEYS
 					fmt.Println("GET KEYS")
-					var connectorTypeKeys, productKeys string
-					connectorTypeKeys, productKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
-					fmt.Println("connectorTypeKeys")
-					fmt.Println(connectorTypeKeys)
-					fmt.Println("productKeys")
-					fmt.Println(productKeys)
+					var mapVersionsConnectorTypeKeys, mapVersionsProductKeys map[int64]string
+					mapVersionsConnectorTypeKeys, mapVersionsProductKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
+					fmt.Println("mapVersionsConnectorTypeKeys")
+					fmt.Println(mapVersionsConnectorTypeKeys)
+					fmt.Println("mapVersionsProductKeys")
+					fmt.Println(mapVersionsProductKeys)
 					if err == nil {
 						fmt.Println("GET WORKERS")
 						err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
