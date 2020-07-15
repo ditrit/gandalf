@@ -24,6 +24,7 @@ import (
 
 // ConnectorMember : Connector struct.
 type ConnectorMember struct {
+	logicalName                 string
 	chaussette                  *net.Shoset
 	connectorGrpc               grpc.ConnectorGrpc
 	connectorType               string
@@ -48,6 +49,7 @@ func InitConnectorKeys(){
 // NewConnectorMember : Connector struct constructor.
 func NewConnectorMember(logicalName, tenant, connectorType, logPath string, versions []int64) *ConnectorMember {
 	member := new(ConnectorMember)
+	member.logicalName = logicalName
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.versions = versions
@@ -66,6 +68,11 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string, vers
 	coreLog.OpenLogFile(logPath)
 
 	return member
+}
+
+// GetChaussette : Connector chaussette getter.
+func (m *ConnectorMember) GetLogicalName() string {
+	return m.logicalName
 }
 
 // GetChaussette : Connector chaussette getter.
@@ -186,7 +193,7 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath
 }
 
 // StartWorkers : start workers
-func (m *ConnectorMember) StartWorkers(args, connectorType, product, workersPath string, versions []int64) (err error) {
+func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, workersPath, grpcBindAddress string, versions []int64) (err error) {
 
 	for _, version := range versions {
 		workersPathVersion := workersPath + "/" + connectorType + "/" + product + "/" + strconv.Itoa(int(version))
@@ -196,12 +203,12 @@ func (m *ConnectorMember) StartWorkers(args, connectorType, product, workersPath
 		if err != nil {
 			log.Printf("Can't find workers directory %s", workersPathVersion)
 		}
-		//args := []string{logicalName, strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
+		args := []string{m.GetLogicalName(), strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
 
 		for _, fileInfo := range files {
 			if !fileInfo.IsDir() {
 				if utils.IsExecAll(fileInfo.Mode().Perm()) {
-					cmd := exec.Command("./" + fileInfo.Name())
+					cmd := exec.Command("./"+fileInfo.Name(), args...)
 					cmd.Dir = workersPathVersion
 					cmd.Stdout = os.Stdout
 
@@ -216,7 +223,7 @@ func (m *ConnectorMember) StartWorkers(args, connectorType, product, workersPath
 						log.Printf("Can't start worker %s", fileInfo.Name())
 					}
 
-					io.WriteString(stdin, args)
+					io.WriteString(stdin, stdinargs)
 				}
 			}
 		}
@@ -299,9 +306,9 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 						fmt.Println("GET WORKERS")
 						err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
 						if err == nil {
-							var args string
+							var stdinargs string
 							fmt.Println("START WORKERS")
-							err = member.StartWorkers(args, connectorType, product, workerPath, versions)
+							err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
 							if err == nil {
 								time.Sleep(time.Second * time.Duration(5))
 								result := member.ConfigurationValidation(tenant, connectorType)
