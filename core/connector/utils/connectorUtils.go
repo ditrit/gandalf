@@ -141,7 +141,8 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 		log.Fatal(err)
 	}
 	bodyString := string(bodyBytes)
-
+	fmt.Println("bodystring")
+	fmt.Println(bodyString)
 	return bodyString, nil
 }
 
@@ -163,6 +164,7 @@ func DownloadWorkers(url, filePath string) (err error) {
 	// Create the file
 	out, err := os.Create(filePath)
 	if err != nil {
+		fmt.Println(err)
 		log.Printf("err: %s", err)
 		return
 	}

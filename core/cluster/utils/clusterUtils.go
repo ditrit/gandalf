@@ -50,7 +50,7 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 }
 
 // GetConnectorConfiguration : Cluster application context getter.
-func SaveConnectorsConfiguration(connectorConfig models.ConnectorConfig, client *gorm.DB) {
+func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client *gorm.DB) {
 	client.Save(connectorConfig)
 
 	return

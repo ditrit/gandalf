@@ -122,24 +122,35 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 
 	//VEIRFICATION EXISTANCE KEYS
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	fmt.Println("config")
+	fmt.Println(config)
 	if config != nil {
 		for _, version := range versions {
 			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 			if connectorConfig != nil {
 				save := false
+				fmt.Println("connectorConfig.ConnectorTypeKeys")
+				fmt.Println(connectorConfig.ConnectorTypeKeys)
 				if connectorConfig.ConnectorTypeKeys == "" {
 					//DOWNLOAD
+					fmt.Println("download connector type")
+					fmt.Println(baseurl + "/" + connectorType + "/configuration.yaml")
 					connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/configuration.yaml")
 					save = true
 				}
+				fmt.Println("connectorConfig.ProductKeys")
+				fmt.Println(connectorConfig.ProductKeys)
 				if connectorConfig.ProductKeys == "" {
 					//DOWNLOAD
+					fmt.Println("download product")
+					fmt.Println(baseurl + "/" + connectorType + "/" + product + "/configuration.yaml")
 					connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/configuration.yaml")
 					save = true
 				}
 
 				if save {
 					//SAVE IN DB
+					fmt.Println("save")
 					shoset.SendSaveConnectorConfig(nshoset, timeoutMax, connectorConfig)
 				}
 
@@ -161,10 +172,16 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath
 	//DOWNLOAD
 	//urlSplit := strings.Split(url, "/")
 	//name := strings.Split(urlSplit[len(urlSplit)-1], ".")[0]
+	//CREATE DIRECTORY
 	ressource := "/" + connectortype + "/" + product + "/"
 	url := baseurl + ressource + "workers.zip"
 	src := workerPath + ressource + "workers.zip"
 	dest := workerPath + ressource
+
+	if _, err := os.Stat(dest); os.IsNotExist(err) {
+		os.MkdirAll(dest, os.ModePerm)
+	}
+
 	err = utils.DownloadWorkers(url, src)
 
 	if err == nil {
@@ -186,6 +203,7 @@ func (m *ConnectorMember) StartWorkers(args, connectorType, product, workersPath
 
 	for _, version := range versions {
 		workersPathVersion := workersPath + "/" + connectorType + "/" + product + "/" + strconv.Itoa(int(version))
+		fmt.Println(workersPath + "/" + connectorType + "/" + product + "/" + strconv.Itoa(int(version)))
 		files, err := ioutil.ReadDir(workersPathVersion)
 
 		if err != nil {
@@ -202,7 +220,7 @@ func (m *ConnectorMember) StartWorkers(args, connectorType, product, workersPath
 
 					stdin, err := cmd.StdinPipe()
 					if err != nil {
-						fmt.Println(err) //replace with logger, or anything you want
+						fmt.Println(err)
 					}
 					defer stdin.Close()
 
@@ -267,7 +285,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, targetAdd, workerUrl, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, workerUrl, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
 	member := NewConnectorMember(logicalName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 
@@ -278,15 +296,24 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			_, err = member.Link(linkAddress)
 			time.Sleep(time.Second * time.Duration(5))
 			if err == nil {
+				fmt.Println("GET CONFIG")
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
+				time.Sleep(time.Second * time.Duration(5))
 				if err == nil {
 					//GET KEYS
+					fmt.Println("GET KEYS")
 					var connectorTypeKeys, productKeys string
 					connectorTypeKeys, productKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
+					fmt.Println("connectorTypeKeys")
+					fmt.Println(connectorTypeKeys)
+					fmt.Println("productKeys")
+					fmt.Println(productKeys)
 					if err == nil {
+						fmt.Println("GET WORKERS")
 						err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
 						if err == nil {
 							var args string
+							fmt.Println("START WORKERS")
 							err = member.StartWorkers(args, connectorType, product, workerPath, versions)
 							if err == nil {
 								time.Sleep(time.Second * time.Duration(5))

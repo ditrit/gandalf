@@ -85,9 +85,10 @@ func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 //TODO REVOIR SEND
 //SendConnectorConfig : Connector send connector config function.
 func SendSaveConnectorConfig(shoset *net.Shoset, timeoutMax int64, connectorConfig *models.ConnectorConfig) (err error) {
-	conf := msg.NewConfig("", "SAVE_CONFIG", "")
+	jsonData, err := json.Marshal(connectorConfig)
+	conf := msg.NewConfig("", "SAVE_CONFIG", string(jsonData))
 	conf.Tenant = shoset.Context["tenant"].(string)
-	conf.GetContext()["connectorConfig"] = connectorConfig
+
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
