@@ -19,7 +19,7 @@ func main() {
 
 	workerWorkflow := goworkflow.NewWorkerWorkflow(version, commands)
 	workerWorkflow.Upload = Upload
-
+	fmt.Println("RUN CUSTOM")
 	workerWorkflow.Run()
 }
 
