@@ -125,9 +125,10 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 
 //TODO REVOIR
 // GetKeys : GetKeys
-func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (mapVersionsConnectorTypeKeys map[int64]string, mapVersionsProductKeys map[int64]string, err error) {
-	mapVersionsConnectorTypeKeys = make(map[int64]string)
-	mapVersionsProductKeys = make(map[int64]string)
+func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (mapVersionsKeys map[int64][]string, err error) {
+	//mapVersionsConnectorTypeKeys = make(map[int64]string)
+	//mapVersionsProductKeys = make(map[int64]string)
+	mapVersionsKeys = make(map[int64][]string)
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 
 	if config != nil {
@@ -147,8 +148,10 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 				if save {
 					shoset.SendSaveConnectorConfig(nshoset, timeoutMax, connectorConfig)
 				}
-				mapVersionsConnectorTypeKeys[version] = connectorConfig.ConnectorTypeKeys
-				mapVersionsProductKeys[version] = connectorConfig.ProductKeys
+				mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ConnectorTypeKeys)
+				mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ProductKeys)
+				//mapVersionsConnectorTypeKeys[version] = connectorConfig.ConnectorTypeKeys
+				//mapVersionsProductKeys[version] = connectorConfig.ProductKeys
 				//return connectorConfig.ConnectorTypeKeys, connectorConfig.ProductKeys, nil
 			} else {
 				log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
@@ -296,12 +299,10 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 				if err == nil {
 					//GET KEYS
 					fmt.Println("GET KEYS")
-					var mapVersionsConnectorTypeKeys, mapVersionsProductKeys map[int64]string
-					mapVersionsConnectorTypeKeys, mapVersionsProductKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
-					fmt.Println("mapVersionsConnectorTypeKeys")
-					fmt.Println(mapVersionsConnectorTypeKeys)
-					fmt.Println("mapVersionsProductKeys")
-					fmt.Println(mapVersionsProductKeys)
+					var mapVersionsKeys map[int64][]string
+					mapVersionsKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
+					fmt.Println("mapVersionsKeys")
+					fmt.Println(mapVersionsKeys)
 					if err == nil {
 						fmt.Println("GET WORKERS")
 						err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
