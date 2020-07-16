@@ -6,6 +6,8 @@ github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGX
 github.com/ditrit/gandalf v0.0.0-20200709080301-6c04bd9f070a h1:2dUn6MhIgGUKcA8ctwEQjsvcDnVxMq5dfULtx+riSr4=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20200709080301-6c04bd9f070a h1:hfwPOgsGIn58xog9tFIfUHN2VwzuQ4goDXpvmDXWmcQ=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20200709080301-6c04bd9f070a/go.mod h1:S3JezVkCvsm6zYpA34fdzUU5hWaLZ/UtcvMRtiFhVgo=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20200716082602-19393c3ffcf4 h1:6wlHzIyH6fHpVadIlqWw1oKUh/XIN+tXcztXMMekkl8=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20200716082602-19393c3ffcf4/go.mod h1:S3JezVkCvsm6zYpA34fdzUU5hWaLZ/UtcvMRtiFhVgo=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d h1:u0lxU752ovbor3TyiYIQ70uJS3Iy41wQ++uG88Q20rk=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d/go.mod h1:D58ElO9o9XrrmZ+0/Xbau8JhqAWtH+QFMKacCRxxw5Y=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200709075314-541ea137f7bf h1:nuen8XKLjio4TzrX/02J1zpu25+lXc1aqFbIu1qzCoQ=
@@ -85,6 +87,8 @@ google.golang.org/genproto v0.0.0-20200626011028-ee7919e894b5 h1:a/Sqq5B3dGnmxhu
 google.golang.org/genproto v0.0.0-20200626011028-ee7919e894b5/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/genproto v0.0.0-20200709005830-7a2ca40e9dc3 h1:JwLN1jVnmIsfE4HkDVe2AblFAbo0Z+4cjteDSOnv6oE=
 google.golang.org/genproto v0.0.0-20200709005830-7a2ca40e9dc3/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
+google.golang.org/genproto v0.0.0-20200715011427-11fb19a81f2c h1:6DWnZZ6EY/59QRRQttZKiktVL23UuQYs7uy75MhhLRM=
+google.golang.org/genproto v0.0.0-20200715011427-11fb19a81f2c/go.mod h1:FWY/as6DDZQgahTzZj3fqbO1CbirC29ZNUFHwi0/+no=
 google.golang.org/grpc v1.19.0/go.mod h1:mqu4LbDTu4XGKhr4mRzUsmM4RtVoemTSY81AxZiDr8c=
 google.golang.org/grpc v1.23.0/go.mod h1:Y5yQAOtifL1yxbo5wqy6BxZv8vAUGQwXBOALyacEbxg=
 google.golang.org/grpc v1.25.1/go.mod h1:c3i+UQWmh7LiEpx4sFZnkU36qjEYZ0imhYfXVyQciAY=
