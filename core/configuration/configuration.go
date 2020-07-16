@@ -89,7 +89,7 @@ func InitMainConfigKeys() {
 
 //initiation of the core keys
 func InitCoreKeys() {
-	_ = SetStringKeyConfig("core", "config_file", "f", "configuration/elements/gandalf.yaml", "path to the configuration file", true)
+	_ = SetStringKeyConfig("core", "config_dir", "f", homePath + "/gandalf/core/configuration/elements/", "path to the configuration directory", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core", "bind_address", "b", "", "Bind address", true)
@@ -179,20 +179,29 @@ func envParse() error {
 //Set the map with all the values given in the yaml file
 func yamlFileToMap() (map[interface{}]map[interface{}]string, error) {
 	//Set a map from config yaml file
-	keyDef := ConfigKeys["config_file"]
+	keyDef := ConfigKeys["config_dir"]
 	if *(keyDef.value) == "" {
 		*(keyDef.value) = keyDef.defaultVal
 	}
-	if _, err := os.Stat(*(keyDef).value); os.IsNotExist(err) {
+	file, err := os.Open(*(keyDef.value))
+	if os.IsNotExist(err) {
 		return nil, err
 	}
-
 	yamlMap := make(map[interface{}]map[interface{}]string)
-	yamlFile, err := ioutil.ReadFile(*(keyDef.value))
-	err = yaml.Unmarshal(yamlFile, &yamlMap)
-	if err != nil {
-		return nil, errors.New("error while parsing the file")
+	defer file.Close()
+
+	//read all files in a given directory and unmarshal only yaml files
+	list,_ := file.Readdirnames(0) // 0 to read all files and folders
+	for _, fileName := range list {
+		if filepath.Ext(*(keyDef.value) + fileName) == ".yaml" || filepath.Ext(*(keyDef.value) + fileName) == ".yml" {
+			yamlFile, err := ioutil.ReadFile(*(keyDef.value) + fileName)
+			err = yaml.Unmarshal(yamlFile, &yamlMap)
+			if err != nil {
+				return nil, errors.New("error while parsing the file")
+			}
+		}
 	}
+
 	return yamlMap, nil
 }
 
@@ -203,6 +212,7 @@ func yamlFileParse() error {
 		return errors.New("error while parsing the file into a map")
 	}
 
+	//check if the all the keys in the yaml file are needed by the gandalf configuration
 	for typeKey := range tempMap {
 		for tempKeyName := range tempMap[typeKey] {
 			keyName := fmt.Sprintf("%v", tempKeyName)

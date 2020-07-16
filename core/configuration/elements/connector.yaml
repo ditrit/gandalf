@@ -1,0 +1,10 @@
+connector:
+  connector_type: connector type
+  product_name: product name
+  aggregators: address1:9800,address2:6400,address3
+  gandalf_secret: path to the secret
+  product_url: url1,url2,url3
+  workers:
+  versions:
+  grpc_bind_address: localhost:9000
+  max_timeout: 100

@@ -1,7 +1,7 @@
 core:
   logical_name:
   gandalf_type:
-  bind_address: localhost:8000
+  bind_address: 127.0.0.1:8000
   certDir:
   certPem:
   keyPem:
