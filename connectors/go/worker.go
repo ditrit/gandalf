@@ -1,6 +1,8 @@
 package worker
 
 import (
+	"fmt"
+
 	"github.com/ditrit/gandalf/connectors/go/functions"
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
@@ -45,6 +47,7 @@ func (w Worker) Run() {
 
 	done := make(chan bool)
 	//START WORKER ADMIN
+	fmt.Println("EXECUTE WORKER")
 	w.Execute()
 	<-done
 }
