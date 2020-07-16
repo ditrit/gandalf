@@ -1,1 +1,0 @@
-# gandalf-connectors-go

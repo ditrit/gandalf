@@ -125,8 +125,6 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 
 // GetKeys : GetKeys
 func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (mapVersionsKeys map[int64][]string, err error) {
-	//mapVersionsConnectorTypeKeys = make(map[int64]string)
-	//mapVersionsProductKeys = make(map[int64]string)
 	mapVersionsKeys = make(map[int64][]string)
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 
@@ -149,9 +147,7 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 				}
 				mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ConnectorTypeKeys)
 				mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ProductKeys)
-				//mapVersionsConnectorTypeKeys[version] = connectorConfig.ConnectorTypeKeys
-				//mapVersionsProductKeys[version] = connectorConfig.ProductKeys
-				//return connectorConfig.ConnectorTypeKeys, connectorConfig.ProductKeys, nil
+
 			} else {
 				log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
 			}
@@ -176,7 +172,6 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath
 	err = utils.DownloadWorkers(url, src)
 
 	if err == nil {
-		//UNZIP
 		_, err = utils.Unzip(src, dest)
 		if err != nil {
 			log.Println("Can't unzip workers")
