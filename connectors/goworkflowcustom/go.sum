@@ -12,6 +12,12 @@ github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200709090245-ae80687c7f
 github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200709090245-ae80687c7ff8/go.mod h1:P+uXZ8Cf/Fy3Q0lVbGx0ezebzrVlIBaSJNkEB6mlkqU=
 github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200716082006-ff154d6fd90f h1:xBdQ2pp+jvoBCrs7WOSjpWT69/BaPjPpKeDYAHcgm7U=
 github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200716082006-ff154d6fd90f/go.mod h1:P+uXZ8Cf/Fy3Q0lVbGx0ezebzrVlIBaSJNkEB6mlkqU=
+github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200716084909-545d9bf446fb h1:OSgccjRzE0WpMgro2CJ3Bwq4gwTKHdsXdbbVdXtb6AA=
+github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200716084909-545d9bf446fb/go.mod h1:Vl1FSqfVoMaEJ2ekbx5h/VtAIq77ghBbFl/WnLe5qXQ=
+github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200716093805-ee883ee12f9e h1:ABwZjBfcgiybteX/mmhJSH5UtQpBpHl0ncDC8Zing0Q=
+github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200716093805-ee883ee12f9e/go.mod h1:Vl1FSqfVoMaEJ2ekbx5h/VtAIq77ghBbFl/WnLe5qXQ=
+github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200716094550-7191706b841c h1:EJ9kd/vozSC48x3TdzoG4GE/TH1qFaoZvcU3wLEirPQ=
+github.com/ditrit/gandalf/connectors/goworkflow v0.0.0-20200716094550-7191706b841c/go.mod h1:Vl1FSqfVoMaEJ2ekbx5h/VtAIq77ghBbFl/WnLe5qXQ=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d h1:u0lxU752ovbor3TyiYIQ70uJS3Iy41wQ++uG88Q20rk=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d/go.mod h1:D58ElO9o9XrrmZ+0/Xbau8JhqAWtH+QFMKacCRxxw5Y=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=

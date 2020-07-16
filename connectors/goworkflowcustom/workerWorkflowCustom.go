@@ -16,8 +16,15 @@ func main() {
 	var version = int64(1)
 
 	workerWorkflow := goworkflow.NewWorkerWorkflow(version, commands)
+	fmt.Println("workerWorkflow.Upload")
+	fmt.Println(workerWorkflow.Upload)
+	fmt.Println("workerWorkflow.Upload")
+
 	workerWorkflow.Upload = Upload
 	fmt.Println("RUN CUSTOM")
+	fmt.Println("workerWorkflow.Upload")
+	fmt.Println(workerWorkflow.Upload)
+	fmt.Println("workerWorkflow.Upload")
 	workerWorkflow.Run()
 }
 
@@ -30,7 +37,6 @@ func Upload(clientGandalf *goclient.ClientGandalf, version int64) {
 	decoder.Decode(&configuration) */
 	//done := make(chan bool)
 	fmt.Println("UPLOAD")
-	fmt.Println("PLZ INSERT VALUE")
 	/* 	input := bufio.NewScanner(os.Stdin)
 	   	input.Scan()
 	   	fmt.Println(input.Text())
