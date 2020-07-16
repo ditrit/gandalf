@@ -1,6 +1,10 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
+
 	"github.com/ditrit/gandalf/connectors/goworkflowcustom/workers"
 
 	goworkflow "github.com/ditrit/gandalf/connectors/goworkflow"
@@ -27,6 +31,13 @@ func Upload(clientGandalf *goclient.ClientGandalf, version int64) {
 	decoder := json.NewDecoder(file)
 	decoder.Decode(&configuration) */
 	//done := make(chan bool)
+	fmt.Println("UPLOAD")
+	fmt.Println("PLZ INSERT VALUE")
+	input := bufio.NewScanner(os.Stdin)
+	input.Scan()
+	fmt.Println(input.Text())
+	fmt.Println("THX")
+
 	workerMail := workers.NewWorkerUpload(clientGandalf)
 	go workerMail.Run()
 	//<-done

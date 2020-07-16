@@ -1,6 +1,8 @@
 package goworkflow
 
 import (
+	"fmt"
+
 	worker "github.com/ditrit/gandalf/connectors/go"
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
@@ -25,9 +27,11 @@ func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
 }
 
 func (ww workerWorkflow) Execute() {
+	fmt.Println("EXECUTE")
 	ww.Upload(ww.worker.GetClientGandalf(), ww.worker.GetVersion())
 }
 
 func (ww workerWorkflow) Run() {
+	fmt.Println("RUN")
 	ww.worker.Run()
 }

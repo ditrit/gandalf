@@ -123,7 +123,6 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 	return shoset.SendConnectorConfig(nshoset, timeoutMax)
 }
 
-//TODO REVOIR
 // GetKeys : GetKeys
 func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (mapVersionsKeys map[int64][]string, err error) {
 	//mapVersionsConnectorTypeKeys = make(map[int64]string)
@@ -163,13 +162,8 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 	return
 }
 
-//TODO REVOIR
 // GetWorker : GetWorker
 func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string) (err error) {
-	//DOWNLOAD
-	//urlSplit := strings.Split(url, "/")
-	//name := strings.Split(urlSplit[len(urlSplit)-1], ".")[0]
-	//CREATE DIRECTORY
 	ressource := "/" + connectortype + "/" + product + "/"
 	url := baseurl + ressource + "workers.zip"
 	src := workerPath + ressource + "workers.zip"
@@ -232,7 +226,7 @@ func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, worker
 		}
 	}
 
-	return nil
+	return
 }
 
 // ConfigurationValidation : validation configuration
@@ -293,21 +287,20 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			_, err = member.Link(linkAddress)
 			time.Sleep(time.Second * time.Duration(5))
 			if err == nil {
-				fmt.Println("GET CONFIG")
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				time.Sleep(time.Second * time.Duration(5))
 				if err == nil {
-					//GET KEYS
-					fmt.Println("GET KEYS")
 					var mapVersionsKeys map[int64][]string
 					mapVersionsKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
 					fmt.Println("mapVersionsKeys")
 					fmt.Println(mapVersionsKeys)
 					if err == nil {
-						fmt.Println("GET WORKERS")
 						err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
 						if err == nil {
+							//TODO REVOIR
 							var stdinargs string
+							stdinargs = "TATATOTOTUTU\n"
+							//END TODO
 							fmt.Println("START WORKERS")
 							err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
 							if err == nil {
@@ -315,8 +308,6 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 								result := member.ConfigurationValidation(tenant, connectorType)
 								if result {
 									log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-
-									//time.Sleep(time.Second * time.Duration(5))
 									fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 								} else {
 									log.Printf("Configuration validation failed")
