@@ -131,7 +131,6 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 	}
 
 	defer resp.Body.Close()
-	fmt.Println("status", resp.Status)
 	if resp.StatusCode != 200 {
 		return
 	}
@@ -156,7 +155,6 @@ func DownloadWorkers(url, filePath string) (err error) {
 	}
 
 	defer resp.Body.Close()
-	fmt.Println("status", resp.Status)
 	if resp.StatusCode != 200 {
 		return
 	}

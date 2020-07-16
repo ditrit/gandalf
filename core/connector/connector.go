@@ -179,11 +179,9 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath
 		//UNZIP
 		_, err = utils.Unzip(src, dest)
 		if err != nil {
-			fmt.Println(err)
 			log.Println("Can't unzip workers")
 		}
 	} else {
-		fmt.Println(err)
 		log.Println("Can't download workers")
 	}
 	return
@@ -213,14 +211,18 @@ func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, worker
 					if err != nil {
 						fmt.Println(err)
 					}
-					defer stdin.Close()
 
 					err = cmd.Start()
 					if err != nil {
 						log.Printf("Can't start worker %s", fileInfo.Name())
 					}
+					time.Sleep(time.Second * time.Duration(5))
 
-					io.WriteString(stdin, stdinargs)
+					go func() {
+						defer stdin.Close()
+						fmt.Println("Write")
+						io.WriteString(stdin, stdinargs)
+					}()
 				}
 			}
 		}
