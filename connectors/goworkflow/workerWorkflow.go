@@ -37,5 +37,8 @@ func (ww workerWorkflow) Execute() {
 
 func (ww workerWorkflow) Run() {
 	fmt.Println("RUN")
+	fmt.Println("UPLOAD")
+	fmt.Println(ww.Upload)
+	fmt.Println("UPLOAD")
 	ww.worker.Run()
 }
