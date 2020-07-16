@@ -12,7 +12,7 @@ import (
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
 
-//main
+//main : main
 func main() {
 
 	var commands = []string{}
@@ -27,7 +27,7 @@ func main() {
 	workerWorkflow.Run()
 }
 
-//Upload
+//Upload : Upload
 func Upload(clientGandalf *goclient.ClientGandalf, version int64) {
 	/* var configuration Configuration
 	mydir, _ := os.Getwd()
@@ -42,6 +42,7 @@ func Upload(clientGandalf *goclient.ClientGandalf, version int64) {
 
 }
 
+//Configuration : Configuration
 type Configuration struct {
 	Identity    string
 	Connections []string

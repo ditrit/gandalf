@@ -13,6 +13,7 @@ import (
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
 
+//main : main
 func main() {
 
 	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
@@ -30,7 +31,7 @@ func main() {
 	workerUtils.Run()
 }
 
-//CreateApplication
+//CreateApplication : CreateApplication
 func CreateApplication(clientGandalf *goclient.ClientGandalf, version int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
@@ -42,7 +43,7 @@ func CreateApplication(clientGandalf *goclient.ClientGandalf, version int64) {
 	go workerApp.Run()
 }
 
-//CreateForm
+//CreateForm : CreateForm
 func CreateForm(clientGandalf *goclient.ClientGandalf, version int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
@@ -54,7 +55,7 @@ func CreateForm(clientGandalf *goclient.ClientGandalf, version int64) {
 	go workerForm.Run()
 }
 
-//SendAuthMail
+//SendAuthMail : SendAuthMail
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, version int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
@@ -66,6 +67,7 @@ func SendAuthMail(clientGandalf *goclient.ClientGandalf, version int64) {
 	go workerMail.Run()
 }
 
+//Configuration : Configuration
 type Configuration struct {
 	Address string
 	Port    string

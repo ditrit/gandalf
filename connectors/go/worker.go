@@ -5,7 +5,7 @@ import (
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
 
-//Worker
+//Worker : Worker
 type Worker struct {
 	version       int64
 	commandes     []string
@@ -16,7 +16,7 @@ type Worker struct {
 	//Execute      func()
 }
 
-//NewWorker
+//NewWorker : NewWorker
 func NewWorker(version int64, commandes []string) *Worker {
 	worker := new(Worker)
 	worker.version = version
@@ -27,17 +27,17 @@ func NewWorker(version int64, commandes []string) *Worker {
 	return worker
 }
 
-//GetClientGandalf
+//GetClientGandalf : GetClientGandalf
 func (w Worker) GetClientGandalf() *goclient.ClientGandalf {
 	return w.clientGandalf
 }
 
-//GetVersion
+//GetVersion : GetVersion
 func (w Worker) GetVersion() int64 {
 	return w.version
 }
 
-//Run
+//Run : Run
 func (w Worker) Run() {
 	w.clientGandalf = w.Start()
 

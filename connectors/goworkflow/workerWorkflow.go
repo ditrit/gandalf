@@ -5,19 +5,19 @@ import (
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
 
-//WorkerWorkflow
+//WorkerWorkflow : WorkerWorkflow
 type WorkerWorkflow interface {
 	Upload(clientGandalf *goclient.ClientGandalf, version int64)
 }
 
-//Worker
+//workerWorkflow : workerWorkflow
 type workerWorkflow struct {
 	worker *worker.Worker
 
 	Upload func(clientGandalf *goclient.ClientGandalf, version int64)
 }
 
-//NewWorkerWorkflow
+//NewWorkerWorkflow : NewWorkerWorkflow
 func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
 	currentWorkerWorkflow := new(workerWorkflow)
 	currentWorkerWorkflow.worker = worker.NewWorker(version, commandes)
@@ -26,21 +26,7 @@ func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
 	return currentWorkerWorkflow
 }
 
-/* //GetClientGandalf
-func (ww workerWorkflow) GetWorker() *goclient.ClientGandalf {
-	return ww.worker
-} */
-/*
-func (ww workerWorkflow) Execute() {
-	fmt.Println("EXECUTE UPLOAD")
-	fmt.Println("UPLOAD")
-	fmt.Println(ww.Upload)
-	fmt.Println("UPLOAD")
-	ww.Upload(ww.worker.GetClientGandalf(), ww.worker.GetVersion())
-	fmt.Println("END EXECUTE")
-} */
-
-//Run
+//Run : Run
 func (ww workerWorkflow) Run() {
 	ww.worker.Run()
 
