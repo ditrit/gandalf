@@ -1,5 +1,5 @@
 core:
-  logical_name: test
+  logical_name:
   gandalf_type:
   bind_address: 127.0.0.1:8000
   certDir:
@@ -10,8 +10,3 @@ core:
   gandalf_log:
 connector/aggregator:
   tenant:
-aggregator:
-  clusters:
-cluster:
-  cluster_join:
-  gandalf_db:

@@ -113,7 +113,7 @@ func InitConnectorKeys() {
 	_ = SetStringKeyConfig("connector", "aggregators", "a", "address1:9800,address2:6400,address3", "aggregators addresses linked to the connector", true)
 	_ = SetStringKeyConfig("connector", "gandalf_secret", "s", "/etc/gandalf/gandalfSecret", "path of the gandalf secret", true)
 	_ = SetStringKeyConfig("connector", "product_url", "u", "url1,url2,url3", "product url list of the connector", false)
-	_ = SetStringKeyConfig("connector", "workers", "w", "/etc/gandalf/workers", "path for the workers configuration", false)
+	_ = SetStringKeyConfig("connector", "workers", "w", "/etc/gandalf/workers/", "path for the workers configuration", false)
 	_ = SetStringKeyConfig("connector", "versions", "v", "1,2", "versions of a connector", true)
 	_ = SetStringKeyConfig("connector", "grpc_bind_address", "r", "", "GRPC bind address", true)
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
@@ -197,7 +197,7 @@ func yamlFileToMap() (map[interface{}]map[interface{}]string, error) {
 			yamlFile, err := ioutil.ReadFile(*(keyDef.value) + fileName)
 			err = yaml.Unmarshal(yamlFile, &yamlMap)
 			if err != nil {
-				return nil, errors.New("error while parsing the file")
+				return nil, errors.New("error while unmarshalling the file")
 			}
 		}
 	}
