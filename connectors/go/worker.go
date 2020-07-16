@@ -1,8 +1,6 @@
 package worker
 
 import (
-	"fmt"
-
 	"github.com/ditrit/gandalf/connectors/go/functions"
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
@@ -15,7 +13,7 @@ type Worker struct {
 
 	Start        func() *goclient.ClientGandalf
 	SendCommands func(clientGandalf *goclient.ClientGandalf, version int64, commandes []string)
-	Execute      func()
+	//Execute      func()
 }
 
 //NewWorker
@@ -45,9 +43,9 @@ func (w Worker) Run() {
 
 	w.SendCommands(w.clientGandalf, w.version, w.commandes)
 
-	done := make(chan bool)
+	/* done := make(chan bool)
 	//START WORKER ADMIN
 	fmt.Println("EXECUTE WORKER")
 	w.Execute()
-	<-done
+	<-done */
 }
