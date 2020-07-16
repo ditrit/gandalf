@@ -19,12 +19,17 @@ type workerWorkflow struct {
 }
 
 func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
-	workerWorkflow := new(workerWorkflow)
-	workerWorkflow.worker = worker.NewWorker(version, commandes)
-	workerWorkflow.worker.Execute = workerWorkflow.Execute
+	currentWorkerWorkflow := new(workerWorkflow)
+	currentWorkerWorkflow.worker = worker.NewWorker(version, commandes)
+	currentWorkerWorkflow.worker.Execute = workerWorkflow.Execute
 
-	return workerWorkflow
+	return currentWorkerWorkflow
 }
+
+/* //GetClientGandalf
+func (ww workerWorkflow) GetWorker() *goclient.ClientGandalf {
+	return ww.worker
+} */
 
 func (ww workerWorkflow) Execute() {
 	fmt.Println("EXECUTE UPLOAD")
