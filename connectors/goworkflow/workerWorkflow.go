@@ -30,7 +30,7 @@ func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
 func (ww workerWorkflow) GetWorker() *goclient.ClientGandalf {
 	return ww.worker
 } */
-
+/*
 func (ww workerWorkflow) Execute() {
 	fmt.Println("EXECUTE UPLOAD")
 	fmt.Println("UPLOAD")
@@ -38,7 +38,7 @@ func (ww workerWorkflow) Execute() {
 	fmt.Println("UPLOAD")
 	ww.Upload(ww.worker.GetClientGandalf(), ww.worker.GetVersion())
 	fmt.Println("END EXECUTE")
-}
+} */
 
 func (ww workerWorkflow) Run() {
 	fmt.Println("RUN")
@@ -46,4 +46,9 @@ func (ww workerWorkflow) Run() {
 	fmt.Println(ww.Upload)
 	fmt.Println("UPLOAD")
 	ww.worker.Run()
+
+	done := make(chan bool)
+	//START WORKER ADMIN
+	ww.Upload(ww.worker.GetClientGandalf(), ww.worker.GetVersion())
+	<-done
 }
