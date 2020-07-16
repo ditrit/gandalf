@@ -6,6 +6,7 @@ import (
 	worker "github.com/ditrit/gandalf/connectors/go"
 )
 
+//WorkerUtils
 type WorkerUtils interface {
 	CreateApplication(clientGandalf *goclient.ClientGandalf, version int64)
 	CreateForm(clientGandalf *goclient.ClientGandalf, version int64)
@@ -21,20 +22,29 @@ type workerUtils struct {
 	SendAuthMail      func(clientGandalf *goclient.ClientGandalf, version int64)
 }
 
+//NewWorkerUtils
 func NewWorkerUtils(version int64, commandes []string) *workerUtils {
 	workerUtils := new(workerUtils)
 	workerUtils.worker = worker.NewWorker(version, commandes)
-	workerUtils.worker.Execute = workerUtils.Execute
+	//workerUtils.worker.Execute = workerUtils.Execute
 
 	return workerUtils
 }
 
-func (wu workerUtils) Execute() {
+/* func (wu workerUtils) Execute() {
 	wu.CreateApplication(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
 	wu.CreateForm(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
 	wu.SendAuthMail(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
 }
+*/
 
+//Run
 func (wu workerUtils) Run() {
 	wu.worker.Run()
+
+	done := make(chan bool)
+	wu.CreateApplication(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	wu.CreateForm(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	wu.SendAuthMail(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	<-done
 }
