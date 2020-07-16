@@ -28,7 +28,12 @@ func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
 
 func (ww workerWorkflow) Execute() {
 	fmt.Println("EXECUTE")
+	done := make(chan bool)
+	//START WORKER ADMIN
+	fmt.Println("UPLOAD")
 	ww.Upload(ww.worker.GetClientGandalf(), ww.worker.GetVersion())
+	<-done
+	fmt.Println("END EXECUTE")
 }
 
 func (ww workerWorkflow) Run() {
