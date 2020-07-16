@@ -1,8 +1,6 @@
 package goworkflow
 
 import (
-	"fmt"
-
 	worker "github.com/ditrit/gandalf/connectors/go"
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
@@ -41,10 +39,6 @@ func (ww workerWorkflow) Execute() {
 } */
 
 func (ww workerWorkflow) Run() {
-	fmt.Println("RUN")
-	fmt.Println("UPLOAD")
-	fmt.Println(ww.Upload)
-	fmt.Println("UPLOAD")
 	ww.worker.Run()
 
 	done := make(chan bool)
