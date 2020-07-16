@@ -21,7 +21,7 @@ type workerWorkflow struct {
 func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
 	currentWorkerWorkflow := new(workerWorkflow)
 	currentWorkerWorkflow.worker = worker.NewWorker(version, commandes)
-	currentWorkerWorkflow.worker.Execute = workerWorkflow.Execute
+	//currentWorkerWorkflow.worker.Execute = workerWorkflow.Execute
 
 	return currentWorkerWorkflow
 }
