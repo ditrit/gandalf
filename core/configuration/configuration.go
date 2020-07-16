@@ -89,7 +89,7 @@ func InitMainConfigKeys() {
 
 //initiation of the core keys
 func InitCoreKeys() {
-	_ = SetStringKeyConfig("core", "config_dir", "f", homePath + "/gandalf/core/configuration/elements/", "path to the configuration directory", true)
+	_ = SetStringKeyConfig("core", "config_dir", "f", homePath + "/gandalf/core/configuration/configDir/", "path to the configuration directory", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core", "bind_address", "b", "", "Bind address", true)
@@ -190,7 +190,7 @@ func yamlFileToMap() (map[interface{}]map[interface{}]string, error) {
 	yamlMap := make(map[interface{}]map[interface{}]string)
 	defer file.Close()
 
-	//read all files in a given directory and unmarshal only yaml files
+	//read all files in a given directory and unmarshal only YAML files
 	list,_ := file.Readdirnames(0) // 0 to read all files and folders
 	for _, fileName := range list {
 		if filepath.Ext(*(keyDef.value) + fileName) == ".yaml" || filepath.Ext(*(keyDef.value) + fileName) == ".yml" {
