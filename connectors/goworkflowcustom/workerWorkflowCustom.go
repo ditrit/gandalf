@@ -12,6 +12,7 @@ import (
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
 
+//main
 func main() {
 
 	var commands = []string{}

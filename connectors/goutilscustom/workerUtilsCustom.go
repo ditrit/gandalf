@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/ditrit/gandalf/connectors/goutilscustom/workers"
@@ -16,9 +18,11 @@ func main() {
 	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
 	var version = int64(2)
 
-	workerUtils := goutils.NewWorkerUtils(version, commands)
-	//workerUtils.Execute = Execute
+	input := bufio.NewScanner(os.Stdin)
+	input.Scan()
+	fmt.Println(input.Text())
 
+	workerUtils := goutils.NewWorkerUtils(version, commands)
 	workerUtils.CreateApplication = CreateApplication
 	workerUtils.CreateForm = CreateForm
 	workerUtils.SendAuthMail = SendAuthMail
