@@ -118,12 +118,12 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Link(addr)
 }
 
-// GetConfiguration : GetConfiguration
+// GetConfiguration : Get configuration from cluster
 func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64) (err error) {
 	return shoset.SendConnectorConfig(nshoset, timeoutMax)
 }
 
-// GetKeys : GetKeys
+// GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (mapVersionsKeys map[int64][]string, err error) {
 	mapVersionsKeys = make(map[int64][]string)
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
@@ -158,7 +158,7 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 	return
 }
 
-// GetWorker : GetWorker
+// GetWorker : Get worker from baseurl/connectortype/ and baseurl/connectortype/product/
 func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string) (err error) {
 	ressource := "/" + connectortype + "/" + product + "/"
 	url := baseurl + ressource + "workers.zip"
@@ -182,7 +182,7 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath
 	return
 }
 
-// StartWorkers : start workers
+// StartWorkers : Start workers
 func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, workersPath, grpcBindAddress string, versions []int64) (err error) {
 
 	for _, version := range versions {
@@ -226,7 +226,7 @@ func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, worker
 	return
 }
 
-// ConfigurationValidation : validation configuration
+// ConfigurationValidation : Validation configuration
 func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
 	result = false
 	validation := true

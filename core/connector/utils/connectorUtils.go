@@ -34,12 +34,12 @@ func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) 
 	return
 }
 
-//IsExecAll
+// IsExecAll : IsExecAll
 func IsExecAll(mode os.FileMode) bool {
 	return mode&0111 == 0111
 }
 
-//GetMaxVersion
+// GetMaxVersion : GetMaxVersion
 func GetMaxVersion(versions []int64) (maxversion int64) {
 	maxversion = -1
 	for _, version := range versions {
@@ -50,7 +50,7 @@ func GetMaxVersion(versions []int64) (maxversion int64) {
 	return
 }
 
-//GetConnectorType
+// GetConnectorType : GetConnectorType
 func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
 	for _, connectorType := range list {
 		if connectorType.Name == connectorTypeName {
@@ -61,7 +61,7 @@ func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) 
 	return result
 }
 
-//GetConnectorTypeConfigByVersion
+// GetConnectorTypeConfigByVersion : GetConnectorTypeConfigByVersion
 func GetConnectorTypeConfigByVersion(version int64, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
 	if version == 0 {
 		result = nil
@@ -78,7 +78,7 @@ func GetConnectorTypeConfigByVersion(version int64, list []*models.ConnectorConf
 }
 
 //TODO REVOIR INTERFACE
-//GetConnectorTypeCommand
+// GetConnectorTypeCommand : GetConnectorTypeCommand
 func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeCommand) (result models.ConnectorTypeCommand) {
 	for _, command := range list {
 		if command.Name == commandName {
@@ -90,7 +90,7 @@ func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeComm
 }
 
 //TODO REVOIR INTERFACE
-//GetConnectorTypeEvent
+// GetConnectorTypeEvent : GetConnectorTypeEvent
 func GetConnectorTypeEvent(eventName string, list []models.ConnectorTypeEvent) (result models.ConnectorTypeEvent) {
 	for _, event := range list {
 		if event.Name == eventName {
@@ -101,7 +101,7 @@ func GetConnectorTypeEvent(eventName string, list []models.ConnectorTypeEvent) (
 	return result
 }
 
-//ValidatePayload
+// ValidatePayload : Validate payload
 func ValidatePayload(payload, payloadSchema string) (result bool) {
 	result = false
 
@@ -120,10 +120,8 @@ func ValidatePayload(payload, payloadSchema string) (result bool) {
 
 }
 
-//TODO REVOIR
-//DownloadWorkers
+// DownloadConfigurationsKeys : Download configurationsKeys from url
 func DownloadConfigurationsKeys(url, ressource string) (body string, err error) {
-	// Create the file
 	resp, err := http.Get(url + ressource)
 	if err != nil {
 		log.Printf("err: %s", err)
@@ -140,14 +138,12 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 		log.Fatal(err)
 	}
 	bodyString := string(bodyBytes)
-	fmt.Println("bodystring")
-	fmt.Println(bodyString)
+
 	return bodyString, nil
 }
 
-//DownloadWorkers
+// DownloadWorkers : Download workers from url
 func DownloadWorkers(url, filePath string) (err error) {
-	// Create the file
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Printf("err: %s", err)
@@ -159,7 +155,6 @@ func DownloadWorkers(url, filePath string) (err error) {
 		return
 	}
 
-	// Create the file
 	out, err := os.Create(filePath)
 	if err != nil {
 		fmt.Println(err)
@@ -168,7 +163,6 @@ func DownloadWorkers(url, filePath string) (err error) {
 	}
 	defer out.Close()
 
-	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		log.Printf("err: %s", err)
@@ -178,7 +172,7 @@ func DownloadWorkers(url, filePath string) (err error) {
 	return nil
 }
 
-//Unzip
+// Unzip : Unzip file
 func Unzip(zipPath string, dirPath string) ([]string, error) {
 
 	var filenames []string
@@ -191,10 +185,8 @@ func Unzip(zipPath string, dirPath string) ([]string, error) {
 
 	for _, f := range r.File {
 
-		// Store filename/path for returning and using later on
 		fpath := filepath.Join(dirPath, f.Name)
 
-		// Check for ZipSlip. More Info: http://bit.ly/2MsjAWE
 		if !strings.HasPrefix(fpath, filepath.Clean(dirPath)+string(os.PathSeparator)) {
 			return filenames, fmt.Errorf("%s: illegal file path", fpath)
 		}
@@ -202,12 +194,10 @@ func Unzip(zipPath string, dirPath string) ([]string, error) {
 		filenames = append(filenames, fpath)
 
 		if f.FileInfo().IsDir() {
-			// Make Folder
 			os.MkdirAll(fpath, os.ModePerm)
 			continue
 		}
 
-		// Make File
 		if err = os.MkdirAll(filepath.Dir(fpath), os.ModePerm); err != nil {
 			return filenames, err
 		}
@@ -224,7 +214,6 @@ func Unzip(zipPath string, dirPath string) ([]string, error) {
 
 		_, err = io.Copy(outFile, rc)
 
-		// Close the file without defer to close before next iteration of loop
 		outFile.Close()
 		rc.Close()
 
