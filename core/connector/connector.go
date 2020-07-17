@@ -15,6 +15,7 @@ import (
 	"github.com/ditrit/gandalf/core/connector/utils"
 	coreLog "github.com/ditrit/gandalf/core/log"
 	"github.com/ditrit/gandalf/core/models"
+	"gopkg.in/yaml.v2"
 
 	net "github.com/ditrit/shoset"
 
@@ -124,8 +125,8 @@ func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64
 }
 
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
-func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (mapVersionsKeys map[int64][]string, err error) {
-	mapVersionsKeys = make(map[int64][]string)
+func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (listConfigurationKeys []models.ConfigurationKeys, err error) {
+	//mapVersionsKeys = make(map[int64][]string)
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 
 	if config != nil {
@@ -145,8 +146,22 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 				if save {
 					shoset.SendSaveConnectorConfig(nshoset, timeoutMax, connectorConfig)
 				}
-				mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ConnectorTypeKeys)
-				mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ProductKeys)
+				var listConfigurationConnectorTypeKeys []models.ConfigurationKeys
+				err = yaml.Unmarshal([]byte(connectorConfig.ConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
+				if err != nil {
+					fmt.Println(err)
+				}
+				var listConfigurationProductKeys []models.ConfigurationKeys
+				err = yaml.Unmarshal([]byte(connectorConfig.ProductKeys), &listConfigurationProductKeys)
+				if err != nil {
+					fmt.Println(err)
+				}
+
+				listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
+				listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
+
+				//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ConnectorTypeKeys)
+				//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ProductKeys)
 
 			} else {
 				log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
@@ -287,10 +302,11 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				time.Sleep(time.Second * time.Duration(5))
 				if err == nil {
-					var mapVersionsKeys map[int64][]string
-					mapVersionsKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
-					fmt.Println("mapVersionsKeys")
-					fmt.Println(mapVersionsKeys)
+					//var mapVersionsKeys map[int64][]string
+					var listConfigurationKeys []models.ConfigurationKeys
+					listConfigurationKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
+					fmt.Println("listConfigurationKeys")
+					fmt.Println(listConfigurationKeys)
 					if err == nil {
 						err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
 						if err == nil {
