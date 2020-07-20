@@ -1,0 +1,28 @@
+{{define "content"}}
+   <div class="container">
+   <!-- Outer Row -->
+   <div class="row justify-content-center">
+   <div class="col-xl-10 col-lg-12 col-md-9">
+      <div class="card o-hidden border-0 shadow-lg my-5">
+         <!-- Nested Row within Card Body -->
+         <div class="p-5">
+            <div class="text-center">
+               <h1 class="h4 text-gray-900 mb-4">{{ .Title}}</h1>
+            </div>
+             <form action={{ .Url}} method="post">
+
+               <div class="form-group">
+                  <label for="appName"><strong>Application Name :</strong></label>
+                  <input type="text" class="form-control" id="appName" name="appName">
+               </div>
+             
+               <input type="submit" value="Send" class="btn btn-primary"/>
+            </form>
+         </div>
+      </div>
+   </div>
+   </div>
+</div>
+{{end}}
+
+ 

@@ -1,41 +1,37 @@
-package main
+package goworkflow
 
 import (
-	"connectors/gandalf-core/connectors/goworkflow/workers"
-	"encoding/json"
-	"os"
-
 	worker "github.com/ditrit/gandalf/connectors/go"
-
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
 
-func main() {
-
-	var commands = []string{}
-	var version = int64(1)
-
-	workerUtils := worker.NewWorker(version, commands)
-	workerUtils.Execute = Execute
-
-	workerUtils.Run()
+//WorkerWorkflow : WorkerWorkflow
+type WorkerWorkflow interface {
+	Upload(clientGandalf *goclient.ClientGandalf, version int64)
 }
 
-//
-func Execute(clientGandalf *goclient.ClientGandalf, version int64) {
-	var configuration Configuration
-	mydir, _ := os.Getwd()
-	file, _ := os.Open(mydir + "/test.json")
-	decoder := json.NewDecoder(file)
-	decoder.Decode(&configuration)
-	//done := make(chan bool)
-	workerMail := workers.NewWorkerUpload(clientGandalf)
-	go workerMail.Run()
-	//<-done
+//workerWorkflow : workerWorkflow
+type workerWorkflow struct {
+	worker *worker.Worker
 
+	Upload func(clientGandalf *goclient.ClientGandalf, version int64)
 }
 
-type Configuration struct {
-	Identity    string
-	Connections []string
+//NewWorkerWorkflow : NewWorkerWorkflow
+func NewWorkerWorkflow(version int64, commandes []string) *workerWorkflow {
+	currentWorkerWorkflow := new(workerWorkflow)
+	currentWorkerWorkflow.worker = worker.NewWorker(version, commandes)
+	//currentWorkerWorkflow.worker.Execute = workerWorkflow.Execute
+
+	return currentWorkerWorkflow
+}
+
+//Run : Run
+func (ww workerWorkflow) Run() {
+	ww.worker.Run()
+
+	done := make(chan bool)
+	//START WORKER ADMIN
+	ww.Upload(ww.worker.GetClientGandalf(), ww.worker.GetVersion())
+	<-done
 }
