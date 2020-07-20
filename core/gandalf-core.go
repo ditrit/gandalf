@@ -42,37 +42,48 @@ func main() {
 			gandalfJoin, err := configuration.GetStringConfig("cluster_join")
 			if err == nil {
 				if gandalfJoin == "" {
-					//CREATE CLUSTER
-					fmt.Println("Running Gandalf for a " + gandalfType + " with :")
-					fmt.Println("  Logical Name : " + gandalfLogicalName)
-					fmt.Println("  Bind Address : " + gandalfBindAddress)
-					fmt.Println("  Log Path : " + gandalfLogPath)
-					fmt.Println("  Db Path : " + gandalfDBPath)
 
-					done := make(chan bool)
-					cluster.ClusterMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfDBPath, gandalfLogPath)
-					add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
-					go database.DatabaseMemberInit(add, gandalfDBPath, 1)
-					<-done
+					//VALIDATION
+					err := configuration.IsConfigValid()
+					if err == nil {
+						//CREATE CLUSTER
+						fmt.Println("Running Gandalf for a " + gandalfType + " with :")
+						fmt.Println("  Logical Name : " + gandalfLogicalName)
+						fmt.Println("  Bind Address : " + gandalfBindAddress)
+						fmt.Println("  Log Path : " + gandalfLogPath)
+						fmt.Println("  Db Path : " + gandalfDBPath)
+
+						done := make(chan bool)
+						cluster.ClusterMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfDBPath, gandalfLogPath)
+						add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
+						go database.DatabaseMemberInit(add, gandalfDBPath, 1)
+						<-done
+					}
+
 				} else {
-					//CREATE CLUSTER
-					fmt.Println("Running Gandalf for a " + gandalfType + " with :")
-					fmt.Println("  Logical Name : " + gandalfLogicalName)
-					fmt.Println("  Bind Address : " + gandalfBindAddress)
-					fmt.Println("  Join Address : " + gandalfJoin)
-					fmt.Println("  Log Path : " + gandalfLogPath)
-					fmt.Println("  Db Path : " + gandalfDBPath)
 
-					done := make(chan bool)
-					member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
-					fmt.Println(member)
-					add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
-					id := len(*member.Store)
+					//VALIDATION
+					err := configuration.IsConfigValid()
+					if err == nil {
+						//CREATE CLUSTER
+						fmt.Println("Running Gandalf for a " + gandalfType + " with :")
+						fmt.Println("  Logical Name : " + gandalfLogicalName)
+						fmt.Println("  Bind Address : " + gandalfBindAddress)
+						fmt.Println("  Join Address : " + gandalfJoin)
+						fmt.Println("  Log Path : " + gandalfLogPath)
+						fmt.Println("  Db Path : " + gandalfDBPath)
 
-					go database.DatabaseMemberInit(add, gandalfDBPath, id)
+						done := make(chan bool)
+						member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
+						fmt.Println(member)
+						add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
+						id := len(*member.Store)
 
-					_ = database.AddNodesToLeader(id, add, *member.Store)
-					<-done
+						go database.DatabaseMemberInit(add, gandalfDBPath, id)
+
+						_ = database.AddNodesToLeader(id, add, *member.Store)
+						<-done
+					}
 				}
 			}
 			break
@@ -86,16 +97,22 @@ func main() {
 			if err != nil {
 				log.Fatalf("no valid cluster address: %v", err)
 			}
-			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
-			fmt.Println("  Logical Name : " + gandalfLogicalName)
-			fmt.Println("  Tenant : " + gandalfTenant)
-			fmt.Println("  Bind Address : " + gandalfBindAddress)
-			fmt.Println("  Link Address : " + gandalfClusterLink)
-			fmt.Println("  Log Path : " + gandalfLogPath)
 
-			done := make(chan bool)
-			aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath)
-			<-done
+			//VALIDATION
+			err = configuration.IsConfigValid()
+			if err == nil {
+
+				fmt.Println("Running Gandalf for a " + gandalfType + " with :")
+				fmt.Println("  Logical Name : " + gandalfLogicalName)
+				fmt.Println("  Tenant : " + gandalfTenant)
+				fmt.Println("  Bind Address : " + gandalfBindAddress)
+				fmt.Println("  Link Address : " + gandalfClusterLink)
+				fmt.Println("  Log Path : " + gandalfLogPath)
+
+				done := make(chan bool)
+				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath)
+				<-done
+			}
 			break
 		case "connector":
 			gandalfTenant, err := configuration.GetStringConfig("tenant")

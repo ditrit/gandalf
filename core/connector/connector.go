@@ -10,6 +10,8 @@ import (
 	"os/exec"
 	"reflect"
 
+	"github.com/ditrit/gandalf/core/configuration"
+
 	"github.com/ditrit/gandalf/core/connector/grpc"
 	"github.com/ditrit/gandalf/core/connector/shoset"
 	"github.com/ditrit/gandalf/core/connector/utils"
@@ -308,28 +310,37 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 					fmt.Println("listConfigurationKeys")
 					fmt.Println(listConfigurationKeys)
 					if err == nil {
-						err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
+						fmt.Println("KEY PARSE")
+						configuration.WorkerKeyParse(listConfigurationKeys)
+						err = configuration.IsConfigValid()
 						if err == nil {
-							//TODO REVOIR
-							var stdinargs string
-							stdinargs = "{Toto:test}\n"
-							//END TODO
-							fmt.Println("START WORKERS")
-							err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
+
+							fmt.Println("CONFIG VALIDE")
+							err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
 							if err == nil {
-								time.Sleep(time.Second * time.Duration(5))
-								result := member.ConfigurationValidation(tenant, connectorType)
-								if result {
-									log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-									fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+								//TODO REVOIR
+								var stdinargs string
+								stdinargs = "{Toto:test}\n"
+								//END TODO
+								fmt.Println("START WORKERS")
+								err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
+								if err == nil {
+									time.Sleep(time.Second * time.Duration(5))
+									result := member.ConfigurationValidation(tenant, connectorType)
+									if result {
+										log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+										fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+									} else {
+										log.Printf("Configuration validation failed")
+									}
 								} else {
-									log.Printf("Configuration validation failed")
+									log.Printf("Can't start workers in %s", workerPath)
 								}
 							} else {
-								log.Printf("Can't start workers in %s", workerPath)
+								log.Printf("Can't get workers in %s", workerPath)
 							}
 						} else {
-							log.Printf("Can't get workers in %s", workerPath)
+							log.Printf("Can't validate keys")
 						}
 					} else {
 						log.Printf("Can't get keys")

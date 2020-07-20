@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ditrit/gandalf/core/models"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -26,7 +28,7 @@ type configKey struct {
 }
 
 var ConfigKeys = make(map[string]configKey)
-var homePath = "/home/zippo/go/src"
+var homePath = "/home/romainfairant/go/src"
 
 //Set a string type key
 func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string, mandatory bool) error {
@@ -99,7 +101,7 @@ func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "keyPem", "", homePath+"/gandalf/core/certs/key.pem", "path of the TLS private key", false)
 	_ = SetStringKeyConfig("core", "caCertPem", "", homePath+"/gandalf/core/certs/ca.pem", "path of the CA certificate", false)
 	_ = SetStringKeyConfig("core", "caKeyPem", "", homePath+"/gandalf/core/certs/cakey.pem", "path of the CA key", false)
-	_ = SetStringKeyConfig("core", "gandalf_log", "", "/home/zippo/log/", "path of the log file", false)
+	_ = SetStringKeyConfig("core", "gandalf_log", "", "/home/romainfairant/gandalf/log", "path of the log file", false)
 }
 
 //initiation of the tenant key for connectors and aggregators
@@ -129,7 +131,7 @@ func InitAggregatorKeys() {
 //initiation of the cluster keys
 func InitClusterKeys() {
 	_ = SetStringKeyConfig("cluster", "cluster_join", "j", "", "cluster command (join)", false)
-	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "/home/zippo/db", "path for the gandalf database", false)
+	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "/home/romainfairant/gandalf/database", "path for the gandalf database", false)
 }
 
 //parse the configuration from the CLI parameters
@@ -250,20 +252,9 @@ func defaultParse() error {
 	return nil
 }
 
-type testKey struct {
-	keyName    string
-	defaultVal string
-	mandatory  bool
-}
-
-var testing = []testKey{
-	{"totoTest", "toto", true},
-	{"titiTest", "test default titi", true},
-}
-
-func WorkerKeyParse(test []testKey) error {
+func WorkerKeyParse(test []models.ConfigurationKeys) error {
 	for _, elem := range test {
-		_ = SetStringKeyConfig("worker", elem.keyName, "", elem.defaultVal, "", elem.mandatory)
+		_ = SetStringKeyConfig("worker", elem.Name, "", elem.DefaultValue, "", elem.Mandatory)
 	}
 	err := envParse()
 	if err != nil {
@@ -275,8 +266,12 @@ func WorkerKeyParse(test []testKey) error {
 	}
 	err = defaultParse()
 
-	fmt.Println(GetStringConfig("totoTest"))
-	fmt.Println(GetStringConfig("titiTest"))
+	//TODO REMOVE
+	for keyName := range ConfigKeys {
+		keyDef := ConfigKeys[keyName]
+		fmt.Println(keyName, ":", *(keyDef.value))
+	}
+	//TODO REMOVE
 
 	return nil
 }
@@ -405,17 +400,17 @@ func ConfigMain(programName string, args []string) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	err = WorkerKeyParse(testing)
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	/* 	err = WorkerKeyParse(testing)
+	   	if err != nil {
+	   		log.Fatalf("%v", err)
+	   	} */
 	/*testTLS,err := GetTLS()
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 	fmt.Println(testTLS)*/
-	err = IsConfigValid()
+	/* err = IsConfigValid()
 	if err != nil {
 		log.Fatalf("%v", err)
-	}
+	} */
 }
