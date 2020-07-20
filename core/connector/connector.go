@@ -312,7 +312,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 						if err == nil {
 							//TODO REVOIR
 							var stdinargs string
-							stdinargs = "TATATOTOTUTU\n"
+							stdinargs = "{Toto:test}\n"
 							//END TODO
 							fmt.Println("START WORKERS")
 							err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
