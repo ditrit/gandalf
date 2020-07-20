@@ -304,18 +304,12 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
 				time.Sleep(time.Second * time.Duration(5))
 				if err == nil {
-					//var mapVersionsKeys map[int64][]string
 					var listConfigurationKeys []models.ConfigurationKeys
 					listConfigurationKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
-					fmt.Println("listConfigurationKeys")
-					fmt.Println(listConfigurationKeys)
 					if err == nil {
-						fmt.Println("KEY PARSE")
 						configuration.WorkerKeyParse(listConfigurationKeys)
 						err = configuration.IsConfigValid()
 						if err == nil {
-
-							fmt.Println("CONFIG VALIDE")
 							err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
 							if err == nil {
 								//TODO REVOIR

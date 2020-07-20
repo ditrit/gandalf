@@ -12,4 +12,4 @@ worker:
   tata: tataVal
   tutu: tutuVal
   titi: titiVal
-  toto: totoVal
+  toto:

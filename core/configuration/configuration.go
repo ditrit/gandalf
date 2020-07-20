@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -252,9 +251,9 @@ func defaultParse() error {
 	return nil
 }
 
-func WorkerKeyParse(test []models.ConfigurationKeys) error {
-	for _, elem := range test {
-		_ = SetStringKeyConfig("worker", elem.Name, "", elem.DefaultValue, "", elem.Mandatory)
+func WorkerKeyParse(configurationKeys []models.ConfigurationKeys) error {
+	for _, configurationKey := range configurationKeys {
+		_ = SetStringKeyConfig("worker", configurationKey.Name, "", configurationKey.DefaultValue, "", configurationKey.Mandatory)
 	}
 	err := envParse()
 	if err != nil {
@@ -265,13 +264,11 @@ func WorkerKeyParse(test []models.ConfigurationKeys) error {
 		return err
 	}
 	err = defaultParse()
-
-	//TODO REMOVE
-	for keyName := range ConfigKeys {
-		keyDef := ConfigKeys[keyName]
-		fmt.Println(keyName, ":", *(keyDef.value))
-	}
-	//TODO REMOVE
+	/*
+		for keyName := range ConfigKeys {
+			keyDef := ConfigKeys[keyName]
+			fmt.Println(keyName, ":", *(keyDef.value))
+		} */
 
 	return nil
 }
