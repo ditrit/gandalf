@@ -119,6 +119,8 @@ func InitConnectorKeys() {
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
 }
 
+
+
 //initiation of the aggregator keys
 func InitAggregatorKeys() {
 	_ = SetStringKeyConfig("aggregator", "clusters", "c", "address1:9800,address2:6300,address3", "clusters addresses linked to the aggregator", true)
@@ -213,7 +215,7 @@ func yamlFileParse() error {
 	}
 
 	//check if the all the keys in the yaml file are needed by the gandalf configuration
-	for typeKey := range tempMap {
+	/*for typeKey := range tempMap {
 		for tempKeyName := range tempMap[typeKey] {
 			keyName := fmt.Sprintf("%v", tempKeyName)
 			_, found := ConfigKeys[keyName]
@@ -221,7 +223,7 @@ func yamlFileParse() error {
 				return errors.New("The yaml key : " + keyName + " isn't needed by the gandalf configuration")
 			}
 		}
-	}
+	}*/
 
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
@@ -248,6 +250,36 @@ func defaultParse() error {
 	return nil
 }
 
+type testKey struct{
+	keyName string
+	defaultVal string
+	mandatory bool
+}
+var testing = []testKey{
+	{"totoTest","toto",true},
+	{"titiTest","test default titi",true},
+}
+
+func WorkerKeyParse(test []testKey) error {
+	for _,elem := range test {
+		_ = SetStringKeyConfig("worker",elem.keyName,"",elem.defaultVal,"",elem.mandatory)
+	}
+	err := envParse()
+	if err != nil {
+		return err
+	}
+	err = yamlFileParse()
+	if err != nil {
+		return err
+	}
+	err = defaultParse()
+
+	fmt.Println(GetStringConfig("totoTest"))
+	fmt.Println(GetStringConfig("titiTest"))
+
+	return nil
+}
+
 //Check if the configuration is valid (no invalid or missing values)
 func IsConfigValid() error {
 	gandalfType := *(ConfigKeys["gandalf_type"].value)
@@ -258,6 +290,11 @@ func IsConfigValid() error {
 		keyDef := ConfigKeys[keyName]
 		if gandalfType == "connector" {
 			if keyDef.component == "core" || keyDef.component == "connector" || keyDef.component == "connector/aggregator" {
+				if keyDef.mandatory == true && *(keyDef.value) == "" {
+					return errors.New(keyName + " is mandatory but has an invalid value")
+				}
+			}
+			if keyDef.component == "core" || keyDef.component == "worker" {
 				if keyDef.mandatory == true && *(keyDef.value) == "" {
 					return errors.New(keyName + " is mandatory but has an invalid value")
 				}
@@ -366,6 +403,10 @@ func ConfigMain(programName string, args []string) {
 	err := ParseConfig(programName, args)
 	if err != nil {
 		log.Fatalf("%v", err)
+	}
+	err = WorkerKeyParse(testing)
+	if err != nil {
+		log.Fatalf("%v",err)
 	}
 	/*testTLS,err := GetTLS()
 	if err != nil {

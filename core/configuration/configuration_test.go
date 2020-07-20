@@ -217,6 +217,7 @@ func TestGetVersionsList(t *testing.T) {
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
+		//giving GetVersionsList an invalid value
 		gandalfVersionsString, _ := GetStringConfig("versions")
 		_, err = GetVersionsList(gandalfVersionsString)
 		if err == nil {
@@ -224,6 +225,7 @@ func TestGetVersionsList(t *testing.T) {
 		}
 	})
 
+	//expected case
 	t.Run("expected GetVersionsList", func(t *testing.T) {
 		var parseConfigTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-v", "1,2", "-f", homePath + "/gandalf/core/configuration/test/"}
 		err := ParseConfig("global parse test", parseConfigTest)
@@ -268,6 +270,7 @@ func TestIsConfigValid(t *testing.T) {
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
+		//setting an empty key to test configuration
 		_ = SetStringKeyConfig("cluster", "testCluster", "", "", "test cluster usage", true)
 		err = IsConfigValid()
 		if err == nil {
@@ -282,6 +285,7 @@ func TestIsConfigValid(t *testing.T) {
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
+		//setting an empty key to test configuration
 		_ = SetStringKeyConfig("aggregator", "testAggregator", "", "", "test aggregator usage", true)
 		err = IsConfigValid()
 		if err == nil {
@@ -296,6 +300,7 @@ func TestIsConfigValid(t *testing.T) {
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
+		//setting an empty key to test configuration
 		_ = SetStringKeyConfig("connector", "testConnector", "", "", "test connector usage", true)
 		err = IsConfigValid()
 		if err == nil {
@@ -310,6 +315,7 @@ func TestConfigMain(t *testing.T){
 }
 
 func TestGetTlS(t *testing.T) {
+	//Error while getting the TLS files
 	t.Run("fail getting a file", func(t *testing.T) {
 		var fileErrorTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-certPem", "/gandalf/core/certs"}
 		err := argParse("test config", fileErrorTest)
@@ -322,6 +328,7 @@ func TestGetTlS(t *testing.T) {
 		}
 	})
 
+	//Get TLS using multiple paths
 	t.Run("get TLS paths test", func(t *testing.T) {
 		var pathMapTest = []string{ "-t2", "10",
 									"-l", "toto",
@@ -341,6 +348,7 @@ func TestGetTlS(t *testing.T) {
 		}
 	})
 
+	//Get TLS using a directory
 	t.Run("get TLS via directory test", func(t *testing.T) {
 		var pathMapTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-certDir", homePath + "/gandalf/core/certs"}
 		err := argParse("test config", pathMapTest)
@@ -356,13 +364,14 @@ func TestGetTlS(t *testing.T) {
 }
 
 func TestGetStringConfig(t *testing.T) {
+	//Expected case
 	_, err := GetStringConfig("testStrKey")
 
 	if err != nil {
 		t.Errorf("Not expecting an error, but got : %v", err)
 	}
 
-	//error because trying to get an Integer type Key
+	//error for trying to get an Integer type Key with GetStringKey
 	_, err = GetStringConfig("testIntKey")
 	if err == nil {
 		t.Errorf("Expected error : %v", err)
@@ -377,6 +386,7 @@ func TestGetStringConfig(t *testing.T) {
 }
 
 func TestGetIntegerConfig(t *testing.T) {
+	//Expected case
 	_, err := GetIntegerConfig("testIntKey")
 	if err != nil {
 		t.Errorf("Not expecting an error, but got : %v", err)
@@ -388,7 +398,7 @@ func TestGetIntegerConfig(t *testing.T) {
 		t.Errorf("Expected error: %v", err)
 	}
 
-	//error because trying to get an String type Key
+	//error for trying to get a String type Key with GetIntegerKey
 	_, err = GetIntegerConfig("testStrKey")
 	if err == nil {
 		t.Errorf("Expected error: %v", err)
