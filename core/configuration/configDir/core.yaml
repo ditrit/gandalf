@@ -1,0 +1,15 @@
+core:
+  logical_name:
+  gandalf_type:
+  bind_address: 127.0.0.1:8000
+  certDir:
+  certPem:
+  keyPem:
+  caCertPem:
+  caKeyPem:
+  gandalf_log:
+connector/aggregator:
+  tenant:
+worker:
+  totoTest: pouet
+  titiTest:
