@@ -29,7 +29,7 @@ func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) 
 
 	evt = msg.NewEvent(tab)
 	evt.Tenant = tenant
-	evt.Timeout = 100000
+	evt.Timeout = 10000
 
 	return
 }
