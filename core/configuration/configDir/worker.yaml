@@ -1,3 +1,5 @@
 worker:
-  totoTest: pouet
-  titiTest:
+  tata: tataVal
+  tutu: tutuVal
+  titi: titiVal
+  toto: a

@@ -32,30 +32,30 @@ var homePath = "/home/zippo/go/src"
 
 //Set a string type key
 func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string, mandatory bool) error {
-	keyDef, exists := ConfigKeys[keyName]
+	keyDef, exists := ConfigKeys[strings.ToLower(keyName)]
 	if exists {
 		return errors.New("The key " + keyName + "is already defined ( for component " + keyDef.component + ")")
 	}
-	ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "string", defaultValue, usage, mandatory}
+	ConfigKeys[strings.ToLower(keyName)] = configKey{new(string), componentType, shortName, "string", defaultValue, usage, mandatory}
 	return nil
 }
 
 //Set an integer type key
 func SetIntegerKeyConfig(componentType string, keyName string, shortName string, defaultValue int, usage string, mandatory bool) error {
-	keyDef, exists := ConfigKeys[keyName]
+	keyDef, exists := ConfigKeys[strings.ToLower(keyName)]
 	if exists {
 		return errors.New("The key " + keyName + "is already defined ( for component " + keyDef.component + ")")
 	}
 	if defaultValue == -1 {
-		ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "integer", "", usage, mandatory}
+		ConfigKeys[strings.ToLower(keyName)] = configKey{new(string), componentType, shortName, "integer", "", usage, mandatory}
 	}
-	ConfigKeys[keyName] = configKey{new(string), componentType, shortName, "integer", strconv.Itoa(defaultValue), usage, mandatory}
+	ConfigKeys[strings.ToLower(keyName)] = configKey{new(string), componentType, shortName, "integer", strconv.Itoa(defaultValue), usage, mandatory}
 	return nil
 }
 
 //Get the value of a string type key
 func GetStringConfig(keyName string) (string, error) {
-	keyDef, exists := ConfigKeys[keyName]
+	keyDef, exists := ConfigKeys[strings.ToLower(keyName)]
 	if !exists {
 		return "", errors.New("config key " + keyName + "does not exist")
 	}
@@ -67,7 +67,7 @@ func GetStringConfig(keyName string) (string, error) {
 
 //Get the value of an integer type key
 func GetIntegerConfig(keyName string) (int, error) {
-	keyDef, exists := ConfigKeys[keyName]
+	keyDef, exists := ConfigKeys[strings.ToLower(keyName)]
 	if !exists {
 		return -1, errors.New("config key " + keyName + "does not exist")
 	}
@@ -96,12 +96,12 @@ func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core", "bind_address", "b", "", "Bind address", true)
-	_ = SetStringKeyConfig("core", "certDir", "", homePath+"/gandalf/core/certs", "path of the TLS repository", false)
-	_ = SetStringKeyConfig("core", "certPem", "", homePath+"/gandalf/core/certs/cert.pem", "path of the TLS certificate", false)
-	_ = SetStringKeyConfig("core", "keyPem", "", homePath+"/gandalf/core/certs/key.pem", "path of the TLS private key", false)
-	_ = SetStringKeyConfig("core", "caCertPem", "", homePath+"/gandalf/core/certs/ca.pem", "path of the CA certificate", false)
-	_ = SetStringKeyConfig("core", "caKeyPem", "", homePath+"/gandalf/core/certs/cakey.pem", "path of the CA key", false)
-	_ = SetStringKeyConfig("core", "gandalf_log", "", "/home/romainfairant/gandalf/log", "path of the log file", false)
+	_ = SetStringKeyConfig("core", "cert_dir", "", homePath+"/gandalf/core/certs", "path of the TLS repository", false)
+	_ = SetStringKeyConfig("core", "cert_pem", "", homePath+"/gandalf/core/certs/cert.pem", "path of the TLS certificate", false)
+	_ = SetStringKeyConfig("core", "key_pem", "", homePath+"/gandalf/core/certs/key.pem", "path of the TLS private key", false)
+	_ = SetStringKeyConfig("core", "ca_cert_pem", "", homePath+"/gandalf/core/certs/ca.pem", "path of the CA certificate", false)
+	_ = SetStringKeyConfig("core", "ca_key_pem", "", homePath+"/gandalf/core/certs/cakey.pem", "path of the CA key", false)
+	_ = SetStringKeyConfig("core", "gandalf_log", "", "/home/zippo/gandalf/log", "path of the log file", false)
 }
 
 //initiation of the tenant key for connectors and aggregators
@@ -118,7 +118,7 @@ func InitConnectorKeys() {
 	_ = SetStringKeyConfig("connector", "product_url", "u", "url1,url2,url3", "product url list of the connector", false)
 	_ = SetStringKeyConfig("connector", "workers_url", "z", "", "workers url of the connector", false)
 	_ = SetStringKeyConfig("connector", "workers", "w", "/etc/gandalf/workers", "path for the workers configuration", false)
-	_ = SetStringKeyConfig("connector", "versions", "v", "v1,v2,v3", "versions of a connector", true)
+	_ = SetStringKeyConfig("connector", "versions", "v", "1,2,3", "versions of a connector", true)
 	_ = SetStringKeyConfig("connector", "grpc_bind_address", "r", "", "GRPC bind address", true)
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
 }
@@ -131,7 +131,7 @@ func InitAggregatorKeys() {
 //initiation of the cluster keys
 func InitClusterKeys() {
 	_ = SetStringKeyConfig("cluster", "cluster_join", "j", "", "cluster command (join)", false)
-	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "/home/romainfairant/gandalf/database", "path for the gandalf database", false)
+	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "/home/zippo/gandalf/database", "path for the gandalf database", false)
 }
 
 //parse the configuration from the CLI parameters
@@ -163,11 +163,39 @@ func argParse(programName string, args []string) error {
 	return nil
 }
 
+func envVarToMap() map[string]string{
+	var gandalfEnvMap = make(map[string]string)
+	//Get all env variables
+	for _, element := range os.Environ() {
+		envKey := strings.Split(element,"_")
+		if len(envKey) > 2 {
+			envKey[1] = strings.Join(envKey[1:],"_")
+		}
+		if envKey[0] == "GANDALF"{
+			gandalfEnv := envKey
+			gandalfEnvKeys := strings.Split(gandalfEnv[1],"=")
+			gandalfEnvMap[strings.ToLower(gandalfEnvKeys[0])] = gandalfEnvKeys[1]
+		}
+	}
+	return gandalfEnvMap
+}
+
 //parse the configuration from the environment variables
 func envParse() error {
+	err := os.Setenv("GANDALF_CONNECTOR_TYPES", "Env var connector type")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = os.Setenv("GANDALF_VERSIONS", "1,2")
+	if err != nil {
+		log.Fatal(err)
+	}
+	tempMap := envVarToMap()
+
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
-		strVal := os.Getenv("GANDALF_" + keyName)
+		strVal := tempMap[keyName]
 		if keyDef.valType == "integer" && strVal != "" {
 			if _, err := strconv.Atoi(strVal); err != nil {
 				return errors.New("error while parsing an environment variable:\n The environment variable: GANDALF_" + keyName + " cannot be parsed as an integer using the value: " + strVal)
@@ -195,9 +223,9 @@ func yamlFileToMap() (map[interface{}]map[interface{}]string, error) {
 	defer dir.Close()
 
 	//read all files in a given directory and unmarshal only YAML files
-	fileList,_ := dir.Readdirnames(0) // 0 to read all files and folders
+	fileList, _ := dir.Readdirnames(0) // 0 to read all files and folders
 	for _, fileName := range fileList {
-		if filepath.Ext(*(keyDef.value) + fileName) == ".yaml" || filepath.Ext(*(keyDef.value) + fileName) == ".yml" {
+		if filepath.Ext(*(keyDef.value)+fileName) == ".yaml" || filepath.Ext(*(keyDef.value)+fileName) == ".yml" {
 			yamlFile, err := ioutil.ReadFile(*(keyDef.value) + fileName)
 			err = yaml.Unmarshal(yamlFile, &yamlMap)
 			if err != nil {
@@ -230,24 +258,6 @@ func yamlFileParse() error {
 	return nil
 }
 
-func YamlKeysValidation()error{
-	tempMap, err := yamlFileToMap()
-	if err != nil {
-		return errors.New("error while parsing the file into a map")
-	}
-	//check if the all the keys in the yaml file are needed by the gandalf configuration
-	for typeKey := range tempMap {
-		for tempKeyName := range tempMap[typeKey] {
-			keyName := fmt.Sprintf("%v", tempKeyName)
-			_, found := ConfigKeys[keyName]
-			if !found {
-				return errors.New("The yaml key : " + keyName + " isn't needed by the gandalf configuration")
-			}
-		}
-	}
-	return nil
-}
-
 //parse the configuration with the default values
 func defaultParse() error {
 	for keyName := range ConfigKeys {
@@ -261,13 +271,12 @@ func defaultParse() error {
 
 func WorkerKeyParse(configurationKeys []models.ConfigurationKeys) error {
 	for _, configurationKey := range configurationKeys {
-		_ = SetStringKeyConfig("worker", configurationKey.Name, "", configurationKey.DefaultValue, "", configurationKey.Mandatory)
-		/*if elem.keyType == "string" {
-			_ = SetStringKeyConfig("worker", elem.keyName, "", elem.defaultVal, "", elem.mandatory)
-		}else if elem.keyType == "integer" {
-			strVal, _ := strconv.Atoi(elem.defaultVal)
-			_ = SetIntegerKeyConfig("worker", elem.keyName, "", strVal, "", elem.mandatory)
-		}*/
+		if configurationKey.KeyType == "string" {
+			_ = SetStringKeyConfig("worker", configurationKey.Name, "", configurationKey.DefaultValue, "", configurationKey.Mandatory)
+		} else if configurationKey.KeyType == "integer" {
+			strVal, _ := strconv.Atoi(configurationKey.DefaultValue)
+			_ = SetIntegerKeyConfig("worker", configurationKey.Name, "", strVal, "", configurationKey.Mandatory)
+		}
 	}
 	err := envParse()
 	if err != nil {
@@ -278,6 +287,33 @@ func WorkerKeyParse(configurationKeys []models.ConfigurationKeys) error {
 		return err
 	}
 	err = defaultParse()
+	return nil
+}
+
+func KeysValidation() error{
+	tempYamlMap, err := yamlFileToMap()
+	if err != nil {
+		return errors.New("error while parsing the file into a map")
+	}
+	//check if the all the keys in the yaml file are needed by the gandalf configuration
+	for typeKey := range tempYamlMap {
+		for tempKeyName := range tempYamlMap[typeKey] {
+			keyName := fmt.Sprintf("%v", tempKeyName)
+			_, found := ConfigKeys[keyName]
+			if !found {
+				fmt.Println("Warning ! The yaml key : " + keyName + " isn't needed by the gandalf configuration")
+			}
+		}
+	}
+
+	tempEnvMap := envVarToMap()
+	for tempKeyName := range tempEnvMap {
+		keyName := fmt.Sprintf("%v",tempKeyName)
+		_,found := ConfigKeys[keyName]
+		if !found{
+			fmt.Println("Warning ! The environment key : " + keyName + " isn't needed by the gandalf configuration")
+		}
+	}
 	return nil
 }
 
@@ -316,6 +352,11 @@ func IsConfigValid() error {
 			}
 		}
 	}
+	/*
+	err := YamlKeysValidation()
+	if err != nil {
+		return err
+	}*/
 	return nil
 }
 
@@ -335,7 +376,7 @@ func GetVersionsList(strVal string) ([]int64, error) {
 
 //set the map with the paths for the TLS keys
 func setPathMap() map[string]string {
-	certDir := *(ConfigKeys["certDir"].value)
+	certDir := *(ConfigKeys["cert_dir"].value)
 	if filepath.IsAbs(certDir) {
 		pathMap := map[string]string{
 			"cert":  certDir + "/cert.pem",
@@ -346,10 +387,10 @@ func setPathMap() map[string]string {
 		return pathMap
 	} else {
 		pathMap := map[string]string{
-			"cert":  *(ConfigKeys["certPem"].value),
-			"key":   *(ConfigKeys["keyPem"].value),
-			"ca":    *(ConfigKeys["caCertPem"].value),
-			"cakey": *(ConfigKeys["caKeyPem"].value),
+			"cert":  *(ConfigKeys["cert_pem"].value),
+			"key":   *(ConfigKeys["key_pem"].value),
+			"ca":    *(ConfigKeys["ca_cert_pem"].value),
+			"cakey": *(ConfigKeys["ca_key_pem"].value),
 		}
 		return pathMap
 	}
@@ -405,9 +446,8 @@ func ConfigMain(programName string, args []string) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	/*testTLS,err := GetTLS()
+	err = KeysValidation()
 	if err != nil {
-		log.Fatalf("%v", err)
+		log.Fatalf("%v",err)
 	}
-	 */
 }

@@ -1,5 +1,5 @@
 connector:
-  connector_type: connector type
+  connector_type:
   product_name: product name
   aggregators: address1:9800,address2:6400,address3
   gandalf_secret: path to the secret
@@ -8,8 +8,3 @@ connector:
   versions:
   grpc_bind_address: localhost:9000
   max_timeout: 100
-worker:
-  tata: tataVal
-  tutu: tutuVal
-  titi: titiVal
-  toto:

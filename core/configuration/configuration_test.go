@@ -1,31 +1,32 @@
 package configuration
 
 import (
+	"github.com/ditrit/gandalf/core/models"
 	"os"
 	"testing"
 )
 
 func TestSetStringKeyConfig(t *testing.T) {
 
-	err := SetStringKeyConfig("test", "testStrKey", "t1", "", "test string usage", false)
+	err := SetStringKeyConfig("test", "test_str_key", "t1", "", "test string usage", false)
 	if err != nil {
 		t.Errorf("Not expecting an error, but got :%v", err)
 	}
 
 	//error because we redefine an existing key
-	err = SetStringKeyConfig("test", "testStrKey", "t1", "toto", "test string usage", false)
+	err = SetStringKeyConfig("test", "test_str_key", "t1", "toto", "test string usage", false)
 	if err == nil {
 		t.Errorf("Expected error: %v", err)
 	}
 }
 
 func TestSetIntegerKeyConfig(t *testing.T) {
-	err := SetIntegerKeyConfig("test", "testIntKey", "t2", -1, "test integer usage", false)
+	err := SetIntegerKeyConfig("test", "test_int_key", "t2", -1, "test integer usage", false)
 	if err != nil {
 		t.Errorf("Not expecting an error, but got :%v", err)
 	}
 	//error because we redefine an existing key
-	err = SetIntegerKeyConfig("test", "testIntKey", "t2", -1, "test integer usage", false)
+	err = SetIntegerKeyConfig("test", "test_int_key", "t2", -1, "test integer usage", false)
 	if err == nil {
 		t.Errorf("Expected error: %v", err)
 	}
@@ -63,18 +64,18 @@ func TestArgParse(t *testing.T) {
 func TestEnvParse(t *testing.T) {
 	//error caused for parsing a non integer value
 	t.Run("Env parse test 1", func(t *testing.T) {
-		_ = os.Setenv("GANDALF_testIntKey", "invalid value")
+		_ = os.Setenv("GANDALF_TEST_INT_KEY", "invalid value")
 		err := envParse()
-		_ = os.Unsetenv("GANDALF_testIntKey")
 		if err == nil {
 			t.Errorf("Expected error: %v", err)
 		}
+		_ = os.Unsetenv("GANDALF_TEST_INT_KEY")
 	})
 	//expected case
 	t.Run("Env parse test 2", func(t *testing.T) {
-		_ = os.Setenv("GANDALF_testStrKey", "test env string")
+		_ = os.Setenv("GANDALF_TEST_STR_KEY", "test env string")
 		err := envParse()
-		_ = os.Unsetenv("GANDALF_testStrKey")
+		_ = os.Unsetenv("GANDALF_TEST_STR_KEY")
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
@@ -117,12 +118,6 @@ func TestYamlFileToMap(t *testing.T) {
 }
 
 func TestYamlFileParse(t *testing.T) {
-	//error when parsing the file into a map
-	/*err := yamlFileParse()
-	if err == nil {
-		t.Errorf("Expected error : %v", err)
-	}*/
-
 
 	//error when parsing a value of the yaml file
 	t.Run("yaml parsing error", func(t *testing.T) {
@@ -184,9 +179,9 @@ func TestParseConfig(t *testing.T) {
 	//error while parsing environment variables
 	t.Run("env parse error", func(t *testing.T) {
 		var parseConfigTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/"}
-		_ = os.Setenv("GANDALF_testIntKey", "test")
+		_ = os.Setenv("GANDALF_TEST_INT_KEY", "test")
 		err := ParseConfig("global parse test", parseConfigTest)
-		_ = os.Unsetenv("GANDALF_testIntKey")
+		_ = os.Unsetenv("GANDALF_TEST_INT_KEY")
 		if err == nil {
 			t.Errorf("Expected error: %v", err)
 		}
@@ -212,16 +207,16 @@ func TestParseConfig(t *testing.T) {
 }
 
 func TestWorkerKeyParse(t *testing.T) {
-	var testIntList = []TestKey{
-		{"testIntWorker","2","integer",true},
+	var testIntList = []models.ConfigurationKeys{
+		{"test_int_worker","2","integer",true},
 	}
 	t.Run("env parse error", func(t *testing.T) {
-		_ = os.Setenv("GANDALF_testIntWorker", "test")
+		_ = os.Setenv("GANDALF_TEST_INT_WORKER", "test")
 		err := WorkerKeyParse(testIntList)
-		_ = os.Unsetenv("GANDALF_testIntWorker")
 		if err == nil {
 			t.Errorf("Expected error: %v", err)
 		}
+		_ = os.Unsetenv("GANDALF_TEST_INT_WORKER")
 	})
 
 	t.Run("yaml parse error", func(t *testing.T) {
@@ -234,19 +229,34 @@ func TestWorkerKeyParse(t *testing.T) {
 	})
 }
 
-func TestYamlKeysValidation(t *testing.T) {
-	//Error while parsing the file into a mpa
+func TestKeysValidation(t *testing.T) {
+	//Error while parsing the file into a map
 	t.Run("yaml parsing error", func(t *testing.T) {
 		var wrongKeyTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/wrongTest/"}
 		err := argParse("test config", wrongKeyTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
-		err = YamlKeysValidation()
+		err = KeysValidation()
 		if err == nil {
 			t.Errorf("Expected error : %v", err)
 		}
 	})
+
+	t.Run("env parse error", func(t *testing.T) {
+		var wrongKeyTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/"}
+		err := argParse("test config", wrongKeyTest)
+		if err != nil {
+			t.Errorf("Not expecting an error, but got : %v", err)
+		}
+		_ = os.Setenv("GANDALF_NOT_NEEDED_KEY", "test")
+		err = KeysValidation()
+		if err != nil {
+			t.Errorf("Not expecting an error, but got : %v", err)
+		}
+		_ = os.Unsetenv("GANDALF_NOT_NEEDED_KEY")
+	})
+
 	//error when parsing a key not existing in gandalf configuration
 	t.Run("yaml parsing not needed key error", func(t *testing.T) {
 		var wrongKeyTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/testingKey/"}
@@ -254,11 +264,12 @@ func TestYamlKeysValidation(t *testing.T) {
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
-		err = YamlKeysValidation()
-		if err == nil {
-			t.Errorf("Expected error : %v", err)
+		err = KeysValidation()
+		if err != nil {
+			t.Errorf("Not expecting an error, but got : %v", err)
 		}
 	})
+
 }
 
 func TestGetVersionsList(t *testing.T) {
@@ -322,7 +333,7 @@ func TestIsConfigValid(t *testing.T) {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
 		//setting an empty key to test configuration
-		_ = SetStringKeyConfig("cluster", "testCluster", "", "", "test cluster usage", true)
+		_ = SetStringKeyConfig("cluster", "test_cluster", "", "", "test cluster usage", true)
 		err = IsConfigValid()
 		if err == nil {
 			t.Errorf("Expected error: %v", err)
@@ -337,7 +348,7 @@ func TestIsConfigValid(t *testing.T) {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
 		//setting an empty key to test configuration
-		_ = SetStringKeyConfig("aggregator", "testAggregator", "", "", "test aggregator usage", true)
+		_ = SetStringKeyConfig("aggregator", "test_aggregator", "", "", "test aggregator usage", true)
 		err = IsConfigValid()
 		if err == nil {
 			t.Errorf("Expected error: %v", err)
@@ -352,7 +363,7 @@ func TestIsConfigValid(t *testing.T) {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
 		//setting an empty key to test configuration
-		_ = SetStringKeyConfig("connector", "testConnector", "", "", "test connector usage", true)
+		_ = SetStringKeyConfig("connector", "test_connector", "", "", "test connector usage", true)
 		err = IsConfigValid()
 		if err == nil {
 			t.Errorf("Expected error: %v", err)
@@ -360,10 +371,10 @@ func TestIsConfigValid(t *testing.T) {
 	})
 
 	t.Run("Invalid worker test", func(t *testing.T) {
-		var testList = []TestKey{
+		var testList = []models.ConfigurationKeys{
 			{"testWorker","","string",true},
 		}
-		var workerTest = []string{"-t2", "10", "-l", "toto", "-g", "connector","-testConnector","test","-t","tenantTest"}
+		var workerTest = []string{"-t2", "10", "-l", "toto", "-g", "connector","-test_connector","test","-t","tenantTest"}
 		err := ParseConfig("test config", workerTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -381,14 +392,14 @@ func TestIsConfigValid(t *testing.T) {
 }
 
 func TestConfigMain(t *testing.T){
-		var configTest = []string{"-t2", "10", "-l", "toto", "-g", "cluster", "-f", homePath + "/gandalf/core/configuration/test/","-testCluster","test"}
+		var configTest = []string{"-t2", "10", "-l", "toto", "-g", "cluster", "-f", homePath + "/gandalf/core/configuration/test/","-test_cluster","test"}
 		ConfigMain("test config", configTest)
 }
 
 func TestGetTlS(t *testing.T) {
 	//Error while getting the TLS files
 	t.Run("fail getting a file", func(t *testing.T) {
-		var fileErrorTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-certPem", "/gandalf/core/certs"}
+		var fileErrorTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-cert_pem", "/gandalf/core/certs"}
 		err := argParse("test config", fileErrorTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -404,11 +415,11 @@ func TestGetTlS(t *testing.T) {
 		var pathMapTest = []string{ "-t2", "10",
 									"-l", "toto",
 									"-g", "connector",
-									"-certDir", "gandalf/core/certs",
-									"-certPem", homePath + "/gandalf/core/certs/cert.pem",
-									"-keyPem", homePath + "/gandalf/core/certs/key.pem",
-									"-caCertPem", homePath + "/gandalf/core/certs/ca.pem",
-									"-caKeyPem", homePath + "/gandalf/core/certs/cakey.pem"}
+									"-cert_dir", "gandalf/core/certs",
+									"-cert_pem", homePath + "/gandalf/core/certs/cert.pem",
+									"-key_pem", homePath + "/gandalf/core/certs/key.pem",
+									"-ca_cert_pem", homePath + "/gandalf/core/certs/ca.pem",
+									"-ca_key_pem", homePath + "/gandalf/core/certs/cakey.pem"}
 		err := argParse("test config", pathMapTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -421,7 +432,7 @@ func TestGetTlS(t *testing.T) {
 
 	//Get TLS using a directory
 	t.Run("get TLS via directory test", func(t *testing.T) {
-		var pathMapTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-certDir", homePath + "/gandalf/core/certs"}
+		var pathMapTest = []string{"-t2", "10", "-l", "toto", "-g", "connector", "-cert_dir", homePath + "/gandalf/core/certs"}
 		err := argParse("test config", pathMapTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
@@ -436,20 +447,20 @@ func TestGetTlS(t *testing.T) {
 
 func TestGetStringConfig(t *testing.T) {
 	//Expected case
-	_, err := GetStringConfig("testStrKey")
+	_, err := GetStringConfig("test_str_key")
 
 	if err != nil {
 		t.Errorf("Not expecting an error, but got : %v", err)
 	}
 
 	//error for trying to get an Integer type Key with GetStringKey
-	_, err = GetStringConfig("testIntKey")
+	_, err = GetStringConfig("test_int_key")
 	if err == nil {
 		t.Errorf("Expected error : %v", err)
 	}
 
 	//error because of an unknown key
-	_, err = GetStringConfig("testStringKey")
+	_, err = GetStringConfig("test_string_key")
 	if err == nil {
 		t.Errorf("Expected error: %v", err)
 
@@ -458,27 +469,27 @@ func TestGetStringConfig(t *testing.T) {
 
 func TestGetIntegerConfig(t *testing.T) {
 	//Expected case
-	_, err := GetIntegerConfig("testIntKey")
+	_, err := GetIntegerConfig("test_int_key")
 	if err != nil {
 		t.Errorf("Not expecting an error, but got : %v", err)
 	}
 
 	//error because of an unknown key
-	_, err = GetIntegerConfig("testIntegerKey")
+	_, err = GetIntegerConfig("test_integer_key")
 	if err == nil {
 		t.Errorf("Expected error: %v", err)
 	}
 
 	//error for trying to get a String type Key with GetIntegerKey
-	_, err = GetIntegerConfig("testStrKey")
+	_, err = GetIntegerConfig("test_str_key")
 	if err == nil {
 		t.Errorf("Expected error: %v", err)
 	}
 
 	tmp := "inconvertible value"
-	ConfigKeys["testIntConversionKey"] = configKey{&tmp, "test", "t3", "integer", "none", "fail convert test", false}
+	ConfigKeys["test_int_conversion_key"] = configKey{&tmp, "test", "t3", "integer", "none", "fail convert test", false}
 	//error for an invalid conversion
-	_, err = GetIntegerConfig("testIntConversionKey")
+	_, err = GetIntegerConfig("test_int_conversion_key")
 	if err == nil {
 		t.Errorf("Expected error: %v", err)
 	}
