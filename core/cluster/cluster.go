@@ -101,7 +101,7 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 		time.Sleep(time.Second * time.Duration(5))
 		log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 	} else {
-		log.Printf("Can't bind shoset on %s", bindAddress)
+		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
 
 	return member
@@ -129,10 +129,10 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logP
 				log.Println(member.Store)
 			}
 		} else {
-			log.Printf("Can't join shoset on %s", joinAddress)
+			log.Fatalf("Can't join shoset on %s", joinAddress)
 		}
 	} else {
-		log.Printf("Can't bind shoset on %s", bindAddress)
+		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
 
 	return member

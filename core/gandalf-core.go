@@ -75,7 +75,6 @@ func main() {
 
 						done := make(chan bool)
 						member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
-						fmt.Println(member)
 						add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						id := len(*member.Store)
 

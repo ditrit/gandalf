@@ -290,7 +290,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, workerUrl, workerPath, logPath string, timeoutMax int64, versions []int64) *ConnectorMember {
+func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, workerUrl, workerPath, logPath string, timeoutMax int64, versions []int64) (*ConnectorMember, error) {
 	member := NewConnectorMember(logicalName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 
@@ -325,34 +325,34 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 										log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 										fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 									} else {
-										log.Printf("Configuration validation failed")
+										log.Fatalf("Configuration validation failed")
 									}
 								} else {
-									log.Printf("Can't start workers in %s", workerPath)
+									log.Fatalf("Can't start workers in %s", workerPath)
 								}
 							} else {
-								log.Printf("Can't get workers in %s", workerPath)
+								log.Fatalf("Can't get workers in %s", workerPath)
 							}
 						} else {
-							log.Printf("Can't validate keys")
+							log.Fatalf("Can't validate keys")
 						}
 					} else {
-						log.Printf("Can't get keys")
+						log.Fatalf("Can't get keys")
 					}
 				} else {
-					log.Printf("Can't get configuration in %s", workerPath)
+					log.Fatalf("Can't get configuration in %s", workerPath)
+
 				}
 			} else {
-				log.Printf("Can't link shoset on %s", linkAddress)
+				log.Fatalf("Can't link shoset on %s", linkAddress)
 			}
 		} else {
-			log.Printf("Can't Grpc bind shoset on %s", grpcBindAddress)
+			log.Fatalf("Can't Grpc bind shoset on %s", grpcBindAddress)
 		}
 	} else {
-		log.Printf("Can't bind shoset on %s", bindAddress)
+		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
-
-	return member
+	return member, err
 }
 
 /* func ConnectorMemberJoin(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, joinAddress string, timeoutMax int64) (connectorMember *ConnectorMember) {

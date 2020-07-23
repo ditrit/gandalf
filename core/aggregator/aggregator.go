@@ -90,10 +90,10 @@ func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath
 			time.Sleep(time.Second * time.Duration(5))
 			log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 		} else {
-			log.Printf("Can't link shoset on %s", linkAddress)
+			log.Fatalf("Can't link shoset on %s", linkAddress)
 		}
 	} else {
-		log.Printf("Can't bind shoset on %s", bindAddress)
+		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
 
 	return member
