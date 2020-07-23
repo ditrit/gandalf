@@ -249,6 +249,24 @@ func yamlFileParse() error {
 	return nil
 }
 
+func YamlKeysValidation()error{
+	tempMap, err := yamlFileToMap()
+	if err != nil {
+		return errors.New("error while parsing the file into a map")
+	}
+	//check if the all the keys in the yaml file are needed by the gandalf configuration
+	for typeKey := range tempMap {
+		for tempKeyName := range tempMap[typeKey] {
+			keyName := fmt.Sprintf("%v", tempKeyName)
+			_, found := ConfigKeys[keyName]
+			if !found {
+				return errors.New("The yaml key : " + keyName + " isn't needed by the gandalf configuration")
+			}
+		}
+	}
+	return nil
+}
+
 //parse the configuration with the default values
 func defaultParse() error {
 	for keyName := range ConfigKeys {

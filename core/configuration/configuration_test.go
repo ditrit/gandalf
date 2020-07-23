@@ -243,7 +243,7 @@ func TestKeysValidation(t *testing.T) {
 		}
 	})
 
-	t.Run("env parse error", func(t *testing.T) {
+	t.Run("env not needed key error", func(t *testing.T) {
 		var wrongKeyTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/"}
 		err := argParse("test config", wrongKeyTest)
 		if err != nil {
@@ -269,7 +269,6 @@ func TestKeysValidation(t *testing.T) {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
 	})
-
 }
 
 func TestGetVersionsList(t *testing.T) {
@@ -375,6 +374,26 @@ func TestIsConfigValid(t *testing.T) {
 			{"testWorker","","string",true},
 		}
 		var workerTest = []string{"-t2", "10", "-l", "toto", "-g", "connector","-test_connector","test","-t","tenantTest"}
+		err := ParseConfig("test config", workerTest)
+		if err != nil {
+			t.Errorf("Not expecting an error, but got : %v", err)
+		}
+		err = WorkerKeyParse(testList)
+		_,_ = GetStringConfig("testWorker")
+		if err != nil {
+			t.Errorf("Unexpected Error :%v", err)
+		}
+		err = IsConfigValid()
+		if err == nil {
+			t.Errorf("Expected error: %v", err)
+		}
+	})
+
+	t.Run("Invalid worker test", func(t *testing.T) {
+		var testList = []TestKey{
+			{"testWorker","","string",true},
+		}
+		var workerTest = []string{"-t2", "10", "-l", "toto", "-g", "connector","-testConnector","test","-t","tenantTest"}
 		err := ParseConfig("test config", workerTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
