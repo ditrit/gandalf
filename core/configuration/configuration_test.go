@@ -118,10 +118,11 @@ func TestYamlFileToMap(t *testing.T) {
 
 func TestYamlFileParse(t *testing.T) {
 	//error when parsing the file into a map
-	err := yamlFileParse()
+	/*err := yamlFileParse()
 	if err == nil {
 		t.Errorf("Expected error : %v", err)
-	}
+	}*/
+
 
 	//error when parsing a value of the yaml file
 	t.Run("yaml parsing error", func(t *testing.T) {
@@ -136,10 +137,10 @@ func TestYamlFileParse(t *testing.T) {
 		}
 	})
 
-	//error when parsing a key not existing in gandalf configuration
-	t.Run("yaml parsing not needed key error", func(t *testing.T) {
-		var wrongKeyTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/testingKey/"}
-		err := argParse("test config", wrongKeyTest)
+	//error when parsing a value of the yaml file
+	t.Run("yaml parsing error", func(t *testing.T) {
+		var wrongPathTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/"}
+		err := argParse("test config", wrongPathTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
 		}
@@ -206,6 +207,56 @@ func TestParseConfig(t *testing.T) {
 		err := ParseConfig("global parse test", parseConfigTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)
+		}
+	})
+}
+
+func TestWorkerKeyParse(t *testing.T) {
+	var testIntList = []TestKey{
+		{"testIntWorker","2","integer",true},
+	}
+	t.Run("env parse error", func(t *testing.T) {
+		_ = os.Setenv("GANDALF_testIntWorker", "test")
+		err := WorkerKeyParse(testIntList)
+		_ = os.Unsetenv("GANDALF_testIntWorker")
+		if err == nil {
+			t.Errorf("Expected error: %v", err)
+		}
+	})
+
+	t.Run("yaml parse error", func(t *testing.T) {
+		var parseConfigTest = []string{"-l", "toto", "-g", "connector", "-f", "test_file.yaml"}
+		err := ParseConfig("global parse test", parseConfigTest)
+		err = WorkerKeyParse(testIntList)
+		if err == nil {
+			t.Errorf("Expected error: %v", err)
+		}
+	})
+}
+
+func TestYamlKeysValidation(t *testing.T) {
+	//Error while parsing the file into a mpa
+	t.Run("yaml parsing error", func(t *testing.T) {
+		var wrongKeyTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/wrongTest/"}
+		err := argParse("test config", wrongKeyTest)
+		if err != nil {
+			t.Errorf("Not expecting an error, but got : %v", err)
+		}
+		err = YamlKeysValidation()
+		if err == nil {
+			t.Errorf("Expected error : %v", err)
+		}
+	})
+	//error when parsing a key not existing in gandalf configuration
+	t.Run("yaml parsing not needed key error", func(t *testing.T) {
+		var wrongKeyTest = []string{"-l", "toto", "-g", "connector", "-f", homePath + "/gandalf/core/configuration/test/testingKey/"}
+		err := argParse("test config", wrongKeyTest)
+		if err != nil {
+			t.Errorf("Not expecting an error, but got : %v", err)
+		}
+		err = YamlKeysValidation()
+		if err == nil {
+			t.Errorf("Expected error : %v", err)
 		}
 	})
 }
@@ -302,6 +353,26 @@ func TestIsConfigValid(t *testing.T) {
 		}
 		//setting an empty key to test configuration
 		_ = SetStringKeyConfig("connector", "testConnector", "", "", "test connector usage", true)
+		err = IsConfigValid()
+		if err == nil {
+			t.Errorf("Expected error: %v", err)
+		}
+	})
+
+	t.Run("Invalid worker test", func(t *testing.T) {
+		var testList = []TestKey{
+			{"testWorker","","string",true},
+		}
+		var workerTest = []string{"-t2", "10", "-l", "toto", "-g", "connector","-testConnector","test","-t","tenantTest"}
+		err := ParseConfig("test config", workerTest)
+		if err != nil {
+			t.Errorf("Not expecting an error, but got : %v", err)
+		}
+		err = WorkerKeyParse(testList)
+		_,_ = GetStringConfig("testWorker")
+		if err != nil {
+			t.Errorf("Unexpected Error :%v", err)
+		}
 		err = IsConfigValid()
 		if err == nil {
 			t.Errorf("Expected error: %v", err)

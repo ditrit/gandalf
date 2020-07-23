@@ -185,16 +185,16 @@ func yamlFileToMap() (map[interface{}]map[interface{}]string, error) {
 	if *(keyDef.value) == "" {
 		*(keyDef.value) = keyDef.defaultVal
 	}
-	file, err := os.Open(*(keyDef.value))
+	dir, err := os.Open(*(keyDef.value))
 	if os.IsNotExist(err) {
 		return nil, err
 	}
 	yamlMap := make(map[interface{}]map[interface{}]string)
-	defer file.Close()
+	defer dir.Close()
 
 	//read all files in a given directory and unmarshal only YAML files
-	list,_ := file.Readdirnames(0) // 0 to read all files and folders
-	for _, fileName := range list {
+	fileList,_ := dir.Readdirnames(0) // 0 to read all files and folders
+	for _, fileName := range fileList {
 		if filepath.Ext(*(keyDef.value) + fileName) == ".yaml" || filepath.Ext(*(keyDef.value) + fileName) == ".yml" {
 			yamlFile, err := ioutil.ReadFile(*(keyDef.value) + fileName)
 			err = yaml.Unmarshal(yamlFile, &yamlMap)
@@ -214,17 +214,6 @@ func yamlFileParse() error {
 		return errors.New("error while parsing the file into a map")
 	}
 
-	//check if the all the keys in the yaml file are needed by the gandalf configuration
-	/*for typeKey := range tempMap {
-		for tempKeyName := range tempMap[typeKey] {
-			keyName := fmt.Sprintf("%v", tempKeyName)
-			_, found := ConfigKeys[keyName]
-			if !found {
-				return errors.New("The yaml key : " + keyName + " isn't needed by the gandalf configuration")
-			}
-		}
-	}*/
-
 	for keyName := range ConfigKeys {
 		keyDef := ConfigKeys[keyName]
 		if *(keyDef.value) == "" {
@@ -233,6 +222,24 @@ func yamlFileParse() error {
 		if keyDef.valType == "integer" && *(keyDef.value) != "" {
 			if _, err := strconv.Atoi(*(keyDef.value)); err != nil {
 				return errors.New("error while parsing a Yaml parameter:\n The Yaml parameter for: " + keyName + " cannot be parsed as an integer using the value: " + *(keyDef.value))
+			}
+		}
+	}
+	return nil
+}
+
+func YamlKeysValidation()error{
+	tempMap, err := yamlFileToMap()
+	if err != nil {
+		return errors.New("error while parsing the file into a map")
+	}
+	//check if the all the keys in the yaml file are needed by the gandalf configuration
+	for typeKey := range tempMap {
+		for tempKeyName := range tempMap[typeKey] {
+			keyName := fmt.Sprintf("%v", tempKeyName)
+			_, found := ConfigKeys[keyName]
+			if !found {
+				return errors.New("The yaml key : " + keyName + " isn't needed by the gandalf configuration")
 			}
 		}
 	}
@@ -250,19 +257,25 @@ func defaultParse() error {
 	return nil
 }
 
-type testKey struct{
+type TestKey struct{
 	keyName string
 	defaultVal string
+	keyType string
 	mandatory bool
 }
-var testing = []testKey{
-	{"totoTest","toto",true},
-	{"titiTest","test default titi",true},
+var testList = []TestKey{
+	{"totoTest","toto","string",true},
+	{"titiTest","5","integer",true},
 }
 
-func WorkerKeyParse(test []testKey) error {
+func WorkerKeyParse(test []TestKey) error {
 	for _,elem := range test {
-		_ = SetStringKeyConfig("worker",elem.keyName,"",elem.defaultVal,"",elem.mandatory)
+		if elem.keyType == "string" {
+			_ = SetStringKeyConfig("worker", elem.keyName, "", elem.defaultVal, "", elem.mandatory)
+		}else if elem.keyType == "integer" {
+			strVal, _ := strconv.Atoi(elem.defaultVal)
+			_ = SetIntegerKeyConfig("worker", elem.keyName, "", strVal, "", elem.mandatory)
+		}
 	}
 	err := envParse()
 	if err != nil {
@@ -273,10 +286,6 @@ func WorkerKeyParse(test []testKey) error {
 		return err
 	}
 	err = defaultParse()
-
-	fmt.Println(GetStringConfig("totoTest"))
-	fmt.Println(GetStringConfig("titiTest"))
-
 	return nil
 }
 
@@ -404,7 +413,11 @@ func ConfigMain(programName string, args []string) {
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
-	err = WorkerKeyParse(testing)
+	err = WorkerKeyParse(testList)
+	if err != nil {
+		log.Fatalf("%v",err)
+	}
+	err = YamlKeysValidation()
 	if err != nil {
 		log.Fatalf("%v",err)
 	}

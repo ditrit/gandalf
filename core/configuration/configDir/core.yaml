@@ -10,6 +10,3 @@ core:
   gandalf_log:
 connector/aggregator:
   tenant:
-worker:
-  totoTest: pouet
-  titiTest:
