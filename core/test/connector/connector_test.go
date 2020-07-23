@@ -87,7 +87,7 @@ func TestConnectorMemberInit(t *testing.T) {
 
 	//TODO LINK
 
-	if aggregatorMember.GetTimeoutMax() != timeoutMax {
+	if connectorMember.GetTimeoutMax() != timeoutMax {
 		t.Errorf("Should be equal")
 	}
 

@@ -73,7 +73,7 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string, vers
 	return member
 }
 
-// GetChaussette : Connector chaussette getter.
+// GetLogicalName : Connector logical name getter.
 func (m *ConnectorMember) GetLogicalName() string {
 	return m.logicalName
 }
