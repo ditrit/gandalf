@@ -182,15 +182,6 @@ func envVarToMap() map[string]string{
 
 //parse the configuration from the environment variables
 func envParse() error {
-	err := os.Setenv("GANDALF_CONNECTOR_TYPES", "Env var connector type")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = os.Setenv("GANDALF_VERSIONS", "1,2")
-	if err != nil {
-		log.Fatal(err)
-	}
 	tempMap := envVarToMap()
 
 	for keyName := range ConfigKeys {
