@@ -390,10 +390,10 @@ func TestIsConfigValid(t *testing.T) {
 	})
 
 	t.Run("Invalid worker test", func(t *testing.T) {
-		var testList = []TestKey{
+		var testList = []models.ConfigurationKeys{
 			{"testWorker","","string",true},
 		}
-		var workerTest = []string{"-t2", "10", "-l", "toto", "-g", "connector","-testConnector","test","-t","tenantTest"}
+		var workerTest = []string{"-t2", "10", "-l", "toto", "-g", "connector","-test_connector","test","-t","tenantTest"}
 		err := ParseConfig("test config", workerTest)
 		if err != nil {
 			t.Errorf("Not expecting an error, but got : %v", err)

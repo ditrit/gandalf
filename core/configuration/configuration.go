@@ -163,17 +163,17 @@ func argParse(programName string, args []string) error {
 	return nil
 }
 
-func envVarToMap() map[string]string{
+func envVarToMap() map[string]string {
 	var gandalfEnvMap = make(map[string]string)
 	//Get all env variables
 	for _, element := range os.Environ() {
-		envKey := strings.Split(element,"_")
+		envKey := strings.Split(element, "_")
 		if len(envKey) > 2 {
-			envKey[1] = strings.Join(envKey[1:],"_")
+			envKey[1] = strings.Join(envKey[1:], "_")
 		}
-		if envKey[0] == "GANDALF"{
+		if envKey[0] == "GANDALF" {
 			gandalfEnv := envKey
-			gandalfEnvKeys := strings.Split(gandalfEnv[1],"=")
+			gandalfEnvKeys := strings.Split(gandalfEnv[1], "=")
 			gandalfEnvMap[strings.ToLower(gandalfEnvKeys[0])] = gandalfEnvKeys[1]
 		}
 	}
@@ -249,23 +249,6 @@ func yamlFileParse() error {
 	return nil
 }
 
-func YamlKeysValidation()error{
-	tempMap, err := yamlFileToMap()
-	if err != nil {
-		return errors.New("error while parsing the file into a map")
-	}
-	//check if the all the keys in the yaml file are needed by the gandalf configuration
-	for typeKey := range tempMap {
-		for tempKeyName := range tempMap[typeKey] {
-			keyName := fmt.Sprintf("%v", tempKeyName)
-			_, found := ConfigKeys[keyName]
-			if !found {
-				return errors.New("The yaml key : " + keyName + " isn't needed by the gandalf configuration")
-			}
-		}
-	}
-	return nil
-}
 
 //parse the configuration with the default values
 func defaultParse() error {
@@ -299,7 +282,8 @@ func WorkerKeyParse(configurationKeys []models.ConfigurationKeys) error {
 	return nil
 }
 
-func KeysValidation() error{
+func KeysValidation() error {
+	//Yaml keys validation
 	tempYamlMap, err := yamlFileToMap()
 	if err != nil {
 		return errors.New("error while parsing the file into a map")
@@ -315,11 +299,12 @@ func KeysValidation() error{
 		}
 	}
 
+	//environment variable keys validation
 	tempEnvMap := envVarToMap()
 	for tempKeyName := range tempEnvMap {
-		keyName := fmt.Sprintf("%v",tempKeyName)
-		_,found := ConfigKeys[keyName]
-		if !found{
+		keyName := fmt.Sprintf("%v", tempKeyName)
+		_, found := ConfigKeys[keyName]
+		if !found {
 			fmt.Println("Warning ! The environment key : " + keyName + " isn't needed by the gandalf configuration")
 		}
 	}
@@ -362,10 +347,10 @@ func IsConfigValid() error {
 		}
 	}
 	/*
-	err := YamlKeysValidation()
-	if err != nil {
-		return err
-	}*/
+		err := YamlKeysValidation()
+		if err != nil {
+			return err
+		}*/
 	return nil
 }
 
@@ -457,6 +442,6 @@ func ConfigMain(programName string, args []string) {
 	}
 	err = KeysValidation()
 	if err != nil {
-		log.Fatalf("%v",err)
+		log.Fatalf("%v", err)
 	}
 }
