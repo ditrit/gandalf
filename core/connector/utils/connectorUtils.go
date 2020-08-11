@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/ditrit/gandalf/core/models"
+	"gopkg.in/yaml.v2"
 
 	"github.com/ditrit/shoset/msg"
 
@@ -118,6 +119,33 @@ func ValidatePayload(payload, payloadSchema string) (result bool) {
 	}
 	return result
 
+}
+
+// DownloadConfiguration : Download configuration from url
+func DownloadConfiguration(url, ressource string) (connectorConfig *models.ConnectorConfig, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &connectorConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return
 }
 
 // DownloadConfigurationsKeys : Download configurationsKeys from url

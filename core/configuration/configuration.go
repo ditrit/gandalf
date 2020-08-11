@@ -264,6 +264,7 @@ func WorkerKeyParse(configurationKeys []models.ConfigurationKeys) error {
 		return err
 	}
 	err = defaultParse()
+
 	/*
 		for keyName := range ConfigKeys {
 			keyDef := ConfigKeys[keyName]
@@ -309,6 +310,10 @@ func IsConfigValid() error {
 		}
 	}
 	return nil
+}
+
+//GetConnectorValues
+func GetConnectorValues() {
 }
 
 //Set the list for all versions of a component

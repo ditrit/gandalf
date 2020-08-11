@@ -236,7 +236,7 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	DemoCreateApplicationGitlab(tenantDatabaseClient)
 
 	//CONFIGURATION
-	DemoCreateConfigurationUtils(tenantDatabaseClient)
+	//DemoCreateConfigurationUtils(tenantDatabaseClient)
 	DemoCreateConfigurationWorkflow(tenantDatabaseClient)
 	DemoCreateConfigurationAzure(tenantDatabaseClient)
 	DemoCreateConfigurationGitlab(tenantDatabaseClient)

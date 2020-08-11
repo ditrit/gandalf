@@ -122,12 +122,74 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 }
 
 // GetConfiguration : Get configuration from cluster
-func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64) (err error) {
+/* func (m *ConnectorMember) GetConfiguration_old(nshoset *net.Shoset, timeoutMax int64) (err error) {
 	return shoset.SendConnectorConfig(nshoset, timeoutMax)
+
+} */
+
+// GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
+func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (listConfigurationKeys []models.ConfigurationKeys, err error) {
+
+	shoset.SendConnectorConfig(nshoset, timeoutMax)
+	time.Sleep(time.Second * time.Duration(5))
+
+	//mapVersionsKeys = make(map[int64][]string)
+	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+
+	if config != nil {
+		var first = true
+		for _, version := range versions {
+			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
+			if connectorConfig == nil {
+				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+connectorType+"/"+product+"/"+strconv.FormatInt(version, 10)+"/configuration.yaml")
+
+				//connectorConfig.ConnectorType.Name = connectorType
+				//connectorConfig.ConnectorProduct.Name = product
+				//connectorConfig.Version = int(version)
+
+				connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
+				connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
+				connectorConfig.VersionKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+strconv.FormatInt(version, 10)+"/keys.yaml")
+
+				shoset.SendSaveConnectorConfig(nshoset, timeoutMax, connectorConfig)
+			}
+
+			var listConfigurationConnectorTypeKeys []models.ConfigurationKeys
+			err = yaml.Unmarshal([]byte(connectorConfig.ConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
+			if err != nil {
+				fmt.Println(err)
+			}
+			var listConfigurationProductKeys []models.ConfigurationKeys
+			err = yaml.Unmarshal([]byte(connectorConfig.ProductKeys), &listConfigurationProductKeys)
+			if err != nil {
+				fmt.Println(err)
+			}
+			var listConfigurationVersionKeys []models.ConfigurationKeys
+			err = yaml.Unmarshal([]byte(connectorConfig.VersionKeys), &listConfigurationVersionKeys)
+			if err != nil {
+				fmt.Println(err)
+			}
+
+			if first {
+				listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
+				listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
+				first = false
+			}
+
+			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionKeys...)
+
+			fmt.Println("listConfigurationKeys")
+			fmt.Println(listConfigurationKeys)
+			//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ConnectorTypeKeys)
+			//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ProductKeys)
+		}
+	}
+
+	return
 }
 
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
-func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (listConfigurationKeys []models.ConfigurationKeys, err error) {
+/* func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (listConfigurationKeys []models.ConfigurationKeys, err error) {
 	//mapVersionsKeys = make(map[int64][]string)
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 
@@ -137,11 +199,11 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 			if connectorConfig != nil {
 				save := false
 				if connectorConfig.ConnectorTypeKeys == "" {
-					connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/configuration.yaml")
+					connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
 					save = true
 				}
 				if connectorConfig.ProductKeys == "" {
-					connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/configuration.yaml")
+					connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
 					save = true
 				}
 
@@ -173,29 +235,33 @@ func (m *ConnectorMember) GetKeys(baseurl, connectorType, product string, versio
 		log.Printf("Connectors configuration not found")
 	}
 	return
-}
+}*/
 
 // GetWorker : Get worker from baseurl/connectortype/ and baseurl/connectortype/product/
-func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string) (err error) {
-	ressource := "/" + connectortype + "/" + product + "/"
-	url := baseurl + ressource + "workers.zip"
-	src := workerPath + ressource + "workers.zip"
-	dest := workerPath + ressource
+func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string, versions []int64) (err error) {
 
-	if _, err := os.Stat(dest); os.IsNotExist(err) {
-		os.MkdirAll(dest, os.ModePerm)
-	}
+	for _, version := range versions {
+		ressource := "/" + connectortype + "/" + product + "/" + strconv.FormatInt(version, 10) + "/"
+		url := baseurl + ressource + "workers.zip"
+		src := workerPath + ressource + "workers.zip"
+		dest := workerPath + ressource
 
-	err = utils.DownloadWorkers(url, src)
-
-	if err == nil {
-		_, err = utils.Unzip(src, dest)
-		if err != nil {
-			log.Println("Can't unzip workers")
+		if _, err := os.Stat(dest); os.IsNotExist(err) {
+			os.MkdirAll(dest, os.ModePerm)
 		}
-	} else {
-		log.Println("Can't download workers")
+
+		err = utils.DownloadWorkers(url, src)
+
+		if err == nil {
+			_, err = utils.Unzip(src, dest)
+			if err != nil {
+				log.Println("Can't unzip workers")
+			}
+		} else {
+			log.Println("Can't download workers")
+		}
 	}
+
 	return
 }
 
@@ -301,44 +367,47 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			_, err = member.Link(linkAddress)
 			time.Sleep(time.Second * time.Duration(5))
 			if err == nil {
-				err = member.GetConfiguration(member.GetChaussette(), timeoutMax)
+				var listConfigurationKeys []models.ConfigurationKeys
+				listConfigurationKeys, err = member.GetConfiguration(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
 				time.Sleep(time.Second * time.Duration(5))
 				if err == nil {
-					var listConfigurationKeys []models.ConfigurationKeys
-					listConfigurationKeys, err = member.GetKeys(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
+					fmt.Println("CONFIG")
+					configuration.WorkerKeyParse(listConfigurationKeys)
+					err = configuration.IsConfigValid()
+					fmt.Println("er2")
+					fmt.Println(err)
 					if err == nil {
-						configuration.WorkerKeyParse(listConfigurationKeys)
-						err = configuration.IsConfigValid()
+						fmt.Println("WORKER KEY PARSE")
+						err = member.GetWorkers(workerUrl, connectorType, product, workerPath, versions)
 						if err == nil {
-							err = member.GetWorkers(workerUrl, connectorType, product, workerPath)
+							fmt.Println("GET WORKER ")
+							//TODO REVOIR
+							//RECUPERATION VALEUR CONNECTEUR/WORKER
+
+							var stdinargs string
+							stdinargs = "{Toto:test}\n"
+							//END TODO
+							fmt.Println("START WORKERS")
+							err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
 							if err == nil {
-								//TODO REVOIR
-								var stdinargs string
-								stdinargs = "{Toto:test}\n"
-								//END TODO
-								fmt.Println("START WORKERS")
-								err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
-								if err == nil {
-									time.Sleep(time.Second * time.Duration(5))
-									result := member.ConfigurationValidation(tenant, connectorType)
-									if result {
-										log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-										fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-									} else {
-										log.Fatalf("Configuration validation failed")
-									}
+								time.Sleep(time.Second * time.Duration(5))
+								result := member.ConfigurationValidation(tenant, connectorType)
+								if result {
+									log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+									fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 								} else {
-									log.Fatalf("Can't start workers in %s", workerPath)
+									log.Fatalf("Configuration validation failed")
 								}
 							} else {
-								log.Fatalf("Can't get workers in %s", workerPath)
+								log.Fatalf("Can't start workers in %s", workerPath)
 							}
 						} else {
-							log.Fatalf("Can't validate keys")
+							log.Fatalf("Can't get workers in %s", workerPath)
 						}
 					} else {
-						log.Fatalf("Can't get keys")
+						log.Fatalf("Can't validate keys")
 					}
+
 				} else {
 					log.Fatalf("Can't get configuration in %s", workerPath)
 
