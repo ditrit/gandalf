@@ -178,8 +178,6 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 
 			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionKeys...)
 
-			fmt.Println("listConfigurationKeys")
-			fmt.Println(listConfigurationKeys)
 			//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ConnectorTypeKeys)
 			//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ProductKeys)
 		}
@@ -242,8 +240,8 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath
 
 	for _, version := range versions {
 		ressource := "/" + connectortype + "/" + product + "/" + strconv.FormatInt(version, 10) + "/"
-		url := baseurl + ressource + "workers.zip"
-		src := workerPath + ressource + "workers.zip"
+		url := baseurl + ressource + "worker.zip"
+		src := workerPath + ressource + "worker.zip"
 		dest := workerPath + ressource
 
 		if _, err := os.Stat(dest); os.IsNotExist(err) {
