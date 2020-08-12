@@ -19,6 +19,9 @@ func main() {
 	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
 	var version = int64(2)
 
+	fmt.Println("VERSION")
+	fmt.Println(version)
+
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 	fmt.Println(input.Text())

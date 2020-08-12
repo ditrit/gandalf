@@ -18,6 +18,9 @@ func main() {
 	var commands = []string{}
 	var version = int64(1)
 
+	fmt.Println("VERSION")
+	fmt.Println(version)
+
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 	fmt.Println(input.Text())
