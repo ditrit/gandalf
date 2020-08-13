@@ -8,6 +8,8 @@ import (
 // ConnectorConfigProduct : ConnectorConfigProduct struct.
 type ConnectorProduct struct {
 	gorm.Model
-	Name    string
-	Version string
+	Name               string
+	Version            string
+	ConnectorProductID uint
+	ConnectorType      ConnectorType
 }

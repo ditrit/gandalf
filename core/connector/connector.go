@@ -137,44 +137,55 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 
 	if config != nil {
-		var first = true
+		//first := true
+
+		configConnectorTypeKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
+		configProductKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
+
+		var listConfigurationConnectorTypeKeys []models.ConfigurationKeys
+		err = yaml.Unmarshal([]byte(configConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
+		if err != nil {
+			fmt.Println(err)
+		}
+		var listConfigurationProductKeys []models.ConfigurationKeys
+		err = yaml.Unmarshal([]byte(configProductKeys), &listConfigurationProductKeys)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
+		listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
+
 		for _, version := range versions {
 			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 			if connectorConfig == nil {
 				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+connectorType+"/"+product+"/"+strconv.FormatInt(version, 10)+"/configuration.yaml")
 
-				//connectorConfig.ConnectorType.Name = connectorType
+				connectorConfig.ConnectorType.Name = connectorType
+				connectorConfig.Version = int(version)
 				//connectorConfig.ConnectorProduct.Name = product
-				//connectorConfig.Version = int(version)
 
-				connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
-				connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
+				connectorConfig.ConnectorTypeKeys = configConnectorTypeKeys
+				connectorConfig.ProductKeys = configProductKeys
 				connectorConfig.VersionKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+strconv.FormatInt(version, 10)+"/keys.yaml")
+
+				/* connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
+				connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
+				connectorConfig.VersionKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+strconv.FormatInt(version, 10)+"/keys.yaml") */
 
 				shoset.SendSaveConnectorConfig(nshoset, timeoutMax, connectorConfig)
 			}
 
-			var listConfigurationConnectorTypeKeys []models.ConfigurationKeys
-			err = yaml.Unmarshal([]byte(connectorConfig.ConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
-			if err != nil {
-				fmt.Println(err)
-			}
-			var listConfigurationProductKeys []models.ConfigurationKeys
-			err = yaml.Unmarshal([]byte(connectorConfig.ProductKeys), &listConfigurationProductKeys)
-			if err != nil {
-				fmt.Println(err)
-			}
 			var listConfigurationVersionKeys []models.ConfigurationKeys
 			err = yaml.Unmarshal([]byte(connectorConfig.VersionKeys), &listConfigurationVersionKeys)
 			if err != nil {
 				fmt.Println(err)
 			}
 
-			if first {
-				listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
-				listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
+			/* 	if first {
+
 				first = false
-			}
+			} */
 
 			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionKeys...)
 

@@ -55,6 +55,26 @@ func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
 }
 
+//DemoCreateProductUtils
+func DemoCreateProductUtils(tenantDatabaseClient *gorm.DB) {
+
+	var ConnectorTypeUtils models.ConnectorType
+	tenantDatabaseClient.Where("name = ?", "Utils").First(&ConnectorTypeUtils)
+
+	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Custom", Version: "1", ConnectorType: ConnectorTypeUtils})
+	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Custom", Version: "2", ConnectorType: ConnectorTypeUtils})
+}
+
+//DemoCreateProductWorkflow
+func DemoCreateProductWorkflow(tenantDatabaseClient *gorm.DB) {
+
+	var ConnectorTypeWorkflow models.ConnectorType
+	tenantDatabaseClient.Where("name = ?", "Workflow").First(&ConnectorTypeWorkflow)
+
+	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Custom", Version: "1", ConnectorType: ConnectorTypeWorkflow})
+	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Custom", Version: "2", ConnectorType: ConnectorTypeWorkflow})
+}
+
 //DemoCreateApplicationUtils
 func DemoCreateApplicationUtils(tenantDatabaseClient *gorm.DB) {
 	var AggregatorUtils models.Aggregator
@@ -228,6 +248,10 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	DemoCreateAggregator(tenantDatabaseClient)
 	DemoCreateConnector(tenantDatabaseClient)
 	DemoCreateConnectorType(tenantDatabaseClient)
+
+	//PRODUCT
+	DemoCreateProductUtils(tenantDatabaseClient)
+	DemoCreateProductWorkflow(tenantDatabaseClient)
 
 	//APPLICATION
 	DemoCreateApplicationUtils(tenantDatabaseClient)
