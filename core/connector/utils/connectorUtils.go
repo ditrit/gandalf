@@ -78,9 +78,8 @@ func GetConnectorTypeConfigByVersion(version int64, list []*models.ConnectorConf
 	return result
 }
 
-//TODO REVOIR INTERFACE
-// GetConnectorTypeCommand : GetConnectorTypeCommand
-func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeCommand) (result models.ConnectorTypeCommand) {
+// GetConnectorCommand : GetConnectorCommand
+func GetConnectorCommand(commandName string, list []models.ConnectorCommand) (result models.ConnectorCommand) {
 	for _, command := range list {
 		if command.Name == commandName {
 			result = command
@@ -90,9 +89,8 @@ func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeComm
 	return result
 }
 
-//TODO REVOIR INTERFACE
-// GetConnectorTypeEvent : GetConnectorTypeEvent
-func GetConnectorTypeEvent(eventName string, list []models.ConnectorTypeEvent) (result models.ConnectorTypeEvent) {
+// GetConnectorEvent : GetConnectorEvent
+func GetConnectorEvent(eventName string, list []models.ConnectorEvent) (result models.ConnectorEvent) {
 	for _, event := range list {
 		if event.Name == eventName {
 			result = event

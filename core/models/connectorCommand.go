@@ -5,8 +5,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// ConnectorTypeCommand : ConnectorTypeCommand struct.
-type ConnectorTypeCommand struct {
+// ConnectorCommand : ConnectorCommand struct.
+type ConnectorCommand struct {
 	gorm.Model
 	Name   string
 	Schema string

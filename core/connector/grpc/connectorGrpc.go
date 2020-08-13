@@ -108,9 +108,9 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 
 				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
 				if connectorTypeConfig != nil {
-					connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
-					if connectorTypeCommand != (models.ConnectorTypeCommand{}) {
-						validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+					connectorCommand := utils.GetConnectorCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorCommands)
+					if connectorCommand != (models.ConnectorCommand{}) {
+						validate = utils.ValidatePayload(cmd.GetPayload(), connectorCommand.Schema)
 					} else {
 						log.Println("Connector type commands not found")
 					}
@@ -224,9 +224,9 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 
 					if connectorTypeConfig != nil {
 						//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-						connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), connectorTypeConfig.ConnectorTypeEvents)
-						if connectorTypeEvent != (models.ConnectorTypeEvent{}) {
-							validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
+						connectorEvent := utils.GetConnectorEvent(evt.GetEvent(), connectorTypeConfig.ConnectorEvents)
+						if connectorEvent != (models.ConnectorEvent{}) {
+							validate = utils.ValidatePayload(evt.GetPayload(), connectorEvent.Schema)
 						} else {
 							log.Println("Connector type events not found")
 						}

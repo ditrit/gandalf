@@ -332,7 +332,7 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 
 				connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 				if connectorConfig != nil {
-					for _, command := range connectorConfig.ConnectorTypeCommands {
+					for _, command := range connectorConfig.ConnectorCommands {
 						configCommands = append(configCommands, command.Name)
 					}
 					validation = validation && reflect.DeepEqual(commands, configCommands)

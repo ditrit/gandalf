@@ -5,8 +5,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// ConnectorTypeEvent : ConnectorTypeEvent struct.
-type ConnectorTypeEvent struct {
+// ConnectorEvent : ConnectorEvent struct.
+type ConnectorEvent struct {
 	gorm.Model
 	Name   string
 	Schema string
