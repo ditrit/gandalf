@@ -2,8 +2,8 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-// PermissionMessage : PermissionMessage struct.
-type PermissionMessage struct {
+// PermissionCommand : PermissionCommand struct.
+type PermissionCommand struct {
 	gorm.Model
 	Role             Role
 	ConnectorCommand ConnectorCommand

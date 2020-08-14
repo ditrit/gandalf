@@ -139,6 +139,7 @@ func DownloadConfiguration(url, ressource string) (connectorConfig *models.Conne
 	}
 
 	err = yaml.Unmarshal(bodyBytes, &connectorConfig)
+
 	if err != nil {
 		log.Fatal(err)
 	}
