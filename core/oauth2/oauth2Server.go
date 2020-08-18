@@ -10,19 +10,17 @@ import (
 	"gopkg.in/oauth2.v3/models"
 )
 
+// NewOAuth2Server
 func NewOAuth2Server() {
 	manager := manage.NewDefaultManager()
-	// token memory store
+
 	configtoken := &Config{DSN: "/home/romainfairant/gandalf/database/tenant1.db", DBType: "sqlite3", TableName: "token", Token: true}
 	tokenstore := NewStore(configtoken, 600).(*TokenStore)
 	manager.MapTokenStorage(tokenstore)
-	//manager.MustTokenStorage(store.NewMemoryTokenStore())
 
-	// client memory store
 	configclient := &Config{DSN: "/home/romainfairant/gandalf/database/tenant1.db", DBType: "sqlite3", TableName: "client", Token: false}
 	clientstore := NewStore(configclient, 600).(*ClientStore)
 
-	//clientStore := store.NewClientStore(clientstore)
 	clientstore.Set("000000", &models.Client{
 		ID:     "000000",
 		Secret: "999999",

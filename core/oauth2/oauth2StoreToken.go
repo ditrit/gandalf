@@ -12,8 +12,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-//var noUpdateContent = "No content found to be updated"
-
+// NewStokenItemByTokenInfo
 func NewStokenItemByTokenInfo(info oauth2.TokenInfo) models.Token {
 
 	item := models.Token{}
@@ -34,10 +33,11 @@ func NewStokenItemByTokenInfo(info oauth2.TokenInfo) models.Token {
 
 }
 
+// NewTokenStoreWithDB
 func NewTokenStoreWithDB(config *Config, db *gorm.DB, gcInterval int) *TokenStore {
 	store := &TokenStore{
 		db:        db,
-		tableName: "oauth2_token",
+		tableName: "token",
 		stdout:    os.Stderr,
 	}
 	if config.TableName != "" {
@@ -59,7 +59,7 @@ func NewTokenStoreWithDB(config *Config, db *gorm.DB, gcInterval int) *TokenStor
 	return store
 }
 
-// Store mysql token store
+// TokenStore
 type TokenStore struct {
 	tableName string
 	db        *gorm.DB
@@ -67,10 +67,8 @@ type TokenStore struct {
 	ticker    *time.Ticker
 }
 
-// Create create and store the new token information
+// Create
 func (s *TokenStore) Create(context context.Context, info oauth2.TokenInfo) error {
-
-	//TODO REVOIR
 	item := NewStokenItemByTokenInfo(info)
 
 	if code := info.GetCode(); code != "" {
@@ -85,21 +83,20 @@ func (s *TokenStore) Create(context context.Context, info oauth2.TokenInfo) erro
 			item.GetRefreshCreateAt().Add(info.GetRefreshExpiresIn()).Unix()
 		}
 	}
-
 	return s.db.Table(s.tableName).Create(&item).Error
 }
 
-// RemoveByCode delete the authorization code
+// RemoveByCode
 func (s *TokenStore) RemoveByCode(context context.Context, code string) error {
 	return s.db.Table(s.tableName).Where("code = ?", code).Update("code", "").Error
 }
 
-// RemoveByAccess use the access token to delete the token information
+// RemoveByAccess
 func (s *TokenStore) RemoveByAccess(context context.Context, access string) error {
 	return s.db.Table(s.tableName).Where("access = ?", access).Update("access", "").Error
 }
 
-// RemoveByRefresh use the refresh token to delete the token information
+// RemoveByRefresh
 func (s *TokenStore) RemoveByRefresh(context context.Context, refresh string) error {
 	return s.db.Table(s.tableName).Where("refresh = ?", refresh).Update("refresh", "").Error
 }
@@ -120,7 +117,7 @@ func (s *TokenStore) GetByCode(context context.Context, code string) (oauth2.Tok
 	return &item, nil
 }
 
-// GetByAccess use the access token for token information data
+// GetByAccess
 func (s *TokenStore) GetByAccess(context context.Context, access string) (oauth2.TokenInfo, error) {
 	if access == "" {
 		return nil, nil
@@ -136,7 +133,7 @@ func (s *TokenStore) GetByAccess(context context.Context, access string) (oauth2
 	return &item, nil
 }
 
-// GetByRefresh use the refresh token for token information data
+// GetByRefresh
 func (s *TokenStore) GetByRefresh(context context.Context, refresh string) (oauth2.TokenInfo, error) {
 	if refresh == "" {
 		return nil, nil
@@ -168,13 +165,13 @@ func (s *TokenStore) gc() {
 	}
 }
 
-// SetStdout set error output
+// SetStdout
 func (s *TokenStore) SetStdout(stdout io.Writer) *TokenStore {
 	s.stdout = stdout
 	return s
 }
 
-// Close close the store
+// Close
 func (s *TokenStore) Close() {
 	s.ticker.Stop()
 }
