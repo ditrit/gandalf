@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/ditrit/gandalf/core/oauth2"
+
 	"github.com/ditrit/gandalf/core/aggregator"
 	"github.com/ditrit/gandalf/core/cluster"
 	"github.com/ditrit/gandalf/core/configuration"
@@ -110,6 +112,11 @@ func main() {
 
 				done := make(chan bool)
 				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath)
+
+				//TEST
+				oauth2.NewOAuth2Server()
+				//
+
 				<-done
 			}
 			break
