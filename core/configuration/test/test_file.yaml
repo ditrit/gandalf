@@ -26,5 +26,5 @@ cluster:
   cluster_join: cluster address
   gandalf_db: DB path
 test:
-  testIntKey: a
+  test_int_key: a
 
