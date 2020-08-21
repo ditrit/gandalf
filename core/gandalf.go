@@ -115,7 +115,6 @@ func main() {
 
 				//TEST
 				go oauth2.NewOAuth2Server()
-				//go oauth2.NewOAuth2Client()
 				//
 
 				<-done
