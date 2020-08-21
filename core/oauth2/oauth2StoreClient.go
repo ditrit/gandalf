@@ -59,6 +59,15 @@ func (s *ClientStore) GetByID(context context.Context, id string) (oauth2.Client
 }
 
 // Set
-func (s *ClientStore) Set(id string, cli oauth2.ClientInfo) (err error) {
-	return s.db.Table(s.tableName).Save(cli).Error
+func (s *ClientStore) Set(cli oauth2.ClientInfo) (err error) {
+	err = s.db.Table(s.tableName).Save(cli).Error
+	var clients models.Client
+	s.db.Table(s.tableName).First(&clients)
+	fmt.Println("CLIENTS")
+	fmt.Println(clients)
+	/* for client := range clients {
+		fmt.Println(client)
+	} */
+	return
+	//return s.db.Table(s.tableName).Save(cli).Error
 }

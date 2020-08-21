@@ -4,10 +4,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ditrit/gandalf/core/models"
 	"github.com/go-oauth2/oauth2/v4/errors"
 	"github.com/go-oauth2/oauth2/v4/manage"
 	"github.com/go-oauth2/oauth2/v4/server"
-	"gopkg.in/oauth2.v3/models"
 )
 
 // NewOAuth2Server
@@ -21,8 +21,8 @@ func NewOAuth2Server() {
 	configclient := &Config{DSN: "/home/romainfairant/gandalf/database/tenant1.db", DBType: "sqlite3", TableName: "client", Token: false}
 	clientstore := NewStore(configclient, 600).(*ClientStore)
 
-	clientstore.Set("000000", &models.Client{
-		ID:     "000000",
+	clientstore.Set(&models.Client{
+		//ID:     "222222",
 		Secret: "999999",
 		Domain: "http://localhost",
 	})
@@ -52,4 +52,5 @@ func NewOAuth2Server() {
 	})
 
 	log.Fatal(http.ListenAndServe(":9096", nil))
+
 }

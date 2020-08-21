@@ -13,6 +13,7 @@ func NewToken() *Token {
 
 type Token struct {
 	gorm.Model
+	ExpiredAt        int64
 	ClientID         string        `bson:"ClientID"`
 	UserID           string        `bson:"UserID"`
 	RedirectURI      string        `bson:"RedirectURI"`

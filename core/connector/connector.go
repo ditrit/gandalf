@@ -380,23 +380,16 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 				listConfigurationKeys, err = member.GetConfiguration(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
 				time.Sleep(time.Second * time.Duration(5))
 				if err == nil {
-					fmt.Println("CONFIG")
 					configuration.WorkerKeyParse(listConfigurationKeys)
 					err = configuration.IsConfigValid()
-					fmt.Println("er2")
-					fmt.Println(err)
 					if err == nil {
-						fmt.Println("WORKER KEY PARSE")
 						err = member.GetWorkers(workerUrl, connectorType, product, workerPath, versions)
 						if err == nil {
-							fmt.Println("GET WORKER ")
 							//TODO REVOIR
 							//RECUPERATION VALEUR CONNECTEUR/WORKER
-
 							var stdinargs string
 							stdinargs = "{Toto:test}\n"
 							//END TODO
-							fmt.Println("START WORKERS")
 							err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
 							if err == nil {
 								time.Sleep(time.Second * time.Duration(5))

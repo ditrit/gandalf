@@ -114,7 +114,8 @@ func main() {
 				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath)
 
 				//TEST
-				oauth2.NewOAuth2Server()
+				go oauth2.NewOAuth2Server()
+				//go oauth2.NewOAuth2Client()
 				//
 
 				<-done
