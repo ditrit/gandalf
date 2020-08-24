@@ -7,6 +7,6 @@ core:
   keyPem:
   caCertPem:
   caKeyPem:
-  gandalf_log:
+  gandalf_log: 
 connector/aggregator:
   tenant:

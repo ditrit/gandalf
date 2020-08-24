@@ -28,7 +28,7 @@ type configKey struct {
 }
 
 var ConfigKeys = make(map[string]configKey)
-var homePath = "/home/zippo/go/src"
+var homePath = "/home/romainfairant"
 
 //Set a string type key
 func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string, mandatory bool) error {
@@ -92,16 +92,16 @@ func InitMainConfigKeys() {
 
 //initiation of the core keys
 func InitCoreKeys() {
-	_ = SetStringKeyConfig("core", "config_dir", "f", homePath+"/gandalf/core/configuration/configDir/", "path to the configuration directory", true)
+	_ = SetStringKeyConfig("core", "config_dir", "f", homePath+"/go/src/gandalf/core/configuration/configDir/", "path to the configuration directory", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core", "bind_address", "b", "", "Bind address", true)
-	_ = SetStringKeyConfig("core", "cert_dir", "", homePath+"/gandalf/core/certs", "path of the TLS repository", false)
-	_ = SetStringKeyConfig("core", "cert_pem", "", homePath+"/gandalf/core/certs/cert.pem", "path of the TLS certificate", false)
-	_ = SetStringKeyConfig("core", "key_pem", "", homePath+"/gandalf/core/certs/key.pem", "path of the TLS private key", false)
-	_ = SetStringKeyConfig("core", "ca_cert_pem", "", homePath+"/gandalf/core/certs/ca.pem", "path of the CA certificate", false)
-	_ = SetStringKeyConfig("core", "ca_key_pem", "", homePath+"/gandalf/core/certs/cakey.pem", "path of the CA key", false)
-	_ = SetStringKeyConfig("core", "gandalf_log", "", "/home/zippo/gandalf/log", "path of the log file", false)
+	_ = SetStringKeyConfig("core", "cert_dir", "", homePath+"/go/src/gandalf/core/certs", "path of the TLS repository", false)
+	_ = SetStringKeyConfig("core", "cert_pem", "", homePath+"/go/src/gandalf/core/certs/cert.pem", "path of the TLS certificate", false)
+	_ = SetStringKeyConfig("core", "key_pem", "", homePath+"/go/src/gandalf/core/certs/key.pem", "path of the TLS private key", false)
+	_ = SetStringKeyConfig("core", "ca_cert_pem", "", homePath+"/go/src/gandalf/core/certs/ca.pem", "path of the CA certificate", false)
+	_ = SetStringKeyConfig("core", "ca_key_pem", "", homePath+"/go/src/gandalf/core/certs/cakey.pem", "path of the CA key", false)
+	_ = SetStringKeyConfig("core", "gandalf_log", "", homePath+"/gandalf/log", "path of the log file", false)
 }
 
 //initiation of the tenant key for connectors and aggregators
@@ -131,7 +131,7 @@ func InitAggregatorKeys() {
 //initiation of the cluster keys
 func InitClusterKeys() {
 	_ = SetStringKeyConfig("cluster", "cluster_join", "j", "", "cluster command (join)", false)
-	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", "/home/zippo/gandalf/database", "path for the gandalf database", false)
+	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", homePath+"/gandalf/database", "path for the gandalf database", false)
 }
 
 //parse the configuration from the CLI parameters

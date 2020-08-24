@@ -7,7 +7,7 @@ core:
   keyPem:
   caCertPem:
   caKeyPem:
-  gandalf_log: path
+  gandalf_log: /home/romainfairant/gandalf/database/
 connector/aggregator:
   tenant: tenant
 connector:
@@ -24,7 +24,7 @@ aggregator:
   clusters:
 cluster:
   cluster_join: cluster address
-  gandalf_db: DB path
+  gandalf_db: /home/romainfairant/gandalf/logs/
 test:
   test_int_key: a
 

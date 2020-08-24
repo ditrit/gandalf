@@ -19,8 +19,8 @@ const (
 
 var (
 	config = oauth2.Config{
-		ClientID:     "0",
-		ClientSecret: "22222222",
+		ClientID:     "1",
+		ClientSecret: "999999",
 		Scopes:       []string{"all"},
 		RedirectURL:  "http://localhost:9094/oauth2",
 		Endpoint: oauth2.Endpoint{

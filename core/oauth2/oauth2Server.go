@@ -1,8 +1,10 @@
 package oauth2
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/go-oauth2/oauth2/v4/errors"
@@ -40,17 +42,29 @@ func NewOAuth2Server() {
 	srv.SetResponseErrorHandler(func(re *errors.Response) {
 		log.Println("Response Error:", re.Error.Error())
 	})
-	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
-		err := srv.HandleAuthorizeRequest(w, r)
+
+	http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		err := srv.HandleTokenRequest(w, r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
 
-	http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
-		srv.HandleTokenRequest(w, r)
+	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		token, err := srv.ValidationBearerToken(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		data := map[string]interface{}{
+			"expires_in": int64(token.GetAccessCreateAt().Add(token.GetAccessExpiresIn()).Sub(time.Now()).Seconds()),
+			"client_id":  token.GetClientID(),
+			"user_id":    token.GetUserID(),
+		}
+		e := json.NewEncoder(w)
+		e.SetIndent("", "  ")
+		e.Encode(data)
 	})
-
 	log.Fatal(http.ListenAndServe(":9096", nil))
-
 }
