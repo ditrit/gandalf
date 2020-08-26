@@ -26,7 +26,7 @@ func NewTenantDatabaseClient(tenant, databasePath string) *gorm.DB {
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
-	tenantDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Application{}, &models.Connector{}, &models.Tenant{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{})
+	tenantDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Application{}, &models.Connector{}, &models.Tenant{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{})
 
 	return
 }
@@ -53,6 +53,30 @@ func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Workflow"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
+}
+
+//DemoCreateRole
+func DemoCreateRole(tenantDatabaseClient *gorm.DB) {
+	tenantDatabaseClient.Create(&models.Role{Name: "Role1"})
+	tenantDatabaseClient.Create(&models.Role{Name: "Role2"})
+}
+
+//DemoCreateUser1
+func DemoCreateUser1(tenantDatabaseClient *gorm.DB) {
+
+	var Role1 models.Role
+	tenantDatabaseClient.Where("name = ?", "Role1").First(&Role1)
+
+	tenantDatabaseClient.Create(&models.User{Name: "User1", Email: "User1", Password: "User1", Role: Role1})
+}
+
+//DemoCreateUser2
+func DemoCreateUser2(tenantDatabaseClient *gorm.DB) {
+
+	var Role2 models.Role
+	tenantDatabaseClient.Where("name = ?", "Role2").First(&Role2)
+
+	tenantDatabaseClient.Create(&models.User{Name: "User2", Email: "User2", Password: "User2", Role: Role2})
 }
 
 //DemoCreateProductUtils
@@ -248,10 +272,15 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	DemoCreateAggregator(tenantDatabaseClient)
 	DemoCreateConnector(tenantDatabaseClient)
 	DemoCreateConnectorType(tenantDatabaseClient)
+	DemoCreateRole(tenantDatabaseClient)
 
 	//PRODUCT
 	DemoCreateProductUtils(tenantDatabaseClient)
 	DemoCreateProductWorkflow(tenantDatabaseClient)
+
+	//USER
+	DemoCreateUser1(tenantDatabaseClient)
+	DemoCreateUser2(tenantDatabaseClient)
 
 	//APPLICATION
 	DemoCreateApplicationUtils(tenantDatabaseClient)

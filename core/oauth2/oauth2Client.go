@@ -97,7 +97,7 @@ func NewOAuth2Client() {
 	})
 
 	http.HandleFunc("/pwd", func(w http.ResponseWriter, r *http.Request) {
-		token, err := config.PasswordCredentialsToken(context.Background(), "test", "test")
+		token, err := config.PasswordCredentialsToken(context.Background(), "User1", "User1")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

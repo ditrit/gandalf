@@ -185,6 +185,7 @@ func main() {
 
 			done := make(chan bool)
 			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, int64(gandalfMaxTimeout), gandalfVersions)
+			go oauth2.NewOAuth2Client()
 			<-done
 			break
 
