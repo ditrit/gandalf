@@ -4,7 +4,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"time"
@@ -68,10 +67,12 @@ func (r ConnectorGrpc) StartGrpcServer() {
 //SendCommandList : Connector send command list function.
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
 	log.Println("Handle send command list")
+
 	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int64][]string)
-	mapVersionConnectorCommands[in.GetMajor()] = append(mapVersionConnectorCommands[in.GetMajor()], in.GetCommands()...)
-	r.Shoset.Context["mapVersionConnectorCommands"] = mapVersionConnectorCommands
-	//r.Shoset.Context["mapVersionConnectorCommands"] = append(r.Shoset.Context["connectorCommands"].([]string), in.GetCommands()...)
+	if mapVersionConnectorCommands != nil {
+		mapVersionConnectorCommands[in.GetMajor()] = append(mapVersionConnectorCommands[in.GetMajor()], in.GetCommands()...)
+	}
+
 	return &pb.Empty{}, nil
 }
 
@@ -80,25 +81,51 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	log.Println("Handle send command")
 
 	cmd := pb.CommandFromGrpc(in)
-	fmt.Println("cmd")
-	fmt.Println(cmd)
-	fmt.Println(cmd.GetCommand())
-	fmt.Println(cmd.GetContext())
-	fmt.Println(cmd.GetContext()["connectorType"])
-	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+
 	//connectorType := r.Shoset.Context["connectorType"].(string)
-	connectorType := cmd.GetContext()["connectorType"].(string)
-	fmt.Println("config")
-	fmt.Println(config)
-	fmt.Println("connectorType")
-	fmt.Println(connectorType)
 
 	validate := false
-	if listConnectorTypeConfig, ok := config[connectorType]; ok {
-		fmt.Println("validation")
-		connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-		connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
-		validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	if config != nil {
+		connectorType := cmd.GetContext()["connectorType"].(string)
+		if connectorType != "" {
+			var connectorTypeConfig *models.ConnectorConfig
+			if listConnectorTypeConfig, ok := config[connectorType]; ok {
+				if cmd.Major == 0 {
+					versions := r.Shoset.Context["versions"].([]int64)
+					if versions != nil {
+						maxVersion := utils.GetMaxVersion(versions)
+						cmd.Major = int8(maxVersion)
+						//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
+
+					} else {
+						log.Println("Versions not found")
+					}
+				} else {
+					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(cmd.Major), listConnectorTypeConfig)
+				}
+
+				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+				if connectorTypeConfig != nil {
+					connectorTypeCommand := utils.GetConnectorTypeCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorTypeCommands)
+					if connectorTypeCommand != (models.ConnectorTypeCommand{}) {
+						validate = utils.ValidatePayload(cmd.GetPayload(), connectorTypeCommand.Schema)
+					} else {
+						log.Println("Connector type commands not found")
+					}
+				} else {
+					log.Println("Connector type configuration by version not found")
+				}
+			} else {
+				log.Printf("Connector configuration by type %s not found \n", connectorType)
+			}
+		} else {
+			log.Println("connectorType empty")
+
+		}
+	} else {
+		log.Println("Connectors configuration not found")
 	}
 
 	if validate {
@@ -165,7 +192,6 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 	return
 }
 
-//TODO REVOIR
 //SendEventMessage : Connector send event function.
 func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (empty *pb.Empty, err error) {
 	log.Println("Handle send event")
@@ -176,43 +202,49 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 
 	if evt.GetReferenceUUID() == "" {
 		config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-		connectorType := r.Shoset.Context["connectorType"].(string)
+		if config != nil {
+			connectorType := r.Shoset.Context["connectorType"].(string)
+			if connectorType != "" {
+				var connectorTypeConfig *models.ConnectorConfig
+				if listConnectorTypeConfig, ok := config[connectorType]; ok {
+					if evt.Major == 0 {
+						versions := r.Shoset.Context["versions"].([]int64)
+						if versions != nil {
+							maxVersion := utils.GetMaxVersion(versions)
+							evt.Major = int8(maxVersion)
 
-		//connectorType := strings.Split(evt.GetEvent(), ".")[0]
+							connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
 
-		var connectorTypeConfig *models.ConnectorConfig
+						} else {
+							log.Println("Versions not found")
+						}
+					} else {
+						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(evt.Major), listConnectorTypeConfig)
+					}
 
-		if evt.Major == 0 {
-			fmt.Println("MAJOR UP")
-			//REVOIR POUR MAX VERSIONS
-			versions := r.Shoset.Context["versions"].([]int64)
-			fmt.Println("Version")
-			fmt.Println(versions)
+					if connectorTypeConfig != nil {
+						//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+						connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), connectorTypeConfig.ConnectorTypeEvents)
+						if connectorTypeEvent != (models.ConnectorTypeEvent{}) {
+							validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
+						} else {
+							log.Println("Connector type events not found")
+						}
+					} else {
+						validate = false
+						log.Println("Connector type configuration by version not found")
+					}
+				} else {
+					log.Printf("Connector configuration by type %s not found \n", connectorType)
+				}
 
-			maxVersion := utils.GetMaxVersion(versions)
-			evt.Major = int8(maxVersion)
-			fmt.Println("maxVersion")
-			fmt.Println(maxVersion)
-
-			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, config[connectorType])
+			} else {
+				log.Println("connectorType empty")
+			}
 		} else {
-			fmt.Println("MAJOR DOWN")
-			connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(evt.Major), config[connectorType])
-
+			log.Println("Connectors configuration not found")
 		}
-		fmt.Println("connectorTypeConfig")
-		fmt.Println(connectorTypeConfig)
 
-		fmt.Println("connectorTypeConfig.ConnectorTypeEvents")
-		fmt.Println(connectorTypeConfig.ConnectorTypeEvents)
-		//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-		connectorTypeEvent := utils.GetConnectorTypeEvent(evt.GetEvent(), connectorTypeConfig.ConnectorTypeEvents)
-
-		fmt.Println("connectorTypeEvent")
-		fmt.Println(connectorTypeEvent)
-		fmt.Println("connectorTypeEvent.Schema")
-		fmt.Println(connectorTypeEvent.Schema)
-		validate = utils.ValidatePayload(evt.GetPayload(), connectorTypeEvent.Schema)
 	}
 
 	if validate {
@@ -316,7 +348,7 @@ func (r ConnectorGrpc) runIteratorCommand(command string, version int64, iterato
 				}
 			}
 		}
-		time.Sleep(time.Duration(2000) * time.Millisecond)
+		time.Sleep(time.Duration(500) * time.Millisecond)
 	}
 	//delete(r.MapIterators, iteratorId)
 }
@@ -332,13 +364,15 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iter
 			message := (messageIterator.GetMessage()).(msg.Event)
 			if topic == message.Topic {
 				if event == message.Event {
-					if referenceUUID != "" && referenceUUID == message.GetReferenceUUID() {
-						log.Println("Get iterator event")
-						log.Println(message)
+					if referenceUUID != "" {
+						if referenceUUID == message.GetReferenceUUID() {
+							log.Println("Get iterator event by ref")
+							log.Println(message)
 
-						channel <- message
+							channel <- message
 
-						break
+							break
+						}
 					} else {
 						log.Println("Get iterator event")
 						log.Println(message)
@@ -350,7 +384,7 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iter
 				}
 			}
 		}
-		time.Sleep(time.Duration(2000) * time.Millisecond)
+		time.Sleep(time.Duration(500) * time.Millisecond)
 	}
 	//delete(r.MapIterators, iteratorId)
 }
@@ -367,13 +401,15 @@ func (r ConnectorGrpc) runIteratorTopic(topic, referenceUUID string, iterator *m
 
 			if topic == message.Topic {
 
-				if referenceUUID != "" && referenceUUID == message.GetReferenceUUID() {
-					log.Println("Get iterator event by topic and ref")
-					log.Println(message)
+				if referenceUUID != "" {
+					if referenceUUID == message.GetReferenceUUID() {
+						log.Println("Get iterator event by topic and ref")
+						log.Println(message)
 
-					channel <- message
+						channel <- message
 
-					break
+						break
+					}
 				} else {
 					log.Println("Get iterator event by topic")
 					log.Println(message)
@@ -382,11 +418,10 @@ func (r ConnectorGrpc) runIteratorTopic(topic, referenceUUID string, iterator *m
 
 					break
 				}
-
 			}
 
 		}
-		time.Sleep(time.Duration(2000) * time.Millisecond)
+		time.Sleep(time.Duration(500) * time.Millisecond)
 	}
 	//delete(r.MapIterators, iteratorId)
 }

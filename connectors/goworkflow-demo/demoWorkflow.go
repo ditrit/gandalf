@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	goclient "libraries/gandalf-libraries-goclient"
-	"libraries/gandalf-libraries-goclient/models"
 	"os"
+
+	"github.com/ditrit/gandalf/libraries/goclient/models"
+
+	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
 
 func main() {
@@ -24,10 +26,9 @@ func main() {
 		//CREATE FORM
 
 		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-		fmt.Println("TATA")
 
+		//commandMessageUUID := client.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
 		commandMessageUUID := client.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-
 		formUUID := commandMessageUUID.GetUUID()
 		event = client.WaitReplyByEvent("CREATE_FORM", "SUCCES", formUUID, id)
 		fmt.Println(event)

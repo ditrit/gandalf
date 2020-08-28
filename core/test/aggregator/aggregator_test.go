@@ -10,10 +10,11 @@ func TestNewAggregatorMember(t *testing.T) {
 	const (
 		logicalName string = "test"
 		tenant      string = "test"
+		logPath     string = "test"
 		shosetType  string = "a"
 	)
 
-	aggregatorMember := aggregator.NewAggregatorMember(logicalName, tenant)
+	aggregatorMember := aggregator.NewAggregatorMember(logicalName, tenant, logPath)
 
 	if aggregatorMember == nil {
 		t.Errorf("Should not be nil")
@@ -48,12 +49,13 @@ func TestAggregatorMemberInit(t *testing.T) {
 	const (
 		logicalName string = "test"
 		tenant      string = "test"
+		logPath     string = "test"
 		shosetType  string = "a"
 		bindAddress string = "127.0.0.1:8001"
 		linkAddress string = "127.0.0.1:8002"
 	)
 
-	aggregatorMember := aggregator.AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress)
+	aggregatorMember := aggregator.AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath)
 
 	if aggregatorMember == nil {
 		t.Errorf("Should not be nil")

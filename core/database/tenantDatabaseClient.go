@@ -31,6 +31,7 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
 	return
 }
 
+//DemoCreateAggregator
 func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator1"})
 	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator2"})
@@ -38,6 +39,7 @@ func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator4"})
 }
 
+//DemoCreateConnector
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Connector{Name: "Connector1"})
 	tenantDatabaseClient.Create(&models.Connector{Name: "Connector2"})
@@ -45,6 +47,7 @@ func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Connector{Name: "Connector4"})
 }
 
+//DemoCreateConnectorType
 func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Utils"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Workflow"})
@@ -52,6 +55,7 @@ func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
 }
 
+//DemoCreateApplicationUtils
 func DemoCreateApplicationUtils(tenantDatabaseClient *gorm.DB) {
 	var AggregatorUtils models.Aggregator
 	var ConnectorUtils models.Connector
@@ -67,6 +71,7 @@ func DemoCreateApplicationUtils(tenantDatabaseClient *gorm.DB) {
 		ConnectorType: ConnectorTypeUtils})
 }
 
+//DemoCreateApplicationWorkflow
 func DemoCreateApplicationWorkflow(tenantDatabaseClient *gorm.DB) {
 	var AggregatorWorkflow models.Aggregator
 	var ConnectorWorkflow models.Connector
@@ -83,6 +88,7 @@ func DemoCreateApplicationWorkflow(tenantDatabaseClient *gorm.DB) {
 
 }
 
+//DemoCreateApplicationAzure
 func DemoCreateApplicationAzure(tenantDatabaseClient *gorm.DB) {
 	var AggregatorAzure models.Aggregator
 	var ConnectorAzure models.Connector
@@ -98,6 +104,7 @@ func DemoCreateApplicationAzure(tenantDatabaseClient *gorm.DB) {
 		ConnectorType: ConnectorTypeAzure})
 }
 
+//DemoCreateApplicationGitlab
 func DemoCreateApplicationGitlab(tenantDatabaseClient *gorm.DB) {
 	var AggregatorGitlab models.Aggregator
 	var ConnectorGitlab models.Connector
@@ -113,6 +120,7 @@ func DemoCreateApplicationGitlab(tenantDatabaseClient *gorm.DB) {
 		ConnectorType: ConnectorTypeGitlab})
 }
 
+//DemoCreateConfigurationUtils
 func DemoCreateConfigurationUtils(tenantDatabaseClient *gorm.DB) {
 
 	var ConnectorTypeUtils models.ConnectorType
@@ -145,6 +153,7 @@ func DemoCreateConfigurationUtils(tenantDatabaseClient *gorm.DB) {
 
 }
 
+//DemoCreateConfigurationWorkflow
 func DemoCreateConfigurationWorkflow(tenantDatabaseClient *gorm.DB) {
 	var ConnectorTypeWorkflowCommands []models.ConnectorTypeCommand
 	var ConnectorTypeWorkflow models.ConnectorType
@@ -161,6 +170,7 @@ func DemoCreateConfigurationWorkflow(tenantDatabaseClient *gorm.DB) {
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 }
 
+//DemoCreateConfigurationAzure
 func DemoCreateConfigurationAzure(tenantDatabaseClient *gorm.DB) {
 	var ConnectorTypeAzureCommands []models.ConnectorTypeCommand
 	var ConnectorTypeAzure models.ConnectorType
@@ -184,6 +194,7 @@ func DemoCreateConfigurationAzure(tenantDatabaseClient *gorm.DB) {
 		ConnectorTypeEvents:   []models.ConnectorTypeEvent{}})
 }
 
+//DemoCreateConfigurationGitlab
 func DemoCreateConfigurationGitlab(tenantDatabaseClient *gorm.DB) {
 	var ConnectorTypeGitlabCommands []models.ConnectorTypeCommand
 	var ConnectorTypeGitlab models.ConnectorType
@@ -213,10 +224,9 @@ func DemoCreateConfigurationGitlab(tenantDatabaseClient *gorm.DB) {
 // DemoPopulateTenantDatabase : Populate database demo.
 func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 
+	//CORE
 	DemoCreateAggregator(tenantDatabaseClient)
-
 	DemoCreateConnector(tenantDatabaseClient)
-
 	DemoCreateConnectorType(tenantDatabaseClient)
 
 	//APPLICATION

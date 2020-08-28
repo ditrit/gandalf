@@ -1,48 +1,43 @@
-package main
+package goutils
 
 import (
-	"connectors/gandalf-core/connectors/goutils/workers"
-	"encoding/json"
-	"os"
+	goclient "github.com/ditrit/gandalf/libraries/goclient"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
-
-	goclient "github.com/ditrit/gandalf/libraries/goclient"
 )
 
-func main() {
-
-	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
-	var version = int64(2)
-
-	workerUtils := worker.NewWorker(version, commands)
-	workerUtils.Execute = Execute
-
-	workerUtils.Run()
+//WorkerUtils : WorkerUtils
+type WorkerUtils interface {
+	CreateApplication(clientGandalf *goclient.ClientGandalf, version int64)
+	CreateForm(clientGandalf *goclient.ClientGandalf, version int64)
+	SendAuthMail(clientGandalf *goclient.ClientGandalf, version int64)
 }
 
-//
-func Execute(clientGandalf *goclient.ClientGandalf, version int64) {
-	var configuration Configuration
-	mydir, _ := os.Getwd()
-	file, _ := os.Open(mydir + "/test.json")
-	decoder := json.NewDecoder(file)
-	decoder.Decode(&configuration)
+//workerUtils : workerUtils
+type workerUtils struct {
+	worker *worker.Worker
 
-	workerForm := workers.NewWorkerForm(clientGandalf, version)
-	go workerForm.Run()
-
-	workerMail := workers.NewWorkerMail(configuration.Address, configuration.Port, clientGandalf, version)
-	go workerMail.Run()
-
-	workerApp := workers.NewWorkerApplication(clientGandalf, version)
-	go workerApp.Run()
+	CreateApplication func(clientGandalf *goclient.ClientGandalf, version int64)
+	CreateForm        func(clientGandalf *goclient.ClientGandalf, version int64)
+	SendAuthMail      func(clientGandalf *goclient.ClientGandalf, version int64)
 }
 
-type Configuration struct {
-	Address string
-	Port    string
-	Contact string
-	Pwd     string
-	Mail    string
+//NewWorkerUtils : NewWorkerUtils
+func NewWorkerUtils(version int64, commandes []string) *workerUtils {
+	workerUtils := new(workerUtils)
+	workerUtils.worker = worker.NewWorker(version, commandes)
+	//workerUtils.worker.Execute = workerUtils.Execute
+
+	return workerUtils
+}
+
+//Run : Run
+func (wu workerUtils) Run() {
+	wu.worker.Run()
+
+	done := make(chan bool)
+	wu.CreateApplication(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	wu.CreateForm(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	wu.SendAuthMail(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	<-done
 }

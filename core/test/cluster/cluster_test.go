@@ -8,11 +8,13 @@ import (
 
 func TestNewClusterMember(t *testing.T) {
 	const (
-		logicalName string = "test"
-		shosetType  string = "cl"
+		logicalName  string = "test"
+		databasePath string = "test"
+		logPath      string = "test"
+		shosetType   string = "cl"
 	)
 
-	connectorMember := cluster.NewClusterMember(logicalName)
+	connectorMember := cluster.NewClusterMember(logicalName, databasePath, logPath)
 
 	if connectorMember == nil {
 		t.Errorf("Should not be nil")
@@ -45,12 +47,14 @@ func TestNewClusterMember(t *testing.T) {
 
 func TestClusterMemberInit(t *testing.T) {
 	const (
-		logicalName string = "test"
-		shosetType  string = "cls"
-		bindAddress string = "127.0.0.1:8001"
+		logicalName  string = "test"
+		databasePath string = "test"
+		logPath      string = "test"
+		shosetType   string = "cls"
+		bindAddress  string = "127.0.0.1:8001"
 	)
 
-	clusterMember := cluster.ClusterMemberInit(logicalName, bindAddress)
+	clusterMember := cluster.ClusterMemberInit(logicalName, bindAddress, databasePath, logPath)
 
 	if clusterMember == nil {
 		t.Errorf("Should not be nil")

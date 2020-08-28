@@ -16,4 +16,6 @@ type ConnectorConfig struct {
 	ConnectorProduct      ConnectorProduct
 	ConnectorTypeCommands []ConnectorTypeCommand `gorm:"many2many:config_commands;"`
 	ConnectorTypeEvents   []ConnectorTypeEvent   `gorm:"many2many:config_events;"`
+	ConnectorTypeKeys     string
+	ProductKeys           string
 }

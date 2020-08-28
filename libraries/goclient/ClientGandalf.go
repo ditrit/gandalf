@@ -176,7 +176,7 @@ func (cg ClientGandalf) WaitReplyByTopic(topic, referenceUUID, idIterator string
 }
 
 //WaitAllReplyByTopic
-func (cg ClientGandalf) WaitAllReplyByTopic(topic, referenceUUID, idIterator, version string) (eventMessages []msg.Event) {
+func (cg ClientGandalf) WaitAllReplyByTopic(topic, referenceUUID, idIterator string) (eventMessages []msg.Event) {
 	client := cg.Clients[getClientIndex(cg.Clients, false)]
 	for {
 		message := pb.EventFromGrpc(client.WaitTopic(topic, referenceUUID, idIterator))
