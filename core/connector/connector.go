@@ -135,10 +135,10 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 
 	//mapVersionsKeys = make(map[int64][]string)
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-
+	fmt.Println("config")
+	fmt.Println(config)
 	if config != nil {
 		//first := true
-
 		configConnectorTypeKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
 		configProductKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
 
@@ -147,6 +147,7 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 		if err != nil {
 			fmt.Println(err)
 		}
+
 		var listConfigurationProductKeys []models.ConfigurationKeys
 		err = yaml.Unmarshal([]byte(configProductKeys), &listConfigurationProductKeys)
 		if err != nil {
@@ -159,6 +160,7 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 		for _, version := range versions {
 			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 			if connectorConfig == nil {
+
 				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+connectorType+"/"+product+"/"+strconv.FormatInt(version, 10)+"/configuration.yaml")
 
 				connectorConfig.ConnectorType.Name = connectorType
@@ -376,19 +378,28 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			_, err = member.Link(linkAddress)
 			time.Sleep(time.Second * time.Duration(5))
 			if err == nil {
+				fmt.Println("Get config")
 				var listConfigurationKeys []models.ConfigurationKeys
 				listConfigurationKeys, err = member.GetConfiguration(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
 				time.Sleep(time.Second * time.Duration(5))
+				fmt.Println(err)
 				if err == nil {
+					fmt.Println("Get Worker key")
 					configuration.WorkerKeyParse(listConfigurationKeys)
 					err = configuration.IsConfigValid()
 					if err == nil {
+						fmt.Println("Get Worker")
 						err = member.GetWorkers(workerUrl, connectorType, product, workerPath, versions)
 						if err == nil {
 							//TODO REVOIR
 							//RECUPERATION VALEUR CONNECTEUR/WORKER
+							fmt.Println("listConfigurationKeys")
+							fmt.Println(listConfigurationKeys)
+
 							var stdinargs string
-							stdinargs = "{Toto:test}\n"
+							stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
+							fmt.Println("stdinargs")
+							fmt.Println(stdinargs)
 							//END TODO
 							err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
 							if err == nil {

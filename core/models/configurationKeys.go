@@ -4,6 +4,6 @@ package models
 type ConfigurationKeys struct {
 	Name         string
 	DefaultValue string
-	KeyType      string
+	Type         string
 	Mandatory    bool
 }

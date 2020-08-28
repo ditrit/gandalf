@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ditrit/gandalf/core/configuration"
+
 	"github.com/ditrit/gandalf/core/models"
 	"gopkg.in/yaml.v2"
 
@@ -139,8 +141,8 @@ func DownloadConfiguration(url, ressource string) (connectorConfig *models.Conne
 	}
 
 	err = yaml.Unmarshal(bodyBytes, &connectorConfig)
-
 	if err != nil {
+		fmt.Println(err)
 		log.Fatal(err)
 	}
 
@@ -149,12 +151,13 @@ func DownloadConfiguration(url, ressource string) (connectorConfig *models.Conne
 
 // DownloadConfigurationsKeys : Download configurationsKeys from url
 func DownloadConfigurationsKeys(url, ressource string) (body string, err error) {
+
 	resp, err := http.Get(url + ressource)
 	if err != nil {
+		fmt.Println(err)
 		log.Printf("err: %s", err)
 		return
 	}
-
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		return
@@ -164,6 +167,7 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	bodyString := string(bodyBytes)
 
 	return bodyString, nil
@@ -249,4 +253,15 @@ func Unzip(zipPath string, dirPath string) ([]string, error) {
 		}
 	}
 	return filenames, nil
+}
+
+func GetConfigurationKeys(configkeys []models.ConfigurationKeys) (stindargs string) {
+	var keyValue string
+	for _, configkey := range configkeys {
+		keyValue, _ = configuration.GetStringConfig(configkey.Name)
+		fmt.Println("keyValue")
+		fmt.Println(keyValue)
+		stindargs = stindargs + ";" + configkey.Name + ":" + keyValue
+	}
+	return
 }

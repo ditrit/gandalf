@@ -34,7 +34,7 @@ var homePath = "/home/romainfairant"
 func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string, mandatory bool) error {
 	keyDef, exists := ConfigKeys[strings.ToLower(keyName)]
 	if exists {
-		return errors.New("The key " + keyName + "is already defined ( for component " + keyDef.component + ")")
+		return errors.New("The key " + keyName + " is already defined ( for component " + keyDef.component + ")")
 	}
 	ConfigKeys[strings.ToLower(keyName)] = configKey{new(string), componentType, shortName, "string", defaultValue, usage, mandatory}
 	return nil
@@ -44,7 +44,7 @@ func SetStringKeyConfig(componentType string, keyName string, shortName string, 
 func SetIntegerKeyConfig(componentType string, keyName string, shortName string, defaultValue int, usage string, mandatory bool) error {
 	keyDef, exists := ConfigKeys[strings.ToLower(keyName)]
 	if exists {
-		return errors.New("The key " + keyName + "is already defined ( for component " + keyDef.component + ")")
+		return errors.New("The key " + keyName + " is already defined ( for component " + keyDef.component + ")")
 	}
 	if defaultValue == -1 {
 		ConfigKeys[strings.ToLower(keyName)] = configKey{new(string), componentType, shortName, "integer", "", usage, mandatory}
@@ -57,7 +57,7 @@ func SetIntegerKeyConfig(componentType string, keyName string, shortName string,
 func GetStringConfig(keyName string) (string, error) {
 	keyDef, exists := ConfigKeys[strings.ToLower(keyName)]
 	if !exists {
-		return "", errors.New("config key " + keyName + "does not exist")
+		return "", errors.New("config key " + keyName + " does not exist")
 	}
 	if keyDef.valType != "string" {
 		return "", errors.New("The key " + keyName + " is of type string")
@@ -69,7 +69,7 @@ func GetStringConfig(keyName string) (string, error) {
 func GetIntegerConfig(keyName string) (int, error) {
 	keyDef, exists := ConfigKeys[strings.ToLower(keyName)]
 	if !exists {
-		return -1, errors.New("config key " + keyName + "does not exist")
+		return -1, errors.New("config key " + keyName + " does not exist")
 	}
 	if keyDef.valType != "integer" {
 		return -1, errors.New("The key " + keyName + " is of type integer")
@@ -262,9 +262,9 @@ func defaultParse() error {
 
 func WorkerKeyParse(configurationKeys []models.ConfigurationKeys) error {
 	for _, configurationKey := range configurationKeys {
-		if configurationKey.KeyType == "string" {
+		if configurationKey.Type == "string" {
 			_ = SetStringKeyConfig("worker", configurationKey.Name, "", configurationKey.DefaultValue, "", configurationKey.Mandatory)
-		} else if configurationKey.KeyType == "integer" {
+		} else if configurationKey.Type == "integer" {
 			strVal, _ := strconv.Atoi(configurationKey.DefaultValue)
 			_ = SetIntegerKeyConfig("worker", configurationKey.Name, "", strVal, "", configurationKey.Mandatory)
 		}
