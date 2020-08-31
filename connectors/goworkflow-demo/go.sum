@@ -8,6 +8,8 @@ github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200623123443-2371476e0bd5 
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200623123443-2371476e0bd5/go.mod h1:wS39Kpu6xKFJzNJ+RxCNfD6p/jUfzUl7T84/5e7Nx2Q=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d h1:u0lxU752ovbor3TyiYIQ70uJS3Iy41wQ++uG88Q20rk=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d/go.mod h1:D58ElO9o9XrrmZ+0/Xbau8JhqAWtH+QFMKacCRxxw5Y=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200709075314-541ea137f7bf h1:nuen8XKLjio4TzrX/02J1zpu25+lXc1aqFbIu1qzCoQ=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200709075314-541ea137f7bf/go.mod h1:yphbqSEKmbEFJKWpcoN5bAWZbvK/FgmtC4ekFActzAo=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8 h1:4EZDkbB9fqaH9jqsTxBIxQVzvt3ZTC4Ya4MpLguxfNw=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0 h1:YYRUDM8HTcnetx71tvoucys4DkMI+vPyjDwFCqNRIys=

@@ -261,7 +261,7 @@ func GetConfigurationKeys(configkeys []models.ConfigurationKeys) (stindargs stri
 		keyValue, _ = configuration.GetStringConfig(configkey.Name)
 		fmt.Println("keyValue")
 		fmt.Println(keyValue)
-		stindargs = stindargs + ";" + configkey.Name + ":" + keyValue
+		stindargs = stindargs + configkey.Name + ":" + keyValue + ";"
 	}
 	return
 }

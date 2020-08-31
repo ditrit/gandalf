@@ -11,6 +11,32 @@ import (
 )
 
 func main() {
+	fmt.Println("START")
+	//demo()
+	testgitlab()
+	fmt.Println("STOP")
+}
+
+func testgitlab() {
+	var configuration Configuration
+	mydir, _ := os.Getwd()
+	file, _ := os.Open(mydir + "/demoWorkflow.json")
+	decoder := json.NewDecoder(file)
+	decoder.Decode(&configuration)
+	client := goclient.NewClientGandalf(configuration.Identity, configuration.Timeout, configuration.Connections)
+
+	id := client.CreateIteratorEvent()
+
+	payload := `{"Name":"` + "test" + `","Team":"` + "test" + `","TemplateName":` + "test" + `"}`
+
+	commandMessageUUID := client.SendCommand("Gitlab.CREATE_PROJECT", models.NewOptions("", payload))
+	projectUUID := commandMessageUUID.GetUUID()
+	event := client.WaitReplyByEvent("CREATE_PROJECT", "SUCCES", projectUUID, id)
+	fmt.Println(event)
+
+}
+
+func demo() {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
 	file, _ := os.Open(mydir + "/demoWorkflow.json")
@@ -24,7 +50,7 @@ func main() {
 	fmt.Println(event)
 	if event.GetEvent() == "NEW_APP" {
 		//CREATE FORM
-
+		//CreateProject":{"required":["Name","Team","TemplateName"]
 		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
 
 		//commandMessageUUID := client.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
