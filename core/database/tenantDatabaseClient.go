@@ -67,7 +67,8 @@ func DemoCreateUser1(tenantDatabaseClient *gorm.DB) {
 	var Role1 models.Role
 	tenantDatabaseClient.Where("name = ?", "Role1").First(&Role1)
 
-	tenantDatabaseClient.Create(&models.User{Name: "User1", Email: "User1", Password: "User1", Role: Role1})
+	user := models.NewUser("User1", "User1", "User1", Role1)
+	tenantDatabaseClient.Create(&user)
 }
 
 //DemoCreateUser2
@@ -76,7 +77,8 @@ func DemoCreateUser2(tenantDatabaseClient *gorm.DB) {
 	var Role2 models.Role
 	tenantDatabaseClient.Where("name = ?", "Role2").First(&Role2)
 
-	tenantDatabaseClient.Create(&models.User{Name: "User2", Email: "User2", Password: "User2", Role: Role2})
+	user := models.NewUser("User2", "User2", "User2", Role2)
+	tenantDatabaseClient.Create(&user)
 }
 
 //DemoCreateProductUtils

@@ -1,6 +1,11 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"fmt"
+
+	"github.com/jinzhu/gorm"
+	"golang.org/x/crypto/bcrypt"
+)
 
 type User struct {
 	gorm.Model
@@ -8,4 +13,39 @@ type User struct {
 	Email    string
 	Password string
 	Role     Role
+}
+
+func NewUser(name, email, password string, role Role) *User {
+	user := new(User)
+	user.Name = name
+	user.Email = email
+	user.Password = HashAndSaltPassword(password)
+	user.Role = role
+
+	return user
+}
+
+func HashAndSaltPassword(password string) (hashedPassword string) {
+
+	hashedPasswordByte, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+	hashedPassword = string(hashedPasswordByte)
+
+	fmt.Println(hashedPassword)
+	return
+}
+
+func CompareHashAndPassword(hashedPassword, password string) (result bool) {
+	result = false
+
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	fmt.Println(err) // nil means it is a match
+
+	if err == nil {
+		result = true
+	}
+
+	return
 }

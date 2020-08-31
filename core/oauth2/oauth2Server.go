@@ -54,15 +54,14 @@ func NewOAuth2Server() {
 
 	srv.SetUserAuthorizationHandler(userAuthorizeHandler)
 
-	srv.SetPasswordAuthorizationHandler(func(username, password string) (userID string, err error) {
+	srv.SetPasswordAuthorizationHandler(func(email, password string) (userID string, err error) {
 		tenantDatabaseClient, err := gorm.Open("sqlite3", "/home/romainfairant/gandalf/database/tenant1.db")
 
 		var user models.User
-		tenantDatabaseClient.Where("email = ? AND password = ?", username, password).First(&user)
-		fmt.Println("TOTOT")
+		tenantDatabaseClient.Where("email = ?", email).First(&user)
 		fmt.Println(user)
 
-		if user.Email != "" {
+		if models.CompareHashAndPassword(user.Password, password) {
 			userID = user.Email
 		}
 		/*
@@ -174,6 +173,7 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 	return
 }
 
+//TODO REVOIR
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	store, err := session.Start(r.Context(), w, r)
 	if err != nil {
@@ -188,14 +188,27 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		store.Set("LoggedInUserID", r.Form.Get("username"))
-		store.Save()
+		//VERIFICATION EMAIL PASSWORD
+		tenantDatabaseClient, _ := gorm.Open("sqlite3", "/home/romainfairant/gandalf/database/tenant1.db")
 
-		w.Header().Set("Location", "/auth")
-		w.WriteHeader(http.StatusFound)
+		var user models.User
+		tenantDatabaseClient.Where("email = ?", r.Form.Get("email")).First(&user)
+		fmt.Println(user)
+
+		if models.CompareHashAndPassword(user.Password, r.Form.Get("password")) {
+			store.Set("LoggedInUserID", r.Form.Get("email"))
+			store.Save()
+
+			w.Header().Set("Location", "/auth")
+			w.WriteHeader(http.StatusFound)
+		} else {
+			w.Header().Set("Location", "/login")
+			w.WriteHeader(http.StatusFound)
+		}
+
 		return
 	}
-	outputHTML(w, r, "./static/login.html")
+	outputHTML(w, r, "./oauth2/static/login.html")
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
@@ -211,7 +224,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	outputHTML(w, r, "./static/auth.html")
+	outputHTML(w, r, "./oauth2/static/auth.html")
 }
 
 func outputHTML(w http.ResponseWriter, req *http.Request, filename string) {
