@@ -1,7 +1,6 @@
 //Package database :
 package database
 
-/*
 import (
 	"log"
 
@@ -21,18 +20,19 @@ func NewGandalfDatabaseClient(databasePath string) *gorm.DB {
 
 	InitGandalfDatabase(gandalfDatabaseClient)
 
-	DemoPopulateGandalfDatabase(gandalfDatabaseClient)
+	//DemoPopulateGandalfDatabase(gandalfDatabaseClient)
 
 	return gandalfDatabaseClient
 }
 
 // InitGandalfDatabase : Gandalf database init.
-func InitGandalfDatabase(databaseClient *gorm.DB) (err error) {
-	databaseClient.AutoMigrate(&models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorTypeCommand{}, &models.ConnectorTypeEvent{})
+func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB) (err error) {
+	gandalfDatabaseClient.AutoMigrate(&models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorTypeCommand{}, &models.ConnectorTypeEvent{})
 
 	return
 }
 
+/*
 // DemoPopulateGandalfDatabase : Populate database demo.
 func DemoPopulateGandalfDatabase(databaseClient *gorm.DB) {
 
