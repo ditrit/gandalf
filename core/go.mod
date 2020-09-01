@@ -6,11 +6,13 @@ require (
 	github.com/canonical/go-dqlite v1.6.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0
+	github.com/go-chi/chi v4.1.2+incompatible // indirect
 	github.com/go-oauth2/oauth2 v3.9.2+incompatible
 	github.com/go-oauth2/oauth2/v4 v4.1.2
 	github.com/go-session/session v3.1.2+incompatible
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/jinzhu/gorm v1.9.14
 	github.com/pkg/errors v0.9.1
 	github.com/techknowlogick/go-oauth2-gorm v0.0.0-20191219033350-a561e9f2b1cf
