@@ -10,10 +10,18 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 )
 
 type RoleController struct {
-	roleDAO dao.RoleDAO
+	roleDAO *dao.RoleDAO
+}
+
+func NewRoleController(gandalfDatabase *gorm.DB) (roleController *RoleController) {
+	roleController = new(RoleController)
+	roleController.roleDAO = dao.NewRoleDAO(gandalfDatabase)
+
+	return
 }
 
 func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {

@@ -10,10 +10,18 @@ import (
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 )
 
 type ConnectorController struct {
-	connectorDAO dao.ConnectorDAO
+	connectorDAO *dao.ConnectorDAO
+}
+
+func NewConnectorController(gandalfDatabase *gorm.DB) (connectorController *ConnectorController) {
+	connectorController = new(ConnectorController)
+	connectorController.connectorDAO = dao.NewConnectorDAO(gandalfDatabase)
+
+	return
 }
 
 func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {

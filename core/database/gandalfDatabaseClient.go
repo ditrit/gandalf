@@ -27,7 +27,7 @@ func NewGandalfDatabaseClient(databasePath string) *gorm.DB {
 
 // InitGandalfDatabase : Gandalf database init.
 func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB) (err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorTypeCommand{}, &models.ConnectorTypeEvent{})
+	gandalfDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Cluster{}, &models.Connector{}, &models.Role{}, &models.User{}, &models.Tenant{})
 
 	return
 }

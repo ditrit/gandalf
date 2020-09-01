@@ -9,12 +9,20 @@ import (
 	"strconv"
 
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/jinzhu/gorm"
 
 	"github.com/gorilla/mux"
 )
 
 type ClusterController struct {
-	clusterDAO dao.ClusterDAO
+	clusterDAO *dao.ClusterDAO
+}
+
+func NewClusterController(gandalfDatabase *gorm.DB) (clusterController *ClusterController) {
+	clusterController = new(ClusterController)
+	clusterController.clusterDAO = dao.NewClusterDAO(gandalfDatabase)
+
+	return
 }
 
 func (cc ClusterController) List(w http.ResponseWriter, r *http.Request) {

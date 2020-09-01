@@ -10,10 +10,18 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 )
 
 type UserController struct {
-	userDAO dao.UserDAO
+	userDAO *dao.UserDAO
+}
+
+func NewUserController(gandalfDatabase *gorm.DB) (userController *UserController) {
+	userController = new(UserController)
+	userController.userDAO = dao.NewUserDAO(gandalfDatabase)
+
+	return
 }
 
 func (uc UserController) List(w http.ResponseWriter, r *http.Request) {

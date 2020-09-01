@@ -9,11 +9,20 @@ import (
 	"strconv"
 
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/jinzhu/gorm"
+
 	"github.com/gorilla/mux"
 )
 
 type AggregatorController struct {
-	aggregatorDAO dao.AggregatorDAO
+	aggregatorDAO *dao.AggregatorDAO
+}
+
+func NewAggregatorController(gandalfDatabase *gorm.DB) (aggregatorController *AggregatorController) {
+	aggregatorController = new(AggregatorController)
+	aggregatorController.aggregatorDAO = dao.NewAggregatorDAO(gandalfDatabase)
+
+	return
 }
 
 func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +38,7 @@ func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
 func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 	var aggregator models.Aggregator
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&p); err != nil {
+	if err := decoder.Decode(&aggregator); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}

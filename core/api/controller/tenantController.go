@@ -10,10 +10,18 @@ import (
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 )
 
 type TenantController struct {
-	tenantDAO dao.TenantDAO
+	tenantDAO *dao.TenantDAO
+}
+
+func NewTenantController(gandalfDatabase *gorm.DB) (tenantController *TenantController) {
+	tenantController = new(TenantController)
+	tenantController.tenantDAO = dao.NewTenantDAO(gandalfDatabase)
+
+	return
 }
 
 func (tc TenantController) List(w http.ResponseWriter, r *http.Request) {
