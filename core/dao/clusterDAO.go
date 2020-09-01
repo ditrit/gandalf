@@ -16,29 +16,34 @@ func NewClusterDAO(gandalfDatabase *gorm.DB) (clusterDAO *ClusterDAO) {
 	return
 }
 
-func (cd ClusterDAO) list() (clusters []models.Cluster) {
-	cd.GandalfDatabase.Find(&clusters)
+func (cd ClusterDAO) list() (clusters []models.Cluster, err error) {
+	err = cd.GandalfDatabase.Find(&clusters).Error
 
 	return
 }
 
-func (cd ClusterDAO) create(cluster models.Cluster) {
-	cd.GandalfDatabase.Create(&cluster)
+func (cd ClusterDAO) create(cluster models.Cluster) (err error) {
+	err = cd.GandalfDatabase.Create(&cluster).Error
+
+	return
 
 }
 
-func (cd ClusterDAO) read(id int) (cluster models.Cluster) {
-	cd.GandalfDatabase.First(&cluster, id)
+func (cd ClusterDAO) read(id int) (cluster models.Cluster, err error) {
+	err = cd.GandalfDatabase.First(&cluster, id).Error
 
 	return
 }
 
-func (cd ClusterDAO) update(cluster models.Cluster) {
-	cd.GandalfDatabase.Save(&cluster)
+func (cd ClusterDAO) update(cluster models.Cluster) (err error) {
+	err = cd.GandalfDatabase.Save(&cluster).Error
+
+	return
 }
 
-func (cd ClusterDAO) delete(id int) {
+func (cd ClusterDAO) delete(id int) (err error) {
 	var cluster models.Cluster
-	cd.GandalfDatabase.Delete(&cluster, id)
+	err = cd.GandalfDatabase.Delete(&cluster, id).Error
 
+	return
 }

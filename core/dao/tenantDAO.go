@@ -16,29 +16,33 @@ func NewTenantDAO(gandalfDatabase *gorm.DB) (tenantDAO *TenantDAO) {
 	return
 }
 
-func (td TenantDAO) list() (tenants []models.Tenant) {
-	td.GandalfDatabase.Find(&tenants)
+func (td TenantDAO) list() (tenants []models.Tenant, err error) {
+	err = td.GandalfDatabase.Find(&tenants).Error
 
 	return
 }
 
-func (td TenantDAO) create(tenant models.Tenant) {
-	td.GandalfDatabase.Create(&tenant)
-
-}
-
-func (td TenantDAO) retd(id int) (tenant models.Tenant) {
-	td.GandalfDatabase.First(&tenant, id)
+func (td TenantDAO) create(tenant models.Tenant) (err error) {
+	err = td.GandalfDatabase.Create(&tenant).Error
 
 	return
 }
 
-func (td TenantDAO) update(tenant models.Tenant) {
-	td.GandalfDatabase.Save(&tenant)
+func (td TenantDAO) retd(id int) (tenant models.Tenant, err error) {
+	err = td.GandalfDatabase.First(&tenant, id).Error
+
+	return
 }
 
-func (td TenantDAO) delete(id int) {
+func (td TenantDAO) update(tenant models.Tenant) (err error) {
+	err = td.GandalfDatabase.Save(&tenant).Error
+
+	return
+}
+
+func (td TenantDAO) delete(id int) (err error) {
 	var tenant models.Tenant
-	td.GandalfDatabase.Delete(&tenant, id)
+	err = td.GandalfDatabase.Delete(&tenant, id).Error
 
+	return
 }

@@ -16,29 +16,33 @@ func NewConnectorDAO(gandalfDatabase *gorm.DB) (connectorDAO *ConnectorDAO) {
 	return
 }
 
-func (cd ConnectorDAO) list() (connectors []models.Connector) {
-	cd.GandalfDatabase.Find(&connectors)
+func (cd ConnectorDAO) list() (connectors []models.Connector, err error) {
+	err = cd.GandalfDatabase.Find(&connectors).Error
 
 	return
 }
 
-func (cd ConnectorDAO) create(connector models.Connector) {
-	cd.GandalfDatabase.Create(&connector)
-
-}
-
-func (cd ConnectorDAO) read(id int) (connector models.Connector) {
-	cd.GandalfDatabase.First(&connector, id)
+func (cd ConnectorDAO) create(connector models.Connector) (err error) {
+	err = cd.GandalfDatabase.Create(&connector).Error
 
 	return
 }
 
-func (cd ConnectorDAO) update(connector models.Connector) {
-	cd.GandalfDatabase.Save(&connector)
+func (cd ConnectorDAO) read(id int) (connector models.Connector, err error) {
+	err = cd.GandalfDatabase.First(&connector, id).Error
+
+	return
 }
 
-func (cd ConnectorDAO) delete(id int) {
+func (cd ConnectorDAO) update(connector models.Connector) (err error) {
+	err = cd.GandalfDatabase.Save(&connector).Error
+
+	return
+}
+
+func (cd ConnectorDAO) delete(id int) (err error) {
 	var connector models.Connector
-	cd.GandalfDatabase.Delete(&connector, id)
+	err = cd.GandalfDatabase.Delete(&connector, id).Error
 
+	return
 }

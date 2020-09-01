@@ -16,29 +16,33 @@ func NewAggregatorDAO(gandalfDatabase *gorm.DB) (aggregatorDAO *AggregatorDAO) {
 	return
 }
 
-func (ad AggregatorDAO) list() (aggregators []models.Aggregator) {
-	ad.GandalfDatabase.Find(&aggregators)
+func (ad AggregatorDAO) List() (aggregators []models.Aggregator, err error) {
+	err = ad.GandalfDatabase.Find(&aggregators).Error
 
 	return
 }
 
-func (ad AggregatorDAO) create(aggregator models.Aggregator) {
-	ad.GandalfDatabase.Create(&aggregator)
-
-}
-
-func (ad AggregatorDAO) read(id int) (aggregator models.Aggregator) {
-	ad.GandalfDatabase.First(&aggregator, id)
+func (ad AggregatorDAO) Create(aggregator models.Aggregator) (err error) {
+	err = ad.GandalfDatabase.Create(&aggregator).Error
 
 	return
 }
 
-func (ad AggregatorDAO) update(aggregator models.Aggregator) {
-	ad.GandalfDatabase.Save(&aggregator)
+func (ad AggregatorDAO) Read(id int) (aggregator models.Aggregator, err error) {
+	err = ad.GandalfDatabase.First(&aggregator, id).Error
+
+	return
 }
 
-func (ad AggregatorDAO) delete(id int) {
+func (ad AggregatorDAO) Update(aggregator models.Aggregator) (err error) {
+	err = ad.GandalfDatabase.Save(&aggregator).Error
+
+	return
+}
+
+func (ad AggregatorDAO) Delete(id int) (err error) {
 	var aggregator models.Aggregator
-	ad.GandalfDatabase.Delete(&aggregator, id)
+	err = ad.GandalfDatabase.Delete(&aggregator, id).Error
 
+	return
 }
