@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/models"
 	"github.com/gorilla/mux"
 )
 
@@ -16,40 +17,31 @@ type TenantController struct {
 }
 
 func (tc TenantController) List(w http.ResponseWriter, r *http.Request) {
-	count, _ := strconv.Atoi(r.FormValue("count"))
-	start, _ := strconv.Atoi(r.FormValue("start"))
 
-	if count > 10 || count < 1 {
-		count = 10
-	}
-	if start < 0 {
-		start = 0
-	}
-
-	products, err := getProducts(a.DB, start, count)
+	tenants, err := tc.tenantDAO.List()
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, products)
+	utils.RespondWithJSON(w, http.StatusOK, tenants)
 }
 
 func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
-	var p product
+	var tenant models.Tenant
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&p); err != nil {
+	if err := decoder.Decode(&tenant); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
-	if err := p.createProduct(a.DB); err != nil {
+	if err := tc.tenantDAO.Create(tenant); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusCreated, p)
+	utils.RespondWithJSON(w, http.StatusCreated, tenant)
 }
 
 func (tc TenantController) Read(w http.ResponseWriter, r *http.Request) {
@@ -60,8 +52,8 @@ func (tc TenantController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p := product{ID: id}
-	if err := p.getProduct(a.DB); err != nil {
+	var tenant models.Tenant
+	if tenant, err = tc.tenantDAO.Read(id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -71,7 +63,7 @@ func (tc TenantController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, p)
+	utils.RespondWithJSON(w, http.StatusOK, tenant)
 }
 
 func (tc TenantController) Update(w http.ResponseWriter, r *http.Request) {
@@ -82,21 +74,21 @@ func (tc TenantController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var p product
+	var tenant models.Tenant
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&p); err != nil {
+	if err := decoder.Decode(&tenant); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 		return
 	}
 	defer r.Body.Close()
-	p.ID = id
+	tenant.ID = uint(id)
 
-	if err := p.updateProduct(a.DB); err != nil {
+	if err := tc.tenantDAO.Update(tenant); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, p)
+	utils.RespondWithJSON(w, http.StatusOK, tenant)
 }
 
 func (tc TenantController) Delete(w http.ResponseWriter, r *http.Request) {
@@ -107,8 +99,7 @@ func (tc TenantController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	p := product{ID: id}
-	if err := p.deleteProduct(a.DB); err != nil {
+	if err := tc.tenantDAO.Delete(id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

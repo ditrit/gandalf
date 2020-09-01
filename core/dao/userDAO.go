@@ -17,31 +17,31 @@ func NewUserDAO(gandalfDatabase *gorm.DB) (userDAO *UserDAO) {
 	return
 }
 
-func (ud UserDAO) list() (users []models.User, err error) {
+func (ud UserDAO) List() (users []models.User, err error) {
 	err = ud.GandalfDatabase.Find(&users).Error
 
 	return
 }
 
-func (ud UserDAO) create(user models.User) (err error) {
+func (ud UserDAO) Create(user models.User) (err error) {
 	err = ud.GandalfDatabase.Create(&user).Error
 
 	return
 }
 
-func (ud UserDAO) read(id int) (user models.User, err error) {
+func (ud UserDAO) Read(id int) (user models.User, err error) {
 	err = ud.GandalfDatabase.First(&user, id).Error
 
 	return
 }
 
-func (ud UserDAO) update(user models.User) (err error) {
+func (ud UserDAO) Update(user models.User) (err error) {
 	err = ud.GandalfDatabase.Save(&user).Error
 
 	return
 }
 
-func (ud UserDAO) delete(id int) (err error) {
+func (ud UserDAO) Delete(id int) (err error) {
 	var user models.User
 	err = ud.GandalfDatabase.Delete(&user, id).Error
 

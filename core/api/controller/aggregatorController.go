@@ -40,7 +40,7 @@ func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusCreated, p)
+	utils.RespondWithJSON(w, http.StatusCreated, aggregator)
 }
 
 func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
@@ -80,14 +80,14 @@ func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	//aggregator.ID = uint(id)
+	aggregator.ID = uint(id)
 
 	if err := ac.aggregatorDAO.Update(aggregator); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, p)
+	utils.RespondWithJSON(w, http.StatusOK, aggregator)
 }
 
 func (ac AggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
