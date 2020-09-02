@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/canonical/go-dqlite"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
 	"github.com/ditrit/gandalf/core/database"
 	coreLog "github.com/ditrit/gandalf/core/log"
@@ -16,8 +17,8 @@ import (
 
 // ClusterMember : Cluster struct.
 type ClusterMember struct {
-	chaussette        *net.Shoset
-	databaseNode      *database.DatabaseNode
+	chaussette *net.Shoset
+	//databaseNode      *database.DatabaseNode
 	Store             *[]string
 	MapDatabaseClient map[string]*gorm.DB
 }
@@ -53,10 +54,11 @@ func (m *ClusterMember) GetChaussette() *net.Shoset {
 	return m.chaussette
 }
 
+/*
 // GetDatabaseNode : Cluster databaseNode getter.
 func (m *ClusterMember) GetDatabaseNode() *database.DatabaseNode {
 	return m.databaseNode
-}
+} */
 
 // Bind : Cluster bind function.
 func (m *ClusterMember) Bind(addr string) error {
@@ -94,12 +96,23 @@ func getBrothers(address string, member *ClusterMember) []string {
 func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *ClusterMember {
 	member := NewClusterMember(logicalName, databasePath, logPath)
 	err := member.Bind(bindAddress)
-
 	if err == nil {
 		log.Printf("New Aggregator member %s command %s bind on %s \n", logicalName, "init", bindAddress)
-
 		time.Sleep(time.Second * time.Duration(5))
-		log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+
+		var node *dqlite.Node
+		node, err = database.NewDatabaseNode(bindAddress, databasePath, 1)
+		if err == nil {
+			go node.Start()
+			log.Printf("New database node bind on %s \n", node.BindAddress())
+
+			database.NewGandalfDatabaseClient(databasePath)
+			log.Printf("New gandalf database at %s \n", databasePath)
+
+			log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+		} else {
+			log.Fatalf("Can't create node")
+		}
 	} else {
 		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
@@ -118,8 +131,6 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logP
 			log.Printf("New Aggregator member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
 
 			time.Sleep(time.Second * time.Duration(5))
-			log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-
 			member.Store = CreateStore(getBrothers(bindAddress, member))
 
 			if len(*member.Store) == 0 {
@@ -127,6 +138,20 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logP
 			} else {
 				log.Println("Store")
 				log.Println(member.Store)
+			}
+
+			var node *dqlite.Node
+			id := len(*member.Store)
+			node, err = database.NewDatabaseNode(bindAddress, databasePath, uint64(id))
+			if err == nil {
+				go node.Start()
+				log.Printf("New database node bind on %s \n", node.BindAddress())
+
+				_ = database.AddNodesToLeader(id, node.BindAddress(), *member.Store)
+				log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+
+			} else {
+				log.Fatalf("Can't create node")
 			}
 		} else {
 			log.Fatalf("Can't join shoset on %s", joinAddress)

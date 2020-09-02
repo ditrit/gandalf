@@ -12,8 +12,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-var gandalfDatabaseClient *gorm.DB = nil
-
 // GetDatabaseClientByTenant : Cluster database client getter by tenant.
 func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
 	if _, ok := mapDatabaseClient[tenant]; !ok {

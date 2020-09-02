@@ -48,7 +48,7 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-
+	//database.NewTenantDatabaseClient(tenant.Name, databasePath)
 	utils.RespondWithJSON(w, http.StatusCreated, tenant)
 }
 

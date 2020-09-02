@@ -3,30 +3,37 @@ package database
 
 import (
 	"log"
+	"os"
 
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/jinzhu/gorm"
 )
 
-// NewTenantDatabaseClient : Database client constructor.
-func NewTenantDatabaseClient(tenant, databasePath string) *gorm.DB {
-	tenantDatabaseClient, err := gorm.Open("sqlite3", databasePath+"/"+tenant+".db")
+// NewTenantDatabaseClient : Tenant database client constructor.
+func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient *gorm.DB) {
+	databaseFullPath := databasePath + "/" + tenant + ".db"
 
-	if err != nil {
-		log.Println("failed to connect database")
+	if _, err := os.Stat(databaseFullPath); err == nil {
+		tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
+
+	} else if os.IsNotExist(err) {
+		tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
+		if err != nil {
+			log.Println("failed to connect database")
+		}
+
+		InitTenantDatabase(tenantDatabaseClient)
 	}
 
-	InitTenantDatabase(tenantDatabaseClient)
+	//DemoPopulateTenantDatabase(tenantDatabaseClient)
 
-	DemoPopulateTenantDatabase(tenantDatabaseClient)
-
-	return tenantDatabaseClient
+	return
 }
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
-	tenantDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Application{}, &models.Connector{}, &models.Tenant{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{})
+	tenantDatabaseClient.AutoMigrate(&models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{})
 
 	return
 }

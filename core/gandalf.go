@@ -12,8 +12,6 @@ import (
 	"github.com/ditrit/gandalf/core/cluster"
 	"github.com/ditrit/gandalf/core/configuration"
 	"github.com/ditrit/gandalf/core/connector"
-	"github.com/ditrit/gandalf/core/database"
-	net "github.com/ditrit/shoset"
 )
 
 func main() {
@@ -57,8 +55,8 @@ func main() {
 
 						done := make(chan bool)
 						cluster.ClusterMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfDBPath, gandalfLogPath)
-						add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
-						go database.DatabaseMemberInit(add, gandalfDBPath, 1)
+						//add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
+						//go database.DatabaseMemberInit(add, gandalfDBPath, 1)
 						<-done
 					}
 
@@ -76,13 +74,14 @@ func main() {
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
-						add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
+						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
+						/*member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
+						 add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						id := len(*member.Store)
 
 						go database.DatabaseMemberInit(add, gandalfDBPath, id)
 
-						_ = database.AddNodesToLeader(id, add, *member.Store)
+						_ = database.AddNodesToLeader(id, add, *member.Store) */
 						<-done
 					}
 				}
