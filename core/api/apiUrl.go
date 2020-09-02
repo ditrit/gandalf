@@ -1,6 +1,6 @@
 package api
 
-type urls struct {
+type Urls struct {
 	STATIC_PATH            string
 	GANDALF_PATH           string
 	AGGREGATOR_PATH        string
@@ -41,9 +41,9 @@ type urls struct {
 	TENANT_PATH_DELETE     string
 }
 
-func ReturnURLS() *urls {
+func ReturnURLS() *Urls {
 
-	apiurls := new(urls)
+	apiurls := new(Urls)
 	apiurls.GANDALF_PATH = "/"
 	apiurls.AGGREGATOR_PATH = "/aggregator"
 	apiurls.AGGREGATOR_PATH_LIST = apiurls.AGGREGATOR_PATH + "/list"

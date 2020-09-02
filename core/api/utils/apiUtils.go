@@ -6,7 +6,7 @@ import (
 )
 
 func RespondWithError(w http.ResponseWriter, code int, message string) {
-	respondWithJSON(w, code, map[string]string{"error": message})
+	RespondWithJSON(w, code, map[string]string{"error": message})
 }
 
 func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
