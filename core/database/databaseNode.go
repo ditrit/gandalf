@@ -2,12 +2,13 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	net "github.com/ditrit/shoset"
 
 	dqlite "github.com/canonical/go-dqlite"
 	"github.com/pkg/errors"
@@ -21,7 +22,7 @@ type DatabaseNode struct {
 }
 
 // NewDatabaseNode : DatabaseNode constructor.
-func NewDatabaseNode(nodeDirectory string, bindAddress string, nodeID uint64) (node *dqlite.Node, err error) {
+func NewDatabaseNode(bindAddress string, nodeDirectory string, nodeID uint64) (node *dqlite.Node, err error) {
 
 	nodeConnection, _ := net.DeltaAddress(bindAddress, 1000)
 
@@ -43,7 +44,7 @@ func NewDatabaseNode(nodeDirectory string, bindAddress string, nodeID uint64) (n
 
 	node, err = dqlite.New(
 		nodeID, nodeConnection, nodeDirectory,
-		dqlite.WithBindAddress(nodeConnection,
+		dqlite.WithBindAddress(nodeConnection),
 		dqlite.WithNetworkLatency(20*time.Millisecond),
 	)
 
