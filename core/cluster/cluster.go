@@ -2,6 +2,7 @@
 package cluster
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -102,6 +103,10 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 
 		var node *dqlite.Node
 		node, err = database.NewDatabaseNode(bindAddress, databasePath, 1)
+		fmt.Println("node")
+		fmt.Println(node)
+		fmt.Println("err")
+		fmt.Println(err)
 		if err == nil {
 			go node.Start()
 			log.Printf("New database node bind on %s \n", node.BindAddress())

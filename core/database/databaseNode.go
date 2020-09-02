@@ -21,11 +21,36 @@ type DatabaseNode struct {
 }
 
 // NewDatabaseNode : DatabaseNode constructor.
-func NewDatabaseNode(nodeDirectory string, nodeConnection string, nodeID uint64) (databaseNode *DatabaseNode) {
-	databaseNode = new(DatabaseNode)
-	databaseNode.nodeDirectory = nodeDirectory
-	databaseNode.nodeConnection = nodeConnection
-	databaseNode.nodeID = nodeID
+func NewDatabaseNode(nodeDirectory string, bindAddress string, nodeID uint64) (node *dqlite.Node, err error) {
+
+	nodeConnection, _ := net.DeltaAddress(bindAddress, 1000)
+
+	if nodeID == 0 {
+		log.Println("id must be greater than zero")
+		err = errors.New("id must be greater than zero")
+	}
+
+	/* 	if address == "" {
+		address = fmt.Sprintf("%s%d", defaultBaseAdd, id)
+	} */
+
+	nodeDirectory = filepath.Join(nodeDirectory, strconv.FormatUint(nodeID, 10))
+
+	if err = os.MkdirAll(nodeDirectory, 0750); err != nil {
+		log.Printf("can't create %s", nodeDirectory)
+		err = errors.New("can't create " + nodeDirectory)
+	}
+
+	node, err = dqlite.New(
+		nodeID, nodeConnection, nodeDirectory,
+		dqlite.WithBindAddress(nodeConnection,
+		dqlite.WithNetworkLatency(20*time.Millisecond),
+	)
+
+	if err != nil {
+		log.Printf("failed to create node")
+		err = errors.New("failed to create node")
+	}
 
 	return
 }
@@ -40,8 +65,8 @@ func (dn DatabaseNode) Run() {
 
 // DatabaseMemberInit : DatabaseNode init.
 func DatabaseMemberInit(add, dbPath string, id int) {
-	databaseNode := NewDatabaseNode(dbPath, add, uint64(id))
-	databaseNode.Run()
+	//databaseNode := NewDatabaseNode(dbPath, add, uint64(id))
+	//databaseNode.Run()
 }
 
 // startNode : DatabaseNode start.
