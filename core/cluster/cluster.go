@@ -8,6 +8,7 @@ import (
 
 	"github.com/canonical/go-dqlite"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
+	"github.com/ditrit/gandalf/core/cluster/utils"
 	"github.com/ditrit/gandalf/core/database"
 	coreLog "github.com/ditrit/gandalf/core/log"
 
@@ -123,10 +124,10 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 
 						} else {
 							log.Fatalf("Can't initialize database")
-							//WIPE DATABASE
+							//TODO WIPE DATABASE
 						}
 					} else {
-						log.Fatalf("Can't create database")
+						log.Fatalf("Can't create database client")
 					}
 				} else {
 					log.Println("Database already created")
@@ -145,37 +146,54 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 }
 
 // ClusterMemberJoin : Cluster join function.
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logPath string) *ClusterMember {
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logPath, secret string) *ClusterMember {
 	member := NewClusterMember(logicalName, databasePath, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
 		_, err = member.Join(joinAddress)
 		if err == nil {
-			log.Printf("New Aggregator member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
+			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
 
-			time.Sleep(time.Second * time.Duration(5))
-			member.Store = CreateStore(getBrothers(bindAddress, member))
-
-			if len(*member.Store) == 0 {
-				log.Println("Store empty")
-			} else {
-				log.Println("Store")
-				log.Println(member.Store)
-			}
-
-			var node *dqlite.Node
-			id := len(*member.Store)
-			node, err = database.NewDatabaseNode(bindAddress, databasePath, uint64(id))
+			var gandalfDatabaseClient *gorm.DB
+			gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
 			if err == nil {
-				go node.Start()
-				log.Printf("New database node bind on %s \n", node.BindAddress())
+				var result bool
+				result, err = utils.ValidateSecret(gandalfDatabaseClient, logicalName, secret)
+				if err == nil {
+					if result {
 
-				_ = database.AddNodesToLeader(id, node.BindAddress(), *member.Store)
-				log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+						time.Sleep(time.Second * time.Duration(5))
+						member.Store = CreateStore(getBrothers(bindAddress, member))
 
+						if len(*member.Store) == 0 {
+							log.Println("Store empty")
+						} else {
+							log.Println("Store")
+							log.Println(member.Store)
+						}
+
+						var node *dqlite.Node
+						id := len(*member.Store)
+						node, err = database.NewDatabaseNode(bindAddress, databasePath, uint64(id))
+						if err == nil {
+							go node.Start()
+							log.Printf("New database node bind on %s \n", node.BindAddress())
+							_ = database.AddNodesToLeader(id, node.BindAddress(), *member.Store)
+
+							log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+
+						} else {
+							log.Fatalf("Can't create node")
+						}
+					} else {
+						log.Fatalf("Invalid secret")
+					}
+				} else {
+					log.Fatalf("Can't validate secret")
+				}
 			} else {
-				log.Fatalf("Can't create node")
+				log.Fatalf("Can't create database client")
 			}
 		} else {
 			log.Fatalf("Can't join shoset on %s", joinAddress)

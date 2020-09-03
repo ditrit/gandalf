@@ -61,9 +61,12 @@ func main() {
 					}
 
 				} else {
-
+					gandalfSecret, err := configuration.GetStringConfig("gandalf_secret")
+					if err != nil {
+						log.Fatalf("No valid gandalf secret : %v", err)
+					}
 					//VALIDATION
-					err := configuration.IsConfigValid()
+					err = configuration.IsConfigValid()
 					if err == nil {
 						//CREATE CLUSTER
 						fmt.Println("Running Gandalf for a " + gandalfType + " with :")
@@ -74,7 +77,7 @@ func main() {
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
+						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath, gandalfSecret)
 						/*member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
 						 add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						id := len(*member.Store)

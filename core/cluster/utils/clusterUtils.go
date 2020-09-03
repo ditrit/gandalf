@@ -67,3 +67,17 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 
 	return ok
 }
+
+func ValidateSecret(gandalfDatabaseClient *gorm.DB, logicalName, secret string) (result bool, err error) {
+
+	result = false
+	var cluster models.Cluster
+	err = gandalfDatabaseClient.Where("name = ? and secret = ?", logicalName, secret).First(&cluster).Error
+	if err == nil {
+		if cluster != (models.Cluster{}) {
+			result = true
+		}
+	}
+
+	return
+}
