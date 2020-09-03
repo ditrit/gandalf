@@ -2,6 +2,7 @@
 package cluster
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -106,10 +107,33 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 		if err == nil {
 			go node.Start()
 			log.Printf("New database node bind on %s \n", node.BindAddress())
-			database.NewGandalfDatabaseClient(databasePath)
-			log.Printf("New gandalf database at %s \n", databasePath)
+			var databaseCreated, err = database.IsDatabaseCreated(databasePath, "gandalf")
+			if err == nil {
+				if !databaseCreated {
+					var gandalfDatabaseClient *gorm.DB
+					gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
+					if err == nil {
+						log.Printf("New gandalf database at %s \n", databasePath)
+						var login, password, secret string
+						login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, logicalName)
+						if err == nil {
+							fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
+							fmt.Printf("Created cluster, logical name : %s, secret : %s \n", logicalName, secret)
+							log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
-			log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+						} else {
+							log.Fatalf("Can't initialize database")
+							//WIPE DATABASE
+						}
+					} else {
+						log.Fatalf("Can't create database")
+					}
+				} else {
+					log.Println("Database already created")
+				}
+			} else {
+				log.Fatalf("Can't detect if the database is created or not")
+			}
 		} else {
 			log.Fatalf("Can't create node")
 		}

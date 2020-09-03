@@ -31,10 +31,6 @@ func NewDatabaseNode(bindAddress string, nodeDirectory string, nodeID uint64) (n
 		err = errors.New("id must be greater than zero")
 	}
 
-	/* 	if address == "" {
-		address = fmt.Sprintf("%s%d", defaultBaseAdd, id)
-	} */
-
 	nodeDirectory = filepath.Join(nodeDirectory, strconv.FormatUint(nodeID, 10))
 
 	if err = os.MkdirAll(nodeDirectory, 0750); err != nil {

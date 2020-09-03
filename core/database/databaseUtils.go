@@ -3,8 +3,12 @@ package database
 
 import (
 	"context"
+	"crypto/sha512"
+	"encoding/base64"
 	"fmt"
 	"log"
+	"math/rand"
+	"os"
 	"time"
 
 	"github.com/canonical/go-dqlite/client"
@@ -120,4 +124,29 @@ func List(defaultcluster []string) error {
 	}
 
 	return err
+}
+
+func IsDatabaseCreated(databasePath, databaseName string) (result bool, err error) {
+
+	databaseFullPath := databasePath + "/" + databaseName + ".db"
+
+	if _, err := os.Stat(databaseFullPath); err == nil {
+		result = true
+	} else if os.IsNotExist(err) {
+		result = false
+	}
+
+	return
+}
+
+//TODO REVOIR ERROR
+func GenerateRandomHash() string {
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+
+	sha_512 := sha512.New()
+	sha_512.Write([]byte(string(random.Intn(100))))
+	hash := base64.URLEncoding.EncodeToString(sha_512.Sum(nil))
+
+	return hash
 }

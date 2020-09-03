@@ -3,8 +3,8 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
-	"gandalf/core/dao"
 	"gandalf/core/models"
 	"net/http"
 	"strconv"
@@ -13,54 +13,55 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type UserController struct {
-	userDAO *dao.UserDAO
+type RoleController struct {
+	roleDAO *dao.RoleDAO
 }
 
-func NewUserController(gandalfDatabase *gorm.DB) (userController *UserController) {
-	userController = new(UserController)
-	userController.userDAO = dao.NewUserDAO(gandalfDatabase)
+func NewRoleController(gandalfDatabase *gorm.DB) (roleController *RoleController) {
+	roleController = new(RoleController)
+	roleController.roleDAO = dao.NewRoleDAO(gandalfDatabase)
 
 	return
 }
 
-func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
+func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 
-	users, err := uc.userDAO.List()
+	roles, err := rc.roleDAO.List()
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, users)
+	utils.RespondWithJSON(w, http.StatusOK, roles)
 }
 
-func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
-	var user models.User
+func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
+	var role models.Role
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
+	if err := decoder.Decode(&role); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
-	if err := uc.userDAO.Create(user); err != nil {
+	if err := rc.roleDAO.Create(role); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusCreated, user)
+	utils.RespondWithJSON(w, http.StatusCreated, role)
 }
 
-func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
+func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return
 	}
-	var user models.User
-	if user, err = uc.userDAO.Read(id); err != nil {
+
+	var role models.Role
+	if role, err = rc.roleDAO.Read(id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -70,10 +71,10 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, user)
+	utils.RespondWithJSON(w, http.StatusOK, role)
 }
 
-func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
+func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -81,24 +82,24 @@ func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user models.User
+	var role models.Role
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
+	if err := decoder.Decode(&role); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 		return
 	}
 	defer r.Body.Close()
-	user.ID = uint(id)
+	role.ID = uint(id)
 
-	if err := uc.userDAO.Update(user); err != nil {
+	if err := rc.roleDAO.Update(role); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, user)
+	utils.RespondWithJSON(w, http.StatusOK, role)
 }
 
-func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
+func (rc RoleController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -106,7 +107,7 @@ func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := uc.userDAO.Delete(id); err != nil {
+	if err := rc.roleDAO.Delete(id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

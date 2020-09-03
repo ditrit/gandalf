@@ -3,8 +3,8 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
-	"gandalf/core/dao"
 	"net/http"
 	"strconv"
 
@@ -14,46 +14,45 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type ClusterController struct {
-	clusterDAO *dao.ClusterDAO
+type AggregatorController struct {
+	aggregatorDAO *dao.AggregatorDAO
 }
 
-func NewClusterController(gandalfDatabase *gorm.DB) (clusterController *ClusterController) {
-	clusterController = new(ClusterController)
-	clusterController.clusterDAO = dao.NewClusterDAO(gandalfDatabase)
+func NewAggregatorController(gandalfDatabase *gorm.DB) (aggregatorController *AggregatorController) {
+	aggregatorController = new(AggregatorController)
+	aggregatorController.aggregatorDAO = dao.NewAggregatorDAO(gandalfDatabase)
 
 	return
 }
 
-func (cc ClusterController) List(w http.ResponseWriter, r *http.Request) {
-
-	cluster, err := cc.clusterDAO.List()
+func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
+	aggregators, err := ac.aggregatorDAO.List()
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, cluster)
+	utils.RespondWithJSON(w, http.StatusOK, aggregators)
 }
 
-func (cc ClusterController) Create(w http.ResponseWriter, r *http.Request) {
-	var cluster models.Cluster
+func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
+	var aggregator models.Aggregator
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&cluster); err != nil {
+	if err := decoder.Decode(&aggregator); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
-	if err := cc.clusterDAO.Create(cluster); err != nil {
+	if err := ac.aggregatorDAO.Create(aggregator); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusCreated, cluster)
+	utils.RespondWithJSON(w, http.StatusCreated, aggregator)
 }
 
-func (cc ClusterController) Read(w http.ResponseWriter, r *http.Request) {
+func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -61,8 +60,8 @@ func (cc ClusterController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var cluster models.Cluster
-	if cluster, err = cc.clusterDAO.Read(id); err != nil {
+	var aggregator models.Aggregator
+	if aggregator, err = ac.aggregatorDAO.Read(id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -72,10 +71,10 @@ func (cc ClusterController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, cluster)
+	utils.RespondWithJSON(w, http.StatusOK, aggregator)
 }
 
-func (cc ClusterController) Update(w http.ResponseWriter, r *http.Request) {
+func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -83,24 +82,24 @@ func (cc ClusterController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var cluster models.Cluster
+	var aggregator models.Aggregator
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&cluster); err != nil {
+	if err := decoder.Decode(&aggregator); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 		return
 	}
 	defer r.Body.Close()
-	cluster.ID = uint(id)
+	aggregator.ID = uint(id)
 
-	if err := cc.clusterDAO.Update(cluster); err != nil {
+	if err := ac.aggregatorDAO.Update(aggregator); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, cluster)
+	utils.RespondWithJSON(w, http.StatusOK, aggregator)
 }
 
-func (cc ClusterController) Delete(w http.ResponseWriter, r *http.Request) {
+func (ac AggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -108,7 +107,7 @@ func (cc ClusterController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cc.clusterDAO.Delete(id); err != nil {
+	if err = ac.aggregatorDAO.Delete(id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

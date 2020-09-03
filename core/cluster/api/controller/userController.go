@@ -3,65 +3,64 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
-	"gandalf/core/dao"
+	"gandalf/core/models"
 	"net/http"
 	"strconv"
 
-	"github.com/ditrit/gandalf/core/models"
-	"github.com/jinzhu/gorm"
-
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 )
 
-type AggregatorController struct {
-	aggregatorDAO *dao.AggregatorDAO
+type UserController struct {
+	userDAO *dao.UserDAO
 }
 
-func NewAggregatorController(gandalfDatabase *gorm.DB) (aggregatorController *AggregatorController) {
-	aggregatorController = new(AggregatorController)
-	aggregatorController.aggregatorDAO = dao.NewAggregatorDAO(gandalfDatabase)
+func NewUserController(gandalfDatabase *gorm.DB) (userController *UserController) {
+	userController = new(UserController)
+	userController.userDAO = dao.NewUserDAO(gandalfDatabase)
 
 	return
 }
 
-func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
-	aggregators, err := ac.aggregatorDAO.List()
+func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
+
+	users, err := uc.userDAO.List()
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, aggregators)
+	utils.RespondWithJSON(w, http.StatusOK, users)
 }
 
-func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
-	var aggregator models.Aggregator
+func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
+	var user models.User
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&aggregator); err != nil {
+	if err := decoder.Decode(&user); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
-	if err := ac.aggregatorDAO.Create(aggregator); err != nil {
+	if err := uc.userDAO.Create(user); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusCreated, aggregator)
+	utils.RespondWithJSON(w, http.StatusCreated, user)
 }
 
-func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
+func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return
 	}
-
-	var aggregator models.Aggregator
-	if aggregator, err = ac.aggregatorDAO.Read(id); err != nil {
+	var user models.User
+	if user, err = uc.userDAO.Read(id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -71,10 +70,10 @@ func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, aggregator)
+	utils.RespondWithJSON(w, http.StatusOK, user)
 }
 
-func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
+func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -82,24 +81,24 @@ func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var aggregator models.Aggregator
+	var user models.User
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&aggregator); err != nil {
+	if err := decoder.Decode(&user); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 		return
 	}
 	defer r.Body.Close()
-	aggregator.ID = uint(id)
+	user.ID = uint(id)
 
-	if err := ac.aggregatorDAO.Update(aggregator); err != nil {
+	if err := uc.userDAO.Update(user); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, aggregator)
+	utils.RespondWithJSON(w, http.StatusOK, user)
 }
 
-func (ac AggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
+func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -107,7 +106,7 @@ func (ac AggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = ac.aggregatorDAO.Delete(id); err != nil {
+	if err := uc.userDAO.Delete(id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

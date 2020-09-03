@@ -3,56 +3,57 @@ package controller
 import (
 	"database/sql"
 	"encoding/json"
+	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
-	"gandalf/core/dao"
 	"net/http"
 	"strconv"
 
 	"github.com/ditrit/gandalf/core/models"
-	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+
+	"github.com/gorilla/mux"
 )
 
-type ConnectorController struct {
-	connectorDAO *dao.ConnectorDAO
+type ClusterController struct {
+	clusterDAO *dao.ClusterDAO
 }
 
-func NewConnectorController(gandalfDatabase *gorm.DB) (connectorController *ConnectorController) {
-	connectorController = new(ConnectorController)
-	connectorController.connectorDAO = dao.NewConnectorDAO(gandalfDatabase)
+func NewClusterController(gandalfDatabase *gorm.DB) (clusterController *ClusterController) {
+	clusterController = new(ClusterController)
+	clusterController.clusterDAO = dao.NewClusterDAO(gandalfDatabase)
 
 	return
 }
 
-func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
+func (cc ClusterController) List(w http.ResponseWriter, r *http.Request) {
 
-	connectors, err := cc.connectorDAO.List()
+	cluster, err := cc.clusterDAO.List()
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, connectors)
+	utils.RespondWithJSON(w, http.StatusOK, cluster)
 }
 
-func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
-	var connector models.Connector
+func (cc ClusterController) Create(w http.ResponseWriter, r *http.Request) {
+	var cluster models.Cluster
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&connector); err != nil {
+	if err := decoder.Decode(&cluster); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 	defer r.Body.Close()
 
-	if err := cc.connectorDAO.Create(connector); err != nil {
+	if err := cc.clusterDAO.Create(cluster); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusCreated, connector)
+	utils.RespondWithJSON(w, http.StatusCreated, cluster)
 }
 
-func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
+func (cc ClusterController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -60,8 +61,8 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var connector models.Connector
-	if connector, err = cc.connectorDAO.Read(id); err != nil {
+	var cluster models.Cluster
+	if cluster, err = cc.clusterDAO.Read(id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -71,10 +72,10 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, connector)
+	utils.RespondWithJSON(w, http.StatusOK, cluster)
 }
 
-func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
+func (cc ClusterController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -82,24 +83,24 @@ func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var connector models.Connector
+	var cluster models.Cluster
 	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&connector); err != nil {
+	if err := decoder.Decode(&cluster); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 		return
 	}
 	defer r.Body.Close()
-	connector.ID = uint(id)
+	cluster.ID = uint(id)
 
-	if err := cc.connectorDAO.Update(connector); err != nil {
+	if err := cc.clusterDAO.Update(cluster); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, connector)
+	utils.RespondWithJSON(w, http.StatusOK, cluster)
 }
 
-func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
+func (cc ClusterController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -107,7 +108,7 @@ func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cc.connectorDAO.Delete(id); err != nil {
+	if err := cc.clusterDAO.Delete(id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
