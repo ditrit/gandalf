@@ -9,5 +9,6 @@ import (
 type Connector struct {
 	gorm.Model
 	Name   string
+	Tenant Tenant
 	Secret string
 }

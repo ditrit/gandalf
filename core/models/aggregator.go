@@ -9,5 +9,6 @@ import (
 type Aggregator struct {
 	gorm.Model
 	Name   string
+	Tenant Tenant
 	Secret string
 }
