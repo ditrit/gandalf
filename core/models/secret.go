@@ -1,7 +1,8 @@
 package models
 
 import (
-	"github.com/gandalf/core/shoset/msg"
+	"github.com/ditrit/gandalf/core/msg"
+
 	"github.com/jinzhu/gorm"
 )
 
