@@ -5,8 +5,9 @@ import (
 	"errors"
 	"log"
 
-	"github.com/ditrit/gandalf/core/msg"
+	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
 
 	"time"
 )
@@ -15,7 +16,7 @@ var secretSendIndex = 0
 
 // HandleConnectorConfig : Connector handle connector config.
 func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
-	secret := message.(msg.Secret)
+	secret := message.(cmsg.Secret)
 	ch := c.GetCh()
 	err = nil
 
@@ -32,7 +33,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 //SendSecret :
 func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (err error) {
 
-	secretMsg := msg.NewSecret("", "VALIDATION", "")
+	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "connector"
 	secretMsg.GetContext()["logicalName"] = logicalName

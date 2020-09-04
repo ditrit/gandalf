@@ -1,6 +1,6 @@
 package msg
 
-import "shoset/msg"
+import "github.com/ditrit/shoset/msg"
 
 // Config : gandalf configs
 type Secret struct {

@@ -98,7 +98,7 @@ func SendSaveConnectorConfig(shoset *net.Shoset, timeoutMax int64, connectorConf
 			conf.Timeout = timeoutMax
 		}
 
-		index := getConfigSendIndex(shosets)
+		index := getConnectorConfigSendIndex(shosets)
 		shosets[index].SendMessage(conf)
 		log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
 

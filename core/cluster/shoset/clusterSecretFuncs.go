@@ -7,7 +7,8 @@ import (
 
 	"github.com/ditrit/gandalf/core/cluster/utils"
 
-	"github.com/ditrit/gandalf/core/msg"
+	cmsg "github.com/ditrit/gandalf/core/msg"
+	"github.com/ditrit/shoset/msg"
 
 	net "github.com/ditrit/shoset"
 	"github.com/jinzhu/gorm"
@@ -15,7 +16,7 @@ import (
 
 // HandleSecret :
 func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
-	secret := message.(msg.Secret)
+	secret := message.(cmsg.Secret)
 	ch := c.GetCh()
 
 	err = nil
@@ -28,21 +29,22 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		if secret.GetCommand() == "VALIDATION" {
 
 			var result bool
-			result, err = utils.ValidateSecret(gandalfDatabaseClient, secret.GetContext()["componentType"], secret.GetContext()["logicalName"], secret.GetContext()["tenant"], secret.GetContext()["secret"])
+			result, err = utils.ValidateSecret(gandalfDatabaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["tenant"].(string), secret.GetContext()["secret"].(string))
 			if err == nil {
+				target := secret.GetTarget()
 				if secret.GetContext()["componentType"] == "aggregator" {
-					secret.GetTarget() = ""
+					target = ""
 				}
 				if result {
-					cmdReply := msg.Secret(secret.GetTarget(), "VALIDATION_REPLY", "true")
+					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "true")
 					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
-					shoset.SendMessage(cmdReply)
+					shoset.SendMessage(secretReply)
 				} else {
-					cmdReply := msg.Secret(secret.GetTarget(), "VALIDATION_REPLY", "false")
+					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "false")
 					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
-					shoset.SendMessage(cmdReply)
+					shoset.SendMessage(secretReply)
 				}
 			} else {
 				log.Println("Can't validate secret")

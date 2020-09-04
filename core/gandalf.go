@@ -100,7 +100,14 @@ func main() {
 			if err != nil {
 				log.Fatalf("no valid cluster address: %v", err)
 			}
-
+			gandalfMaxTimeout, err := configuration.GetIntegerConfig("max_timeout")
+			if err != nil {
+				log.Fatalf("Invalid maximum timeout : %v", err)
+			}
+			gandalfSecret, err := configuration.GetStringConfig("gandalf_secret")
+			if err != nil {
+				log.Fatalf("No valid gandalf secret : %v", err)
+			}
 			//VALIDATION
 			err = configuration.IsConfigValid()
 			if err == nil {
@@ -111,9 +118,10 @@ func main() {
 				fmt.Println("  Bind Address : " + gandalfBindAddress)
 				fmt.Println("  Link Address : " + gandalfClusterLink)
 				fmt.Println("  Log Path : " + gandalfLogPath)
+				fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 				done := make(chan bool)
-				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath)
+				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath, gandalfSecret, gandalfMaxTimeout)
 
 				//TEST
 				//go oauth2.NewOAuth2Client()
@@ -156,10 +164,6 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid workers path: %v", err)
 			}
-			gandalfMaxTimeout, err := configuration.GetIntegerConfig("max_timeout")
-			if err != nil {
-				log.Fatalf("Invalid maximum timeout : %v", err)
-			}
 			gandalfVersionsString, err := configuration.GetStringConfig("versions")
 			if err != nil {
 				log.Fatalf("Invalid versions : %v", err)
@@ -167,6 +171,14 @@ func main() {
 			gandalfVersions, err := configuration.GetVersionsList(gandalfVersionsString)
 			if err != nil {
 				log.Fatalf("Invalid versions : %v", err)
+			}
+			gandalfSecret, err := configuration.GetStringConfig("gandalf_secret")
+			if err != nil {
+				log.Fatalf("No valid gandalf secret : %v", err)
+			}
+			gandalfMaxTimeout, err := configuration.GetIntegerConfig("max_timeout")
+			if err != nil {
+				log.Fatalf("Invalid maximum timeout : %v", err)
 			}
 
 			//CREATE CONNECTOR
@@ -182,11 +194,11 @@ func main() {
 			fmt.Println("  Workers Url : " + gandalfWorkersUrl)
 			fmt.Println("  Workers Path : " + gandalfWorkers)
 			fmt.Println("  Log Path : " + gandalfLogPath)
-			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 			fmt.Println("  Versions :", gandalfVersionsString)
+			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 			done := make(chan bool)
-			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, int64(gandalfMaxTimeout), gandalfVersions)
+			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout), gandalfVersions)
 			go oauth2.NewOAuth2Client()
 			<-done
 			break

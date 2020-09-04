@@ -6,15 +6,16 @@ import (
 	"log"
 	"time"
 
-	"github.com/ditrit/gandalf/core/msg"
+	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
+	"github.com/ditrit/shoset/msg"
 )
 
 var secretSendIndex = 0
 
 // HandleSecret :
 func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
-	secret := message.(msg.Secret)
+	secret := message.(cmsg.Secret)
 	ch := c.GetCh()
 	dir := c.GetDir()
 	err = nil
@@ -81,7 +82,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 //SendSecret :
 func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (err error) {
 
-	secretMsg := msg.NewSecret("", "VALIDATION", "")
+	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "aggregator"
 	secretMsg.GetContext()["logicalName"] = logicalName
