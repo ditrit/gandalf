@@ -127,6 +127,23 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 
 } */
 
+func (m *ConnectorMember) ValidateSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (result bool) {
+	shoset.SendSecret(shoset, timeoutMax, logicalName, tenant, secret)
+	time.Sleep(time.Second * time.Duration(5))
+
+	result = false
+
+	resultString := m.chaussette.Context["validation"].(string)
+	fmt.Println("resultString")
+	fmt.Println(resultString)
+	if resultString != "" {
+		if resultString == "true" {
+			result = true
+		}
+	}
+	return
+}
+
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product string, versions []int64, nshoset *net.Shoset, timeoutMax int64) (listConfigurationKeys []models.ConfigurationKeys, err error) {
 
@@ -378,52 +395,56 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 			_, err = member.Link(linkAddress)
 			time.Sleep(time.Second * time.Duration(5))
 			if err == nil {
-				fmt.Println("Get config")
-				var listConfigurationKeys []models.ConfigurationKeys
-				listConfigurationKeys, err = member.GetConfiguration(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
-				time.Sleep(time.Second * time.Duration(5))
-				fmt.Println(err)
-				if err == nil {
-					fmt.Println("Get Worker key")
-					configuration.WorkerKeyParse(listConfigurationKeys)
-					err = configuration.IsConfigValid()
+				var validateSecret bool
+				validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret)
+				if validateSecret {
+					fmt.Println("Get config")
+					var listConfigurationKeys []models.ConfigurationKeys
+					listConfigurationKeys, err = member.GetConfiguration(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
+					time.Sleep(time.Second * time.Duration(5))
+					fmt.Println(err)
 					if err == nil {
-						fmt.Println("Get Worker")
-						err = member.GetWorkers(workerUrl, connectorType, product, workerPath, versions)
+						fmt.Println("Get Worker key")
+						configuration.WorkerKeyParse(listConfigurationKeys)
+						err = configuration.IsConfigValid()
 						if err == nil {
-							//TODO REVOIR
-							//RECUPERATION VALEUR CONNECTEUR/WORKER
-							fmt.Println("listConfigurationKeys")
-							fmt.Println(listConfigurationKeys)
-
-							var stdinargs string
-							stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
-							fmt.Println("stdinargs")
-							fmt.Println(stdinargs)
-							//END TODO
-							err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
+							fmt.Println("Get Worker")
+							err = member.GetWorkers(workerUrl, connectorType, product, workerPath, versions)
 							if err == nil {
-								time.Sleep(time.Second * time.Duration(5))
-								result := member.ConfigurationValidation(tenant, connectorType)
-								if result {
-									log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-									fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+								//TODO REVOIR
+								//RECUPERATION VALEUR CONNECTEUR/WORKER
+								fmt.Println("listConfigurationKeys")
+								fmt.Println(listConfigurationKeys)
+
+								var stdinargs string
+								stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
+								fmt.Println("stdinargs")
+								fmt.Println(stdinargs)
+								//END TODO
+								err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
+								if err == nil {
+									time.Sleep(time.Second * time.Duration(5))
+									validateConfiguration := member.ConfigurationValidation(tenant, connectorType)
+									if validateConfiguration {
+										log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+										fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+									} else {
+										log.Fatalf("Configuration validation failed")
+									}
 								} else {
-									log.Fatalf("Configuration validation failed")
+									log.Fatalf("Can't start workers in %s", workerPath)
 								}
 							} else {
-								log.Fatalf("Can't start workers in %s", workerPath)
+								log.Fatalf("Can't get workers in %s", workerPath)
 							}
 						} else {
-							log.Fatalf("Can't get workers in %s", workerPath)
+							log.Fatalf("Can't validate keys")
 						}
 					} else {
-						log.Fatalf("Can't validate keys")
+						log.Fatalf("Can't get configuration in %s", workerPath)
 					}
-
 				} else {
-					log.Fatalf("Can't get configuration in %s", workerPath)
-
+					log.Fatalf("Invalid secret")
 				}
 			} else {
 				log.Fatalf("Can't link shoset on %s", linkAddress)

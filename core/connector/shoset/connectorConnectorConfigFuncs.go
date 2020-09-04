@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-var configSendIndex = 0
+var connectorConfigSendIndex = 0
 
 // HandleConnectorConfig : Connector handle connector config.
 func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
@@ -57,7 +57,7 @@ func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 
 		notSend := true
 		for notSend {
-			index := getConfigSendIndex(shosets)
+			index := getConnectorConfigSendIndex(shosets)
 			shosets[index].SendMessage(conf)
 			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
 
@@ -111,12 +111,12 @@ func SendSaveConnectorConfig(shoset *net.Shoset, timeoutMax int64, connectorConf
 }
 
 // getSendIndex : Cluster getSendIndex function.
-func getConfigSendIndex(conns []*net.ShosetConn) int {
-	aux := configSendIndex
-	configSendIndex++
+func getConnectorConfigSendIndex(conns []*net.ShosetConn) int {
+	aux := connectorConfigSendIndex
+	connectorConfigSendIndex++
 
-	if configSendIndex >= len(conns) {
-		configSendIndex = 0
+	if connectorConfigSendIndex >= len(conns) {
+		connectorConfigSendIndex = 0
 	}
 
 	return aux

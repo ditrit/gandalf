@@ -40,7 +40,7 @@ func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember 
 	member.MapDatabaseClient = make(map[string]*gorm.DB)
 
 	member.chaussette.Context["databasePath"] = databasePath
-	member.chaussette.Context["database"] = member.MapDatabaseClient
+	member.chaussette.Context["tenantDatabases"] = member.MapDatabaseClient
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
@@ -113,6 +113,7 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 				if !databaseCreated {
 					var gandalfDatabaseClient *gorm.DB
 					gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
+					member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 					if err == nil {
 						log.Printf("New gandalf database at %s \n", databasePath)
 						var login, password, secret string
@@ -159,7 +160,7 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logP
 			gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
 			if err == nil {
 				var result bool
-				result, err = utils.ValidateSecret(gandalfDatabaseClient, logicalName, secret)
+				result, err = utils.ValidateSecret(gandalfDatabaseClient, "cluster", logicalName, "", secret)
 				if err == nil {
 					if result {
 
@@ -181,8 +182,20 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logP
 							log.Printf("New database node bind on %s \n", node.BindAddress())
 							_ = database.AddNodesToLeader(id, node.BindAddress(), *member.Store)
 
-							log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+							var databaseCreated, err = database.IsDatabaseCreated(databasePath, "gandalf")
+							if err == nil {
+								if !databaseCreated {
+									var gandalfDatabaseClient *gorm.DB
+									gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
+									member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 
+									log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+								} else {
+									log.Println("Database already created")
+								}
+							} else {
+								log.Fatalf("Can't detect if the database is created or not")
+							}
 						} else {
 							log.Fatalf("Can't create node")
 						}

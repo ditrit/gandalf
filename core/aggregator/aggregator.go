@@ -2,6 +2,7 @@
 package aggregator
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -77,18 +78,41 @@ func getBrothers(address string, member *AggregatorMember) []string {
 	return bros
 }
 
+func (m *AggregatorMember) ValidateSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (result bool) {
+	shoset.SendSecret(shoset, timeoutMax, logicalName, tenant, secret)
+	time.Sleep(time.Second * time.Duration(5))
+
+	result = false
+
+	resultString := m.chaussette.Context["validation"].(string)
+	fmt.Println("resultString")
+	fmt.Println(resultString)
+	if resultString != "" {
+		if resultString == "true" {
+			result = true
+		}
+	}
+
+	return
+}
+
 // AggregatorMemberInit : Aggregator init function.
-func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath string) *AggregatorMember {
+func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, timeoutMax int64) *AggregatorMember {
 	member := NewAggregatorMember(logicalName, tenant, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
 		_, err = member.Link(linkAddress)
 		if err == nil {
-			log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
-
-			time.Sleep(time.Second * time.Duration(5))
-			log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+			var validateSecret bool
+			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret)
+			if validateSecret {
+				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
+				time.Sleep(time.Second * time.Duration(5))
+				log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+			} else {
+				log.Fatalf("Invalid secret")
+			}
 		} else {
 			log.Fatalf("Can't link shoset on %s", linkAddress)
 		}

@@ -35,6 +35,7 @@ github.com/denisenkom/go-mssqldb v0.0.0-20191124224453-732737034ffd/go.mod h1:xb
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
+github.com/ditrit/gandalf v0.0.0-20200828084902-a2d405d1aeab h1:xVaOftJkh/RV3EBMDbBZs/jiSTi9Ua/wFUW1bIW17Dw=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8 h1:4EZDkbB9fqaH9jqsTxBIxQVzvt3ZTC4Ya4MpLguxfNw=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0 h1:YYRUDM8HTcnetx71tvoucys4DkMI+vPyjDwFCqNRIys=

@@ -26,7 +26,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
 
 	if ok {
-		mapDatabaseClient := ch.Context["database"].(map[string]*gorm.DB)
+		mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 		databasePath := ch.Context["databasePath"].(string)
 		if mapDatabaseClient != nil {
 			databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), databasePath, mapDatabaseClient)
