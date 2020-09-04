@@ -79,8 +79,9 @@ func getBrothers(address string, member *AggregatorMember) []string {
 	return bros
 }
 
-func (m *AggregatorMember) ValidateSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (result bool) {
-	shoset.SendSecret(shoset, timeoutMax, logicalName, tenant, secret)
+func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (result bool) {
+
+	shoset.SendSecret(nshoset, timeoutMax, logicalName, tenant, secret)
 	time.Sleep(time.Second * time.Duration(5))
 
 	result = false

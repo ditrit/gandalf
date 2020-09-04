@@ -128,8 +128,8 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 
 } */
 
-func (m *ConnectorMember) ValidateSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (result bool) {
-	shoset.SendSecret(shoset, timeoutMax, logicalName, tenant, secret)
+func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (result bool) {
+	shoset.SendSecret(nshoset, timeoutMax, logicalName, tenant, secret)
 	time.Sleep(time.Second * time.Duration(5))
 
 	result = false
