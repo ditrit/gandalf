@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ditrit/gandalf/core/oauth2"
+	"github.com/ditrit/gandalf/core/cluster/oauth2"
 
 	"github.com/ditrit/gandalf/core/aggregator"
 	"github.com/ditrit/gandalf/core/cluster"
@@ -121,7 +121,7 @@ func main() {
 				fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 				done := make(chan bool)
-				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath, gandalfSecret, gandalfMaxTimeout)
+				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout))
 
 				//TEST
 				//go oauth2.NewOAuth2Client()
