@@ -391,14 +391,14 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 
 	err := member.Bind(bindAddress)
 	if err == nil {
-		err = member.GrpcBind(grpcBindAddress)
+		_, err = member.Link(linkAddress)
+		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
-			_, err = member.Link(linkAddress)
-			time.Sleep(time.Second * time.Duration(5))
-			if err == nil {
-				var validateSecret bool
-				validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret)
-				if validateSecret {
+			var validateSecret bool
+			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret)
+			if validateSecret {
+				err = member.GrpcBind(grpcBindAddress)
+				if err == nil {
 					fmt.Println("Get config")
 					var listConfigurationKeys []models.ConfigurationKeys
 					listConfigurationKeys, err = member.GetConfiguration(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
@@ -445,14 +445,15 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 						log.Fatalf("Can't get configuration in %s", workerPath)
 					}
 				} else {
-					log.Fatalf("Invalid secret")
+					log.Fatalf("Can't Grpc bind shoset on %s", grpcBindAddress)
 				}
 			} else {
-				log.Fatalf("Can't link shoset on %s", linkAddress)
+				log.Fatalf("Invalid secret")
 			}
 		} else {
-			log.Fatalf("Can't Grpc bind shoset on %s", grpcBindAddress)
+			log.Fatalf("Can't link shoset on %s", linkAddress)
 		}
+
 	} else {
 		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
