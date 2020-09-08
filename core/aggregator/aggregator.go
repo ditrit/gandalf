@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/ditrit/shoset/msg"
+
 	coreLog "github.com/ditrit/gandalf/core/log"
 
 	"github.com/ditrit/gandalf/core/aggregator/shoset"
@@ -33,8 +35,10 @@ func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember 
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
+	member.chaussette.Queue["secret"] = msg.NewQueue()
+	member.chaussette.Get["secret"] = shoset.GetSecret
+	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
-
 	//coreLog.OpenLogFile("/var/log")
 
 	coreLog.OpenLogFile(logPath)
@@ -105,6 +109,7 @@ func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath
 
 	if err == nil {
 		_, err = member.Link(linkAddress)
+		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
 			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret)

@@ -68,7 +68,7 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 	return ok
 }
 
-func ValidateSecret(gandalfDatabaseClient *gorm.DB, componentType, logicalName, tenant, secret string) (result bool, err error) {
+func ValidateSecret(gandalfDatabaseClient *gorm.DB, componentType, logicalName, tenantName, secret string) (result bool, err error) {
 
 	result = false
 
@@ -83,22 +83,40 @@ func ValidateSecret(gandalfDatabaseClient *gorm.DB, componentType, logicalName, 
 		}
 		break
 	case "aggregator":
-		var aggregator models.Aggregator
-		err = gandalfDatabaseClient.Where("name = ? and tenant.name = ? and secret = ?", logicalName, tenant, secret).Preload("Tenant").First(&aggregator).Error
+		var tenant models.Tenant
+		err = gandalfDatabaseClient.Where("name = ?", tenantName).First(&tenant).Error
 		if err == nil {
-			if aggregator != (models.Aggregator{}) {
-				result = true
+			var aggregator models.Aggregator
+			err = gandalfDatabaseClient.Where("name = ? and tenant_id = ?", logicalName, tenant.ID).Preload("Tenant").First(&aggregator).Error
+			if err == nil {
+				if aggregator != (models.Aggregator{}) {
+					if aggregator.Secret == secret {
+						result = true
+					}
+				}
 			}
+		} else {
+			log.Printf("Can't find tenant : %s \n", tenant)
 		}
+
 		break
 	case "connector":
-		var connector models.Connector
-		err = gandalfDatabaseClient.Where("name = ? and tenant.name = ? and secret = ?", logicalName, tenant, secret).Preload("Tenant").First(&connector).Error
+		var tenant models.Tenant
+		err = gandalfDatabaseClient.Where("name = ?", tenantName).First(&tenant).Error
 		if err == nil {
-			if connector != (models.Connector{}) {
-				result = true
+			var connector models.Connector
+			err = gandalfDatabaseClient.Where("name = ? and tenant_id = ?", logicalName, tenant.ID).Preload("Tenant").First(&connector).Error
+			if err == nil {
+				if connector != (models.Connector{}) {
+					if connector.Secret == secret {
+						result = true
+					}
+				}
 			}
+		} else {
+			log.Printf("Can't find tenant : %s \n", tenant)
 		}
+
 		break
 	}
 

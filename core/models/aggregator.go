@@ -8,7 +8,8 @@ import (
 // Aggregator : Aggregator struct.
 type Aggregator struct {
 	gorm.Model
-	Name   string
-	Tenant Tenant
-	Secret string
+	Name     string
+	TenantID uint
+	Tenant   Tenant
+	Secret   string
 }

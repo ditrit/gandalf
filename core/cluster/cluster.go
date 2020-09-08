@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/ditrit/shoset/msg"
+
 	"github.com/canonical/go-dqlite"
 	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
@@ -45,6 +47,10 @@ func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember 
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
+	member.chaussette.Queue["secret"] = msg.NewQueue()
+	member.chaussette.Get["secret"] = shoset.GetSecret
+	member.chaussette.Send["secret"] = shoset.SendSecret
+	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
 
 	coreLog.OpenLogFile(logPath)
@@ -109,13 +115,19 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 		if err == nil {
 			go node.Start()
 			log.Printf("New database node bind on %s \n", node.BindAddress())
+
 			var databaseCreated, err = database.IsDatabaseCreated(databasePath, "gandalf")
 			if err == nil {
-				if !databaseCreated {
-					var gandalfDatabaseClient *gorm.DB
-					gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
-					member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-					if err == nil {
+
+				var gandalfDatabaseClient *gorm.DB
+				gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
+				member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+				fmt.Println("ch.Context")
+				fmt.Println(member.GetChaussette().Context["gandalfDatabase"])
+				if err == nil {
+
+					if !databaseCreated {
+
 						log.Printf("New gandalf database at %s \n", databasePath)
 						var login, password, secret string
 						login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, logicalName)
@@ -128,11 +140,13 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 							log.Fatalf("Can't initialize database")
 							//TODO WIPE DATABASE
 						}
+
 					} else {
-						log.Fatalf("Can't create database client")
+						log.Println("Database already created")
 					}
+
 				} else {
-					log.Println("Database already created")
+					log.Fatalf("Can't create database client")
 				}
 			} else {
 				log.Fatalf("Can't detect if the database is created or not")

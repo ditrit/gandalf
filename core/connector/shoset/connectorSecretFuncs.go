@@ -3,6 +3,7 @@ package shoset
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
@@ -13,6 +14,42 @@ import (
 )
 
 var secretSendIndex = 0
+
+func GetSecret(c *net.ShosetConn) (msg.Message, error) {
+	var conf cmsg.Secret
+	err := c.ReadMessage(&conf)
+	return conf, err
+}
+
+// WaitConfig :
+func WaitSecret(c *net.Shoset, replies *msg.Iterator, args map[string]string, timeout int) *msg.Message {
+	commandName, ok := args["name"]
+	if !ok {
+		return nil
+	}
+	term := make(chan *msg.Message, 1)
+	cont := true
+	go func() {
+		for cont {
+			message := replies.Get().GetMessage()
+			if message != nil {
+				config := message.(cmsg.Secret)
+				if config.GetCommand() == commandName {
+					term <- &message
+				}
+			} else {
+				time.Sleep(time.Duration(10) * time.Millisecond)
+			}
+		}
+	}()
+	select {
+	case res := <-term:
+		cont = false
+		return res
+	case <-time.After(time.Duration(timeout) * time.Second):
+		return nil
+	}
+}
 
 // HandleConnectorConfig : Connector handle connector config.
 func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
@@ -41,7 +78,7 @@ func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secre
 	secretMsg.GetContext()["secret"] = secret
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
-	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
 		if secretMsg.GetTimeout() > timeoutMax {
@@ -50,17 +87,23 @@ func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secre
 
 		notSend := true
 		for notSend {
+
+			fmt.Println("SEND")
+
 			index := getSecretSendIndex(shosets)
 			shosets[index].SendMessage(secretMsg)
 			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
 
 			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
+			fmt.Println("timeoutSend")
+			fmt.Println(timeoutSend)
+
+			time.Sleep(timeoutSend * time.Millisecond)
 
 			if shoset.Context["validation"] != nil {
 				notSend = false
 				break
 			}
-			time.Sleep(timeoutSend)
 		}
 
 		if notSend {

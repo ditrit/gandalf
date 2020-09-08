@@ -63,11 +63,12 @@ func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 
 			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 
+			time.Sleep(timeoutSend * time.Millisecond)
+
 			if shoset.Context["mapConnectorsConfig"] != nil {
 				notSend = false
 				break
 			}
-			time.Sleep(timeoutSend)
 		}
 
 		if notSend {

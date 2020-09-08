@@ -10,6 +10,8 @@ import (
 	"os/exec"
 	"reflect"
 
+	"github.com/ditrit/shoset/msg"
+
 	"github.com/ditrit/gandalf/core/configuration"
 
 	"github.com/ditrit/gandalf/core/connector/grpc"
@@ -67,6 +69,9 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string, vers
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
+	member.chaussette.Queue["secret"] = msg.NewQueue()
+	member.chaussette.Get["secret"] = shoset.GetSecret
+	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
 
 	coreLog.OpenLogFile(logPath)

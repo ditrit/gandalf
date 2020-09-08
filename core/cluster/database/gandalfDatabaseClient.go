@@ -42,6 +42,21 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalname string) (lo
 			err = gandalfDatabaseClient.Create(&user).Error
 		}
 	}
+	Test(gandalfDatabaseClient)
 
 	return
+}
+
+func Test(gandalfDatabaseClient *gorm.DB) {
+	//CREATE TENANT
+	gandalfDatabaseClient.Create(&models.Tenant{Name: "tenant1"})
+	var tenant models.Tenant
+	gandalfDatabaseClient.Where("name = ?", "tenant1").First(&tenant)
+
+	//CREATE AGG
+	gandalfDatabaseClient.Create(&models.Aggregator{Name: "Aggregator1", Tenant: tenant, Secret: "TOTO"})
+
+	//CREATE CONN
+	gandalfDatabaseClient.Create(&models.Connector{Name: "Connector1", Tenant: tenant, Secret: "TATA"})
+
 }
