@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/canonical/go-dqlite"
+	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
 	"github.com/ditrit/gandalf/core/cluster/utils"
-	"github.com/ditrit/gandalf/core/database"
 	coreLog "github.com/ditrit/gandalf/core/log"
 
 	net "github.com/ditrit/shoset"

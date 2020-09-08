@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/ditrit/gandalf/core/database"
+	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/go-chi/chi"
 )

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -28,8 +29,14 @@ type Client struct {
 }
 
 func NewClient(userAgent string) *Client {
+
+	u, err := url.Parse(BaseURLV1)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	return &Client{
-		BaseURL:   BaseURLV1,
+		BaseURL:   u,
 		UserAgent: userAgent,
 		HTTPClient: &http.Client{
 			Timeout: time.Minute,

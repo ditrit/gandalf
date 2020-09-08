@@ -4,7 +4,7 @@ package utils
 import (
 	"log"
 
-	"github.com/ditrit/gandalf/core/database"
+	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/shoset/msg"
