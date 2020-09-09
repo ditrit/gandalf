@@ -3,7 +3,6 @@ package database
 
 import (
 	"log"
-	"os"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -11,29 +10,39 @@ import (
 )
 
 // NewTenantDatabaseClient : Tenant database client constructor.
-func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient *gorm.DB) {
+func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient *gorm.DB, err error) {
+
 	databaseFullPath := databasePath + "/" + tenant + ".db"
 
-	if _, err := os.Stat(databaseFullPath); err == nil {
-		tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-
-	} else if os.IsNotExist(err) {
-		tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-		if err != nil {
-			log.Println("failed to connect database")
-		}
-
-		InitTenantDatabase(tenantDatabaseClient)
+	tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
+	if err != nil {
+		log.Println("failed to connect database")
 	}
 
-	//DemoPopulateTenantDatabase(tenantDatabaseClient)
+	return
+
+	/*databaseFullPath := databasePath + "/" + tenant + ".db"
+
+	 	if _, err := os.Stat(databaseFullPath); err == nil {
+			tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
+
+		} else if os.IsNotExist(err) {
+			tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
+			if err != nil {
+				log.Println("failed to connect database")
+			}
+
+			InitTenantDatabase(tenantDatabaseClient)
+		}
+
+		//DemoPopulateTenantDatabase(tenantDatabaseClient) */
 
 	return
 }
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
-	tenantDatabaseClient.AutoMigrate(&models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{})
+	tenantDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{})
 
 	return
 }

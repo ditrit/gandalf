@@ -8,8 +8,6 @@ import (
 // Connector : Connector struct.
 type Connector struct {
 	gorm.Model
-	Name     string
-	TenantID uint
-	Tenant   Tenant
-	Secret   string
+	Name   string
+	Secret string
 }

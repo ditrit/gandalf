@@ -2,9 +2,9 @@
 package utils
 
 import (
+	"gandalf/core/cluster/database"
 	"log"
 
-	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/shoset/msg"
@@ -15,7 +15,22 @@ import (
 // GetDatabaseClientByTenant : Cluster database client getter by tenant.
 func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
 	if _, ok := mapDatabaseClient[tenant]; !ok {
-		mapDatabaseClient[tenant] = database.NewTenantDatabaseClient(tenant, databasePath)
+		var databaseCreated, err = database.IsDatabaseCreated(databasePath, tenant)
+		if err == nil {
+			if databaseCreated {
+				var tenantDatabaseClient *gorm.DB
+				tenantDatabaseClient, err = database.NewTenantDatabaseClient(databasePath, tenant)
+				if err == nil {
+					mapDatabaseClient[tenant] = tenantDatabaseClient
+				} else {
+					log.Println("Can't create database client")
+				}
+			} else {
+				return nil
+			}
+		} else {
+			log.Println("Can't detect if the database is created or not")
+		}
 	}
 
 	return mapDatabaseClient[tenant]
@@ -68,14 +83,14 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 	return ok
 }
 
-func ValidateSecret(gandalfDatabaseClient *gorm.DB, componentType, logicalName, tenantName, secret string) (result bool, err error) {
+func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret string) (result bool, err error) {
 
 	result = false
 
 	switch componentType {
 	case "cluster":
 		var cluster models.Cluster
-		err = gandalfDatabaseClient.Where("name = ? and secret = ?", logicalName, secret).First(&cluster).Error
+		err = databaseClient.Where("name = ? and secret = ?", logicalName, secret).First(&cluster).Error
 		if err == nil {
 			if cluster != (models.Cluster{}) {
 				result = true
@@ -83,38 +98,26 @@ func ValidateSecret(gandalfDatabaseClient *gorm.DB, componentType, logicalName, 
 		}
 		break
 	case "aggregator":
-		var tenant models.Tenant
-		err = gandalfDatabaseClient.Where("name = ?", tenantName).First(&tenant).Error
+		var aggregator models.Aggregator
+		err = databaseClient.Where("name = ?", logicalName).First(&aggregator).Error
 		if err == nil {
-			var aggregator models.Aggregator
-			err = gandalfDatabaseClient.Where("name = ? and tenant_id = ?", logicalName, tenant.ID).Preload("Tenant").First(&aggregator).Error
-			if err == nil {
-				if aggregator != (models.Aggregator{}) {
-					if aggregator.Secret == secret {
-						result = true
-					}
+			if aggregator != (models.Aggregator{}) {
+				if aggregator.Secret == secret {
+					result = true
 				}
 			}
-		} else {
-			log.Printf("Can't find tenant : %s \n", tenant)
 		}
 
 		break
 	case "connector":
-		var tenant models.Tenant
-		err = gandalfDatabaseClient.Where("name = ?", tenantName).First(&tenant).Error
+		var connector models.Connector
+		err = gandalfDatabaseClient.Where("name = ?", logicalName).First(&connector).Error
 		if err == nil {
-			var connector models.Connector
-			err = gandalfDatabaseClient.Where("name = ? and tenant_id = ?", logicalName, tenant.ID).Preload("Tenant").First(&connector).Error
-			if err == nil {
-				if connector != (models.Connector{}) {
-					if connector.Secret == secret {
-						result = true
-					}
+			if connector != (models.Connector{}) {
+				if connector.Secret == secret {
+					result = true
 				}
 			}
-		} else {
-			log.Printf("Can't find tenant : %s \n", tenant)
 		}
 
 		break

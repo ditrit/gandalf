@@ -175,7 +175,7 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logP
 			gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
 			if err == nil {
 				var result bool
-				result, err = utils.ValidateSecret(gandalfDatabaseClient, "cluster", logicalName, "", secret)
+				result, err = utils.ValidateSecret(gandalfDatabaseClient, "cluster", logicalName, secret)
 				if err == nil {
 					if result {
 

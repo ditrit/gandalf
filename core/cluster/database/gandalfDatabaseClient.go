@@ -24,7 +24,7 @@ func NewGandalfDatabaseClient(databasePath, name string) (gandalfDatabaseClient 
 
 // InitGandalfDatabase : Gandalf database init.
 func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalname string) (login string, password string, secret string, err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Cluster{}, &models.Connector{}, &models.Role{}, &models.User{}, &models.Tenant{})
+	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()

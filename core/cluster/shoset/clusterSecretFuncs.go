@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ditrit/gandalf/core/cluster/utils"
+	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	"github.com/ditrit/shoset/msg"
@@ -73,47 +74,59 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle secret")
 	log.Println(secret)
 
-	fmt.Println("ch.Context")
-	fmt.Println(ch.Context["gandalfDatabase"])
-	gandalfDatabaseClient := ch.Context["gandalfDatabase"].(*gorm.DB)
-	if gandalfDatabaseClient != nil {
-		if secret.GetCommand() == "VALIDATION" {
+	ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
 
-			var result bool
-			result, err = utils.ValidateSecret(gandalfDatabaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["tenant"].(string), secret.GetContext()["secret"].(string))
-			fmt.Println("result")
-			fmt.Println(result)
-			fmt.Println("error")
-			fmt.Println(err)
+	if ok {
+		mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+		databasePath := ch.Context["databasePath"].(string)
+		if mapDatabaseClient != nil {
+			databaseClient := cutils.GetDatabaseClientByTenant(secret.GetTenant(), databasePath, mapDatabaseClient)
+			if databaseClient != nil {
+				if secret.GetCommand() == "VALIDATION" {
 
-			fmt.Println("componentType")
-			fmt.Println(secret.GetContext()["componentType"].(string))
-			if err == nil {
-				target := secret.GetTarget()
-				if secret.GetContext()["componentType"] == "aggregator" {
-					target = ""
-				}
-				if result {
-					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "true")
-					secretReply.Tenant = secret.GetTenant()
-					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+					var result bool
+					result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string))
+					fmt.Println("result")
+					fmt.Println(result)
+					fmt.Println("error")
+					fmt.Println(err)
 
-					shoset.SendMessage(secretReply)
-				} else {
-					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "false")
-					secretReply.Tenant = secret.GetTenant()
-					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+					fmt.Println("componentType")
+					fmt.Println(secret.GetContext()["componentType"].(string))
+					if err == nil {
+						target := secret.GetTarget()
+						if secret.GetContext()["componentType"] == "aggregator" {
+							target = ""
+						}
+						if result {
+							secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "true")
+							secretReply.Tenant = secret.GetTenant()
+							shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
-					shoset.SendMessage(secretReply)
+							shoset.SendMessage(secretReply)
+						} else {
+							secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "false")
+							secretReply.Tenant = secret.GetTenant()
+							shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+
+							shoset.SendMessage(secretReply)
+						}
+					} else {
+						log.Println("Can't validate secret")
+						err = errors.New("Can't validate secret")
+					}
 				}
 			} else {
-				log.Println("Can't validate secret")
-				err = errors.New("Can't validate secret")
+				log.Println("Can't get database client by tenant")
+				err = errors.New("Can't get database client by tenant")
 			}
+		} else {
+			log.Println("Database client map is empty")
+			err = errors.New("Database client map is empty")
 		}
 	} else {
-		log.Println("Can't get gandalf database")
-		err = errors.New("Can't get gandalf database")
+		log.Println("Can't push to queue")
+		err = errors.New("Can't push to queue")
 	}
 
 	/* 	gandalfdatabaseClient := cutils.GetGandalfDatabaseClient(databasePath)

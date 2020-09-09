@@ -74,7 +74,6 @@ func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secre
 	secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "connector"
 	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["tenant"] = tenant
 	secretMsg.GetContext()["secret"] = secret
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
