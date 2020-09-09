@@ -2,8 +2,10 @@
 package utils
 
 import (
-	"gandalf/core/cluster/database"
+	"fmt"
 	"log"
+
+	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -14,12 +16,18 @@ import (
 
 // GetDatabaseClientByTenant : Cluster database client getter by tenant.
 func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
+	fmt.Println("databasePath")
+	fmt.Println(databasePath)
+	fmt.Println("tenant")
+	fmt.Println(tenant)
 	if _, ok := mapDatabaseClient[tenant]; !ok {
 		var databaseCreated, err = database.IsDatabaseCreated(databasePath, tenant)
 		if err == nil {
+			fmt.Println("databaseCreated")
+			fmt.Println(databaseCreated)
 			if databaseCreated {
 				var tenantDatabaseClient *gorm.DB
-				tenantDatabaseClient, err = database.NewTenantDatabaseClient(databasePath, tenant)
+				tenantDatabaseClient, err = database.NewTenantDatabaseClient(tenant, databasePath)
 				if err == nil {
 					mapDatabaseClient[tenant] = tenantDatabaseClient
 				} else {
@@ -111,7 +119,7 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret 
 		break
 	case "connector":
 		var connector models.Connector
-		err = gandalfDatabaseClient.Where("name = ?", logicalName).First(&connector).Error
+		err = databaseClient.Where("name = ?", logicalName).First(&connector).Error
 		if err == nil {
 			if connector != (models.Connector{}) {
 				if connector.Secret == secret {

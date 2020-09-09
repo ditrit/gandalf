@@ -216,7 +216,11 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 
 			//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ConnectorTypeKeys)
 			//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ProductKeys)
+
+			//
+			config[connectorType] = append(config[connectorType], connectorConfig)
 		}
+		m.chaussette.Context["mapConnectorsConfig"] = config
 	}
 
 	return
@@ -351,6 +355,8 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[int64][]string)
 	if mapVersionConnectorCommands != nil {
 		config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+		fmt.Println("config")
+		fmt.Println(config)
 		if config != nil {
 			for version, commands := range mapVersionConnectorCommands {
 				var configCommands []string
@@ -360,7 +366,13 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 					for _, command := range connectorConfig.ConnectorCommands {
 						configCommands = append(configCommands, command.Name)
 					}
+					fmt.Println("commands")
+					fmt.Println(commands)
+					fmt.Println("configCommands")
+					fmt.Println(configCommands)
 					validation = validation && reflect.DeepEqual(commands, configCommands)
+					fmt.Println("validation")
+					fmt.Println(validation)
 					result = validation
 				} else {
 					log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)

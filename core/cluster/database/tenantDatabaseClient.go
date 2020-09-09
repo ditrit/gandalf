@@ -49,18 +49,12 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
 
 //DemoCreateAggregator
 func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator1"})
-	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator2"})
-	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator3"})
-	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator4"})
+	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator1", Secret: "TATA"})
 }
 
 //DemoCreateConnector
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Connector{Name: "Connector1"})
-	tenantDatabaseClient.Create(&models.Connector{Name: "Connector2"})
-	tenantDatabaseClient.Create(&models.Connector{Name: "Connector3"})
-	tenantDatabaseClient.Create(&models.Connector{Name: "Connector4"})
+	tenantDatabaseClient.Create(&models.Connector{Name: "Connector1", Secret: "TOTO"})
 }
 
 //DemoCreateConnectorType

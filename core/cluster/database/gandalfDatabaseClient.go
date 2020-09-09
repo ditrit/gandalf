@@ -52,11 +52,9 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 	gandalfDatabaseClient.Create(&models.Tenant{Name: "tenant1"})
 	var tenant models.Tenant
 	gandalfDatabaseClient.Where("name = ?", "tenant1").First(&tenant)
-
-	//CREATE AGG
-	gandalfDatabaseClient.Create(&models.Aggregator{Name: "Aggregator1", Tenant: tenant, Secret: "TOTO"})
-
-	//CREATE CONN
-	gandalfDatabaseClient.Create(&models.Connector{Name: "Connector1", Tenant: tenant, Secret: "TATA"})
+	tenantDatabaseClient, _ := NewTenantDatabaseClient("tenant1", "/home/romainfairant/gandalf/database")
+	InitTenantDatabase(tenantDatabaseClient)
+	DemoCreateAggregator(tenantDatabaseClient)
+	DemoCreateConnector(tenantDatabaseClient)
 
 }
