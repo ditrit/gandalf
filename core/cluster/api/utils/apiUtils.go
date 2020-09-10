@@ -3,9 +3,10 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
-	"gandalf/core/cluster/database"
 	"log"
 	"net/http"
+
+	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/jinzhu/gorm"
 )

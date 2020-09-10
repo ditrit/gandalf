@@ -3,15 +3,15 @@ package gandalf
 import (
 	"database/sql"
 	"encoding/json"
-	"gandalf/core/api/utils"
-	"gandalf/core/cluster/api/dao"
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/cluster/api/dao"
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
 	"github.com/ditrit/gandalf/core/models"
-	"github.com/jinzhu/gorm"
 
 	"github.com/gorilla/mux"
+	"github.com/jinzhu/gorm"
 )
 
 type ClusterController struct {

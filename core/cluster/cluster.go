@@ -9,6 +9,7 @@ import (
 	"github.com/ditrit/shoset/msg"
 
 	"github.com/canonical/go-dqlite"
+	"github.com/ditrit/gandalf/core/cluster/api"
 	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
 	"github.com/ditrit/gandalf/core/cluster/utils"
@@ -134,6 +135,10 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 						if err == nil {
 							fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 							fmt.Printf("Created cluster, logical name : %s, secret : %s \n", logicalName, secret)
+
+							//TEST API
+							api.NewServerAPI(databasePath)
+							//
 							log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
 						} else {
@@ -204,6 +209,9 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logP
 									gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
 									member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 
+									//TEST API
+									api.NewServerAPI(databasePath)
+									//
 									log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 								} else {
 									log.Println("Database already created")

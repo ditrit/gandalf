@@ -1,9 +1,10 @@
 package api
 
 import (
-	"gandalf/core/cluster/database"
 	"log"
 	"net/http"
+
+	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/go-chi/chi"
 	"github.com/jinzhu/gorm"
