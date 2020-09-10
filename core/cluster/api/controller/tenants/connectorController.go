@@ -1,10 +1,10 @@
-package controller
+package tenants
 
 import (
 	"database/sql"
 	"encoding/json"
-	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
+	"gandalf/core/cluster/api/dao"
 	"net/http"
 	"strconv"
 
@@ -14,19 +14,24 @@ import (
 )
 
 type ConnectorController struct {
-	connectorDAO *dao.ConnectorDAO
+	mapDatabase  map[string]*gorm.DB
+	databasePath string
 }
 
-func NewConnectorController(gandalfDatabase *gorm.DB) (connectorController *ConnectorController) {
+func NewConnectorController(mapDatabase map[string]*gorm.DB, databasePath string) (connectorController *ConnectorController) {
 	connectorController = new(ConnectorController)
-	connectorController.connectorDAO = dao.NewConnectorDAO(gandalfDatabase)
+	connectorController.mapDatabase = mapDatabase
+	connectorController.databasePath = databasePath
 
 	return
 }
 
 func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
 
-	connectors, err := cc.connectorDAO.List()
+	connectors, err := dao.ListConnector(database)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -36,6 +41,10 @@ func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
+
 	var connector models.Connector
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&connector); err != nil {
@@ -44,7 +53,7 @@ func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := cc.connectorDAO.Create(connector); err != nil {
+	if err := dao.CreateConnector(database, connector); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -54,6 +63,9 @@ func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 
 func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
@@ -61,7 +73,7 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var connector models.Connector
-	if connector, err = cc.connectorDAO.Read(id); err != nil {
+	if connector, err = dao.ReadConnector(database, id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -76,6 +88,9 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 
 func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
@@ -91,7 +106,7 @@ func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	connector.ID = uint(id)
 
-	if err := cc.connectorDAO.Update(connector); err != nil {
+	if err := dao.UpdateConnector(database, connector); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -101,13 +116,16 @@ func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 
 func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 		return
 	}
 
-	if err := cc.connectorDAO.Delete(id); err != nil {
+	if err := dao.DeleteAggregator(database, id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

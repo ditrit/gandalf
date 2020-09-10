@@ -1,10 +1,12 @@
 package api
 
 import (
+	"gandalf/core/cluster/database"
 	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -13,10 +15,12 @@ const (
 )
 
 type ServerAPI struct {
-	address string
-	port    string
-	rooturl string
-	router  *chi.Mux
+	address         string
+	port            string
+	rooturl         string
+	router          *chi.Mux
+	gandalfDatabase *gorm.DB
+	mapDatabase     map[string]*gorm.DB
 }
 
 func NewServerAPI(databasePath string) *ServerAPI {
@@ -25,7 +29,11 @@ func NewServerAPI(databasePath string) *ServerAPI {
 	serverAPI.port = server_port
 	serverAPI.rooturl = server_address + server_port
 
-	serverAPI.router = GetRouter(databasePath)
+	serverAPI.mapDatabase = make(map[string]*gorm.DB)
+	gandalfDatabase, _ := database.NewGandalfDatabaseClient(databasePath, "gandalf")
+	serverAPI.gandalfDatabase = gandalfDatabase
+
+	serverAPI.router = GetRouter(gandalfDatabase, serverAPI.mapDatabase, databasePath)
 
 	return serverAPI
 }

@@ -1,10 +1,10 @@
-package controller
+package gandalf
 
 import (
 	"database/sql"
 	"encoding/json"
-	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
+	"gandalf/core/cluster/api/dao"
 	"gandalf/core/models"
 	"net/http"
 	"strconv"
@@ -14,19 +14,19 @@ import (
 )
 
 type RoleController struct {
-	roleDAO *dao.RoleDAO
+	gandalfDatabase *gorm.DB
 }
 
 func NewRoleController(gandalfDatabase *gorm.DB) (roleController *RoleController) {
 	roleController = new(RoleController)
-	roleController.roleDAO = dao.NewRoleDAO(gandalfDatabase)
+	roleController.gandalfDatabase = gandalfDatabase
 
 	return
 }
 
 func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 
-	roles, err := rc.roleDAO.List()
+	roles, err := dao.ListRole(rc.gandalfDatabase)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -44,7 +44,7 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := rc.roleDAO.Create(role); err != nil {
+	if err := dao.CreateRole(rc.gandalfDatabase, role); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -61,7 +61,7 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var role models.Role
-	if role, err = rc.roleDAO.Read(id); err != nil {
+	if role, err = dao.ReadRole(rc.gandalfDatabase, id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -91,7 +91,7 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	role.ID = uint(id)
 
-	if err := rc.roleDAO.Update(role); err != nil {
+	if err := dao.UpdateRole(rc.gandalfDatabase, role); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -107,7 +107,7 @@ func (rc RoleController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := rc.roleDAO.Delete(id); err != nil {
+	if err := dao.DeleteRole(rc.gandalfDatabase, id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

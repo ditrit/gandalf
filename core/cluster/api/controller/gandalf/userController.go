@@ -1,4 +1,4 @@
-package controller
+package gandalf
 
 import (
 	"database/sql"
@@ -14,19 +14,19 @@ import (
 )
 
 type UserController struct {
-	userDAO *dao.UserDAO
+	gandalfDatabase *gorm.DB
 }
 
 func NewUserController(gandalfDatabase *gorm.DB) (userController *UserController) {
 	userController = new(UserController)
-	userController.userDAO = dao.NewUserDAO(gandalfDatabase)
+	userController.gandalfDatabase = gandalfDatabase
 
 	return
 }
 
 func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 
-	users, err := uc.userDAO.List()
+	users, err := dao.ListUser(uc.gandalfDatabase)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -44,7 +44,7 @@ func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := uc.userDAO.Create(user); err != nil {
+	if err := dao.CreateUser(uc.gandalfDatabase, user); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -60,7 +60,7 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var user models.User
-	if user, err = uc.userDAO.Read(id); err != nil {
+	if user, err = dao.ReadUser(uc.gandalfDatabase, id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -90,7 +90,7 @@ func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	user.ID = uint(id)
 
-	if err := uc.userDAO.Update(user); err != nil {
+	if err := dao.UpdateUser(uc.gandalfDatabase, user); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -106,7 +106,7 @@ func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := uc.userDAO.Delete(id); err != nil {
+	if err := dao.DeleteUser(uc.gandalfDatabase, id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

@@ -1,10 +1,10 @@
-package controller
+package tenants
 
 import (
 	"database/sql"
 	"encoding/json"
-	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
+	"gandalf/core/cluster/api/dao"
 	"gandalf/core/models"
 	"net/http"
 	"strconv"
@@ -14,19 +14,24 @@ import (
 )
 
 type RoleController struct {
-	roleDAO *dao.RoleDAO
+	mapDatabase  map[string]*gorm.DB
+	databasePath string
 }
 
-func NewRoleController(gandalfDatabase *gorm.DB) (roleController *RoleController) {
+func NewRoleController(mapDatabase map[string]*gorm.DB, databasePath string) (roleController *RoleController) {
 	roleController = new(RoleController)
-	roleController.roleDAO = dao.NewRoleDAO(gandalfDatabase)
+	roleController.mapDatabase = mapDatabase
+	roleController.databasePath = databasePath
 
 	return
 }
 
 func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(rc.mapDatabase, rc.databasePath, tenant)
 
-	roles, err := rc.roleDAO.List()
+	roles, err := dao.ListRole(database)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -36,6 +41,10 @@ func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(rc.mapDatabase, rc.databasePath, tenant)
+
 	var role models.Role
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&role); err != nil {
@@ -44,7 +53,7 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := rc.roleDAO.Create(role); err != nil {
+	if err := dao.CreateRole(database, role); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -54,6 +63,9 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 
 func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(rc.mapDatabase, rc.databasePath, tenant)
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
@@ -61,7 +73,7 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var role models.Role
-	if role, err = rc.roleDAO.Read(id); err != nil {
+	if role, err = dao.ReadRole(database, id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -76,6 +88,9 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 
 func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(rc.mapDatabase, rc.databasePath, tenant)
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
@@ -91,7 +106,7 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	role.ID = uint(id)
 
-	if err := rc.roleDAO.Update(role); err != nil {
+	if err := dao.UpdateRole(database, role); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -101,13 +116,16 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 
 func (rc RoleController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(rc.mapDatabase, rc.databasePath, tenant)
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 		return
 	}
 
-	if err := rc.roleDAO.Delete(id); err != nil {
+	if err := dao.DeleteRole(database, id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

@@ -1,10 +1,10 @@
-package controller
+package gandalf
 
 import (
 	"database/sql"
 	"encoding/json"
-	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
+	"gandalf/core/cluster/api/dao"
 	"net/http"
 	"strconv"
 
@@ -14,19 +14,19 @@ import (
 )
 
 type TenantController struct {
-	tenantDAO *dao.TenantDAO
+	gandalfDatabase *gorm.DB
 }
 
 func NewTenantController(gandalfDatabase *gorm.DB) (tenantController *TenantController) {
 	tenantController = new(TenantController)
-	tenantController.tenantDAO = dao.NewTenantDAO(gandalfDatabase)
+	tenantController.gandalfDatabase = gandalfDatabase
 
 	return
 }
 
 func (tc TenantController) List(w http.ResponseWriter, r *http.Request) {
 
-	tenants, err := tc.tenantDAO.List()
+	tenants, err := dao.ListTenant(tc.gandalfDatabase)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -44,7 +44,7 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := tc.tenantDAO.Create(tenant); err != nil {
+	if err := dao.CreateTenant(tc.gandalfDatabase, tenant); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -61,7 +61,7 @@ func (tc TenantController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tenant models.Tenant
-	if tenant, err = tc.tenantDAO.Read(id); err != nil {
+	if tenant, err = dao.ReadTenant(tc.gandalfDatabase, id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -91,7 +91,7 @@ func (tc TenantController) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	tenant.ID = uint(id)
 
-	if err := tc.tenantDAO.Update(tenant); err != nil {
+	if err := dao.UpdateTenant(tc.gandalfDatabase, tenant); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -107,7 +107,7 @@ func (tc TenantController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := tc.tenantDAO.Delete(id); err != nil {
+	if err := dao.DeleteTenant(tc.gandalfDatabase, id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

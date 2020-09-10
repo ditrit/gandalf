@@ -1,29 +1,36 @@
 package api
 
 import (
-	"gandalf/core/api/controller"
+	"gandalf/core/cluster/api/controller/gandalf"
+	"gandalf/core/cluster/api/controller/tenants"
 
 	"github.com/jinzhu/gorm"
 )
 
 type Controllers struct {
-	aggregatorController *controller.AggregatorController
-	clusterController    *controller.ClusterController
-	connectorController  *controller.ConnectorController
-	roleController       *controller.RoleController
-	tenantController     *controller.TenantController
-	userController       *controller.UserController
+	gandalfClusterController *gandalf.ClusterController
+	gandalfTenantController  *gandalf.TenantController
+	gandalfRoleController    *gandalf.RoleController
+	gandalfUserController    *gandalf.UserController
+
+	tenantsAggregatorController *tenants.AggregatorController
+	tenantsConnectorController  *tenants.ConnectorController
+	tenantsRoleController       *tenants.RoleController
+	tenantsUserController       *tenants.UserController
 }
 
-func ReturnControllers(gandalfDatabase *gorm.DB) *Controllers {
+func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath string) *Controllers {
 
 	controllers := new(Controllers)
-	controllers.aggregatorController = controller.NewAggregatorController(gandalfDatabase)
-	controllers.clusterController = controller.NewClusterController(gandalfDatabase)
-	controllers.connectorController = controller.NewConnectorController(gandalfDatabase)
-	controllers.roleController = controller.NewRoleController(gandalfDatabase)
-	controllers.tenantController = controller.NewTenantController(gandalfDatabase)
-	controllers.userController = controller.NewUserController(gandalfDatabase)
+	controllers.gandalfClusterController = gandalf.NewClusterController(gandalfDatabase)
+	controllers.gandalfTenantController = gandalf.NewTenantController(gandalfDatabase)
+	controllers.gandalfUserController = gandalf.NewUserController(gandalfDatabase)
+	controllers.gandalfRoleController = gandalf.NewRoleController(gandalfDatabase)
+
+	controllers.tenantsConnectorController = tenants.NewConnectorController(mapDatabase, databasePath)
+	controllers.tenantsAggregatorController = tenants.NewAggregatorController(mapDatabase, databasePath)
+	controllers.tenantsUserController = tenants.NewUserController(mapDatabase, databasePath)
+	controllers.tenantsRoleController = tenants.NewRoleController(mapDatabase, databasePath)
 
 	return controllers
 }

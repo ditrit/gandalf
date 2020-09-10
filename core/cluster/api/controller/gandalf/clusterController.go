@@ -1,10 +1,10 @@
-package controller
+package gandalf
 
 import (
 	"database/sql"
 	"encoding/json"
-	"gandalf/core/api/dao"
 	"gandalf/core/api/utils"
+	"gandalf/core/cluster/api/dao"
 	"net/http"
 	"strconv"
 
@@ -15,19 +15,19 @@ import (
 )
 
 type ClusterController struct {
-	clusterDAO *dao.ClusterDAO
+	gandalfDatabase *gorm.DB
 }
 
 func NewClusterController(gandalfDatabase *gorm.DB) (clusterController *ClusterController) {
 	clusterController = new(ClusterController)
-	clusterController.clusterDAO = dao.NewClusterDAO(gandalfDatabase)
+	clusterController.gandalfDatabase = gandalfDatabase
 
 	return
 }
 
 func (cc ClusterController) List(w http.ResponseWriter, r *http.Request) {
 
-	cluster, err := cc.clusterDAO.List()
+	cluster, err := dao.ListCluster(cc.gandalfDatabase)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -45,7 +45,7 @@ func (cc ClusterController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := cc.clusterDAO.Create(cluster); err != nil {
+	if err := dao.CreateCluster(cc.gandalfDatabase, cluster); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -62,7 +62,7 @@ func (cc ClusterController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var cluster models.Cluster
-	if cluster, err = cc.clusterDAO.Read(id); err != nil {
+	if cluster, err = dao.ReadCluster(cc.gandalfDatabase, id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -92,7 +92,7 @@ func (cc ClusterController) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	cluster.ID = uint(id)
 
-	if err := cc.clusterDAO.Update(cluster); err != nil {
+	if err := dao.UpdateCluster(cc.gandalfDatabase, cluster); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -108,7 +108,7 @@ func (cc ClusterController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cc.clusterDAO.Delete(id); err != nil {
+	if err := dao.DeleteCluster(cc.gandalfDatabase, id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
