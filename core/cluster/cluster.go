@@ -136,9 +136,6 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 							fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 							fmt.Printf("Created cluster, logical name : %s, secret : %s \n", logicalName, secret)
 
-							//TEST API
-							api.NewServerAPI(databasePath)
-							//
 							log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
 						} else {
@@ -149,6 +146,10 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *
 					} else {
 						log.Println("Database already created")
 					}
+					//TEST API
+					server := api.NewServerAPI(databasePath)
+					server.Run()
+					//
 
 				} else {
 					log.Fatalf("Can't create database client")
@@ -209,13 +210,15 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logP
 									gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
 									member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 
-									//TEST API
-									api.NewServerAPI(databasePath)
-									//
 									log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 								} else {
 									log.Println("Database already created")
 								}
+
+								//TEST API
+								server := api.NewServerAPI(databasePath)
+								server.Run()
+								//
 							} else {
 								log.Fatalf("Can't detect if the database is created or not")
 							}

@@ -3,10 +3,10 @@ package api
 import (
 	"github.com/jinzhu/gorm"
 
-	"github.com/go-chi/chi"
+	"github.com/gorilla/mux"
 )
 
-func GetRouter(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath string) *chi.Mux {
+func GetRouter(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath string) *mux.Router {
 
 	//CONTROLLERS
 	controllers := ReturnControllers(gandalfDatabase, mapDatabase, databasePath)
@@ -14,72 +14,67 @@ func GetRouter(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databa
 	//URLS
 	urls := ReturnURLS()
 
-	mux := chi.NewRouter()
+	mux := mux.NewRouter()
 	//mux.Handle("/images/*", http.StripPrefix("/images/", http.FileServer(http.Dir("./app/tmpl/images/"))))
 	//mux.PathPrefix("/api/v1/").Subrouter()
 
-	mux.Group(func(mux chi.Router) {
+	//GANDALF
+	//CLUSTER
+	mux.HandleFunc(urls.GANDALF_CLUSTER_PATH_LIST, controllers.gandalfClusterController.List).Methods("GET")
+	mux.HandleFunc(urls.GANDALF_CLUSTER_PATH_CREATE, controllers.gandalfClusterController.Create).Methods("POST")
+	mux.HandleFunc(urls.GANDALF_CLUSTER_PATH_READ, controllers.gandalfClusterController.Read).Methods("GET")
+	mux.HandleFunc(urls.GANDALF_CLUSTER_PATH_UPDATE, controllers.gandalfClusterController.Update).Methods("PUT")
+	mux.HandleFunc(urls.GANDALF_CLUSTER_PATH_DELETE, controllers.gandalfClusterController.Delete).Methods("DELETE")
 
-		//CLUSTER
-		mux.MethodFunc("GET", urls.GANDALF_CLUSTER_PATH_LIST, controllers.gandalfClusterController.List)
-		mux.MethodFunc("POST", urls.GANDALF_CLUSTER_PATH_CREATE, controllers.gandalfClusterController.Create)
-		mux.MethodFunc("GET", urls.GANDALF_CLUSTER_PATH_READ, controllers.gandalfClusterController.Read)
-		mux.MethodFunc("PUT", urls.GANDALF_CLUSTER_PATH_UPDATE, controllers.gandalfClusterController.Update)
-		mux.MethodFunc("DELETE", urls.GANDALF_CLUSTER_PATH_DELETE, controllers.gandalfClusterController.Delete)
+	//ROLE
+	mux.HandleFunc(urls.GANDALF_ROLE_PATH_LIST, controllers.gandalfRoleController.List).Methods("GET")
+	mux.HandleFunc(urls.GANDALF_ROLE_PATH_CREATE, controllers.gandalfRoleController.Create).Methods("POST")
+	mux.HandleFunc(urls.GANDALF_ROLE_PATH_READ, controllers.gandalfRoleController.Read).Methods("GET")
+	mux.HandleFunc(urls.GANDALF_ROLE_PATH_UPDATE, controllers.gandalfRoleController.Update).Methods("PUT")
+	mux.HandleFunc(urls.GANDALF_ROLE_PATH_DELETE, controllers.gandalfRoleController.Delete).Methods("DELETE")
 
-		//ROLE
-		mux.MethodFunc("GET", urls.GANDALF_ROLE_PATH_LIST, controllers.gandalfRoleController.List)
-		mux.MethodFunc("POST", urls.GANDALF_ROLE_PATH_CREATE, controllers.gandalfRoleController.Create)
-		mux.MethodFunc("GET", urls.GANDALF_ROLE_PATH_READ, controllers.gandalfRoleController.Read)
-		mux.MethodFunc("PUT", urls.GANDALF_ROLE_PATH_UPDATE, controllers.gandalfRoleController.Update)
-		mux.MethodFunc("DELETE", urls.GANDALF_ROLE_PATH_DELETE, controllers.gandalfRoleController.Delete)
+	//TENANT
+	mux.HandleFunc(urls.GANDALF_TENANT_PATH_LIST, controllers.gandalfTenantController.List).Methods("GET")
+	mux.HandleFunc(urls.GANDALF_TENANT_PATH_CREATE, controllers.gandalfTenantController.Create).Methods("POST")
+	mux.HandleFunc(urls.GANDALF_TENANT_PATH_READ, controllers.gandalfTenantController.Read).Methods("GET")
+	mux.HandleFunc(urls.GANDALF_TENANT_PATH_UPDATE, controllers.gandalfTenantController.Update).Methods("PUT")
+	mux.HandleFunc(urls.GANDALF_TENANT_PATH_DELETE, controllers.gandalfTenantController.Delete).Methods("DELETE")
 
-		//TENANT
-		mux.MethodFunc("GET", urls.GANDALF_TENANT_PATH_LIST, controllers.gandalfTenantController.List)
-		mux.MethodFunc("POST", urls.GANDALF_TENANT_PATH_CREATE, controllers.gandalfTenantController.Create)
-		mux.MethodFunc("GET", urls.GANDALF_TENANT_PATH_READ, controllers.gandalfTenantController.Read)
-		mux.MethodFunc("PUT", urls.GANDALF_TENANT_PATH_UPDATE, controllers.gandalfTenantController.Update)
-		mux.MethodFunc("DELETE", urls.GANDALF_TENANT_PATH_DELETE, controllers.gandalfTenantController.Delete)
+	//USER
+	mux.HandleFunc(urls.GANDALF_USER_PATH_LIST, controllers.gandalfUserController.List).Methods("GET")
+	mux.HandleFunc(urls.GANDALF_USER_PATH_CREATE, controllers.gandalfUserController.Create).Methods("POST")
+	mux.HandleFunc(urls.GANDALF_USER_PATH_READ, controllers.gandalfUserController.Read).Methods("GET")
+	mux.HandleFunc(urls.GANDALF_USER_PATH_UPDATE, controllers.gandalfUserController.Update).Methods("PUT")
+	mux.HandleFunc(urls.GANDALF_USER_PATH_DELETE, controllers.gandalfUserController.Delete).Methods("DELETE")
 
-		//USER
-		mux.MethodFunc("GET", urls.GANDALF_USER_PATH_LIST, controllers.gandalfUserController.List)
-		mux.MethodFunc("POST", urls.GANDALF_USER_PATH_CREATE, controllers.gandalfUserController.Create)
-		mux.MethodFunc("GET", urls.GANDALF_USER_PATH_READ, controllers.gandalfUserController.Read)
-		mux.MethodFunc("PUT", urls.GANDALF_USER_PATH_UPDATE, controllers.gandalfUserController.Update)
-		mux.MethodFunc("DELETE", urls.GANDALF_USER_PATH_DELETE, controllers.gandalfUserController.Delete)
+	//TENANTS
+	//AGGREGATOR
+	mux.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_LIST, controllers.tenantsAggregatorController.List).Methods("GET")
+	mux.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_CREATE, controllers.tenantsAggregatorController.Create).Methods("POST")
+	mux.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_READ, controllers.tenantsAggregatorController.Read).Methods("GET")
+	mux.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_UPDATE, controllers.tenantsAggregatorController.Update).Methods("PUT")
+	mux.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DELETE, controllers.tenantsAggregatorController.Delete).Methods("DELETE")
 
-	})
+	//CONNECTOR
+	mux.HandleFunc(urls.TENANTS_CONNECTOR_PATH_LIST, controllers.tenantsConnectorController.List).Methods("GET")
+	mux.HandleFunc(urls.TENANTS_CONNECTOR_PATH_CREATE, controllers.tenantsConnectorController.Create).Methods("POST")
+	mux.HandleFunc(urls.TENANTS_CONNECTOR_PATH_READ, controllers.tenantsConnectorController.Read).Methods("GET")
+	mux.HandleFunc(urls.TENANTS_CONNECTOR_PATH_UPDATE, controllers.tenantsConnectorController.Update).Methods("PUT")
+	mux.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DELETE, controllers.tenantsConnectorController.Delete).Methods("DELETE")
 
-	mux.Group(func(mux chi.Router) {
-		//AGGREGATOR
-		mux.MethodFunc("GET", urls.TENANTS_AGGREGATOR_PATH_LIST, controllers.tenantsAggregatorController.List)
-		mux.MethodFunc("POST", urls.TENANTS_AGGREGATOR_PATH_CREATE, controllers.tenantsAggregatorController.Create)
-		mux.MethodFunc("GET", urls.TENANTS_AGGREGATOR_PATH_READ, controllers.tenantsAggregatorController.Read)
-		mux.MethodFunc("PUT", urls.TENANTS_AGGREGATOR_PATH_UPDATE, controllers.tenantsAggregatorController.Update)
-		mux.MethodFunc("DELETE", urls.TENANTS_AGGREGATOR_PATH_DELETE, controllers.tenantsAggregatorController.Delete)
+	//ROLE
+	mux.HandleFunc(urls.TENANTS_ROLE_PATH_LIST, controllers.tenantsRoleController.List).Methods("GET")
+	mux.HandleFunc(urls.TENANTS_ROLE_PATH_CREATE, controllers.tenantsRoleController.Create).Methods("POST")
+	mux.HandleFunc(urls.TENANTS_ROLE_PATH_READ, controllers.tenantsRoleController.Read).Methods("GET")
+	mux.HandleFunc(urls.TENANTS_ROLE_PATH_UPDATE, controllers.tenantsRoleController.Update).Methods("PUT")
+	mux.HandleFunc(urls.TENANTS_ROLE_PATH_DELETE, controllers.tenantsRoleController.Delete).Methods("DELETE")
 
-		//CONNECTOR
-		mux.MethodFunc("GET", urls.TENANTS_CONNECTOR_PATH_LIST, controllers.tenantsConnectorController.List)
-		mux.MethodFunc("POST", urls.TENANTS_CONNECTOR_PATH_CREATE, controllers.tenantsConnectorController.Create)
-		mux.MethodFunc("GET", urls.TENANTS_CONNECTOR_PATH_READ, controllers.tenantsConnectorController.Read)
-		mux.MethodFunc("PUT", urls.TENANTS_CONNECTOR_PATH_UPDATE, controllers.tenantsConnectorController.Update)
-		mux.MethodFunc("DELETE", urls.TENANTS_CONNECTOR_PATH_DELETE, controllers.tenantsConnectorController.Delete)
-
-		//ROLE
-		mux.MethodFunc("GET", urls.TENANTS_ROLE_PATH_LIST, controllers.tenantsRoleController.List)
-		mux.MethodFunc("POST", urls.TENANTS_ROLE_PATH_CREATE, controllers.tenantsRoleController.Create)
-		mux.MethodFunc("GET", urls.TENANTS_ROLE_PATH_READ, controllers.tenantsRoleController.Read)
-		mux.MethodFunc("PUT", urls.TENANTS_ROLE_PATH_UPDATE, controllers.tenantsRoleController.Update)
-		mux.MethodFunc("DELETE", urls.TENANTS_ROLE_PATH_DELETE, controllers.tenantsRoleController.Delete)
-
-		//USER
-		mux.MethodFunc("GET", urls.TENANTS_USER_PATH_LIST, controllers.tenantsUserController.List)
-		mux.MethodFunc("POST", urls.TENANTS_USER_PATH_CREATE, controllers.tenantsUserController.Create)
-		mux.MethodFunc("GET", urls.TENANTS_USER_PATH_READ, controllers.tenantsUserController.Read)
-		mux.MethodFunc("PUT", urls.TENANTS_USER_PATH_UPDATE, controllers.tenantsUserController.Update)
-		mux.MethodFunc("DELETE", urls.TENANTS_USER_PATH_DELETE, controllers.tenantsUserController.Delete)
-
-	})
+	//USER
+	mux.HandleFunc(urls.TENANTS_USER_PATH_LIST, controllers.tenantsUserController.List).Methods("GET")
+	mux.HandleFunc(urls.TENANTS_USER_PATH_CREATE, controllers.tenantsUserController.Create).Methods("POST")
+	mux.HandleFunc(urls.TENANTS_USER_PATH_READ, controllers.tenantsUserController.Read).Methods("GET")
+	mux.HandleFunc(urls.TENANTS_USER_PATH_UPDATE, controllers.tenantsUserController.Update).Methods("PUT")
+	mux.HandleFunc(urls.TENANTS_USER_PATH_DELETE, controllers.tenantsUserController.Delete).Methods("DELETE")
 
 	return mux
 }

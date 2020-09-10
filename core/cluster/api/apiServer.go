@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
+	"github.com/gorilla/mux"
 
-	"github.com/go-chi/chi"
 	"github.com/jinzhu/gorm"
 )
 
@@ -19,7 +19,7 @@ type ServerAPI struct {
 	address         string
 	port            string
 	rooturl         string
-	router          *chi.Mux
+	router          *mux.Router
 	gandalfDatabase *gorm.DB
 	mapDatabase     map[string]*gorm.DB
 }
