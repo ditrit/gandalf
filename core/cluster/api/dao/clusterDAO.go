@@ -6,44 +6,42 @@ import (
 )
 
 type ClusterDAO struct {
-	GandalfDatabase *gorm.DB
 }
 
-func NewClusterDAO(gandalfDatabase *gorm.DB) (clusterDAO *ClusterDAO) {
+func NewClusterDAO() (clusterDAO *ClusterDAO) {
 	clusterDAO = new(ClusterDAO)
-	clusterDAO.GandalfDatabase = gandalfDatabase
 
 	return
 }
 
-func (cd ClusterDAO) List() (clusters []models.Cluster, err error) {
-	err = cd.GandalfDatabase.Find(&clusters).Error
+func (cd ClusterDAO) List(database *gorm.DB) (clusters []models.Cluster, err error) {
+	err = database.Find(&clusters).Error
 
 	return
 }
 
-func (cd ClusterDAO) Create(cluster models.Cluster) (err error) {
-	err = cd.GandalfDatabase.Create(&cluster).Error
+func (cd ClusterDAO) Create(database *gorm.DB, cluster models.Cluster) (err error) {
+	err = database.Create(&cluster).Error
 
 	return
 
 }
 
-func (cd ClusterDAO) Read(id int) (cluster models.Cluster, err error) {
-	err = cd.GandalfDatabase.First(&cluster, id).Error
+func (cd ClusterDAO) Read(database *gorm.DB, id int) (cluster models.Cluster, err error) {
+	err = database.First(&cluster, id).Error
 
 	return
 }
 
-func (cd ClusterDAO) Update(cluster models.Cluster) (err error) {
-	err = cd.GandalfDatabase.Save(&cluster).Error
+func (cd ClusterDAO) Update(database *gorm.DB, cluster models.Cluster) (err error) {
+	err = database.Save(&cluster).Error
 
 	return
 }
 
-func (cd ClusterDAO) Delete(id int) (err error) {
+func (cd ClusterDAO) Delete(database *gorm.DB, id int) (err error) {
 	var cluster models.Cluster
-	err = cd.GandalfDatabase.Delete(&cluster, id).Error
+	err = database.Delete(&cluster, id).Error
 
 	return
 }

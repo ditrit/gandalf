@@ -6,43 +6,41 @@ import (
 )
 
 type AggregatorDAO struct {
-	GandalfDatabase *gorm.DB
 }
 
-func NewAggregatorDAO(gandalfDatabase *gorm.DB) (aggregatorDAO *AggregatorDAO) {
+func NewAggregatorDAO() (aggregatorDAO *AggregatorDAO) {
 	aggregatorDAO = new(AggregatorDAO)
-	aggregatorDAO.GandalfDatabase = gandalfDatabase
 
 	return
 }
 
-func (ad AggregatorDAO) List() (aggregators []models.Aggregator, err error) {
-	err = ad.GandalfDatabase.Find(&aggregators).Error
+func (ad AggregatorDAO) List(database *gorm.DB) (aggregators []models.Aggregator, err error) {
+	err = database.Find(&aggregators).Error
 
 	return
 }
 
-func (ad AggregatorDAO) Create(aggregator models.Aggregator) (err error) {
-	err = ad.GandalfDatabase.Create(&aggregator).Error
+func (ad AggregatorDAO) Create(database *gorm.DB, aggregator models.Aggregator) (err error) {
+	err = database.Create(&aggregator).Error
 
 	return
 }
 
-func (ad AggregatorDAO) Read(id int) (aggregator models.Aggregator, err error) {
-	err = ad.GandalfDatabase.First(&aggregator, id).Error
+func (ad AggregatorDAO) Read(database *gorm.DB, id int) (aggregator models.Aggregator, err error) {
+	err = database.First(&aggregator, id).Error
 
 	return
 }
 
-func (ad AggregatorDAO) Update(aggregator models.Aggregator) (err error) {
-	err = ad.GandalfDatabase.Save(&aggregator).Error
+func (ad AggregatorDAO) Update(database *gorm.DB, aggregator models.Aggregator) (err error) {
+	err = database.Save(&aggregator).Error
 
 	return
 }
 
-func (ad AggregatorDAO) Delete(id int) (err error) {
+func (ad AggregatorDAO) Delete(database *gorm.DB, id int) (err error) {
 	var aggregator models.Aggregator
-	err = ad.GandalfDatabase.Delete(&aggregator, id).Error
+	err = database.Delete(&aggregator, id).Error
 
 	return
 }

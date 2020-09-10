@@ -6,43 +6,41 @@ import (
 )
 
 type RoleDAO struct {
-	GandalfDatabase *gorm.DB
 }
 
-func NewRoleDAO(gandalfDatabase *gorm.DB) (roleDAO *RoleDAO) {
+func NewRoleDAO() (roleDAO *RoleDAO) {
 	roleDAO = new(RoleDAO)
-	roleDAO.GandalfDatabase = gandalfDatabase
 
 	return
 }
 
-func (rd RoleDAO) List() (roles []models.Role, err error) {
-	err = rd.GandalfDatabase.Find(&roles).Error
+func (rd RoleDAO) List(database *gorm.DB) (roles []models.Role, err error) {
+	err = database.Find(&roles).Error
 
 	return
 }
 
-func (rd RoleDAO) Create(role models.Role) (err error) {
-	err = rd.GandalfDatabase.Create(&role).Error
+func (rd RoleDAO) Create(database *gorm.DB, role models.Role) (err error) {
+	err = database.Create(&role).Error
 
 	return
 }
 
-func (rd RoleDAO) Read(id int) (role models.Role, err error) {
-	err = rd.GandalfDatabase.First(&role, id).Error
+func (rd RoleDAO) Read(database *gorm.DB, id int) (role models.Role, err error) {
+	err = database.First(&role, id).Error
 
 	return
 }
 
-func (rd RoleDAO) Update(role models.Role) (err error) {
-	err = rd.GandalfDatabase.Save(&role).Error
+func (rd RoleDAO) Update(database *gorm.DB, role models.Role) (err error) {
+	err = database.Save(&role).Error
 
 	return
 }
 
-func (rd RoleDAO) Delete(id int) (err error) {
+func (rd RoleDAO) Delete(database *gorm.DB, id int) (err error) {
 	var role models.Role
-	err = rd.GandalfDatabase.Delete(&role, id).Error
+	err = database.Delete(&role, id).Error
 
 	return
 }

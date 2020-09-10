@@ -6,43 +6,41 @@ import (
 )
 
 type TenantDAO struct {
-	GandalfDatabase *gorm.DB
 }
 
-func NewTenantDAO(gandalfDatabase *gorm.DB) (tenantDAO *TenantDAO) {
+func NewTenantDAO() (tenantDAO *TenantDAO) {
 	tenantDAO = new(TenantDAO)
-	tenantDAO.GandalfDatabase = gandalfDatabase
 
 	return
 }
 
-func (td TenantDAO) List() (tenants []models.Tenant, err error) {
-	err = td.GandalfDatabase.Find(&tenants).Error
+func (td TenantDAO) List(database *gorm.DB) (tenants []models.Tenant, err error) {
+	err = database.Find(&tenants).Error
 
 	return
 }
 
-func (td TenantDAO) Create(tenant models.Tenant) (err error) {
-	err = td.GandalfDatabase.Create(&tenant).Error
+func (td TenantDAO) Create(database *gorm.DB, tenant models.Tenant) (err error) {
+	err = database.Create(&tenant).Error
 
 	return
 }
 
-func (td TenantDAO) Read(id int) (tenant models.Tenant, err error) {
-	err = td.GandalfDatabase.First(&tenant, id).Error
+func (td TenantDAO) Read(database *gorm.DB, id int) (tenant models.Tenant, err error) {
+	err = database.First(&tenant, id).Error
 
 	return
 }
 
-func (td TenantDAO) Update(tenant models.Tenant) (err error) {
-	err = td.GandalfDatabase.Save(&tenant).Error
+func (td TenantDAO) Update(database *gorm.DB, tenant models.Tenant) (err error) {
+	err = database.Save(&tenant).Error
 
 	return
 }
 
-func (td TenantDAO) Delete(id int) (err error) {
+func (td TenantDAO) Delete(database *gorm.DB, id int) (err error) {
 	var tenant models.Tenant
-	err = td.GandalfDatabase.Delete(&tenant, id).Error
+	err = database.Delete(&tenant, id).Error
 
 	return
 }
