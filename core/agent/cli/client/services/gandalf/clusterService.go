@@ -1,4 +1,4 @@
-package service
+package gandalf
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ type ClusterService struct {
 }
 
 func (as *ClusterService) List() ([]models.Cluster, error) {
-	req, err := as.client.newRequest("GET", "/cluster", nil)
+	req, err := as.client.newRequest("GET", "/gandalf/clusters", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func (as *ClusterService) Create(cluster models.Cluster) error {
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/cluster", jsonCluster)
+	req, err := as.client.newRequest("POST", "/gandalf/clusters", jsonCluster)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (as *ClusterService) Create(cluster models.Cluster) error {
 }
 
 func (as *ClusterService) Read(id int) (*models.Cluster, error) {
-	req, err := as.client.newRequest("GET", "/cluster/"+string(id), nil)
+	req, err := as.client.newRequest("GET", "/gandalf/clusters/"+string(id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (as *ClusterService) Update(id int, cluster models.Cluster) error {
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/cluster/"+string(id), jsonCluster)
+	req, err := as.client.newRequest("PUT", "/gandalf/clusters/"+string(id), jsonCluster)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (as *ClusterService) Update(id int, cluster models.Cluster) error {
 }
 
 func (as *ClusterService) Delete(id int) error {
-	req, err := as.client.newRequest("GET", "/cluster/"+string(id), nil)
+	req, err := as.client.newRequest("DELETE", "/gandalf/clusters/"+string(id), nil)
 	if err != nil {
 		return err
 	}

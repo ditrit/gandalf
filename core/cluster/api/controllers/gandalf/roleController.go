@@ -3,7 +3,6 @@ package gandalf
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -56,9 +55,7 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 
 func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	fmt.Println("varts")
-	fmt.Println("varts")
-	fmt.Println(vars["id"])
+
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")

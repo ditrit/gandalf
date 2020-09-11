@@ -1,4 +1,4 @@
-package service
+package gandalf
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ type TenantService struct {
 }
 
 func (as *TenantService) List() ([]models.Tenant, error) {
-	req, err := as.client.newRequest("GET", "/tenant", nil)
+	req, err := as.client.newRequest("GET", "/gandalf/tenants", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func (as *TenantService) Create(tenant models.Tenant) error {
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/tenant", jsonTenant)
+	req, err := as.client.newRequest("POST", "/gandalf/tenants", jsonTenant)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (as *TenantService) Create(tenant models.Tenant) error {
 }
 
 func (as *TenantService) Read(id int) (*models.Tenant, error) {
-	req, err := as.client.newRequest("GET", "/tenant/"+string(id), nil)
+	req, err := as.client.newRequest("GET", "/gandalf/tenants/"+string(id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (as *TenantService) Update(id int, tenant models.Tenant) error {
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/tenant/"+string(id), jsonTenant)
+	req, err := as.client.newRequest("PUT", "/gandalf/tenants/"+string(id), jsonTenant)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (as *TenantService) Update(id int, tenant models.Tenant) error {
 }
 
 func (as *TenantService) Delete(id int) error {
-	req, err := as.client.newRequest("GET", "/tenant/"+string(id), nil)
+	req, err := as.client.newRequest("DELETE", "/gandalf/tenants/"+string(id), nil)
 	if err != nil {
 		return err
 	}

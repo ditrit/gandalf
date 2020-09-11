@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	BaseURLV1 = "https://api.facest.io/v1"
+	BaseURLV1 = "http://localhost:3010"
 )
 
 type Client struct {

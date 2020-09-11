@@ -1,4 +1,4 @@
-package service
+package tenants
 
 import (
 	"encoding/json"
@@ -11,8 +11,8 @@ type UserService struct {
 	client *client.Client
 }
 
-func (as *UserService) List() ([]models.User, error) {
-	req, err := as.client.newRequest("GET", "/user", nil)
+func (as *UserService) List(tenant string) ([]models.User, error) {
+	req, err := as.client.newRequest("GET", "/tenants/"+tenant+"/users", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,12 +21,12 @@ func (as *UserService) List() ([]models.User, error) {
 	return users, err
 }
 
-func (as *UserService) Create(user models.User) error {
+func (as *UserService) Create(tenant string, user models.User) error {
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/user", jsonUser)
+	req, err := as.client.newRequest("POST", "/tenants/"+tenant+"/users", jsonUser)
 	if err != nil {
 		return err
 	}
@@ -34,8 +34,8 @@ func (as *UserService) Create(user models.User) error {
 	return err
 }
 
-func (as *UserService) Read(id int) (*models.User, error) {
-	req, err := as.client.newRequest("GET", "/user/"+string(id), nil)
+func (as *UserService) Read(tenant string, id int) (*models.User, error) {
+	req, err := as.client.newRequest("GET", "/tenants/"+tenant+"/users/"+string(id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +44,12 @@ func (as *UserService) Read(id int) (*models.User, error) {
 	return &user, err
 }
 
-func (as *UserService) Update(id int, user models.User) error {
+func (as *UserService) Update(tenant string, id int, user models.User) error {
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/user/"+string(id), jsonUser)
+	req, err := as.client.newRequest("PUT", "/tenants/"+tenant+"/users/"+string(id), jsonUser)
 	if err != nil {
 		return err
 	}
@@ -57,8 +57,8 @@ func (as *UserService) Update(id int, user models.User) error {
 	return err
 }
 
-func (as *UserService) Delete(id int) error {
-	req, err := as.client.newRequest("GET", "/user/"+string(id), nil)
+func (as *UserService) Delete(tenant string, id int) error {
+	req, err := as.client.newRequest("DELETE", "/tenants/"+tenant+"/users/"+string(id), nil)
 	if err != nil {
 		return err
 	}

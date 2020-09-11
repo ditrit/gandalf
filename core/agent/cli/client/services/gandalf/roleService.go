@@ -1,4 +1,4 @@
-package service
+package gandalf
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ type RoleService struct {
 }
 
 func (as *RoleService) List() ([]models.Role, error) {
-	req, err := as.client.newRequest("GET", "/role", nil)
+	req, err := as.client.newRequest("GET", "/gandalf/roles", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -26,7 +26,7 @@ func (as *RoleService) Create(role models.Role) error {
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/role", jsonRole)
+	req, err := as.client.newRequest("POST", "/gandalf/roles", jsonRole)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (as *RoleService) Create(role models.Role) error {
 }
 
 func (as *RoleService) Read(id int) (*models.Role, error) {
-	req, err := as.client.newRequest("GET", "/role/"+string(id), nil)
+	req, err := as.client.newRequest("GET", "/gandalf/roles/"+string(id), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (as *RoleService) Update(id int, roles models.Role) error {
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/role/"+string(id), jsonRole)
+	req, err := as.client.newRequest("PUT", "/gandalf/roles/"+string(id), jsonRole)
 	if err != nil {
 		return err
 	}
@@ -58,7 +58,7 @@ func (as *RoleService) Update(id int, roles models.Role) error {
 }
 
 func (as *RoleService) Delete(id int) error {
-	req, err := as.client.newRequest("GET", "/role/"+string(id), nil)
+	req, err := as.client.newRequest("DELETE", "/gandalf/roles/"+string(id), nil)
 	if err != nil {
 		return err
 	}
