@@ -9,7 +9,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/ditrit/gandalf/core/agent/cli/client/services"
+	"github.com/ditrit/gandalf/core/agent/cli/client/services/gandalf"
+	"github.com/ditrit/gandalf/core/agent/cli/client/services/tenants"
 )
 
 const (
@@ -17,31 +18,46 @@ const (
 )
 
 type Client struct {
-	BaseURL    *url.URL
-	UserAgent  string
-	HTTPClient *http.Client
-	Aggregator *services.AggregatorService
-	Cluster    *services.ClusterService
-	Connector  *services.ConnectorService
-	Role       *services.RoleService
-	Tenant     *services.TenantService
-	User       *services.UserService
+	BaseURL                  *url.URL
+	UserAgent                string
+	HTTPClient               *http.Client
+	GandalfClusterService    *gandalf.ClusterService
+	GandalfRoleService       *gandalf.RoleService
+	GandalfTenantService     *gandalf.TenantService
+	GandlafUserService       *gandalf.UserService
+	TenantsConnectorService  *tenants.ConnectorService
+	TenantsAggregatorService *tenants.AggregatorService
+	TenantsRoleService       *tenants.RoleService
+	TenantsUserService       *tenants.UserService
 }
 
-func NewClient(userAgent string) *Client {
+func NewClient(userAgent string) (client *Client) {
 
 	u, err := url.Parse(BaseURLV1)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	return &Client{
+	client = &Client{
 		BaseURL:   u,
 		UserAgent: userAgent,
 		HTTPClient: &http.Client{
 			Timeout: time.Minute,
 		},
 	}
+
+	client.GandalfClusterService = &gandalf.ClusterService{client: client}
+	client.GandalfRoleService = &gandalf.RoleService{client: client}
+	client.GandalfTenantService = &gandalf.TenantService{client: client}
+	client.GandlafUserService = &gandalf.UserService{client: client}
+
+	client.TenantsConnectorService = &tenants.ConnectorService{client: client}
+	client.TenantsAggregatorService = &tenants.AggregatorService{client: client}
+	client.TenantsRoleService = &tenants.RoleService{client: client}
+	client.TenantsUserService = &tenants.UserService{client: client}
+
+	return
+
 }
 
 func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
