@@ -25,6 +25,7 @@ func NewUser(name, email, password string, role Role) *User {
 	return user
 }
 
+//TODO REMOVE OU REVOIR
 func HashAndSaltPassword(password string) (hashedPassword string) {
 
 	hashedPasswordByte, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
