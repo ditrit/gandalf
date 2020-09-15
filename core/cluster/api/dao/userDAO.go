@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"fmt"
+
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/jinzhu/gorm"
@@ -38,7 +40,9 @@ func DeleteUser(database *gorm.DB, id int) (err error) {
 }
 
 func ReadUserByEmail(database *gorm.DB, email string) (user models.User, err error) {
-	err = database.Where("email = ?", email).Preload("Role").First(user).Error
-
+	fmt.Println("DAO")
+	err = database.Where("Email = ?", email).Preload("Role").First(&user).Error
+	fmt.Println(err)
+	fmt.Println(user)
 	return
 }

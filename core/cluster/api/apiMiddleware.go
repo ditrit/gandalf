@@ -3,9 +3,10 @@ package api
 import (
 	"context"
 	"encoding/json"
-	apimodels "gandalf/core/cluster/api/models"
 	"net/http"
 	"strings"
+
+	apimodels "github.com/ditrit/gandalf/core/cluster/api/models"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -45,12 +46,12 @@ func GandalfJwtVerify(next http.Handler) http.Handler {
 			return
 		}
 
-		//VALIDATION ROLE
-		if tk.Role != "" {
-			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong role"})
-			return
-		}
+		/* 		//VALIDATION ROLE
+		   		if tk.Role != "" {
+		   			w.WriteHeader(http.StatusForbidden)
+		   			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong role"})
+		   			return
+		   		} */
 
 		ctx := context.WithValue(r.Context(), "user", tk)
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -82,12 +83,12 @@ func TenantsJwtVerify(next http.Handler) http.Handler {
 			return
 		}
 
-		//VALIDATION ROLE
-		if tk.Role != "" {
-			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong role"})
-			return
-		}
+		/* 		//VALIDATION ROLE
+		   		if tk.Role != "" {
+		   			w.WriteHeader(http.StatusForbidden)
+		   			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong role"})
+		   			return
+		   		} */
 
 		ctx := context.WithValue(r.Context(), "user", tk)
 		next.ServeHTTP(w, r.WithContext(ctx))

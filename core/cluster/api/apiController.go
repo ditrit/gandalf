@@ -1,8 +1,8 @@
 package api
 
 import (
-	"github.com/ditrit/gandalf/core/cluster/api/controller/gandalf"
-	"github.com/ditrit/gandalf/core/cluster/api/controller/tenants"
+	"github.com/ditrit/gandalf/core/cluster/api/controllers/gandalf"
+	"github.com/ditrit/gandalf/core/cluster/api/controllers/tenants"
 
 	"github.com/jinzhu/gorm"
 )

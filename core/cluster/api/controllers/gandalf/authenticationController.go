@@ -3,9 +3,10 @@ package gandalf
 import (
 	"encoding/json"
 	"fmt"
-	"gandalf/core/cluster/api/dao"
 	"net/http"
 	"time"
+
+	"github.com/ditrit/gandalf/core/cluster/api/dao"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -20,9 +21,9 @@ type AuthenticationController struct {
 	gandalfDatabase *gorm.DB
 }
 
-func NewAuthenticationController(gandalfDatabase *gorm.DB) (userController *UserController) {
-	userController = new(UserController)
-	userController.gandalfDatabase = gandalfDatabase
+func NewAuthenticationController(gandalfDatabase *gorm.DB) (authenticationController *AuthenticationController) {
+	authenticationController = new(AuthenticationController)
+	authenticationController.gandalfDatabase = gandalfDatabase
 
 	return
 }
@@ -31,30 +32,39 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 	user := &models.User{}
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
+		fmt.Println(err)
 		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
-	resp := FindOne(user.Email, user.Password)
+	fmt.Println("FIND")
+	fmt.Println(user.Email)
+	fmt.Println(user.Password)
+	resp := ac.FindOne(user.Email, user.Password)
 	json.NewEncoder(w).Encode(resp)
 }
 
 //TODO REVOIR
 func (ac AuthenticationController) FindOne(email, password string) map[string]interface{} {
-	user := &models.User{}
+	fmt.Println("FINDONE")
+	fmt.Println(ac.gandalfDatabase)
+	user := models.User{}
 	var err error
 	if user, err = dao.ReadUserByEmail(ac.gandalfDatabase, email); err != nil {
+		fmt.Println(err)
 		var resp = map[string]interface{}{"status": false, "message": "Email address not found"}
 		return resp
 	}
+	fmt.Println("FIND1")
 	expiresAt := time.Now().Add(time.Minute * 100000).Unix()
 
 	errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if errf != nil && errf == bcrypt.ErrMismatchedHashAndPassword { //Password does not match!
+		fmt.Println(errf)
 		var resp = map[string]interface{}{"status": false, "message": "Invalid login credentials. Please try again"}
 		return resp
 	}
-
+	fmt.Println("FIND2")
 	tk := &apimodels.Claims{
 		UserID: user.ID,
 		Name:   user.Name,
