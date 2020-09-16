@@ -11,8 +11,8 @@ type RoleService struct {
 	client *client.Client
 }
 
-func (as *RoleService) List() ([]models.Role, error) {
-	req, err := as.client.newRequest("GET", "/gandalf/roles", nil)
+func (as *RoleService) List(token string) ([]models.Role, error) {
+	req, err := as.client.newRequest("GET", "/gandalf/roles", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,12 +21,12 @@ func (as *RoleService) List() ([]models.Role, error) {
 	return roles, err
 }
 
-func (as *RoleService) Create(role models.Role) error {
+func (as *RoleService) Create(token string, role models.Role) error {
 	jsonRole, err := json.Marshal(role)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/gandalf/roles", jsonRole)
+	req, err := as.client.newRequest("POST", "/gandalf/roles", token, jsonRole)
 	if err != nil {
 		return err
 	}
@@ -34,8 +34,8 @@ func (as *RoleService) Create(role models.Role) error {
 	return err
 }
 
-func (as *RoleService) Read(id int) (*models.Role, error) {
-	req, err := as.client.newRequest("GET", "/gandalf/roles/"+string(id), nil)
+func (as *RoleService) Read(token string, id int) (*models.Role, error) {
+	req, err := as.client.newRequest("GET", "/gandalf/roles/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +44,12 @@ func (as *RoleService) Read(id int) (*models.Role, error) {
 	return &role, err
 }
 
-func (as *RoleService) Update(id int, roles models.Role) error {
+func (as *RoleService) Update(token string, id int, roles models.Role) error {
 	jsonRole, err := json.Marshal(roles)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/gandalf/roles/"+string(id), jsonRole)
+	req, err := as.client.newRequest("PUT", "/gandalf/roles/"+string(id), token, jsonRole)
 	if err != nil {
 		return err
 	}
@@ -57,8 +57,8 @@ func (as *RoleService) Update(id int, roles models.Role) error {
 	return err
 }
 
-func (as *RoleService) Delete(id int) error {
-	req, err := as.client.newRequest("DELETE", "/gandalf/roles/"+string(id), nil)
+func (as *RoleService) Delete(token string, id int) error {
+	req, err := as.client.newRequest("DELETE", "/gandalf/roles/"+string(id), token, nil)
 	if err != nil {
 		return err
 	}

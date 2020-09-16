@@ -30,8 +30,11 @@ func NewAuthenticationController(gandalfDatabase *gorm.DB) (authenticationContro
 
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{}
+	fmt.Println("BODY")
+	fmt.Println(r.Body)
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
+		fmt.Println("test")
 		fmt.Println(err)
 		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
 		json.NewEncoder(w).Encode(resp)
@@ -84,6 +87,6 @@ func (ac AuthenticationController) FindOne(email, password string) map[string]in
 
 	var resp = map[string]interface{}{"status": false, "message": "logged in"}
 	resp["token"] = tokenString //Store the token in the response
-	resp["user"] = user
+	//resp["user"] = user
 	return resp
 }

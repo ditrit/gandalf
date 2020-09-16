@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+
 	apimodels "github.com/ditrit/gandalf/core/cluster/api/models"
 
 	"github.com/dgrijalva/jwt-go"
@@ -23,8 +25,9 @@ func CommonMiddleware(next http.Handler) http.Handler {
 
 func GandalfJwtVerify(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		var header = r.Header.Get("x-access-token") //Grab the token from the header
+		//TODO REVOIR
+		//var header = r.Header.Get("x-access-token") //Grab the token from the header
+		header := utils.ExtractToken(r)
 
 		header = strings.TrimSpace(header)
 
@@ -60,8 +63,9 @@ func GandalfJwtVerify(next http.Handler) http.Handler {
 
 func TenantsJwtVerify(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
-		var header = r.Header.Get("x-access-token") //Grab the token from the header
+		//TODO REVOIR
+		//var header = r.Header.Get("x-access-token") //Grab the token from the header
+		header := utils.ExtractToken(r)
 
 		header = strings.TrimSpace(header)
 

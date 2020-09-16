@@ -11,8 +11,8 @@ type TenantService struct {
 	client *client.Client
 }
 
-func (as *TenantService) List() ([]models.Tenant, error) {
-	req, err := as.client.newRequest("GET", "/gandalf/tenants", nil)
+func (as *TenantService) List(token string) ([]models.Tenant, error) {
+	req, err := as.client.newRequest("GET", "/gandalf/tenants", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,12 +21,12 @@ func (as *TenantService) List() ([]models.Tenant, error) {
 	return tenants, err
 }
 
-func (as *TenantService) Create(tenant models.Tenant) error {
+func (as *TenantService) Create(token string, tenant models.Tenant) error {
 	jsonTenant, err := json.Marshal(tenant)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/gandalf/tenants", jsonTenant)
+	req, err := as.client.newRequest("POST", "/gandalf/tenants", token, jsonTenant)
 	if err != nil {
 		return err
 	}
@@ -34,8 +34,8 @@ func (as *TenantService) Create(tenant models.Tenant) error {
 	return err
 }
 
-func (as *TenantService) Read(id int) (*models.Tenant, error) {
-	req, err := as.client.newRequest("GET", "/gandalf/tenants/"+string(id), nil)
+func (as *TenantService) Read(token string, id int) (*models.Tenant, error) {
+	req, err := as.client.newRequest("GET", "/gandalf/tenants/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +44,12 @@ func (as *TenantService) Read(id int) (*models.Tenant, error) {
 	return &tenant, err
 }
 
-func (as *TenantService) Update(id int, tenant models.Tenant) error {
+func (as *TenantService) Update(token string, id int, tenant models.Tenant) error {
 	jsonTenant, err := json.Marshal(tenant)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/gandalf/tenants/"+string(id), jsonTenant)
+	req, err := as.client.newRequest("PUT", "/gandalf/tenants/"+string(id), token, jsonTenant)
 	if err != nil {
 		return err
 	}
@@ -57,8 +57,8 @@ func (as *TenantService) Update(id int, tenant models.Tenant) error {
 	return err
 }
 
-func (as *TenantService) Delete(id int) error {
-	req, err := as.client.newRequest("DELETE", "/gandalf/tenants/"+string(id), nil)
+func (as *TenantService) Delete(token string, id int) error {
+	req, err := as.client.newRequest("DELETE", "/gandalf/tenants/"+string(id), token, nil)
 	if err != nil {
 		return err
 	}

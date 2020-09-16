@@ -11,8 +11,8 @@ type UserService struct {
 	client *client.Client
 }
 
-func (as *UserService) List() ([]models.User, error) {
-	req, err := as.client.newRequest("GET", "/gandalf/users", nil)
+func (as *UserService) List(token string) ([]models.User, error) {
+	req, err := as.client.newRequest("GET", "/gandalf/users", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,12 +21,12 @@ func (as *UserService) List() ([]models.User, error) {
 	return users, err
 }
 
-func (as *UserService) Create(user models.User) error {
+func (as *UserService) Create(token string, user models.User) error {
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/gandalf/users", jsonUser)
+	req, err := as.client.newRequest("POST", "/gandalf/users", token, jsonUser)
 	if err != nil {
 		return err
 	}
@@ -34,8 +34,8 @@ func (as *UserService) Create(user models.User) error {
 	return err
 }
 
-func (as *UserService) Read(id int) (*models.User, error) {
-	req, err := as.client.newRequest("GET", "/gandalf/users/"+string(id), nil)
+func (as *UserService) Read(token string, id int) (*models.User, error) {
+	req, err := as.client.newRequest("GET", "/gandalf/users/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +44,12 @@ func (as *UserService) Read(id int) (*models.User, error) {
 	return &user, err
 }
 
-func (as *UserService) Update(id int, user models.User) error {
+func (as *UserService) Update(token string, id int, user models.User) error {
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/gandalf/users/"+string(id), jsonUser)
+	req, err := as.client.newRequest("PUT", "/gandalf/users/"+string(id), token, jsonUser)
 	if err != nil {
 		return err
 	}
@@ -57,8 +57,8 @@ func (as *UserService) Update(id int, user models.User) error {
 	return err
 }
 
-func (as *UserService) Delete(id int) error {
-	req, err := as.client.newRequest("DELETE", "/gandalf/users/"+string(id), nil)
+func (as *UserService) Delete(token string, id int) error {
+	req, err := as.client.newRequest("DELETE", "/gandalf/users/"+string(id), token, nil)
 	if err != nil {
 		return err
 	}

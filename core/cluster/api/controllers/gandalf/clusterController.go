@@ -3,6 +3,7 @@ package gandalf
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -26,8 +27,10 @@ func NewClusterController(gandalfDatabase *gorm.DB) (clusterController *ClusterC
 }
 
 func (cc ClusterController) List(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Println("LIST")
 	cluster, err := dao.ListCluster(cc.gandalfDatabase)
+	fmt.Println("clusters")
+	fmt.Println(cluster)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return

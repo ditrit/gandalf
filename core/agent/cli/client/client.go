@@ -60,7 +60,7 @@ func NewClient(userAgent string) (client *Client) {
 
 }
 
-func (c *Client) newRequest(method, path string, body interface{}) (*http.Request, error) {
+func (c *Client) newRequest(method, path, token string, body interface{}) (*http.Request, error) {
 	rel := &url.URL{Path: path}
 	u := c.BaseURL.ResolveReference(rel)
 	var buf io.ReadWriter
@@ -78,8 +78,13 @@ func (c *Client) newRequest(method, path string, body interface{}) (*http.Reques
 	if body != nil {
 		req.Header.Set("Content-Type", "application/json")
 	}
+
+	var bearer = "Bearer " + token
+
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
+	//req.Header.Set("x-access-token", token)
+	req.Header.Add("Authorization", bearer)
 
 	return req, nil
 }
