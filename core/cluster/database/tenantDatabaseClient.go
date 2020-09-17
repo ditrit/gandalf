@@ -49,12 +49,12 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
 
 //DemoCreateAggregator
 func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Aggregator{Name: "Aggregator1", Secret: "TATA"})
+	tenantDatabaseClient.Create(&models.Aggregator{LogicalName: "Aggregator1", InstanceName: "Aggregator1", Secret: "TATA"})
 }
 
 //DemoCreateConnector
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Connector{Name: "Connector1", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector1", InstanceName: "Connector1", Secret: "TOTO"})
 }
 
 //DemoCreateConnectorType
@@ -117,9 +117,9 @@ func DemoCreateApplicationUtils(tenantDatabaseClient *gorm.DB) {
 	var ConnectorUtils models.Connector
 	var ConnectorTypeUtils models.ConnectorType
 
-	tenantDatabaseClient.Where("name = ?", "Aggregator1").First(&AggregatorUtils)
-	tenantDatabaseClient.Where("name = ?", "Connector1").First(&ConnectorUtils)
-	tenantDatabaseClient.Where("name = ?", "Utils").First(&ConnectorTypeUtils)
+	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator1", "Aggregator1").First(&AggregatorUtils)
+	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector1", "Connector1").First(&ConnectorUtils)
+	tenantDatabaseClient.Where("logical_name = ?", "Utils").First(&ConnectorTypeUtils)
 
 	tenantDatabaseClient.Create(&models.Application{Name: "Application1",
 		Aggregator:    AggregatorUtils,
@@ -133,8 +133,8 @@ func DemoCreateApplicationWorkflow(tenantDatabaseClient *gorm.DB) {
 	var ConnectorWorkflow models.Connector
 	var ConnectorTypeWorkflow models.ConnectorType
 
-	tenantDatabaseClient.Where("name = ?", "Aggregator2").First(&AggregatorWorkflow)
-	tenantDatabaseClient.Where("name = ?", "Connector2").First(&ConnectorWorkflow)
+	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator2", "Aggregator2").First(&AggregatorWorkflow)
+	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector2", "Connector2").First(&ConnectorWorkflow)
 	tenantDatabaseClient.Where("name = ?", "Workflow").First(&ConnectorTypeWorkflow)
 
 	tenantDatabaseClient.Create(&models.Application{Name: "Application2",
@@ -150,8 +150,8 @@ func DemoCreateApplicationAzure(tenantDatabaseClient *gorm.DB) {
 	var ConnectorAzure models.Connector
 	var ConnectorTypeAzure models.ConnectorType
 
-	tenantDatabaseClient.Where("name = ?", "Aggregator3").First(&AggregatorAzure)
-	tenantDatabaseClient.Where("name = ?", "Connector3").First(&ConnectorAzure)
+	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator3", "Aggregator3").First(&AggregatorAzure)
+	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector3", "Connector3").First(&ConnectorAzure)
 	tenantDatabaseClient.Where("name = ?", "Gitlab").First(&ConnectorTypeAzure)
 
 	tenantDatabaseClient.Create(&models.Application{Name: "Application3",
@@ -166,8 +166,8 @@ func DemoCreateApplicationGitlab(tenantDatabaseClient *gorm.DB) {
 	var ConnectorGitlab models.Connector
 	var ConnectorTypeGitlab models.ConnectorType
 
-	tenantDatabaseClient.Where("name = ?", "Aggregator4").First(&AggregatorGitlab)
-	tenantDatabaseClient.Where("name = ?", "Connector4").First(&ConnectorGitlab)
+	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator4", "Aggregator4").First(&AggregatorGitlab)
+	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector4", "Connector4").First(&ConnectorGitlab)
 	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorTypeGitlab)
 
 	tenantDatabaseClient.Create(&models.Application{Name: "Application4",

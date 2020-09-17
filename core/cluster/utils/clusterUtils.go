@@ -91,23 +91,29 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 	return ok
 }
 
-func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret string) (result bool, err error) {
+func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, instanceName, secret string) (result bool, err error) {
 
 	result = false
 
 	switch componentType {
 	case "cluster":
 		var cluster models.Cluster
-		err = databaseClient.Where("name = ? and secret = ?", logicalName, secret).First(&cluster).Error
+		fmt.Println(logicalName)
+		fmt.Println(instanceName)
+		err = databaseClient.Where("logical_name = ? and instance_name = ?", logicalName, instanceName).First(&cluster).Error
+		fmt.Println("err")
+		fmt.Println(err)
 		if err == nil {
 			if cluster != (models.Cluster{}) {
-				result = true
+				if cluster.Secret == secret {
+					result = true
+				}
 			}
 		}
 		break
 	case "aggregator":
 		var aggregator models.Aggregator
-		err = databaseClient.Where("name = ?", logicalName).First(&aggregator).Error
+		err = databaseClient.Where("logical_name = ? and instance_name = ?", logicalName, instanceName).First(&aggregator).Error
 		if err == nil {
 			if aggregator != (models.Aggregator{}) {
 				if aggregator.Secret == secret {
@@ -119,7 +125,7 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret 
 		break
 	case "connector":
 		var connector models.Connector
-		err = databaseClient.Where("name = ?", logicalName).First(&connector).Error
+		err = databaseClient.Where("logical_name = ? and instance_name = ?", logicalName, instanceName).First(&connector).Error
 		if err == nil {
 			if connector != (models.Connector{}) {
 				if connector.Secret == secret {

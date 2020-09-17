@@ -52,7 +52,7 @@ func InitConnectorKeys(){
 }*/
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, tenant, connectorType, logPath string, versions []int64) *ConnectorMember {
+func NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPath string, versions []int64) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.logicalName = logicalName
 	member.connectorType = connectorType
@@ -60,6 +60,7 @@ func NewConnectorMember(logicalName, tenant, connectorType, logPath string, vers
 	member.versions = versions
 	member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
 	member.mapVersionConnectorCommands = make(map[int64][]string)
+	member.chaussette.Context["instance"] = instanceName
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
 	member.chaussette.Context["versions"] = versions
@@ -133,8 +134,8 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 
 } */
 
-func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret string) (result bool) {
-	shoset.SendSecret(nshoset, timeoutMax, logicalName, tenant, secret)
+func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, instanceName, tenant, secret string) (result bool) {
+	shoset.SendSecret(nshoset, timeoutMax, logicalName, instanceName, tenant, secret)
 	time.Sleep(time.Second * time.Duration(5))
 
 	result = false
@@ -402,8 +403,8 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, workerUrl, workerPath, logPath, secret string, timeoutMax int64, versions []int64) (*ConnectorMember, error) {
-	member := NewConnectorMember(logicalName, tenant, connectorType, logPath, versions)
+func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, workerUrl, workerPath, logPath, secret string, timeoutMax int64, versions []int64) (*ConnectorMember, error) {
+	member := NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 
 	err := member.Bind(bindAddress)
@@ -412,7 +413,7 @@ func ConnectorMemberInit(logicalName, tenant, bindAddress, grpcBindAddress, link
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret)
+			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, instanceName, tenant, secret)
 			if validateSecret {
 				err = member.GrpcBind(grpcBindAddress)
 				if err == nil {

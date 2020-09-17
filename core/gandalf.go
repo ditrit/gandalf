@@ -22,6 +22,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("No logical name: %v", err)
 	}
+	gandalfInstanceName, err := configuration.GetStringConfig("instance_name")
+	if err != nil {
+		log.Fatalf("No logical name: %v", err)
+	}
 	gandalfLogPath, err := configuration.GetStringConfig("gandalf_log")
 	if err != nil {
 		log.Fatalf("No valid log path : %v", err)
@@ -49,12 +53,13 @@ func main() {
 						//CREATE CLUSTER
 						fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 						fmt.Println("  Logical Name : " + gandalfLogicalName)
+						fmt.Println("  Instance Name : " + gandalfInstanceName)
 						fmt.Println("  Bind Address : " + gandalfBindAddress)
 						fmt.Println("  Log Path : " + gandalfLogPath)
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						cluster.ClusterMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfDBPath, gandalfLogPath)
+						cluster.ClusterMemberInit(gandalfLogicalName, gandalfInstanceName, gandalfBindAddress, gandalfDBPath, gandalfLogPath)
 						//add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						//go database.DatabaseMemberInit(add, gandalfDBPath, 1)
 						<-done
@@ -71,13 +76,14 @@ func main() {
 						//CREATE CLUSTER
 						fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 						fmt.Println("  Logical Name : " + gandalfLogicalName)
+						fmt.Println("  Instance Name : " + gandalfInstanceName)
 						fmt.Println("  Bind Address : " + gandalfBindAddress)
 						fmt.Println("  Join Address : " + gandalfJoin)
 						fmt.Println("  Log Path : " + gandalfLogPath)
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath, gandalfSecret)
+						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfInstanceName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath, gandalfSecret)
 						/*member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
 						 add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						id := len(*member.Store)
@@ -114,6 +120,7 @@ func main() {
 
 				fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 				fmt.Println("  Logical Name : " + gandalfLogicalName)
+				fmt.Println("  Instance Name : " + gandalfInstanceName)
 				fmt.Println("  Tenant : " + gandalfTenant)
 				fmt.Println("  Bind Address : " + gandalfBindAddress)
 				fmt.Println("  Link Address : " + gandalfClusterLink)
@@ -121,7 +128,7 @@ func main() {
 				fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 				done := make(chan bool)
-				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout))
+				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfInstanceName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout))
 
 				//TEST
 				//go oauth2.NewOAuth2Client()
@@ -184,6 +191,7 @@ func main() {
 			//CREATE CONNECTOR
 			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
 			fmt.Println("  Logical Name : " + gandalfLogicalName)
+			fmt.Println("  Instance Name : " + gandalfInstanceName)
 			fmt.Println("  Tenant : " + gandalfTenant)
 			fmt.Println("  Bind Address : " + gandalfBindAddress)
 			fmt.Println("  Grpc Bind Address : " + gandalfGRPCBindAddress)
@@ -198,7 +206,7 @@ func main() {
 			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 			done := make(chan bool)
-			connector.ConnectorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout), gandalfVersions)
+			connector.ConnectorMemberInit(gandalfLogicalName, gandalfInstanceName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout), gandalfVersions)
 			go oauth2.NewOAuth2Client()
 			<-done
 			break

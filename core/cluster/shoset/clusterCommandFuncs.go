@@ -44,10 +44,10 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 				app := cutils.GetApplicationContext(cmd, databaseClient)
 
 				if app != (models.Application{}) {
-					mapConn := ch.ConnsByName.Get(app.Aggregator.Name)
+					mapConn := ch.ConnsByName.Get(app.Aggregator.LogicalName)
 					if mapConn != nil {
-						cmd.Target = app.Connector.Name
-						shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator.Name), "a")
+						cmd.Target = app.Connector.LogicalName
+						shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator.LogicalName), "a")
 
 						if len(shosets) != 0 {
 							index := getSendIndex(shosets)
@@ -57,8 +57,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 							err = errors.New("Can't find aggregators to send")
 						}
 					} else {
-						log.Printf("Can't find connection with name %s \n", app.Aggregator.Name)
-						err = errors.New("Can't find connection with name " + app.Aggregator.Name)
+						log.Printf("Can't find connection with name %s \n", app.Aggregator.LogicalName)
+						err = errors.New("Can't find connection with name " + app.Aggregator.LogicalName)
 					}
 				} else {
 					log.Println("Can't find application context")

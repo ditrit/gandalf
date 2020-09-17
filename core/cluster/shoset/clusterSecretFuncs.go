@@ -25,7 +25,7 @@ func GetSecret(c *net.ShosetConn) (msg.Message, error) {
 
 // SendConfig :
 func SendSecret(c *net.Shoset, cmd msg.Message) {
-	fmt.Print("Sending Config.\n")
+	fmt.Print("Sending Secret.\n")
 	c.ConnsByAddr.Iterate(
 		func(key string, conn *net.ShosetConn) {
 			conn.SendMessage(cmd)
@@ -85,11 +85,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 				if secret.GetCommand() == "VALIDATION" {
 
 					var result bool
-					result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string))
-					fmt.Println("result")
-					fmt.Println(result)
-					fmt.Println("error")
-					fmt.Println(err)
+					result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["instanceName"].(string), secret.GetContext()["secret"].(string))
 
 					fmt.Println("componentType")
 					fmt.Println(secret.GetContext()["componentType"].(string))
