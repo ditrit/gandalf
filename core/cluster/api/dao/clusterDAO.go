@@ -1,6 +1,10 @@
 package dao
 
 import (
+	"errors"
+
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
 )
@@ -12,7 +16,14 @@ func ListCluster(database *gorm.DB) (clusters []models.Cluster, err error) {
 }
 
 func CreateCluster(database *gorm.DB, cluster models.Cluster) (err error) {
-	err = database.Create(&cluster).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			err = database.Create(&cluster).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 
@@ -31,8 +42,15 @@ func UpdateCluster(database *gorm.DB, cluster models.Cluster) (err error) {
 }
 
 func DeleteCluster(database *gorm.DB, id int) (err error) {
-	var cluster models.Cluster
-	err = database.Delete(&cluster, id).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			var cluster models.Cluster
+			err = database.Delete(&cluster, id).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }

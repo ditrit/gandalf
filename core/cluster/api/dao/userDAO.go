@@ -3,6 +3,8 @@ package dao
 import (
 	"fmt"
 
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/jinzhu/gorm"
@@ -16,7 +18,9 @@ func ListUser(database *gorm.DB) (users []models.User, err error) {
 
 func CreateUser(database *gorm.DB, user models.User) (err error) {
 	err = database.Create(&user).Error
-
+	if err == nil {
+		err = utils.ChangeStateGandalf(database)
+	}
 	return
 }
 

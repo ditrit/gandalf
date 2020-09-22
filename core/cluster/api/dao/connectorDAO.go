@@ -1,6 +1,10 @@
 package dao
 
 import (
+	"errors"
+
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
 )
@@ -12,7 +16,14 @@ func ListConnector(database *gorm.DB) (connectors []models.Connector, err error)
 }
 
 func CreateConnector(database *gorm.DB, connector models.Connector) (err error) {
-	err = database.Create(&connector).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			err = database.Create(&connector).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }
@@ -30,8 +41,15 @@ func UpdateConnector(database *gorm.DB, connector models.Connector) (err error) 
 }
 
 func DeleteConnector(database *gorm.DB, id int) (err error) {
-	var connector models.Connector
-	err = database.Delete(&connector, id).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			var connector models.Connector
+			err = database.Delete(&connector, id).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }

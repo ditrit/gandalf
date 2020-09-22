@@ -2,7 +2,6 @@
 package database
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -25,20 +24,24 @@ func NewGandalfDatabaseClient(databasePath, name string) (gandalfDatabaseClient 
 
 // InitGandalfDatabase : Gandalf database init.
 func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, instanceName string) (login string, password string, secret string, err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{})
+	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()
 	cluster := models.Cluster{LogicalName: logicalName, InstanceName: instanceName, Secret: secret}
 	err = gandalfDatabaseClient.Create(&cluster).Error
 
-	//Init Administartor
+	//Init State
+	state := models.State{Admin: false}
+	err = gandalfDatabaseClient.Create(&state).Error
+
+	//Init Administrator
 	err = gandalfDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error
 	if err == nil {
 		var admin models.Role
 		err = gandalfDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
 		if err == nil {
-			login, password = "Administrator", "Administrator"
+			login, password = "Administrator", GenerateRandomHash()
 			user := models.NewUser(login, login, password, admin)
 			err = gandalfDatabaseClient.Create(&user).Error
 		}
@@ -65,5 +68,5 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 //DemoCreateCluster
 func DemoCreateCluster(gandalfDatabaseClient *gorm.DB) {
 	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", InstanceName: "Cluster2", Secret: "TUTU"})
-	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", InstanceName: "Cluster3", Secret: "TITI"})s
+	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", InstanceName: "Cluster3", Secret: "TITI"})
 }

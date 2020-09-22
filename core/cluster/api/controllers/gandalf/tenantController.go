@@ -3,8 +3,11 @@ package gandalf
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
@@ -16,11 +19,13 @@ import (
 
 type TenantController struct {
 	gandalfDatabase *gorm.DB
+	databasePath    string
 }
 
-func NewTenantController(gandalfDatabase *gorm.DB) (tenantController *TenantController) {
+func NewTenantController(gandalfDatabase *gorm.DB, databasePath string) (tenantController *TenantController) {
 	tenantController = new(TenantController)
 	tenantController.gandalfDatabase = gandalfDatabase
+	tenantController.databasePath = databasePath
 
 	return
 }
@@ -37,6 +42,10 @@ func (tc TenantController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
+	var result map[string]interface{}
+	result = make(map[string]interface{})
+	var login, password string
+
 	var tenant models.Tenant
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&tenant); err != nil {
@@ -45,12 +54,50 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := dao.CreateTenant(tc.gandalfDatabase, tenant); err != nil {
+	fmt.Println("CREATE TENANT")
+	err := dao.CreateTenant(tc.gandalfDatabase, tenant)
+	if err == nil {
+		var tenantDatabaseClient *gorm.DB
+		fmt.Println("CREATE DB")
+		tenantDatabaseClient, err := database.NewTenantDatabaseClient(tenant.Name, tc.databasePath)
+		if err == nil {
+
+			fmt.Println("INIT DB")
+			login, password, err = database.InitTenantDatabase(tenantDatabaseClient)
+			fmt.Println("INIT DB2")
+			fmt.Println(login)
+			fmt.Println(password)
+			fmt.Println(err)
+			fmt.Println("INIT DB2.1")
+			fmt.Println(result)
+			fmt.Println("INIT DB2.2")
+
+			if err == nil {
+				result["login"] = login
+				result["password"] = password
+				result["tenant"] = tenant
+
+				fmt.Println("result2")
+				fmt.Println(result)
+			} else {
+				dao.DeleteTenant(tc.gandalfDatabase, int(tenant.ID))
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+		} else {
+			dao.DeleteTenant(tc.gandalfDatabase, int(tenant.ID))
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	//database.NewTenantDatabaseClient(tenant.Name, databasePath)
-	utils.RespondWithJSON(w, http.StatusCreated, tenant)
+
+	fmt.Println("result")
+	fmt.Println(result)
+	//TODO REVOIR
+	utils.RespondWithJSON(w, http.StatusCreated, result)
 }
 
 func (tc TenantController) Read(w http.ResponseWriter, r *http.Request) {

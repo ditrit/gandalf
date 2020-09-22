@@ -26,7 +26,7 @@ func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB
 	controllers := new(Controllers)
 	controllers.gandalfAuthenticationController = gandalf.NewAuthenticationController(gandalfDatabase)
 	controllers.gandalfClusterController = gandalf.NewClusterController(gandalfDatabase)
-	controllers.gandalfTenantController = gandalf.NewTenantController(gandalfDatabase)
+	controllers.gandalfTenantController = gandalf.NewTenantController(gandalfDatabase, databasePath)
 	controllers.gandalfUserController = gandalf.NewUserController(gandalfDatabase)
 	controllers.gandalfRoleController = gandalf.NewRoleController(gandalfDatabase)
 

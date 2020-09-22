@@ -1,6 +1,10 @@
 package dao
 
 import (
+	"errors"
+
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
 )
@@ -12,7 +16,14 @@ func ListRole(database *gorm.DB) (roles []models.Role, err error) {
 }
 
 func CreateRole(database *gorm.DB, role models.Role) (err error) {
-	err = database.Create(&role).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			err = database.Create(&role).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }
@@ -30,8 +41,15 @@ func UpdateRole(database *gorm.DB, role models.Role) (err error) {
 }
 
 func DeleteRole(database *gorm.DB, id int) (err error) {
-	var role models.Role
-	err = database.Delete(&role, id).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			var role models.Role
+			err = database.Delete(&role, id).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }

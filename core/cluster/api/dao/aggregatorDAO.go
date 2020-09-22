@@ -1,6 +1,10 @@
 package dao
 
 import (
+	"errors"
+
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
 )
@@ -12,7 +16,14 @@ func ListAggregator(database *gorm.DB) (aggregators []models.Aggregator, err err
 }
 
 func CreateAggregator(database *gorm.DB, aggregator models.Aggregator) (err error) {
-	err = database.Create(&aggregator).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			err = database.Create(&aggregator).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }
@@ -30,8 +41,15 @@ func UpdateAggregator(database *gorm.DB, aggregator models.Aggregator) (err erro
 }
 
 func DeleteAggregator(database *gorm.DB, id int) (err error) {
-	var aggregator models.Aggregator
-	err = database.Delete(&aggregator, id).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			var aggregator models.Aggregator
+			err = database.Delete(&aggregator, id).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }

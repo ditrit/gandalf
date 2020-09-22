@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ditrit/gandalf/core/models"
+
 	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/jinzhu/gorm"
@@ -58,3 +60,52 @@ func ExtractToken(r *http.Request) string {
 	}
 	return ""
 }
+
+func GetStateGandalf(client *gorm.DB) (bool, error) {
+	var state models.State
+	err := client.First(&state).Error
+	if err == nil {
+		return state.Admin, err
+	}
+	return false, err
+
+}
+
+func ChangeStateGandalf(client *gorm.DB) (err error) {
+	var state models.State
+	err = client.First(&state).Error
+	if err == nil {
+		if !state.Admin {
+			var roleadmin models.Role
+			err = client.Where("name = ?", "Administrator").First(&roleadmin).Error
+			if err == nil {
+				var users []models.User
+				result := client.Where("role_id = ?", roleadmin.ID).Preload("Role").Find(&users)
+				if result.Error == nil {
+					if result.RowsAffected >= 2 {
+						state.Admin = true
+						client.Save(&state)
+					}
+				}
+			}
+		}
+	}
+	return err
+}
+
+//TODO REVOIR UTILE ???
+/* func ChangeStateTenant(client *gorm.DB) {
+	var state models.State
+	client.First(&state)
+
+	if !state.Admin {
+		var roleadmin models.Role
+		client.Where("name = ?", "Administrator").First(&roleadmin)
+		var users []models.User
+		result := client.Where("role_id = ?", roleadmin.ID).Find(&users)
+		if result.RowsAffected >= 2 {
+			state.Admin = true
+			client.Update(&state)
+		}
+	}
+} */

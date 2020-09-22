@@ -41,8 +41,24 @@ func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient 
 }
 
 // InitTenantDatabase : Tenant database init.
-func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (err error) {
-	tenantDatabaseClient.AutoMigrate(&models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{})
+func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password string, err error) {
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{})
+
+	//Init State
+	state := models.State{Admin: false}
+	err = tenantDatabaseClient.Create(&state).Error
+
+	//Init Administartor
+	err = tenantDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error
+	if err == nil {
+		var admin models.Role
+		err = tenantDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
+		if err == nil {
+			login, password = "Administrator", GenerateRandomHash()
+			user := models.NewUser(login, login, password, admin)
+			err = tenantDatabaseClient.Create(&user).Error
+		}
+	}
 
 	return
 }

@@ -1,6 +1,10 @@
 package dao
 
 import (
+	"errors"
+
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
 )
@@ -12,7 +16,14 @@ func ListTenant(database *gorm.DB) (tenants []models.Tenant, err error) {
 }
 
 func CreateTenant(database *gorm.DB, tenant models.Tenant) (err error) {
-	err = database.Create(&tenant).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			err = database.Create(&tenant).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }
@@ -30,8 +41,15 @@ func UpdateTenant(database *gorm.DB, tenant models.Tenant) (err error) {
 }
 
 func DeleteTenant(database *gorm.DB, id int) (err error) {
-	var tenant models.Tenant
-	err = database.Delete(&tenant, id).Error
+	admin, err := utils.GetStateGandalf(database)
+	if err == nil {
+		if admin {
+			var tenant models.Tenant
+			err = database.Delete(&tenant, id).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }
