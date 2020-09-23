@@ -7,10 +7,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// NewToken : Create new token struct
 func NewToken() *Token {
 	return &Token{}
 }
 
+// Token : Token struct
 type Token struct {
 	gorm.Model
 	ExpiredAt        int64

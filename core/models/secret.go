@@ -6,7 +6,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// Config : Config struct.
+// Secret : Secret struct.
 type Secret struct {
 	gorm.Model
 	UUID      string
@@ -18,7 +18,7 @@ type Secret struct {
 	Command   string
 }
 
-// FromShosetConfig : Shoset config to core config.
+// FromShosetSecret : Shoset secret to core secret.
 func FromShosetSecret(msecret msg.Secret) (secret Secret) {
 	secret.UUID = msecret.GetUUID()
 	secret.Tenant = msecret.GetTenant()

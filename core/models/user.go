@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// User : user struct
 type User struct {
 	gorm.Model
 	Name     string
@@ -16,6 +17,7 @@ type User struct {
 	Role     Role
 }
 
+// NewUser : create new user
 func NewUser(name, email, password string, role Role) *User {
 	user := new(User)
 	user.Name = name
