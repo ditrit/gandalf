@@ -3,16 +3,15 @@ package client
 import (
 	"encoding/json"
 
-	"github.com/ditrit/gandalf/core/agent/cli/client"
 	"github.com/ditrit/gandalf/core/models"
 )
 
 type TenantsConnectorService struct {
-	client *client.Client
+	client *Client
 }
 
-func (as *TenantsConnectorService) List(tenant string) ([]models.Connector, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors", nil)
+func (as *TenantsConnectorService) List(token string, tenant string) ([]models.Connector, error) {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,12 +20,12 @@ func (as *TenantsConnectorService) List(tenant string) ([]models.Connector, erro
 	return connectors, err
 }
 
-func (as *TenantsConnectorService) Create(tenant string, connector models.Connector) error {
+func (as *TenantsConnectorService) Create(token string, tenant string, connector models.Connector) error {
 	jsonConnector, err := json.Marshal(connector)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/connectors", jsonConnector)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/connectors", token, jsonConnector)
 	if err != nil {
 		return err
 	}
@@ -34,8 +33,8 @@ func (as *TenantsConnectorService) Create(tenant string, connector models.Connec
 	return err
 }
 
-func (as *TenantsConnectorService) Read(tenant string, id int) (*models.Connector, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors/"+string(id), nil)
+func (as *TenantsConnectorService) Read(token string, tenant string, id int) (*models.Connector, error) {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +43,12 @@ func (as *TenantsConnectorService) Read(tenant string, id int) (*models.Connecto
 	return &connector, err
 }
 
-func (as *TenantsConnectorService) Update(tenant string, id int, connector models.Connector) error {
+func (as *TenantsConnectorService) Update(token string, tenant string, id int, connector models.Connector) error {
 	jsonConnector, err := json.Marshal(connector)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/connectors/"+string(id), jsonConnector)
+	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/connectors/"+string(id), token, jsonConnector)
 	if err != nil {
 		return err
 	}
@@ -57,8 +56,8 @@ func (as *TenantsConnectorService) Update(tenant string, id int, connector model
 	return err
 }
 
-func (as *TenantsConnectorService) Delete(tenant string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/connectors/"+string(id), nil)
+func (as *TenantsConnectorService) Delete(token string, tenant string, id int) error {
+	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/connectors/"+string(id), token, nil)
 	if err != nil {
 		return err
 	}

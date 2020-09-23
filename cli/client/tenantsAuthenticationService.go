@@ -1,14 +1,14 @@
 package client
 
 import (
-	"test_cli/cli/models"
+	"github.com/ditrit/gandalf/core/models"
 )
 
 type TenantsAuthenticationService struct {
 	client *Client
 }
 
-func (as *TenantsAuthenticationService) Login(user models.User) (string, error) {
+func (as *TenantsAuthenticationService) Login(tenant string, user models.User) (string, error) {
 
 	req, err := as.client.newRequest("POST", "/tenants/"+tenant+"/login", "", user)
 	if err != nil {

@@ -3,16 +3,15 @@ package client
 import (
 	"encoding/json"
 
-	"github.com/ditrit/gandalf/core/agent/cli/client"
 	"github.com/ditrit/gandalf/core/models"
 )
 
 type TenantsUserService struct {
-	client *client.Client
+	client *Client
 }
 
-func (as *TenantsUserService) List(tenant string) ([]models.User, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users", nil)
+func (as *TenantsUserService) List(token string, tenant string) ([]models.User, error) {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,12 +20,12 @@ func (as *TenantsUserService) List(tenant string) ([]models.User, error) {
 	return users, err
 }
 
-func (as *TenantsUserService) Create(tenant string, user models.User) error {
+func (as *TenantsUserService) Create(token string, tenant string, user models.User) error {
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/users", jsonUser)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/users", token, jsonUser)
 	if err != nil {
 		return err
 	}
@@ -34,8 +33,8 @@ func (as *TenantsUserService) Create(tenant string, user models.User) error {
 	return err
 }
 
-func (as *TenantsUserService) Read(tenant string, id int) (*models.User, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users/"+string(id), nil)
+func (as *TenantsUserService) Read(token string, tenant string, id int) (*models.User, error) {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +43,12 @@ func (as *TenantsUserService) Read(tenant string, id int) (*models.User, error) 
 	return &user, err
 }
 
-func (as *TenantsUserService) Update(tenant string, id int, user models.User) error {
+func (as *TenantsUserService) Update(token string, tenant string, id int, user models.User) error {
 	jsonUser, err := json.Marshal(user)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/users/"+string(id), jsonUser)
+	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/users/"+string(id), token, jsonUser)
 	if err != nil {
 		return err
 	}
@@ -57,8 +56,8 @@ func (as *TenantsUserService) Update(tenant string, id int, user models.User) er
 	return err
 }
 
-func (as *TenantsUserService) Delete(tenant string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/users/"+string(id), nil)
+func (as *TenantsUserService) Delete(token string, tenant string, id int) error {
+	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/users/"+string(id), token, nil)
 	if err != nil {
 		return err
 	}

@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"test_cli/cli/client"
-	cmodels "test_cli/cli/models"
+	"gandalf/cli/client"
+
+	cmodels "github.com/ditrit/gandalf/core/models"
 )
 
 func main() {
@@ -145,8 +146,12 @@ func main() {
 				var tenant cmodels.Tenant
 				err := json.Unmarshal([]byte(value), &tenant)
 				if err == nil {
-					err = cliClient.GandalfTenantService.Create(token, tenant)
-					if err != nil {
+					var login, password string
+					login, password, err = cliClient.GandalfTenantService.Create(token, tenant)
+					if err == nil {
+						fmt.Println(login)
+						fmt.Println(password)
+					} else {
 						fmt.Println(err)
 					}
 				} else {
@@ -306,7 +311,7 @@ func main() {
 			var user cmodels.User
 			err := json.Unmarshal([]byte(value), &user)
 			if err == nil {
-				result, _ := cliClient.TenantsAuthenticationService.Login(user)
+				result, _ := cliClient.TenantsAuthenticationService.Login(tenant, user)
 				fmt.Println(result)
 			} else {
 				fmt.Println(err)
@@ -314,7 +319,7 @@ func main() {
 		case "aggregator":
 			switch command {
 			case "list":
-				aggregators, err := cliClient.GandalfUserService.List(token)
+				aggregators, err := cliClient.TenantsAggregatorService.List(token, tenant)
 				if err == nil {
 					fmt.Println(aggregators)
 				} else {
@@ -324,7 +329,7 @@ func main() {
 				var aggregator *cmodels.Aggregator
 				intId, err := strconv.Atoi(id)
 				if err == nil {
-					aggregator, err = cliClient.TenantsAggregatorService.Read(token, intId)
+					aggregator, err = cliClient.TenantsAggregatorService.Read(token, tenant, intId)
 					if err == nil {
 						fmt.Println(aggregator)
 					} else {
@@ -337,7 +342,7 @@ func main() {
 				var aggregator cmodels.Aggregator
 				err := json.Unmarshal([]byte(value), &aggregator)
 				if err == nil {
-					err = cliClient.TenantsAggregatorService.Create(token, aggregator)
+					err = cliClient.TenantsAggregatorService.Create(token, tenant, aggregator)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -350,7 +355,7 @@ func main() {
 				if err == nil {
 					intId, err := strconv.Atoi(id)
 					if err == nil {
-						err = cliClient.TenantsAggregatorService.Update(token, intId, aggregator)
+						err = cliClient.TenantsAggregatorService.Update(token, tenant, intId, aggregator)
 						if err != nil {
 							fmt.Println(err)
 						}
@@ -363,7 +368,7 @@ func main() {
 			case "delete":
 				intId, err := strconv.Atoi(id)
 				if err == nil {
-					err := cliClient.TenantsAggregatorService.Delete(token, intId)
+					err := cliClient.TenantsAggregatorService.Delete(token, tenant, intId)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -374,7 +379,7 @@ func main() {
 		case "connector":
 			switch command {
 			case "list":
-				connectors, err := cliClient.TenantsConnectorService.List(token)
+				connectors, err := cliClient.TenantsConnectorService.List(token, tenant)
 				if err == nil {
 					fmt.Println(connectors)
 				} else {
@@ -384,7 +389,7 @@ func main() {
 				var connector *cmodels.Connector
 				intId, err := strconv.Atoi(id)
 				if err == nil {
-					connector, err = cliClient.TenantsConnectorService.Read(token, intId)
+					connector, err = cliClient.TenantsConnectorService.Read(token, tenant, intId)
 					if err == nil {
 						fmt.Println(connector)
 					} else {
@@ -397,7 +402,7 @@ func main() {
 				var connector cmodels.Connector
 				err := json.Unmarshal([]byte(value), &connector)
 				if err == nil {
-					err = cliClient.TenantsConnectorService.Create(token, connector)
+					err = cliClient.TenantsConnectorService.Create(token, tenant, connector)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -410,7 +415,7 @@ func main() {
 				if err == nil {
 					intId, err := strconv.Atoi(id)
 					if err == nil {
-						err = cliClient.TenantsConnectorService.Update(token, intId, connector)
+						err = cliClient.TenantsConnectorService.Update(token, tenant, intId, connector)
 						if err != nil {
 							fmt.Println(err)
 						}
@@ -423,7 +428,7 @@ func main() {
 			case "delete":
 				intId, err := strconv.Atoi(id)
 				if err == nil {
-					err := cliClient.TenantsConnectorService.Delete(token, intId)
+					err := cliClient.TenantsConnectorService.Delete(token, tenant, intId)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -434,7 +439,7 @@ func main() {
 		case "role":
 			switch command {
 			case "list":
-				roles, err := cliClient.TenantsRoleService.List(token)
+				roles, err := cliClient.TenantsRoleService.List(token, tenant)
 				if err == nil {
 					fmt.Println(roles)
 				} else {
@@ -444,7 +449,7 @@ func main() {
 				var role *cmodels.Role
 				intId, err := strconv.Atoi(id)
 				if err == nil {
-					role, err = cliClient.TenantsRoleService.Read(token, intId)
+					role, err = cliClient.TenantsRoleService.Read(token, tenant, intId)
 					if err == nil {
 						fmt.Println(role)
 					} else {
@@ -457,7 +462,7 @@ func main() {
 				var role cmodels.Role
 				err := json.Unmarshal([]byte(value), &role)
 				if err == nil {
-					err = cliClient.TenantsRoleService.Create(token, role)
+					err = cliClient.TenantsRoleService.Create(token, tenant, role)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -470,7 +475,7 @@ func main() {
 				if err == nil {
 					intId, err := strconv.Atoi(id)
 					if err == nil {
-						err = cliClient.TenantsRoleService.Update(token, intId, role)
+						err = cliClient.TenantsRoleService.Update(token, tenant, intId, role)
 						if err != nil {
 							fmt.Println(err)
 						}
@@ -483,7 +488,7 @@ func main() {
 			case "delete":
 				intId, err := strconv.Atoi(id)
 				if err == nil {
-					err := cliClient.TenantsRoleService.Delete(token, intId)
+					err := cliClient.TenantsRoleService.Delete(token, tenant, intId)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -494,7 +499,7 @@ func main() {
 		case "user":
 			switch command {
 			case "list":
-				users, err := cliClient.TenantsUserService.List(token)
+				users, err := cliClient.TenantsUserService.List(token, tenant)
 				if err == nil {
 					fmt.Println(users)
 				} else {
@@ -504,7 +509,7 @@ func main() {
 				var user *cmodels.User
 				intId, err := strconv.Atoi(id)
 				if err == nil {
-					user, err = cliClient.TenantsUserService.Read(token, intId)
+					user, err = cliClient.TenantsUserService.Read(token, tenant, intId)
 					if err == nil {
 						fmt.Println(user)
 					} else {
@@ -517,7 +522,7 @@ func main() {
 				var user cmodels.User
 				err := json.Unmarshal([]byte(value), &user)
 				if err == nil {
-					err = cliClient.TenantsUserService.Create(token, user)
+					err = cliClient.TenantsUserService.Create(token, tenant, user)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -530,7 +535,7 @@ func main() {
 				if err == nil {
 					intId, err := strconv.Atoi(id)
 					if err == nil {
-						err = cliClient.TenantsUserService.Update(token, intId, user)
+						err = cliClient.TenantsUserService.Update(token, tenant, intId, user)
 						if err != nil {
 							fmt.Println(err)
 						}
@@ -543,7 +548,7 @@ func main() {
 			case "delete":
 				intId, err := strconv.Atoi(id)
 				if err == nil {
-					err := cliClient.TenantsUserService.Delete(token, intId)
+					err := cliClient.TenantsUserService.Delete(token, tenant, intId)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -551,6 +556,6 @@ func main() {
 					fmt.Println(err)
 				}
 			}
+		}
 	}
-
 }

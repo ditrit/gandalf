@@ -3,16 +3,15 @@ package client
 import (
 	"encoding/json"
 
-	"github.com/ditrit/gandalf/core/agent/cli/client"
 	"github.com/ditrit/gandalf/core/models"
 )
 
 type TenantsRoleService struct {
-	client *client.Client
+	client *Client
 }
 
-func (as *TenantsRoleService) List(tenant string) ([]models.Role, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/roles", nil)
+func (as *TenantsRoleService) List(token string, tenant string) ([]models.Role, error) {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/roles", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,12 +20,12 @@ func (as *TenantsRoleService) List(tenant string) ([]models.Role, error) {
 	return roles, err
 }
 
-func (as *TenantsRoleService) Create(tenant string, role models.Role) error {
+func (as *TenantsRoleService) Create(token string, tenant string, role models.Role) error {
 	jsonRole, err := json.Marshal(role)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/roles", jsonRole)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/roles", token, jsonRole)
 	if err != nil {
 		return err
 	}
@@ -34,8 +33,8 @@ func (as *TenantsRoleService) Create(tenant string, role models.Role) error {
 	return err
 }
 
-func (as *TenantsRoleService) Read(tenant string, id int) (*models.Role, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/roles/"+string(id), nil)
+func (as *TenantsRoleService) Read(token string, tenant string, id int) (*models.Role, error) {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/roles/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +43,12 @@ func (as *TenantsRoleService) Read(tenant string, id int) (*models.Role, error) 
 	return &role, err
 }
 
-func (as *TenantsRoleService) Update(tenant string, id int, roles models.Role) error {
+func (as *TenantsRoleService) Update(token string, tenant string, id int, roles models.Role) error {
 	jsonRole, err := json.Marshal(roles)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/roles/"+string(id), jsonRole)
+	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/roles/"+string(id), token, jsonRole)
 	if err != nil {
 		return err
 	}
@@ -57,8 +56,8 @@ func (as *TenantsRoleService) Update(tenant string, id int, roles models.Role) e
 	return err
 }
 
-func (as *TenantsRoleService) Delete(tenant string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/roles/"+string(id), nil)
+func (as *TenantsRoleService) Delete(token string, tenant string, id int) error {
+	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/roles/"+string(id), token, nil)
 	if err != nil {
 		return err
 	}

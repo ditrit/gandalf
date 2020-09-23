@@ -3,16 +3,15 @@ package client
 import (
 	"encoding/json"
 
-	"github.com/ditrit/gandalf/core/agent/cli/client"
 	"github.com/ditrit/gandalf/core/models"
 )
 
 type TenantsAggregatorService struct {
-	client *client.Client
+	client *Client
 }
 
-func (as *TenantsAggregatorService) List(tenant string) ([]models.Aggregator, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators", nil)
+func (as *TenantsAggregatorService) List(token string, tenant string) ([]models.Aggregator, error) {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -21,12 +20,12 @@ func (as *TenantsAggregatorService) List(tenant string) ([]models.Aggregator, er
 	return aggregators, err
 }
 
-func (as *TenantsAggregatorService) Create(tenant string, aggregator models.Aggregator) error {
+func (as *TenantsAggregatorService) Create(token string, tenant string, aggregator models.Aggregator) error {
 	jsonAggregator, err := json.Marshal(aggregator)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/aggregators", jsonAggregator)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/aggregators", token, jsonAggregator)
 	if err != nil {
 		return err
 	}
@@ -34,8 +33,8 @@ func (as *TenantsAggregatorService) Create(tenant string, aggregator models.Aggr
 	return err
 }
 
-func (as *TenantsAggregatorService) Read(tenant string, id int) (*models.Aggregator, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/"+string(id), nil)
+func (as *TenantsAggregatorService) Read(token string, tenant string, id int) (*models.Aggregator, error) {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,12 +43,12 @@ func (as *TenantsAggregatorService) Read(tenant string, id int) (*models.Aggrega
 	return &aggregator, err
 }
 
-func (as *TenantsAggregatorService) Update(tenant string, id int, aggregator models.Aggregator) error {
+func (as *TenantsAggregatorService) Update(token string, tenant string, id int, aggregator models.Aggregator) error {
 	jsonAggregator, err := json.Marshal(aggregator)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/aggregators/"+string(id), jsonAggregator)
+	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, jsonAggregator)
 	if err != nil {
 		return err
 	}
@@ -57,8 +56,8 @@ func (as *TenantsAggregatorService) Update(tenant string, id int, aggregator mod
 	return err
 }
 
-func (as *TenantsAggregatorService) Delete(tenant string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/aggregators/"+string(id), nil)
+func (as *TenantsAggregatorService) Delete(token string, tenant string, id int) error {
+	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, nil)
 	if err != nil {
 		return err
 	}
