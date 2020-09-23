@@ -23,7 +23,7 @@ type Client struct {
 	GandalfClusterService        *GandalfClusterService
 	GandalfRoleService           *GandalfRoleService
 	GandalfTenantService         *GandalfTenantService
-	GandlafUserService           *GandalfUserService
+	GandalfUserService           *GandalfUserService
 	TenantsAuthenticationService *TenantsAuthenticationService
 	TenantsAggregatorService     *TenantsAggregatorService
 	TenantsConnectorService      *TenantsConnectorService
@@ -46,11 +46,17 @@ func NewClient(userAgent string) (client *Client) {
 		},
 	}
 
-	client.GandalfAuthenticationService = &AuthenticationService{client: client}
-	client.GandalfClusterService = &ClusterService{client: client}
-	client.GandalfRoleService = &RoleService{client: client}
-	client.GandalfTenantService = &TenantService{client: client}
-	client.GandlafUserService = &UserService{client: client}
+	client.GandalfAuthenticationService = &GandalfAuthenticationService{client: client}
+	client.GandalfClusterService = &GandalfClusterService{client: client}
+	client.GandalfRoleService = &GandalfRoleService{client: client}
+	client.GandalfTenantService = &GandalfTenantService{client: client}
+	client.GandalfUserService = &GandalfUserService{client: client}
+
+	client.TenantsAuthenticationService = &TenantsAuthenticationService{client: client}
+	client.TenantsAggregatorService = &TenantsAggregatorService{client: client}
+	client.TenantsConnectorService = &TenantsConnectorService{client: client}
+	client.TenantsRoleService = &TenantsRoleService{client: client}
+	client.TenantsUserService = &TenantsUserService{client: client}
 
 	return
 
