@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/ditrit/gandalf/core/models"
 )
@@ -11,7 +12,7 @@ type GandalfTenantService struct {
 }
 
 func (as *GandalfTenantService) List(token string) ([]models.Tenant, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/tenants", token, nil)
+	req, err := as.client.newRequest("GET", "/auth/gandalf/tenants/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,14 +24,23 @@ func (as *GandalfTenantService) List(token string) ([]models.Tenant, error) {
 func (as *GandalfTenantService) Create(token string, tenant models.Tenant) (string, string, error) {
 	jsonTenant, err := json.Marshal(tenant)
 	if err != nil {
+		fmt.Println("ERRRORR")
 		return "", "", err
 	}
-	req, err := as.client.newRequest("POST", "/auth/gandalf/tenants", token, jsonTenant)
+	req, err := as.client.newRequest("POST", "/auth/gandalf/tenants/", token, jsonTenant)
 	if err != nil {
+		fmt.Println("ERRRORR")
 		return "", "", err
 	}
 	var mapTenant map[string]interface{}
-	_, err = as.client.do(req, mapTenant)
+	mapTenant = make(map[string]interface{})
+
+	_, err = as.client.do(req, &mapTenant)
+	if err != nil {
+		return "", "", err
+	}
+	fmt.Println(err)
+	fmt.Println(mapTenant)
 	return mapTenant["login"].(string), mapTenant["password"].(string), err
 }
 

@@ -2,6 +2,7 @@ package client
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/ditrit/gandalf/core/models"
 )
@@ -11,7 +12,7 @@ type GandalfRoleService struct {
 }
 
 func (as *GandalfRoleService) List(token string) ([]models.Role, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/roles", token, nil)
+	req, err := as.client.newRequest("GET", "/auth/gandalf/roles/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,9 +24,10 @@ func (as *GandalfRoleService) List(token string) ([]models.Role, error) {
 func (as *GandalfRoleService) Create(token string, role models.Role) error {
 	jsonRole, err := json.Marshal(role)
 	if err != nil {
+		fmt.Println("error")
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/gandalf/roles", token, jsonRole)
+	req, err := as.client.newRequest("POST", "/auth/gandalf/roles/", token, jsonRole)
 	if err != nil {
 		return err
 	}

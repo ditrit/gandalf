@@ -10,7 +10,7 @@ type TenantsAuthenticationService struct {
 
 func (as *TenantsAuthenticationService) Login(tenant string, user models.User) (string, error) {
 
-	req, err := as.client.newRequest("POST", "/tenants/"+tenant+"/login", "", user)
+	req, err := as.client.newRequest("POST", "/tenants/"+tenant+"/login/", "", user)
 	if err != nil {
 		return "", err
 	}

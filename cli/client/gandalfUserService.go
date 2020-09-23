@@ -11,7 +11,7 @@ type GandalfUserService struct {
 }
 
 func (as *GandalfUserService) List(token string) ([]models.User, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/users", token, nil)
+	req, err := as.client.newRequest("GET", "/auth/gandalf/users/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (as *GandalfUserService) Create(token string, user models.User) error {
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/gandalf/users", token, jsonUser)
+	req, err := as.client.newRequest("POST", "/auth/gandalf/users/", token, jsonUser)
 	if err != nil {
 		return err
 	}

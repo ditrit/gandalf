@@ -145,6 +145,7 @@ func main() {
 			case "create":
 				var tenant cmodels.Tenant
 				err := json.Unmarshal([]byte(value), &tenant)
+				fmt.Println(err)
 				if err == nil {
 					var login, password string
 					login, password, err = cliClient.GandalfTenantService.Create(token, tenant)

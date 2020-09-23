@@ -11,7 +11,7 @@ type TenantsConnectorService struct {
 }
 
 func (as *TenantsConnectorService) List(token string, tenant string) ([]models.Connector, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors", token, nil)
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (as *TenantsConnectorService) Create(token string, tenant string, connector
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/connectors", token, jsonConnector)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/connectors/", token, jsonConnector)
 	if err != nil {
 		return err
 	}

@@ -25,7 +25,7 @@ func (as *GandalfClusterService) Create(token string, cluster models.Cluster) er
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/gandalf/clusters", token, jsonCluster)
+	req, err := as.client.newRequest("POST", "/auth/gandalf/clusters/", token, jsonCluster)
 	if err != nil {
 		return err
 	}

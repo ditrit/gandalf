@@ -11,7 +11,7 @@ type TenantsRoleService struct {
 }
 
 func (as *TenantsRoleService) List(token string, tenant string) ([]models.Role, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/roles", token, nil)
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/roles/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (as *TenantsRoleService) Create(token string, tenant string, role models.Ro
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/roles", token, jsonRole)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/roles/", token, jsonRole)
 	if err != nil {
 		return err
 	}

@@ -11,7 +11,7 @@ type TenantsAggregatorService struct {
 }
 
 func (as *TenantsAggregatorService) List(token string, tenant string) ([]models.Aggregator, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators", token, nil)
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (as *TenantsAggregatorService) Create(token string, tenant string, aggregat
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/aggregators", token, jsonAggregator)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/aggregators/", token, jsonAggregator)
 	if err != nil {
 		return err
 	}

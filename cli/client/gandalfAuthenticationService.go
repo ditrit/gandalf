@@ -10,7 +10,7 @@ type GandalfAuthenticationService struct {
 
 func (as *GandalfAuthenticationService) Login(user models.User) (string, error) {
 
-	req, err := as.client.newRequest("POST", "/gandalf/login", "", user)
+	req, err := as.client.newRequest("POST", "/gandalf/login/", "", user)
 	if err != nil {
 		return "", err
 	}

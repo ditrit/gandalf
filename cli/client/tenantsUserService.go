@@ -11,7 +11,7 @@ type TenantsUserService struct {
 }
 
 func (as *TenantsUserService) List(token string, tenant string) ([]models.User, error) {
-	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users", token, nil)
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (as *TenantsUserService) Create(token string, tenant string, user models.Us
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/users", token, jsonUser)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/users/", token, jsonUser)
 	if err != nil {
 		return err
 	}
