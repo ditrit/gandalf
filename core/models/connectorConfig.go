@@ -8,7 +8,7 @@ import (
 // ConnectorConfig : ConnectorConfig struct.
 type ConnectorConfig struct {
 	gorm.Model
-	Name               string
+	Name               string `gorm:"unique"`
 	ConnectorTypeID    uint
 	ConnectorType      ConnectorType
 	Version            int

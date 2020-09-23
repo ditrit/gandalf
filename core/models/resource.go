@@ -7,5 +7,5 @@ import (
 // Resource : Resource struct.
 type Resource struct {
 	gorm.Model
-	Name string
+	Name string `gorm:"unique"`
 }

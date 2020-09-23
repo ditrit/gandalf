@@ -3,7 +3,6 @@ package gandalf
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -54,31 +53,19 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	fmt.Println("CREATE TENANT")
 	err := dao.CreateTenant(tc.gandalfDatabase, tenant)
 	if err == nil {
 		var tenantDatabaseClient *gorm.DB
-		fmt.Println("CREATE DB")
 		tenantDatabaseClient, err := database.NewTenantDatabaseClient(tenant.Name, tc.databasePath)
 		if err == nil {
 
-			fmt.Println("INIT DB")
 			login, password, err = database.InitTenantDatabase(tenantDatabaseClient)
-			fmt.Println("INIT DB2")
-			fmt.Println(login)
-			fmt.Println(password)
-			fmt.Println(err)
-			fmt.Println("INIT DB2.1")
-			fmt.Println(result)
-			fmt.Println("INIT DB2.2")
 
 			if err == nil {
 				result["login"] = login
 				result["password"] = password
 				result["tenant"] = tenant
 
-				fmt.Println("result2")
-				fmt.Println(result)
 			} else {
 				dao.DeleteTenant(tc.gandalfDatabase, int(tenant.ID))
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
@@ -94,9 +81,6 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("result")
-	fmt.Println(result)
-	//TODO REVOIR
 	utils.RespondWithJSON(w, http.StatusCreated, result)
 }
 

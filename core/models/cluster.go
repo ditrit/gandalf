@@ -9,6 +9,6 @@ import (
 type Cluster struct {
 	gorm.Model
 	LogicalName  string
-	InstanceName string
+	InstanceName string `gorm:"unique"`
 	Secret       string
 }
