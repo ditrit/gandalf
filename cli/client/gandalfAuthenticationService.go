@@ -15,7 +15,7 @@ func (as *GandalfAuthenticationService) Login(user models.User) (string, error) 
 		return "", err
 	}
 	var mapLogin map[string]interface{}
-	_, err = as.client.do(req, &mapLogin)
+	err = as.client.do(req, &mapLogin)
 
 	return mapLogin["token"].(string), err
 }

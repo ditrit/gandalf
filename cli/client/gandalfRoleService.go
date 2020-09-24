@@ -1,9 +1,6 @@
 package client
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -17,21 +14,16 @@ func (as *GandalfRoleService) List(token string) ([]models.Role, error) {
 		return nil, err
 	}
 	var roles []models.Role
-	_, err = as.client.do(req, &roles)
+	err = as.client.do(req, &roles)
 	return roles, err
 }
 
 func (as *GandalfRoleService) Create(token string, role models.Role) error {
-	jsonRole, err := json.Marshal(role)
-	if err != nil {
-		fmt.Println("error")
-		return err
-	}
-	req, err := as.client.newRequest("POST", "/auth/gandalf/roles/", token, jsonRole)
+	req, err := as.client.newRequest("POST", "/auth/gandalf/roles/", token, role)
 	if err != nil {
 		return err
 	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }
 
@@ -41,20 +33,16 @@ func (as *GandalfRoleService) Read(token string, id int) (*models.Role, error) {
 		return nil, err
 	}
 	var role models.Role
-	_, err = as.client.do(req, &role)
+	err = as.client.do(req, &role)
 	return &role, err
 }
 
-func (as *GandalfRoleService) Update(token string, id int, roles models.Role) error {
-	jsonRole, err := json.Marshal(roles)
+func (as *GandalfRoleService) Update(token string, id int, role models.Role) error {
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/roles/"+string(id), token, role)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/roles/"+string(id), token, jsonRole)
-	if err != nil {
-		return err
-	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }
 
@@ -63,6 +51,6 @@ func (as *GandalfRoleService) Delete(token string, id int) error {
 	if err != nil {
 		return err
 	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }

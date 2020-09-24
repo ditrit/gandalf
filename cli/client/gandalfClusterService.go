@@ -1,8 +1,6 @@
 package client
 
 import (
-	"encoding/json"
-
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -16,20 +14,16 @@ func (as *GandalfClusterService) List(token string) ([]models.Cluster, error) {
 		return nil, err
 	}
 	var clusters []models.Cluster
-	_, err = as.client.do(req, &clusters)
+	err = as.client.do(req, &clusters)
 	return clusters, err
 }
 
 func (as *GandalfClusterService) Create(token string, cluster models.Cluster) error {
-	jsonCluster, err := json.Marshal(cluster)
+	req, err := as.client.newRequest("POST", "/auth/gandalf/clusters/", token, cluster)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/gandalf/clusters/", token, jsonCluster)
-	if err != nil {
-		return err
-	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }
 
@@ -39,20 +33,16 @@ func (as *GandalfClusterService) Read(token string, id int) (*models.Cluster, er
 		return nil, err
 	}
 	var cluster models.Cluster
-	_, err = as.client.do(req, &cluster)
+	err = as.client.do(req, &cluster)
 	return &cluster, err
 }
 
 func (as *GandalfClusterService) Update(token string, id int, cluster models.Cluster) error {
-	jsonCluster, err := json.Marshal(cluster)
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/clusters/"+string(id), token, cluster)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/clusters/"+string(id), token, jsonCluster)
-	if err != nil {
-		return err
-	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }
 
@@ -61,6 +51,6 @@ func (as *GandalfClusterService) Delete(token string, id int) error {
 	if err != nil {
 		return err
 	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }

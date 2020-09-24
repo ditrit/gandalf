@@ -210,8 +210,12 @@ func main() {
 			case "create":
 				var role cmodels.Role
 				err := json.Unmarshal([]byte(value), &role)
+				fmt.Println("role")
+				fmt.Println(role)
 				if err == nil {
 					err = cliClient.GandalfRoleService.Create(token, role)
+					fmt.Println("err")
+					fmt.Println(err)
 					if err != nil {
 						fmt.Println(err)
 					}

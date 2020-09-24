@@ -1,8 +1,6 @@
 package client
 
 import (
-	"encoding/json"
-
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -16,20 +14,16 @@ func (as *TenantsRoleService) List(token string, tenant string) ([]models.Role, 
 		return nil, err
 	}
 	var roles []models.Role
-	_, err = as.client.do(req, &roles)
+	err = as.client.do(req, &roles)
 	return roles, err
 }
 
 func (as *TenantsRoleService) Create(token string, tenant string, role models.Role) error {
-	jsonRole, err := json.Marshal(role)
+	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/roles/", token, role)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/roles/", token, jsonRole)
-	if err != nil {
-		return err
-	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }
 
@@ -39,20 +33,16 @@ func (as *TenantsRoleService) Read(token string, tenant string, id int) (*models
 		return nil, err
 	}
 	var role models.Role
-	_, err = as.client.do(req, &role)
+	err = as.client.do(req, &role)
 	return &role, err
 }
 
-func (as *TenantsRoleService) Update(token string, tenant string, id int, roles models.Role) error {
-	jsonRole, err := json.Marshal(roles)
+func (as *TenantsRoleService) Update(token string, tenant string, id int, role models.Role) error {
+	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/roles/"+string(id), token, role)
 	if err != nil {
 		return err
 	}
-	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/roles/"+string(id), token, jsonRole)
-	if err != nil {
-		return err
-	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }
 
@@ -61,6 +51,6 @@ func (as *TenantsRoleService) Delete(token string, tenant string, id int) error 
 	if err != nil {
 		return err
 	}
-	_, err = as.client.do(req, nil)
+	err = as.client.do(req, nil)
 	return err
 }

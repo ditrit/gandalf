@@ -68,7 +68,7 @@ func ReturnURLS() *Urls {
 	apiurls.TENANTS_PATH = "/tenants/{tenant}"
 
 	//GANDALF
-	apiurls.GANDALF_LOGIN_PATH = apiurls.GANDALF_PATH + "/login"
+	apiurls.GANDALF_LOGIN_PATH = apiurls.GANDALF_PATH + "/login/"
 	apiurls.GANDALF_CLUSTER_PATH = apiurls.GANDALF_PATH + "/clusters"
 	apiurls.GANDALF_CLUSTER_PATH_LIST = apiurls.GANDALF_CLUSTER_PATH + "/"
 	apiurls.GANDALF_CLUSTER_PATH_CREATE = apiurls.GANDALF_CLUSTER_PATH + "/"
@@ -95,7 +95,7 @@ func ReturnURLS() *Urls {
 	apiurls.GANDALF_TENANT_PATH_DELETE = apiurls.GANDALF_TENANT_PATH + "/{id:[0-9]+}"
 
 	//TENANTS
-	apiurls.TENANTS_LOGIN_PATH = apiurls.TENANTS_PATH + "/login"
+	apiurls.TENANTS_LOGIN_PATH = apiurls.TENANTS_PATH + "/login/"
 	apiurls.TENANTS_CONNECTOR_PATH = apiurls.TENANTS_PATH + "/connectors"
 	apiurls.TENANTS_CONNECTOR_PATH_LIST = apiurls.TENANTS_CONNECTOR_PATH + "/"
 	apiurls.TENANTS_CONNECTOR_PATH_CREATE = apiurls.TENANTS_CONNECTOR_PATH + "/"

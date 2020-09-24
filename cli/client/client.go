@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -91,14 +92,30 @@ func (c *Client) newRequest(method, path, token string, body interface{}) (*http
 	return req, nil
 }
 
-func (c *Client) do(req *http.Request, v interface{}) (*http.Response, error) {
+func (c *Client) do(req *http.Request, v interface{}) error {
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	defer resp.Body.Close()
-	fmt.Println("resp.Body")
+
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusBadRequest {
+		var errRes map[string]string
+		if err = json.NewDecoder(resp.Body).Decode(&errRes); err == nil {
+			return errors.New(errRes["error"])
+		}
+
+		return fmt.Errorf("unknown error, status code: %d", resp.StatusCode)
+	}
+
+	if err = json.NewDecoder(resp.Body).Decode(&v); err != nil {
+		return err
+	}
+
+	return nil
+
+	/* fmt.Println("resp.Body")
 	fmt.Println(resp.Body)
 	err = json.NewDecoder(resp.Body).Decode(v)
-	return resp, err
+	return resp, err */
 }
