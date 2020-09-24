@@ -14,10 +14,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// UserController :
 type UserController struct {
 	gandalfDatabase *gorm.DB
 }
 
+// NewUserController :
 func NewUserController(gandalfDatabase *gorm.DB) (userController *UserController) {
 	userController = new(UserController)
 	userController.gandalfDatabase = gandalfDatabase
@@ -25,6 +27,7 @@ func NewUserController(gandalfDatabase *gorm.DB) (userController *UserController
 	return
 }
 
+// List :
 func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 
 	users, err := dao.ListUser(uc.gandalfDatabase)
@@ -36,6 +39,7 @@ func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, users)
 }
 
+// Create :
 func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	decoder := json.NewDecoder(r.Body)
@@ -53,6 +57,7 @@ func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, user)
 }
 
+// Read :
 func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -74,6 +79,7 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, user)
 }
 
+// Update :
 func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -99,6 +105,7 @@ func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, user)
 }
 
+// Delete :
 func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])

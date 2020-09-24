@@ -14,10 +14,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// RoleController :
 type RoleController struct {
 	gandalfDatabase *gorm.DB
 }
 
+// NewRoleController :
 func NewRoleController(gandalfDatabase *gorm.DB) (roleController *RoleController) {
 	roleController = new(RoleController)
 	roleController.gandalfDatabase = gandalfDatabase
@@ -25,6 +27,7 @@ func NewRoleController(gandalfDatabase *gorm.DB) (roleController *RoleController
 	return
 }
 
+// List :
 func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 
 	roles, err := dao.ListRole(rc.gandalfDatabase)
@@ -36,6 +39,7 @@ func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, roles)
 }
 
+// Create :
 func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 	var role models.Role
 	decoder := json.NewDecoder(r.Body)
@@ -53,6 +57,7 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, role)
 }
 
+// Read :
 func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
@@ -76,6 +81,7 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, role)
 }
 
+// Update :
 func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -101,6 +107,7 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, role)
 }
 
+// Delete :
 func (rc RoleController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])

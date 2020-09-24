@@ -14,11 +14,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// RoleController :
 type RoleController struct {
 	mapDatabase  map[string]*gorm.DB
 	databasePath string
 }
 
+// NewRoleController :
 func NewRoleController(mapDatabase map[string]*gorm.DB, databasePath string) (roleController *RoleController) {
 	roleController = new(RoleController)
 	roleController.mapDatabase = mapDatabase
@@ -27,6 +29,7 @@ func NewRoleController(mapDatabase map[string]*gorm.DB, databasePath string) (ro
 	return
 }
 
+// List :
 func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -41,6 +44,7 @@ func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, roles)
 }
 
+// Create :
 func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -62,6 +66,7 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, role)
 }
 
+// Read :
 func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -87,6 +92,7 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, role)
 }
 
+// Update :
 func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -115,6 +121,7 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, role)
 }
 
+// Delete :
 func (rc RoleController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]

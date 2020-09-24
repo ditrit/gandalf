@@ -14,10 +14,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// ClusterController :
 type ClusterController struct {
 	gandalfDatabase *gorm.DB
 }
 
+// NewClusterController :
 func NewClusterController(gandalfDatabase *gorm.DB) (clusterController *ClusterController) {
 	clusterController = new(ClusterController)
 	clusterController.gandalfDatabase = gandalfDatabase
@@ -25,6 +27,7 @@ func NewClusterController(gandalfDatabase *gorm.DB) (clusterController *ClusterC
 	return
 }
 
+// List :
 func (cc ClusterController) List(w http.ResponseWriter, r *http.Request) {
 	cluster, err := dao.ListCluster(cc.gandalfDatabase)
 	if err != nil {
@@ -35,6 +38,7 @@ func (cc ClusterController) List(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, cluster)
 }
 
+// Create :
 func (cc ClusterController) Create(w http.ResponseWriter, r *http.Request) {
 	var cluster models.Cluster
 	decoder := json.NewDecoder(r.Body)
@@ -52,6 +56,7 @@ func (cc ClusterController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, cluster)
 }
 
+// Read :
 func (cc ClusterController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -74,6 +79,7 @@ func (cc ClusterController) Read(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, cluster)
 }
 
+// Update :
 func (cc ClusterController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -99,6 +105,7 @@ func (cc ClusterController) Update(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, cluster)
 }
 
+// Delete :
 func (cc ClusterController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])

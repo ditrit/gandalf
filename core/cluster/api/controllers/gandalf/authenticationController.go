@@ -17,10 +17,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// AuthenticationController :
 type AuthenticationController struct {
 	gandalfDatabase *gorm.DB
 }
 
+// NewAuthenticationController :
 func NewAuthenticationController(gandalfDatabase *gorm.DB) (authenticationController *AuthenticationController) {
 	authenticationController = new(AuthenticationController)
 	authenticationController.gandalfDatabase = gandalfDatabase
@@ -28,6 +30,7 @@ func NewAuthenticationController(gandalfDatabase *gorm.DB) (authenticationContro
 	return
 }
 
+// Login :
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{}
 
@@ -43,6 +46,7 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(resp)
 }
 
+// FindOne :
 func (ac AuthenticationController) FindOne(email, password string) map[string]interface{} {
 	user := models.User{}
 	var err error

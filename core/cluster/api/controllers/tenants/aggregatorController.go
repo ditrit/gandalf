@@ -14,11 +14,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// AggregatorController :
 type AggregatorController struct {
 	mapDatabase  map[string]*gorm.DB
 	databasePath string
 }
 
+// NewAggregatorController :
 func NewAggregatorController(mapDatabase map[string]*gorm.DB, databasePath string) (aggregatorController *AggregatorController) {
 	aggregatorController = new(AggregatorController)
 	aggregatorController.mapDatabase = mapDatabase
@@ -27,6 +29,7 @@ func NewAggregatorController(mapDatabase map[string]*gorm.DB, databasePath strin
 	return
 }
 
+// List :
 func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -41,6 +44,7 @@ func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, aggregators)
 }
 
+// Create :
 func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -62,6 +66,7 @@ func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, aggregator)
 }
 
+// Read :
 func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -87,6 +92,7 @@ func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, aggregator)
 }
 
+// Update :
 func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -115,6 +121,7 @@ func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, aggregator)
 }
 
+// Delete :
 func (ac AggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]

@@ -16,11 +16,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// TenantController :
 type TenantController struct {
 	gandalfDatabase *gorm.DB
 	databasePath    string
 }
 
+// NewTenantController :
 func NewTenantController(gandalfDatabase *gorm.DB, databasePath string) (tenantController *TenantController) {
 	tenantController = new(TenantController)
 	tenantController.gandalfDatabase = gandalfDatabase
@@ -29,6 +31,7 @@ func NewTenantController(gandalfDatabase *gorm.DB, databasePath string) (tenantC
 	return
 }
 
+// List :
 func (tc TenantController) List(w http.ResponseWriter, r *http.Request) {
 
 	tenants, err := dao.ListTenant(tc.gandalfDatabase)
@@ -40,6 +43,7 @@ func (tc TenantController) List(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, tenants)
 }
 
+// Create :
 func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	var result map[string]interface{}
 	result = make(map[string]interface{})
@@ -84,6 +88,7 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, result)
 }
 
+// Read :
 func (tc TenantController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -106,6 +111,7 @@ func (tc TenantController) Read(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, tenant)
 }
 
+// Update :
 func (tc TenantController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -131,6 +137,7 @@ func (tc TenantController) Update(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, tenant)
 }
 
+// Delete :
 func (tc TenantController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])

@@ -14,11 +14,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// ConnectorController :
 type ConnectorController struct {
 	mapDatabase  map[string]*gorm.DB
 	databasePath string
 }
 
+// NewConnectorController :
 func NewConnectorController(mapDatabase map[string]*gorm.DB, databasePath string) (connectorController *ConnectorController) {
 	connectorController = new(ConnectorController)
 	connectorController.mapDatabase = mapDatabase
@@ -27,6 +29,7 @@ func NewConnectorController(mapDatabase map[string]*gorm.DB, databasePath string
 	return
 }
 
+// List :
 func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -41,6 +44,7 @@ func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, connectors)
 }
 
+// Create :
 func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -62,6 +66,7 @@ func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, connector)
 }
 
+// Read :
 func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -87,6 +92,7 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, connector)
 }
 
+// Update :
 func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -115,6 +121,7 @@ func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, connector)
 }
 
+// Delete :
 func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]

@@ -20,11 +20,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// AuthenticationController :
 type AuthenticationController struct {
 	mapDatabase  map[string]*gorm.DB
 	databasePath string
 }
 
+//NewAuthenticationController :
 func NewAuthenticationController(mapDatabase map[string]*gorm.DB, databasePath string) (authenticationController *AuthenticationController) {
 	authenticationController = new(AuthenticationController)
 	authenticationController.mapDatabase = mapDatabase
@@ -33,6 +35,7 @@ func NewAuthenticationController(mapDatabase map[string]*gorm.DB, databasePath s
 	return
 }
 
+// Login :
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -49,7 +52,7 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(resp)
 }
 
-//TODO REVOIR
+// FindOne :
 func (ac AuthenticationController) FindOne(database *gorm.DB, email, password string) map[string]interface{} {
 	user := models.User{}
 	var err error

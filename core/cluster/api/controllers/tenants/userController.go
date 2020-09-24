@@ -14,11 +14,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// UserController :
 type UserController struct {
 	mapDatabase  map[string]*gorm.DB
 	databasePath string
 }
 
+// NewUserController :
 func NewUserController(mapDatabase map[string]*gorm.DB, databasePath string) (userController *UserController) {
 	userController = new(UserController)
 	userController.mapDatabase = mapDatabase
@@ -27,6 +29,7 @@ func NewUserController(mapDatabase map[string]*gorm.DB, databasePath string) (us
 	return
 }
 
+// List :
 func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -41,6 +44,7 @@ func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, users)
 }
 
+// Create :
 func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -62,6 +66,7 @@ func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, user)
 }
 
+// Read :
 func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -86,6 +91,7 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, user)
 }
 
+// Update :
 func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -114,6 +120,7 @@ func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusOK, user)
 }
 
+// Delete :
 func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
