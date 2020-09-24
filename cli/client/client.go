@@ -12,10 +12,12 @@ import (
 	"time"
 )
 
+// BaseURLV1 :
 const (
 	BaseURLV1 = "http://localhost:3010"
 )
 
+// Client :
 type Client struct {
 	BaseURL                      *url.URL
 	UserAgent                    string
@@ -32,6 +34,7 @@ type Client struct {
 	TenantsUserService           *TenantsUserService
 }
 
+// NewClient :
 func NewClient(userAgent string) (client *Client) {
 
 	u, err := url.Parse(BaseURLV1)

@@ -4,10 +4,12 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 )
 
+// TenantsAggregatorService :
 type TenantsAggregatorService struct {
 	client *Client
 }
 
+// List :
 func (as *TenantsAggregatorService) List(token string, tenant string) ([]models.Aggregator, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/", token, nil)
 	if err != nil {
@@ -18,6 +20,7 @@ func (as *TenantsAggregatorService) List(token string, tenant string) ([]models.
 	return aggregators, err
 }
 
+// Create :
 func (as *TenantsAggregatorService) Create(token string, tenant string, aggregator models.Aggregator) error {
 	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/aggregators/", token, aggregator)
 	if err != nil {
@@ -27,6 +30,7 @@ func (as *TenantsAggregatorService) Create(token string, tenant string, aggregat
 	return err
 }
 
+// Read :
 func (as *TenantsAggregatorService) Read(token string, tenant string, id int) (*models.Aggregator, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, nil)
 	if err != nil {
@@ -37,6 +41,7 @@ func (as *TenantsAggregatorService) Read(token string, tenant string, id int) (*
 	return &aggregator, err
 }
 
+// Update :
 func (as *TenantsAggregatorService) Update(token string, tenant string, id int, aggregator models.Aggregator) error {
 	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, aggregator)
 	if err != nil {
@@ -46,6 +51,7 @@ func (as *TenantsAggregatorService) Update(token string, tenant string, id int, 
 	return err
 }
 
+// Delete :
 func (as *TenantsAggregatorService) Delete(token string, tenant string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, nil)
 	if err != nil {

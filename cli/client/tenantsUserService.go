@@ -4,10 +4,12 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 )
 
+// TenantsUserService :
 type TenantsUserService struct {
 	client *Client
 }
 
+// List :
 func (as *TenantsUserService) List(token string, tenant string) ([]models.User, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users/", token, nil)
 	if err != nil {
@@ -18,6 +20,7 @@ func (as *TenantsUserService) List(token string, tenant string) ([]models.User, 
 	return users, err
 }
 
+// Create :
 func (as *TenantsUserService) Create(token string, tenant string, user models.User) error {
 	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/users/", token, user)
 	if err != nil {
@@ -27,6 +30,7 @@ func (as *TenantsUserService) Create(token string, tenant string, user models.Us
 	return err
 }
 
+// Read :
 func (as *TenantsUserService) Read(token string, tenant string, id int) (*models.User, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users/"+string(id), token, nil)
 	if err != nil {
@@ -37,6 +41,7 @@ func (as *TenantsUserService) Read(token string, tenant string, id int) (*models
 	return &user, err
 }
 
+// Update :
 func (as *TenantsUserService) Update(token string, tenant string, id int, user models.User) error {
 	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/users/"+string(id), token, user)
 	if err != nil {
@@ -46,6 +51,7 @@ func (as *TenantsUserService) Update(token string, tenant string, id int, user m
 	return err
 }
 
+// Delete :
 func (as *TenantsUserService) Delete(token string, tenant string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/users/"+string(id), token, nil)
 	if err != nil {

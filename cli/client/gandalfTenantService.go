@@ -6,10 +6,12 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 )
 
+// GandalfTenantService :
 type GandalfTenantService struct {
 	client *Client
 }
 
+// List :
 func (as *GandalfTenantService) List(token string) ([]models.Tenant, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/tenants/", token, nil)
 	if err != nil {
@@ -20,6 +22,7 @@ func (as *GandalfTenantService) List(token string) ([]models.Tenant, error) {
 	return tenants, err
 }
 
+// Create :
 func (as *GandalfTenantService) Create(token string, tenant models.Tenant) (string, string, error) {
 	req, err := as.client.newRequest("POST", "/auth/gandalf/tenants/", token, tenant)
 	if err != nil {
@@ -38,6 +41,7 @@ func (as *GandalfTenantService) Create(token string, tenant models.Tenant) (stri
 	return mapTenant["login"].(string), mapTenant["password"].(string), err
 }
 
+// Read :
 func (as *GandalfTenantService) Read(token string, id int) (*models.Tenant, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/tenants/"+string(id), token, nil)
 	if err != nil {
@@ -48,6 +52,7 @@ func (as *GandalfTenantService) Read(token string, id int) (*models.Tenant, erro
 	return &tenant, err
 }
 
+// Update :
 func (as *GandalfTenantService) Update(token string, id int, tenant models.Tenant) error {
 	req, err := as.client.newRequest("PUT", "/auth/gandalf/tenants/"+string(id), token, tenant)
 	if err != nil {
@@ -57,6 +62,7 @@ func (as *GandalfTenantService) Update(token string, id int, tenant models.Tenan
 	return err
 }
 
+// Delete :
 func (as *GandalfTenantService) Delete(token string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/gandalf/tenants/"+string(id), token, nil)
 	if err != nil {

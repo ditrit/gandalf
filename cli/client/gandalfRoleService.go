@@ -4,10 +4,12 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 )
 
+// GandalfRoleService :
 type GandalfRoleService struct {
 	client *Client
 }
 
+// List :
 func (as *GandalfRoleService) List(token string) ([]models.Role, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/roles/", token, nil)
 	if err != nil {
@@ -18,6 +20,7 @@ func (as *GandalfRoleService) List(token string) ([]models.Role, error) {
 	return roles, err
 }
 
+// Create :
 func (as *GandalfRoleService) Create(token string, role models.Role) error {
 	req, err := as.client.newRequest("POST", "/auth/gandalf/roles/", token, role)
 	if err != nil {
@@ -27,6 +30,7 @@ func (as *GandalfRoleService) Create(token string, role models.Role) error {
 	return err
 }
 
+// Read :
 func (as *GandalfRoleService) Read(token string, id int) (*models.Role, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/roles/"+string(id), token, nil)
 	if err != nil {
@@ -37,6 +41,7 @@ func (as *GandalfRoleService) Read(token string, id int) (*models.Role, error) {
 	return &role, err
 }
 
+// Update :
 func (as *GandalfRoleService) Update(token string, id int, role models.Role) error {
 	req, err := as.client.newRequest("PUT", "/auth/gandalf/roles/"+string(id), token, role)
 	if err != nil {
@@ -46,6 +51,7 @@ func (as *GandalfRoleService) Update(token string, id int, role models.Role) err
 	return err
 }
 
+// Delete :
 func (as *GandalfRoleService) Delete(token string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/gandalf/roles/"+string(id), token, nil)
 	if err != nil {
