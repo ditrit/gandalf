@@ -65,7 +65,7 @@ func (ac AuthenticationController) FindOne(email, password string) map[string]in
 		UserID: user.ID,
 		Name:   user.Name,
 		Email:  user.Email,
-		Role:   user.Role.Name,
+		Tenant: "gandalf",
 		StandardClaims: &jwt.StandardClaims{
 			ExpiresAt: expiresAt,
 		},
@@ -73,7 +73,7 @@ func (ac AuthenticationController) FindOne(email, password string) map[string]in
 
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 
-	tokenString, error := token.SignedString([]byte("secret"))
+	tokenString, error := token.SignedString([]byte("gandalf"))
 	if error != nil {
 		fmt.Println(error)
 	}

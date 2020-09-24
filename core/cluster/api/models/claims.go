@@ -7,6 +7,6 @@ type Claims struct {
 	UserID uint
 	Name   string
 	Email  string
-	Role   string
+	Tenant string
 	*jwt.StandardClaims
 }

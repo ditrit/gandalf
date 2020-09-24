@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// Controllers :
 type Controllers struct {
 	gandalfAuthenticationController *gandalf.AuthenticationController
 	gandalfClusterController        *gandalf.ClusterController
@@ -21,6 +22,7 @@ type Controllers struct {
 	tenantsUserController           *tenants.UserController
 }
 
+// ReturnControllers :
 func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath string) *Controllers {
 
 	controllers := new(Controllers)

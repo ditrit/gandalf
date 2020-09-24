@@ -48,12 +48,12 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
-	resp := ac.FindOne(database, user.Email, user.Password)
+	resp := ac.FindOne(database, user.Email, user.Password, tenant)
 	json.NewEncoder(w).Encode(resp)
 }
 
 // FindOne :
-func (ac AuthenticationController) FindOne(database *gorm.DB, email, password string) map[string]interface{} {
+func (ac AuthenticationController) FindOne(database *gorm.DB, email, password, tenant string) map[string]interface{} {
 	user := models.User{}
 	var err error
 	if user, err = dao.ReadUserByEmail(database, email); err != nil {
@@ -72,6 +72,7 @@ func (ac AuthenticationController) FindOne(database *gorm.DB, email, password st
 		UserID: user.ID,
 		Name:   user.Name,
 		Email:  user.Email,
+		Tenant: tenant,
 		StandardClaims: &jwt.StandardClaims{
 			ExpiresAt: expiresAt,
 		},
@@ -79,7 +80,7 @@ func (ac AuthenticationController) FindOne(database *gorm.DB, email, password st
 
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 
-	tokenString, error := token.SignedString([]byte("secret"))
+	tokenString, error := token.SignedString([]byte("tenants"))
 	if error != nil {
 		fmt.Println(error)
 	}

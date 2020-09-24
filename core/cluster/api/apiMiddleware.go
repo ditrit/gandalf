@@ -11,8 +11,11 @@ import (
 	apimodels "github.com/ditrit/gandalf/core/cluster/api/models"
 
 	"github.com/dgrijalva/jwt-go"
+
+	"github.com/gorilla/mux"
 )
 
+// CommonMiddleware :
 func CommonMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
@@ -23,9 +26,9 @@ func CommonMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// GandalfJwtVerify :
 func GandalfJwtVerify(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//TODO REVOIR
 		//var header = r.Header.Get("x-access-token") //Grab the token from the header
 		header := utils.ExtractToken(r)
 
@@ -40,7 +43,7 @@ func GandalfJwtVerify(next http.Handler) http.Handler {
 		tk := &apimodels.Claims{}
 
 		_, err := jwt.ParseWithClaims(header, tk, func(token *jwt.Token) (interface{}, error) {
-			return []byte("secret"), nil
+			return []byte("gandalf"), nil
 		})
 
 		if err != nil {
@@ -49,21 +52,22 @@ func GandalfJwtVerify(next http.Handler) http.Handler {
 			return
 		}
 
-		/* 		//VALIDATION ROLE
-		   		if tk.Role != "" {
-		   			w.WriteHeader(http.StatusForbidden)
-		   			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong role"})
-		   			return
-		   		} */
+		if tk.Tenant != "gandalf" {
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong tenant"})
+			return
+		}
 
 		ctx := context.WithValue(r.Context(), "user", tk)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
+// TenantsJwtVerify :
 func TenantsJwtVerify(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		//TODO REVOIR
+		vars := mux.Vars(r)
+		tenant := vars["tenant"]
 		//var header = r.Header.Get("x-access-token") //Grab the token from the header
 		header := utils.ExtractToken(r)
 
@@ -78,7 +82,7 @@ func TenantsJwtVerify(next http.Handler) http.Handler {
 		tk := &apimodels.Claims{}
 
 		_, err := jwt.ParseWithClaims(header, tk, func(token *jwt.Token) (interface{}, error) {
-			return []byte("secret"), nil
+			return []byte("tenants"), nil
 		})
 
 		if err != nil {
@@ -87,12 +91,11 @@ func TenantsJwtVerify(next http.Handler) http.Handler {
 			return
 		}
 
-		/* 		//VALIDATION ROLE
-		   		if tk.Role != "" {
-		   			w.WriteHeader(http.StatusForbidden)
-		   			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong role"})
-		   			return
-		   		} */
+		if tk.Tenant != tenant {
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong tenant"})
+			return
+		}
 
 		ctx := context.WithValue(r.Context(), "user", tk)
 		next.ServeHTTP(w, r.WithContext(ctx))

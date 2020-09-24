@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// GetRouter :
 func GetRouter(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath string) *mux.Router {
 
 	//CONTROLLERS

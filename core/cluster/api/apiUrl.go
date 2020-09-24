@@ -1,5 +1,6 @@
 package api
 
+// Urls :
 type Urls struct {
 	STATIC_PATH  string
 	ROOT_PATH    string
@@ -59,6 +60,7 @@ type Urls struct {
 	TENANTS_USER_PATH_DELETE       string
 }
 
+// ReturnURLS :
 func ReturnURLS() *Urls {
 
 	//BASE

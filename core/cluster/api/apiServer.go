@@ -15,6 +15,7 @@ const (
 	server_port    = ":3010"
 )
 
+// ServerAPI :
 type ServerAPI struct {
 	address         string
 	port            string
@@ -24,6 +25,7 @@ type ServerAPI struct {
 	mapDatabase     map[string]*gorm.DB
 }
 
+// NewServerAPI :
 func NewServerAPI(databasePath string) *ServerAPI {
 	serverAPI := new(ServerAPI)
 	serverAPI.address = server_address
@@ -39,6 +41,7 @@ func NewServerAPI(databasePath string) *ServerAPI {
 	return serverAPI
 }
 
+// Run :
 func (sa ServerAPI) Run() {
 	// Start the workerUpload
 	log.Printf("Listening on localhost: %s", sa.port)
