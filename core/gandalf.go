@@ -131,7 +131,7 @@ func main() {
 				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfInstanceName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout))
 
 				//TEST
-				//go oauth2.NewOAuth2Client()
+				go oauth2.NewOAuth2Client()
 				go oauth2.NewOAuth2Server()
 				//
 
@@ -207,7 +207,7 @@ func main() {
 
 			done := make(chan bool)
 			connector.ConnectorMemberInit(gandalfLogicalName, gandalfInstanceName, gandalfTenant, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout), gandalfVersions)
-			go oauth2.NewOAuth2Client()
+			//go oauth2.NewOAuth2Client()
 			<-done
 			break
 

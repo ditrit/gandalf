@@ -60,6 +60,9 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password s
 		}
 	}
 
+	//TODO REMOVE
+	DemoCreateUser1(tenantDatabaseClient)
+
 	return
 }
 

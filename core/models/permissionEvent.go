@@ -5,7 +5,9 @@ import "github.com/jinzhu/gorm"
 // PermissionEvent : PermissionEvent struct.
 type PermissionEvent struct {
 	gorm.Model
-	Role           Role
-	ConnectorEvent ConnectorEvent
-	Allow          bool
+	RoleID           uint
+	Role             Role
+	ConnectorEventID uint
+	ConnectorEvent   ConnectorEvent
+	Allow            bool
 }

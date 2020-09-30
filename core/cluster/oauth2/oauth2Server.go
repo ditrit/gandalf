@@ -75,6 +75,8 @@ func NewOAuth2Server() {
 	http.HandleFunc("/auth", authHandler)
 
 	http.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("AUTHORIZE")
+
 		store, err := session.Start(r.Context(), w, r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -97,6 +99,7 @@ func NewOAuth2Server() {
 	})
 
 	http.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("TOKEN")
 		err := srv.HandleTokenRequest(w, r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -104,6 +107,7 @@ func NewOAuth2Server() {
 	})
 
 	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("TEST")
 
 		token, err := srv.ValidationBearerToken(r)
 		if err != nil {
@@ -148,6 +152,8 @@ func NewOAuth2Server() {
 }
 
 func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string, err error) {
+	fmt.Println("USER AUTH")
+
 	store, err := session.Start(r.Context(), w, r)
 	if err != nil {
 		return
@@ -175,6 +181,8 @@ func userAuthorizeHandler(w http.ResponseWriter, r *http.Request) (userID string
 
 //TODO REVOIR
 func loginHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("LOGIN")
+
 	store, err := session.Start(r.Context(), w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -208,10 +216,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	outputHTML(w, r, "./oauth2/static/login.html")
+	outputHTML(w, r, "./cluster/oauth2/static/login.html")
 }
 
 func authHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("AUTH")
 	store, err := session.Start(nil, w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -224,7 +233,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	outputHTML(w, r, "./oauth2/static/auth.html")
+	outputHTML(w, r, "./cluster/oauth2/static/auth.html")
 }
 
 func outputHTML(w http.ResponseWriter, req *http.Request, filename string) {

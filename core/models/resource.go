@@ -7,5 +7,7 @@ import (
 // Resource : Resource struct.
 type Resource struct {
 	gorm.Model
-	Name string `gorm:"unique"`
+	Name     string `gorm:"unique"`
+	DomainID uint
+	Domain   Domain
 }

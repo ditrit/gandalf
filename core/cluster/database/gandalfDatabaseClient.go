@@ -46,6 +46,7 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, instanceNa
 			err = gandalfDatabaseClient.Create(&user).Error
 		}
 	}
+	//TODO REMOVE
 	Test(gandalfDatabaseClient)
 
 	return
