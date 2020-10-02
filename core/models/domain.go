@@ -9,65 +9,55 @@ type Domain struct {
 	Name string
 }
 
-func GetDescendants(database gorm.DB, id int) (domains []Domain) {
-	//SELECT C.* FORM Comments C
-	//JOIN TreePaths t
-	//ON (c.commment_id = t.descendant)
-	//WHERE t.ancestor = 4;
-	database.Joins("JOIN domain_closure ON domain.id = domain_closure.descendant_id").Where("domain_closure.ancestor_id = ?", id).Find(&domains)
+func GetDescendants(database *gorm.DB, id uint) (domains []Domain) {
+	database.Order("depth asc").Joins("JOIN domain_closures ON domains.id = domain_closures.descendant_id").Where("domain_closures.ancestor_id = ?", id).Find(&domains)
 
 	return
 
 }
 
-func GetAncestors(database gorm.DB, id int) (domains []Domain) {
-	//SELECT c.* FROM Comments c
-	//JOIN TreePaths t
-	//ON (c.commment_id = t.ancestor)
-	//WHERE t.descendant = 6;
-	database.Joins("JOIN domain_closure ON domain.id = domain_closure.ancestor_id").Where("domain_closure.descendant_id = ?", id).Find(&domains)
+func GetAncestors(database *gorm.DB, id uint) (domains []Domain) {
+	database.Order("depth desc").Joins("JOIN domain_closures ON domains.id = domain_closures.ancestor_id").Where("domain_closures.descendant_id = ?", id).Find(&domains)
 
 	return
 }
 
-func InsertNewChild(database gorm.DB, domain Domain, id int) {
+func InsertRoot(database *gorm.DB, domain *Domain) {
 	database.Save(domain)
 	database.Where("name = ?", domain.Name).First(&domain)
 
-	//INSERT INTO TreePaths (ancestor, descendant)
-	//SELECT ancestor, 8 FROM TreePaths
-	//WHERE descendant = 5
-	//UNION ALL SELECT 8,8
-	database.Raw("INSERT INTO domain_closure (ancestor_id, descendant_id) SELECT ancestor_id, ? FROM domain_closure WHERE descendant_id = ? UNION ALL SELECT ?,?", domain.ID, id, domain.ID, domain.ID)
+	database.Exec("INSERT INTO domain_closures (ancestor_id, descendant_id, depth) SELECT ?,?,0;", domain.ID, domain.ID)
 }
 
-func DeleteChild(database gorm.DB, domain Domain) {
+func InsertNewChild(database *gorm.DB, domain *Domain, id uint) {
+	database.Save(domain)
+	database.Where("name = ?", domain.Name).First(&domain)
 
+	database.Exec("INSERT INTO domain_closures (ancestor_id, descendant_id, depth) SELECT ancestor_id, ?, depth+1 FROM domain_closures WHERE descendant_id = ? UNION ALL SELECT ?,?,0;", domain.ID, id, domain.ID, domain.ID)
+}
+
+func DeleteChild(database *gorm.DB, domain *Domain) {
 	database.Delete(domain)
-	//DELETE FORM TreePaths
-	//WHERE descendant = 7
+
 	var domainClosure DomainClosure
 	database.Where("descendant = ?", domain.ID).Delete(&domainClosure)
 
 }
 
-func DeleteSubtree(database gorm.DB, id int) {
+func DeleteSubtree(database *gorm.DB, id uint) {
+	database.Exec("DELETE FROM domains WHERE domains.id IN (SELECT descendant_id FROM domain_closures WHERE ancestor_id = ?);", id)
 
-	database.Raw("DELETE FROM domain WHERE domain.id IN (SELECT descendant_id FROM domain_closure WHERE ancestor_id = ?)", id)
-	//DELETE FROM TreePaths
-	//WHERE descendant IN
-	//(SELECT descendant FROM TreePaths
-	//WHERE ancestor = 4);
-	database.Raw("DELETE FROM domain_closure WHERE descendant_id IN (SELECT descendant_id FROM domain_closure WHERE ancestor_id = ?)", id)
-	//database.Where("descendant in (?)", database.Table("domain_closure").Select("descendant").Where("ancestor = ?", id)).Delete()
+	database.Exec("DELETE FROM domain_closures WHERE descendant_id IN (SELECT descendant_id FROM domain_closures WHERE ancestor_id = ?);", id)
 }
 
-//TODO ADD UPDATE NODE utile ?
-func UpdateChild(database gorm.DB, domain Domain, id int) {
+func UpdateChild(database *gorm.DB, domain *Domain, newAncestor uint) {
+	//database.Exec("DELETE a.* FROM domain_closures AS a JOIN domain_closures AS d ON a.descendant_id = d.descendant_id LEFT JOIN domain_closures AS x ON x.ancestor_id = d.ancestor_id AND x.descendant_id = a.ancestor_id WHERE d.ancestor_id = ? AND x.ancestor_id IS NULL;", oldAncestor)
+	//database.Exec("DELETE FROM domain_closures WHERE EXISTS (SELECT a.descendant_id, d.ancestor_id FROM domain_closures AS a JOIN domain_closures AS d ON a.descendant_id = d.descendant_id LEFT JOIN domain_closures AS x ON x.ancestor_id = d.ancestor_id AND x.descendant_id = a.ancestor_id WHERE d.ancestor_id = ? AND x.ancestor_id IS NULL);", oldAncestor)
+	//database.Exec("INSERT INTO domain_closures (ancestor_id, descendant_id, depth) SELECT supertree.ancestor_id, subtree.descendant_id, supertree.depth + subtree.depth + 1 FROM domain_closures AS supertree JOIN domain_closures AS subtree WHERE subtree.ancestor_id = ? AND supertree.descendant_id = ?;", oldAncestor, newAncestor)
+	//database.Exec("INSERT INTO domain_closures (ancestor_id, descendant_id, depth) SELECT supertree.ancestor_id, subtree.descendant_id, supertree.depth + subtree.depth + 1 FROM domain_closures AS supertree JOIN domain_closures AS subtree WHERE subtree.ancestor_id = ? AND supertree.descendant_id = ?;", oldAncestor, newAncestor)
 
-}
+	//database.Exec("DELETE FROM domain_closures WHERE descendant_id IN (SELECT descendant_id FROM domain_closures WHERE ancestor_id = ? AND descendant_id <> ?);", oldAncestor, oldAncestor)
+	database.Exec("DELETE FROM domain_closures WHERE descendant_id IN (SELECT descendant_id FROM domain_closures WHERE ancestor_id = ?) AND ancestor_id IN (SELECT ancestor_id FROM domain_closures WHERE descendant_id = ? AND ancestor_id != descendant_id);", domain.ID, domain.ID)
 
-//TODO ADD UPDATE Subtree utile ?
-func UpdateSubtree(database gorm.DB, domain Domain, id int) {
-
+	database.Exec("INSERT INTO domain_closures (ancestor_id, descendant_id, depth) SELECT supertree.ancestor_id, subtree.descendant_id,  supertree.depth + subtree.depth + 1 AS depth FROM domain_closures AS supertree CROSS JOIN domain_closures AS subtree WHERE supertree.descendant_id = ? AND subtree.ancestor_id = ?;", newAncestor, domain.ID)
 }

@@ -11,7 +11,7 @@ echo 'Init ClusterMember'
 ./gandalf -g cluster -l Cluster -i Cluster1 -b 127.0.0.1:9000 
 sleep 5
 echo 'Join ClusterMember' 
-./gandalf -g cluster -l Cluster -i Cluster2 -b 127.0.0.1:9001 -j 127.0.0.1:9000 
+./gandalf -g cluster -l Cluster -i Cluster2 -b 127.0.0.1:9001 -j 127.0.0.1:9000
 sleep 5
 echo 'Join ClusterMember' 
 ./gandalf -g cluster -l Cluster -i Cluster3 -b 127.0.0.1:9002 -j 127.0.0.1:9000 

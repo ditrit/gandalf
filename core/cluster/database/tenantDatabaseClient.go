@@ -2,6 +2,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -42,7 +43,7 @@ func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient 
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password string, err error) {
-	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{})
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{})
 
 	//Init State
 	state := models.State{Admin: false}
@@ -63,7 +64,123 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password s
 	//TODO REMOVE
 	DemoCreateUser1(tenantDatabaseClient)
 
+	//TODO REMOVE
+	DemoTestHierachical(tenantDatabaseClient)
 	return
+}
+
+func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
+	//CREATE ROOT
+	domainRoot := models.Domain{Name: "Root"}
+	models.InsertRoot(tenantDatabaseClient, &domainRoot)
+	tenantDatabaseClient.Where("name = ?", "Root").First(&domainRoot)
+	//CREATE TOTO 1.1
+	domainToto := models.Domain{Name: "Toto"}
+	models.InsertNewChild(tenantDatabaseClient, &domainToto, domainRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Toto").First(&domainToto)
+	//CREATE TATA 1.2
+	domainTata := models.Domain{Name: "Tata"}
+	models.InsertNewChild(tenantDatabaseClient, &domainTata, domainRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Tata").First(&domainTata)
+
+	//CREATE TUTU 1.1.1
+	domainTutu := models.Domain{Name: "Tutu"}
+	models.InsertNewChild(tenantDatabaseClient, &domainTutu, domainToto.ID)
+	tenantDatabaseClient.Where("name = ?", "Tutu").First(&domainTutu)
+
+	//CREATE TITI 1.2.1
+	domainTiti := models.Domain{Name: "Titi"}
+	models.InsertNewChild(tenantDatabaseClient, &domainTiti, domainTata.ID)
+	tenantDatabaseClient.Where("name = ?", "Titi").First(&domainTiti)
+
+	//PRINT
+	var results []models.DomainClosure
+	tenantDatabaseClient.Order("Depth desc").Find(&results)
+	fmt.Println("result")
+	fmt.Println(len(results))
+	for _, result := range results {
+		fmt.Println(result)
+	}
+	var resultsD []models.Domain
+	tenantDatabaseClient.Find(&resultsD)
+	fmt.Println("resultD")
+	fmt.Println(len(resultsD))
+	for _, resultD := range resultsD {
+		fmt.Println(resultD)
+	}
+	//ADD TYTY 1.1.2
+	domainTyty := models.Domain{Name: "Tyty"}
+	models.InsertNewChild(tenantDatabaseClient, &domainTyty, domainTutu.ID)
+	tenantDatabaseClient.Where("name = ?", "Tyty").First(&domainTyty)
+
+	//PRINT
+	var results2 []models.DomainClosure
+	tenantDatabaseClient.Order("Depth desc").Find(&results2)
+	fmt.Println("results2")
+	fmt.Println(len(results2))
+	for _, result2 := range results2 {
+		fmt.Println(result2)
+	}
+
+	var resultsD2 []models.Domain
+	tenantDatabaseClient.Find(&resultsD2)
+	fmt.Println("resultsD2")
+	fmt.Println(len(resultsD2))
+	for _, resultD2 := range resultsD2 {
+		fmt.Println(resultD2)
+	}
+
+	//PRINT ASCENDANT TYTY
+	ascendants := models.GetAncestors(tenantDatabaseClient, domainTyty.ID)
+	fmt.Println("Asc")
+	for _, ascendant := range ascendants {
+		fmt.Println(ascendant)
+	}
+	//PRINT DESCENDANT TOTO
+	descendants := models.GetDescendants(tenantDatabaseClient, domainToto.ID)
+	fmt.Println("Desc")
+	for _, descendant := range descendants {
+		fmt.Println(descendant)
+	}
+	//MOVE TYTY FROM TUTU TO TATA
+	models.UpdateChild(tenantDatabaseClient, &domainTyty, domainTata.ID)
+
+	//PRINT
+	var results3 []models.DomainClosure
+	tenantDatabaseClient.Order("Depth desc").Find(&results3)
+	fmt.Println("results3")
+	fmt.Println(len(results3))
+	for _, result3 := range results3 {
+		fmt.Println(result3)
+	}
+
+	var resultsD3 []models.Domain
+	tenantDatabaseClient.Find(&resultsD3)
+	fmt.Println("resultsD3")
+	fmt.Println(len(resultsD3))
+	for _, resultD3 := range resultsD3 {
+		fmt.Println(resultD3)
+	}
+
+	/* 	//REMOVE TUTU
+	   	models.DeleteSubtree(tenantDatabaseClient, domainToto.ID)
+
+	   	//PRINT
+	   	var results4 []models.DomainClosure
+	   	tenantDatabaseClient.Order("Depth desc").Find(&results4)
+	   	fmt.Println("results4")
+	   	fmt.Println(len(results4))
+	   	for _, result4 := range results4 {
+	   		fmt.Println(result4)
+	   	}
+
+	   	var resultsD4 []models.Domain
+	   	tenantDatabaseClient.Find(&resultsD4)
+	   	fmt.Println("resultsD4")
+	   	fmt.Println(len(resultsD4))
+	   	for _, resultD4 := range resultsD4 {
+	   		fmt.Println(resultD4)
+	   	} */
 }
 
 //DemoCreateAggregator
