@@ -27,8 +27,9 @@ type configKey struct {
 	mandatory  bool    // is the value mandatory
 }
 
+//
 var ConfigKeys = make(map[string]configKey)
-var homePath = "/home/romainfairant"
+var homePath = os.Getenv("HOME")
 
 //Set a string type key
 func SetStringKeyConfig(componentType string, keyName string, shortName string, defaultValue string, usage string, mandatory bool) error {
