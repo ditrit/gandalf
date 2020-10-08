@@ -7,7 +7,5 @@ import (
 // Action : Action struct.
 type Action struct {
 	gorm.Model
-	Name           string
-	ResourceTypeID uint
-	ResourceType   ResourceType
+	Name string
 }

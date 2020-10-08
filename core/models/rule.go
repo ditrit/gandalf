@@ -2,12 +2,15 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-// PermissionAction : PermissionAction struct.
-type PermissionAction struct {
+type rule struct {
 	gorm.Model
 	RoleID   uint
 	Role     Role
-	ActioniD uint
+	DomainID uint
+	Domain   Domain
+	ObjectID uint
+	Object   Object
+	ActionID uint
 	Action   Action
 	Allow    bool
 }

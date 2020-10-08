@@ -13,17 +13,14 @@ type User struct {
 	Name     string
 	Email    string `gorm:"unique"`
 	Password string
-	RoleID   uint
-	Role     Role
 }
 
 // NewUser : create new user
-func NewUser(name, email, password string, role Role) *User {
+func NewUser(name, email, password string) *User {
 	user := new(User)
 	user.Name = name
 	user.Email = email
 	user.Password = HashAndSaltPassword(password)
-	user.Role = role
 
 	return user
 }
