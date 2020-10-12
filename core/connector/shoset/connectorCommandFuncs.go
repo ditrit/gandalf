@@ -47,7 +47,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
 				if connectorTypeConfig != nil {
 					connectorCommand := utils.GetConnectorCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorCommands)
-					if connectorCommand != (models.ConnectorCommand{}) {
+					if connectorCommand.Name != "" {
 						validate = utils.ValidatePayload(cmd.GetPayload(), connectorCommand.Schema)
 					} else {
 						log.Println("Connector type commands not found")

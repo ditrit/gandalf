@@ -81,7 +81,7 @@ func GetConnectorTypeConfigByVersion(version int64, list []*models.ConnectorConf
 }
 
 // GetConnectorCommand : GetConnectorCommand
-func GetConnectorCommand(commandName string, list []models.ConnectorCommand) (result models.ConnectorCommand) {
+func GetConnectorCommand(commandName string, list []models.Object) (result models.Object) {
 	for _, command := range list {
 		if command.Name == commandName {
 			result = command
@@ -92,7 +92,7 @@ func GetConnectorCommand(commandName string, list []models.ConnectorCommand) (re
 }
 
 // GetConnectorEvent : GetConnectorEvent
-func GetConnectorEvent(eventName string, list []models.ConnectorEvent) (result models.ConnectorEvent) {
+func GetConnectorEvent(eventName string, list []models.Object) (result models.Object) {
 	for _, event := range list {
 		if event.Name == eventName {
 			result = event

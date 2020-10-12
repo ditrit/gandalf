@@ -43,7 +43,7 @@ func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient 
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password string, err error) {
-	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.ConnectorCommand{}, &models.ConnectorEvent{}, &models.ConnectorProduct{}, &models.Action{}, &models.PermissionAction{}, &models.PermissionCommand{}, &models.PermissionEvent{}, &models.Resource{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{})
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ConnectorProduct{}, &models.Action{}, &models.Rule{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{})
 
 	//Init State
 	state := models.State{Admin: false}
@@ -56,16 +56,17 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password s
 		err = tenantDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
 		if err == nil {
 			login, password = "Administrator", GenerateRandomHash()
-			user := models.NewUser(login, login, password, admin)
+			user := models.NewUser(login, login, password)
 			err = tenantDatabaseClient.Create(&user).Error
 		}
 	}
 
+	DemoCreateConnectorType(tenantDatabaseClient)
 	//TODO REMOVE
 	DemoCreateUser1(tenantDatabaseClient)
-
+	//DemoCreateConnectorType(tenantDatabaseClient)
 	//TODO REMOVE
-	DemoTestHierachical(tenantDatabaseClient)
+	//DemoTestHierachical(tenantDatabaseClient)
 	return
 }
 
@@ -213,7 +214,7 @@ func DemoCreateUser1(tenantDatabaseClient *gorm.DB) {
 	var Role1 models.Role
 	tenantDatabaseClient.Where("name = ?", "Role1").First(&Role1)
 
-	user := models.NewUser("User1", "User1", "User1", Role1)
+	user := models.NewUser("User1", "User1", "User1")
 	tenantDatabaseClient.Create(&user)
 }
 
@@ -223,11 +224,11 @@ func DemoCreateUser2(tenantDatabaseClient *gorm.DB) {
 	var Role2 models.Role
 	tenantDatabaseClient.Where("name = ?", "Role2").First(&Role2)
 
-	user := models.NewUser("User2", "User2", "User2", Role2)
+	user := models.NewUser("User2", "User2", "User2")
 	tenantDatabaseClient.Create(&user)
 }
 
-//DemoCreateProductUtils
+/* //DemoCreateProductUtils
 func DemoCreateProductUtils(tenantDatabaseClient *gorm.DB) {
 
 	var ConnectorTypeUtils models.ConnectorType
@@ -443,3 +444,4 @@ func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
 	DemoCreateConfigurationGitlab(tenantDatabaseClient)
 
 }
+*/

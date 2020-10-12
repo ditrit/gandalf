@@ -23,12 +23,14 @@ import (
 func NewOAuth2Server() {
 	manager := manage.NewDefaultManager()
 
+	//TODO TEST CHANGE TO PATH
 	configtoken := &Config{DSN: "/home/romainfairant/gandalf/database/tenant1.db", DBType: "sqlite3", TableName: "token", Token: true}
 	tokenstore := NewStore(configtoken, 600).(*TokenStore)
 	manager.MapTokenStorage(tokenstore)
 
 	manager.MapAccessGenerate(generates.NewJWTAccessGenerate("", []byte("00000000"), jwt.SigningMethodHS512))
 
+	//TODO TEST CHANGE TO PATH
 	configclient := &Config{DSN: "/home/romainfairant/gandalf/database/tenant1.db", DBType: "sqlite3", TableName: "client", Token: false}
 	clientstore := NewStore(configclient, 600).(*ClientStore)
 
@@ -55,6 +57,7 @@ func NewOAuth2Server() {
 	srv.SetUserAuthorizationHandler(userAuthorizeHandler)
 
 	srv.SetPasswordAuthorizationHandler(func(email, password string) (userID string, err error) {
+		//TODO TEST CHANGE TO PATH
 		tenantDatabaseClient, err := gorm.Open("sqlite3", "/home/romainfairant/gandalf/database/tenant1.db")
 
 		var user models.User

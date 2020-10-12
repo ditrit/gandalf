@@ -63,7 +63,32 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 
 // GetConnectorConfiguration : Cluster application context getter.
 func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client *gorm.DB) {
+	//fmt.Println(connectorConfig.ConnectorEvents)
+	//fmt.Println(connectorConfig.Resources)
+
+	/* 	var connectorType models.ConnectorType
+	   	client.Where("name = ?", connectorConfig.ConnectorType.Name).Find(&connectorType)
+	   	fmt.Println("connectorType")
+	   	fmt.Println(connectorType)
+	   	connectorConfig.ConnectorType = connectorType */
 	client.Save(connectorConfig)
+
+	var connectorTypes []models.ConnectorType
+	client.Find(&connectorTypes)
+	fmt.Println("connectorTypes")
+	fmt.Println(connectorTypes)
+
+	var connectorConfig2 models.ConnectorConfig
+	client.Where("name = ?", "ConnectorConfig7").First(&connectorConfig2)
+	fmt.Println(connectorConfig2)
+
+	var connectorConfig3 models.ConnectorConfig
+	client.Where("name = ?", "ConnectorConfig6").First(&connectorConfig3)
+	fmt.Println(connectorConfig3)
+	/* 	var actions []models.Action
+	   	client.Find(&actions)
+	   	fmt.Println("actions")
+	   	fmt.Println(actions) */
 
 	return
 }

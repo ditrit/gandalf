@@ -2,7 +2,7 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-type rule struct {
+type Rule struct {
 	gorm.Model
 	RoleID   uint
 	Role     Role

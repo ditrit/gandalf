@@ -184,7 +184,7 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 		for _, version := range versions {
 			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 			if connectorConfig == nil {
-
+				fmt.Println("DOWNLOAD")
 				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+connectorType+"/"+product+"/"+strconv.FormatInt(version, 10)+"/configuration.yaml")
 
 				connectorConfig.ConnectorType.Name = connectorType

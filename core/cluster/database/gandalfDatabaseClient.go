@@ -42,7 +42,7 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, instanceNa
 		err = gandalfDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
 		if err == nil {
 			login, password = "Administrator", GenerateRandomHash()
-			user := models.NewUser(login, login, password, admin)
+			user := models.NewUser(login, login, password)
 			err = gandalfDatabaseClient.Create(&user).Error
 		}
 	}

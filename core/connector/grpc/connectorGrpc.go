@@ -109,7 +109,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
 				if connectorTypeConfig != nil {
 					connectorCommand := utils.GetConnectorCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorCommands)
-					if connectorCommand != (models.ConnectorCommand{}) {
+					if connectorCommand.Name != "" {
 						validate = utils.ValidatePayload(cmd.GetPayload(), connectorCommand.Schema)
 					} else {
 						log.Println("Connector type commands not found")
@@ -225,7 +225,7 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 					if connectorTypeConfig != nil {
 						//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 						connectorEvent := utils.GetConnectorEvent(evt.GetEvent(), connectorTypeConfig.ConnectorEvents)
-						if connectorEvent != (models.ConnectorEvent{}) {
+						if connectorEvent.Name != "" {
 							validate = utils.ValidatePayload(evt.GetPayload(), connectorEvent.Schema)
 						} else {
 							log.Println("Connector type events not found")

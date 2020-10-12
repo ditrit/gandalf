@@ -2,7 +2,7 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-type AssociationRole struct {
+type Perimeter struct {
 	gorm.Model
 	UserID   uint
 	User     User
