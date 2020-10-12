@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ditrit/gandalf/core/enforce"
+
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/jinzhu/gorm"
@@ -43,7 +45,7 @@ func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient 
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password string, err error) {
-	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ConnectorProduct{}, &models.Action{}, &models.Rule{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{})
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Rule{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Perimeter{})
 
 	//Init State
 	state := models.State{Admin: false}
@@ -61,127 +63,91 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password s
 		}
 	}
 
-	DemoCreateConnectorType(tenantDatabaseClient)
-	//TODO REMOVE
-	DemoCreateUser1(tenantDatabaseClient)
 	//DemoCreateConnectorType(tenantDatabaseClient)
 	//TODO REMOVE
-	//DemoTestHierachical(tenantDatabaseClient)
+	//DemoCreateUser1(tenantDatabaseClient)
+	//DemoCreateConnectorType(tenantDatabaseClient)
+	//TODO REMOVE
+	DemoTestHierachical(tenantDatabaseClient)
 	return
 }
 
 func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
+	//DOMAIN
 	//CREATE ROOT
 	domainRoot := models.Domain{Name: "Root"}
-	models.InsertRoot(tenantDatabaseClient, &domainRoot)
+	models.InsertDomainRoot(tenantDatabaseClient, &domainRoot)
 	tenantDatabaseClient.Where("name = ?", "Root").First(&domainRoot)
 	//CREATE TOTO 1.1
-	domainToto := models.Domain{Name: "Toto"}
-	models.InsertNewChild(tenantDatabaseClient, &domainToto, domainRoot.ID)
-	tenantDatabaseClient.Where("name = ?", "Toto").First(&domainToto)
+	domain1 := models.Domain{Name: "Domain1"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &domain1, domainRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Domain1").First(&domain1)
 	//CREATE TATA 1.2
-	domainTata := models.Domain{Name: "Tata"}
-	models.InsertNewChild(tenantDatabaseClient, &domainTata, domainRoot.ID)
-	tenantDatabaseClient.Where("name = ?", "Tata").First(&domainTata)
+	domain2 := models.Domain{Name: "Domain2"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &domain2, domainRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Domain2").First(&domain2)
 
 	//CREATE TUTU 1.1.1
-	domainTutu := models.Domain{Name: "Tutu"}
-	models.InsertNewChild(tenantDatabaseClient, &domainTutu, domainToto.ID)
-	tenantDatabaseClient.Where("name = ?", "Tutu").First(&domainTutu)
+	domain3 := models.Domain{Name: "Domain3"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &domain3, domain1.ID)
+	tenantDatabaseClient.Where("name = ?", "Domain3").First(&domain3)
 
 	//CREATE TITI 1.2.1
-	domainTiti := models.Domain{Name: "Titi"}
-	models.InsertNewChild(tenantDatabaseClient, &domainTiti, domainTata.ID)
-	tenantDatabaseClient.Where("name = ?", "Titi").First(&domainTiti)
+	domain4 := models.Domain{Name: "Domain4"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &domain4, domain2.ID)
+	tenantDatabaseClient.Where("name = ?", "Domain4").First(&domain4)
 
-	//PRINT
-	var results []models.DomainClosure
-	tenantDatabaseClient.Order("Depth desc").Find(&results)
-	fmt.Println("result")
-	fmt.Println(len(results))
-	for _, result := range results {
-		fmt.Println(result)
-	}
-	var resultsD []models.Domain
-	tenantDatabaseClient.Find(&resultsD)
-	fmt.Println("resultD")
-	fmt.Println(len(resultsD))
-	for _, resultD := range resultsD {
-		fmt.Println(resultD)
-	}
-	//ADD TYTY 1.1.2
-	domainTyty := models.Domain{Name: "Tyty"}
-	models.InsertNewChild(tenantDatabaseClient, &domainTyty, domainTutu.ID)
-	tenantDatabaseClient.Where("name = ?", "Tyty").First(&domainTyty)
+	//OBJECT
+	//CREATE ROOT
+	objectRoot := models.Object{Name: "Root"}
+	models.InsertObjectRoot(tenantDatabaseClient, &objectRoot)
+	tenantDatabaseClient.Where("name = ?", "Root").First(&objectRoot)
+	//CREATE TOTO 1.1
+	object1 := models.Object{Name: "Object1", Domain: []models.Domain{domain1}}
+	fmt.Println(object1)
+	models.InsertObjectNewChild(tenantDatabaseClient, &object1, objectRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Object1").First(&object1)
+	//CREATE TATA 1.2
+	object2 := models.Object{Name: "Object2", Domain: []models.Domain{domain2}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &object2, objectRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Object2").First(&object2)
 
-	//PRINT
-	var results2 []models.DomainClosure
-	tenantDatabaseClient.Order("Depth desc").Find(&results2)
-	fmt.Println("results2")
-	fmt.Println(len(results2))
-	for _, result2 := range results2 {
-		fmt.Println(result2)
-	}
+	//CREATE TUTU 1.1.1
+	object3 := models.Object{Name: "Object3", Domain: []models.Domain{domain3}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &object3, object1.ID)
+	tenantDatabaseClient.Where("name = ?", "Object3").First(&object3)
 
-	var resultsD2 []models.Domain
-	tenantDatabaseClient.Find(&resultsD2)
-	fmt.Println("resultsD2")
-	fmt.Println(len(resultsD2))
-	for _, resultD2 := range resultsD2 {
-		fmt.Println(resultD2)
-	}
+	//CREATE TITI 1.2.1
+	object4 := models.Object{Name: "Object4", Domain: []models.Domain{domain4}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &object4, object2.ID)
+	tenantDatabaseClient.Where("name = ?", "Object4").First(&object4)
 
-	//PRINT ASCENDANT TYTY
-	ascendants := models.GetAncestors(tenantDatabaseClient, domainTyty.ID)
-	fmt.Println("Asc")
-	for _, ascendant := range ascendants {
-		fmt.Println(ascendant)
-	}
-	//PRINT DESCENDANT TOTO
-	descendants := models.GetDescendants(tenantDatabaseClient, domainToto.ID)
-	fmt.Println("Desc")
-	for _, descendant := range descendants {
-		fmt.Println(descendant)
-	}
-	//MOVE TYTY FROM TUTU TO TATA
-	models.UpdateChild(tenantDatabaseClient, &domainTyty, domainTata.ID)
+	//USER
+	user1 := models.NewUser("User1", "User1", "User1")
+	tenantDatabaseClient.Create(&user1)
+	tenantDatabaseClient.Where("email = ?", "User1").First(&user1)
 
-	//PRINT
-	var results3 []models.DomainClosure
-	tenantDatabaseClient.Order("Depth desc").Find(&results3)
-	fmt.Println("results3")
-	fmt.Println(len(results3))
-	for _, result3 := range results3 {
-		fmt.Println(result3)
-	}
+	//ROLE
+	role1 := models.Role{Name: "Test"}
+	tenantDatabaseClient.Create(&role1)
+	tenantDatabaseClient.Where("name = ?", "Test").First(&role1)
 
-	var resultsD3 []models.Domain
-	tenantDatabaseClient.Find(&resultsD3)
-	fmt.Println("resultsD3")
-	fmt.Println(len(resultsD3))
-	for _, resultD3 := range resultsD3 {
-		fmt.Println(resultD3)
-	}
+	//ACTION
+	action1 := models.Action{Name: "Action"}
+	tenantDatabaseClient.Create(&action1)
+	tenantDatabaseClient.Where("name = ?", "Action").First(&action1)
 
-	/* 	//REMOVE TUTU
-	   	models.DeleteSubtree(tenantDatabaseClient, domainToto.ID)
+	//PERIMETER
+	perimeter1 := models.Perimeter{User: user1, Role: role1, Domain: domain1}
+	tenantDatabaseClient.Create(&perimeter1)
 
-	   	//PRINT
-	   	var results4 []models.DomainClosure
-	   	tenantDatabaseClient.Order("Depth desc").Find(&results4)
-	   	fmt.Println("results4")
-	   	fmt.Println(len(results4))
-	   	for _, result4 := range results4 {
-	   		fmt.Println(result4)
-	   	}
+	//RULE
+	rule1 := models.Rule{Role: role1, Domain: domain1, Object: object1, Action: action1, Allow: true}
+	tenantDatabaseClient.Create(&rule1)
 
-	   	var resultsD4 []models.Domain
-	   	tenantDatabaseClient.Find(&resultsD4)
-	   	fmt.Println("resultsD4")
-	   	fmt.Println(len(resultsD4))
-	   	for _, resultD4 := range resultsD4 {
-	   		fmt.Println(resultD4)
-	   	} */
+	fmt.Println("ENFORCE")
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, user1, domain3, object3, action1))
+
 }
 
 //DemoCreateAggregator

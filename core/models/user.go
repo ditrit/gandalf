@@ -16,13 +16,13 @@ type User struct {
 }
 
 // NewUser : create new user
-func NewUser(name, email, password string) *User {
+func NewUser(name, email, password string) User {
 	user := new(User)
 	user.Name = name
 	user.Email = email
 	user.Password = HashAndSaltPassword(password)
 
-	return user
+	return *user
 }
 
 //TODO REMOVE OU REVOIR

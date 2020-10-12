@@ -7,18 +7,18 @@ type Object struct {
 	Name   string
 	Schema string
 	Action []Action `gorm:"many2many:object_actions;"`
-	Object []Object `gorm:"many2many:object_domains;"`
+	Domain []Domain `gorm:"many2many:object_domains;"`
 }
 
 func GetObjectDescendants(database *gorm.DB, id uint) (objects []Object) {
-	database.Order("depth asc").Joins("JOIN object_closures ON objects.id = object_closures.descendant_id").Where("object_closures.ancestor_id = ?", id).Find(&objects)
+	database.Order("depth asc").Joins("JOIN object_closures ON objects.id = object_closures.descendant_id").Where("object_closures.ancestor_id = ?", id).Preload("Domain").Preload("Action").Find(&objects)
 
 	return
 
 }
 
 func GetObjectAncestors(database *gorm.DB, id uint) (objects []Object) {
-	database.Order("depth desc").Joins("JOIN object_closures ON objects.id = object_closures.ancestor_id").Where("object_closures.descendant_id = ?", id).Find(&objects)
+	database.Order("depth desc").Joins("JOIN object_closures ON objects.id = object_closures.ancestor_id").Where("object_closures.descendant_id = ?", id).Preload("Domain").Preload("Action").Find(&objects)
 
 	return
 }
