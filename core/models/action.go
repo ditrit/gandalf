@@ -7,5 +7,5 @@ import (
 // Action : Action struct.
 type Action struct {
 	gorm.Model
-	Name string
+	Name string `gorm:"unique"`
 }

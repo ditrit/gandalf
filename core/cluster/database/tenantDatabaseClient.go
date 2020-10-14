@@ -63,7 +63,8 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password s
 		}
 	}
 
-	//DemoCreateConnectorType(tenantDatabaseClient)
+	DemoCreateConnectorType(tenantDatabaseClient)
+	DemoCreateAction(tenantDatabaseClient)
 	//TODO REMOVE
 	//DemoCreateUser1(tenantDatabaseClient)
 	//DemoCreateConnectorType(tenantDatabaseClient)
@@ -103,22 +104,22 @@ func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
 	models.InsertObjectRoot(tenantDatabaseClient, &objectRoot)
 	tenantDatabaseClient.Where("name = ?", "Root").First(&objectRoot)
 	//CREATE TOTO 1.1
-	object1 := models.Object{Name: "Object1", Domain: []models.Domain{domain1}}
+	object1 := models.Object{Name: "Object1", Domains: []models.Domain{domain1}}
 	fmt.Println(object1)
 	models.InsertObjectNewChild(tenantDatabaseClient, &object1, objectRoot.ID)
 	tenantDatabaseClient.Where("name = ?", "Object1").First(&object1)
 	//CREATE TATA 1.2
-	object2 := models.Object{Name: "Object2", Domain: []models.Domain{domain2}}
+	object2 := models.Object{Name: "Object2", Domains: []models.Domain{domain2}}
 	models.InsertObjectNewChild(tenantDatabaseClient, &object2, objectRoot.ID)
 	tenantDatabaseClient.Where("name = ?", "Object2").First(&object2)
 
 	//CREATE TUTU 1.1.1
-	object3 := models.Object{Name: "Object3", Domain: []models.Domain{domain3}}
+	object3 := models.Object{Name: "Object3", Domains: []models.Domain{domain3}}
 	models.InsertObjectNewChild(tenantDatabaseClient, &object3, object1.ID)
 	tenantDatabaseClient.Where("name = ?", "Object3").First(&object3)
 
 	//CREATE TITI 1.2.1
-	object4 := models.Object{Name: "Object4", Domain: []models.Domain{domain4}}
+	object4 := models.Object{Name: "Object4", Domains: []models.Domain{domain4}}
 	models.InsertObjectNewChild(tenantDatabaseClient, &object4, object2.ID)
 	tenantDatabaseClient.Where("name = ?", "Object4").First(&object4)
 
@@ -146,7 +147,7 @@ func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&rule1)
 
 	fmt.Println("ENFORCE")
-	fmt.Println(enforce.Enforce(tenantDatabaseClient, user1, domain3, object3, action1))
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, user1, domain1, object4, action1))
 
 }
 
@@ -166,6 +167,15 @@ func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Workflow"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
+}
+
+//DemoCreateConnectorType
+func DemoCreateAction(tenantDatabaseClient *gorm.DB) {
+	tenantDatabaseClient.Create(&models.Action{Name: "Execute"})
+	tenantDatabaseClient.Create(&models.Action{Name: "Create"})
+	tenantDatabaseClient.Create(&models.Action{Name: "Read"})
+	tenantDatabaseClient.Create(&models.Action{Name: "Update"})
+	tenantDatabaseClient.Create(&models.Action{Name: "Delete"})
 }
 
 //DemoCreateRole

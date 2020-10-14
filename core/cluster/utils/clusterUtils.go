@@ -66,11 +66,52 @@ func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client
 	//fmt.Println(connectorConfig.ConnectorEvents)
 	//fmt.Println(connectorConfig.Resources)
 
-	/* 	var connectorType models.ConnectorType
-	   	client.Where("name = ?", connectorConfig.ConnectorType.Name).Find(&connectorType)
-	   	fmt.Println("connectorType")
-	   	fmt.Println(connectorType)
-	   	connectorConfig.ConnectorType = connectorType */
+	var connectorType models.ConnectorType
+	client.Where("name = ?", connectorConfig.ConnectorType.Name).First(&connectorType)
+	connectorConfig.ConnectorType = connectorType
+
+	//ConnectorCommands
+	var connectorCommands []models.Object
+	for _, connectorCommand := range connectorConfig.ConnectorCommands {
+		var listAction []models.Action
+		for _, action := range connectorCommand.Actions {
+			var currentAction models.Action
+			client.Where("name = ?", action.Name).First(&currentAction)
+			listAction = append(listAction, currentAction)
+		}
+		connectorCommand.Actions = listAction
+		connectorCommands = append(connectorCommands, connectorCommand)
+	}
+	connectorConfig.ConnectorCommands = connectorCommands
+
+	//ConnectorEvents
+	var connectorEvents []models.Object
+	for _, connectorEvent := range connectorConfig.ConnectorEvents {
+		var listAction []models.Action
+		for _, action := range connectorEvent.Actions {
+			var currentAction models.Action
+			client.Where("name = ?", action.Name).First(&currentAction)
+			listAction = append(listAction, currentAction)
+		}
+		connectorEvent.Actions = listAction
+		connectorEvents = append(connectorEvents, connectorEvent)
+	}
+	connectorConfig.ConnectorEvents = connectorEvents
+
+	//Resources
+	var resources []models.Object
+	for _, resource := range connectorConfig.Resources {
+		var listAction []models.Action
+		for _, action := range resource.Actions {
+			var currentAction models.Action
+			client.Where("name = ?", action.Name).First(&currentAction)
+			listAction = append(listAction, currentAction)
+		}
+		resource.Actions = listAction
+		resources = append(resources, resource)
+	}
+	connectorConfig.Resources = resources
+
 	client.Save(connectorConfig)
 
 	var connectorTypes []models.ConnectorType
@@ -79,11 +120,11 @@ func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client
 	fmt.Println(connectorTypes)
 
 	var connectorConfig2 models.ConnectorConfig
-	client.Where("name = ?", "ConnectorConfig7").First(&connectorConfig2)
+	client.Where("name = ?", "ConnectorConfig7").Preload("ConnectorType").Preload("Resources.Actions").First(&connectorConfig2)
 	fmt.Println(connectorConfig2)
 
 	var connectorConfig3 models.ConnectorConfig
-	client.Where("name = ?", "ConnectorConfig6").First(&connectorConfig3)
+	client.Where("name = ?", "ConnectorConfig6").Preload("ConnectorType").Preload("ConnectorCommands").Preload("ConnectorEvents").Preload("Resources").First(&connectorConfig3)
 	fmt.Println(connectorConfig3)
 	/* 	var actions []models.Action
 	   	client.Find(&actions)

@@ -14,14 +14,15 @@ func Enforce(tenantDatabaseClient *gorm.DB, u models.User, d models.Domain, o mo
 	for _, object := range objects {
 		fmt.Println("object")
 		fmt.Println(object)
-		//if InDomainsObject(d, object.Domain) {
-		//fmt.Println("IN")
-		for _, odomain := range object.Domain {
+
+		for _, odomain := range object.Domains {
 			if IsDomainAncestor(tenantDatabaseClient, odomain, d) {
 				fmt.Println("IS")
 				domains := GetDomains(tenantDatabaseClient, odomain)
 				fmt.Println("domains")
 				fmt.Println(domains)
+				//if InDomainsObject(d, domains) {
+				//	fmt.Println("IN")
 				for _, domain := range domains {
 					fmt.Println("ROLE")
 					fmt.Println(u)
@@ -45,9 +46,9 @@ func Enforce(tenantDatabaseClient *gorm.DB, u models.User, d models.Domain, o mo
 						}
 					}
 				}
+				//}
 			}
 		}
-		//}
 	}
 	return false
 }

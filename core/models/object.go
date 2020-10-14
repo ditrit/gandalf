@@ -4,21 +4,21 @@ import "github.com/jinzhu/gorm"
 
 type Object struct {
 	gorm.Model
-	Name   string
-	Schema string
-	Action []Action `gorm:"many2many:object_actions;"`
-	Domain []Domain `gorm:"many2many:object_domains;"`
+	Name    string
+	Schema  string
+	Actions []Action `gorm:"many2many:object_actions;"`
+	Domains []Domain `gorm:"many2many:object_domains;"`
 }
 
 func GetObjectDescendants(database *gorm.DB, id uint) (objects []Object) {
-	database.Order("depth asc").Joins("JOIN object_closures ON objects.id = object_closures.descendant_id").Where("object_closures.ancestor_id = ?", id).Preload("Domain").Preload("Action").Find(&objects)
+	database.Order("depth asc").Joins("JOIN object_closures ON objects.id = object_closures.descendant_id").Where("object_closures.ancestor_id = ?", id).Preload("Domains").Preload("Actions").Find(&objects)
 
 	return
 
 }
 
 func GetObjectAncestors(database *gorm.DB, id uint) (objects []Object) {
-	database.Order("depth desc").Joins("JOIN object_closures ON objects.id = object_closures.ancestor_id").Where("object_closures.descendant_id = ?", id).Preload("Domain").Preload("Action").Find(&objects)
+	database.Order("depth desc").Joins("JOIN object_closures ON objects.id = object_closures.ancestor_id").Where("object_closures.descendant_id = ?", id).Preload("Domains").Preload("Actions").Find(&objects)
 
 	return
 }
