@@ -45,7 +45,7 @@ func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient 
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password string, err error) {
-	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Rule{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Perimeter{})
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Permission{})
 
 	//Init State
 	state := models.State{Admin: false}
@@ -75,79 +75,200 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password s
 
 func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
 	//DOMAIN
-	//CREATE ROOT
 	domainRoot := models.Domain{Name: "Root"}
 	models.InsertDomainRoot(tenantDatabaseClient, &domainRoot)
 	tenantDatabaseClient.Where("name = ?", "Root").First(&domainRoot)
-	//CREATE TOTO 1.1
-	domain1 := models.Domain{Name: "Domain1"}
-	models.InsertDomainNewChild(tenantDatabaseClient, &domain1, domainRoot.ID)
-	tenantDatabaseClient.Where("name = ?", "Domain1").First(&domain1)
-	//CREATE TATA 1.2
-	domain2 := models.Domain{Name: "Domain2"}
-	models.InsertDomainNewChild(tenantDatabaseClient, &domain2, domainRoot.ID)
-	tenantDatabaseClient.Where("name = ?", "Domain2").First(&domain2)
 
-	//CREATE TUTU 1.1.1
-	domain3 := models.Domain{Name: "Domain3"}
-	models.InsertDomainNewChild(tenantDatabaseClient, &domain3, domain1.ID)
-	tenantDatabaseClient.Where("name = ?", "Domain3").First(&domain3)
+	ditrit := models.Domain{Name: "Ditrit"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &ditrit, domainRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Ditrit").First(&ditrit)
 
-	//CREATE TITI 1.2.1
-	domain4 := models.Domain{Name: "Domain4"}
-	models.InsertDomainNewChild(tenantDatabaseClient, &domain4, domain2.ID)
-	tenantDatabaseClient.Where("name = ?", "Domain4").First(&domain4)
+	produit := models.Domain{Name: "Produit"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &produit, ditrit.ID)
+	tenantDatabaseClient.Where("name = ?", "Produit").First(&produit)
+
+	association := models.Domain{Name: "Association"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &association, ditrit.ID)
+	tenantDatabaseClient.Where("name = ?", "Association").First(&association)
+
+	gts := models.Domain{Name: "GTs"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &gts, ditrit.ID)
+	tenantDatabaseClient.Where("name = ?", "GTs").First(&gts)
+
+	gandalf := models.Domain{Name: "Gandalf"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &gandalf, produit.ID)
+	tenantDatabaseClient.Where("name = ?", "Gandalf").First(&gandalf)
+
+	ogree := models.Domain{Name: "Ogree"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &ogree, produit.ID)
+	tenantDatabaseClient.Where("name = ?", "Ogree").First(&ogree)
+
+	leto := models.Domain{Name: "Leto"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &leto, produit.ID)
+	tenantDatabaseClient.Where("name = ?", "Leto").First(&leto)
+
+	core := models.Domain{Name: "Core"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &core, gandalf.ID)
+	tenantDatabaseClient.Where("name = ?", "Core").First(&core)
+
+	connectors := models.Domain{Name: "Connectors"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &connectors, gandalf.ID)
+	tenantDatabaseClient.Where("name = ?", "Connectors").First(&connectors)
+
+	router := models.Domain{Name: "Router"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &router, core.ID)
+	tenantDatabaseClient.Where("name = ?", "Router").First(&router)
+
+	cluster := models.Domain{Name: "Cluster"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &cluster, core.ID)
+	tenantDatabaseClient.Where("name = ?", "Cluster").First(&cluster)
+
+	aggregator := models.Domain{Name: "Aggregator"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &aggregator, core.ID)
+	tenantDatabaseClient.Where("name = ?", "Aggregator").First(&aggregator)
+
+	gitlab := models.Domain{Name: "Gitlab"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &gitlab, connectors.ID)
+	tenantDatabaseClient.Where("name = ?", "Gitlab").First(&gitlab)
+
+	aws := models.Domain{Name: "Aws"}
+	models.InsertDomainNewChild(tenantDatabaseClient, &aws, connectors.ID)
+	tenantDatabaseClient.Where("name = ?", "Aws").First(&aws)
 
 	//OBJECT
-	//CREATE ROOT
-	objectRoot := models.Object{Name: "Root"}
+	objectRoot := models.Object{Name: "Root", Domains: []models.Domain{domainRoot}}
 	models.InsertObjectRoot(tenantDatabaseClient, &objectRoot)
 	tenantDatabaseClient.Where("name = ?", "Root").First(&objectRoot)
-	//CREATE TOTO 1.1
-	object1 := models.Object{Name: "Object1", Domains: []models.Domain{domain1}}
-	fmt.Println(object1)
-	models.InsertObjectNewChild(tenantDatabaseClient, &object1, objectRoot.ID)
-	tenantDatabaseClient.Where("name = ?", "Object1").First(&object1)
-	//CREATE TATA 1.2
-	object2 := models.Object{Name: "Object2", Domains: []models.Domain{domain2}}
-	models.InsertObjectNewChild(tenantDatabaseClient, &object2, objectRoot.ID)
-	tenantDatabaseClient.Where("name = ?", "Object2").First(&object2)
 
-	//CREATE TUTU 1.1.1
-	object3 := models.Object{Name: "Object3", Domains: []models.Domain{domain3}}
-	models.InsertObjectNewChild(tenantDatabaseClient, &object3, object1.ID)
-	tenantDatabaseClient.Where("name = ?", "Object3").First(&object3)
+	oconnecteurs := models.Object{Name: "Connecteurs", Domains: []models.Domain{connectors}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &oconnecteurs, objectRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Connecteurs").First(&oconnecteurs)
 
-	//CREATE TITI 1.2.1
-	object4 := models.Object{Name: "Object4", Domains: []models.Domain{domain4}}
-	models.InsertObjectNewChild(tenantDatabaseClient, &object4, object2.ID)
-	tenantDatabaseClient.Where("name = ?", "Object4").First(&object4)
+	orepositories := models.Object{Name: "Repositories", Domains: []models.Domain{produit}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &orepositories, objectRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Repositories").First(&orepositories)
+
+	odomains := models.Object{Name: "Domains", Domains: []models.Domain{domainRoot}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &odomains, objectRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Domains").First(&odomains)
+
+	oenvironements := models.Object{Name: "Environements", Domains: []models.Domain{produit}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &oenvironements, objectRoot.ID)
+	tenantDatabaseClient.Where("name = ?", "Environements").First(&oenvironements)
+
+	ocloud := models.Object{Name: "Cloud", Domains: []models.Domain{connectors}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &ocloud, oconnecteurs.ID)
+	tenantDatabaseClient.Where("name = ?", "Cloud").First(&ocloud)
+
+	ocsv := models.Object{Name: "Csv", Domains: []models.Domain{connectors}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &ocsv, oconnecteurs.ID)
+	tenantDatabaseClient.Where("name = ?", "Csv").First(&ocsv)
+
+	oaws := models.Object{Name: "Aws", Domains: []models.Domain{aws}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &oaws, ocloud.ID)
+	tenantDatabaseClient.Where("name = ?", "Aws").First(&oaws)
+
+	ogitlab := models.Object{Name: "Gitlab", Domains: []models.Domain{gitlab}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &ogitlab, ocsv.ID)
+	tenantDatabaseClient.Where("name = ?", "Gitlab").First(&ogitlab)
+
+	ogithub := models.Object{Name: "Github", Domains: []models.Domain{connectors}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &ogithub, ocsv.ID)
+	tenantDatabaseClient.Where("name = ?", "Github").First(&ogithub)
+
+	orepositorygandalf := models.Object{Name: "Repository gandalf", Domains: []models.Domain{gandalf}}
+	models.InsertObjectNewChild(tenantDatabaseClient, &orepositorygandalf, orepositories.ID)
+	tenantDatabaseClient.Where("name = ?", "Repository gandalf").First(&orepositorygandalf)
 
 	//USER
-	user1 := models.NewUser("User1", "User1", "User1")
-	tenantDatabaseClient.Create(&user1)
-	tenantDatabaseClient.Where("email = ?", "User1").First(&user1)
+	romain := models.NewUser("Romain", "Romain", "Romain")
+	tenantDatabaseClient.Create(&romain)
+	tenantDatabaseClient.Where("email = ?", "Romain").First(&romain)
+
+	xavier := models.NewUser("Xavier", "Xavier", "Xavier")
+	tenantDatabaseClient.Create(&xavier)
+	tenantDatabaseClient.Where("email = ?", "Xavier").First(&xavier)
+
+	thierry := models.NewUser("Thierry", "Thierry", "Thierry")
+	tenantDatabaseClient.Create(&thierry)
+	tenantDatabaseClient.Where("email = ?", "Thierry").First(&thierry)
 
 	//ROLE
-	role1 := models.Role{Name: "Test"}
-	tenantDatabaseClient.Create(&role1)
-	tenantDatabaseClient.Where("name = ?", "Test").First(&role1)
+	productowner := models.Role{Name: "Product Owner"}
+	tenantDatabaseClient.Create(&productowner)
+	tenantDatabaseClient.Where("name = ?", "Product Owner").First(&productowner)
+
+	dev := models.Role{Name: "Dev"}
+	tenantDatabaseClient.Create(&dev)
+	tenantDatabaseClient.Where("name = ?", "Dev").First(&dev)
+
+	releasemanager := models.Role{Name: "Release Manager"}
+	tenantDatabaseClient.Create(&releasemanager)
+	tenantDatabaseClient.Where("name = ?", "Release Manager").First(&releasemanager)
 
 	//ACTION
-	action1 := models.Action{Name: "Action"}
-	tenantDatabaseClient.Create(&action1)
-	tenantDatabaseClient.Where("name = ?", "Action").First(&action1)
+	var all models.Action
+	tenantDatabaseClient.Where("name = ?", "All").First(&all)
 
-	//PERIMETER
-	perimeter1 := models.Perimeter{User: user1, Role: role1, Domain: domain1}
-	tenantDatabaseClient.Create(&perimeter1)
+	var create models.Action
+	tenantDatabaseClient.Where("name = ?", "Create").First(&create)
 
-	//RULE
-	rule1 := models.Rule{Role: role1, Domain: domain1, Object: object1, Action: action1, Allow: true}
-	tenantDatabaseClient.Create(&rule1)
+	var read models.Action
+	tenantDatabaseClient.Where("name = ?", "Read").First(&read)
 
-	fmt.Println("ENFORCE")
-	fmt.Println(enforce.Enforce(tenantDatabaseClient, user1, domain1, object4, action1))
+	var update models.Action
+	tenantDatabaseClient.Where("name = ?", "Update").First(&update)
+
+	//AUTHORIZATION
+	authxavier := models.Authorization{User: xavier, Role: productowner, Domain: ditrit}
+	tenantDatabaseClient.Create(&authxavier)
+
+	authromain := models.Authorization{User: romain, Role: productowner, Domain: gandalf}
+	tenantDatabaseClient.Create(&authromain)
+
+	authromain1 := models.Authorization{User: romain, Role: dev, Domain: gandalf}
+	tenantDatabaseClient.Create(&authromain1)
+
+	auththierry := models.Authorization{User: thierry, Role: releasemanager, Domain: ditrit}
+	tenantDatabaseClient.Create(&auththierry)
+
+	//PERMISSION
+	permission1 := models.Permission{Role: productowner, Domain: produit, Object: objectRoot, Action: create, Allow: true}
+	tenantDatabaseClient.Create(&permission1)
+
+	permission2 := models.Permission{Role: productowner, Domain: produit, Object: objectRoot, Action: read, Allow: true}
+	tenantDatabaseClient.Create(&permission2)
+
+	permission3 := models.Permission{Role: dev, Domain: produit, Object: orepositories, Action: all, Allow: true}
+	tenantDatabaseClient.Create(&permission3)
+
+	permission4 := models.Permission{Role: dev, Domain: produit, Object: oenvironements, Action: all, Allow: true}
+	tenantDatabaseClient.Create(&permission4)
+
+	permission5 := models.Permission{Role: releasemanager, Domain: produit, Object: oenvironements, Action: all, Allow: true}
+	tenantDatabaseClient.Create(&permission5)
+
+	//ENFORCE
+	fmt.Println("ENFORCE 1 expect : false")
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, thierry, leto, orepositories, create))
+
+	fmt.Println("ENFORCE 2 expect : true")
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, xavier, leto, orepositories, create))
+
+	fmt.Println("ENFORCE 3 expect : false")
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, xavier, association, orepositories, create))
+
+	fmt.Println("ENFORCE 4 expect : false")
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, xavier, gandalf, orepositorygandalf, update))
+
+	fmt.Println("ENFORCE 5 expect : true")
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, thierry, ogree, oenvironements, create))
+
+	fmt.Println("ENFORCE 6 expect : true")
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, romain, gandalf, odomains, create))
+
+	fmt.Println("ENFORCE 7 expect : false")
+	fmt.Println(enforce.Enforce(tenantDatabaseClient, romain, ogree, orepositories, create))
 
 }
 
@@ -171,6 +292,7 @@ func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
 
 //DemoCreateConnectorType
 func DemoCreateAction(tenantDatabaseClient *gorm.DB) {
+	tenantDatabaseClient.Create(&models.Action{Name: "All"})
 	tenantDatabaseClient.Create(&models.Action{Name: "Execute"})
 	tenantDatabaseClient.Create(&models.Action{Name: "Create"})
 	tenantDatabaseClient.Create(&models.Action{Name: "Read"})

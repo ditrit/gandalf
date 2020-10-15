@@ -2,7 +2,7 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-type Perimeter struct {
+type Authorization struct {
 	gorm.Model
 	UserID   uint
 	User     User

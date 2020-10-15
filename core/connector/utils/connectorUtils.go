@@ -257,11 +257,17 @@ func Unzip(zipPath string, dirPath string) ([]string, error) {
 
 func GetConfigurationKeys(configkeys []models.ConfigurationKeys) (stindargs string) {
 	var keyValue string
-	for _, configkey := range configkeys {
+	for i, configkey := range configkeys {
 		keyValue, _ = configuration.GetStringConfig(configkey.Name)
 		fmt.Println("keyValue")
 		fmt.Println(keyValue)
-		stindargs = stindargs + configkey.Name + ":" + keyValue + ";"
+		if i == 0 {
+			stindargs = "{\"" + configkey.Name + "\":" + "\"" + keyValue + "\""
+		} else {
+			stindargs = stindargs + ", \"" + configkey.Name + "\":" + "\"" + keyValue + "\""
+		}
+
 	}
+	stindargs = stindargs + "}"
 	return
 }
