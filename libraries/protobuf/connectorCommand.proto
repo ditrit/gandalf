@@ -25,14 +25,13 @@ message CommandMessage {
 	string Token = 8;                 
 	string Context = 9;               
 	string Timeout = 10;               
-	string Timestamp = 11;             
-	int64 Major = 12;                 
-	int64 Minor = 13;                 
-	string UUID = 14;                  
-	string ConnectorType = 15;         
-	string CommandType = 16;           
-	string Command = 17;               
-	string Payload = 18;               
+	string Timestamp = 11;
+	float Version = 12;           
+	string UUID = 15;                  
+	string ConnectorType = 16;         
+	string CommandType = 17;           
+	string Command = 18;               
+	string Payload = 19;               
 }
 
 message CommandMessageUUID {
@@ -43,5 +42,5 @@ message CommandMessageWait {
 	string WorkerSource = 1;
 	string Value = 2;  
 	string IteratorId = 3;
-	int64 Major = 4; 
+	float Version = 4;          
 }

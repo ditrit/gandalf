@@ -268,7 +268,6 @@ func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
 	fmt.Println(enforce.Enforce(tenantDatabaseClient, romain, gandalf, odomains, create))
 
 	fmt.Println("ENFORCE 7 expect : false")
-	fmt.Println(enforce.Enforce(tenantDatabaseClient, romain, ogree, orepositories, create))
 
 }
 

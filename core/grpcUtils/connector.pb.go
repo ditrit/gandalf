@@ -4,7 +4,7 @@
 // 	protoc        v3.6.1
 // source: connector.proto
 
-package grpc
+package grpcUtils
 
 import (
 	proto "github.com/golang/protobuf/proto"

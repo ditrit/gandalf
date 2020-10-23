@@ -10,7 +10,7 @@ import (
 
 	"github.com/ditrit/gandalf/core/connector/utils"
 
-	pb "github.com/ditrit/gandalf/core/grpc"
+	pb "github.com/ditrit/gandalf/core/grpcUtils"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -68,9 +68,9 @@ func (r ConnectorGrpc) StartGrpcServer() {
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
 	log.Println("Handle send command list")
 
-	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int64][]string)
+	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[float32][]string)
 	if mapVersionConnectorCommands != nil {
-		mapVersionConnectorCommands[in.GetMajor()] = append(mapVersionConnectorCommands[in.GetMajor()], in.GetCommands()...)
+		mapVersionConnectorCommands[in.GetVersion()] = append(mapVersionConnectorCommands[in.GetVersion()], in.GetCommands()...)
 	}
 
 	return &pb.Empty{}, nil
@@ -91,11 +91,13 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 		if connectorType != "" {
 			var connectorTypeConfig *models.ConnectorConfig
 			if listConnectorTypeConfig, ok := config[connectorType]; ok {
-				if cmd.Major == 0 {
-					versions := r.Shoset.Context["versions"].([]int64)
+				if cmd.Version == 0.0 {
+					versions := r.Shoset.Context["versions"].([]float32)
 					if versions != nil {
 						maxVersion := utils.GetMaxVersion(versions)
-						cmd.Major = int8(maxVersion)
+
+						cmd.Version = maxVersion
+
 						//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
 						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
 
@@ -103,7 +105,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 						log.Println("Versions not found")
 					}
 				} else {
-					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(cmd.Major), listConnectorTypeConfig)
+					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(cmd.Version, listConnectorTypeConfig)
 				}
 
 				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
@@ -184,7 +186,7 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIteratorCommand(in.GetValue(), in.GetMajor(), iterator, r.MapCommandChannel[in.GetIteratorId()])
+	go r.runIteratorCommand(in.GetValue(), in.GetVersion(), iterator, r.MapCommandChannel[in.GetIteratorId()])
 
 	messageChannel := <-r.MapCommandChannel[in.GetIteratorId()]
 	commandMessage = pb.CommandToGrpc(messageChannel.(msg.Command))
@@ -207,11 +209,12 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 			if connectorType != "" {
 				var connectorTypeConfig *models.ConnectorConfig
 				if listConnectorTypeConfig, ok := config[connectorType]; ok {
-					if evt.Major == 0 {
-						versions := r.Shoset.Context["versions"].([]int64)
+					if evt.Version == 0.0 {
+						versions := r.Shoset.Context["versions"].([]float32)
 						if versions != nil {
 							maxVersion := utils.GetMaxVersion(versions)
-							evt.Major = int8(maxVersion)
+
+							evt.Version = maxVersion
 
 							connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
 
@@ -219,7 +222,7 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 							log.Println("Versions not found")
 						}
 					} else {
-						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(int64(evt.Major), listConnectorTypeConfig)
+						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(evt.Version, listConnectorTypeConfig)
 					}
 
 					if connectorTypeConfig != nil {
@@ -327,7 +330,7 @@ func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (i
 }
 
 // runIterator : Iterator run function.
-func (r ConnectorGrpc) runIteratorCommand(command string, version int64, iterator *msg.Iterator, channel chan msg.Message) {
+func (r ConnectorGrpc) runIteratorCommand(command string, version float32, iterator *msg.Iterator, channel chan msg.Message) {
 	log.Printf("Run iterator command on command %s", command)
 
 	for {
@@ -337,8 +340,8 @@ func (r ConnectorGrpc) runIteratorCommand(command string, version int64, iterato
 			message := (messageIterator.GetMessage()).(msg.Command)
 
 			if command == message.GetCommand() {
-				major := int64(message.GetMajor())
-				if version == 0 || (version != 0 && major == version) {
+				versionM := message.GetVersion()
+				if version == 0 || (version != 0 && versionM == version) {
 					log.Println("Get iterator command")
 					log.Println(message)
 

@@ -3,7 +3,6 @@ module github.com/ditrit/gandalf/libraries/goclient
 go 1.13
 
 require (
-	github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/golang/protobuf v1.4.2
 	github.com/google/uuid v1.1.1

@@ -12,7 +12,7 @@ service Connector {
 }
 
 message CommandList {
-    int64 Major = 1;
+    float Version = 1;
     repeated string Commands = 2;
 }
 

@@ -43,8 +43,8 @@ func IsExecAll(mode os.FileMode) bool {
 }
 
 // GetMaxVersion : GetMaxVersion
-func GetMaxVersion(versions []int64) (maxversion int64) {
-	maxversion = -1
+func GetMaxVersion(versions []float32) (maxversion float32) {
+	maxversion = -1.0
 	for _, version := range versions {
 		if version > maxversion {
 			maxversion = version
@@ -65,12 +65,12 @@ func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) 
 }
 
 // GetConnectorTypeConfigByVersion : GetConnectorTypeConfigByVersion
-func GetConnectorTypeConfigByVersion(version int64, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
+func GetConnectorTypeConfigByVersion(version float32, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
 	if version == 0 {
 		result = nil
 	} else {
 		for _, connectorConfig := range list {
-			if int64(connectorConfig.Version) == version {
+			if connectorConfig.Version == version {
 				result = connectorConfig
 				break
 			}
