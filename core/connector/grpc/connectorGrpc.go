@@ -25,6 +25,9 @@ var grpcSendIndex = 0
 
 // ConnectorGrpc : ConnectorGrpc struct.
 type ConnectorGrpc struct {
+	pb.UnimplementedConnectorServer
+	pb.UnimplementedConnectorCommandServer
+	pb.UnimplementedConnectorEventServer
 	GrpcConnection string
 	Shoset         sn.Shoset
 	//MapWorkerIterators map[string][]*msg.Iterator

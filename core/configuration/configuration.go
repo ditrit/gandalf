@@ -360,15 +360,15 @@ func GetConnectorValues() {
 }
 
 //Set the list for all versions of a component
-func GetVersionsList(strVal string) ([]int64, error) {
-	var resultList []int64
+func GetVersionsList(strVal string) ([]float32, error) {
+	var resultList []float32
 
 	for _, val := range strings.Split(strVal, ",") {
-		valint64, err := strconv.ParseInt(val, 10, 64)
+		valint64, err := strconv.ParseFloat(val, 8)
 		if err != nil {
 			return nil, err
 		}
-		resultList = append(resultList, valint64)
+		resultList = append(resultList, float32(valint64))
 	}
 	return resultList, nil
 }

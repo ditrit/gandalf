@@ -186,7 +186,7 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 			if connectorConfig == nil {
 				fmt.Println("DOWNLOAD")
-				versionSplit := strings.Split(strconv.FormatFloat(version, 'f', -1, 64), ".")
+				versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
 
 				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+connectorType+"/"+product+"/"+versionSplit[0]+"/configuration.yaml")
 
@@ -243,7 +243,7 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string, versions []float32) (err error) {
 
 	for _, version := range versions {
-		versionSplit := strings.Split(strconv.FormatFloat(version, 'f', -1, 64), ".")
+		versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
 
 		ressource := "/" + connectortype + "/" + product + "/" + versionSplit[0] + "/" + versionSplit[1] + "/"
 		url := baseurl + ressource + "worker.zip"
@@ -274,7 +274,7 @@ func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, worker
 
 	for _, version := range versions {
 
-		versionSplit := strings.Split(strconv.FormatFloat(version, 'f', -1, 64), ".")
+		versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
 
 		workersPathVersion := workersPath + "/" + connectorType + "/" + product + "/" + versionSplit[0] + "/" + versionSplit[1]
 		fmt.Println(workersPath + "/" + connectorType + "/" + product + "/" + versionSplit[0] + "/" + versionSplit[1])

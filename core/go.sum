@@ -47,6 +47,8 @@ github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0 h1:YYRUDM8HTcnetx71t
 github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/ditrit/shoset v0.0.0-20201023143634-a171e238b00c h1:BFiVs5FCyx70q0epdVnjHmDx2pPXbK3Bf6wOM6Uyp0s=
 github.com/ditrit/shoset v0.0.0-20201023143634-a171e238b00c/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
+github.com/ditrit/shoset v0.0.0-20201023150056-fd4a9f5c3d61 h1:8xB3fNbUMCdz7kWrYom16wOhHZUALwa80h3sKzYTfMI=
+github.com/ditrit/shoset v0.0.0-20201023150056-fd4a9f5c3d61/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
