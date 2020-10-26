@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/goclient/grpcUtils"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"

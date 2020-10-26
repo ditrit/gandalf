@@ -8,7 +8,7 @@ import (
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/goclient/grpcUtils"
 
 	"github.com/ditrit/gandalf/libraries/goclient/client"
 
@@ -144,8 +144,8 @@ func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *m
 }
 
 //SendCommandList
-func (cg ClientGandalf) SendCommandList(version int64, commands []string) (empty *pb.Empty) {
-	empty = cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(version, commands)
+func (cg ClientGandalf) SendCommandList(major, minor int64, commands []string) (empty *pb.Empty) {
+	empty = cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, minor, commands)
 
 	return empty
 }

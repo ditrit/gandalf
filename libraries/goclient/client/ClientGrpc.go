@@ -3,7 +3,7 @@
 package client
 
 import (
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/goclient/grpcUtils"
 
 	"github.com/ditrit/gandalf/libraries/goclient/command"
 	"github.com/ditrit/gandalf/libraries/goclient/event"
@@ -37,8 +37,8 @@ func NewClientGrpc(identity, clientConnection string) (clientGrpc *ClientGrpc) {
 }
 
 //SendCommandList
-func (cg ClientGrpc) SendCommandList(version int64, commands []string) *pb.Empty {
-	return cg.ClientBase.SendCommandList(version, commands)
+func (cg ClientGrpc) SendCommandList(major, minor int64, commands []string) *pb.Empty {
+	return cg.ClientBase.SendCommandList(major, minor, commands)
 }
 
 //SendCommand
