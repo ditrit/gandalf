@@ -8,7 +8,7 @@ import (
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpcUtils"
+	pb "github.com/ditrit/gandalf/libraries/goclient/grpcutils"
 
 	"github.com/ditrit/gandalf/libraries/goclient/client"
 

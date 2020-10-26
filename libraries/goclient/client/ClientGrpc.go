@@ -3,7 +3,7 @@
 package client
 
 import (
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpcUtils"
+	pb "github.com/ditrit/gandalf/libraries/goclient/grpcutils"
 
 	"github.com/ditrit/gandalf/libraries/goclient/command"
 	"github.com/ditrit/gandalf/libraries/goclient/event"

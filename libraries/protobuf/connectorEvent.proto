@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "com.ditrit.gandalf.java.grpc";
 option java_outer_classname = "ConnectorEventProto";
 
-package grpcUtils;
+package grpcutils;
 
 import "connector.proto";
 

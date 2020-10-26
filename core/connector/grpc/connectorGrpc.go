@@ -10,7 +10,7 @@ import (
 
 	"github.com/ditrit/gandalf/core/connector/utils"
 
-	pb "github.com/ditrit/gandalf/core/grpcUtils"
+	pb "github.com/ditrit/gandalf/core/grpcutils"
 
 	"github.com/ditrit/gandalf/core/models"
 

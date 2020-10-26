@@ -1,4 +1,4 @@
-package grpcUtils
+package grpcutils
 
 import (
 	"strconv"
