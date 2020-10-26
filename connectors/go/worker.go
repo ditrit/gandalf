@@ -35,12 +35,12 @@ func (w Worker) GetClientGandalf() *goclient.ClientGandalf {
 }
 
 //GetVersion : GetVersion
-func (w Worker) GetMajor() int8 {
+func (w Worker) GetMajor() int64 {
 	return w.major
 }
 
 //GetVersion : GetVersion
-func (w Worker) GetMinor() int8 {
+func (w Worker) GetMinor() int64 {
 	return w.minor
 }
 
