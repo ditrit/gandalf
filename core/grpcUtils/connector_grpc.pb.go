@@ -30,7 +30,7 @@ func NewConnectorClient(cc grpc.ClientConnInterface) ConnectorClient {
 
 func (c *connectorClient) SendCommandList(ctx context.Context, in *CommandList, opts ...grpc.CallOption) (*Empty, error) {
 	out := new(Empty)
-	err := c.cc.Invoke(ctx, "/grpc.Connector/SendCommandList", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/grpcUtils.Connector/SendCommandList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func _Connector_SendCommandList_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/grpc.Connector/SendCommandList",
+		FullMethod: "/grpcUtils.Connector/SendCommandList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConnectorServer).SendCommandList(ctx, req.(*CommandList))
@@ -84,7 +84,7 @@ func _Connector_SendCommandList_Handler(srv interface{}, ctx context.Context, de
 }
 
 var _Connector_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "grpc.Connector",
+	ServiceName: "grpcUtils.Connector",
 	HandlerType: (*ConnectorServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

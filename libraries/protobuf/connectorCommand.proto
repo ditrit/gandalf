@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "com.ditrit.gandalf.java.grpc";
 option java_outer_classname = "ConnectorCommandProto";
 
-package grpc;
+package grpcUtils;
 
 import "connector.proto";
 
@@ -26,12 +26,13 @@ message CommandMessage {
 	string Context = 9;               
 	string Timeout = 10;               
 	string Timestamp = 11;
-	float Version = 12;           
-	string UUID = 15;                  
-	string ConnectorType = 16;         
-	string CommandType = 17;           
-	string Command = 18;               
-	string Payload = 19;               
+	int64 Major = 12;                 
+	int64 Minor = 13;         
+	string UUID = 14;                  
+	string ConnectorType = 15;         
+	string CommandType = 16;           
+	string Command = 17;               
+	string Payload = 18;               
 }
 
 message CommandMessageUUID {
@@ -42,5 +43,6 @@ message CommandMessageWait {
 	string WorkerSource = 1;
 	string Value = 2;  
 	string IteratorId = 3;
-	float Version = 4;          
+	int64 Major = 4;                 
+	int64 Minor = 5;              
 }

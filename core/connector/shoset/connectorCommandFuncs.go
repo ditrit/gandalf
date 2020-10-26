@@ -29,11 +29,12 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 		if connectorType != "" {
 			var connectorTypeConfig *models.ConnectorConfig
 			if listConnectorTypeConfig, ok := config[connectorType]; ok {
-				if cmd.Version == 1.0 {
-					versions := ch.Context["versions"].([]float32)
+				if cmd.Major == 0 {
+					versions := ch.Context["versions"].([]models.Version)
 					if versions != nil {
 						maxVersion := utils.GetMaxVersion(versions)
-						cmd.Major = int8(maxVersion)
+						cmd.Major = maxVersion.Major
+						cmd.Minor = maxVersion.Minor
 						//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
 						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
 
@@ -41,7 +42,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 						log.Println("Versions not found")
 					}
 				} else {
-					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(cmd.Version, listConnectorTypeConfig)
+					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(models.Version{Major: cmd.Major, Minor: cmd.Minor}, listConnectorTypeConfig)
 				}
 
 				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)

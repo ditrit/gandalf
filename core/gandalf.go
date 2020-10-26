@@ -179,6 +179,8 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid versions : %v", err)
 			}
+			fmt.Println("gandalfVerions")
+			fmt.Println(gandalfVersions)
 			gandalfSecret, err := configuration.GetStringConfig("gandalf_secret")
 			if err != nil {
 				log.Fatalf("No valid gandalf secret : %v", err)

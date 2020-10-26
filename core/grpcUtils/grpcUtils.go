@@ -19,9 +19,8 @@ func CommandFromGrpc(commandMessage *CommandMessage) (c msg.Command) {
 	//c.Context = commandMessage.GetContext()
 	c.Timeout, _ = strconv.ParseInt(commandMessage.GetTimeout(), 10, 64)
 	c.Timestamp, _ = strconv.ParseInt(commandMessage.GetTimestamp(), 10, 64)
-	//c.Major = int8(commandMessage.GetMajor())
-	//c.Minor = int8(commandMessage.GetMinor())
-	c.Version = commandMessage.GetVersion()
+	c.Major = int8(commandMessage.GetMajor())
+	c.Minor = int8(commandMessage.GetMinor())
 	c.UUID = commandMessage.GetUUID()
 	c.Context = make(map[string]interface{})
 	c.Context["connectorType"] = commandMessage.GetConnectorType()
@@ -46,9 +45,8 @@ func CommandToGrpc(c msg.Command) (commandMessage *CommandMessage) {
 	//commandMessage.Context = c.Context
 	commandMessage.Timeout = strconv.Itoa(int(c.Timeout))
 	commandMessage.Timestamp = strconv.Itoa(int(c.Timestamp))
-	//commandMessage.Major = int64(c.Major)
-	//commandMessage.Minor = int64(c.Minor)
-	commandMessage.Version = c.Version
+	commandMessage.Major = int64(c.Major)
+	commandMessage.Minor = int64(c.Minor)
 
 	commandMessage.UUID = c.UUID
 	//commandMessage.ConnectorType = c.ConnectorType

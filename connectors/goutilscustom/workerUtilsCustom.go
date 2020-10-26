@@ -17,16 +17,18 @@ import (
 func main() {
 
 	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
-	var version = int64(2)
+	var major = int64(2)
+	var minor = int64(0)
 
 	fmt.Println("VERSION")
-	fmt.Println(version)
+	fmt.Println(major)
+	fmt.Println(minor)
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 	fmt.Println(input.Text())
 
-	workerUtils := goutils.NewWorkerUtils(version, commands)
+	workerUtils := goutils.NewWorkerUtils(major, minor, commands)
 	workerUtils.CreateApplication = CreateApplication
 	workerUtils.CreateForm = CreateForm
 	workerUtils.SendAuthMail = SendAuthMail
@@ -35,38 +37,38 @@ func main() {
 }
 
 //CreateApplication : CreateApplication
-func CreateApplication(clientGandalf *goclient.ClientGandalf, version int64) {
+func CreateApplication(clientGandalf *goclient.ClientGandalf, major, minor int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
 	file, _ := os.Open(mydir + "/test.json")
 	decoder := json.NewDecoder(file)
 	decoder.Decode(&configuration)
 
-	workerApp := workers.NewWorkerApplication(clientGandalf, version)
+	workerApp := workers.NewWorkerApplication(clientGandalf, major, minor)
 	go workerApp.Run()
 }
 
 //CreateForm : CreateForm
-func CreateForm(clientGandalf *goclient.ClientGandalf, version int64) {
+func CreateForm(clientGandalf *goclient.ClientGandalf, major, minor int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
 	file, _ := os.Open(mydir + "/test.json")
 	decoder := json.NewDecoder(file)
 	decoder.Decode(&configuration)
 
-	workerForm := workers.NewWorkerForm(clientGandalf, version)
+	workerForm := workers.NewWorkerForm(clientGandalf, major, minor)
 	go workerForm.Run()
 }
 
 //SendAuthMail : SendAuthMail
-func SendAuthMail(clientGandalf *goclient.ClientGandalf, version int64) {
+func SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64) {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
 	file, _ := os.Open(mydir + "/test.json")
 	decoder := json.NewDecoder(file)
 	decoder.Decode(&configuration)
 
-	workerMail := workers.NewWorkerMail(configuration.Address, configuration.Port, clientGandalf, version)
+	workerMail := workers.NewWorkerMail(configuration.Address, configuration.Port, clientGandalf, major, minor)
 	go workerMail.Run()
 }
 

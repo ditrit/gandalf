@@ -4,7 +4,7 @@ option java_multiple_files = true;
 option java_package = "com.ditrit.gandalf.java.grpc";
 option java_outer_classname = "ConnectorProto";
 
-package grpc;
+package grpcUtils;
 
 
 service Connector {
@@ -12,8 +12,9 @@ service Connector {
 }
 
 message CommandList {
-    float Version = 1;
-    repeated string Commands = 2;
+    int64 Major = 1;                 
+	int64 Minor = 2;       
+    repeated string Commands = 3;
 }
 
 message Empty {

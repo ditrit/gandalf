@@ -9,7 +9,6 @@ import (
 	"os"
 	"os/exec"
 	"reflect"
-	"strings"
 
 	"github.com/ditrit/shoset/msg"
 
@@ -34,10 +33,10 @@ type ConnectorMember struct {
 	chaussette                  *net.Shoset
 	connectorGrpc               grpc.ConnectorGrpc
 	connectorType               string
-	versions                    []float32
+	versions                    []models.Version
 	timeoutMax                  int64
 	mapConnectorsConfig         map[string][]*models.ConnectorConfig
-	mapVersionConnectorCommands map[float32][]string
+	mapVersionConnectorCommands map[models.Version][]string
 }
 
 /*
@@ -53,14 +52,14 @@ func InitConnectorKeys(){
 }*/
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPath string, versions []float32) *ConnectorMember {
+func NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPath string, versions []models.Version) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.logicalName = logicalName
 	member.connectorType = connectorType
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.versions = versions
 	member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
-	member.mapVersionConnectorCommands = make(map[float32][]string)
+	member.mapVersionConnectorCommands = make(map[models.Version][]string)
 	member.chaussette.Context["instance"] = instanceName
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
@@ -153,7 +152,7 @@ func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, 
 }
 
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
-func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product string, versions []float32, nshoset *net.Shoset, timeoutMax int64) (listConfigurationKeys []models.ConfigurationKeys, err error) {
+func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product string, versions []models.Version, nshoset *net.Shoset, timeoutMax int64) (listConfigurationKeys []models.ConfigurationKeys, err error) {
 
 	shoset.SendConnectorConfig(nshoset, timeoutMax)
 	time.Sleep(time.Second * time.Duration(5))
@@ -182,23 +181,29 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 		listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
 		listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
 
+		fmt.Println("versions")
+		fmt.Println(versions)
 		for _, version := range versions {
 			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
 			if connectorConfig == nil {
 				fmt.Println("DOWNLOAD")
-				versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
 
-				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+connectorType+"/"+product+"/"+versionSplit[0]+"/configuration.yaml")
+				//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
+				//fmt.Println("versionSplit")
+				//fmt.Println(versionSplit)
+				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+connectorType+"/"+product+"/"+strconv.Itoa(int(version.Major))+"/configuration.yaml")
 
 				connectorConfig.ConnectorType.Name = connectorType
-				connectorConfig.Version = version
+				connectorConfig.Major = version.Major
+				connectorConfig.Minor = version.Minor
+
 				//connectorConfig.ConnectorProduct.Name = product
 
 				connectorConfig.ConnectorTypeKeys = configConnectorTypeKeys
 				connectorConfig.ProductKeys = configProductKeys
 
-				connectorConfig.VersionMajorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+versionSplit[0]+"/keys.yaml")
-				connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+versionSplit[0]+"/"+versionSplit[1]+"/keys.yaml")
+				connectorConfig.VersionMajorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+strconv.Itoa(int(version.Major))+"/keys.yaml")
+				connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+strconv.Itoa(int(version.Major))+"/"+strconv.Itoa(int(version.Minor))+"/keys.yaml")
 
 				/* connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
 				connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
@@ -240,13 +245,15 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 }
 
 // GetWorker : Get worker from baseurl/connectortype/ and baseurl/connectortype/product/
-func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string, versions []float32) (err error) {
+func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string, versions []models.Version) (err error) {
 
 	for _, version := range versions {
-		versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
+		//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
 
-		ressource := "/" + connectortype + "/" + product + "/" + versionSplit[0] + "/" + versionSplit[1] + "/"
+		ressource := "/" + connectortype + "/" + product + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
 		url := baseurl + ressource + "worker.zip"
+		fmt.Println("url")
+		fmt.Println(url)
 		src := workerPath + ressource + "worker.zip"
 		dest := workerPath + ressource
 
@@ -270,14 +277,14 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath
 }
 
 // StartWorkers : Start workers
-func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, workersPath, grpcBindAddress string, versions []float32) (err error) {
+func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, workersPath, grpcBindAddress string, versions []models.Version) (err error) {
 
 	for _, version := range versions {
 
-		versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
+		//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
 
-		workersPathVersion := workersPath + "/" + connectorType + "/" + product + "/" + versionSplit[0] + "/" + versionSplit[1]
-		fmt.Println(workersPath + "/" + connectorType + "/" + product + "/" + versionSplit[0] + "/" + versionSplit[1])
+		workersPathVersion := workersPath + "/" + connectorType + "/" + product + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
+		fmt.Println(workersPath + "/" + connectorType + "/" + product + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)))
 		files, err := ioutil.ReadDir(workersPathVersion)
 
 		if err != nil {
@@ -321,7 +328,9 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 	result = false
 	validation := true
 
-	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[float32][]string)
+	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[models.Version][]string)
+	fmt.Println("mapVersionConnectorCommands")
+	fmt.Println(mapVersionConnectorCommands)
 	if mapVersionConnectorCommands != nil {
 		config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 		fmt.Println("config")
@@ -371,7 +380,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, workerUrl, workerPath, logPath, secret string, timeoutMax int64, versions []float32) (*ConnectorMember, error) {
+func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, workerUrl, workerPath, logPath, secret string, timeoutMax int64, versions []models.Version) (*ConnectorMember, error) {
 	member := NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 

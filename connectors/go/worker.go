@@ -7,19 +7,21 @@ import (
 
 //Worker : Worker
 type Worker struct {
-	version       int64
+	major         int64
+	minor         int64
 	commandes     []string
 	clientGandalf *goclient.ClientGandalf
 
 	Start        func() *goclient.ClientGandalf
-	SendCommands func(clientGandalf *goclient.ClientGandalf, version int64, commandes []string)
+	SendCommands func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string)
 	//Execute      func()
 }
 
 //NewWorker : NewWorker
-func NewWorker(version int64, commandes []string) *Worker {
+func NewWorker(major, minor int64, commandes []string) *Worker {
 	worker := new(Worker)
-	worker.version = version
+	worker.major = major
+	worker.minor = minor
 	worker.commandes = commandes
 	worker.Start = functions.Start
 	worker.SendCommands = functions.SendCommands
@@ -33,15 +35,20 @@ func (w Worker) GetClientGandalf() *goclient.ClientGandalf {
 }
 
 //GetVersion : GetVersion
-func (w Worker) GetVersion() int64 {
-	return w.version
+func (w Worker) GetMajor() int8 {
+	return w.major
+}
+
+//GetVersion : GetVersion
+func (w Worker) GetMinor() int8 {
+	return w.minor
 }
 
 //Run : Run
 func (w Worker) Run() {
 	w.clientGandalf = w.Start()
 
-	w.SendCommands(w.clientGandalf, w.version, w.commandes)
+	w.SendCommands(w.clientGandalf, w.major, w.minor, w.commandes)
 
 	/* done := make(chan bool)
 	//START WORKER ADMIN

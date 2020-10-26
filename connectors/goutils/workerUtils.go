@@ -8,24 +8,24 @@ import (
 
 //WorkerUtils : WorkerUtils
 type WorkerUtils interface {
-	CreateApplication(clientGandalf *goclient.ClientGandalf, version int64)
-	CreateForm(clientGandalf *goclient.ClientGandalf, version int64)
-	SendAuthMail(clientGandalf *goclient.ClientGandalf, version int64)
+	CreateApplication(clientGandalf *goclient.ClientGandalf, major, minor int64)
+	CreateForm(clientGandalf *goclient.ClientGandalf, major, minor int64)
+	SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64)
 }
 
 //workerUtils : workerUtils
 type workerUtils struct {
 	worker *worker.Worker
 
-	CreateApplication func(clientGandalf *goclient.ClientGandalf, version int64)
-	CreateForm        func(clientGandalf *goclient.ClientGandalf, version int64)
-	SendAuthMail      func(clientGandalf *goclient.ClientGandalf, version int64)
+	CreateApplication func(clientGandalf *goclient.ClientGandalf, major, minor int64)
+	CreateForm        func(clientGandalf *goclient.ClientGandalf, major, minor int64)
+	SendAuthMail      func(clientGandalf *goclient.ClientGandalf, major, minor int64)
 }
 
 //NewWorkerUtils : NewWorkerUtils
-func NewWorkerUtils(version int64, commandes []string) *workerUtils {
+func NewWorkerUtils(major, minor int64, commandes []string) *workerUtils {
 	workerUtils := new(workerUtils)
-	workerUtils.worker = worker.NewWorker(version, commandes)
+	workerUtils.worker = worker.NewWorker(major, minor, commandes)
 	//workerUtils.worker.Execute = workerUtils.Execute
 
 	return workerUtils
@@ -36,8 +36,8 @@ func (wu workerUtils) Run() {
 	wu.worker.Run()
 
 	done := make(chan bool)
-	wu.CreateApplication(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
-	wu.CreateForm(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
-	wu.SendAuthMail(wu.worker.GetClientGandalf(), wu.worker.GetVersion())
+	wu.CreateApplication(wu.worker.GetClientGandalf(), wu.worker.GetMajor(), wu.worker.GetMinor())
+	wu.CreateForm(wu.worker.GetClientGandalf(), wu.worker.GetMajor(), wu.worker.GetMinor())
+	wu.SendAuthMail(wu.worker.GetClientGandalf(), wu.worker.GetMajor(), wu.worker.GetMinor())
 	<-done
 }

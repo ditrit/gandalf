@@ -11,7 +11,8 @@ type ConnectorConfig struct {
 	Name               string `gorm:"unique"`
 	ConnectorTypeID    uint
 	ConnectorType      ConnectorType
-	Version            float32
+	Major              int8
+	Minor              int8
 	ConnectorProductID uint
 	ConnectorProduct   ConnectorProduct
 	ConnectorCommands  []Object `gorm:"many2many:config_commands;"`
