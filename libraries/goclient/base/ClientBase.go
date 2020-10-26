@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpcutils"
+	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
 
 	"google.golang.org/grpc"
 )
