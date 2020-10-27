@@ -35,7 +35,7 @@ func (r WorkerForm) Run() {
 func (r WorkerForm) CreateForm() {
 	id := r.clientGandalf.CreateIteratorCommand()
 	for true {
-		command := r.clientGandalf.WaitCommand("CREATE_FORM", id, r.version)
+		command := r.clientGandalf.WaitCommand("CREATE_FORM", id, r.major)
 
 		var formPayload form.FormPayload
 		err := json.Unmarshal([]byte(command.GetPayload()), &formPayload)

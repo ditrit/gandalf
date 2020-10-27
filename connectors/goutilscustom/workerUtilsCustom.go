@@ -17,8 +17,8 @@ import (
 func main() {
 
 	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
-	var major = int64(2)
-	var minor = int64(0)
+	var major = int64(1)
+	var minor = int64(5)
 
 	fmt.Println("VERSION")
 	fmt.Println(major)
