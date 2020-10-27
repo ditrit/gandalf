@@ -71,9 +71,9 @@ func (r ConnectorGrpc) StartGrpcServer() {
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
 	log.Println("Handle send command list")
 
-	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[models.Version][]string)
+	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int8][]string)
 	if mapVersionConnectorCommands != nil {
-		mapVersionConnectorCommands[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}] = append(mapVersionConnectorCommands[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}], in.GetCommands()...)
+		mapVersionConnectorCommands[int8(in.GetMajor())] = append(mapVersionConnectorCommands[int8(in.GetMajor())], in.GetCommands()...)
 	}
 
 	return &pb.Empty{}, nil
@@ -99,16 +99,15 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 					if versions != nil {
 						maxVersion := utils.GetMaxVersion(versions)
 						cmd.Major = maxVersion.Major
-						cmd.Minor = maxVersion.Minor
 
 						//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
+						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion.Major, listConnectorTypeConfig)
 
 					} else {
 						log.Println("Versions not found")
 					}
 				} else {
-					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(models.Version{Major: cmd.Major, Minor: cmd.Minor}, listConnectorTypeConfig)
+					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(cmd.Major, listConnectorTypeConfig)
 				}
 
 				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
@@ -189,7 +188,7 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	iterator := r.MapIterators[in.GetIteratorId()]
 
-	go r.runIteratorCommand(in.GetValue(), models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}, iterator, r.MapCommandChannel[in.GetIteratorId()])
+	go r.runIteratorCommand(in.GetValue(), int8(in.GetMajor()), iterator, r.MapCommandChannel[in.GetIteratorId()])
 
 	messageChannel := <-r.MapCommandChannel[in.GetIteratorId()]
 	commandMessage = pb.CommandToGrpc(messageChannel.(msg.Command))
@@ -217,15 +216,14 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 						if versions != nil {
 							maxVersion := utils.GetMaxVersion(versions)
 							evt.Major = maxVersion.Major
-							evt.Minor = maxVersion.Minor
 
-							connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
+							connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion.Major, listConnectorTypeConfig)
 
 						} else {
 							log.Println("Versions not found")
 						}
 					} else {
-						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(models.Version{Major: evt.Major, Minor: evt.Minor}, listConnectorTypeConfig)
+						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(evt.Major, listConnectorTypeConfig)
 					}
 
 					if connectorTypeConfig != nil {
@@ -334,7 +332,7 @@ func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (i
 
 //TODO REVOIR
 // runIterator : Iterator run function.
-func (r ConnectorGrpc) runIteratorCommand(command string, version models.Version, iterator *msg.Iterator, channel chan msg.Message) {
+func (r ConnectorGrpc) runIteratorCommand(command string, major int8, iterator *msg.Iterator, channel chan msg.Message) {
 	log.Printf("Run iterator command on command %s", command)
 
 	for {
@@ -345,8 +343,7 @@ func (r ConnectorGrpc) runIteratorCommand(command string, version models.Version
 
 			if command == message.GetCommand() {
 				versionMajor := message.GetMajor()
-				versionMinor := message.GetMinor()
-				if version.Major == 0 || ((version.Major != 0 && versionMajor == version.Major) && (version.Minor != 0 && versionMinor == version.Minor)) {
+				if major == 0 || (major != 0 && versionMajor == major) {
 					log.Println("Get iterator command")
 					log.Println(message)
 

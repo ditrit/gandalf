@@ -56,7 +56,7 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 
 // GetConnectorConfiguration : Cluster application context getter.
 func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []models.ConnectorConfig) {
-	client.Order("connector_type_id, connector_product_id, major, minor desc").Preload("ConnectorType").Preload("ConnectorProduct").Preload("ConnectorCommands").Preload("ConnectorEvents").Find(&connectorsConfiguration)
+	client.Order("connector_type_id, connector_product_id, major desc").Preload("ConnectorType").Preload("ConnectorProduct").Preload("ConnectorCommands").Preload("ConnectorEvents").Find(&connectorsConfiguration)
 
 	return
 }

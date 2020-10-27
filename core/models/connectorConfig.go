@@ -12,7 +12,6 @@ type ConnectorConfig struct {
 	ConnectorTypeID    uint
 	ConnectorType      ConnectorType
 	Major              int8
-	Minor              int8
 	ConnectorProductID uint
 	ConnectorProduct   ConnectorProduct
 	ConnectorCommands  []Object `gorm:"many2many:config_commands;"`

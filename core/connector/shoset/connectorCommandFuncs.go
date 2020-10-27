@@ -34,15 +34,14 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 					if versions != nil {
 						maxVersion := utils.GetMaxVersion(versions)
 						cmd.Major = maxVersion.Major
-						cmd.Minor = maxVersion.Minor
 						//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion, listConnectorTypeConfig)
+						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion.Major, listConnectorTypeConfig)
 
 					} else {
 						log.Println("Versions not found")
 					}
 				} else {
-					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(models.Version{Major: cmd.Major, Minor: cmd.Minor}, listConnectorTypeConfig)
+					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(cmd.Major, listConnectorTypeConfig)
 				}
 
 				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)

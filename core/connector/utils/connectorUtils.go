@@ -69,12 +69,12 @@ func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) 
 }
 
 // GetConnectorTypeConfigByVersion : GetConnectorTypeConfigByVersion
-func GetConnectorTypeConfigByVersion(version models.Version, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
-	if version.Major == 0 {
+func GetConnectorTypeConfigByVersion(major int8, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
+	if major == 0 {
 		result = nil
 	} else {
 		for _, connectorConfig := range list {
-			if connectorConfig.Major == version.Major && connectorConfig.Minor == version.Minor {
+			if connectorConfig.Major == major {
 				result = connectorConfig
 				break
 			}

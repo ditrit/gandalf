@@ -36,7 +36,7 @@ type ConnectorMember struct {
 	versions                    []models.Version
 	timeoutMax                  int64
 	mapConnectorsConfig         map[string][]*models.ConnectorConfig
-	mapVersionConnectorCommands map[models.Version][]string
+	mapVersionConnectorCommands map[int8][]string
 }
 
 /*
@@ -59,7 +59,7 @@ func NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPat
 	member.chaussette = net.NewShoset(logicalName, "c")
 	member.versions = versions
 	member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
-	member.mapVersionConnectorCommands = make(map[models.Version][]string)
+	member.mapVersionConnectorCommands = make(map[int8][]string)
 	member.chaussette.Context["instance"] = instanceName
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
@@ -184,7 +184,7 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 		fmt.Println("versions")
 		fmt.Println(versions)
 		for _, version := range versions {
-			connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
+			connectorConfig := utils.GetConnectorTypeConfigByVersion(version.Major, config[connectorType])
 			if connectorConfig == nil {
 				fmt.Println("DOWNLOAD")
 
@@ -195,7 +195,6 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 
 				connectorConfig.ConnectorType.Name = connectorType
 				connectorConfig.Major = version.Major
-				connectorConfig.Minor = version.Minor
 
 				//connectorConfig.ConnectorProduct.Name = product
 
@@ -328,7 +327,7 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 	result = false
 	validation := true
 
-	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[models.Version][]string)
+	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[int8][]string)
 	fmt.Println("mapVersionConnectorCommands")
 	fmt.Println(mapVersionConnectorCommands)
 	if mapVersionConnectorCommands != nil {
