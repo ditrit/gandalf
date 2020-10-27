@@ -12,14 +12,16 @@ import (
 
 type WorkerForm struct {
 	clientGandalf    *goclient.ClientGandalf
-	version          int64
+	major            int64
+	minor            int64
 	clientFormServer *form.FormServer
 }
 
-func NewWorkerForm(clientGandalf *goclient.ClientGandalf, version int64) *WorkerForm {
+func NewWorkerForm(clientGandalf *goclient.ClientGandalf, major, minor int64) *WorkerForm {
 	workerForm := new(WorkerForm)
 	workerForm.clientGandalf = clientGandalf
-	workerForm.version = version
+	workerForm.major = major
+	workerForm.minor = minor
 
 	return workerForm
 }

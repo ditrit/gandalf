@@ -12,18 +12,20 @@ import (
 
 type WorkerMail struct {
 	clientGandalf *goclient.ClientGandalf
-	version       int64
+	major         int64
+	minor         int64
 	clientMail    *mail.MailClient
 	address       string
 	port          string
 }
 
-func NewWorkerMail(address, port string, clientGandalf *goclient.ClientGandalf, version int64) *WorkerMail {
+func NewWorkerMail(address, port string, clientGandalf *goclient.ClientGandalf, major, minor int64) *WorkerMail {
 	workerMail := new(WorkerMail)
 	workerMail.address = address
 	workerMail.port = port
 	workerMail.clientGandalf = clientGandalf
-	workerMail.version = version
+	workerMail.major = major
+	workerMail.minor = minor
 
 	return workerMail
 }
@@ -37,7 +39,7 @@ func (r WorkerMail) Run() {
 func (r WorkerMail) SendAuthMail() {
 	id := r.clientGandalf.CreateIteratorCommand()
 	for true {
-		command := r.clientGandalf.WaitCommand("SEND_AUTH_MAIL", id, r.version)
+		command := r.clientGandalf.WaitCommand("SEND_AUTH_MAIL", id, r.major)
 
 		var mailPayload mail.MailPayload
 		err := json.Unmarshal([]byte(command.GetPayload()), &mailPayload)

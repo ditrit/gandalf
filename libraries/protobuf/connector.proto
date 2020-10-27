@@ -13,8 +13,7 @@ service Connector {
 
 message CommandList {
     int64 Major = 1;                 
-	int64 Minor = 2;       
-    repeated string Commands = 3;
+    repeated string Commands = 2;
 }
 
 message Empty {

@@ -27,12 +27,11 @@ message CommandMessage {
 	string Timeout = 10;               
 	string Timestamp = 11;
 	int64 Major = 12;                 
-	int64 Minor = 13;         
-	string UUID = 14;                  
-	string ConnectorType = 15;         
-	string CommandType = 16;           
-	string Command = 17;               
-	string Payload = 18;               
+	string UUID = 13;                  
+	string ConnectorType = 14;         
+	string CommandType = 15;           
+	string Command = 16;               
+	string Payload = 17;               
 }
 
 message CommandMessageUUID {
@@ -44,5 +43,4 @@ message CommandMessageWait {
 	string Value = 2;  
 	string IteratorId = 3;
 	int64 Major = 4;                 
-	int64 Minor = 5;              
 }
