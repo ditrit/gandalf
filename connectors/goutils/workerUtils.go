@@ -2,24 +2,25 @@ package goutils
 
 import (
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
+	"github.com/ditrit/shoset/msg"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 )
 
 //WorkerUtils : WorkerUtils
 type WorkerUtils interface {
-	CreateApplication(clientGandalf *goclient.ClientGandalf, major, minor int64)
-	CreateForm(clientGandalf *goclient.ClientGandalf, major, minor int64)
-	SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64)
+	//CreateApplication(clientGandalf *goclient.ClientGandalf, major, minor int64)
+	CreateForm(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command)
+	SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command)
 }
 
 //workerUtils : workerUtils
 type workerUtils struct {
 	worker *worker.Worker
 
-	CreateApplication func(clientGandalf *goclient.ClientGandalf, major, minor int64) int
-	CreateForm        func(clientGandalf *goclient.ClientGandalf, major, minor int64) int
-	SendAuthMail      func(clientGandalf *goclient.ClientGandalf, major, minor int64) int
+	//CreateApplication func(clientGandalf *goclient.ClientGandalf, major, minor int64) int
+	CreateForm   func(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int
+	SendAuthMail func(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int
 }
 
 //NewWorkerUtils : NewWorkerUtils
