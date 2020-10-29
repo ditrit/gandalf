@@ -7,7 +7,6 @@ import (
 	"github.com/ditrit/gandalf/connectors/goutilscustom/mail"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
-	models "github.com/ditrit/gandalf/libraries/goclient/models"
 )
 
 type WorkerMail struct {
@@ -30,12 +29,13 @@ func NewWorkerMail(address, port string, clientGandalf *goclient.ClientGandalf, 
 	return workerMail
 }
 
+/*
 func (r WorkerMail) Run() {
 	done := make(chan bool)
 	go r.SendAuthMail()
 	<-done
 }
-
+*/
 func (r WorkerMail) SendAuthMail() {
 	id := r.clientGandalf.CreateIteratorCommand()
 	for true {
@@ -49,12 +49,12 @@ func (r WorkerMail) SendAuthMail() {
 
 			auth := r.clientMail.Auth(mailPayload.Username, mailPayload.Password, r.address)
 
-			result := r.clientMail.SendAuthMail(mailPayload.Sender, mailPayload.Body, mailPayload.Receivers, auth)
-			if result {
+			 r.clientMail.SendAuthMail(mailPayload.Sender, mailPayload.Body, mailPayload.Receivers, auth)
+			/* 	if result {
 				r.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), models.NewOptions("", ""))
 			} else {
 				r.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), models.NewOptions("", ""))
-			}
+			} */
 		}
 	}
 }

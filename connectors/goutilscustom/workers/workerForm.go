@@ -26,16 +26,16 @@ func NewWorkerForm(clientGandalf *goclient.ClientGandalf, major, minor int64) *W
 	return workerForm
 }
 
-func (r WorkerForm) Run() {
+/* func (r WorkerForm) Run() {
 	done := make(chan bool)
 	go r.CreateForm()
 	<-done
-}
+} */
 
 func (r WorkerForm) CreateForm() {
-	id := r.clientGandalf.CreateIteratorCommand()
+/* 	id := r.clientGandalf.CreateIteratorCommand()
 	for true {
-		command := r.clientGandalf.WaitCommand("CREATE_FORM", id, r.major)
+		command := r.clientGandalf.WaitCommand("CREATE_FORM", id, r.major) */
 
 		var formPayload form.FormPayload
 		err := json.Unmarshal([]byte(command.GetPayload()), &formPayload)
@@ -43,13 +43,13 @@ func (r WorkerForm) CreateForm() {
 		if err == nil {
 			r.clientFormServer = form.NewFormServer(command.GetUUID(), formPayload, r.clientGandalf)
 			go r.clientFormServer.Run()
-
-			fmt.Println("SUCCES")
+		}
+	/* 		fmt.Println("SUCCES")
 			r.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), models.NewOptions("", "http://"+r.clientFormServer.Rooturl+r.clientFormServer.Url))
 		} else {
 			fmt.Println("FALSE")
 			r.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), models.NewOptions("", ""))
-		}
+		} */
 	}
 
 }

@@ -45,7 +45,7 @@ func CreateApplication(clientGandalf *goclient.ClientGandalf, major, minor int64
 	decoder.Decode(&configuration)
 
 	workerApp := workers.NewWorkerApplication(clientGandalf, major, minor)
-	go workerApp.Run()
+	//go workerApp.Run()
 }
 
 //CreateForm : CreateForm
@@ -57,7 +57,7 @@ func CreateForm(clientGandalf *goclient.ClientGandalf, major, minor int64) {
 	decoder.Decode(&configuration)
 
 	workerForm := workers.NewWorkerForm(clientGandalf, major, minor)
-	go workerForm.Run()
+	//go workerForm.Run()
 }
 
 //SendAuthMail : SendAuthMail
@@ -69,7 +69,7 @@ func SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64) {
 	decoder.Decode(&configuration)
 
 	workerMail := workers.NewWorkerMail(configuration.Address, configuration.Port, clientGandalf, major, minor)
-	go workerMail.Run()
+	//go workerMail.Run()
 }
 
 //Configuration : Configuration
