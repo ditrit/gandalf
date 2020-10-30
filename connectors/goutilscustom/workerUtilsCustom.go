@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ditrit/gandalf-connectors-go/worker"
+	worker "github.com/ditrit/gandalf/connectors/go"
 	"github.com/ditrit/shoset/msg"
 
 	"github.com/ditrit/gandalf/connectors/goutilscustom/form"
