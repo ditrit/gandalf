@@ -6,19 +6,17 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/ditrit/gandalf-connectors-go/worker"
 	"github.com/ditrit/shoset/msg"
 
 	"github.com/ditrit/gandalf/connectors/goutilscustom/form"
 	"github.com/ditrit/gandalf/connectors/goutilscustom/mail"
 	"github.com/ditrit/gandalf/libraries/goclient"
-
-	goutils "github.com/ditrit/gandalf/connectors/goutils"
 )
 
 //main : main
 func main() {
 
-	var commands = []string{"SEND_AUTH_MAIL", "CREATE_FORM"}
 	var major = int64(1)
 	var minor = int64(5)
 
@@ -30,12 +28,11 @@ func main() {
 	input.Scan()
 	fmt.Println(input.Text())
 
-	workerUtils := goutils.NewWorkerUtils(major, minor, commands)
-	//workerUtils.CreateApplication = CreateApplication
-	workerUtils.CreateForm = CreateForm
-	workerUtils.SendAuthMail = SendAuthMail
+	worker := worker.NewWorker(major, minor)
+	worker.RegisterCommandsFuncs("CREATE_FORM", CreateForm)
+	worker.RegisterCommandsFuncs("SEND_AUTH_MAIL", SendAuthMail)
 
-	workerUtils.Run()
+	worker.Run()
 }
 
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int {
@@ -57,9 +54,8 @@ func SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64, com
 		clientmail.SendAuthMail(mailPayload.Sender, mailPayload.Body, mailPayload.Receivers, auth)
 
 		return 0
-	} else {
-		return 1
 	}
+	return 1
 
 }
 
@@ -73,9 +69,8 @@ func CreateForm(clientGandalf *goclient.ClientGandalf, major, minor int64, comma
 		go clientFormServer.Run()
 
 		return 0
-	} else {
-		return 1
 	}
+	return 1
 
 }
 
