@@ -34,10 +34,10 @@ func NewClientBase(identity, clientBaseConnection string) (clientBase *ClientBas
 }
 
 //SendCommandList :
-func (cb ClientBase) SendCommandList(major, minor int64, commands []string) *pb.Empty {
+func (cb ClientBase) SendCommandList(major int64, commands []string) *pb.Empty {
 	commandlist := new(pb.CommandList)
 	commandlist.Major = major
-	commandlist.Minor = minor
+	//commandlist.Minor = minor
 	commandlist.Commands = commands
 
 	empty, _ := cb.client.SendCommandList(context.Background(), commandlist)

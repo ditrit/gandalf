@@ -37,8 +37,8 @@ func NewClientGrpc(identity, clientConnection string) (clientGrpc *ClientGrpc) {
 }
 
 //SendCommandList
-func (cg ClientGrpc) SendCommandList(major, minor int64, commands []string) *pb.Empty {
-	return cg.ClientBase.SendCommandList(major, minor, commands)
+func (cg ClientGrpc) SendCommandList(major int64, commands []string) *pb.Empty {
+	return cg.ClientBase.SendCommandList(major, commands)
 }
 
 //SendCommand

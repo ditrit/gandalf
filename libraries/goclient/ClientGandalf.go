@@ -144,8 +144,8 @@ func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *m
 }
 
 //SendCommandList
-func (cg ClientGandalf) SendCommandList(major, minor int64, commands []string) (empty *pb.Empty) {
-	empty = cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, minor, commands)
+func (cg ClientGandalf) SendCommandList(major int64, commands []string) (empty *pb.Empty) {
+	empty = cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, commands)
 
 	return empty
 }
