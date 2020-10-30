@@ -17,10 +17,10 @@ type Worker struct {
 	clientGandalf   *goclient.ClientGandalf
 	CommandesActive map[string]int
 	EventsActive    map[string]int
-	CommandesFuncs  map[string]func(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int
-	EventsFuncs     map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major, minor int64, event msg.Event) int
+	CommandesFuncs  map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
+	EventsFuncs     map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
 	Start           func() *goclient.ClientGandalf
-	SendCommands    func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string)
+	SendCommands    func(clientGandalf *goclient.ClientGandalf, major int64, commandes []string)
 	//Execute      func()
 }
 
@@ -51,13 +51,13 @@ func (w Worker) GetMinor() int64 {
 }
 
 //GetVersion : GetVersion
-func (w Worker) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int) {
+func (w Worker) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	w.commandes = append(w.commandes, command)
 	w.CommandesFuncs[command] = function
 }
 
 //GetVersion : GetVersion
-func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major, minor int64, event msg.Event) int) {
+func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
 	w.EventsFuncs[topicevent] = function
 }
 
@@ -65,7 +65,7 @@ func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function fun
 func (w Worker) Run() {
 	w.clientGandalf = w.Start()
 
-	w.SendCommands(w.clientGandalf, w.major, w.minor, w.commandes)
+	w.SendCommands(w.clientGandalf, w.major, w.commandes)
 
 	//TODO REVOIR CONDITION SORTIE
 	for true {
@@ -82,15 +82,15 @@ func (w Worker) Run() {
 	}
 }
 
-func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int) {
+func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	command := w.clientGandalf.WaitCommand(commandName, id, w.major)
 	w.CommandesActive[commandName]++
 	go w.executeCommands(command, function)
 
 }
 
-func (w Worker) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int) {
-	result := function(w.clientGandalf, w.major, w.minor, command)
+func (w Worker) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+	result := function(w.clientGandalf, w.major, command)
 	if result == 0 {
 		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), models.NewOptions("", ""))
 	} else {
@@ -99,14 +99,14 @@ func (w Worker) executeCommands(command msg.Command, function func(clientGandalf
 	w.CommandesActive[command.GetCommand()]--
 }
 
-func (w Worker) WaitEvents(id string, topicEvent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major, minor int64, event msg.Event) int) {
+func (w Worker) WaitEvents(id string, topicEvent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
 	event := w.clientGandalf.WaitEvent(topicEvent.Topic, topicEvent.Event, id)
 	w.EventsActive[topicEvent.Event]++
 	go w.ExecuteEvents(event, function)
 }
 
-func (w Worker) ExecuteEvents(event msg.Event, function func(clientGandalf *goclient.ClientGandalf, major, minor int64, event msg.Event) int) {
-	result := function(w.clientGandalf, w.major, w.minor, event)
+func (w Worker) ExecuteEvents(event msg.Event, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
+	result := function(w.clientGandalf, w.major, event)
 	if result == 0 {
 		w.clientGandalf.SendReply(event.GetEvent(), "SUCCES", event.GetUUID(), models.NewOptions("", ""))
 	} else {
