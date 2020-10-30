@@ -1,9 +1,6 @@
 package worker
 
 import (
-	"encoding/json"
-	"gandalf/connectors/goutilscustom/mail"
-
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
 	"github.com/ditrit/gandalf/connectors/go/functions"
@@ -104,14 +101,8 @@ func (w Worker) executeCommands(command msg.Command, function func(clientGandalf
 
 func (w Worker) WaitEvents(id string, topicEvent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major, minor int64, event msg.Event) int) {
 	event := w.clientGandalf.WaitEvent(topicEvent.Topic, topicEvent.Event, id)
-
-	var mailPayload mail.MailPayload
-	err := json.Unmarshal([]byte(event.GetPayload()), &mailPayload)
-
-	if err != nil {
-		w.EventsActive[topicEvent.Event]++
-		go w.ExecuteEvents(event, function)
-	}
+	w.EventsActive[topicEvent.Event]++
+	go w.ExecuteEvents(event, function)
 }
 
 func (w Worker) ExecuteEvents(event msg.Event, function func(clientGandalf *goclient.ClientGandalf, major, minor int64, event msg.Event) int) {
