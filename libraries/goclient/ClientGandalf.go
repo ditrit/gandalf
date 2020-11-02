@@ -144,10 +144,13 @@ func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *m
 }
 
 //SendCommandList
-func (cg ClientGandalf) SendCommandList(major int64, commands []string) (empty *pb.Empty) {
-	empty = cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, commands)
+func (cg ClientGandalf) SendCommandList(major, minor int64, commands []string) *pb.Validate {
+	return cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, minor, commands)
+}
 
-	return empty
+//SendStop
+func (cg ClientGandalf) SendStop(major, minor int64) *pb.Validate {
+	return cg.Clients[getClientIndex(cg.Clients, true)].SendStop(major, minor)
 }
 
 //WaitCommand

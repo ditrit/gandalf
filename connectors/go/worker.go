@@ -21,7 +21,8 @@ type Worker struct {
 	CommandsFuncs     map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
 	EventsFuncs       map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
 	Start             func() *goclient.ClientGandalf
-	SendCommands      func(clientGandalf *goclient.ClientGandalf, major int64, commandes []string)
+	Stop              func(clientGandalf *goclient.ClientGandalf, major, minor int64)
+	SendCommands      func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string) bool
 	//Execute      func()
 }
 
@@ -33,6 +34,7 @@ func NewWorker(major, minor int64) *Worker {
 	worker.OngoingTreatments = gomodels.NewOngoingTreatments()
 	worker.WorkerState = gomodels.NewWorkerState()
 	worker.Start = functions.Start
+	worker.Stop = functions.Stop
 	worker.SendCommands = functions.SendCommands
 
 	return worker
@@ -43,22 +45,22 @@ func (w Worker) GetClientGandalf() *goclient.ClientGandalf {
 	return w.clientGandalf
 }
 
-//GetVersion : GetVersion
+//GetMajor : GetMajor
 func (w Worker) GetMajor() int64 {
 	return w.major
 }
 
-//GetVersion : GetVersion
+//GetMinor : GetMinor
 func (w Worker) GetMinor() int64 {
 	return w.minor
 }
 
-//GetVersion : GetVersion
+//RegisterCommandsFuncs : RegisterCommandsFuncs
 func (w Worker) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	w.CommandsFuncs[command] = function
 }
 
-//GetVersion : GetVersion
+//RegisterEventsFuncs : RegisterEventsFuncs
 func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
 	w.EventsFuncs[topicevent] = function
 }
@@ -72,23 +74,29 @@ func (w Worker) Run() {
 		keys = append(keys, k)
 	}
 
-	w.SendCommands(w.clientGandalf, w.major, keys)
+	valid := w.SendCommands(w.clientGandalf, w.major, w.minor, keys)
 
-	//TODO REVOIR CONDITION SORTIE
-	for w.WorkerState.GetState() == 0 {
-		for key, function := range w.CommandsFuncs {
-			id := w.clientGandalf.CreateIteratorCommand()
+	if valid {
+		go w.Stop(w.clientGandalf, w.major, w.minor)
 
-			go w.waitCommands(id, key, function)
+		//TODO REVOIR CONDITION SORTIE
+		for w.WorkerState.GetState() == 0 {
+			for key, function := range w.CommandsFuncs {
+				id := w.clientGandalf.CreateIteratorCommand()
+
+				go w.waitCommands(id, key, function)
+			}
+			for key, function := range w.EventsFuncs {
+				id := w.clientGandalf.CreateIteratorEvent()
+
+				go w.waitEvents(id, key, function)
+			}
 		}
-		for key, function := range w.EventsFuncs {
-			id := w.clientGandalf.CreateIteratorEvent()
-
-			go w.waitEvents(id, key, function)
+		for w.OngoingTreatments.GetIndex() > 0 {
+			time.Sleep(2 * time.Second)
 		}
-	}
-	for w.OngoingTreatments.GetIndex() > 0 {
-		time.Sleep(2 * time.Second)
+	} else {
+		//SEND EVENT INVALID CONFIGURATION
 	}
 }
 

@@ -35,6 +35,7 @@ type ConnectorMember struct {
 	connectorType               string
 	versions                    []models.Version
 	timeoutMax                  int64
+	mapActiveWorkers            map[models.Version]bool
 	mapConnectorsConfig         map[string][]*models.ConnectorConfig
 	mapVersionConnectorCommands map[int8][]string
 }
@@ -60,10 +61,12 @@ func NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPat
 	member.versions = versions
 	member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
 	member.mapVersionConnectorCommands = make(map[int8][]string)
+	member.mapActiveWorkers = make(map[models.Version]bool)
 	member.chaussette.Context["instance"] = instanceName
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
 	member.chaussette.Context["versions"] = versions
+	member.chaussette.Context["mapActiveWorkers"] = member.mapActiveWorkers
 	member.chaussette.Context["mapConnectorsConfig"] = member.mapConnectorsConfig
 	member.chaussette.Context["mapVersionConnectorCommands"] = member.mapVersionConnectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
@@ -418,14 +421,16 @@ func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBin
 								//END TODO
 								err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
 								if err == nil {
-									time.Sleep(time.Second * time.Duration(5))
+									log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+									fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+									/* time.Sleep(time.Second * time.Duration(5))
 									validateConfiguration := member.ConfigurationValidation(tenant, connectorType)
 									if validateConfiguration {
 										log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 										fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 									} else {
 										log.Fatalf("Configuration validation failed")
-									}
+									} */
 								} else {
 									log.Fatalf("Can't start workers in %s", workerPath)
 								}

@@ -8,12 +8,23 @@ package grpc;
 
 
 service Connector {
-    rpc SendCommandList (CommandList) returns (Empty) {}
+    rpc SendCommandList (CommandList) returns (Validate) {}
+    rpc SendStop (Stop) returns (Validate) {}
 }
 
 message CommandList {
     int64 Major = 1;                 
-    repeated string Commands = 2;
+    int64 Minor = 2;                 
+    repeated string Commands = 3;
+}
+
+message Validate {
+    bool valid = 1;
+}
+
+message Stop {
+    int64 Major = 1;                 
+    int64 Minor = 2;  
 }
 
 message Empty {

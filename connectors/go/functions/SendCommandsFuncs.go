@@ -5,7 +5,8 @@ import (
 )
 
 //SendCommands
-func SendCommands(clientGandalf *goclient.ClientGandalf, major int64, commandes []string) {
+func SendCommands(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string) bool {
+	validate := clientGandalf.SendCommandList(major, minor, commandes)
 
-	clientGandalf.SendCommandList(major, commandes)
+	return validate.GetValid()
 }

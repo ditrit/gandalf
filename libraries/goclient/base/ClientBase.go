@@ -34,13 +34,24 @@ func NewClientBase(identity, clientBaseConnection string) (clientBase *ClientBas
 }
 
 //SendCommandList :
-func (cb ClientBase) SendCommandList(major int64, commands []string) *pb.Empty {
+func (cb ClientBase) SendCommandList(major, minor int64, commands []string) *pb.Validate {
 	commandlist := new(pb.CommandList)
 	commandlist.Major = major
-	//commandlist.Minor = minor
+	commandlist.Minor = minor
 	commandlist.Commands = commands
 
-	empty, _ := cb.client.SendCommandList(context.Background(), commandlist)
+	validate, _ := cb.client.SendCommandList(context.Background(), commandlist)
 
-	return empty
+	return validate
+}
+
+//SendStop :
+func (cb ClientBase) SendStop(major, minor int64) *pb.Validate {
+	stop := new(pb.Stop)
+	stop.Major = major
+	stop.Minor = minor
+
+	validate, _ := cb.client.SendStop(context.Background(), stop)
+
+	return validate
 }

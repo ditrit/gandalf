@@ -17,7 +17,8 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ConnectorClient interface {
-	SendCommandList(ctx context.Context, in *CommandList, opts ...grpc.CallOption) (*Empty, error)
+	SendCommandList(ctx context.Context, in *CommandList, opts ...grpc.CallOption) (*Validate, error)
+	SendStop(ctx context.Context, in *Stop, opts ...grpc.CallOption) (*Validate, error)
 }
 
 type connectorClient struct {
@@ -28,9 +29,18 @@ func NewConnectorClient(cc grpc.ClientConnInterface) ConnectorClient {
 	return &connectorClient{cc}
 }
 
-func (c *connectorClient) SendCommandList(ctx context.Context, in *CommandList, opts ...grpc.CallOption) (*Empty, error) {
-	out := new(Empty)
+func (c *connectorClient) SendCommandList(ctx context.Context, in *CommandList, opts ...grpc.CallOption) (*Validate, error) {
+	out := new(Validate)
 	err := c.cc.Invoke(ctx, "/grpc.Connector/SendCommandList", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *connectorClient) SendStop(ctx context.Context, in *Stop, opts ...grpc.CallOption) (*Validate, error) {
+	out := new(Validate)
+	err := c.cc.Invoke(ctx, "/grpc.Connector/SendStop", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +51,8 @@ func (c *connectorClient) SendCommandList(ctx context.Context, in *CommandList, 
 // All implementations must embed UnimplementedConnectorServer
 // for forward compatibility
 type ConnectorServer interface {
-	SendCommandList(context.Context, *CommandList) (*Empty, error)
+	SendCommandList(context.Context, *CommandList) (*Validate, error)
+	SendStop(context.Context, *Stop) (*Validate, error)
 	mustEmbedUnimplementedConnectorServer()
 }
 
@@ -49,8 +60,11 @@ type ConnectorServer interface {
 type UnimplementedConnectorServer struct {
 }
 
-func (UnimplementedConnectorServer) SendCommandList(context.Context, *CommandList) (*Empty, error) {
+func (UnimplementedConnectorServer) SendCommandList(context.Context, *CommandList) (*Validate, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendCommandList not implemented")
+}
+func (UnimplementedConnectorServer) SendStop(context.Context, *Stop) (*Validate, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SendStop not implemented")
 }
 func (UnimplementedConnectorServer) mustEmbedUnimplementedConnectorServer() {}
 
@@ -83,6 +97,24 @@ func _Connector_SendCommandList_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Connector_SendStop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Stop)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConnectorServer).SendStop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/grpc.Connector/SendStop",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConnectorServer).SendStop(ctx, req.(*Stop))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Connector_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "grpc.Connector",
 	HandlerType: (*ConnectorServer)(nil),
@@ -90,6 +122,10 @@ var _Connector_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendCommandList",
 			Handler:    _Connector_SendCommandList_Handler,
+		},
+		{
+			MethodName: "SendStop",
+			Handler:    _Connector_SendStop_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

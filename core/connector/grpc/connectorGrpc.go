@@ -4,8 +4,10 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net"
+	"reflect"
 	"time"
 
 	"github.com/ditrit/gandalf/core/connector/utils"
@@ -68,15 +70,58 @@ func (r ConnectorGrpc) StartGrpcServer() {
 }
 
 //SendCommandList : Connector send command list function.
-func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (empty *pb.Empty, err error) {
+func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (validate *pb.Validate, err error) {
 	log.Println("Handle send command list")
+	validation := false
 
-	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int8][]string)
-	if mapVersionConnectorCommands != nil {
-		mapVersionConnectorCommands[int8(in.GetMajor())] = append(mapVersionConnectorCommands[int8(in.GetMajor())], in.GetCommands()...)
+	/* 	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int8][]string)
+	   	if mapVersionConnectorCommands != nil {
+	   		mapVersionConnectorCommands[int8(in.GetMajor())] = append(mapVersionConnectorCommands[int8(in.GetMajor())], in.GetCommands()...)
+	   	} */
+
+	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	fmt.Println("config")
+	fmt.Println(config)
+	if config != nil {
+		connectorType := r.Shoset.Context["connectorType"].(string)
+		connectorConfig := utils.GetConnectorTypeConfigByVersion(int8(in.GetMajor()), config[connectorType])
+		if connectorConfig != nil {
+			var configCommands []string
+			for _, command := range connectorConfig.ConnectorCommands {
+				configCommands = append(configCommands, command.Name)
+			}
+			fmt.Println("commands")
+			fmt.Println(in.GetCommands())
+			fmt.Println("configCommands")
+			fmt.Println(configCommands)
+			validation = reflect.DeepEqual(in.GetCommands(), configCommands)
+			fmt.Println("validation")
+			fmt.Println(validation)
+		} else {
+			log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, int8(in.GetMajor()))
+		}
+
+	} else {
+		log.Printf("Connectors configuration not found")
 	}
 
-	return &pb.Empty{}, nil
+	activeWorkers := r.Shoset.Context["mapActiveWorkers"].(map[models.Version]bool)
+	activeWorkers[models.Version{Major: in.GetMajor(), Minor: in.GetMinor()}] = validation
+	r.Shoset.Context["mapActiveWorkers"] = activeWorkers
+
+	return &pb.Validate{Valid: validation}, nil
+}
+
+//SendStop : Connector send stop.
+func (r ConnectorGrpc) SendStop(ctx context.Context, in *pb.Stop) (validate *pb.Validate, err error) {
+	log.Println("Handle send command list")
+
+	activeWorkers := r.Shoset.Context["mapActiveWorkers"].(map[models.Version]bool)
+	for activeWorkers[models.Version{Major: in.GetMajor(), Minor: in.GetMinor()}] {
+		time.Sleep(5 * time.Second)
+	}
+	return &pb.Validate{Valid: true}, nil
+
 }
 
 //SendCommandMessage : Connector send command function.
