@@ -21,7 +21,7 @@ type Worker struct {
 	CommandsFuncs     map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
 	EventsFuncs       map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
 	Start             func() *goclient.ClientGandalf
-	Stop              func(clientGandalf *goclient.ClientGandalf, major, minor int64)
+	Stop              func(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState gomodels.WorkerState)
 	SendCommands      func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string) bool
 	//Execute      func()
 }
@@ -77,7 +77,7 @@ func (w Worker) Run() {
 	valid := w.SendCommands(w.clientGandalf, w.major, w.minor, keys)
 
 	if valid {
-		go w.Stop(w.clientGandalf, w.major, w.minor)
+		go w.Stop(w.clientGandalf, w.major, w.minor, w.WorkerState)
 
 		//TODO REVOIR CONDITION SORTIE
 		for w.WorkerState.GetState() == 0 {
