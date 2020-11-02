@@ -6,10 +6,10 @@ import (
 )
 
 //SendCommands
-func Stop(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState gomodels.WorkerState) {
+func Stop(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState *gomodels.WorkerState) {
 	validate := clientGandalf.SendStop(major, minor)
 
-	if validate.Valid() {
+	if validate.GetValid() {
 		workerState.SetStoppingWorkerState()
 	}
 }

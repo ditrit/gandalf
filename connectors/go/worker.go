@@ -16,12 +16,12 @@ type Worker struct {
 	major             int64
 	minor             int64
 	clientGandalf     *goclient.ClientGandalf
-	OngoingTreatments gomodels.OngoingTreatments
-	WorkerState       gomodels.WorkerState
+	OngoingTreatments *gomodels.OngoingTreatments
+	WorkerState       *gomodels.WorkerState
 	CommandsFuncs     map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
 	EventsFuncs       map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
 	Start             func() *goclient.ClientGandalf
-	Stop              func(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState gomodels.WorkerState)
+	Stop              func(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState *gomodels.WorkerState)
 	SendCommands      func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string) bool
 	//Execute      func()
 }
