@@ -6,5 +6,6 @@ import (
 
 //SendCommands
 func SendCommands(clientGandalf *goclient.ClientGandalf, major int64, commandes []string) {
+
 	clientGandalf.SendCommandList(major, commandes)
 }

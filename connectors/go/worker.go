@@ -1,6 +1,8 @@
 package worker
 
 import (
+	"time"
+
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
 	"github.com/ditrit/gandalf/connectors/go/functions"
@@ -11,16 +13,15 @@ import (
 
 //Worker : Worker
 type Worker struct {
-	major           int64
-	minor           int64
-	commandes       []string
-	clientGandalf   *goclient.ClientGandalf
-	CommandesActive map[string]int
-	EventsActive    map[string]int
-	CommandesFuncs  map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
-	EventsFuncs     map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
-	Start           func() *goclient.ClientGandalf
-	SendCommands    func(clientGandalf *goclient.ClientGandalf, major int64, commandes []string)
+	major             int64
+	minor             int64
+	clientGandalf     *goclient.ClientGandalf
+	OngoingTreatments gomodels.OngoingTreatments
+	WorkerState       gomodels.WorkerState
+	CommandsFuncs     map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
+	EventsFuncs       map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
+	Start             func() *goclient.ClientGandalf
+	SendCommands      func(clientGandalf *goclient.ClientGandalf, major int64, commandes []string)
 	//Execute      func()
 }
 
@@ -29,6 +30,8 @@ func NewWorker(major, minor int64) *Worker {
 	worker := new(Worker)
 	worker.major = major
 	worker.minor = minor
+	worker.OngoingTreatments = gomodels.NewOngoingTreatments()
+	worker.WorkerState = gomodels.NewWorkerState()
 	worker.Start = functions.Start
 	worker.SendCommands = functions.SendCommands
 
@@ -52,8 +55,7 @@ func (w Worker) GetMinor() int64 {
 
 //GetVersion : GetVersion
 func (w Worker) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
-	w.commandes = append(w.commandes, command)
-	w.CommandesFuncs[command] = function
+	w.CommandsFuncs[command] = function
 }
 
 //GetVersion : GetVersion
@@ -65,11 +67,16 @@ func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function fun
 func (w Worker) Run() {
 	w.clientGandalf = w.Start()
 
-	w.SendCommands(w.clientGandalf, w.major, w.commandes)
+	keys := make([]string, 0, len(w.CommandsFuncs))
+	for k := range w.CommandsFuncs {
+		keys = append(keys, k)
+	}
+
+	w.SendCommands(w.clientGandalf, w.major, keys)
 
 	//TODO REVOIR CONDITION SORTIE
-	for true {
-		for key, function := range w.CommandesFuncs {
+	for w.WorkerState.GetState() == 0 {
+		for key, function := range w.CommandsFuncs {
 			id := w.clientGandalf.CreateIteratorCommand()
 
 			go w.waitCommands(id, key, function)
@@ -77,40 +84,52 @@ func (w Worker) Run() {
 		for key, function := range w.EventsFuncs {
 			id := w.clientGandalf.CreateIteratorEvent()
 
-			go w.WaitEvents(id, key, function)
+			go w.waitEvents(id, key, function)
 		}
+	}
+	for w.OngoingTreatments.GetIndex() > 0 {
+		time.Sleep(2 * time.Second)
 	}
 }
 
 func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
-	command := w.clientGandalf.WaitCommand(commandName, id, w.major)
-	w.CommandesActive[commandName]++
-	go w.executeCommands(command, function)
-
+	for w.WorkerState.GetState() == 0 {
+		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
+		go w.executeCommands(command, function)
+	}
+	for w.OngoingTreatments.GetIndex() > 0 {
+		time.Sleep(2 * time.Second)
+	}
 }
 
 func (w Worker) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+	w.OngoingTreatments.IncrementOngoingTreatments()
 	result := function(w.clientGandalf, w.major, command)
 	if result == 0 {
 		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), models.NewOptions("", ""))
 	} else {
 		w.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), models.NewOptions("", ""))
 	}
-	w.CommandesActive[command.GetCommand()]--
+	w.OngoingTreatments.DecrementOngoingTreatments()
 }
 
-func (w Worker) WaitEvents(id string, topicEvent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
-	event := w.clientGandalf.WaitEvent(topicEvent.Topic, topicEvent.Event, id)
-	w.EventsActive[topicEvent.Event]++
-	go w.ExecuteEvents(event, function)
+func (w Worker) waitEvents(id string, topicEvent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
+	for w.WorkerState.GetState() == 0 {
+		event := w.clientGandalf.WaitEvent(topicEvent.Topic, topicEvent.Event, id)
+		go w.executeEvents(event, function)
+	}
+	for w.OngoingTreatments.GetIndex() > 0 {
+		time.Sleep(2 * time.Second)
+	}
 }
 
-func (w Worker) ExecuteEvents(event msg.Event, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
+func (w Worker) executeEvents(event msg.Event, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
+	w.OngoingTreatments.IncrementOngoingTreatments()
 	result := function(w.clientGandalf, w.major, event)
 	if result == 0 {
 		w.clientGandalf.SendReply(event.GetEvent(), "SUCCES", event.GetUUID(), models.NewOptions("", ""))
 	} else {
 		w.clientGandalf.SendReply(event.GetEvent(), "FAIL", event.GetUUID(), models.NewOptions("", ""))
 	}
-	w.EventsActive[event.GetEvent()]--
+	w.OngoingTreatments.DecrementOngoingTreatments()
 }
