@@ -106,7 +106,7 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 	}
 
 	activeWorkers := r.Shoset.Context["mapActiveWorkers"].(map[models.Version]bool)
-	activeWorkers[models.Version{Major: in.GetMajor(), Minor: in.GetMinor()}] = validation
+	activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}] = validation
 	r.Shoset.Context["mapActiveWorkers"] = activeWorkers
 
 	return &pb.Validate{Valid: validation}, nil
@@ -117,7 +117,7 @@ func (r ConnectorGrpc) SendStop(ctx context.Context, in *pb.Stop) (validate *pb.
 	log.Println("Handle send command list")
 
 	activeWorkers := r.Shoset.Context["mapActiveWorkers"].(map[models.Version]bool)
-	for activeWorkers[models.Version{Major: in.GetMajor(), Minor: in.GetMinor()}] {
+	for activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}] {
 		time.Sleep(5 * time.Second)
 	}
 	return &pb.Validate{Valid: true}, nil
