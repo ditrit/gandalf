@@ -17,8 +17,8 @@ import (
 //main : main
 func main() {
 
-	var major = int64(1)
-	var minor = int64(5)
+	var major = int64(2)
+	var minor = int64(2)
 
 	fmt.Println("VERSION")
 	fmt.Println(major)

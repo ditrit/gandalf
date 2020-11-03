@@ -16,6 +16,8 @@ github.com/ditrit/gandalf/connectors/go v0.0.0-20201029132552-fbf589fc0142 h1:mC
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201029132552-fbf589fc0142/go.mod h1:xbu4Hp2SlVqNNKh2T4oiySHJ2fSo8ZFyY3nAj85Di8E=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201030133959-2f774e489760 h1:TIYBKQ3j/Zik+Ef/nPBSepArUjWrQTAajsxO8jhsREk=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201030133959-2f774e489760/go.mod h1:xbu4Hp2SlVqNNKh2T4oiySHJ2fSo8ZFyY3nAj85Di8E=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20201103092708-7d1dddc15110 h1:QAoSWv0N6JTexlhkPzlx4pTYmYRw/v/DxHJtxK9kkKA=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20201103092708-7d1dddc15110/go.mod h1:h04UjiyIMJNPYNqcgFKR7aYph1YT4TZGL9gzaztYiWk=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709085452-193002d101a9 h1:Tc5/QAdFeQlBIFs6epjBjmK5upw9eiSE8Mb/GiXHb00=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709085452-193002d101a9/go.mod h1:lwsQMP2wzwmr55XAizkuB/HbI+/KLCiFagRQzLJT1Ug=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709090245-ae80687c7ff8 h1:BdTnDNDnoaIz6s51uudUF18tubw7PM4V/9awZ3cGTak=
@@ -30,6 +32,8 @@ github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d 
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d/go.mod h1:D58ElO9o9XrrmZ+0/Xbau8JhqAWtH+QFMKacCRxxw5Y=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201026165739-6894d8c7142b h1:Rlc9QnN9j2wi+owdohErk16L1x7YTJoWoqmpKshOANo=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201026165739-6894d8c7142b/go.mod h1:yOaZPJHEWsMEHjV286kOiriGE9O8Gl7EzyqwgNFOdq8=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201102152502-a8bd68f25944 h1:P3+SHrAvetgtvdwgKrt3L2UiJQsDCm3YPI6Y5XE2dnk=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201102152502-a8bd68f25944/go.mod h1:yOaZPJHEWsMEHjV286kOiriGE9O8Gl7EzyqwgNFOdq8=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0 h1:YYRUDM8HTcnetx71tvoucys4DkMI+vPyjDwFCqNRIys=
 github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
