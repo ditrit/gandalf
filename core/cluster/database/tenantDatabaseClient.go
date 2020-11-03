@@ -279,6 +279,7 @@ func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
 //DemoCreateConnector
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector1", InstanceName: "Connector1", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector2", InstanceName: "Connector2", Secret: "TOTO"})
 }
 
 //DemoCreateConnectorType

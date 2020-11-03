@@ -5,45 +5,54 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ditrit/gandalf/connectors/goworkflowcustom/workers"
+	"github.com/ditrit/gandalf/libraries/goclient/models"
 
-	goworkflow "github.com/ditrit/gandalf/connectors/goworkflow"
-
-	goclient "github.com/ditrit/gandalf/libraries/goclient"
+	worker "github.com/ditrit/gandalf/connectors/go"
 )
 
 //main : main
 func main() {
 
-	var commands = []string{}
-	var version = int64(1)
+	var major = int64(1)
+	var minor = int64(0)
 
 	fmt.Println("VERSION")
-	fmt.Println(version)
+	fmt.Println(major)
+	fmt.Println(minor)
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 	fmt.Println(input.Text())
 
-	workerWorkflow := goworkflow.NewWorkerWorkflow(version, commands)
-	workerWorkflow.Upload = Upload
-	workerWorkflow.Run()
+	worker := worker.NewWorker(major, minor)
+	worker.Start()
+
+	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+	commandMessageUUID := worker.GetClientGandalf().SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+	formUUID := commandMessageUUID.GetUUID()
+
+	id := worker.GetClientGandalf().CreateIteratorEvent()
+	event := worker.GetClientGandalf().WaitReplyByEvent("CREATE_FORM", "SUCCES", formUUID, id)
+	fmt.Println(event)
+
+	//workerUpload := workers.NewWorkerUpload(clientGandalf)
+	//go workerUpload.Run()
 }
 
-//Upload : Upload
+/* //Upload : Upload
 func Upload(clientGandalf *goclient.ClientGandalf, version int64) {
 	/* var configuration Configuration
 	mydir, _ := os.Getwd()
 	file, _ := os.Open(mydir + "/test.json")
 	decoder := json.NewDecoder(file)
 	decoder.Decode(&configuration) */
-	//done := make(chan bool)
+//done := make(chan bool)
 
-	workerMail := workers.NewWorkerUpload(clientGandalf)
-	go workerMail.Run()
-	//<-done
+//workerMail := workers.NewWorkerUpload(clientGandalf)
+//go workerMail.Run()
+//<-done
 
-}
+//} */
 
 //Configuration : Configuration
 type Configuration struct {
