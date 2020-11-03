@@ -23,15 +23,20 @@ func main() {
 	fmt.Println("VERSION")
 	fmt.Println(major)
 	fmt.Println(minor)
+	fmt.Println("START 0")
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 	fmt.Println(input.Text())
 
+	fmt.Println("START 1")
 	worker := worker.NewWorker(major, minor)
+	fmt.Println("START REGISTER")
 	worker.RegisterCommandsFuncs("CREATE_FORM", CreateForm)
+	fmt.Println("START REGISTER")
 	worker.RegisterCommandsFuncs("SEND_AUTH_MAIL", SendAuthMail)
 
+	fmt.Println("START 2")
 	worker.Run()
 	fmt.Println("END")
 }
