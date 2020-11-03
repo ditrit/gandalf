@@ -12,6 +12,8 @@ github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201030140230-4edfb80641f4 
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201030140230-4edfb80641f4/go.mod h1:yOaZPJHEWsMEHjV286kOiriGE9O8Gl7EzyqwgNFOdq8=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201102152502-a8bd68f25944 h1:P3+SHrAvetgtvdwgKrt3L2UiJQsDCm3YPI6Y5XE2dnk=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201102152502-a8bd68f25944/go.mod h1:yOaZPJHEWsMEHjV286kOiriGE9O8Gl7EzyqwgNFOdq8=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201103121130-84465a067b83 h1:QHM36gbQUXJC4YuvTEmQl5j5OD4v5KGzIn0kUDGPAKY=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201103121130-84465a067b83/go.mod h1:yOaZPJHEWsMEHjV286kOiriGE9O8Gl7EzyqwgNFOdq8=
 github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276 h1:D/nP+zP9Ee4E2es+Amj1svN5xNpe1cC7ey59JjzISkc=
 github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
