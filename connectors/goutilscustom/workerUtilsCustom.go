@@ -17,8 +17,8 @@ import (
 //main : main
 func main() {
 
-	var major = int64(2)
-	var minor = int64(2)
+	var major = int64(1)
+	var minor = int64(0)
 
 	fmt.Println("VERSION")
 	fmt.Println(major)
@@ -35,7 +35,7 @@ func main() {
 	worker.Run()
 }
 
-func SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int {
+func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 
 	var configuration Configuration
 	mydir, _ := os.Getwd()
@@ -59,7 +59,7 @@ func SendAuthMail(clientGandalf *goclient.ClientGandalf, major, minor int64, com
 
 }
 
-func CreateForm(clientGandalf *goclient.ClientGandalf, major, minor int64, command msg.Command) int {
+func CreateForm(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 
 	var formPayload form.FormPayload
 	err := json.Unmarshal([]byte(command.GetPayload()), &formPayload)
