@@ -40,6 +40,7 @@ func (cb ClientBase) SendCommandList(major, minor int64, commands []string) *pb.
 	commandlist.Minor = minor
 	commandlist.Commands = commands
 
+	fmt.Println("SEND COMMAND LIST LIB")
 	validate, _ := cb.client.SendCommandList(context.Background(), commandlist)
 
 	return validate
