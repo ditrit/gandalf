@@ -33,6 +33,7 @@ func main() {
 	worker.RegisterCommandsFuncs("SEND_AUTH_MAIL", SendAuthMail)
 
 	worker.Run()
+	fmt.Println("END")
 }
 
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
