@@ -29,6 +29,7 @@ type Worker struct {
 
 //NewWorker : NewWorker
 func NewWorker(major, minor int64) *Worker {
+	fmt.Println("NEW WORKER")
 	worker := new(Worker)
 	worker.major = major
 	worker.minor = minor
