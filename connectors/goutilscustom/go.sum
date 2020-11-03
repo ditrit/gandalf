@@ -7,6 +7,7 @@ github.com/ditrit/gandalf v0.0.0-20200709085452-193002d101a9 h1:cLNRfi0lK4+UX7sK
 github.com/ditrit/gandalf v0.0.0-20200828084902-a2d405d1aeab h1:xVaOftJkh/RV3EBMDbBZs/jiSTi9Ua/wFUW1bIW17Dw=
 github.com/ditrit/gandalf v0.0.0-20201026134512-90151da6ece8 h1:i0S29i6YfNSPCJY+R0XzO7rqD7DJ+saCi8nJlW/mEJg=
 github.com/ditrit/gandalf v0.0.0-20201030133959-2f774e489760 h1:FaK2CZopgA1CxJAb7h+hxn9xTcfRkAuFn/6BCARN4jM=
+github.com/ditrit/gandalf v0.0.0-20201103121226-45fc7c894d85 h1:I/ZSa1D+FQ/iJuiCUizXaTijQPH3xFRZ43JoUzFN4W8=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20200709080301-6c04bd9f070a h1:hfwPOgsGIn58xog9tFIfUHN2VwzuQ4goDXpvmDXWmcQ=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20200709080301-6c04bd9f070a/go.mod h1:S3JezVkCvsm6zYpA34fdzUU5hWaLZ/UtcvMRtiFhVgo=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20200828084902-a2d405d1aeab h1:zOSFnZkkDtmBHjvKBMUPNTXYRRp3JrY0FP3vzwt4BqE=
@@ -18,6 +19,8 @@ github.com/ditrit/gandalf/connectors/go v0.0.0-20201030133959-2f774e489760 h1:TI
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201030133959-2f774e489760/go.mod h1:xbu4Hp2SlVqNNKh2T4oiySHJ2fSo8ZFyY3nAj85Di8E=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201103092708-7d1dddc15110 h1:QAoSWv0N6JTexlhkPzlx4pTYmYRw/v/DxHJtxK9kkKA=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201103092708-7d1dddc15110/go.mod h1:h04UjiyIMJNPYNqcgFKR7aYph1YT4TZGL9gzaztYiWk=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20201103095201-00e932fc8a93 h1:kD788PmaEQrcJU5TJUd0b7d8oCjyt0Ks/kz16Zn6emE=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20201103095201-00e932fc8a93/go.mod h1:h04UjiyIMJNPYNqcgFKR7aYph1YT4TZGL9gzaztYiWk=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709085452-193002d101a9 h1:Tc5/QAdFeQlBIFs6epjBjmK5upw9eiSE8Mb/GiXHb00=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709085452-193002d101a9/go.mod h1:lwsQMP2wzwmr55XAizkuB/HbI+/KLCiFagRQzLJT1Ug=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709090245-ae80687c7ff8 h1:BdTnDNDnoaIz6s51uudUF18tubw7PM4V/9awZ3cGTak=
