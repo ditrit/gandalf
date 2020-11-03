@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
@@ -102,7 +103,10 @@ func (w Worker) Run() {
 
 func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	for w.WorkerState.GetState() == 0 {
+		fmt.Println("wait " + commandName)
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
+		fmt.Println("command")
+		fmt.Println(command)
 		go w.executeCommands(command, function)
 	}
 	for w.OngoingTreatments.GetIndex() > 0 {
@@ -111,6 +115,7 @@ func (w Worker) waitCommands(id, commandName string, function func(clientGandalf
 }
 
 func (w Worker) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+	fmt.Println("execute")
 	w.OngoingTreatments.IncrementOngoingTreatments()
 	result := function(w.clientGandalf, w.major, command)
 	if result == 0 {
