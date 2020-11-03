@@ -33,11 +33,14 @@ func NewWorker(major, minor int64) *Worker {
 	worker := new(Worker)
 	worker.major = major
 	worker.minor = minor
+	worker.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
+	worker.EventsFuncs = make(map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int)
 	worker.OngoingTreatments = gomodels.NewOngoingTreatments()
 	worker.WorkerState = gomodels.NewWorkerState()
 	worker.Start = functions.Start
 	worker.Stop = functions.Stop
 	worker.SendCommands = functions.SendCommands
+	fmt.Println("END WORKER")
 
 	return worker
 }
@@ -59,6 +62,7 @@ func (w Worker) GetMinor() int64 {
 
 //RegisterCommandsFuncs : RegisterCommandsFuncs
 func (w Worker) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+	fmt.Println("REGISTER")
 	w.CommandsFuncs[command] = function
 }
 
