@@ -85,18 +85,18 @@ func (w Worker) Run() {
 	if valid {
 		go w.Stop(w.clientGandalf, w.major, w.minor, w.WorkerState)
 
+		for key, function := range w.CommandsFuncs {
+			id := w.clientGandalf.CreateIteratorCommand()
+
+			go w.waitCommands(id, key, function)
+		}
+		for key, function := range w.EventsFuncs {
+			id := w.clientGandalf.CreateIteratorEvent()
+
+			go w.waitEvents(id, key, function)
+		}
 		//TODO REVOIR CONDITION SORTIE
 		for w.WorkerState.GetState() == 0 {
-			for key, function := range w.CommandsFuncs {
-				id := w.clientGandalf.CreateIteratorCommand()
-
-				go w.waitCommands(id, key, function)
-			}
-			for key, function := range w.EventsFuncs {
-				id := w.clientGandalf.CreateIteratorEvent()
-
-				go w.waitEvents(id, key, function)
-			}
 		}
 		for w.OngoingTreatments.GetIndex() > 0 {
 			time.Sleep(2 * time.Second)
@@ -112,6 +112,7 @@ func (w Worker) waitCommands(id, commandName string, function func(clientGandalf
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
 		fmt.Println("command")
 		fmt.Println(command)
+
 		go w.executeCommands(command, function)
 	}
 	for w.OngoingTreatments.GetIndex() > 0 {
