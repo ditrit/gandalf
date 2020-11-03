@@ -72,6 +72,7 @@ func (r ConnectorGrpc) StartGrpcServer() {
 //SendCommandList : Connector send command list function.
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (validate *pb.Validate, err error) {
 	log.Println("Handle send command list")
+	fmt.Println("SNED COMMAND LIST")
 	validation := false
 
 	/* 	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int8][]string)
@@ -176,7 +177,8 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	} else {
 		log.Println("Connectors configuration not found")
 	}
-
+	fmt.Println("validate")
+	fmt.Println(validate)
 	if validate {
 		cmd.Tenant = r.Shoset.Context["tenant"].(string)
 		shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
