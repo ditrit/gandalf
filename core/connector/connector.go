@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"reflect"
+	"strings"
 
 	"github.com/ditrit/shoset/msg"
 
@@ -166,8 +167,8 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 	fmt.Println(config)
 	if config != nil {
 		//first := true
-		configConnectorTypeKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
-		configProductKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
+		configConnectorTypeKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/keys.yaml")
+		configProductKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/keys.yaml")
 
 		var listConfigurationConnectorTypeKeys []models.ConfigurationKeys
 		err = yaml.Unmarshal([]byte(configConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
@@ -191,11 +192,12 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 			if connectorConfig == nil {
 				fmt.Println("DOWNLOAD")
 
-				//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
-				//fmt.Println("versionSplit")
-				//fmt.Println(versionSplit)
-				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+connectorType+"/"+product+"/"+strconv.Itoa(int(version.Major))+"/configuration.yaml")
+				fmt.Println("url")
+				fmt.Println(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_configuration.yaml")
 
+				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_configuration.yaml")
+				fmt.Println("connectorConfig")
+				fmt.Println(connectorConfig)
 				connectorConfig.ConnectorType.Name = connectorType
 				connectorConfig.Major = version.Major
 
@@ -204,8 +206,8 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 				connectorConfig.ConnectorTypeKeys = configConnectorTypeKeys
 				connectorConfig.ProductKeys = configProductKeys
 
-				connectorConfig.VersionMajorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+strconv.Itoa(int(version.Major))+"/keys.yaml")
-				connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/"+strconv.Itoa(int(version.Major))+"/"+strconv.Itoa(int(version.Minor))+"/keys.yaml")
+				connectorConfig.VersionMajorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_keys.yaml")
+				connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_keys.yaml")
 
 				/* connectorConfig.ConnectorTypeKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/keys.yaml")
 				connectorConfig.ProductKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+connectorType+"/"+product+"/keys.yaml")
@@ -252,12 +254,13 @@ func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath
 	for _, version := range versions {
 		//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
 
-		ressource := "/" + connectortype + "/" + product + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
-		url := baseurl + ressource + "worker.zip"
+		ressourceSrc := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "_" + strconv.Itoa(int(version.Minor)) + "_"
+		ressourceDest := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
+		url := baseurl + ressourceSrc + "worker.zip"
 		fmt.Println("url")
 		fmt.Println(url)
-		src := workerPath + ressource + "worker.zip"
-		dest := workerPath + ressource
+		src := workerPath + ressourceDest + "worker.zip"
+		dest := workerPath + ressourceDest
 
 		if _, err := os.Stat(dest); os.IsNotExist(err) {
 			os.MkdirAll(dest, os.ModePerm)
@@ -285,8 +288,8 @@ func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, worker
 
 		//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
 
-		workersPathVersion := workersPath + "/" + connectorType + "/" + product + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
-		fmt.Println(workersPath + "/" + connectorType + "/" + product + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)))
+		workersPathVersion := workersPath + "/" + strings.ToLower(connectorType) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
+		fmt.Println(workersPath + "/" + strings.ToLower(connectorType) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)))
 		files, err := ioutil.ReadDir(workersPathVersion)
 
 		if err != nil {
