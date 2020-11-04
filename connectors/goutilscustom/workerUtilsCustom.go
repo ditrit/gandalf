@@ -2,15 +2,12 @@ package main
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"os"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 	"github.com/ditrit/shoset/msg"
 
-	"github.com/ditrit/gandalf/connectors/goutilscustom/form"
-	"github.com/ditrit/gandalf/connectors/goutilscustom/mail"
 	"github.com/ditrit/gandalf/libraries/goclient"
 )
 
@@ -31,6 +28,7 @@ func main() {
 
 	fmt.Println("START 1")
 	worker := worker.NewWorker(major, minor)
+
 	fmt.Println("START REGISTER")
 	worker.RegisterCommandsFuncs("CREATE_FORM", CreateForm)
 	fmt.Println("START REGISTER")
@@ -42,42 +40,46 @@ func main() {
 }
 
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	fmt.Println("EXECUTE SEND AUTH MAIL")
 
-	var configuration Configuration
-	mydir, _ := os.Getwd()
-	file, _ := os.Open(mydir + "/test.json")
-	decoder := json.NewDecoder(file)
-	decoder.Decode(&configuration)
+	return 0
+	/* 	var configuration Configuration
+	   	mydir, _ := os.Getwd()
+	   	file, _ := os.Open(mydir + "/test.json")
+	   	decoder := json.NewDecoder(file)
+	   	decoder.Decode(&configuration)
 
-	var mailPayload mail.MailPayload
-	err := json.Unmarshal([]byte(command.GetPayload()), &mailPayload)
+	   	var mailPayload mail.MailPayload
+	   	err := json.Unmarshal([]byte(command.GetPayload()), &mailPayload)
 
-	if err == nil {
-		clientmail := mail.NewMailClient(configuration.Address, configuration.Port)
+	   	if err == nil {
+	   		clientmail := mail.NewMailClient(configuration.Address, configuration.Port)
 
-		auth := clientmail.Auth(mailPayload.Username, mailPayload.Password, configuration.Address)
+	   		auth := clientmail.Auth(mailPayload.Username, mailPayload.Password, configuration.Address)
 
-		clientmail.SendAuthMail(mailPayload.Sender, mailPayload.Body, mailPayload.Receivers, auth)
+	   		clientmail.SendAuthMail(mailPayload.Sender, mailPayload.Body, mailPayload.Receivers, auth)
 
-		return 0
-	}
-	return 1
+	   		return 0
+	   	}
+	   	return 1 */
 
 }
 
 func CreateForm(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	fmt.Println("EXECUTE CREATE FORM")
 
-	var formPayload form.FormPayload
-	err := json.Unmarshal([]byte(command.GetPayload()), &formPayload)
+	return 0
+	/* 	var formPayload form.FormPayload
+	   	err := json.Unmarshal([]byte(command.GetPayload()), &formPayload)
 
-	if err == nil {
-		clientFormServer := form.NewFormServer(command.GetUUID(), formPayload, clientGandalf)
-		go clientFormServer.Run()
+	   	if err == nil {
+	   		clientFormServer := form.NewFormServer(command.GetUUID(), formPayload, clientGandalf)
+	   		go clientFormServer.Run()
 
-		return 0
-	}
-	return 1
-
+	   		return 0
+	   	}
+	   	return 1
+	*/
 }
 
 /* //CreateApplication : CreateApplication
