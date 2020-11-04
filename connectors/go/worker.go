@@ -86,8 +86,9 @@ func (w Worker) Run() {
 		go w.Stop(w.clientGandalf, w.major, w.minor, w.WorkerState)
 
 		for key, function := range w.CommandsFuncs {
+			id := w.clientGandalf.CreateIteratorCommand()
 
-			go w.waitCommands(key, function)
+			go w.waitCommands(id, key, function)
 		}
 		for key, function := range w.EventsFuncs {
 			id := w.clientGandalf.CreateIteratorEvent()
@@ -105,10 +106,8 @@ func (w Worker) Run() {
 	}
 }
 
-func (w Worker) waitCommands(commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	for w.WorkerState.GetState() == 0 {
-		id := w.clientGandalf.CreateIteratorCommand()
-
 		fmt.Println("wait " + commandName)
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
 		fmt.Println("command")
