@@ -83,7 +83,7 @@ func (w Worker) Run() {
 	valid := w.SendCommands(w.clientGandalf, w.major, w.minor, keys)
 
 	if valid {
-		//go w.Stop(w.clientGandalf, w.major, w.minor, w.WorkerState)
+		go w.Stop(w.clientGandalf, w.major, w.minor, w.WorkerState)
 
 		for key, function := range w.CommandsFuncs {
 			id := w.clientGandalf.CreateIteratorCommand()
@@ -107,7 +107,13 @@ func (w Worker) Run() {
 }
 
 func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+	fmt.Println("w.WorkerState.GetState()")
+	fmt.Println(w.WorkerState.GetState())
+
 	for w.WorkerState.GetState() == 0 {
+		fmt.Println("w.WorkerState.GetState()")
+		fmt.Println(w.WorkerState.GetState())
+
 		fmt.Println("wait " + commandName)
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
 		fmt.Println("command")
@@ -115,6 +121,7 @@ func (w Worker) waitCommands(id, commandName string, function func(clientGandalf
 
 		go w.executeCommands(command, function)
 
+		fmt.Println("w.WorkerState.GetState()")
 		fmt.Println(w.WorkerState.GetState())
 	}
 	for w.OngoingTreatments.GetIndex() > 0 {
