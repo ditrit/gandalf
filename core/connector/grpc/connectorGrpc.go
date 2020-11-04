@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"reflect"
 	"time"
 
 	"github.com/ditrit/gandalf/core/connector/utils"
@@ -95,7 +94,21 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 			fmt.Println(in.GetCommands())
 			fmt.Println("configCommands")
 			fmt.Println(configCommands)
-			validation = reflect.DeepEqual(in.GetCommands(), configCommands)
+
+			if len(configCommands) == len(in.GetCommands()) {
+				result := true
+				for _, ccommand := range configCommands {
+					currentResult := false
+					for _, icommand := range in.GetCommands() {
+						if ccommand == icommand {
+							currentResult = true
+						}
+					}
+					result = result && currentResult
+				}
+				validation = result
+			}
+
 			fmt.Println("validation")
 			fmt.Println(validation)
 		} else {
@@ -349,6 +362,9 @@ func (r ConnectorGrpc) WaitTopicMessage(ctx context.Context, in *pb.TopicMessage
 func (r ConnectorGrpc) CreateIteratorCommand(ctx context.Context, in *pb.Empty) (iteratorMessage *pb.IteratorMessage, err error) {
 	log.Println("Handle create iterator command")
 
+	fmt.Println("add queue grpc")
+	fmt.Println(r.Shoset.Queue["cmd"])
+
 	iterator := msg.NewIterator(r.Shoset.Queue["cmd"])
 	index := uuid.New()
 	log.Printf("Create new iterator command: %s", index)
@@ -383,6 +399,10 @@ func (r ConnectorGrpc) runIteratorCommand(command string, major int8, iterator *
 	log.Printf("Run iterator command on command %s", command)
 
 	for {
+
+		fmt.Println("messageIterator" + command)
+		iterator.PrintQueue()
+
 		messageIterator := iterator.Get()
 
 		if messageIterator != nil {
@@ -411,6 +431,7 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iter
 
 	for {
 		messageIterator := iterator.Get()
+		iterator.PrintQueue()
 
 		if messageIterator != nil {
 			message := (messageIterator.GetMessage()).(msg.Event)

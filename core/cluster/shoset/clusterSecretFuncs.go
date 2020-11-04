@@ -74,56 +74,56 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle secret")
 	log.Println(secret)
 
-	ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
 
-	if ok {
-		mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-		databasePath := ch.Context["databasePath"].(string)
-		if mapDatabaseClient != nil {
-			databaseClient := cutils.GetDatabaseClientByTenant(secret.GetTenant(), databasePath, mapDatabaseClient)
-			if databaseClient != nil {
-				if secret.GetCommand() == "VALIDATION" {
+	//if ok {
+	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+	databasePath := ch.Context["databasePath"].(string)
+	if mapDatabaseClient != nil {
+		databaseClient := cutils.GetDatabaseClientByTenant(secret.GetTenant(), databasePath, mapDatabaseClient)
+		if databaseClient != nil {
+			if secret.GetCommand() == "VALIDATION" {
 
-					var result bool
-					result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["instanceName"].(string), secret.GetContext()["secret"].(string))
+				var result bool
+				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["instanceName"].(string), secret.GetContext()["secret"].(string))
 
-					fmt.Println("componentType")
-					fmt.Println(secret.GetContext()["componentType"].(string))
-					if err == nil {
-						target := secret.GetTarget()
-						if secret.GetContext()["componentType"] == "aggregator" {
-							target = ""
-						}
-						if result {
-							secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "true")
-							secretReply.Tenant = secret.GetTenant()
-							shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-
-							shoset.SendMessage(secretReply)
-						} else {
-							secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "false")
-							secretReply.Tenant = secret.GetTenant()
-							shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-
-							shoset.SendMessage(secretReply)
-						}
-					} else {
-						log.Println("Can't validate secret")
-						err = errors.New("Can't validate secret")
+				fmt.Println("componentType")
+				fmt.Println(secret.GetContext()["componentType"].(string))
+				if err == nil {
+					target := secret.GetTarget()
+					if secret.GetContext()["componentType"] == "aggregator" {
+						target = ""
 					}
+					if result {
+						secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "true")
+						secretReply.Tenant = secret.GetTenant()
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+
+						shoset.SendMessage(secretReply)
+					} else {
+						secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "false")
+						secretReply.Tenant = secret.GetTenant()
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+
+						shoset.SendMessage(secretReply)
+					}
+				} else {
+					log.Println("Can't validate secret")
+					err = errors.New("Can't validate secret")
 				}
-			} else {
-				log.Println("Can't get database client by tenant")
-				err = errors.New("Can't get database client by tenant")
 			}
 		} else {
-			log.Println("Database client map is empty")
-			err = errors.New("Database client map is empty")
+			log.Println("Can't get database client by tenant")
+			err = errors.New("Can't get database client by tenant")
 		}
 	} else {
+		log.Println("Database client map is empty")
+		err = errors.New("Database client map is empty")
+	}
+	/* 	} else {
 		log.Println("Can't push to queue")
 		err = errors.New("Can't push to queue")
-	}
+	} */
 
 	/* 	gandalfdatabaseClient := cutils.GetGandalfDatabaseClient(databasePath)
 	   	if gandalfdatabaseClient != nil {

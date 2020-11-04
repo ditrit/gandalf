@@ -107,12 +107,8 @@ func (w Worker) Run() {
 }
 
 func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
-	fmt.Println("w.WorkerState.GetState()")
-	fmt.Println(w.WorkerState.GetState())
 
 	for w.WorkerState.GetState() == 0 {
-		fmt.Println("w.WorkerState.GetState()")
-		fmt.Println(w.WorkerState.GetState())
 
 		fmt.Println("wait " + commandName)
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
@@ -121,8 +117,6 @@ func (w Worker) waitCommands(id, commandName string, function func(clientGandalf
 
 		go w.executeCommands(command, function)
 
-		fmt.Println("w.WorkerState.GetState()")
-		fmt.Println(w.WorkerState.GetState())
 	}
 	for w.OngoingTreatments.GetIndex() > 0 {
 		time.Sleep(2 * time.Second)

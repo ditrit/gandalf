@@ -60,7 +60,7 @@ func (cc ClientCommand) WaitCommand(command, idIterator string, major int64) *pb
 	fmt.Println(commandMessage)
 
 	for commandMessage == nil {
-		time.Sleep(time.Duration(1) * time.Millisecond)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 
 	return commandMessage

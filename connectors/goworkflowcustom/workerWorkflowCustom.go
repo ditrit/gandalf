@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
@@ -25,15 +26,25 @@ func main() {
 	fmt.Println(input.Text())
 
 	worker := worker.NewWorker(major, minor)
-	worker.Start()
+	clientGandalf := worker.Start()
 
-	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-	commandMessageUUID := worker.GetClientGandalf().SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-	formUUID := commandMessageUUID.GetUUID()
+	id := clientGandalf.CreateIteratorEvent()
 
-	id := worker.GetClientGandalf().CreateIteratorEvent()
-	event := worker.GetClientGandalf().WaitReplyByEvent("CREATE_FORM", "SUCCES", formUUID, id)
-	fmt.Println(event)
+	for true {
+
+		fmt.Println("SEND COMMMAND CREATE_FORM")
+		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+		commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+		formUUID := commandMessageUUID.GetUUID()
+
+		fmt.Println("formUUID")
+		fmt.Println(formUUID)
+		event := clientGandalf.WaitReplyByEvent("CREATE_FORM", "SUCCES", formUUID, id)
+		fmt.Println("event")
+		fmt.Println(event)
+
+		time.Sleep(5 * time.Second)
+	}
 
 	//workerUpload := workers.NewWorkerUpload(clientGandalf)
 	//go workerUpload.Run()

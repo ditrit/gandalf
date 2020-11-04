@@ -63,7 +63,7 @@ func (ce ClientEvent) WaitEvent(topic, event, referenceUUID, idIterator string) 
 	eventMessage, _ := ce.client.WaitEventMessage(context.Background(), eventMessageWait)
 
 	for eventMessage == nil {
-		time.Sleep(time.Duration(1) * time.Millisecond)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 
 	return eventMessage
@@ -79,7 +79,7 @@ func (ce ClientEvent) WaitTopic(topic, referenceUUID, idIterator string) *pb.Eve
 	eventMessage, _ := ce.client.WaitTopicMessage(context.Background(), topicMessageWait)
 
 	for eventMessage == nil {
-		time.Sleep(time.Duration(1) * time.Millisecond)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 
 	return eventMessage

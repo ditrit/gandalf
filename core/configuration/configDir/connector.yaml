@@ -6,4 +6,4 @@ connector:
   workers:
   versions:
   grpc_bind_address: localhost:9000
-  max_timeout: 100
+  max_timeout: 10000

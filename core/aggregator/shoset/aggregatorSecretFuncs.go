@@ -63,53 +63,53 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 	if secret.GetTenant() == ch.Context["tenant"] {
 		fmt.Println("TENANT")
-		ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
-		fmt.Println("ok")
-		fmt.Println(ok)
-		if ok {
-			if dir == "in" {
-				fmt.Println("IN")
-				if c.GetShosetType() == "c" {
-					shosets := net.GetByType(ch.ConnsByAddr, "cl")
-					if len(shosets) != 0 {
-						secret.Target = c.GetBindAddr()
-						index := getSecretSendIndex(shosets)
-						shosets[index].SendMessage(secret)
-						log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
-					} else {
-						log.Println("can't find clusters to send")
-						err = errors.New("can't find clusters to send")
-					}
+		//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
+		//fmt.Println("ok")
+		//fmt.Println(ok)
+		//if ok {
+		if dir == "in" {
+			fmt.Println("IN")
+			if c.GetShosetType() == "c" {
+				shosets := net.GetByType(ch.ConnsByAddr, "cl")
+				if len(shosets) != 0 {
+					secret.Target = c.GetBindAddr()
+					index := getSecretSendIndex(shosets)
+					shosets[index].SendMessage(secret)
+					log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
 				} else {
-					log.Println("wrong Shoset type")
-					err = errors.New("wrong Shoset type")
+					log.Println("can't find clusters to send")
+					err = errors.New("can't find clusters to send")
 				}
+			} else {
+				log.Println("wrong Shoset type")
+				err = errors.New("wrong Shoset type")
 			}
+		}
 
-			if dir == "out" {
-				fmt.Println("OUT")
-				if c.GetShosetType() == "cl" {
-					fmt.Println("secret")
-					fmt.Println(secret)
-					fmt.Println("secret target")
-					fmt.Println(secret.GetTarget())
-					if secret.GetTarget() == "" {
-						if secret.GetCommand() == "VALIDATION_REPLY" {
-							ch.Context["validation"] = secret.GetPayload()
-						}
-					} else {
-						shoset := ch.ConnsByAddr.Get(secret.GetTarget())
-						shoset.SendMessage(secret)
+		if dir == "out" {
+			fmt.Println("OUT")
+			if c.GetShosetType() == "cl" {
+				fmt.Println("secret")
+				fmt.Println(secret)
+				fmt.Println("secret target")
+				fmt.Println(secret.GetTarget())
+				if secret.GetTarget() == "" {
+					if secret.GetCommand() == "VALIDATION_REPLY" {
+						ch.Context["validation"] = secret.GetPayload()
 					}
 				} else {
-					log.Println("wrong Shoset type")
-					err = errors.New("wrong Shoset type")
+					shoset := ch.ConnsByAddr.Get(secret.GetTarget())
+					shoset.SendMessage(secret)
 				}
+			} else {
+				log.Println("wrong Shoset type")
+				err = errors.New("wrong Shoset type")
 			}
-		} else {
+		}
+		/* } else {
 			log.Println("can't push to queue")
 			err = errors.New("can't push to queue")
-		}
+		} */
 	} else {
 		fmt.Println("WRONG TENANT")
 		log.Println("wrong tenant")

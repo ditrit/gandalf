@@ -61,8 +61,6 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 	gandalfDatabaseClient.Where("name = ?", "tenant1").First(&tenant)
 	tenantDatabaseClient, _ := NewTenantDatabaseClient("tenant1", "/home/romainfairant/gandalf/database")
 	InitTenantDatabase(tenantDatabaseClient)
-	DemoCreateAggregator(tenantDatabaseClient)
-	DemoCreateConnector(tenantDatabaseClient)
 
 }
 
