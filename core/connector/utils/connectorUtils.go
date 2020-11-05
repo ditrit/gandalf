@@ -37,11 +37,6 @@ func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) 
 	return
 }
 
-// IsExecAll : IsExecAll
-func IsExecAll(mode os.FileMode) bool {
-	return mode&0111 == 0111
-}
-
 // GetMaxVersion : GetMaxVersion
 func GetMaxVersion(versions []models.Version) (maxversion models.Version) {
 	maxversion = models.Version{Major: 0, Minor: 0}
@@ -274,4 +269,29 @@ func GetConfigurationKeys(configkeys []models.ConfigurationKeys) (stindargs stri
 	}
 	stindargs = stindargs + "}"
 	return
+}
+
+// IsExecAll : IsExecAll
+func IsExecAll(mode os.FileMode) bool {
+	return mode&0111 == 0111
+}
+
+// CheckFileExist: CheckFileExist
+func CheckFileExist(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		return true
+	}
+	return false
+}
+
+func CheckFileExistAndIsExecAll(path string) bool {
+	if fileState, err := os.Stat(path); err == nil {
+		fmt.Println("exit")
+		if IsExecAll(fileState.Mode()) {
+			fmt.Println("execute all")
+			return true
+		}
+		return false
+	}
+	return false
 }

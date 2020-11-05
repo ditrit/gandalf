@@ -4,7 +4,6 @@ package connector
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -248,81 +247,63 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 	return
 }
 
-// GetWorker : Get worker from baseurl/connectortype/ and baseurl/connectortype/product/
-func (m *ConnectorMember) GetWorkers(baseurl, connectortype, product, workerPath string, versions []models.Version) (err error) {
+// GetAndStartWorkers : Get worker from baseurl/connectortype/ and baseurl/connectortype/product/
+func (m *ConnectorMember) GetAndStartWorkers(baseurl, connectortype, product, workerPath, grpcBindAddress, stdinargs string, versions []models.Version) (err error) {
 
 	for _, version := range versions {
 		//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
+		ressourceDir := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
+		workersPathVersion := workerPath + "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
+		fileWorkersPathVersion := workerPath + ressourceDir + "worker"
 
-		ressourceSrc := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "_" + strconv.Itoa(int(version.Minor)) + "_"
-		ressourceDest := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
-		url := baseurl + ressourceSrc + "worker.zip"
-		fmt.Println("url")
-		fmt.Println(url)
-		src := workerPath + ressourceDest + "worker.zip"
-		dest := workerPath + ressourceDest
+		if !utils.CheckFileExistAndIsExecAll(fileWorkersPathVersion) {
+			fmt.Println("DOWNLOAD")
+			ressourceURL := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "_" + strconv.Itoa(int(version.Minor)) + "_"
 
-		if _, err := os.Stat(dest); os.IsNotExist(err) {
-			os.MkdirAll(dest, os.ModePerm)
-		}
+			url := baseurl + ressourceURL + "worker.zip"
+			fmt.Println("url")
+			fmt.Println(url)
+			src := workerPath + ressourceDir + "worker.zip"
+			dest := workerPath + ressourceDir
 
-		err = utils.DownloadWorkers(url, src)
-
-		if err == nil {
-			_, err = utils.Unzip(src, dest)
-			if err != nil {
-				log.Println("Can't unzip workers")
+			if _, err := os.Stat(dest); os.IsNotExist(err) {
+				os.MkdirAll(dest, os.ModePerm)
 			}
-		} else {
-			log.Println("Can't download workers")
+
+			err = utils.DownloadWorkers(url, src)
+
+			if err == nil {
+				_, err = utils.Unzip(src, dest)
+				if err != nil {
+					log.Println("Can't unzip workers")
+				}
+			} else {
+				log.Println("Can't download workers")
+			}
 		}
-	}
 
-	return
-}
-
-// StartWorkers : Start workers
-func (m *ConnectorMember) StartWorkers(stdinargs, connectorType, product, workersPath, grpcBindAddress string, versions []models.Version) (err error) {
-
-	for _, version := range versions {
-
-		//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
-
-		workersPathVersion := workersPath + "/" + strings.ToLower(connectorType) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
-		fmt.Println(workersPath + "/" + strings.ToLower(connectorType) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)))
-		files, err := ioutil.ReadDir(workersPathVersion)
-
-		if err != nil {
-			log.Printf("Can't find workers directory %s", workersPathVersion)
-		}
 		args := []string{m.GetLogicalName(), strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
 
-		for _, fileInfo := range files {
-			if !fileInfo.IsDir() {
-				if utils.IsExecAll(fileInfo.Mode().Perm()) {
-					cmd := exec.Command("./"+fileInfo.Name(), args...)
-					cmd.Dir = workersPathVersion
-					cmd.Stdout = os.Stdout
+		cmd := exec.Command("./worker", args...)
+		cmd.Dir = workersPathVersion
+		cmd.Stdout = os.Stdout
 
-					stdin, err := cmd.StdinPipe()
-					if err != nil {
-						fmt.Println(err)
-					}
-
-					err = cmd.Start()
-					if err != nil {
-						log.Printf("Can't start worker %s", fileInfo.Name())
-					}
-					time.Sleep(time.Second * time.Duration(5))
-
-					go func() {
-						defer stdin.Close()
-						fmt.Println("Write")
-						io.WriteString(stdin, stdinargs)
-					}()
-				}
-			}
+		stdin, err := cmd.StdinPipe()
+		if err != nil {
+			fmt.Println(err)
 		}
+
+		err = cmd.Start()
+		if err != nil {
+			log.Printf("Can't start worker %s", fileWorkersPathVersion)
+		}
+		time.Sleep(time.Second * time.Duration(5))
+
+		go func() {
+			defer stdin.Close()
+			fmt.Println("Write")
+			io.WriteString(stdin, stdinargs)
+		}()
 	}
 
 	return
@@ -409,37 +390,37 @@ func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBin
 						configuration.WorkerKeyParse(listConfigurationKeys)
 						err = configuration.IsConfigValid()
 						if err == nil {
-							fmt.Println("Get Worker")
+							/* fmt.Println("Get Worker")
 							err = member.GetWorkers(workerUrl, connectorType, product, workerPath, versions)
-							if err == nil {
-								//TODO REVOIR
-								//RECUPERATION VALEUR CONNECTEUR/WORKER
-								fmt.Println("listConfigurationKeys")
-								fmt.Println(listConfigurationKeys)
+							if err == nil { */
+							//TODO REVOIR
+							//RECUPERATION VALEUR CONNECTEUR/WORKER
+							fmt.Println("listConfigurationKeys")
+							fmt.Println(listConfigurationKeys)
 
-								var stdinargs string
-								stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
-								fmt.Println("stdinargs")
-								fmt.Println(stdinargs)
-								//END TODO
-								err = member.StartWorkers(stdinargs, connectorType, product, workerPath, grpcBindAddress, versions)
-								if err == nil {
+							var stdinargs string
+							stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
+							fmt.Println("stdinargs")
+							fmt.Println(stdinargs)
+							//END TODO
+							err = member.GetAndStartWorkers(workerUrl, connectorType, product, workerPath, grpcBindAddress, stdinargs, versions)
+							if err == nil {
+								log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+								fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+								/* time.Sleep(time.Second * time.Duration(5))
+								validateConfiguration := member.ConfigurationValidation(tenant, connectorType)
+								if validateConfiguration {
 									log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
 									fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-									/* time.Sleep(time.Second * time.Duration(5))
-									validateConfiguration := member.ConfigurationValidation(tenant, connectorType)
-									if validateConfiguration {
-										log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-										fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-									} else {
-										log.Fatalf("Configuration validation failed")
-									} */
 								} else {
-									log.Fatalf("Can't start workers in %s", workerPath)
-								}
+									log.Fatalf("Configuration validation failed")
+								} */
 							} else {
-								log.Fatalf("Can't get workers in %s", workerPath)
+								log.Fatalf("Can't start workers in %s", workerPath)
 							}
+							/* } else {
+								log.Fatalf("Can't get workers in %s", workerPath)
+							} */
 						} else {
 							log.Fatalf("Can't validate keys")
 						}
