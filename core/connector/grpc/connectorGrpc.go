@@ -150,6 +150,8 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	if config != nil {
 		connectorType := cmd.GetContext()["connectorType"].(string)
+		fmt.Println("connectorType")
+		fmt.Println(connectorType)
 		if connectorType != "" {
 			var connectorTypeConfig *models.ConnectorConfig
 			if listConnectorTypeConfig, ok := config[connectorType]; ok {
@@ -190,7 +192,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	} else {
 		log.Println("Connectors configuration not found")
 	}
-	fmt.Println("validate")
+	fmt.Println("validate command")
 	fmt.Println(validate)
 	if validate {
 		cmd.Tenant = r.Shoset.Context["tenant"].(string)

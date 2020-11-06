@@ -10,13 +10,13 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/ditrit/shoset/msg"
 	"github.com/ditrit/gandalf/core/connector/admin"
 	"github.com/ditrit/gandalf/core/connector/grpc"
 	"github.com/ditrit/gandalf/core/connector/shoset"
 	"github.com/ditrit/gandalf/core/connector/utils"
 	coreLog "github.com/ditrit/gandalf/core/log"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/ditrit/shoset/msg"
 	"gopkg.in/yaml.v2"
 
 	net "github.com/ditrit/shoset"
@@ -352,8 +352,8 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 }
 
 // ConfigurationValidation : Validation configuration
-func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress string, timeoutMax int64, clientConnections []string, chaussette *net.Shoset, versions []models.Version) (err error) {
-	workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, timeoutMax, clientConnections, chaussette, versions)
+func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress string, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) (err error) {
+	workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, timeoutMax, chaussette, versions)
 
 	workerAdmin.Run()
 	return
@@ -386,13 +386,11 @@ func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBin
 			if validateSecret {
 				err = member.GrpcBind(grpcBindAddress)
 				if err == nil {
-					err = member.StartWorkerAdmin(logicalName, connectorType, product, workerUrl, workerPath, grpcBindAddress, timeoutMax, , member.GetChaussette(), versions)
-					if err == nil {
-						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-						fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-					} else {
-						log.Fatalf("Can't start workerAdmin")
-					}
+					workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, workerUrl, workerPath, grpcBindAddress, timeoutMax, member.GetChaussette(), versions)
+					go workerAdmin.Run()
+
+					log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+					fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 				} else {
 					log.Fatalf("Can't Grpc bind shoset on %s", grpcBindAddress)
 				}
