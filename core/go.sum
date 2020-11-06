@@ -39,6 +39,8 @@ github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumC
 github.com/dgrijalva/jwt-go v3.2.0+incompatible/go.mod h1:E3ru+11k8xSBh+hMPgOLZmtrrCbhqsmaPHjLKYnJCaQ=
 github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8PWV+bWy6jNmig1y/TA+kYO4g3RSRF0IAv0no=
 github.com/ditrit/gandalf v0.0.0-20200828084902-a2d405d1aeab h1:xVaOftJkh/RV3EBMDbBZs/jiSTi9Ua/wFUW1bIW17Dw=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200828084902-a2d405d1aeab h1:z6NZa3OjD2LVJ6QYo+yomKg4VBrY548u0aZulnR2e/o=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200828084902-a2d405d1aeab/go.mod h1:yphbqSEKmbEFJKWpcoN5bAWZbvK/FgmtC4ekFActzAo=
 github.com/ditrit/shoset v0.0.0-20200615082036-04b3c07f550b h1:s9JGlWaC1KKHgfTJQKRgUl3IcXhYP/avgshMs+mNDAc=
 github.com/ditrit/shoset v0.0.0-20200615082036-04b3c07f550b/go.mod h1:51nyfPjr5WAwH2iMOAxAWnJh3qDlLAWjqIGr8RDcOic=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8 h1:4EZDkbB9fqaH9jqsTxBIxQVzvt3ZTC4Ya4MpLguxfNw=
@@ -262,6 +264,7 @@ github.com/tidwall/rtree v0.0.0-20180113144539-6cd427091e0e h1:+NL1GDIUOKxVfbp2K
 github.com/tidwall/rtree v0.0.0-20180113144539-6cd427091e0e/go.mod h1:/h+UnNGt0IhNNJLkGikcdcJqm66zGD/uJGMRxK/9+Ao=
 github.com/tidwall/tinyqueue v0.0.0-20180302190814-1e39f5511563 h1:Otn9S136ELckZ3KKDyCkxapfufrqDqwmGjcHfAyXRrE=
 github.com/tidwall/tinyqueue v0.0.0-20180302190814-1e39f5511563/go.mod h1:mLqSmt7Dv/CNneF2wfcChfN1rvapyQr01LGKnKex0DQ=
+github.com/tkanos/gonfig v0.0.0-20181112185242-896f3d81fadf/go.mod h1:DaZPBuToMc2eezA9R9nDAnmS2RMwL7yEa5YD36ESQdI=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/valyala/bytebufferpool v1.0.0 h1:GqA5TC/0021Y/b9FG4Oi9Mr3q7XYx6KllzawFIhcdPw=

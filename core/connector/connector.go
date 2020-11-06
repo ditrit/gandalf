@@ -11,9 +11,7 @@ import (
 	"strings"
 
 	"github.com/ditrit/shoset/msg"
-
-	"github.com/ditrit/gandalf/core/configuration"
-
+	"github.com/ditrit/gandalf/core/connector/admin"
 	"github.com/ditrit/gandalf/core/connector/grpc"
 	"github.com/ditrit/gandalf/core/connector/shoset"
 	"github.com/ditrit/gandalf/core/connector/utils"
@@ -353,6 +351,14 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 	return
 }
 
+// ConfigurationValidation : Validation configuration
+func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress string, timeoutMax int64, clientConnections []string, chaussette *net.Shoset, versions []models.Version) (err error) {
+	workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, timeoutMax, clientConnections, chaussette, versions)
+
+	workerAdmin.Run()
+	return
+}
+
 // getBrothers : Connector list brothers function.
 func getBrothers(address string, member *ConnectorMember) []string {
 	bros := []string{address}
@@ -380,52 +386,12 @@ func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBin
 			if validateSecret {
 				err = member.GrpcBind(grpcBindAddress)
 				if err == nil {
-					fmt.Println("Get config")
-					var listConfigurationKeys []models.ConfigurationKeys
-					listConfigurationKeys, err = member.GetConfiguration(workerUrl, connectorType, product, versions, member.GetChaussette(), timeoutMax)
-					time.Sleep(time.Second * time.Duration(5))
-					fmt.Println(err)
+					err = member.StartWorkerAdmin(logicalName, connectorType, product, workerUrl, workerPath, grpcBindAddress, timeoutMax, , member.GetChaussette(), versions)
 					if err == nil {
-						fmt.Println("Get Worker key")
-						configuration.WorkerKeyParse(listConfigurationKeys)
-						err = configuration.IsConfigValid()
-						if err == nil {
-							/* fmt.Println("Get Worker")
-							err = member.GetWorkers(workerUrl, connectorType, product, workerPath, versions)
-							if err == nil { */
-							//TODO REVOIR
-							//RECUPERATION VALEUR CONNECTEUR/WORKER
-							fmt.Println("listConfigurationKeys")
-							fmt.Println(listConfigurationKeys)
-
-							var stdinargs string
-							stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
-							fmt.Println("stdinargs")
-							fmt.Println(stdinargs)
-							//END TODO
-							err = member.GetAndStartWorkers(workerUrl, connectorType, product, workerPath, grpcBindAddress, stdinargs, versions)
-							if err == nil {
-								log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-								fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-								/* time.Sleep(time.Second * time.Duration(5))
-								validateConfiguration := member.ConfigurationValidation(tenant, connectorType)
-								if validateConfiguration {
-									log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-									fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-								} else {
-									log.Fatalf("Configuration validation failed")
-								} */
-							} else {
-								log.Fatalf("Can't start workers in %s", workerPath)
-							}
-							/* } else {
-								log.Fatalf("Can't get workers in %s", workerPath)
-							} */
-						} else {
-							log.Fatalf("Can't validate keys")
-						}
+						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+						fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 					} else {
-						log.Fatalf("Can't get configuration in %s", workerPath)
+						log.Fatalf("Can't start workerAdmin")
 					}
 				} else {
 					log.Fatalf("Can't Grpc bind shoset on %s", grpcBindAddress)
@@ -442,20 +408,3 @@ func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBin
 	}
 	return member, err
 }
-
-/* func ConnectorMemberJoin(logicalName, tenant, bindAddress, grpcBindAddress, linkAddress, joinAddress string, timeoutMax int64) (connectorMember *ConnectorMember) {
-
-	member := NewConnectorMember(logicalName, tenant)
-	member.timeoutMax = timeoutMax
-
-	member.Bind(bindAddress)
-	member.GrpcBind(grpcBindAddress)
-	member.Link(linkAddress)
-	member.Join(joinAddress)
-
-	time.Sleep(time.Second * time.Duration(5))
-	fmt.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-
-	return member
-}
-*/
