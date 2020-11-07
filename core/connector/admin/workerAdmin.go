@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -34,6 +35,8 @@ type WorkerAdmin struct {
 	versions        []models.Version
 	clientGandalf   *goclient.ClientGandalf
 
+	major int64
+
 	CommandsFuncs map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
 	//mapVersionConfigurationKeys map[models.Version][]models.ConfigurationKeys
 }
@@ -50,6 +53,8 @@ func NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, gr
 	workerAdmin.timeoutMax = timeoutMax
 	workerAdmin.chaussette = chaussette
 	workerAdmin.versions = versions
+
+	workerAdmin.major = 0
 
 	workerAdmin.clientGandalf = goclient.NewClientGandalf(workerAdmin.logicalName, strconv.FormatInt(workerAdmin.timeoutMax, 10), strings.Split(workerAdmin.grpcBindAddress, ","))
 	workerAdmin.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
@@ -81,11 +86,15 @@ func (w WorkerAdmin) Run() {
 		}
 	}
 
-	/* 	for key, function := range w.CommandsFuncs {
+	//
+	w.RegisterCommandsFuncs("GET_WORKER", w.GetWorker)
+	w.RegisterCommandsFuncs("START_WORKER", w.StartWorker)
+
+	for key, function := range w.CommandsFuncs {
 		id := w.clientGandalf.CreateIteratorCommand()
 
 		go w.waitCommands(id, key, function)
-	} */
+	}
 	//TODO REVOIR CONDITION SORTIE
 	for true {
 		fmt.Println("RUNNING WORKER ADMIN")
@@ -94,7 +103,7 @@ func (w WorkerAdmin) Run() {
 	fmt.Println("END WORKER ADMIN")
 }
 
-/* func (w WorkerAdmin) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+func (w WorkerAdmin) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 
 	for true {
 
@@ -117,13 +126,42 @@ func (w WorkerAdmin) executeCommands(command msg.Command, function func(clientGa
 	} else {
 		w.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), models.NewOptions("", ""))
 	}
-} */
+}
 
-//GetAndStartWorker()
+//
+func (w WorkerAdmin) GetWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	var versionPayload models.Version
+	err := json.Unmarshal([]byte(command.GetPayload()), &versionPayload)
+
+	if err == nil {
+		err = w.getConfiguration(versionPayload)
+		if err == nil {
+			err = w.getWorker(versionPayload)
+			if err == nil {
+				return 0
+			}
+		}
+	}
+
+	return 1
+}
+
+func (w WorkerAdmin) StartWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	var versionPayload models.Version
+	err := json.Unmarshal([]byte(command.GetPayload()), &versionPayload)
+
+	if err == nil {
+		err = w.startWorker(versionPayload)
+		if err == nil {
+			return 0
+		}
+	}
+	return 1
+}
 
 //GetConfiguration()
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
-func (w WorkerAdmin) GetConfiguration(version models.Version) (err error) {
+func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 
 	shoset.SendConnectorConfig(w.chaussette, w.timeoutMax)
 	time.Sleep(time.Second * time.Duration(5))
@@ -166,7 +204,7 @@ func (w WorkerAdmin) GetConfiguration(version models.Version) (err error) {
 }
 
 //GetWorker()
-func (w WorkerAdmin) GetWorkers(version models.Version) (err error) {
+func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 
 	ressourceDir := "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
 	fileWorkersPathVersion := w.workerPath + ressourceDir + "worker"
@@ -201,7 +239,7 @@ func (w WorkerAdmin) GetWorkers(version models.Version) (err error) {
 }
 
 //Start Worker()
-func (w WorkerAdmin) StartWorkers(version models.Version) (err error) {
+func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	fmt.Println("config")
