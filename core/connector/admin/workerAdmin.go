@@ -72,12 +72,13 @@ func (w WorkerAdmin) RegisterCommandsFuncs(command string, function func(clientG
 func (w WorkerAdmin) Run() {
 
 	for _, version := range w.versions {
-		//GET CONFIGURATION BY VERSION
-		w.GetConfiguration(version)
-		//GET WORKER BY VERSION
-		w.GetWorkers(version)
-		//START WORKER BY VERSION
-		go w.StartWorkers(version)
+		err := w.GetConfiguration(version)
+		if err == nil {
+			err = w.GetWorkers(version)
+			if err == nil {
+				w.StartWorkers(version)
+			}
+		}
 	}
 
 	/* 	for key, function := range w.CommandsFuncs {
@@ -87,6 +88,8 @@ func (w WorkerAdmin) Run() {
 	} */
 	//TODO REVOIR CONDITION SORTIE
 	for true {
+		fmt.Println("RUNNING WORKER ADMIN")
+		time.Sleep(1 * time.Second)
 	}
 	fmt.Println("END WORKER ADMIN")
 }

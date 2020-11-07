@@ -354,8 +354,7 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 // ConfigurationValidation : Validation configuration
 func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress string, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) (err error) {
 	workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, timeoutMax, chaussette, versions)
-
-	workerAdmin.Run()
+	go workerAdmin.Run()
 	return
 }
 
@@ -386,11 +385,14 @@ func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBin
 			if validateSecret {
 				err = member.GrpcBind(grpcBindAddress)
 				if err == nil {
-					workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, workerUrl, workerPath, grpcBindAddress, timeoutMax, member.GetChaussette(), versions)
-					go workerAdmin.Run()
+					err = member.StartWorkerAdmin(logicalName, connectorType, product, workerUrl, workerPath, grpcBindAddress, timeoutMax, member.GetChaussette(), versions)
+					if err == nil {
 
-					log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
-					fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+						fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+					} else {
+						log.Fatalf("Can't start worker admin")
+					}
 				} else {
 					log.Fatalf("Can't Grpc bind shoset on %s", grpcBindAddress)
 				}
