@@ -19,6 +19,7 @@ import (
 	"github.com/ditrit/gandalf/libraries/goclient"
 
 	"github.com/ditrit/gandalf/core/models"
+	goclientmodels "github.com/ditrit/gandalf/libraries/goclient/models"
 	net "github.com/ditrit/shoset"
 	"gopkg.in/yaml.v2"
 )
@@ -77,11 +78,11 @@ func (w WorkerAdmin) RegisterCommandsFuncs(command string, function func(clientG
 func (w WorkerAdmin) Run() {
 
 	for _, version := range w.versions {
-		err := w.GetConfiguration(version)
+		err := w.getConfiguration(version)
 		if err == nil {
-			err = w.GetWorkers(version)
+			err = w.getWorker(version)
 			if err == nil {
-				w.StartWorkers(version)
+				w.startWorker(version)
 			}
 		}
 	}
@@ -89,6 +90,7 @@ func (w WorkerAdmin) Run() {
 	//
 	w.RegisterCommandsFuncs("GET_WORKER", w.GetWorker)
 	w.RegisterCommandsFuncs("START_WORKER", w.StartWorker)
+	w.RegisterCommandsFuncs("STOP_WORKER", w.StopWorker)
 
 	for key, function := range w.CommandsFuncs {
 		id := w.clientGandalf.CreateIteratorCommand()
@@ -122,10 +124,25 @@ func (w WorkerAdmin) executeCommands(command msg.Command, function func(clientGa
 	fmt.Println("execute")
 	result := function(w.clientGandalf, w.major, command)
 	if result == 0 {
-		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), models.NewOptions("", ""))
+		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), goclientmodels.NewOptions("", ""))
 	} else {
-		w.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), models.NewOptions("", ""))
+		w.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), goclientmodels.NewOptions("", ""))
 	}
+}
+
+//
+func (w WorkerAdmin) StopWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	var versionPayload models.Version
+	err := json.Unmarshal([]byte(command.GetPayload()), &versionPayload)
+
+	if err == nil {
+		err = w.stopWorker(versionPayload)
+		if err == nil {
+			return 0
+		}
+	}
+
+	return 1
 }
 
 //
@@ -159,7 +176,16 @@ func (w WorkerAdmin) StartWorker(clientGandalf *goclient.ClientGandalf, major in
 	return 1
 }
 
-//GetConfiguration()
+//stopWorker()
+func (w WorkerAdmin) stopWorker(version models.Version) (err error) {
+	activeWorkers := w.chaussette.Context["mapActiveWorkers"].(map[models.Version]bool)
+	activeWorkers[version] = false
+	w.chaussette.Context["mapActiveWorkers"] = activeWorkers
+
+	return
+}
+
+//getConfiguration()
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 
@@ -203,7 +229,7 @@ func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 	return
 }
 
-//GetWorker()
+//getWorker()
 func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 
 	ressourceDir := "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
@@ -238,7 +264,7 @@ func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 	return
 }
 
-//Start Worker()
+//startWorker()
 func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
