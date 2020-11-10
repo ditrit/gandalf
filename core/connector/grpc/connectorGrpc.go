@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"regexp"
 	"time"
 
 	"github.com/ditrit/gandalf/core/connector/utils"
@@ -90,14 +91,11 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 			for _, command := range connectorConfig.ConnectorCommands {
 				configCommands = append(configCommands, command.Name)
 			}
-			fmt.Println("commands")
-			fmt.Println(in.GetCommands())
-			fmt.Println("configCommands")
-			fmt.Println(configCommands)
 
-			if len(configCommands) == len(in.GetCommands()) {
-				result := true
-				for _, ccommand := range configCommands {
+			result := true
+			for _, ccommand := range configCommands {
+				r, _ := regexp.Compile("ADMIN_*")
+				if !r.MatchString(ccommand) {
 					currentResult := false
 					for _, icommand := range in.GetCommands() {
 						if ccommand == icommand {
@@ -106,8 +104,9 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 					}
 					result = result && currentResult
 				}
-				validation = result
+
 			}
+			validation = result
 
 			fmt.Println("validation")
 			fmt.Println(validation)
@@ -134,6 +133,9 @@ func (r ConnectorGrpc) SendStop(ctx context.Context, in *pb.Stop) (validate *pb.
 	/* 	for activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}] {
 		time.Sleep(5 * time.Second)
 	} */
+	fmt.Println("HANDLE STOP")
+	fmt.Println(activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}])
+
 	return &pb.Validate{Valid: activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}]}, nil
 
 }
@@ -143,15 +145,13 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	log.Println("Handle send command")
 
 	cmd := pb.CommandFromGrpc(in)
-
 	//connectorType := r.Shoset.Context["connectorType"].(string)
 
 	validate := false
 	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	if config != nil {
 		connectorType := cmd.GetContext()["connectorType"].(string)
-		fmt.Println("connectorType")
-		fmt.Println(connectorType)
+
 		if connectorType != "" {
 			var connectorTypeConfig *models.ConnectorConfig
 			if listConnectorTypeConfig, ok := config[connectorType]; ok {
@@ -192,8 +192,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	} else {
 		log.Println("Connectors configuration not found")
 	}
-	fmt.Println("validate command")
-	fmt.Println(validate)
+
 	if validate {
 		cmd.Tenant = r.Shoset.Context["tenant"].(string)
 		shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
@@ -364,9 +363,6 @@ func (r ConnectorGrpc) WaitTopicMessage(ctx context.Context, in *pb.TopicMessage
 func (r ConnectorGrpc) CreateIteratorCommand(ctx context.Context, in *pb.Empty) (iteratorMessage *pb.IteratorMessage, err error) {
 	log.Println("Handle create iterator command")
 
-	fmt.Println("add queue grpc")
-	fmt.Println(r.Shoset.Queue["cmd"])
-
 	iterator := msg.NewIterator(r.Shoset.Queue["cmd"])
 	index := uuid.New()
 	log.Printf("Create new iterator command: %s", index)
@@ -402,8 +398,8 @@ func (r ConnectorGrpc) runIteratorCommand(command string, major int8, iterator *
 
 	for {
 
-		fmt.Println("messageIterator" + command)
-		iterator.PrintQueue()
+		//fmt.Println("messageIterator" + command)
+		//iterator.PrintQueue()
 
 		messageIterator := iterator.Get()
 
@@ -433,7 +429,7 @@ func (r ConnectorGrpc) runIteratorEvent(topic, event, referenceUUID string, iter
 
 	for {
 		messageIterator := iterator.Get()
-		iterator.PrintQueue()
+		//iterator.PrintQueue()
 
 		if messageIterator != nil {
 			message := (messageIterator.GetMessage()).(msg.Event)

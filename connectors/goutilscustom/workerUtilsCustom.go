@@ -41,6 +41,10 @@ func main() {
 
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	fmt.Println("EXECUTE SEND AUTH MAIL")
+	fmt.Println("COMMAND")
+	fmt.Println(command)
+	fmt.Println("PAYLOAD")
+	fmt.Println(command.GetPayload())
 
 	return 0
 	/* 	var configuration Configuration
@@ -67,7 +71,10 @@ func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command ms
 
 func CreateForm(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	fmt.Println("EXECUTE CREATE FORM")
-
+	fmt.Println("COMMAND")
+	fmt.Println(command)
+	fmt.Println("PAYLOAD")
+	fmt.Println(command.GetPayload())
 	return 0
 	/* 	var formPayload form.FormPayload
 	   	err := json.Unmarshal([]byte(command.GetPayload()), &formPayload)

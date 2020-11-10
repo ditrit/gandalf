@@ -66,8 +66,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 		log.Println("Versions not found")
 
 	}
-	fmt.Println("validate handle")
-	fmt.Println(validate)
+
 	if validate {
 
 		ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())

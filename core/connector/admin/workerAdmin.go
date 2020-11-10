@@ -82,15 +82,15 @@ func (w WorkerAdmin) Run() {
 		if err == nil {
 			err = w.getWorker(version)
 			if err == nil {
-				w.startWorker(version)
+				go w.startWorker(version)
 			}
 		}
 	}
 
 	//
-	w.RegisterCommandsFuncs("GET_WORKER", w.GetWorker)
-	w.RegisterCommandsFuncs("START_WORKER", w.StartWorker)
-	w.RegisterCommandsFuncs("STOP_WORKER", w.StopWorker)
+	w.RegisterCommandsFuncs("ADMIN_GET_WORKER", w.GetWorker)
+	w.RegisterCommandsFuncs("ADMIN_START_WORKER", w.StartWorker)
+	w.RegisterCommandsFuncs("ADMIN_STOP_WORKER", w.StopWorker)
 
 	for key, function := range w.CommandsFuncs {
 		id := w.clientGandalf.CreateIteratorCommand()
@@ -99,8 +99,7 @@ func (w WorkerAdmin) Run() {
 	}
 	//TODO REVOIR CONDITION SORTIE
 	for true {
-		fmt.Println("RUNNING WORKER ADMIN")
-		time.Sleep(1 * time.Second)
+		time.Sleep(1 * time.Millisecond)
 	}
 	fmt.Println("END WORKER ADMIN")
 }
@@ -133,8 +132,13 @@ func (w WorkerAdmin) executeCommands(command msg.Command, function func(clientGa
 //
 func (w WorkerAdmin) StopWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	var versionPayload models.Version
+	fmt.Println("COMMAND")
+	fmt.Println(command)
+	fmt.Println("PAYLOAD")
+	fmt.Println(command.GetPayload())
 	err := json.Unmarshal([]byte(command.GetPayload()), &versionPayload)
-
+	fmt.Println("ERROR STOP WORKER")
+	fmt.Println(err)
 	if err == nil {
 		err = w.stopWorker(versionPayload)
 		if err == nil {
@@ -219,6 +223,13 @@ func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 			connectorConfig.VersionMajorKeys, _ = utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_keys.yaml")
 			connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_keys.yaml")
 
+			//ADD COMMMANDS ADMIN
+			fmt.Println("connectorConfig.ConnectorCommands")
+			fmt.Println(connectorConfig.ConnectorCommands)
+			addCommandsAdmin(connectorConfig)
+			fmt.Println("connectorConfig.ConnectorCommands")
+			fmt.Println(connectorConfig.ConnectorCommands)
+
 			shoset.SendSaveConnectorConfig(w.chaussette, w.timeoutMax, connectorConfig)
 		}
 
@@ -227,6 +238,21 @@ func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 	}
 
 	return
+}
+
+func addCommandsAdmin(config *models.ConnectorConfig) {
+
+	schemaVersion := `{"$schema": "http://json-schema.org/draft-04/schema#","type": "object","properties": {"Major": { "type": "integer" },"Minor": { "type": "integer" }},"required": ["Major","Minor"]}`
+
+	actionExecute := models.Action{Name: "Execute"}
+
+	commandAdminGetWorker := models.Object{Name: "ADMIN_GET_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
+	commandAdminStartWorker := models.Object{Name: "ADMIN_START_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
+	commandAdminStopWorker := models.Object{Name: "ADMIN_STOP_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
+
+	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminGetWorker)
+	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminStartWorker)
+	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminStopWorker)
 }
 
 //getWorker()

@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
@@ -27,28 +28,40 @@ func main() {
 	worker := worker.NewWorker(major, minor)
 	clientGandalf := worker.Start()
 
-	fmt.Println("SEND COMMMAND CREATE_FORM")
-	payload := `{"Major":1,"Minor":0}`
-	commandMessageUUID := clientGandalf.SendCommand("Utils.ADMIN_STOP_WORKER", models.NewOptions("", payload))
+	/* 	fmt.Println("SEND COMMMAND CREATE_FORM")
+	   	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+	   	commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+	   	fmt.Println(commandMessageUUID)
 
-	fmt.Println(commandMessageUUID)
-	/*id := clientGandalf.CreateIteratorEvent()
+	   	fmt.Println("SEND COMMMAND ADMIN_STOP_WORKER")
+	   	payloadStop := `{"Major":1,"Minor":0}`
+	   	commandMessageUUIDstop := clientGandalf.SendCommand("Utils.ADMIN_STOP_WORKER", models.NewOptions("", payloadStop))
+	   	fmt.Println(commandMessageUUIDstop) */
+	id := clientGandalf.CreateIteratorEvent()
+	cpt := 0
+	for true {
 
-	 	for true {
+		if cpt == 5 {
 
-		fmt.Println("SEND COMMMAND CREATE_FORM")
-		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-		commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-		formUUID := commandMessageUUID.GetUUID()
+			fmt.Println("SEND COMMMAND ADMIN_STOP_WORKER")
+			payloadStop := `{"Major":1,"Minor":0}`
+			commandMessageUUIDstop := clientGandalf.SendCommand("Utils.ADMIN_STOP_WORKER", models.NewOptions("", payloadStop))
 
-		fmt.Println("formUUID")
-		fmt.Println(formUUID)
-		event := clientGandalf.WaitReplyByEvent("CREATE_FORM", "SUCCES", formUUID, id)
-		fmt.Println("event")
-		fmt.Println(event)
+			fmt.Println(commandMessageUUIDstop)
+		} else {
+			fmt.Println("SEND COMMMAND CREATE_FORM")
+			payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+			commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+			formUUID := commandMessageUUID.GetUUID()
+			event := clientGandalf.WaitReplyByEvent("CREATE_FORM", "SUCCES", formUUID, id)
+			fmt.Println("event")
+			fmt.Println(event)
+
+		}
+		cpt++
 
 		time.Sleep(5 * time.Second)
-	} */
+	}
 
 	//workerUpload := workers.NewWorkerUpload(clientGandalf)
 	//go workerUpload.Run()

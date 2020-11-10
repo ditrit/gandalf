@@ -3,7 +3,7 @@ module github.com/ditrit/gandalf/connectors/goutilscustom
 go 1.14
 
 require (
-	github.com/ditrit/gandalf/connectors/go v0.0.0-20201104113613-d847fb54b07e
+	github.com/ditrit/gandalf/connectors/go v0.0.0-20201110144221-53123795628f
 	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201103121130-84465a067b83
 	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
 	github.com/go-chi/chi v4.1.2+incompatible

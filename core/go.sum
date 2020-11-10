@@ -41,6 +41,8 @@ github.com/dgryski/go-sip13 v0.0.0-20181026042036-e10d5fee7954/go.mod h1:vAd38F8
 github.com/ditrit/gandalf v0.0.0-20200828084902-a2d405d1aeab h1:xVaOftJkh/RV3EBMDbBZs/jiSTi9Ua/wFUW1bIW17Dw=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200828084902-a2d405d1aeab h1:z6NZa3OjD2LVJ6QYo+yomKg4VBrY548u0aZulnR2e/o=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200828084902-a2d405d1aeab/go.mod h1:yphbqSEKmbEFJKWpcoN5bAWZbvK/FgmtC4ekFActzAo=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201104141849-423927844b1b h1:jzA8p9lrJ6XAKx8DUPkOOO80QrheVJo4zcIPJ1R4ttI=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201104141849-423927844b1b/go.mod h1:yOaZPJHEWsMEHjV286kOiriGE9O8Gl7EzyqwgNFOdq8=
 github.com/ditrit/shoset v0.0.0-20200615082036-04b3c07f550b h1:s9JGlWaC1KKHgfTJQKRgUl3IcXhYP/avgshMs+mNDAc=
 github.com/ditrit/shoset v0.0.0-20200615082036-04b3c07f550b/go.mod h1:51nyfPjr5WAwH2iMOAxAWnJh3qDlLAWjqIGr8RDcOic=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8 h1:4EZDkbB9fqaH9jqsTxBIxQVzvt3ZTC4Ya4MpLguxfNw=
@@ -51,6 +53,8 @@ github.com/ditrit/shoset v0.0.0-20201023143634-a171e238b00c h1:BFiVs5FCyx70q0epd
 github.com/ditrit/shoset v0.0.0-20201023143634-a171e238b00c/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/ditrit/shoset v0.0.0-20201023150056-fd4a9f5c3d61 h1:8xB3fNbUMCdz7kWrYom16wOhHZUALwa80h3sKzYTfMI=
 github.com/ditrit/shoset v0.0.0-20201023150056-fd4a9f5c3d61/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
+github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276 h1:D/nP+zP9Ee4E2es+Amj1svN5xNpe1cC7ey59JjzISkc=
+github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=
@@ -101,6 +105,8 @@ github.com/golang/protobuf v1.4.0/go.mod h1:jodUvKwWbYaEsadDk5Fwe5c77LiNKVO9IDvq
 github.com/golang/protobuf v1.4.1/go.mod h1:U8fpvMrcmy5pZrNK1lt4xCsGvpyWQ/VVv6QDs8UjoX8=
 github.com/golang/protobuf v1.4.2 h1:+Z5KGCizgyZCbGh1KZqA0fcLLkwbsjIzS4aV2v7wJX0=
 github.com/golang/protobuf v1.4.2/go.mod h1:oDoupMAO8OvCJWAcko0GGGIgR6R6ocIYbsSw735rRwI=
+github.com/golang/protobuf v1.4.3 h1:JjCZWpVbqXDqFVmTfYWEVTMIYrL/NPdPSCHPJ0T/raM=
+github.com/golang/protobuf v1.4.3/go.mod h1:oDoupMAO8OvCJWAcko0GGGIgR6R6ocIYbsSw735rRwI=
 github.com/google/btree v1.0.0/go.mod h1:lNA+9X1NB3Zf8V7Ke586lFgjr2dZNuvo3lPJSGZ5JPQ=
 github.com/google/go-cmp v0.2.0/go.mod h1:oXzfMopK8JAjlY9xF4vHSVASa0yLyX7SntLO5aqRK0M=
 github.com/google/go-cmp v0.3.0/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
