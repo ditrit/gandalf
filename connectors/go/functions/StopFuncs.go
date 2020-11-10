@@ -17,7 +17,7 @@ func Stop(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState
 			workerState.SetStoppingWorkerState()
 		}
 
-		time.Sleep(5 * time.Second)
+		time.Sleep(1 * time.Second)
 	}
 
 }
