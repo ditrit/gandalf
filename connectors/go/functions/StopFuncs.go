@@ -11,14 +11,17 @@ import (
 //SendCommands
 func Stop(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState *gomodels.WorkerState) {
 
-	for workerState.GetState() == 0 {
+	for true {
 		fmt.Println("STATE")
 		fmt.Println(workerState.GetState())
 		validate := clientGandalf.SendStop(major, minor)
 		fmt.Println("VALIDATE STOP")
 		fmt.Println(validate.GetValid())
 		if !validate.GetValid() {
+			fmt.Println("CHANGE STATE")
 			workerState.SetStoppingWorkerState()
+			break
+
 		}
 
 		time.Sleep(1 * time.Second)
