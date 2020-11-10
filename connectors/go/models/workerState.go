@@ -30,13 +30,13 @@ func (ws WorkerState) setWorkerState(state int) {
 	defer ws.Unlock()
 } */
 
-func (ws WorkerState) SetOngoingWorkerState() {
+func (ws *WorkerState) SetOngoingWorkerState() {
 	ws.Lock()
 	ws.state = 0
 	defer ws.Unlock()
 }
 
-func (ws WorkerState) SetStoppingWorkerState() {
+func (ws *WorkerState) SetStoppingWorkerState() {
 	ws.Lock()
 	ws.state = 1
 	fmt.Println("STATE CHANGED")
