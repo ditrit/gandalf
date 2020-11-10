@@ -2,11 +2,6 @@ package models
 
 import "sync"
 
-const (
-	Ongoing = iota
-	Stopping
-)
-
 type WorkerState struct {
 	sync.Mutex
 	state int
@@ -14,7 +9,7 @@ type WorkerState struct {
 
 func NewWorkerState() *WorkerState {
 	ws := new(WorkerState)
-	ws.state = Ongoing
+	ws.state = 0
 	return ws
 }
 
@@ -34,12 +29,12 @@ func (ws WorkerState) setWorkerState(state int) {
 
 func (ws WorkerState) SetOngoingWorkerState() {
 	ws.Lock()
-	ws.state = Ongoing
+	ws.state = 0
 	defer ws.Unlock()
 }
 
 func (ws WorkerState) SetStoppingWorkerState() {
 	ws.Lock()
-	ws.state = Stopping
+	ws.state = 1
 	defer ws.Unlock()
 }
