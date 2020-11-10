@@ -20,6 +20,7 @@ func Stop(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState
 		if !validate.GetValid() {
 			fmt.Println("CHANGE STATE")
 			workerState.SetStoppingWorkerState()
+			fmt.Println(workerState.GetState())
 
 		}
 
