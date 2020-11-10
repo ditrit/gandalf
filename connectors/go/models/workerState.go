@@ -28,13 +28,13 @@ func (ws WorkerState) setWorkerState(state int) {
 } */
 
 func (ws WorkerState) SetOngoingWorkerState() {
-	ws.Lock()
+	//ws.Lock()
 	ws.state = 0
-	defer ws.Unlock()
+	//defer ws.Unlock()
 }
 
 func (ws WorkerState) SetStoppingWorkerState() {
-	ws.Lock()
+	//ws.Lock()
 	ws.state = 1
-	defer ws.Unlock()
+	//defer ws.Unlock()
 }
