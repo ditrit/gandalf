@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"sync"
 )
 
@@ -39,7 +38,5 @@ func (ws *WorkerState) SetOngoingWorkerState() {
 func (ws *WorkerState) SetStoppingWorkerState() {
 	ws.Lock()
 	ws.state = 1
-	fmt.Println("STATE CHANGED")
-	fmt.Println(ws.state)
 	defer ws.Unlock()
 }

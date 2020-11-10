@@ -97,6 +97,8 @@ func (w Worker) Run() {
 		}
 		//TODO REVOIR CONDITION SORTIE
 		for w.WorkerState.GetState() == 0 {
+			fmt.Println("STATE RUN")
+			fmt.Println(w.WorkerState.GetState())
 		}
 		for w.OngoingTreatments.GetIndex() > 0 {
 			time.Sleep(2 * time.Second)
