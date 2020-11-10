@@ -101,6 +101,7 @@ func (w Worker) Run() {
 		for w.OngoingTreatments.GetIndex() > 0 {
 			time.Sleep(2 * time.Second)
 		}
+		fmt.Println("SHUTDOWN WORKER")
 	} else {
 		//SEND EVENT INVALID CONFIGURATION
 	}

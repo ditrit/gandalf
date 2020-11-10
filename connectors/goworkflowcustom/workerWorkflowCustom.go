@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
@@ -28,9 +27,14 @@ func main() {
 	worker := worker.NewWorker(major, minor)
 	clientGandalf := worker.Start()
 
-	id := clientGandalf.CreateIteratorEvent()
+	fmt.Println("SEND COMMMAND CREATE_FORM")
+	payload := `{"Major":1,"Minor":0}`
+	commandMessageUUID := clientGandalf.SendCommand("Utils.ADMIN_STOP_WORKER", models.NewOptions("", payload))
 
-	for true {
+	fmt.Println(commandMessageUUID)
+	/*id := clientGandalf.CreateIteratorEvent()
+
+	 	for true {
 
 		fmt.Println("SEND COMMMAND CREATE_FORM")
 		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
@@ -44,7 +48,7 @@ func main() {
 		fmt.Println(event)
 
 		time.Sleep(5 * time.Second)
-	}
+	} */
 
 	//workerUpload := workers.NewWorkerUpload(clientGandalf)
 	//go workerUpload.Run()
