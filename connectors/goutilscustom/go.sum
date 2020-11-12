@@ -59,6 +59,8 @@ github.com/ditrit/gandalf/connectors/go v0.0.0-20201110143819-14fec799863a h1:zd
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201110143819-14fec799863a/go.mod h1:JnLggm7ikMgtLTgAJKJEK2FhUUEF21xjq0LC/+ZxTbs=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201110144221-53123795628f h1:i9OyUGezCpaUuoISNNK0mnnpOJ2Fy+17AOad6hM0hp8=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20201110144221-53123795628f/go.mod h1:JnLggm7ikMgtLTgAJKJEK2FhUUEF21xjq0LC/+ZxTbs=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20201112095027-3df2dc75bb83 h1:No5/A1hHdyG0rmUBoktG7NM3Xx25/uijnvRiR5/GfXY=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20201112095027-3df2dc75bb83/go.mod h1:JnLggm7ikMgtLTgAJKJEK2FhUUEF21xjq0LC/+ZxTbs=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709085452-193002d101a9 h1:Tc5/QAdFeQlBIFs6epjBjmK5upw9eiSE8Mb/GiXHb00=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709085452-193002d101a9/go.mod h1:lwsQMP2wzwmr55XAizkuB/HbI+/KLCiFagRQzLJT1Ug=
 github.com/ditrit/gandalf/connectors/goutils v0.0.0-20200709090245-ae80687c7ff8 h1:BdTnDNDnoaIz6s51uudUF18tubw7PM4V/9awZ3cGTak=
