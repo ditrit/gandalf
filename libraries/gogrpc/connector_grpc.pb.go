@@ -31,7 +31,7 @@ func NewConnectorClient(cc grpc.ClientConnInterface) ConnectorClient {
 
 func (c *connectorClient) SendCommandList(ctx context.Context, in *CommandList, opts ...grpc.CallOption) (*Validate, error) {
 	out := new(Validate)
-	err := c.cc.Invoke(ctx, "/Connector/SendCommandList", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gogrpc.Connector/SendCommandList", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (c *connectorClient) SendCommandList(ctx context.Context, in *CommandList, 
 
 func (c *connectorClient) SendStop(ctx context.Context, in *Stop, opts ...grpc.CallOption) (*Validate, error) {
 	out := new(Validate)
-	err := c.cc.Invoke(ctx, "/Connector/SendStop", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/gogrpc.Connector/SendStop", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func _Connector_SendCommandList_Handler(srv interface{}, ctx context.Context, de
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Connector/SendCommandList",
+		FullMethod: "/gogrpc.Connector/SendCommandList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConnectorServer).SendCommandList(ctx, req.(*CommandList))
@@ -107,7 +107,7 @@ func _Connector_SendStop_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/Connector/SendStop",
+		FullMethod: "/gogrpc.Connector/SendStop",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConnectorServer).SendStop(ctx, req.(*Stop))
@@ -116,7 +116,7 @@ func _Connector_SendStop_Handler(srv interface{}, ctx context.Context, dec func(
 }
 
 var _Connector_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "Connector",
+	ServiceName: "gogrpc.Connector",
 	HandlerType: (*ConnectorServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
