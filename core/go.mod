@@ -6,7 +6,7 @@ require (
 	github.com/canonical/go-dqlite v1.6.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201104141849-423927844b1b
-	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201112144207-2a161d8d0bc4
+	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201112151239-399baa541109
 	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
 	github.com/go-chi/chi v4.1.2+incompatible // indirect
 	github.com/go-oauth2/oauth2 v3.9.2+incompatible // indirect
