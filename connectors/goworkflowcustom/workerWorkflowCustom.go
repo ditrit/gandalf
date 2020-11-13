@@ -44,8 +44,8 @@ func main() {
 		if cpt == 5 {
 
 			fmt.Println("SEND COMMMAND ADMIN_STOP_WORKER")
-			payloadStop := `{"Major":1,"Minor":0}`
-			commandMessageUUIDstop := clientGandalf.SendCommand("Utils.ADMIN_STOP_WORKER", models.NewOptions("", payloadStop))
+			payloadStop := `{"Major":1,"Minor":5}`
+			commandMessageUUIDstop := clientGandalf.SendCommand("Utils.ADMIN_GET_WORKER", models.NewOptions("", payloadStop))
 
 			fmt.Println(commandMessageUUIDstop)
 		} else {

@@ -192,7 +192,8 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	} else {
 		log.Println("Connectors configuration not found")
 	}
-
+	fmt.Println("VALIDATE SEND")
+	fmt.Println(validate)
 	if validate {
 		cmd.Tenant = r.Shoset.Context["tenant"].(string)
 		shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")

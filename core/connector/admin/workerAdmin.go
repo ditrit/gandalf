@@ -152,8 +152,13 @@ func (w WorkerAdmin) StopWorker(clientGandalf *goclient.ClientGandalf, major int
 //
 func (w WorkerAdmin) GetWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	var versionPayload models.Version
+	fmt.Println("COMMAND")
+	fmt.Println(command)
+	fmt.Println("PAYLOAD")
+	fmt.Println(command.GetPayload())
 	err := json.Unmarshal([]byte(command.GetPayload()), &versionPayload)
-
+	fmt.Println("ERROR STOP WORKER")
+	fmt.Println(err)
 	if err == nil {
 		err = w.getConfiguration(versionPayload)
 		if err == nil {

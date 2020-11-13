@@ -23,6 +23,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle command")
 	log.Println(cmd)
 
+	fmt.Println("Handle command")
+	fmt.Println(cmd)
+
 	validate := false
 	config := ch.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	if config != nil {
