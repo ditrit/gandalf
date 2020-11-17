@@ -202,6 +202,34 @@ func DownloadWorkers(url, filePath string) (err error) {
 	return nil
 }
 
+// DownloadVersions : Download versions from url
+func DownloadVersions(url, ressource string) (versions []string, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &versions)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
+}
+
 // Unzip : Unzip file
 func Unzip(zipPath string, dirPath string) ([]string, error) {
 

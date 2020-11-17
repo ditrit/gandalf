@@ -91,6 +91,7 @@ func (w WorkerAdmin) Run() {
 	w.RegisterCommandsFuncs("ADMIN_GET_WORKER", w.GetWorker)
 	w.RegisterCommandsFuncs("ADMIN_START_WORKER", w.StartWorker)
 	w.RegisterCommandsFuncs("ADMIN_STOP_WORKER", w.StopWorker)
+	w.RegisterCommandsFuncs("ADMIN_GET_LAST_VERSION_WORKER", w.GetLastVersionsWorker)
 
 	for key, function := range w.CommandsFuncs {
 		id := w.clientGandalf.CreateIteratorCommand()
@@ -172,6 +173,24 @@ func (w WorkerAdmin) GetWorker(clientGandalf *goclient.ClientGandalf, major int6
 	return 1
 }
 
+func (w WorkerAdmin) GetLastVersionsWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+
+	lastVersion, err := w.getLastVersion()
+	fmt.Println("lastVersion")
+	fmt.Println(lastVersion)
+	if err == nil {
+		err = w.getConfiguration(lastVersion)
+		if err == nil {
+			err = w.getWorker(lastVersion)
+			if err == nil {
+				return 0
+			}
+		}
+	}
+
+	return 1
+}
+
 func (w WorkerAdmin) StartWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	var versionPayload models.Version
 	err := json.Unmarshal([]byte(command.GetPayload()), &versionPayload)
@@ -229,11 +248,7 @@ func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 			connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_keys.yaml")
 
 			//ADD COMMMANDS ADMIN
-			fmt.Println("connectorConfig.ConnectorCommands")
-			fmt.Println(connectorConfig.ConnectorCommands)
 			addCommandsAdmin(connectorConfig)
-			fmt.Println("connectorConfig.ConnectorCommands")
-			fmt.Println(connectorConfig.ConnectorCommands)
 
 			shoset.SendSaveConnectorConfig(w.chaussette, w.timeoutMax, connectorConfig)
 		}
@@ -248,16 +263,18 @@ func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 func addCommandsAdmin(config *models.ConnectorConfig) {
 
 	schemaVersion := `{"$schema": "http://json-schema.org/draft-04/schema#","type": "object","properties": {"Major": { "type": "integer" },"Minor": { "type": "integer" }},"required": ["Major","Minor"]}`
-
+	schemaString := `{"type":"string"}`
 	actionExecute := models.Action{Name: "Execute"}
 
 	commandAdminGetWorker := models.Object{Name: "ADMIN_GET_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
 	commandAdminStartWorker := models.Object{Name: "ADMIN_START_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
 	commandAdminStopWorker := models.Object{Name: "ADMIN_STOP_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
+	commandAdminGetLastVersionWorker := models.Object{Name: "ADMIN_GET_LAST_VERSION_WORKER", Schema: schemaString, Actions: []models.Action{actionExecute}}
 
 	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminGetWorker)
 	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminStartWorker)
 	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminStopWorker)
+	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminGetLastVersionWorker)
 }
 
 //getWorker()
@@ -378,6 +395,20 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
 		}
 	}
+
+	return
+}
+
+func (w WorkerAdmin) getLastVersion() (lastVersion models.Version, err error) {
+	versions, _ := utils.DownloadVersions(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/versions.yaml")
+	fmt.Println("versions")
+	fmt.Println(versions)
+
+	versionSplit := strings.Split(versions[len(versions)-1], ".")
+	major8, err := strconv.ParseInt(versionSplit[0], 10, 8)
+	minor8, err := strconv.ParseInt(versionSplit[1], 10, 8)
+	lastVersion.Major = int8(major8)
+	lastVersion.Minor = int8(minor8)
 
 	return
 }
