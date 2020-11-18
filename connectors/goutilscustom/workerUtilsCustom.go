@@ -20,27 +20,21 @@ func main() {
 	fmt.Println("VERSION")
 	fmt.Println(major)
 	fmt.Println(minor)
-	fmt.Println("START 0")
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 	fmt.Println(input.Text())
 
-	fmt.Println("START 1")
 	worker := worker.NewWorker(major, minor)
 
-	fmt.Println("START REGISTER")
 	worker.RegisterCommandsFuncs("CREATE_FORM", CreateForm)
-	fmt.Println("START REGISTER")
 	worker.RegisterCommandsFuncs("SEND_AUTH_MAIL", SendAuthMail)
 
-	fmt.Println("START 2")
 	worker.Run()
-	fmt.Println("END")
 }
 
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
-	fmt.Println("EXECUTE SEND AUTH MAIL")
+	fmt.Println("EXECUTE SEND AUTH MAIL 1.0")
 	fmt.Println("COMMAND")
 	fmt.Println(command)
 	fmt.Println("PAYLOAD")
@@ -70,7 +64,7 @@ func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command ms
 }
 
 func CreateForm(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
-	fmt.Println("EXECUTE CREATE FORM")
+	fmt.Println("EXECUTE CREATE FORM 1.0")
 	fmt.Println("COMMAND")
 	fmt.Println(command)
 	fmt.Println("PAYLOAD")
