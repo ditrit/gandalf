@@ -25,8 +25,7 @@ message EventMessage {
 	string UUID = 6;      
 	string Event = 7;     
 	string Payload = 8;  
-    string ReferenceUUID = 9;
-    bool Admin = 10;             
+    string ReferenceUUID = 9;       
 }
 
 message EventMessageWait {

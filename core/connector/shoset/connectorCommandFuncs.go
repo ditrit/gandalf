@@ -29,7 +29,13 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	validate := false
 	config := ch.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	if config != nil {
-		connectorType := ch.Context["connectorType"].(string)
+
+		var connectorType string
+		if cmd.GetContext()["isAdmin"].(bool) {
+			connectorType = "Admin"
+		} else {
+			connectorType = ch.Context["connectorType"].(string)
+		}
 		if connectorType != "" {
 			var connectorTypeConfig *models.ConnectorConfig
 			if listConnectorTypeConfig, ok := config[connectorType]; ok {

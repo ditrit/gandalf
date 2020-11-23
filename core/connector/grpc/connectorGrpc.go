@@ -150,7 +150,13 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	validate := false
 	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	if config != nil {
-		connectorType := cmd.GetContext()["connectorType"].(string)
+
+		var connectorType string
+		if in.GetAdmin() {
+			connectorType = "Admin"
+		} else {
+			connectorType = cmd.GetContext()["connectorType"].(string)
+		}
 
 		if connectorType != "" {
 			var connectorTypeConfig *models.ConnectorConfig
@@ -268,7 +274,12 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 	if evt.GetReferenceUUID() == "" {
 		config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 		if config != nil {
-			connectorType := r.Shoset.Context["connectorType"].(string)
+			var connectorType string
+			if in.GetAdmin() {
+				connectorType = "Admin"
+			} else {
+				connectorType = r.Shoset.Context["connectorType"].(string)
+			}
 			if connectorType != "" {
 				var connectorTypeConfig *models.ConnectorConfig
 				if listConnectorTypeConfig, ok := config[connectorType]; ok {

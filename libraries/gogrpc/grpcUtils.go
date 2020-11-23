@@ -24,6 +24,7 @@ func CommandFromGrpc(commandMessage *CommandMessage) (c msg.Command) {
 	c.UUID = commandMessage.GetUUID()
 	c.Context = make(map[string]interface{})
 	c.Context["connectorType"] = commandMessage.GetConnectorType()
+	c.Context["isAdmin"] = commandMessage.GetAdmin()
 	//c.CommandType = commandMessage.GetCommandType()
 	c.Command = commandMessage.GetCommand()
 	c.Payload = commandMessage.GetPayload()
@@ -49,6 +50,8 @@ func CommandToGrpc(c msg.Command) (commandMessage *CommandMessage) {
 	//commandMessage.Minor = int64(c.Minor)
 
 	commandMessage.UUID = c.UUID
+
+	commandMessage.Admin = c.Context["isAdmin"].(bool)
 	//commandMessage.ConnectorType = c.ConnectorType
 	//commandMessage.CommandType = c.CommandType
 	commandMessage.Command = c.Command
