@@ -32,7 +32,8 @@ message CommandMessage {
 	string ConnectorType = 14;         
 	string CommandType = 15;           
 	string Command = 16;               
-	string Payload = 17;               
+	string Payload = 17;
+	bool admin = 18;             
 }
 
 message CommandMessageUUID {
