@@ -187,7 +187,6 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 			}
 		} else {
 			log.Println("connectorType empty")
-
 		}
 	} else {
 		log.Println("Connectors configuration not found")

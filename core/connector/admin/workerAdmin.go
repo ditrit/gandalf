@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -77,8 +78,11 @@ func (w WorkerAdmin) RegisterCommandsFuncs(command string, function func(clientG
 //Run : Run
 func (w WorkerAdmin) Run() {
 
+	//GET CONFIGURATION
+	w.getConfiguration()
+
 	for _, version := range w.versions {
-		err := w.getConfiguration(version)
+		err := w.getWorkerConfiguration(version)
 		if err == nil {
 			err = w.getWorker(version)
 			if err == nil {
@@ -161,7 +165,7 @@ func (w WorkerAdmin) GetWorker(clientGandalf *goclient.ClientGandalf, major int6
 	fmt.Println("ERROR STOP WORKER")
 	fmt.Println(err)
 	if err == nil {
-		err = w.getConfiguration(versionPayload)
+		err = w.getWorkerConfiguration(versionPayload)
 		if err == nil {
 			err = w.getWorker(versionPayload)
 			if err == nil {
@@ -179,7 +183,7 @@ func (w WorkerAdmin) GetLastVersionsWorker(clientGandalf *goclient.ClientGandalf
 	fmt.Println("lastVersion")
 	fmt.Println(lastVersion)
 	if err == nil {
-		err = w.getConfiguration(lastVersion)
+		err = w.getWorkerConfiguration(lastVersion)
 		if err == nil {
 			err = w.getWorker(lastVersion)
 			if err == nil {
@@ -215,7 +219,54 @@ func (w WorkerAdmin) stopWorker(version models.Version) (err error) {
 
 //getConfiguration()
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
-func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
+func (w WorkerAdmin) getConfiguration() (err error) {
+
+	shoset.SendConnectorConfig(w.chaussette, w.timeoutMax)
+	time.Sleep(time.Second * time.Duration(5))
+
+	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	fmt.Println("config")
+	fmt.Println(config)
+	if config != nil {
+		connectorConfig := utils.GetConnectorTypeConfigByVersion(int8(w.major), config["Admin"])
+		if connectorConfig == nil {
+			fmt.Println("DOWNLOAD")
+
+			dir, err := os.Getwd()
+			fmt.Println("dir")
+			fmt.Println(dir)
+			dat, err := ioutil.ReadFile(dir + "/connector/admin/configuration.yaml")
+
+			fmt.Print("string(dat)")
+			fmt.Print(string(dat))
+
+			err = yaml.Unmarshal(dat, &connectorConfig)
+			if err != nil {
+				fmt.Println(err)
+				log.Fatal(err)
+			}
+
+			fmt.Println("connectorConfig")
+			fmt.Println(connectorConfig)
+			connectorConfig.ConnectorType.Name = "Admin"
+			connectorConfig.Major = int8(w.major)
+
+			//ADD COMMMANDS ADMIN
+			//addCommandsAdmin(connectorConfig)
+
+			shoset.SendSaveConnectorConfig(w.chaussette, w.timeoutMax, connectorConfig)
+		}
+
+		config[w.connectorType] = append(config[w.connectorType], connectorConfig)
+		w.chaussette.Context["mapConnectorsConfig"] = config
+	}
+
+	return
+}
+
+//getConfiguration()
+// GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
+func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) {
 
 	shoset.SendConnectorConfig(w.chaussette, w.timeoutMax)
 	time.Sleep(time.Second * time.Duration(5))
@@ -248,7 +299,7 @@ func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 			connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_keys.yaml")
 
 			//ADD COMMMANDS ADMIN
-			addCommandsAdmin(connectorConfig)
+			//addCommandsAdmin(connectorConfig)
 
 			shoset.SendSaveConnectorConfig(w.chaussette, w.timeoutMax, connectorConfig)
 		}
@@ -260,7 +311,7 @@ func (w WorkerAdmin) getConfiguration(version models.Version) (err error) {
 	return
 }
 
-func addCommandsAdmin(config *models.ConnectorConfig) {
+/* func addCommandsAdmin(config *models.ConnectorConfig) {
 
 	schemaVersion := `{"$schema": "http://json-schema.org/draft-04/schema#","type": "object","properties": {"Major": { "type": "integer" },"Minor": { "type": "integer" }},"required": ["Major","Minor"]}`
 	schemaString := `{"type":"string"}`
@@ -275,7 +326,7 @@ func addCommandsAdmin(config *models.ConnectorConfig) {
 	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminStartWorker)
 	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminStopWorker)
 	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminGetLastVersionWorker)
-}
+} */
 
 //getWorker()
 func (w WorkerAdmin) getWorker(version models.Version) (err error) {

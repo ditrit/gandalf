@@ -287,6 +287,7 @@ func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
 
 //DemoCreateConnectorType
 func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
+	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Admin"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Utils"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Workflow"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
