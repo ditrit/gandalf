@@ -47,6 +47,24 @@ func (ce ClientEvent) SendEvent(topic, event, referenceUUID, timeout, payload st
 	eventMessage.Event = event
 	eventMessage.Payload = payload
 	eventMessage.ReferenceUUID = referenceUUID
+	eventMessage.Admin = false
+
+	empty, _ := ce.client.SendEventMessage(context.Background(), eventMessage)
+
+	return empty
+}
+
+//SendAdminEvent :
+func (ce ClientEvent) SendAdminEvent(topic, event, referenceUUID, timeout, payload string) *pb.Empty {
+	eventMessage := new(pb.EventMessage)
+	eventMessage.Topic = topic
+	eventMessage.Timeout = timeout
+	eventMessage.UUID = uuid.New().String()
+	eventMessage.Event = event
+	eventMessage.Payload = payload
+	eventMessage.ReferenceUUID = referenceUUID
+	eventMessage.Admin = true
+
 	empty, _ := ce.client.SendEventMessage(context.Background(), eventMessage)
 
 	return empty

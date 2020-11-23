@@ -3,7 +3,7 @@ module github.com/ditrit/gandalf/libraries/goclient
 go 1.14
 
 require (
-	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201112151912-820425ffa76c
+	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201123152302-5e1905d20166
 	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/golang/protobuf v1.4.3

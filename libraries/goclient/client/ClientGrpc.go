@@ -51,9 +51,19 @@ func (cg ClientGrpc) SendCommand(connectorType, command, timeout, payload string
 	return cg.ClientCommand.SendCommand(connectorType, command, timeout, payload)
 }
 
+//SendAdminCommand
+func (cg ClientGrpc) SendAdminCommand(connectorType, command, timeout, payload string) *pb.CommandMessageUUID {
+	return cg.ClientCommand.SendAdminCommand(connectorType, command, timeout, payload)
+}
+
 //SendEvent
 func (cg ClientGrpc) SendEvent(topic, event, referenceUUID, timeout, payload string) *pb.Empty {
 	return cg.ClientEvent.SendEvent(topic, event, referenceUUID, timeout, payload)
+}
+
+//SendAdminEvent
+func (cg ClientGrpc) SendAdminEvent(topic, event, referenceUUID, timeout, payload string) *pb.Empty {
+	return cg.ClientEvent.SendAdminEvent(topic, event, referenceUUID, timeout, payload)
 }
 
 //WaitCommand

@@ -43,6 +43,22 @@ func (cc ClientCommand) SendCommand(connectorType, command, timeout, payload str
 	commandMessage.ConnectorType = connectorType
 	commandMessage.Command = command
 	commandMessage.Payload = payload
+	commandMessage.Admin = false
+
+	commandMessageUUID, _ = cc.client.SendCommandMessage(context.Background(), commandMessage)
+
+	return commandMessageUUID
+}
+
+//SendAdminCommand :
+func (cc ClientCommand) SendAdminCommand(connectorType, command, timeout, payload string) (commandMessageUUID *pb.CommandMessageUUID) {
+	commandMessage := new(pb.CommandMessage)
+	commandMessage.Timeout = timeout
+	commandMessage.UUID = uuid.New().String()
+	commandMessage.ConnectorType = connectorType
+	commandMessage.Command = command
+	commandMessage.Payload = payload
+	commandMessage.Admin = true
 
 	commandMessageUUID, _ = cc.client.SendCommandMessage(context.Background(), commandMessage)
 

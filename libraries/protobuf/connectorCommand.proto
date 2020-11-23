@@ -33,7 +33,7 @@ message CommandMessage {
 	string CommandType = 15;           
 	string Command = 16;               
 	string Payload = 17;
-	bool admin = 18;             
+	bool Admin = 18;             
 }
 
 message CommandMessageUUID {
