@@ -143,38 +143,6 @@ func (cg ClientGandalf) SendEvent(topic, event string, options *models.Options) 
 	return empty
 }
 
-//SendAdminEvent
-func (cg ClientGandalf) SendAdminEvent(topic, event string, options *models.Options) (empty *pb.Empty) {
-	var notSend bool
-	timeout := options.GetTimeout()
-	if timeout == "" {
-		timeout = cg.Timeout
-	}
-
-	for stay, timeoutLoop := true, time.After(time.Second); stay; {
-
-		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendAdminEvent(topic, event, "", timeout, options.GetPayload())
-
-		if empty != nil {
-			notSend = false
-			break
-		}
-
-		select {
-		case <-timeoutLoop:
-			stay = false
-			notSend = true
-		default:
-		}
-	}
-
-	if notSend {
-		return nil
-	}
-
-	return empty
-}
-
 //SendReply
 func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *models.Options) (empty *pb.Empty) {
 	var notSend bool

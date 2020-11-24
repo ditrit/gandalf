@@ -61,11 +61,6 @@ func (cg ClientGrpc) SendEvent(topic, event, referenceUUID, timeout, payload str
 	return cg.ClientEvent.SendEvent(topic, event, referenceUUID, timeout, payload)
 }
 
-//SendAdminEvent
-func (cg ClientGrpc) SendAdminEvent(topic, event, referenceUUID, timeout, payload string) *pb.Empty {
-	return cg.ClientEvent.SendAdminEvent(topic, event, referenceUUID, timeout, payload)
-}
-
 //WaitCommand
 func (cg ClientGrpc) WaitCommand(command, idIterator string, version int64) (commandMessage *pb.CommandMessage) {
 	return cg.ClientCommand.WaitCommand(command, idIterator, version)
