@@ -29,48 +29,72 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	validate := false
 	config := ch.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	if config != nil {
-
-		var connectorType string
+		fmt.Println("ISADMIN")
+		fmt.Println(cmd.GetContext()["isAdmin"])
 		if cmd.GetContext()["isAdmin"].(bool) {
-			connectorType = "Admin"
-		} else {
-			connectorType = ch.Context["connectorType"].(string)
-		}
-		if connectorType != "" {
-			var connectorTypeConfig *models.ConnectorConfig
-			if listConnectorTypeConfig, ok := config[connectorType]; ok {
-				if cmd.Major == 0 {
-					versions := ch.Context["versions"].([]models.Version)
-					if versions != nil {
-						maxVersion := utils.GetMaxVersion(versions)
-						cmd.Major = maxVersion.Major
-						//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion.Major, listConnectorTypeConfig)
+			connectorType := "Admin"
+			if connectorType != "" {
+				var connectorTypeConfig *models.ConnectorConfig
+				if listConnectorTypeConfig, ok := config[connectorType]; ok {
 
+					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(0, listConnectorTypeConfig)
+
+					//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+					if connectorTypeConfig != nil {
+						connectorCommand := utils.GetConnectorCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorCommands)
+						if connectorCommand.Name != "" {
+							validate = utils.ValidatePayload(cmd.GetPayload(), connectorCommand.Schema)
+						} else {
+							log.Println("Connector type commands not found")
+						}
 					} else {
-						log.Println("Versions not found")
+						log.Println("Connector type configuration by version not found")
 					}
 				} else {
-					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(cmd.Major, listConnectorTypeConfig)
-				}
-
-				//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-				if connectorTypeConfig != nil {
-					connectorCommand := utils.GetConnectorCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorCommands)
-					if connectorCommand.Name != "" {
-						validate = utils.ValidatePayload(cmd.GetPayload(), connectorCommand.Schema)
-					} else {
-						log.Println("Connector type commands not found")
-					}
-				} else {
-					log.Println("Connector type configuration by version not found")
+					log.Printf("Connector configuration by type %s not found \n", connectorType)
 				}
 			} else {
-				log.Printf("Connector configuration by type %s not found \n", connectorType)
+				log.Println("Connectors configuration not found")
 			}
 		} else {
-			log.Println("Connectors configuration not found")
+			connectorType := ch.Context["connectorType"].(string)
+			if connectorType != "" {
+				var connectorTypeConfig *models.ConnectorConfig
+				if listConnectorTypeConfig, ok := config[connectorType]; ok {
+					if cmd.Major == 0 {
+						versions := ch.Context["versions"].([]models.Version)
+						if versions != nil {
+							maxVersion := utils.GetMaxVersion(versions)
+							cmd.Major = maxVersion.Major
+							//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+							connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion.Major, listConnectorTypeConfig)
+
+						} else {
+							log.Println("Versions not found")
+						}
+					} else {
+						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(cmd.Major, listConnectorTypeConfig)
+					}
+
+					//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+					if connectorTypeConfig != nil {
+						connectorCommand := utils.GetConnectorCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorCommands)
+						if connectorCommand.Name != "" {
+							validate = utils.ValidatePayload(cmd.GetPayload(), connectorCommand.Schema)
+						} else {
+							log.Println("Connector type commands not found")
+						}
+					} else {
+						log.Println("Connector type configuration by version not found")
+					}
+				} else {
+					log.Printf("Connector configuration by type %s not found \n", connectorType)
+				}
+			} else {
+				log.Println("Connectors configuration not found")
+			}
 		}
+
 	} else {
 		log.Println("Versions not found")
 

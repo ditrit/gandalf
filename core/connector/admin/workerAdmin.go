@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -96,6 +97,7 @@ func (w WorkerAdmin) Run() {
 	w.RegisterCommandsFuncs("ADMIN_START_WORKER", w.StartWorker)
 	w.RegisterCommandsFuncs("ADMIN_STOP_WORKER", w.StopWorker)
 	w.RegisterCommandsFuncs("ADMIN_GET_LAST_VERSION_WORKER", w.GetLastVersionsWorker)
+	w.RegisterCommandsFuncs("ADMIN_UPDATE", w.Update)
 
 	for key, function := range w.CommandsFuncs {
 		id := w.clientGandalf.CreateIteratorCommand()
@@ -188,6 +190,42 @@ func (w WorkerAdmin) GetLastVersionsWorker(clientGandalf *goclient.ClientGandalf
 			err = w.getWorker(lastVersion)
 			if err == nil {
 				return 0
+			}
+		}
+	}
+
+	return 1
+}
+
+func (w WorkerAdmin) Update(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+
+	lastVersion, err := w.getLastVersion()
+	fmt.Println("lastVersion")
+	fmt.Println(lastVersion)
+
+	if err == nil {
+		fmt.Println("ISLAST")
+		fmt.Println(w.isLastVersion(lastVersion))
+		if !w.isLastVersion(lastVersion) {
+			err = w.getWorkerConfiguration(lastVersion)
+			if err == nil {
+				err = w.getWorker(lastVersion)
+				if err == nil {
+					err = w.startWorker(lastVersion)
+					time.Sleep(5 * time.Second)
+					if err == nil {
+						for _, version := range w.versions {
+							if !reflect.DeepEqual(version, lastVersion) {
+								err = w.stopWorker(version)
+								if err != nil {
+									return 1
+								}
+							}
+						}
+						return 0
+					}
+
+				}
 			}
 		}
 	}
@@ -460,6 +498,17 @@ func (w WorkerAdmin) getLastVersion() (lastVersion models.Version, err error) {
 	minor8, err := strconv.ParseInt(versionSplit[1], 10, 8)
 	lastVersion.Major = int8(major8)
 	lastVersion.Minor = int8(minor8)
+
+	return
+}
+
+func (w WorkerAdmin) isLastVersion(lastVersion models.Version) (result bool) {
+	result = false
+	for _, version := range w.versions {
+		if reflect.DeepEqual(version, lastVersion) {
+			result = true
+		}
+	}
 
 	return
 }

@@ -49,8 +49,16 @@ github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201103121130-84465a067b83 
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201103121130-84465a067b83/go.mod h1:yOaZPJHEWsMEHjV286kOiriGE9O8Gl7EzyqwgNFOdq8=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201112152035-c02bb95b56f0 h1:PV2i2NVxliJFm+R+QrXu824yCZMUgSBANIww9muWDWE=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201112152035-c02bb95b56f0/go.mod h1:V1cLCbR16OWy3Yx2DKlSixBzmKMpJcCKaxP82vYEM/Q=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201123160118-8758304bf7c4 h1:J6e52U15WKZY9kqTKVMrZQcPVSEn6uNyyRV49+d7Teo=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201123160118-8758304bf7c4/go.mod h1:iLHOj4xQukOlouoELocjgIgzz+lOTx+FZGn39GSV6Dg=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201124082229-6db45ee88597 h1:nkeldBrF6zhnaVPgyJRzez8rhP8uXmfi0zaA41NyTLk=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201124082229-6db45ee88597/go.mod h1:iLHOj4xQukOlouoELocjgIgzz+lOTx+FZGn39GSV6Dg=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201124091804-664b4fbd63f3 h1:PErY6pXPuTPkZLswX+KTZfQ2Ue1VXd9sbLZS0VeSxro=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201124091804-664b4fbd63f3/go.mod h1:iLHOj4xQukOlouoELocjgIgzz+lOTx+FZGn39GSV6Dg=
 github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201112151912-820425ffa76c h1:DGvw4urbtsiyWClK29naLGXC31Ir1VyY5NbQmOpYW+E=
 github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201112151912-820425ffa76c/go.mod h1:o40nl1jn5OJRz7+J0zsj9D8CxBkQLT4s6ocKFgY1cNQ=
+github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201123152302-5e1905d20166 h1:NkYiPcWntlzPCPC5xc0nF7FsqWqyPprj1MwLuyccMyU=
+github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201123152302-5e1905d20166/go.mod h1:o40nl1jn5OJRz7+J0zsj9D8CxBkQLT4s6ocKFgY1cNQ=
 github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=
 github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0 h1:YYRUDM8HTcnetx71tvoucys4DkMI+vPyjDwFCqNRIys=
 github.com/ditrit/shoset v0.0.0-20200623114116-e81e7c43cfa0/go.mod h1:Wg9TijF6I6WEvYJggVYIC+3GA4Mni4SBoLlwPcWPcM4=

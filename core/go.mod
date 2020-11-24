@@ -5,8 +5,8 @@ go 1.14
 require (
 	github.com/canonical/go-dqlite v1.6.0
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201123153026-24152f534043
-	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201123152302-5e1905d20166
+	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201124091804-664b4fbd63f3
+	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201123160255-94c665cab23c
 	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
 	github.com/go-chi/chi v4.1.2+incompatible // indirect
 	github.com/go-oauth2/oauth2 v3.9.2+incompatible // indirect
