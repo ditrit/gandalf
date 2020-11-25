@@ -26,13 +26,13 @@ func (ot OngoingTreatments) GetIndex() int {
 	defer ot.Unlock()
 } */
 
-func (ot OngoingTreatments) IncrementOngoingTreatments() {
+func (ot *OngoingTreatments) IncrementOngoingTreatments() {
 	ot.Lock()
 	ot.index++
 	defer ot.Unlock()
 }
 
-func (ot OngoingTreatments) DecrementOngoingTreatments() {
+func (ot *OngoingTreatments) DecrementOngoingTreatments() {
 	ot.Lock()
 	ot.index--
 	defer ot.Unlock()

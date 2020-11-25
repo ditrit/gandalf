@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
@@ -29,7 +28,6 @@ type Worker struct {
 
 //NewWorker : NewWorker
 func NewWorker(major, minor int64) *Worker {
-	fmt.Println("NEW WORKER")
 	worker := new(Worker)
 	worker.major = major
 	worker.minor = minor
@@ -40,7 +38,6 @@ func NewWorker(major, minor int64) *Worker {
 	worker.Start = functions.Start
 	worker.Stop = functions.Stop
 	worker.SendCommands = functions.SendCommands
-	fmt.Println("END WORKER")
 
 	return worker
 }
@@ -62,7 +59,6 @@ func (w Worker) GetMinor() int64 {
 
 //RegisterCommandsFuncs : RegisterCommandsFuncs
 func (w Worker) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
-	fmt.Println("REGISTER")
 	w.CommandsFuncs[command] = function
 }
 
@@ -101,7 +97,6 @@ func (w Worker) Run() {
 		for w.OngoingTreatments.GetIndex() > 0 {
 			time.Sleep(2 * time.Second)
 		}
-		fmt.Println("SHUTDOWN WORKER")
 	} else {
 		//SEND EVENT INVALID CONFIGURATION
 	}
@@ -111,10 +106,7 @@ func (w Worker) waitCommands(id, commandName string, function func(clientGandalf
 
 	for w.WorkerState.GetState() == 0 {
 
-		fmt.Println("wait " + commandName)
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
-		fmt.Println("command")
-		fmt.Println(command)
 
 		go w.executeCommands(command, function)
 
@@ -122,11 +114,9 @@ func (w Worker) waitCommands(id, commandName string, function func(clientGandalf
 	for w.OngoingTreatments.GetIndex() > 0 {
 		time.Sleep(2 * time.Second)
 	}
-	fmt.Println("END WAIT")
 }
 
 func (w Worker) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
-	fmt.Println("execute")
 	w.OngoingTreatments.IncrementOngoingTreatments()
 	result := function(w.clientGandalf, w.major, command)
 	if result == 0 {
