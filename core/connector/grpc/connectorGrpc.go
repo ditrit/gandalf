@@ -55,7 +55,7 @@ func NewConnectorGrpc(grpcConnection string, timeoutMax int64, shoset *sn.Shoset
 
 // StartGrpcServer : ConnectorGrpc start.
 func (r ConnectorGrpc) StartGrpcServer() {
-	lis, err := net.Listen("tcp", r.GrpcConnection)
+	lis, err := net.Listen("unix", r.GrpcConnection)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
