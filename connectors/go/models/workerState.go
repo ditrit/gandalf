@@ -20,7 +20,7 @@ func NewWorkerState() *WorkerState {
 	return ws
 }
 
-func (ws WorkerState) GetState() int {
+func (ws *WorkerState) GetState() int {
 	ws.Lock()
 	workerState := ws.state
 	defer ws.Unlock()

@@ -13,7 +13,7 @@ func NewOngoingTreatments() *OngoingTreatments {
 	return og
 }
 
-func (ot OngoingTreatments) GetIndex() int {
+func (ot *OngoingTreatments) GetIndex() int {
 	ot.Lock()
 	index := ot.index
 	defer ot.Unlock()
