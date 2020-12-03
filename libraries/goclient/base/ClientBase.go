@@ -5,8 +5,6 @@ package base
 import (
 	"context"
 	"fmt"
-	"net"
-	"time"
 
 	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
@@ -25,11 +23,7 @@ func NewClientBase(identity, clientBaseConnection string) (clientBase *ClientBas
 	clientBase = new(ClientBase)
 	clientBase.Identity = identity
 	clientBase.ClientBaseConnection = clientBaseConnection
-	conn, _ := grpc.Dial(clientBase.ClientBaseConnection,
-		grpc.WithInsecure(),
-		grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
-			return net.DialTimeout("unix", addr, timeout)
-		}))
+	conn, _ := grpc.Dial("unix:"+clientBase.ClientBaseConnection, grpc.WithInsecure())
 	// if err != nil {
 	// 	// TODO implement erreur
 	// }
