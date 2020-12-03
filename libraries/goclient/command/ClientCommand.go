@@ -5,6 +5,7 @@ package command
 import (
 	"context"
 	"fmt"
+	"net"
 	"time"
 
 	pb "github.com/ditrit/gandalf/libraries/gogrpc"
@@ -25,7 +26,12 @@ func NewClientCommand(identity, clientCommandConnection string) (clientCommand *
 	clientCommand = new(ClientCommand)
 	clientCommand.Identity = identity
 	clientCommand.ClientCommandConnection = clientCommandConnection
-	conn, _ := grpc.Dial(clientCommand.ClientCommandConnection, grpc.WithInsecure())
+	conn, _ := grpc.Dial(clientCommand.ClientCommandConnection,
+		grpc.WithInsecure(),
+		grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
+			return net.DialTimeout("unix", addr, timeout)
+		}))
+
 	// if err != nil {
 	// 	// TODO implement erreur
 	// }

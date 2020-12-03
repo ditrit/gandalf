@@ -5,6 +5,7 @@ package event
 import (
 	"context"
 	"fmt"
+	"net"
 	"time"
 
 	pb "github.com/ditrit/gandalf/libraries/gogrpc"
@@ -26,7 +27,11 @@ func NewClientEvent(identity, clientEventConnection string) (clientEvent *Client
 	clientEvent.Identity = identity
 	clientEvent.ClientEventConnection = clientEventConnection
 
-	conn, err := grpc.Dial(clientEvent.ClientEventConnection, grpc.WithInsecure())
+	conn, err := grpc.Dial(clientEvent.ClientEventConnection,
+		grpc.WithInsecure(),
+		grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
+			return net.DialTimeout("unix", addr, timeout)
+		}))
 
 	if err != nil {
 		fmt.Println("clientEvent failed dial")

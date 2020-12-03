@@ -5,6 +5,8 @@ package base
 import (
 	"context"
 	"fmt"
+	"net"
+	"time"
 
 	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
@@ -23,7 +25,11 @@ func NewClientBase(identity, clientBaseConnection string) (clientBase *ClientBas
 	clientBase = new(ClientBase)
 	clientBase.Identity = identity
 	clientBase.ClientBaseConnection = clientBaseConnection
-	conn, _ := grpc.Dial(clientBase.ClientBaseConnection, grpc.WithInsecure())
+	conn, _ := grpc.Dial(clientBase.ClientBaseConnection,
+		grpc.WithInsecure(),
+		grpc.WithDialer(func(addr string, timeout time.Duration) (net.Conn, error) {
+			return net.DialTimeout("unix", addr, timeout)
+		}))
 	// if err != nil {
 	// 	// TODO implement erreur
 	// }
@@ -40,7 +46,6 @@ func (cb ClientBase) SendCommandList(major, minor int64, commands []string) *pb.
 	commandlist.Minor = minor
 	commandlist.Commands = commands
 
-	fmt.Println("SEND COMMAND LIST LIB")
 	validate, _ := cb.client.SendCommandList(context.Background(), commandlist)
 
 	return validate
