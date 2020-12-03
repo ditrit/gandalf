@@ -1,8 +1,6 @@
 package client
 
 import (
-	"fmt"
-
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -26,7 +24,6 @@ func (as *GandalfTenantService) List(token string) ([]models.Tenant, error) {
 func (as *GandalfTenantService) Create(token string, tenant models.Tenant) (string, string, error) {
 	req, err := as.client.newRequest("POST", "/auth/gandalf/tenants/", token, tenant)
 	if err != nil {
-		fmt.Println("ERRRORR")
 		return "", "", err
 	}
 	var mapTenant map[string]interface{}
@@ -36,8 +33,6 @@ func (as *GandalfTenantService) Create(token string, tenant models.Tenant) (stri
 	if err != nil {
 		return "", "", err
 	}
-	fmt.Println(err)
-	fmt.Println(mapTenant)
 	return mapTenant["login"].(string), mapTenant["password"].(string), err
 }
 

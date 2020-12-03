@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -57,18 +56,13 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	dir := c.GetDir()
 	err = nil
 	thisOne := ch.GetBindAddr()
-	fmt.Println("SECRET")
 	log.Println("Handle secret")
 	log.Println(secret)
 
 	if secret.GetTenant() == ch.Context["tenant"] {
-		fmt.Println("TENANT")
 		//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
-		//fmt.Println("ok")
-		//fmt.Println(ok)
 		//if ok {
 		if dir == "in" {
-			fmt.Println("IN")
 			if c.GetShosetType() == "c" {
 				shosets := net.GetByType(ch.ConnsByAddr, "cl")
 				if len(shosets) != 0 {
@@ -87,12 +81,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		}
 
 		if dir == "out" {
-			fmt.Println("OUT")
 			if c.GetShosetType() == "cl" {
-				fmt.Println("secret")
-				fmt.Println(secret)
-				fmt.Println("secret target")
-				fmt.Println(secret.GetTarget())
+
 				if secret.GetTarget() == "" {
 					if secret.GetCommand() == "VALIDATION_REPLY" {
 						ch.Context["validation"] = secret.GetPayload()
@@ -111,7 +101,6 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			err = errors.New("can't push to queue")
 		} */
 	} else {
-		fmt.Println("WRONG TENANT")
 		log.Println("wrong tenant")
 		err = errors.New("wrong tenant")
 	}
@@ -138,15 +127,12 @@ func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, instanceName,
 
 		notSend := true
 		for notSend {
-			fmt.Println("SEND")
 
 			index := getSecretSendIndex(shosets)
 			shosets[index].SendMessage(secretMsg)
 			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
 
 			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
-			fmt.Println("timeoutSend")
-			fmt.Println(timeoutSend)
 
 			time.Sleep(timeoutSend * time.Millisecond)
 

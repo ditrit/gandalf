@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/cluster/utils"
@@ -24,8 +23,6 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle event")
 	log.Println(evt)
 
-	fmt.Println("HANDLE EVENT")
-	fmt.Println(evt)
 	//ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
 
 	//if ok {

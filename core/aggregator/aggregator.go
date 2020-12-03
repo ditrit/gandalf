@@ -2,7 +2,6 @@
 package aggregator
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -92,8 +91,6 @@ func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64,
 	result = false
 
 	resultString := m.chaussette.Context["validation"].(string)
-	fmt.Println("resultString")
-	fmt.Println(resultString)
 	if resultString != "" {
 		if resultString == "true" {
 			result = true

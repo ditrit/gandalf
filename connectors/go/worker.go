@@ -1,7 +1,6 @@
 package worker
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
@@ -106,8 +105,6 @@ func (w Worker) Run() {
 func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 
 	for true {
-		fmt.Println("w.WorkerState.GetState()")
-		fmt.Println(w.WorkerState.GetState())
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
 
 		if w.WorkerState.GetState() == 0 {
@@ -134,9 +131,14 @@ func (w Worker) executeCommands(command msg.Command, function func(clientGandalf
 }
 
 func (w Worker) waitEvents(id string, topicEvent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
-	for w.WorkerState.GetState() == 0 {
+	for true {
 		event := w.clientGandalf.WaitEvent(topicEvent.Topic, topicEvent.Event, id)
-		go w.executeEvents(event, function)
+		if w.WorkerState.GetState() == 0 {
+			go w.executeEvents(event, function)
+		} else {
+			break
+		}
+
 	}
 	for w.OngoingTreatments.GetIndex() > 0 {
 		time.Sleep(2 * time.Second)

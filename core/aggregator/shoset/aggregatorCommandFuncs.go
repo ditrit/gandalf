@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	net "github.com/ditrit/shoset"
@@ -22,7 +21,6 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle command")
 	log.Println(cmd)
-	fmt.Println("HANDLE COMMAND")
 	if cmd.GetTenant() == ch.Context["tenant"] {
 		//_ = ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 
@@ -77,15 +75,8 @@ func getCommandSendIndex(conns []*net.ShosetConn) int {
 	aux := commandSendIndex
 	commandSendIndex++
 
-	fmt.Println(len(conns))
-	fmt.Println("aux")
-	fmt.Println(aux)
-	fmt.Println("commandSendIndex")
-	fmt.Println(commandSendIndex)
 	if commandSendIndex >= len(conns) {
 		commandSendIndex = 0
 	}
-	fmt.Println("commandSendIndex2")
-	fmt.Println(commandSendIndex)
 	return aux
 }

@@ -123,8 +123,7 @@ func ClusterMemberInit(logicalName, instanceName, bindAddress, databasePath, log
 				var gandalfDatabaseClient *gorm.DB
 				gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
 				member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-				fmt.Println("ch.Context")
-				fmt.Println(member.GetChaussette().Context["gandalfDatabase"])
+
 				if err == nil {
 
 					if !databaseCreated {

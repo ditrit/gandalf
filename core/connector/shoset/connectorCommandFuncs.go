@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/connector/utils"
@@ -23,14 +22,10 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle command")
 	log.Println(cmd)
 
-	fmt.Println("Handle command")
-	fmt.Println(cmd)
-
 	validate := false
 	config := ch.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	if config != nil {
-		fmt.Println("ISADMIN")
-		fmt.Println(cmd.GetContext()["isAdmin"])
+
 		if cmd.GetContext()["isAdmin"].(bool) {
 			connectorType := "Admin"
 			if connectorType != "" {
@@ -103,9 +98,6 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	if validate {
 
 		ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
-
-		fmt.Println("add queue shoset")
-		fmt.Println(ch.Queue["cmd"])
 
 		if ok {
 			ch.ConnsByAddr.Iterate(

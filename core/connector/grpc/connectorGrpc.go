@@ -4,7 +4,6 @@ package grpc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"regexp"
@@ -72,7 +71,6 @@ func (r ConnectorGrpc) StartGrpcServer() {
 //SendCommandList : Connector send command list function.
 func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) (validate *pb.Validate, err error) {
 	log.Println("Handle send command list")
-	fmt.Println("SNED COMMAND LIST")
 	validation := false
 
 	/* 	mapVersionConnectorCommands := r.Shoset.Context["mapVersionConnectorCommands"].(map[int8][]string)
@@ -81,8 +79,7 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 	   	} */
 
 	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	fmt.Println("config")
-	fmt.Println(config)
+
 	if config != nil {
 		connectorType := r.Shoset.Context["connectorType"].(string)
 		connectorConfig := utils.GetConnectorTypeConfigByVersion(int8(in.GetMajor()), config[connectorType])
@@ -108,8 +105,6 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 			}
 			validation = result
 
-			fmt.Println("validation")
-			fmt.Println(validation)
 		} else {
 			log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, int8(in.GetMajor()))
 		}
@@ -133,9 +128,6 @@ func (r ConnectorGrpc) SendStop(ctx context.Context, in *pb.Stop) (validate *pb.
 	/* 	for activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}] {
 		time.Sleep(5 * time.Second)
 	} */
-	fmt.Println("HANDLE STOP")
-	fmt.Println(activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}])
-
 	return &pb.Validate{Valid: activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}]}, nil
 
 }
@@ -146,8 +138,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 
 	cmd := pb.CommandFromGrpc(in)
 	//connectorType := r.Shoset.Context["connectorType"].(string)
-	fmt.Println("ADMIN CMD")
-	fmt.Println(cmd.GetContext()["isAdmin"])
+
 	validate := false
 	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
 	if config != nil {
@@ -219,8 +210,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	} else {
 		log.Println("Connectors configuration not found")
 	}
-	fmt.Println("VALIDATE SEND")
-	fmt.Println(validate)
+
 	if validate {
 		cmd.Tenant = r.Shoset.Context["tenant"].(string)
 		shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
@@ -339,7 +329,6 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 		} else {
 			log.Println("Connectors configuration not found")
 		}
-
 	}
 
 	if validate {

@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	net "github.com/ditrit/shoset"
@@ -20,9 +19,6 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle event")
 	log.Println(evt)
-
-	fmt.Println("HANDLE EVENT")
-	fmt.Println(evt)
 
 	if evt.GetTenant() == ch.Context["tenant"] {
 		//ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())

@@ -65,7 +65,6 @@ func WaitSecret(c *net.Shoset, replies *msg.Iterator, args map[string]string, ti
 
 // HandleSecret :
 func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
-	fmt.Println("SECRET")
 	secret := message.(cmsg.Secret)
 	ch := c.GetCh()
 
@@ -87,8 +86,6 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 				var result bool
 				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["instanceName"].(string), secret.GetContext()["secret"].(string))
 
-				fmt.Println("componentType")
-				fmt.Println(secret.GetContext()["componentType"].(string))
 				if err == nil {
 					target := secret.GetTarget()
 					if secret.GetContext()["componentType"] == "aggregator" {

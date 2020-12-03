@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -25,7 +24,6 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle command")
 	log.Println(cmd)
-	fmt.Println("HANDLE COMMAND")
 	//ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 
 	//if ok {
@@ -43,10 +41,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			}
 
 			app := cutils.GetApplicationContext(cmd, databaseClient)
-			fmt.Println("APP")
-			fmt.Println(app)
-			fmt.Println("LogicalName")
-			fmt.Println(app.Aggregator.LogicalName)
+
 			if app != (models.Application{}) {
 				mapConn := ch.ConnsByName.Get(app.Aggregator.LogicalName)
 				if mapConn != nil {

@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
+	"time"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 	"github.com/ditrit/shoset/msg"
@@ -35,10 +37,6 @@ func main() {
 
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	fmt.Println("EXECUTE SEND AUTH MAIL 1.0")
-	fmt.Println("COMMAND")
-	fmt.Println(command)
-	fmt.Println("PAYLOAD")
-	fmt.Println(command.GetPayload())
 
 	return 0
 	/* 	var configuration Configuration
@@ -65,10 +63,12 @@ func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command ms
 
 func CreateForm(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	fmt.Println("EXECUTE CREATE FORM 1.0")
-	fmt.Println("COMMAND")
-	fmt.Println(command)
-	fmt.Println("PAYLOAD")
-	fmt.Println(command.GetPayload())
+
+	for i := 0; i < 100; i++ {
+		fmt.Println("1.0 : " + strconv.Itoa(i) + "%")
+		time.Sleep(1 * time.Second)
+	}
+
 	return 0
 	/* 	var formPayload form.FormPayload
 	   	err := json.Unmarshal([]byte(command.GetPayload()), &formPayload)

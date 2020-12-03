@@ -142,8 +142,6 @@ func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, 
 	result = false
 
 	resultString := m.chaussette.Context["validation"].(string)
-	fmt.Println("resultString")
-	fmt.Println(resultString)
 	if resultString != "" {
 		if resultString == "true" {
 			result = true
@@ -160,8 +158,7 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 
 	//mapVersionsKeys = make(map[int64][]string)
 	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	fmt.Println("config")
-	fmt.Println(config)
+
 	if config != nil {
 		//first := true
 		configConnectorTypeKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/keys.yaml")
@@ -182,19 +179,12 @@ func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product strin
 		listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
 		listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
 
-		fmt.Println("versions")
-		fmt.Println(versions)
 		for _, version := range versions {
 			connectorConfig := utils.GetConnectorTypeConfigByVersion(version.Major, config[connectorType])
 			if connectorConfig == nil {
-				fmt.Println("DOWNLOAD")
-
-				fmt.Println("url")
-				fmt.Println(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_configuration.yaml")
 
 				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_configuration.yaml")
-				fmt.Println("connectorConfig")
-				fmt.Println(connectorConfig)
+
 				connectorConfig.ConnectorType.Name = connectorType
 				connectorConfig.Major = version.Major
 
@@ -255,12 +245,10 @@ func (m *ConnectorMember) GetAndStartWorkers(baseurl, connectortype, product, wo
 		fileWorkersPathVersion := workerPath + ressourceDir + "worker"
 
 		if !utils.CheckFileExistAndIsExecAll(fileWorkersPathVersion) {
-			fmt.Println("DOWNLOAD")
 			ressourceURL := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "_" + strconv.Itoa(int(version.Minor)) + "_"
 
 			url := baseurl + ressourceURL + "worker.zip"
-			fmt.Println("url")
-			fmt.Println(url)
+
 			src := workerPath + ressourceDir + "worker.zip"
 			dest := workerPath + ressourceDir
 
@@ -299,7 +287,6 @@ func (m *ConnectorMember) GetAndStartWorkers(baseurl, connectortype, product, wo
 
 		go func() {
 			defer stdin.Close()
-			fmt.Println("Write")
 			io.WriteString(stdin, stdinargs)
 		}()
 	}
@@ -313,12 +300,10 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 	validation := true
 
 	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[int8][]string)
-	fmt.Println("mapVersionConnectorCommands")
-	fmt.Println(mapVersionConnectorCommands)
+
 	if mapVersionConnectorCommands != nil {
 		config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-		fmt.Println("config")
-		fmt.Println(config)
+
 		if config != nil {
 			for version, commands := range mapVersionConnectorCommands {
 				var configCommands []string
@@ -328,13 +313,9 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 					for _, command := range connectorConfig.ConnectorCommands {
 						configCommands = append(configCommands, command.Name)
 					}
-					fmt.Println("commands")
-					fmt.Println(commands)
-					fmt.Println("configCommands")
-					fmt.Println(configCommands)
+
 					validation = validation && reflect.DeepEqual(commands, configCommands)
-					fmt.Println("validation")
-					fmt.Println(validation)
+
 					result = validation
 				} else {
 					log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)

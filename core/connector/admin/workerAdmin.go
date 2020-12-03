@@ -72,7 +72,6 @@ func (w WorkerAdmin) GetClientGandalf() *goclient.ClientGandalf {
 
 //RegisterCommandsFuncs : RegisterCommandsFuncs
 func (w WorkerAdmin) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
-	fmt.Println("REGISTER")
 	w.CommandsFuncs[command] = function
 }
 
@@ -108,26 +107,20 @@ func (w WorkerAdmin) Run() {
 	for true {
 		time.Sleep(1 * time.Millisecond)
 	}
-	fmt.Println("END WORKER ADMIN")
 }
 
 func (w WorkerAdmin) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 
 	for true {
 
-		fmt.Println("wait " + commandName)
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
-		fmt.Println("command")
-		fmt.Println(command)
 
 		go w.executeCommands(command, function)
 
 	}
-	fmt.Println("END WAIT")
 }
 
 func (w WorkerAdmin) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
-	fmt.Println("execute")
 	result := function(w.clientGandalf, w.major, command)
 	if result == 0 {
 		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), goclientmodels.NewOptions("", ""))
@@ -139,13 +132,9 @@ func (w WorkerAdmin) executeCommands(command msg.Command, function func(clientGa
 //
 func (w WorkerAdmin) StopWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	var versionPayload models.Version
-	fmt.Println("COMMAND")
-	fmt.Println(command)
-	fmt.Println("PAYLOAD")
-	fmt.Println(command.GetPayload())
+
 	err := json.Unmarshal([]byte(command.GetPayload()), &versionPayload)
-	fmt.Println("ERROR STOP WORKER")
-	fmt.Println(err)
+
 	if err == nil {
 		err = w.stopWorker(versionPayload)
 		if err == nil {
@@ -159,13 +148,9 @@ func (w WorkerAdmin) StopWorker(clientGandalf *goclient.ClientGandalf, major int
 //
 func (w WorkerAdmin) GetWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	var versionPayload models.Version
-	fmt.Println("COMMAND")
-	fmt.Println(command)
-	fmt.Println("PAYLOAD")
-	fmt.Println(command.GetPayload())
+
 	err := json.Unmarshal([]byte(command.GetPayload()), &versionPayload)
-	fmt.Println("ERROR STOP WORKER")
-	fmt.Println(err)
+
 	if err == nil {
 		err = w.getWorkerConfiguration(versionPayload)
 		if err == nil {
@@ -182,8 +167,7 @@ func (w WorkerAdmin) GetWorker(clientGandalf *goclient.ClientGandalf, major int6
 func (w WorkerAdmin) GetLastVersionsWorker(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 
 	lastVersion, err := w.getLastVersion()
-	fmt.Println("lastVersion")
-	fmt.Println(lastVersion)
+
 	if err == nil {
 		err = w.getWorkerConfiguration(lastVersion)
 		if err == nil {
@@ -200,12 +184,9 @@ func (w WorkerAdmin) GetLastVersionsWorker(clientGandalf *goclient.ClientGandalf
 func (w WorkerAdmin) Update(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 
 	lastVersion, err := w.getLastVersion()
-	fmt.Println("lastVersion")
-	fmt.Println(lastVersion)
 
 	if err == nil {
-		fmt.Println("ISLAST")
-		fmt.Println(w.isLastVersion(lastVersion))
+
 		if !w.isLastVersion(lastVersion) {
 			err = w.getWorkerConfiguration(lastVersion)
 			if err == nil {
@@ -263,16 +244,13 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 	time.Sleep(time.Second * time.Duration(5))
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	fmt.Println("config")
-	fmt.Println(config)
+
 	if config != nil {
 		connectorConfig := utils.GetConnectorTypeConfigByVersion(int8(w.major), config["Admin"])
 		if connectorConfig == nil {
-			fmt.Println("DOWNLOAD")
 
 			dir, err := os.Getwd()
-			fmt.Println("dir")
-			fmt.Println(dir)
+
 			dat, err := ioutil.ReadFile(dir + "/connector/admin/configuration.yaml")
 
 			fmt.Print("string(dat)")
@@ -280,12 +258,9 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 
 			err = yaml.Unmarshal(dat, &connectorConfig)
 			if err != nil {
-				fmt.Println(err)
 				log.Fatal(err)
 			}
 
-			fmt.Println("connectorConfig")
-			fmt.Println(connectorConfig)
 			connectorConfig.ConnectorType.Name = "Admin"
 			connectorConfig.Major = int8(w.major)
 
@@ -310,8 +285,7 @@ func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) 
 	time.Sleep(time.Second * time.Duration(5))
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	fmt.Println("config")
-	fmt.Println(config)
+
 	if config != nil {
 
 		configConnectorTypeKeys, _ := utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/keys.yaml")
@@ -319,14 +293,9 @@ func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) 
 
 		connectorConfig := utils.GetConnectorTypeConfigByVersion(version.Major, config[w.connectorType])
 		if connectorConfig == nil {
-			fmt.Println("DOWNLOAD")
-
-			fmt.Println("url")
-			fmt.Println(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_configuration.yaml")
 
 			connectorConfig, _ = utils.DownloadConfiguration(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_configuration.yaml")
-			fmt.Println("connectorConfig")
-			fmt.Println(connectorConfig)
+
 			connectorConfig.ConnectorType.Name = w.connectorType
 			connectorConfig.Major = version.Major
 
@@ -373,12 +342,10 @@ func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 	fileWorkersPathVersion := w.workerPath + ressourceDir + "worker"
 
 	if !utils.CheckFileExistAndIsExecAll(fileWorkersPathVersion) {
-		fmt.Println("DOWNLOAD")
 		ressourceURL := "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "_" + strconv.Itoa(int(version.Minor)) + "_"
 
 		url := w.baseurl + ressourceURL + "worker.zip"
-		fmt.Println("url")
-		fmt.Println(url)
+
 		src := w.workerPath + ressourceDir + "worker.zip"
 		dest := w.workerPath + ressourceDir
 
@@ -405,8 +372,7 @@ func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	fmt.Println("config")
-	fmt.Println(config)
+
 	if config != nil {
 		connectorConfig := utils.GetConnectorTypeConfigByVersion(version.Major, config[w.connectorType])
 
@@ -445,13 +411,9 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 			configuration.WorkerKeyParse(listConfigurationKeys)
 			err = configuration.IsConfigValid()
 			if err == nil {
-				fmt.Println("listConfigurationKeys")
-				fmt.Println(listConfigurationKeys)
 
 				var stdinargs string
 				stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
-				fmt.Println("stdinargs")
-				fmt.Println(stdinargs)
 
 				workersPathVersion := w.workerPath + "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
 				fileWorkersPathVersion := workersPathVersion + "/worker"
@@ -476,7 +438,6 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
 					go func() {
 						defer stdin.Close()
-						fmt.Println("Write")
 						io.WriteString(stdin, stdinargs)
 					}()
 				}

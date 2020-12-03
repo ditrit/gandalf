@@ -28,6 +28,30 @@ func main() {
 	worker := worker.NewWorker(major, minor)
 	clientGandalf := worker.Start()
 
+	id := clientGandalf.CreateIteratorEvent()
+
+	fmt.Println("SEND COMMMAND CREATE_FORM")
+	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+	commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+	formUUID := commandMessageUUID.GetUUID()
+	fmt.Println(formUUID)
+
+	time.Sleep(5 * time.Second)
+
+	fmt.Println("SEND COMMMAND ADMIN_UPDATE")
+	commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
+	updateUUID := commandMessageUUIDupdate.GetUUID()
+	fmt.Println(updateUUID)
+	event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
+	fmt.Println(event)
+
+	time.Sleep(5 * time.Second)
+
+	fmt.Println("SEND COMMMAND CREATE_FORM")
+	payload = `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+	commandMessageUUID = clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+	formUUID = commandMessageUUID.GetUUID()
+
 	//fmt.Println("SEND COMMMAND ADMIN_GET_LAST_VERSION_WORKER")
 	//payloadStop := `{"Major":1,"Minor":5}`
 	//commandMessageUUIDstop := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
@@ -41,7 +65,7 @@ func main() {
 	   	payloadStop := `{"Major":1,"Minor":0}`
 	   	commandMessageUUIDstop := clientGandalf.SendCommand("Utils.ADMIN_STOP_WORKER", models.NewOptions("", payloadStop))
 	   	fmt.Println(commandMessageUUIDstop) */
-	id := clientGandalf.CreateIteratorEvent()
+	/* id := clientGandalf.CreateIteratorEvent()
 	cpt := 0
 	for true {
 
@@ -52,9 +76,10 @@ func main() {
 			//commandMessageUUIDstop := clientGandalf.SendCommand("Utils.ADMIN_GET_WORKER", models.NewOptions("", payloadStop))
 			commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
 			updateUUID := commandMessageUUIDupdate.GetUUID()
-			event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
-			fmt.Println("event")
-			fmt.Println(event)
+			fmt.Println(updateUUID)
+			//event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
+			//fmt.Println("event")
+			//fmt.Println(event)
 
 		} else {
 			fmt.Println("SEND COMMMAND CREATE_FORM")
@@ -69,7 +94,7 @@ func main() {
 		cpt++
 
 		time.Sleep(5 * time.Second)
-	}
+	} */
 
 	//workerUpload := workers.NewWorkerUpload(clientGandalf)
 	//go workerUpload.Run()

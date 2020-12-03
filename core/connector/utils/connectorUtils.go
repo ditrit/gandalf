@@ -282,8 +282,6 @@ func GetConfigurationKeys(configkeys []models.ConfigurationKeys) (stindargs stri
 	var keyValue string
 	for i, configkey := range configkeys {
 		keyValue, _ = configuration.GetStringConfig(configkey.Name)
-		fmt.Println("keyValue")
-		fmt.Println(keyValue)
 		if i == 0 {
 			stindargs = "{\"" + configkey.Name + "\":" + "\"" + keyValue + "\""
 		} else {
@@ -310,9 +308,7 @@ func CheckFileExist(path string) bool {
 
 func CheckFileExistAndIsExecAll(path string) bool {
 	if fileState, err := os.Stat(path); err == nil {
-		fmt.Println("exit")
 		if IsExecAll(fileState.Mode()) {
-			fmt.Println("execute all")
 			return true
 		}
 		return false

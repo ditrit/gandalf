@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	net "github.com/ditrit/shoset"
@@ -19,8 +18,6 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle event")
 	log.Println(evt)
 
-	fmt.Println("HANDLE EVENT")
-	fmt.Println(evt)
 	/* 	configuration := ch.Context["connectorConfig"].(models.ConnectorConfig)
 	   	var eventConf models.ConnectorTypeEvent
 	   	for _, event := range configuration.ConnectorTypeEvents {
