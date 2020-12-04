@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net"
+	"os"
 	"regexp"
 	"time"
 
@@ -55,6 +56,11 @@ func NewConnectorGrpc(grpcConnection string, timeoutMax int64, shoset *sn.Shoset
 
 // StartGrpcServer : ConnectorGrpc start.
 func (r ConnectorGrpc) StartGrpcServer() {
+
+	if err := os.RemoveAll(r.GrpcConnection); err != nil {
+		log.Fatal(err)
+	}
+
 	lis, err := net.Listen("unix", r.GrpcConnection)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
