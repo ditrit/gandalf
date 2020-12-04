@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
@@ -20,12 +18,8 @@ func main() {
 }
 
 func testWorkflow() {
-	var configuration Configuration
-	mydir, _ := os.Getwd()
-	file, _ := os.Open(mydir + "/demoWorkflow.json")
-	decoder := json.NewDecoder(file)
-	decoder.Decode(&configuration)
-	clientGandalf := goclient.NewClientGandalf(configuration.Identity, configuration.Timeout, configuration.Connections)
+
+	clientGandalf := goclient.NewClientGandalf("identity", "timeout", []string{"socket"})
 
 	id := clientGandalf.CreateIteratorEvent()
 
@@ -52,6 +46,7 @@ func testWorkflow() {
 	formUUID = commandMessageUUID.GetUUID()
 }
 
+/*
 func testgitlab() {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
@@ -143,3 +138,4 @@ type Configuration struct {
 	TemplateFile          string
 	ParametersFile        string
 }
+*/
