@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"google.golang.org/grpc"
 )
@@ -23,7 +23,7 @@ func NewClientBase(identity, clientBaseConnection string) (clientBase *ClientBas
 	clientBase = new(ClientBase)
 	clientBase.Identity = identity
 	clientBase.ClientBaseConnection = clientBaseConnection
-	conn, _ := grpc.Dial(clientBase.ClientBaseConnection, grpc.WithInsecure())
+	conn, _ := grpc.Dial("unix:"+clientBase.ClientBaseConnection, grpc.WithInsecure())
 	// if err != nil {
 	// 	// TODO implement erreur
 	// }
@@ -34,12 +34,24 @@ func NewClientBase(identity, clientBaseConnection string) (clientBase *ClientBas
 }
 
 //SendCommandList :
-func (cb ClientBase) SendCommandList(major int64, commands []string) *pb.Empty {
+func (cb ClientBase) SendCommandList(major, minor int64, commands []string) *pb.Validate {
 	commandlist := new(pb.CommandList)
 	commandlist.Major = major
+	commandlist.Minor = minor
 	commandlist.Commands = commands
 
-	empty, _ := cb.client.SendCommandList(context.Background(), commandlist)
+	validate, _ := cb.client.SendCommandList(context.Background(), commandlist)
 
-	return empty
+	return validate
+}
+
+//SendStop :
+func (cb ClientBase) SendStop(major, minor int64) *pb.Validate {
+	stop := new(pb.Stop)
+	stop.Major = major
+	stop.Minor = minor
+
+	validate, _ := cb.client.SendStop(context.Background(), stop)
+
+	return validate
 }

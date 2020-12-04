@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/ditrit/shoset/msg"
+
 	coreLog "github.com/ditrit/gandalf/core/log"
 
 	"github.com/ditrit/gandalf/core/aggregator/shoset"
@@ -24,15 +26,19 @@ type AggregatorMember struct {
 }*/
 
 // NewAggregatorMember :
-func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
+func NewAggregatorMember(logicalName, instanceName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")
+	member.chaussette.Context["instance"] = instanceName
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
-
+	member.chaussette.Queue["secret"] = msg.NewQueue()
+	member.chaussette.Get["secret"] = shoset.GetSecret
+	member.chaussette.Wait["secret"] = shoset.WaitSecret
+	member.chaussette.Handle["secret"] = shoset.HandleSecret
 	//coreLog.OpenLogFile("/var/log")
 
 	coreLog.OpenLogFile(logPath)
@@ -77,23 +83,46 @@ func getBrothers(address string, member *AggregatorMember) []string {
 	return bros
 }
 
+func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, instanceName, tenant, secret string) (result bool) {
+
+	shoset.SendSecret(nshoset, timeoutMax, logicalName, instanceName, tenant, secret)
+	time.Sleep(time.Second * time.Duration(5))
+
+	result = false
+
+	resultString := m.chaussette.Context["validation"].(string)
+	if resultString != "" {
+		if resultString == "true" {
+			result = true
+		}
+	}
+
+	return
+}
+
 // AggregatorMemberInit : Aggregator init function.
-func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath string) *AggregatorMember {
-	member := NewAggregatorMember(logicalName, tenant, logPath)
+func AggregatorMemberInit(logicalName, instanceName, tenant, bindAddress, linkAddress, logPath, secret string, timeoutMax int64) *AggregatorMember {
+	member := NewAggregatorMember(logicalName, instanceName, tenant, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
 		_, err = member.Link(linkAddress)
+		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
-			log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
-
-			time.Sleep(time.Second * time.Duration(5))
-			log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+			var validateSecret bool
+			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, instanceName, tenant, secret)
+			if validateSecret {
+				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
+				time.Sleep(time.Second * time.Duration(5))
+				log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+			} else {
+				log.Fatalf("Invalid secret")
+			}
 		} else {
-			log.Printf("Can't link shoset on %s", linkAddress)
+			log.Fatalf("Can't link shoset on %s", linkAddress)
 		}
 	} else {
-		log.Printf("Can't bind shoset on %s", bindAddress)
+		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
 
 	return member

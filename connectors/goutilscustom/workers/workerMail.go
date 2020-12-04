@@ -7,37 +7,39 @@ import (
 	"github.com/ditrit/gandalf/connectors/goutilscustom/mail"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
-	models "github.com/ditrit/gandalf/libraries/goclient/models"
 )
 
 type WorkerMail struct {
 	clientGandalf *goclient.ClientGandalf
-	version       int64
+	major         int64
+	minor         int64
 	clientMail    *mail.MailClient
 	address       string
 	port          string
 }
 
-func NewWorkerMail(address, port string, clientGandalf *goclient.ClientGandalf, version int64) *WorkerMail {
+func NewWorkerMail(address, port string, clientGandalf *goclient.ClientGandalf, major, minor int64) *WorkerMail {
 	workerMail := new(WorkerMail)
 	workerMail.address = address
 	workerMail.port = port
 	workerMail.clientGandalf = clientGandalf
-	workerMail.version = version
+	workerMail.major = major
+	workerMail.minor = minor
 
 	return workerMail
 }
 
+/*
 func (r WorkerMail) Run() {
 	done := make(chan bool)
 	go r.SendAuthMail()
 	<-done
 }
-
+*/
 func (r WorkerMail) SendAuthMail() {
 	id := r.clientGandalf.CreateIteratorCommand()
 	for true {
-		command := r.clientGandalf.WaitCommand("SEND_AUTH_MAIL", id, r.version)
+		command := r.clientGandalf.WaitCommand("SEND_AUTH_MAIL", id, r.major)
 
 		var mailPayload mail.MailPayload
 		err := json.Unmarshal([]byte(command.GetPayload()), &mailPayload)
@@ -47,12 +49,12 @@ func (r WorkerMail) SendAuthMail() {
 
 			auth := r.clientMail.Auth(mailPayload.Username, mailPayload.Password, r.address)
 
-			result := r.clientMail.SendAuthMail(mailPayload.Sender, mailPayload.Body, mailPayload.Receivers, auth)
-			if result {
+			 r.clientMail.SendAuthMail(mailPayload.Sender, mailPayload.Body, mailPayload.Receivers, auth)
+			/* 	if result {
 				r.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), models.NewOptions("", ""))
 			} else {
 				r.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), models.NewOptions("", ""))
-			}
+			} */
 		}
 	}
 }

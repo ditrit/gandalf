@@ -12,7 +12,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ditrit/gandalf/core/configuration"
+
 	"github.com/ditrit/gandalf/core/models"
+	"gopkg.in/yaml.v2"
 
 	"github.com/ditrit/shoset/msg"
 
@@ -29,22 +32,21 @@ func CreateValidationEvent(command msg.Command, tenant string) (evt *msg.Event) 
 
 	evt = msg.NewEvent(tab)
 	evt.Tenant = tenant
-	evt.Timeout = 100000
+	evt.Timeout = 10000
 
 	return
 }
 
-// IsExecAll : IsExecAll
-func IsExecAll(mode os.FileMode) bool {
-	return mode&0111 == 0111
-}
-
 // GetMaxVersion : GetMaxVersion
-func GetMaxVersion(versions []int64) (maxversion int64) {
-	maxversion = -1
+func GetMaxVersion(versions []models.Version) (maxversion models.Version) {
+	maxversion = models.Version{Major: 0, Minor: 0}
 	for _, version := range versions {
-		if version > maxversion {
+		if version.Major > maxversion.Major {
 			maxversion = version
+		} else if version.Major == maxversion.Major {
+			if version.Minor > maxversion.Minor {
+				maxversion = version
+			}
 		}
 	}
 	return
@@ -62,24 +64,19 @@ func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) 
 }
 
 // GetConnectorTypeConfigByVersion : GetConnectorTypeConfigByVersion
-func GetConnectorTypeConfigByVersion(version int64, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
-	if version == 0 {
-		result = nil
-	} else {
-		for _, connectorConfig := range list {
-			if int64(connectorConfig.Version) == version {
-				result = connectorConfig
-				break
-			}
+func GetConnectorTypeConfigByVersion(major int8, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
+	for _, connectorConfig := range list {
+		if connectorConfig.Major == major {
+			result = connectorConfig
+			break
 		}
 	}
 
 	return result
 }
 
-//TODO REVOIR INTERFACE
-// GetConnectorTypeCommand : GetConnectorTypeCommand
-func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeCommand) (result models.ConnectorTypeCommand) {
+// GetConnectorCommand : GetConnectorCommand
+func GetConnectorCommand(commandName string, list []models.Object) (result models.Object) {
 	for _, command := range list {
 		if command.Name == commandName {
 			result = command
@@ -89,9 +86,8 @@ func GetConnectorTypeCommand(commandName string, list []models.ConnectorTypeComm
 	return result
 }
 
-//TODO REVOIR INTERFACE
-// GetConnectorTypeEvent : GetConnectorTypeEvent
-func GetConnectorTypeEvent(eventName string, list []models.ConnectorTypeEvent) (result models.ConnectorTypeEvent) {
+// GetConnectorEvent : GetConnectorEvent
+func GetConnectorEvent(eventName string, list []models.Object) (result models.Object) {
 	for _, event := range list {
 		if event.Name == eventName {
 			result = event
@@ -120,8 +116,9 @@ func ValidatePayload(payload, payloadSchema string) (result bool) {
 
 }
 
-// DownloadConfigurationsKeys : Download configurationsKeys from url
-func DownloadConfigurationsKeys(url, ressource string) (body string, err error) {
+// DownloadConfiguration : Download configuration from url
+func DownloadConfiguration(url, ressource string) (connectorConfig *models.ConnectorConfig, err error) {
+
 	resp, err := http.Get(url + ressource)
 	if err != nil {
 		log.Printf("err: %s", err)
@@ -137,6 +134,35 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	err = yaml.Unmarshal(bodyBytes, &connectorConfig)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
+}
+
+// DownloadConfigurationsKeys : Download configurationsKeys from url
+func DownloadConfigurationsKeys(url, ressource string) (body string, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		fmt.Println(err)
+		log.Printf("err: %s", err)
+		return
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	bodyString := string(bodyBytes)
 
 	return bodyString, nil
@@ -170,6 +196,34 @@ func DownloadWorkers(url, filePath string) (err error) {
 	}
 
 	return nil
+}
+
+// DownloadVersions : Download versions from url
+func DownloadVersions(url, ressource string) (versions []string, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &versions)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
 }
 
 // Unzip : Unzip file
@@ -222,4 +276,42 @@ func Unzip(zipPath string, dirPath string) ([]string, error) {
 		}
 	}
 	return filenames, nil
+}
+
+func GetConfigurationKeys(configkeys []models.ConfigurationKeys) (stindargs string) {
+	var keyValue string
+	for i, configkey := range configkeys {
+		keyValue, _ = configuration.GetStringConfig(configkey.Name)
+		if i == 0 {
+			stindargs = "{\"" + configkey.Name + "\":" + "\"" + keyValue + "\""
+		} else {
+			stindargs = stindargs + ", \"" + configkey.Name + "\":" + "\"" + keyValue + "\""
+		}
+
+	}
+	stindargs = stindargs + "}"
+	return
+}
+
+// IsExecAll : IsExecAll
+func IsExecAll(mode os.FileMode) bool {
+	return mode&0111 == 0111
+}
+
+// CheckFileExist: CheckFileExist
+func CheckFileExist(path string) bool {
+	if _, err := os.Stat(path); err == nil {
+		return true
+	}
+	return false
+}
+
+func CheckFileExistAndIsExecAll(path string) bool {
+	if fileState, err := os.Stat(path); err == nil {
+		if IsExecAll(fileState.Mode()) {
+			return true
+		}
+		return false
+	}
+	return false
 }

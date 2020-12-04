@@ -8,29 +8,24 @@ go build -tags libsqlite3 -o gandalf
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
-./gandalf -g cluster -l cluster -b 127.0.0.1:9000 
+./gandalf -g cluster -l Cluster -i Cluster1 -b 127.0.0.1:9000 
 sleep 5
 echo 'Join ClusterMember' 
-./gandalf -g cluster -l cluster -b 127.0.0.1:9001 -j 127.0.0.1:9000 
+./gandalf -g cluster -l Cluster -i Cluster2 -b 127.0.0.1:9001 -j 127.0.0.1:9000
 sleep 5
 echo 'Join ClusterMember' 
-./gandalf -g cluster -l cluster -b 127.0.0.1:9002 -j 127.0.0.1:9000 
+./gandalf -g cluster -l Cluster -i Cluster3 -b 127.0.0.1:9002 -j 127.0.0.1:9000 
 sleep 5
 
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'
-./gandalf -g aggregator -l Aggregator1 -t tenant1 -b 127.0.0.1:8000 -c 127.0.0.1:9000
-./gandalf -g aggregator -l Aggregator2 -t tenant1 -b 127.0.0.1:8100 -c 127.0.0.1:9000
-./gandalf -g aggregator -l Aggregator3 -t tenant1 -b 127.0.0.1:8200 -c 127.0.0.1:9000
-./gandalf -g aggregator -l Aggregator4 -t tenant1 -b 127.0.0.1:8300 -c 127.0.0.1:9000
+./gandalf -g aggregator -l Aggregator1 -i Aggregator1 -t tenant1 -b 127.0.0.1:8000 -c 127.0.0.1:9000 -s TATA
 sleep 5
 
 echo 'Connector'
 echo 'ConnectorMember Con1 and Con2' 
-./gandalf -g connector -l Connector1 -t tenant1 -b 127.0.0.1:7000 -r 127.0.0.1:7010 -a 127.0.0.1:8000 -y Utils -p Custom -v 1,2 -w $HOME/gandalf/workers
-./gandalf -g connector -l Connector2 -t tenant1 -b 127.0.0.1:7100 -r 127.0.0.1:7110 -a 127.0.0.1:8100 -y Workflow -p Custom -v 1 -w $HOME/gandalf/workers -z https://github.com/ditrit/gandalf_workers/raw/master
-./gandalf -g connector -l Connector3 -t tenant1 -b 127.0.0.1:7200 -r 127.0.0.1:7210 -a 127.0.0.1:8200 -y Azure
-./gandalf -g connector -l Connector4 -t tenant1 -b 127.0.0.1:7300 -r 127.0.0.1:7310 -a 127.0.0.1:8300 -y Gitlab
+./gandalf -g connector -l Connector1 -i Connector1 -t tenant1 -b 127.0.0.1:7000 -r /tmp/utils.sock -a 127.0.0.1:8000 -y Utils -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
+./gandalf -g connector -l Connector2 -i Connector2 -t tenant1 -b 127.0.0.1:7100 -r /tmp/workflow.sock -a 127.0.0.1:8000 -y Workflow -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
 sleep 5
 
 

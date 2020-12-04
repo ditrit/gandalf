@@ -51,6 +51,7 @@ func (uc UploadController) Upload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer sourceFile.Close()
+
 		//fmt.Fprintf(w, "%v", sourceHandler.Header)
 		//CONFIGURATION
 		confFile, confHandler, err := r.FormFile("uploadconf")
@@ -59,12 +60,13 @@ func (uc UploadController) Upload(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer confFile.Close()
+
 		//fmt.Fprintf(w, "%v", confHandler.Header)
 
 		filepath := "./workflows/"
 		currentFilePath := filepath + time.Now().Format("01-02-2006 15:04:05") + "/"
 		//strconv.FormatInt(time.Now().Unix(), 10)
-		os.Mkdir(currentFilePath, 0700)
+		os.Mkdir(currentFilePath, 0777)
 		fileName := sourceHandler.Filename
 		confName := confHandler.Filename
 
@@ -87,7 +89,7 @@ func (uc UploadController) Upload(w http.ResponseWriter, r *http.Request) {
 		io.Copy(conf, confFile)
 
 		//ExecuteWorkflow
-		workflow.ExecuteWorkflow(currentFilePath, fileName)
+		go workflow.ExecuteWorkflow(currentFilePath, fileName)
 
 		tmpl := template.New("name")
 		tmpl = template.Must(tmpl.ParseFiles("upload/tmpl/layout.tmpl", "upload/tmpl/succes.tmpl"))

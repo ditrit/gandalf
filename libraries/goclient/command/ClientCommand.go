@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -25,7 +25,7 @@ func NewClientCommand(identity, clientCommandConnection string) (clientCommand *
 	clientCommand = new(ClientCommand)
 	clientCommand.Identity = identity
 	clientCommand.ClientCommandConnection = clientCommandConnection
-	conn, _ := grpc.Dial(clientCommand.ClientCommandConnection, grpc.WithInsecure())
+	conn, _ := grpc.Dial("unix:"+clientCommand.ClientCommandConnection, grpc.WithInsecure())
 	// if err != nil {
 	// 	// TODO implement erreur
 	// }
@@ -43,6 +43,22 @@ func (cc ClientCommand) SendCommand(connectorType, command, timeout, payload str
 	commandMessage.ConnectorType = connectorType
 	commandMessage.Command = command
 	commandMessage.Payload = payload
+	commandMessage.Admin = false
+
+	commandMessageUUID, _ = cc.client.SendCommandMessage(context.Background(), commandMessage)
+
+	return commandMessageUUID
+}
+
+//SendAdminCommand :
+func (cc ClientCommand) SendAdminCommand(connectorType, command, timeout, payload string) (commandMessageUUID *pb.CommandMessageUUID) {
+	commandMessage := new(pb.CommandMessage)
+	commandMessage.Timeout = timeout
+	commandMessage.UUID = uuid.New().String()
+	commandMessage.ConnectorType = connectorType
+	commandMessage.Command = command
+	commandMessage.Payload = payload
+	commandMessage.Admin = true
 
 	commandMessageUUID, _ = cc.client.SendCommandMessage(context.Background(), commandMessage)
 
@@ -60,7 +76,7 @@ func (cc ClientCommand) WaitCommand(command, idIterator string, major int64) *pb
 	fmt.Println(commandMessage)
 
 	for commandMessage == nil {
-		time.Sleep(time.Duration(1) * time.Millisecond)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 
 	return commandMessage

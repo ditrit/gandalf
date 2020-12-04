@@ -1,9 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
+	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
@@ -11,6 +10,63 @@ import (
 )
 
 func main() {
+	fmt.Println("START")
+	testWorkflow()
+	//demo()
+	//testgitlab()
+	fmt.Println("STOP")
+}
+
+func testWorkflow() {
+
+	clientGandalf := goclient.NewClientGandalf("identity", "timeout", []string{"socket"})
+
+	id := clientGandalf.CreateIteratorEvent()
+
+	fmt.Println("SEND COMMMAND CREATE_FORM")
+	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+	commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+	formUUID := commandMessageUUID.GetUUID()
+	fmt.Println(formUUID)
+
+	time.Sleep(5 * time.Second)
+
+	fmt.Println("SEND COMMMAND ADMIN_UPDATE")
+	commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
+	updateUUID := commandMessageUUIDupdate.GetUUID()
+	fmt.Println(updateUUID)
+	event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
+	fmt.Println(event)
+
+	time.Sleep(5 * time.Second)
+
+	fmt.Println("SEND COMMMAND CREATE_FORM")
+	payload = `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+	commandMessageUUID = clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+	formUUID = commandMessageUUID.GetUUID()
+}
+
+/*
+func testgitlab() {
+	var configuration Configuration
+	mydir, _ := os.Getwd()
+	file, _ := os.Open(mydir + "/demoWorkflow.json")
+	decoder := json.NewDecoder(file)
+	decoder.Decode(&configuration)
+	client := goclient.NewClientGandalf(configuration.Identity, configuration.Timeout, configuration.Connections)
+
+	id := client.CreateIteratorEvent()
+
+	payload := `{"Name":"` + "test" + `","Team":"` + "test" + `","TemplateName":` + "test" + `"}`
+
+	commandMessageUUID := client.SendCommand("Gitlab.CREATE_PROJECT", models.NewOptions("", payload))
+	projectUUID := commandMessageUUID.GetUUID()
+	event := client.WaitReplyByEvent("CREATE_PROJECT", "SUCCES", projectUUID, id)
+	fmt.Println(event)
+
+}
+
+func demo() {
 	var configuration Configuration
 	mydir, _ := os.Getwd()
 	file, _ := os.Open(mydir + "/demoWorkflow.json")
@@ -24,7 +80,7 @@ func main() {
 	fmt.Println(event)
 	if event.GetEvent() == "NEW_APP" {
 		//CREATE FORM
-
+		//CreateProject":{"required":["Name","Team","TemplateName"]
 		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
 
 		//commandMessageUUID := client.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
@@ -82,3 +138,4 @@ type Configuration struct {
 	TemplateFile          string
 	ParametersFile        string
 }
+*/

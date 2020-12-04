@@ -24,16 +24,18 @@ type WorkerApplication struct {
 	controller    *app.AppController
 	url           string
 	clientGandalf *goclient.ClientGandalf
-	version       int64
+	major         int64
+	minor         int64
 }
 
-func NewWorkerApplication(clientGandalf *goclient.ClientGandalf, version int64) *WorkerApplication {
+func NewWorkerApplication(clientGandalf *goclient.ClientGandalf, major, minor int64) *WorkerApplication {
 	workerApplication := new(WorkerApplication)
 	workerApplication.address = server_address
 	workerApplication.port = server_port
 	workerApplication.rooturl = server_address + server_port
 	workerApplication.clientGandalf = clientGandalf
-	workerApplication.version = version
+	workerApplication.major = major
+	workerApplication.minor = minor
 	workerApplication.url = app.ReturnURLS()
 
 	controllerUrl := "http://" + workerApplication.rooturl + workerApplication.url

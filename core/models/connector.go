@@ -8,5 +8,7 @@ import (
 // Connector : Connector struct.
 type Connector struct {
 	gorm.Model
-	Name string
+	LogicalName  string
+	InstanceName string `gorm:"unique"`
+	Secret       string
 }

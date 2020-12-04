@@ -8,7 +8,7 @@ import (
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"github.com/ditrit/gandalf/libraries/goclient/client"
 
@@ -79,6 +79,38 @@ func (cg ClientGandalf) SendCommand(request string, options *models.Options) (co
 	return commandMessageUUID
 }
 
+//SendAdminCommand
+func (cg ClientGandalf) SendAdminCommand(request string, options *models.Options) (commandMessageUUID *pb.CommandMessageUUID) {
+	var notSend bool
+	requestSplit := strings.Split(request, ".")
+	timeout := options.GetTimeout()
+	if timeout == "" {
+		timeout = cg.Timeout
+	}
+
+	for stay, timeoutLoop := true, time.After(time.Second); stay; {
+
+		commandMessageUUID = cg.Clients[getClientIndex(cg.Clients, true)].SendAdminCommand(requestSplit[0], requestSplit[1], timeout, options.GetPayload())
+		if commandMessageUUID != nil {
+			notSend = false
+			break
+		}
+
+		select {
+		case <-timeoutLoop:
+			stay = false
+			notSend = true
+		default:
+		}
+	}
+
+	if notSend {
+		return nil
+	}
+
+	return commandMessageUUID
+}
+
 //SendEvent
 func (cg ClientGandalf) SendEvent(topic, event string, options *models.Options) (empty *pb.Empty) {
 	var notSend bool
@@ -111,7 +143,7 @@ func (cg ClientGandalf) SendEvent(topic, event string, options *models.Options) 
 	return empty
 }
 
-//SendEvent
+//SendReply
 func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *models.Options) (empty *pb.Empty) {
 	var notSend bool
 	timeout := options.GetTimeout()
@@ -144,10 +176,13 @@ func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *m
 }
 
 //SendCommandList
-func (cg ClientGandalf) SendCommandList(version int64, commands []string) (empty *pb.Empty) {
-	empty = cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(version, commands)
+func (cg ClientGandalf) SendCommandList(major, minor int64, commands []string) *pb.Validate {
+	return cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, minor, commands)
+}
 
-	return empty
+//SendStop
+func (cg ClientGandalf) SendStop(major, minor int64) *pb.Validate {
+	return cg.Clients[getClientIndex(cg.Clients, true)].SendStop(major, minor)
 }
 
 //WaitCommand

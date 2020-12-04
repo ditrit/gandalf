@@ -3,7 +3,7 @@
 package client
 
 import (
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"github.com/ditrit/gandalf/libraries/goclient/command"
 	"github.com/ditrit/gandalf/libraries/goclient/event"
@@ -37,13 +37,23 @@ func NewClientGrpc(identity, clientConnection string) (clientGrpc *ClientGrpc) {
 }
 
 //SendCommandList
-func (cg ClientGrpc) SendCommandList(version int64, commands []string) *pb.Empty {
-	return cg.ClientBase.SendCommandList(version, commands)
+func (cg ClientGrpc) SendCommandList(major, minor int64, commands []string) *pb.Validate {
+	return cg.ClientBase.SendCommandList(major, minor, commands)
+}
+
+//SendStop
+func (cg ClientGrpc) SendStop(major, minor int64) *pb.Validate {
+	return cg.ClientBase.SendStop(major, minor)
 }
 
 //SendCommand
 func (cg ClientGrpc) SendCommand(connectorType, command, timeout, payload string) *pb.CommandMessageUUID {
 	return cg.ClientCommand.SendCommand(connectorType, command, timeout, payload)
+}
+
+//SendAdminCommand
+func (cg ClientGrpc) SendAdminCommand(connectorType, command, timeout, payload string) *pb.CommandMessageUUID {
+	return cg.ClientCommand.SendAdminCommand(connectorType, command, timeout, payload)
 }
 
 //SendEvent
