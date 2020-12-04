@@ -5,9 +5,11 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// ConnectorConfigProduct : ConnectorConfigProduct struct.
+// ConnectorProduct : ConnectorProduct struct.
 type ConnectorProduct struct {
 	gorm.Model
-	Name    string
-	Version string
+	Name            string
+	Version         string
+	ConnectorTypeID uint
+	ConnectorType   ConnectorType
 }

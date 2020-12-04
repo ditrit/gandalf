@@ -8,14 +8,18 @@ import (
 // ConnectorConfig : ConnectorConfig struct.
 type ConnectorConfig struct {
 	gorm.Model
-	Name                  string
-	ConnectorTypeID       uint
-	ConnectorType         ConnectorType
-	Version               int
-	ConnectorProductID    uint
-	ConnectorProduct      ConnectorProduct
-	ConnectorTypeCommands []ConnectorTypeCommand `gorm:"many2many:config_commands;"`
-	ConnectorTypeEvents   []ConnectorTypeEvent   `gorm:"many2many:config_events;"`
-	ConnectorTypeKeys     string
-	ProductKeys           string
+	Name               string `gorm:"unique"`
+	ConnectorTypeID    uint
+	ConnectorType      ConnectorType
+	Major              int8
+	ConnectorProductID uint
+	ConnectorProduct   ConnectorProduct
+	ConnectorCommands  []Object `gorm:"many2many:config_commands;"`
+	ConnectorEvents    []Object `gorm:"many2many:config_events;"`
+	//Actions            []Action           `gorm:"many2many:config_actions;"`
+	Resources         []Object `gorm:"many2many:config_resources;"`
+	ConnectorTypeKeys string
+	ProductKeys       string
+	VersionMajorKeys  string
+	VersionMinorKeys  string
 }

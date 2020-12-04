@@ -21,6 +21,7 @@ gandalf-go
 !/core/
 !/connectors/
 !/libraries/
+!/cli/
 
 !.gitignore
 !.golangci.yml

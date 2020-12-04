@@ -26,7 +26,7 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle connector config")
 	log.Println(conf)
 
-	mapDatabaseClient := ch.Context["database"].(map[string]*gorm.DB)
+	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	databasePath := ch.Context["databasePath"].(string)
 	if mapDatabaseClient != nil {
 		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), databasePath, mapDatabaseClient)
@@ -43,6 +43,7 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 
 			if err == nil {
 				cmdReply := msg.NewConfig(conf.GetTarget(), "CONFIG_REPLY", string(jsonData))
+				cmdReply.Tenant = conf.GetTenant()
 				shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
 				shoset.SendMessage(cmdReply)

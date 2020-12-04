@@ -2,11 +2,17 @@
 package cluster
 
 import (
+	"fmt"
 	"log"
 	"time"
 
+	"github.com/ditrit/shoset/msg"
+
+	"github.com/canonical/go-dqlite"
+	"github.com/ditrit/gandalf/core/cluster/api"
+	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
-	"github.com/ditrit/gandalf/core/database"
+	"github.com/ditrit/gandalf/core/cluster/utils"
 	coreLog "github.com/ditrit/gandalf/core/log"
 
 	net "github.com/ditrit/shoset"
@@ -16,8 +22,8 @@ import (
 
 // ClusterMember : Cluster struct.
 type ClusterMember struct {
-	chaussette        *net.Shoset
-	databaseNode      *database.DatabaseNode
+	chaussette *net.Shoset
+	//databaseNode      *database.DatabaseNode
 	Store             *[]string
 	MapDatabaseClient map[string]*gorm.DB
 }
@@ -31,17 +37,22 @@ func InitClusterKeys(){
 */
 
 // NewClusterMember : Cluster struct constructor.
-func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember {
+func NewClusterMember(logicalName, instanceName, databasePath, logPath string) *ClusterMember {
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
 	member.MapDatabaseClient = make(map[string]*gorm.DB)
-
+	member.chaussette.Context["instance"] = instanceName
 	member.chaussette.Context["databasePath"] = databasePath
-	member.chaussette.Context["database"] = member.MapDatabaseClient
+	member.chaussette.Context["tenantDatabases"] = member.MapDatabaseClient
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
+	member.chaussette.Queue["secret"] = msg.NewQueue()
+	member.chaussette.Get["secret"] = shoset.GetSecret
+	member.chaussette.Send["secret"] = shoset.SendSecret
+	member.chaussette.Wait["secret"] = shoset.WaitSecret
+	member.chaussette.Handle["secret"] = shoset.HandleSecret
 
 	coreLog.OpenLogFile(logPath)
 
@@ -53,10 +64,11 @@ func (m *ClusterMember) GetChaussette() *net.Shoset {
 	return m.chaussette
 }
 
+/*
 // GetDatabaseNode : Cluster databaseNode getter.
 func (m *ClusterMember) GetDatabaseNode() *database.DatabaseNode {
 	return m.databaseNode
-}
+} */
 
 // Bind : Cluster bind function.
 func (m *ClusterMember) Bind(addr string) error {
@@ -91,48 +103,143 @@ func getBrothers(address string, member *ClusterMember) []string {
 }
 
 // ClusterMemberInit : Cluster init function.
-func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *ClusterMember {
-	member := NewClusterMember(logicalName, databasePath, logPath)
+func ClusterMemberInit(logicalName, instanceName, bindAddress, databasePath, logPath string) *ClusterMember {
+	member := NewClusterMember(logicalName, instanceName, databasePath, logPath)
 	err := member.Bind(bindAddress)
-
 	if err == nil {
 		log.Printf("New Aggregator member %s command %s bind on %s \n", logicalName, "init", bindAddress)
-
 		time.Sleep(time.Second * time.Duration(5))
-		log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+
+		var node *dqlite.Node
+		node, err = database.NewDatabaseNode(bindAddress, databasePath, 1)
+
+		if err == nil {
+			go node.Start()
+			log.Printf("New database node bind on %s \n", node.BindAddress())
+
+			var databaseCreated, err = database.IsDatabaseCreated(databasePath, "gandalf")
+			if err == nil {
+
+				var gandalfDatabaseClient *gorm.DB
+				gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
+				member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+
+				if err == nil {
+
+					if !databaseCreated {
+
+						log.Printf("New gandalf database at %s \n", databasePath)
+						var login, password, secret string
+						login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, logicalName, instanceName)
+						if err == nil {
+							fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
+							fmt.Printf("Created cluster, logical name : %s, secret : %s \n", logicalName, secret)
+
+							log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+
+						} else {
+							log.Fatalf("Can't initialize database")
+							//TODO WIPE DATABASE
+						}
+
+					} else {
+						log.Println("Database already created")
+					}
+					//TEST API
+					server := api.NewServerAPI(databasePath)
+					server.Run()
+					//
+
+				} else {
+					log.Fatalf("Can't create database client")
+				}
+			} else {
+				log.Fatalf("Can't detect if the database is created or not")
+			}
+		} else {
+			log.Fatalf("Can't create node")
+		}
 	} else {
-		log.Printf("Can't bind shoset on %s", bindAddress)
+		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
 
 	return member
 }
 
 // ClusterMemberJoin : Cluster join function.
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logPath string) *ClusterMember {
-	member := NewClusterMember(logicalName, databasePath, logPath)
+func ClusterMemberJoin(logicalName, instanceName, bindAddress, joinAddress, databasePath, logPath, secret string) *ClusterMember {
+	member := NewClusterMember(logicalName, instanceName, databasePath, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
 		_, err = member.Join(joinAddress)
 		if err == nil {
-			log.Printf("New Aggregator member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
+			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
 
-			time.Sleep(time.Second * time.Duration(5))
-			log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+			var gandalfDatabaseClient *gorm.DB
+			gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
+			if err == nil {
+				var result bool
+				result, err = utils.ValidateSecret(gandalfDatabaseClient, "cluster", logicalName, instanceName, secret)
+				fmt.Println("result")
+				fmt.Println(result)
+				if err == nil {
+					if result {
 
-			member.Store = CreateStore(getBrothers(bindAddress, member))
+						time.Sleep(time.Second * time.Duration(5))
+						member.Store = CreateStore(getBrothers(bindAddress, member))
 
-			if len(*member.Store) == 0 {
-				log.Println("Store empty")
+						if len(*member.Store) == 0 {
+							log.Println("Store empty")
+						} else {
+							log.Println("Store")
+							log.Println(member.Store)
+						}
+
+						var node *dqlite.Node
+						id := len(*member.Store)
+						node, err = database.NewDatabaseNode(bindAddress, databasePath, uint64(id))
+						if err == nil {
+							go node.Start()
+							log.Printf("New database node bind on %s \n", node.BindAddress())
+							_ = database.AddNodesToLeader(id, node.BindAddress(), *member.Store)
+
+							var databaseCreated, err = database.IsDatabaseCreated(databasePath, "gandalf")
+							if err == nil {
+								if !databaseCreated {
+									var gandalfDatabaseClient *gorm.DB
+									gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
+									member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+
+									log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+								} else {
+									log.Println("Database already created")
+								}
+
+								//TEST API
+								server := api.NewServerAPI(databasePath)
+								server.Run()
+								//
+							} else {
+								log.Fatalf("Can't detect if the database is created or not")
+							}
+						} else {
+							log.Fatalf("Can't create node")
+						}
+					} else {
+						log.Fatalf("Invalid secret")
+					}
+				} else {
+					log.Fatalf("Can't validate secret")
+				}
 			} else {
-				log.Println("Store")
-				log.Println(member.Store)
+				log.Fatalf("Can't create database client")
 			}
 		} else {
-			log.Printf("Can't join shoset on %s", joinAddress)
+			log.Fatalf("Can't join shoset on %s", joinAddress)
 		}
 	} else {
-		log.Printf("Can't bind shoset on %s", bindAddress)
+		log.Fatalf("Can't bind shoset on %s", bindAddress)
 	}
 
 	return member

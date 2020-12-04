@@ -8,5 +8,7 @@ import (
 // Cluster : Cluster struct.
 type Cluster struct {
 	gorm.Model
-	Name string
+	LogicalName  string
+	InstanceName string `gorm:"unique"`
+	Secret       string
 }
