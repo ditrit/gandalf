@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
 
@@ -12,9 +13,43 @@ import (
 
 func main() {
 	fmt.Println("START")
+	testWorkflow()
 	//demo()
-	testgitlab()
+	//testgitlab()
 	fmt.Println("STOP")
+}
+
+func testWorkflow() {
+	var configuration Configuration
+	mydir, _ := os.Getwd()
+	file, _ := os.Open(mydir + "/demoWorkflow.json")
+	decoder := json.NewDecoder(file)
+	decoder.Decode(&configuration)
+	clientGandalf := goclient.NewClientGandalf(configuration.Identity, configuration.Timeout, configuration.Connections)
+
+	id := clientGandalf.CreateIteratorEvent()
+
+	fmt.Println("SEND COMMMAND CREATE_FORM")
+	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+	commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+	formUUID := commandMessageUUID.GetUUID()
+	fmt.Println(formUUID)
+
+	time.Sleep(5 * time.Second)
+
+	fmt.Println("SEND COMMMAND ADMIN_UPDATE")
+	commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
+	updateUUID := commandMessageUUIDupdate.GetUUID()
+	fmt.Println(updateUUID)
+	event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
+	fmt.Println(event)
+
+	time.Sleep(5 * time.Second)
+
+	fmt.Println("SEND COMMMAND CREATE_FORM")
+	payload = `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+	commandMessageUUID = clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+	formUUID = commandMessageUUID.GetUUID()
 }
 
 func testgitlab() {
