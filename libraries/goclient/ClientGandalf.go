@@ -54,9 +54,10 @@ func (cg ClientGandalf) SendCommand(request string, options map[string]string) s
 		timeout = cg.Timeout
 	}
 
-	for stay, timeoutLoop := true, time.After(time.Second); stay; {
+	var commandMessageUUID *pb.CommandMessageUUID
 
-		commandMessageUUID := cg.Clients[getClientIndex(cg.Clients, true)].SendCommand(requestSplit[0], requestSplit[1], timeout, options["payload"])
+	for stay, timeoutLoop := true, time.After(time.Second); stay; {
+		commandMessageUUID = cg.Clients[getClientIndex(cg.Clients, true)].SendCommand(requestSplit[0], requestSplit[1], timeout, options["payload"])
 		if commandMessageUUID != nil {
 			notSend = false
 			break
@@ -85,10 +86,11 @@ func (cg ClientGandalf) SendAdminCommand(request string, options map[string]stri
 	if timeout == "" {
 		timeout = cg.Timeout
 	}
+	var commandMessageUUID *pb.CommandMessageUUID
 
 	for stay, timeoutLoop := true, time.After(time.Second); stay; {
 
-		commandMessageUUID := cg.Clients[getClientIndex(cg.Clients, true)].SendAdminCommand(requestSplit[0], requestSplit[1], timeout, options["payload"])
+		commandMessageUUID = cg.Clients[getClientIndex(cg.Clients, true)].SendAdminCommand(requestSplit[0], requestSplit[1], timeout, options["payload"])
 		if commandMessageUUID != nil {
 			notSend = false
 			break
