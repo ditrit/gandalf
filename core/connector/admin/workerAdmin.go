@@ -27,16 +27,20 @@ import (
 )
 
 type WorkerAdmin struct {
-	logicalName     string
-	connectorType   string
-	product         string
-	baseurl         string
-	workerPath      string
-	grpcBindAddress string
-	chaussette      *net.Shoset
-	timeoutMax      int64
-	versions        []models.Version
-	clientGandalf   *goclient.ClientGandalf
+	logicalName      string
+	connectorType    string
+	product          string
+	baseurl          string
+	workerPath       string
+	grpcBindAddress  string
+	autoUpdate       bool
+	autoUpdateDay    int
+	autoUpdateHour   int
+	autoUpdateMinute int
+	chaussette       *net.Shoset
+	timeoutMax       int64
+	versions         []models.Version
+	clientGandalf    *goclient.ClientGandalf
 
 	major int64
 
@@ -88,6 +92,15 @@ func (w WorkerAdmin) Run() {
 			if err == nil {
 				go w.startWorker(version)
 			}
+		}
+	}
+
+	if w.autoUpdate {
+		//TODO REVOIR
+		if w.autoUpdateDay > 0 || w.autoUpdateDay > 0 || w.autoUpdateDay > 0 {
+			w.updateByTime(w.autoUpdateDay, w.autoUpdateHour, w.autoUpdateMinute)
+		} else {
+			w.updateByMinute()
 		}
 	}
 
@@ -479,4 +492,81 @@ func (w WorkerAdmin) isLastVersion(lastVersion models.Version) (result bool) {
 	}
 
 	return
+}
+
+func (w WorkerAdmin) updateByTime(day, hour, minute int) {
+
+	t1 := time.Now()
+	t2 := time.Date(t1.Year(), t1.Month(), day, hour, minute, t1.Second(), t1.Nanosecond(), t1.Location())
+	t3 := t2.Sub(t1)
+
+	_ = time.AfterFunc(t3, func() {
+		lastVersion, err := w.getLastVersion()
+
+		if err == nil {
+
+			if !w.isLastVersion(lastVersion) {
+				err = w.getWorkerConfiguration(lastVersion)
+				if err == nil {
+					err = w.getWorker(lastVersion)
+					if err == nil {
+						err = w.startWorker(lastVersion)
+						//time.Sleep(5 * time.Second)
+						activeWorkers := w.chaussette.Context["mapActiveWorkers"].(map[models.Version]bool)
+						for {
+							if _, ok := activeWorkers[lastVersion]; ok {
+								break
+							}
+						}
+						if activeWorkers[lastVersion] == true {
+							if err == nil {
+								for _, version := range w.versions {
+									if !reflect.DeepEqual(version, lastVersion) {
+										err = w.stopWorker(version)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	})
+
+}
+
+func (w WorkerAdmin) updateByMinute() {
+
+	_ = time.AfterFunc(time.Minute, func() {
+		lastVersion, err := w.getLastVersion()
+
+		if err == nil {
+
+			if !w.isLastVersion(lastVersion) {
+				err = w.getWorkerConfiguration(lastVersion)
+				if err == nil {
+					err = w.getWorker(lastVersion)
+					if err == nil {
+						err = w.startWorker(lastVersion)
+						//time.Sleep(5 * time.Second)
+						activeWorkers := w.chaussette.Context["mapActiveWorkers"].(map[models.Version]bool)
+						for {
+							if _, ok := activeWorkers[lastVersion]; ok {
+								break
+							}
+						}
+						if activeWorkers[lastVersion] == true {
+							if err == nil {
+								for _, version := range w.versions {
+									if !reflect.DeepEqual(version, lastVersion) {
+										err = w.stopWorker(version)
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	})
 }
