@@ -6,8 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ditrit/gandalf/libraries/goclient/models"
-
 	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"github.com/ditrit/gandalf/libraries/goclient/client"
@@ -48,17 +46,17 @@ func NewClientGandalf(identity, timeout string, clientConnections []string) (cli
 }
 
 //SendCommand
-func (cg ClientGandalf) SendCommand(request string, options *models.Options) (commandMessageUUID *pb.CommandMessageUUID) {
+func (cg ClientGandalf) SendCommand(request string, options map[string]string) string {
 	var notSend bool
 	requestSplit := strings.Split(request, ".")
-	timeout := options.GetTimeout()
+	timeout := options["timeout"]
 	if timeout == "" {
 		timeout = cg.Timeout
 	}
 
 	for stay, timeoutLoop := true, time.After(time.Second); stay; {
 
-		commandMessageUUID = cg.Clients[getClientIndex(cg.Clients, true)].SendCommand(requestSplit[0], requestSplit[1], timeout, options.GetPayload())
+		commandMessageUUID := cg.Clients[getClientIndex(cg.Clients, true)].SendCommand(requestSplit[0], requestSplit[1], timeout, options["payload"])
 		if commandMessageUUID != nil {
 			notSend = false
 			break
@@ -73,24 +71,24 @@ func (cg ClientGandalf) SendCommand(request string, options *models.Options) (co
 	}
 
 	if notSend {
-		return nil
+		return ""
 	}
 
-	return commandMessageUUID
+	return commandMessageUUID.GetUUID()
 }
 
 //SendAdminCommand
-func (cg ClientGandalf) SendAdminCommand(request string, options *models.Options) (commandMessageUUID *pb.CommandMessageUUID) {
+func (cg ClientGandalf) SendAdminCommand(request string, options map[string]string) string {
 	var notSend bool
 	requestSplit := strings.Split(request, ".")
-	timeout := options.GetTimeout()
+	timeout := options["timeout"]
 	if timeout == "" {
 		timeout = cg.Timeout
 	}
 
 	for stay, timeoutLoop := true, time.After(time.Second); stay; {
 
-		commandMessageUUID = cg.Clients[getClientIndex(cg.Clients, true)].SendAdminCommand(requestSplit[0], requestSplit[1], timeout, options.GetPayload())
+		commandMessageUUID := cg.Clients[getClientIndex(cg.Clients, true)].SendAdminCommand(requestSplit[0], requestSplit[1], timeout, options["payload"])
 		if commandMessageUUID != nil {
 			notSend = false
 			break
@@ -105,23 +103,23 @@ func (cg ClientGandalf) SendAdminCommand(request string, options *models.Options
 	}
 
 	if notSend {
-		return nil
+		return ""
 	}
 
-	return commandMessageUUID
+	return commandMessageUUID.GetUUID()
 }
 
 //SendEvent
-func (cg ClientGandalf) SendEvent(topic, event string, options *models.Options) (empty *pb.Empty) {
+func (cg ClientGandalf) SendEvent(topic, event string, options map[string]string) (empty *pb.Empty) {
 	var notSend bool
-	timeout := options.GetTimeout()
+	timeout := options["timeout"]
 	if timeout == "" {
 		timeout = cg.Timeout
 	}
 
 	for stay, timeoutLoop := true, time.After(time.Second); stay; {
 
-		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendEvent(topic, event, "", timeout, options.GetPayload())
+		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendEvent(topic, event, "", timeout, options["payload"])
 
 		if empty != nil {
 			notSend = false
@@ -144,16 +142,16 @@ func (cg ClientGandalf) SendEvent(topic, event string, options *models.Options) 
 }
 
 //SendReply
-func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *models.Options) (empty *pb.Empty) {
+func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options map[string]string) (empty *pb.Empty) {
 	var notSend bool
-	timeout := options.GetTimeout()
+	timeout := options["timeout"]
 	if timeout == "" {
 		timeout = cg.Timeout
 	}
 
 	for stay, timeoutLoop := true, time.After(time.Second); stay; {
 
-		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendEvent(topic, event, referenceUUID, timeout, options.GetPayload())
+		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendEvent(topic, event, referenceUUID, timeout, options["payload"])
 
 		if empty != nil {
 			notSend = false
@@ -176,13 +174,13 @@ func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *m
 }
 
 //SendCommandList
-func (cg ClientGandalf) SendCommandList(major, minor int64, commands []string) *pb.Validate {
-	return cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, minor, commands)
+func (cg ClientGandalf) SendCommandList(major, minor int64, commands []string) bool {
+	return cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, minor, commands).GetValid()
 }
 
 //SendStop
-func (cg ClientGandalf) SendStop(major, minor int64) *pb.Validate {
-	return cg.Clients[getClientIndex(cg.Clients, true)].SendStop(major, minor)
+func (cg ClientGandalf) SendStop(major, minor int64) bool {
+	return cg.Clients[getClientIndex(cg.Clients, true)].SendStop(major, minor).GetValid()
 }
 
 //WaitCommand
