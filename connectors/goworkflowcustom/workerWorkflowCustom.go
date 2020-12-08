@@ -25,7 +25,8 @@ func main() {
 	fmt.Println(input.Text())
 
 	worker := worker.NewWorker(major, minor)
-	clientGandalf := worker.Start()
+	worker.Start()
+	clientGandalf := worker.GetClientGandalf()
 
 	toto := server.NewWorkflowServer(clientGandalf)
 	toto.Run()
