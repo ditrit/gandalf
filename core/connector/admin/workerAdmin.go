@@ -193,19 +193,26 @@ func (w WorkerAdmin) Update(clientGandalf *goclient.ClientGandalf, major int64, 
 				err = w.getWorker(lastVersion)
 				if err == nil {
 					err = w.startWorker(lastVersion)
-					time.Sleep(5 * time.Second)
-					if err == nil {
-						for _, version := range w.versions {
-							if !reflect.DeepEqual(version, lastVersion) {
-								err = w.stopWorker(version)
-								if err != nil {
-									return 1
+					//time.Sleep(5 * time.Second)
+					activeWorkers := w.chaussette.Context["mapActiveWorkers"].(map[models.Version]bool)
+					for {
+						if _, ok := activeWorkers[lastVersion]; ok {
+							break
+						}
+					}
+					if activeWorkers[lastVersion] == true {
+						if err == nil {
+							for _, version := range w.versions {
+								if !reflect.DeepEqual(version, lastVersion) {
+									err = w.stopWorker(version)
+									if err != nil {
+										return 1
+									}
 								}
 							}
+							return 0
 						}
-						return 0
 					}
-
 				}
 			}
 		}
