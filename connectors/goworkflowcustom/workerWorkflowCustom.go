@@ -4,9 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"time"
 
-	"github.com/ditrit/gandalf/libraries/goclient/models"
+	"github.com/ditrit/gandalf/connectors/goworkflowcustom/server"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 )
@@ -26,31 +25,35 @@ func main() {
 	fmt.Println(input.Text())
 
 	worker := worker.NewWorker(major, minor)
-	clientGandalf := worker.Start()
+	worker.Start()
+	clientGandalf := worker.GetClientGandalf()
 
-	id := clientGandalf.CreateIteratorEvent()
+	toto := server.NewWorkflowServer(clientGandalf)
+	toto.Run()
+	/*
+		id := clientGandalf.CreateIteratorEvent()
 
-	fmt.Println("SEND COMMMAND CREATE_FORM")
-	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-	commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-	formUUID := commandMessageUUID.GetUUID()
-	fmt.Println(formUUID)
+		fmt.Println("SEND COMMMAND CREATE_FORM")
+		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+		commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+		formUUID := commandMessageUUID.GetUUID()
+		fmt.Println(formUUID)
 
-	time.Sleep(5 * time.Second)
+		time.Sleep(5 * time.Second)
 
-	fmt.Println("SEND COMMMAND ADMIN_UPDATE")
-	commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
-	updateUUID := commandMessageUUIDupdate.GetUUID()
-	fmt.Println(updateUUID)
-	event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
-	fmt.Println(event)
+		fmt.Println("SEND COMMMAND ADMIN_UPDATE")
+		commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
+		updateUUID := commandMessageUUIDupdate.GetUUID()
+		fmt.Println(updateUUID)
+		event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
+		fmt.Println(event)
 
-	time.Sleep(5 * time.Second)
+		time.Sleep(5 * time.Second)
 
-	fmt.Println("SEND COMMMAND CREATE_FORM")
-	payload = `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-	commandMessageUUID = clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-	formUUID = commandMessageUUID.GetUUID()
+		fmt.Println("SEND COMMMAND CREATE_FORM")
+		payload = `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
+		commandMessageUUID = clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
+		formUUID = commandMessageUUID.GetUUID() */
 
 	//fmt.Println("SEND COMMMAND ADMIN_GET_LAST_VERSION_WORKER")
 	//payloadStop := `{"Major":1,"Minor":5}`

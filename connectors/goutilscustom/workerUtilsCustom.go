@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ditrit/gandalf/libraries/goclient/models"
+
 	worker "github.com/ditrit/gandalf/connectors/go"
 	"github.com/ditrit/shoset/msg"
 
@@ -66,6 +68,7 @@ func CreateForm(clientGandalf *goclient.ClientGandalf, major int64, command msg.
 
 	for i := 0; i < 100; i++ {
 		fmt.Println("1.5 : " + strconv.Itoa(i) + "%")
+		clientGandalf.SendReply(command.GetCommand(), "STATE", command.GetUUID(), models.NewOptions("", "1.5 : "+strconv.Itoa(i)))
 		time.Sleep(1 * time.Second)
 	}
 

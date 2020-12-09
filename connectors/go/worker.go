@@ -1,6 +1,8 @@
 package worker
 
 import (
+	"flag"
+	"strings"
 	"time"
 
 	"github.com/ditrit/gandalf/libraries/goclient/models"
@@ -15,14 +17,17 @@ import (
 type Worker struct {
 	major             int64
 	minor             int64
+	identity          string
+	timeout           string
+	connections       []string
 	clientGandalf     *goclient.ClientGandalf
 	OngoingTreatments *gomodels.OngoingTreatments
 	WorkerState       *gomodels.WorkerState
 	CommandsFuncs     map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
 	EventsFuncs       map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
-	Start             func() *goclient.ClientGandalf
-	Stop              func(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState *gomodels.WorkerState)
-	SendCommands      func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string) bool
+	//Start             func() *goclient.ClientGandalf
+	Stop         func(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState *gomodels.WorkerState)
+	SendCommands func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string) bool
 	//Execute      func()
 }
 
@@ -35,7 +40,7 @@ func NewWorker(major, minor int64) *Worker {
 	worker.EventsFuncs = make(map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int)
 	worker.OngoingTreatments = gomodels.NewOngoingTreatments()
 	worker.WorkerState = gomodels.NewWorkerState()
-	worker.Start = functions.Start
+	//worker.Start = functions.Start
 	worker.Stop = functions.Stop
 	worker.SendCommands = functions.SendCommands
 
@@ -57,6 +62,21 @@ func (w Worker) GetMinor() int64 {
 	return w.minor
 }
 
+//GetIdentity : GetIdentity
+func (w Worker) GetIdentity() string {
+	return w.identity
+}
+
+//GetTimeout : GetTimeout
+func (w Worker) GetTimeout() string {
+	return w.timeout
+}
+
+//GetConnections : GetConnections
+func (w Worker) GetConnections() []string {
+	return w.connections
+}
+
 //RegisterCommandsFuncs : RegisterCommandsFuncs
 func (w Worker) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	w.CommandsFuncs[command] = function
@@ -67,9 +87,19 @@ func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function fun
 	w.EventsFuncs[topicevent] = function
 }
 
+func (w Worker) Start() {
+	flag.Parse()
+	args := flag.Args()
+	w.identity = args[0]
+	w.timeout = args[1]
+	w.connections = strings.Split(args[2], ",")
+	w.clientGandalf = goclient.NewClientGandalf(w.identity, w.timeout, w.connections)
+	//return goclient.NewClientGandalf(args[0], args[1], strings.Split(args[2], ","))
+}
+
 //Run : Run
 func (w Worker) Run() {
-	w.clientGandalf = w.Start()
+	w.Start()
 
 	keys := make([]string, 0, len(w.CommandsFuncs))
 	for k := range w.CommandsFuncs {

@@ -1,0 +1,174 @@
+{{define "content"}}
+   <div class="container">
+   <!-- Outer Row -->
+   <div class="row justify-content-center">
+   <div class="col-xl-10 col-lg-12 col-md-9">
+      <div class="card o-hidden border-0 shadow-lg my-5">
+         <!-- Nested Row within Card Body -->
+         <div class="p-5">
+            <div class="text-center">
+               <h1 class="h4 text-gray-900 mb-4">{{ .Title}}</h1>
+            </div>
+                    <div id="container" style="width: 75%;">
+               <canvas id="canvas1"></canvas>
+               <canvas id="canvas2"></canvas>
+            </div>
+         </div>
+      </div>
+   </div>
+   </div>
+</div>
+
+<script>
+
+window.chartColors = {
+	red: 'rgb(255, 99, 132)',
+	orange: 'rgb(255, 159, 64)',
+	yellow: 'rgb(255, 205, 86)',
+	green: 'rgb(75, 192, 192)',
+	blue: 'rgb(54, 162, 235)',
+	purple: 'rgb(153, 102, 255)',
+	grey: 'rgb(201, 203, 207)'
+};
+var iteration1 = 0 
+var iteration2 = 0 
+var color = Chart.helpers.color;
+var config1 = {
+			type: 'line',
+			data: {
+				labels: [],
+				datasets: [{
+					label: '1.0',
+					backgroundColor: window.chartColors.red,
+					borderColor: window.chartColors.red,
+					data: [
+					],
+					fill: false,
+				}]
+			},
+			options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: 'Line Chart'
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Month'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Value'
+						}
+					}]
+				}
+			}
+		};
+      var config2 = {
+			type: 'line',
+			data: {
+				labels: [],
+				datasets: [{
+					label: '1.5',
+					backgroundColor: window.chartColors.blue,
+					borderColor: window.chartColors.blue,
+					data: [
+					],
+					fill: false,
+				}]
+			},
+			options: {
+				responsive: true,
+				title: {
+					display: true,
+					text: 'Line Chart'
+				},
+				tooltips: {
+					mode: 'index',
+					intersect: false,
+				},
+				hover: {
+					mode: 'nearest',
+					intersect: true
+				},
+				scales: {
+					xAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Month'
+						}
+					}],
+					yAxes: [{
+						display: true,
+						scaleLabel: {
+							display: true,
+							labelString: 'Value'
+						}
+					}]
+				}
+			}
+		};
+
+		window.onload = function() {
+			var ctx1 = document.getElementById('canvas1').getContext('2d');
+			window.myLine1 = new Chart(ctx1, config1);
+
+         var ctx2 = document.getElementById('canvas2').getContext('2d');
+			window.myLine2 = new Chart(ctx2, config2);
+		};
+
+
+ // Create a new HTML5 EventSource
+var source = new EventSource('/events/');
+
+// Create a callback for when a new message is received.
+source.onmessage = function(e) {
+
+   // Append the `data` attribute of the message to the DOM.
+      console.log(e.data);
+      console.log(typeof e.data);
+
+   const words = e.data.split(":")
+   const version = words[1].trim()
+   console.log(version)
+   console.log(version == "1.0")
+   const value = words[2].trim()
+   const parsed = parseInt(value, 10)
+   console.log(parsed)
+   if (version == "1.0") {
+               config1.data.labels.push(iteration1);
+      config1.data.datasets[0].data.push(value);
+         iteration1++
+   window.myLine1.update();
+   } else {
+                     config2.data.labels.push(iteration2);
+      config2.data.datasets[0].data.push(value);
+         iteration2++
+   window.myLine2.update();
+   }
+
+   console.log(words)
+   //document.body.innerHTML += e.data + '<br>';
+};
+
+</script>
+
+
+{{end}}
+
+ 
