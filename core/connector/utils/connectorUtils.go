@@ -3,14 +3,18 @@ package utils
 
 import (
 	"archive/zip"
+	"crypto/sha512"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/ditrit/gandalf/core/configuration"
 
@@ -314,4 +318,15 @@ func CheckFileExistAndIsExecAll(path string) bool {
 		return false
 	}
 	return false
+}
+
+func GenerateHash(logicalName string) string {
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+
+	concatenated := fmt.Sprint(logicalName, random.Intn(100))
+	sha512 := sha512.New()
+	sha512.Write([]byte(concatenated))
+	hash := base64.URLEncoding.EncodeToString(sha512.Sum(nil))
+	return hash
 }

@@ -34,7 +34,6 @@ type WorkerAdmin struct {
 	workerPath       string
 	grpcBindAddress  string
 	autoUpdate       bool
-	autoUpdateDay    int
 	autoUpdateHour   int
 	autoUpdateMinute int
 	chaussette       *net.Shoset
@@ -85,20 +84,33 @@ func (w WorkerAdmin) Run() {
 	//GET CONFIGURATION
 	w.getConfiguration()
 
-	for _, version := range w.versions {
-		err := w.getWorkerConfiguration(version)
+	if len(w.versions) == 0 {
+		lastVersion, err := w.getLastVersion()
 		if err == nil {
-			err = w.getWorker(version)
+			err = w.getWorkerConfiguration(lastVersion)
 			if err == nil {
-				go w.startWorker(version)
+				err = w.getWorker(lastVersion)
+				if err == nil {
+					go w.startWorker(lastVersion)
+				}
+			}
+		}
+	} else {
+		for _, version := range w.versions {
+			err := w.getWorkerConfiguration(version)
+			if err == nil {
+				err = w.getWorker(version)
+				if err == nil {
+					go w.startWorker(version)
+				}
 			}
 		}
 	}
 
 	if w.autoUpdate {
 		//TODO REVOIR
-		if w.autoUpdateDay > 0 || w.autoUpdateDay > 0 || w.autoUpdateDay > 0 {
-			w.updateByTime(w.autoUpdateDay, w.autoUpdateHour, w.autoUpdateMinute)
+		if w.autoUpdateHour > 0 || w.autoUpdateMinute > 0 {
+			w.updateByTime(w.autoUpdateHour, w.autoUpdateMinute)
 		} else {
 			w.updateByMinute()
 		}
@@ -494,10 +506,10 @@ func (w WorkerAdmin) isLastVersion(lastVersion models.Version) (result bool) {
 	return
 }
 
-func (w WorkerAdmin) updateByTime(day, hour, minute int) {
+func (w WorkerAdmin) updateByTime(hour, minute int) {
 
 	t1 := time.Now()
-	t2 := time.Date(t1.Year(), t1.Month(), day, hour, minute, t1.Second(), t1.Nanosecond(), t1.Location())
+	t2 := time.Date(t1.Year(), t1.Month(), t1.Day(), hour, minute, t1.Second(), t1.Nanosecond(), t1.Location())
 	t3 := t2.Sub(t1)
 
 	_ = time.AfterFunc(t3, func() {

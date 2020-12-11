@@ -26,10 +26,9 @@ type AggregatorMember struct {
 }*/
 
 // NewAggregatorMember :
-func NewAggregatorMember(logicalName, instanceName, tenant, logPath string) *AggregatorMember {
+func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")
-	member.chaussette.Context["instance"] = instanceName
 	member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
@@ -83,9 +82,9 @@ func getBrothers(address string, member *AggregatorMember) []string {
 	return bros
 }
 
-func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, instanceName, tenant, secret string) (result bool) {
+func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (result bool) {
 
-	shoset.SendSecret(nshoset, timeoutMax, logicalName, instanceName, tenant, secret)
+	shoset.SendSecret(nshoset, timeoutMax, logicalName, tenant, secret, bindAddress)
 	time.Sleep(time.Second * time.Duration(5))
 
 	result = false
@@ -101,8 +100,8 @@ func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64,
 }
 
 // AggregatorMemberInit : Aggregator init function.
-func AggregatorMemberInit(logicalName, instanceName, tenant, bindAddress, linkAddress, logPath, secret string, timeoutMax int64) *AggregatorMember {
-	member := NewAggregatorMember(logicalName, instanceName, tenant, logPath)
+func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, timeoutMax int64) *AggregatorMember {
+	member := NewAggregatorMember(logicalName, tenant, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
@@ -110,7 +109,7 @@ func AggregatorMemberInit(logicalName, instanceName, tenant, bindAddress, linkAd
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, instanceName, tenant, secret)
+			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret, bindAddress)
 			if validateSecret {
 				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
 				time.Sleep(time.Second * time.Duration(5))

@@ -95,7 +95,6 @@ func InitMainConfigKeys() {
 func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "config_dir", "f", homePath+"/go/src/gandalf/core/configuration/configDir/", "path to the configuration directory", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
-	_ = SetStringKeyConfig("core", "instance_name", "i", "", "instance name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core", "bind_address", "b", "", "Bind address", true)
 	_ = SetStringKeyConfig("core", "gandalf_secret", "s", "/etc/gandalf/gandalfSecret", "path of the gandalf secret", true)

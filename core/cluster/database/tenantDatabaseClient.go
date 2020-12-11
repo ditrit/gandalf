@@ -276,13 +276,13 @@ func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
 
 //DemoCreateAggregator
 func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Aggregator{LogicalName: "Aggregator1", InstanceName: "Aggregator1", Secret: "TATA"})
+	tenantDatabaseClient.Create(&models.Aggregator{LogicalName: "Aggregator1", Secret: "TATA"})
 }
 
 //DemoCreateConnector
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector1", InstanceName: "Connector1", Secret: "TOTO"})
-	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector2", InstanceName: "Connector2", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector1", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector2", Secret: "TOTO"})
 }
 
 //DemoCreateConnectorType
@@ -336,8 +336,8 @@ func DemoCreateApplicationUtils(tenantDatabaseClient *gorm.DB) {
 	var ConnectorUtils models.Connector
 	var ConnectorTypeUtils models.ConnectorType
 
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator1", "Aggregator1").First(&AggregatorUtils)
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector1", "Connector1").First(&ConnectorUtils)
+	tenantDatabaseClient.Where("logical_name = ?", "Aggregator1").First(&AggregatorUtils)
+	tenantDatabaseClient.Where("logical_name = ?", "Connector1").First(&ConnectorUtils)
 	tenantDatabaseClient.Where("name = ?", "Utils").First(&ConnectorTypeUtils)
 
 	fmt.Println(AggregatorUtils)
