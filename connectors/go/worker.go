@@ -85,7 +85,7 @@ func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function fun
 	w.EventsFuncs[topicevent] = function
 }
 
-func (w Worker) Start() {
+func (w *Worker) Start() {
 	flag.Parse()
 	args := flag.Args()
 	w.identity = args[0]
