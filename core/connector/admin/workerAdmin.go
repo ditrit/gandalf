@@ -80,7 +80,6 @@ func (w WorkerAdmin) RegisterCommandsFuncs(command string, function func(clientG
 
 //Run : Run
 func (w WorkerAdmin) Run() {
-
 	//GET CONFIGURATION
 	w.getConfiguration()
 
@@ -101,20 +100,20 @@ func (w WorkerAdmin) Run() {
 			if err == nil {
 				err = w.getWorker(version)
 				if err == nil {
+					fmt.Println("START")
 					go w.startWorker(version)
 				}
 			}
 		}
 	}
-
-	if w.autoUpdate {
+	/* 	if w.autoUpdate {
 		//TODO REVOIR
 		if w.autoUpdateHour > 0 || w.autoUpdateMinute > 0 {
 			w.updateByTime(w.autoUpdateHour, w.autoUpdateMinute)
 		} else {
 			w.updateByMinute()
 		}
-	}
+	} */
 
 	//
 	w.RegisterCommandsFuncs("ADMIN_GET_WORKER", w.GetWorker)
@@ -442,6 +441,7 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
 			configuration.WorkerKeyParse(listConfigurationKeys)
 			err = configuration.IsConfigValid()
+
 			if err == nil {
 
 				var stdinargs string
@@ -461,7 +461,6 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 					if err != nil {
 						fmt.Println(err)
 					}
-
 					err = cmd.Start()
 					if err != nil {
 						log.Printf("Can't start worker %s", fileWorkersPathVersion)

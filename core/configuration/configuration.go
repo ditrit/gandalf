@@ -108,7 +108,7 @@ func InitCoreKeys() {
 
 //initiation of the tenant key for connectors and aggregators
 func InitTenantKey() {
-	_ = SetStringKeyConfig("connector/aggregator", "tenant", "t", "", "tenant of the component", true)
+	_ = SetStringKeyConfig("aggregator", "tenant", "t", "", "tenant of the component", true)
 }
 
 //initiation of the connector keys
