@@ -21,7 +21,6 @@ import (
 	"github.com/ditrit/gandalf/libraries/goclient"
 
 	"github.com/ditrit/gandalf/core/models"
-	goclientmodels "github.com/ditrit/gandalf/libraries/goclient/models"
 	net "github.com/ditrit/shoset"
 	"gopkg.in/yaml.v2"
 )
@@ -147,9 +146,9 @@ func (w WorkerAdmin) waitCommands(id, commandName string, function func(clientGa
 func (w WorkerAdmin) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	result := function(w.clientGandalf, w.major, command)
 	if result == 0 {
-		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), goclientmodels.NewOptions("", ""))
+		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), map[string]string{})
 	} else {
-		w.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), goclientmodels.NewOptions("", ""))
+		w.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), map[string]string{})
 	}
 }
 

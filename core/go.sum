@@ -56,6 +56,8 @@ github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201203123544-5226c965ab91 
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201203123544-5226c965ab91/go.mod h1:iLHOj4xQukOlouoELocjgIgzz+lOTx+FZGn39GSV6Dg=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201203125032-9d5ef702f928 h1:6z0c93gv55S4rBBVcdtkKFqQARa0hCDTDeXeIAwFs90=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201203125032-9d5ef702f928/go.mod h1:iLHOj4xQukOlouoELocjgIgzz+lOTx+FZGn39GSV6Dg=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201208152321-12d3514ce164 h1:GemkbKIZ6IbI39a21hBrgTFBB0JQ4iaKKT4/iyBZoPI=
+github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201208152321-12d3514ce164/go.mod h1:iLHOj4xQukOlouoELocjgIgzz+lOTx+FZGn39GSV6Dg=
 github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201112144207-2a161d8d0bc4 h1:5O3oQdatLUfUIMtvYMQZDT0ebSPUU0MazVTVADIFqGY=
 github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201112144207-2a161d8d0bc4/go.mod h1:o40nl1jn5OJRz7+J0zsj9D8CxBkQLT4s6ocKFgY1cNQ=
 github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201112150939-e4950f1331de h1:yo8V408mRQxTziyU8FRZWbwgO34zR4GuAqa6I6WG2w8=

@@ -17,7 +17,7 @@ import (
 func main() {
 
 	var major = int64(1)
-	var minor = int64(5)
+	var minor = int64(0)
 
 	fmt.Println("VERSION")
 	fmt.Println(major)
@@ -36,7 +36,7 @@ func main() {
 }
 
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
-	fmt.Println("EXECUTE SEND AUTH MAIL 1.5")
+	fmt.Println("EXECUTE SEND AUTH MAIL 1.0")
 
 	return 0
 	/* 	var configuration Configuration
@@ -62,12 +62,12 @@ func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command ms
 }
 
 func CreateForm(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
-	fmt.Println("EXECUTE CREATE FORM 1.5")
+	fmt.Println("EXECUTE CREATE FORM 1.0")
 
 	for i := 0; i < 100; i++ {
-		fmt.Println("1.5 : " + strconv.Itoa(i) + "%")
+		fmt.Println("1.0 : " + strconv.Itoa(i) + "%")
 
-		clientGandalf.SendReply(command.GetCommand(), "STATE", command.GetUUID(), map[string]string{"payload": "1.5 : " + strconv.Itoa(i)})
+		clientGandalf.SendReply(command.GetCommand(), "STATE", command.GetUUID(), map[string]string{"payload": "1.0 : " + strconv.Itoa(i)})
 		time.Sleep(1 * time.Second)
 	}
 

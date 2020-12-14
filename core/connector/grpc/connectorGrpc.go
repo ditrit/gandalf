@@ -4,6 +4,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -403,7 +404,7 @@ func (r ConnectorGrpc) CreateIteratorCommand(ctx context.Context, in *pb.Empty) 
 //CreateIteratorEvent : Connector create event iterator function.
 func (r ConnectorGrpc) CreateIteratorEvent(ctx context.Context, in *pb.Empty) (iteratorMessage *pb.IteratorMessage, err error) {
 	log.Println("Handle create iterator event")
-
+	fmt.Println("CREATE ITE EVENT")
 	iterator := msg.NewIterator(r.Shoset.Queue["evt"])
 	index := uuid.New()
 	log.Printf("Create new iterator event: %s", index)
