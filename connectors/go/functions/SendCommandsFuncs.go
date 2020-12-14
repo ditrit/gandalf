@@ -11,5 +11,5 @@ func SendCommands(clientGandalf *goclient.ClientGandalf, major, minor int64, com
 	fmt.Println("SEND COMMAND LIST WORKER")
 	validate := clientGandalf.SendCommandList(major, minor, commandes)
 
-	return validate.GetValid()
+	return validate
 }

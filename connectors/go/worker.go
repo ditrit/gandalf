@@ -5,8 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ditrit/gandalf/libraries/goclient/models"
-
 	"github.com/ditrit/gandalf/connectors/go/functions"
 	gomodels "github.com/ditrit/gandalf/connectors/go/models"
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
@@ -153,9 +151,9 @@ func (w Worker) executeCommands(command msg.Command, function func(clientGandalf
 	w.OngoingTreatments.IncrementOngoingTreatments()
 	result := function(w.clientGandalf, w.major, command)
 	if result == 0 {
-		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), models.NewOptions("", ""))
+		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), map[string]string{})
 	} else {
-		w.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), models.NewOptions("", ""))
+		w.clientGandalf.SendReply(command.GetCommand(), "FAIL", command.GetUUID(), map[string]string{})
 	}
 	w.OngoingTreatments.DecrementOngoingTreatments()
 }
@@ -179,9 +177,9 @@ func (w Worker) executeEvents(event msg.Event, function func(clientGandalf *gocl
 	w.OngoingTreatments.IncrementOngoingTreatments()
 	result := function(w.clientGandalf, w.major, event)
 	if result == 0 {
-		w.clientGandalf.SendReply(event.GetEvent(), "SUCCES", event.GetUUID(), models.NewOptions("", ""))
+		w.clientGandalf.SendReply(event.GetEvent(), "SUCCES", event.GetUUID(), map[string]string{})
 	} else {
-		w.clientGandalf.SendReply(event.GetEvent(), "FAIL", event.GetUUID(), models.NewOptions("", ""))
+		w.clientGandalf.SendReply(event.GetEvent(), "FAIL", event.GetUUID(), map[string]string{})
 	}
 	w.OngoingTreatments.DecrementOngoingTreatments()
 }
