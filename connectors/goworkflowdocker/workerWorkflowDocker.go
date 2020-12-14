@@ -9,7 +9,8 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
-	"shoset/msg"
+
+	"github.com/ditrit/shoset/msg"
 
 	payload "github.com/ditrit/gandalf/connectors/goworkflowdocker/payload"
 	"github.com/ditrit/gandalf/libraries/goclient"

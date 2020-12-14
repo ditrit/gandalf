@@ -3,8 +3,8 @@ module github.com/ditrit/gandalf/connectors/goutilscustom
 go 1.14
 
 require (
-	github.com/ditrit/gandalf/connectors/go v0.0.0-20201203084938-471c9d63770d
-	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201203125032-9d5ef702f928
+	github.com/ditrit/gandalf/connectors/go v0.0.0-20201214141504-71583dbe796c
+	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201214140623-f5acfca99e05
 	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
 	github.com/go-chi/chi v4.1.2+incompatible
 	github.com/kirves/go-form-it v0.0.0-20170609125405-d661c96bd6ad
