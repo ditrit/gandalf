@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"shoset/msg"
 
-	"github.com/ditrit/gandalf/connectors/goworkflowdocker/payload"
+	payload "github.com/ditrit/gandalf/connectors/goworkflowdocker/payload"
 	"github.com/ditrit/gandalf/libraries/goclient"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
