@@ -175,6 +175,18 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid maximum timeout : %v", err)
 			}
+			gandalfAutoUpdateString, err := configuration.GetStringConfig("auto_update")
+			if err != nil {
+				log.Fatalf("Invalid autoupdate : %v", err)
+			}
+			gandalfAutoUpdate, err := configuration.GetAutoUpdate(gandalfAutoUpdateString)
+			if err != nil {
+				log.Fatalf("Invalid autoupdate : %v", err)
+			}
+			gandalfAutoUpdateTime, err := configuration.GetStringConfig("auto_update_time")
+			if err != nil {
+				log.Fatalf("Invalid autoupdate time : %v", err)
+			}
 
 			//CREATE CONNECTOR
 			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
@@ -193,7 +205,7 @@ func main() {
 			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 			done := make(chan bool)
-			connector.ConnectorMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfGRPCBindAddressDir, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout), gandalfVersions)
+			connector.ConnectorMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfGRPCBindAddressDir, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, gandalfAutoUpdateTime, gandalfAutoUpdate, int64(gandalfMaxTimeout), gandalfVersions)
 			//go oauth2.NewOAuth2Client()
 			<-done
 			break

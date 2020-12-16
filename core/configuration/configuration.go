@@ -122,6 +122,8 @@ func InitConnectorKeys() {
 	_ = SetStringKeyConfig("connector", "versions", "v", "1,2,3", "versions of a connector", true)
 	_ = SetStringKeyConfig("connector", "grpc_bind_address", "r", "", "GRPC bind address", true)
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
+	_ = SetStringKeyConfig("connector", "auto_update", "o", "false", "autoupdate mode", true)
+	_ = SetStringKeyConfig("connector", "auto_update_time", "", "", "time for autoupdate mode", false)
 }
 
 //initiation of the aggregator keys
@@ -370,6 +372,11 @@ func GetVersionsList(strVal string) ([]models.Version, error) {
 		resultList = append(resultList, models.Version{Major: int8(major), Minor: int8(minor)})
 	}
 	return resultList, nil
+}
+
+func GetAutoUpdate(strVal string) (bool, error) {
+	gandalfAutoUpdate, err := strconv.ParseBool(strVal)
+	return gandalfAutoUpdate, err
 }
 
 //set the map with the paths for the TLS keys

@@ -47,7 +47,7 @@ type WorkerAdmin struct {
 }
 
 //NewWorker : NewWorker
-func NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress string, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) *WorkerAdmin {
+func NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, autoUpdateTime string, autoUpdate bool, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) *WorkerAdmin {
 	workerAdmin := new(WorkerAdmin)
 	workerAdmin.logicalName = logicalName
 	workerAdmin.connectorType = connectorType
@@ -58,6 +58,17 @@ func NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, gr
 	workerAdmin.timeoutMax = timeoutMax
 	workerAdmin.chaussette = chaussette
 	workerAdmin.versions = versions
+
+	workerAdmin.autoUpdate = autoUpdate
+	autoUpdateTimeSplit := strings.Split(autoUpdateTime, ":")
+	autoUpdateTimeHour, err := strconv.Atoi(autoUpdateTimeSplit[0])
+	if err == nil {
+		workerAdmin.autoUpdateHour = autoUpdateTimeHour
+	}
+	autoUpdateTimeMinute, err := strconv.Atoi(autoUpdateTimeSplit[1])
+	if err == nil {
+		workerAdmin.autoUpdateMinute = autoUpdateTimeMinute
+	}
 
 	workerAdmin.major = 0
 
@@ -105,14 +116,14 @@ func (w WorkerAdmin) Run() {
 			}
 		}
 	}
-	/* 	if w.autoUpdate {
+	if w.autoUpdate {
 		//TODO REVOIR
 		if w.autoUpdateHour > 0 || w.autoUpdateMinute > 0 {
 			w.updateByTime(w.autoUpdateHour, w.autoUpdateMinute)
 		} else {
 			w.updateByMinute()
 		}
-	} */
+	}
 
 	//
 	w.RegisterCommandsFuncs("ADMIN_GET_WORKER", w.GetWorker)
