@@ -12,7 +12,7 @@ func Stop(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState
 
 	for workerState.GetState() == 0 {
 		validate := clientGandalf.SendStop(major, minor)
-		if !validate.GetValid() {
+		if !validate {
 			workerState.SetStoppingWorkerState()
 		}
 

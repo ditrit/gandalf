@@ -84,7 +84,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			if secret.GetCommand() == "VALIDATION" {
 
 				var result bool
-				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["instanceName"].(string), secret.GetContext()["secret"].(string))
+				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
 
 				if err == nil {
 					target := secret.GetTarget()

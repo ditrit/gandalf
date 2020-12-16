@@ -24,12 +24,12 @@ func NewGandalfDatabaseClient(databasePath, name string) (gandalfDatabaseClient 
 }
 
 // InitGandalfDatabase : Gandalf database init.
-func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, instanceName string) (login string, password string, secret string, err error) {
+func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (login string, password string, secret string, err error) {
 	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()
-	cluster := models.Cluster{LogicalName: logicalName, InstanceName: instanceName, Secret: secret}
+	cluster := models.Cluster{LogicalName: logicalName, Secret: secret}
 	err = gandalfDatabaseClient.Create(&cluster).Error
 
 	//Init State
@@ -67,6 +67,6 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 
 //DemoCreateCluster
 func DemoCreateCluster(gandalfDatabaseClient *gorm.DB) {
-	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", InstanceName: "Cluster2", Secret: "TUTU"})
-	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", InstanceName: "Cluster3", Secret: "TITI"})
+	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", Secret: "TUTU"})
+	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", Secret: "TITI"})
 }

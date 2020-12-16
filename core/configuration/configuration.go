@@ -95,7 +95,6 @@ func InitMainConfigKeys() {
 func InitCoreKeys() {
 	_ = SetStringKeyConfig("core", "config_dir", "f", homePath+"/go/src/gandalf/core/configuration/configDir/", "path to the configuration directory", true)
 	_ = SetStringKeyConfig("core", "logical_name", "l", "", "logical name of the component", true)
-	_ = SetStringKeyConfig("core", "instance_name", "i", "", "instance name of the component", true)
 	_ = SetStringKeyConfig("core", "gandalf_type", "g", "", "launch mode (connector|aggregator|cluster)", true)
 	_ = SetStringKeyConfig("core", "bind_address", "b", "", "Bind address", true)
 	_ = SetStringKeyConfig("core", "gandalf_secret", "s", "/etc/gandalf/gandalfSecret", "path of the gandalf secret", true)
@@ -109,7 +108,7 @@ func InitCoreKeys() {
 
 //initiation of the tenant key for connectors and aggregators
 func InitTenantKey() {
-	_ = SetStringKeyConfig("connector/aggregator", "tenant", "t", "", "tenant of the component", true)
+	_ = SetStringKeyConfig("aggregator", "tenant", "t", "", "tenant of the component", true)
 }
 
 //initiation of the connector keys
@@ -123,6 +122,8 @@ func InitConnectorKeys() {
 	_ = SetStringKeyConfig("connector", "versions", "v", "1,2,3", "versions of a connector", true)
 	_ = SetStringKeyConfig("connector", "grpc_bind_address", "r", "", "GRPC bind address", true)
 	_ = SetIntegerKeyConfig("connector", "max_timeout", "m", 100, "maximum timeout of the connector", false)
+	_ = SetStringKeyConfig("connector", "auto_update", "o", "false", "autoupdate mode", true)
+	_ = SetStringKeyConfig("connector", "auto_update_time", "", "", "time for autoupdate mode", false)
 }
 
 //initiation of the aggregator keys
@@ -371,6 +372,11 @@ func GetVersionsList(strVal string) ([]models.Version, error) {
 		resultList = append(resultList, models.Version{Major: int8(major), Minor: int8(minor)})
 	}
 	return resultList, nil
+}
+
+func GetAutoUpdate(strVal string) (bool, error) {
+	gandalfAutoUpdate, err := strconv.ParseBool(strVal)
+	return gandalfAutoUpdate, err
 }
 
 //set the map with the paths for the TLS keys

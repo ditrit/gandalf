@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	goclient "github.com/ditrit/gandalf/libraries/goclient"
-	models "github.com/ditrit/gandalf/libraries/goclient/models"
 )
 
 type WorkflowController struct {
@@ -38,12 +37,11 @@ func (fc WorkflowController) SendCommand(w http.ResponseWriter, r *http.Request)
 
 		fmt.Println("SEND COMMMAND CREATE_FORM")
 		payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-		commandMessageUUID := fc.clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-		formUUID := commandMessageUUID.GetUUID()
-		fmt.Println(formUUID)
+		commandMessageUUID := fc.clientGandalf.SendCommand("Utils.CREATE_FORM", map[string]string{"payload": payload})
+		fmt.Println(commandMessageUUID)
 		for true {
 			//event := fc.clientGandalf.WaitReplyByEvent("CREATE_FORM", "STATE", formUUID, id)
-			event := fc.clientGandalf.WaitReplyByTopic("CREATE_FORM", formUUID, id)
+			event := fc.clientGandalf.WaitReplyByTopic("CREATE_FORM", commandMessageUUID, id)
 			fmt.Println(event)
 			//TRAITEMENT PAYLOAD
 			if event.GetEvent() == "SUCESS" {
@@ -67,9 +65,8 @@ func (fc WorkflowController) SendUpdate(w http.ResponseWriter, r *http.Request) 
 		//id := fc.clientGandalf.CreateIteratorEvent()
 
 		fmt.Println("SEND COMMMAND ADMIN_UPDATE")
-		commandMessageUUIDupdate := fc.clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
-		updateUUID := commandMessageUUIDupdate.GetUUID()
-		fmt.Println(updateUUID)
+		commandMessageUUIDupdate := fc.clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", map[string]string{})
+		fmt.Println(commandMessageUUIDupdate)
 		//event := fc.clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
 		//fmt.Println(event)
 	}()

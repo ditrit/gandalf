@@ -61,6 +61,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(secret)
 
 	if secret.GetCommand() == "VALIDATION_REPLY" {
+		ch.Context["tenant"] = secret.GetTenant()
 		ch.Context["validation"] = secret.GetPayload()
 	}
 
@@ -68,14 +69,14 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, instanceName, tenant, secret string) (err error) {
+func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, secret, bindAddress string) (err error) {
 
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
-	secretMsg.Tenant = shoset.Context["tenant"].(string)
+	//secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "connector"
 	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["instanceName"] = instanceName
 	secretMsg.GetContext()["secret"] = secret
+	secretMsg.GetContext()["bindAddress"] = bindAddress
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")

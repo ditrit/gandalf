@@ -7,3 +7,5 @@ connector:
   versions:
   grpc_bind_address: localhost:9000
   max_timeout: 10000
+  auto_update: true
+  auto_update_time: 13:00

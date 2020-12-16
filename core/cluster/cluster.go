@@ -37,11 +37,10 @@ func InitClusterKeys(){
 */
 
 // NewClusterMember : Cluster struct constructor.
-func NewClusterMember(logicalName, instanceName, databasePath, logPath string) *ClusterMember {
+func NewClusterMember(logicalName, databasePath, logPath string) *ClusterMember {
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
 	member.MapDatabaseClient = make(map[string]*gorm.DB)
-	member.chaussette.Context["instance"] = instanceName
 	member.chaussette.Context["databasePath"] = databasePath
 	member.chaussette.Context["tenantDatabases"] = member.MapDatabaseClient
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
@@ -103,8 +102,8 @@ func getBrothers(address string, member *ClusterMember) []string {
 }
 
 // ClusterMemberInit : Cluster init function.
-func ClusterMemberInit(logicalName, instanceName, bindAddress, databasePath, logPath string) *ClusterMember {
-	member := NewClusterMember(logicalName, instanceName, databasePath, logPath)
+func ClusterMemberInit(logicalName, bindAddress, databasePath, logPath string) *ClusterMember {
+	member := NewClusterMember(logicalName, databasePath, logPath)
 	err := member.Bind(bindAddress)
 	if err == nil {
 		log.Printf("New Aggregator member %s command %s bind on %s \n", logicalName, "init", bindAddress)
@@ -130,7 +129,7 @@ func ClusterMemberInit(logicalName, instanceName, bindAddress, databasePath, log
 
 						log.Printf("New gandalf database at %s \n", databasePath)
 						var login, password, secret string
-						login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, logicalName, instanceName)
+						login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, logicalName)
 						if err == nil {
 							fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 							fmt.Printf("Created cluster, logical name : %s, secret : %s \n", logicalName, secret)
@@ -167,8 +166,8 @@ func ClusterMemberInit(logicalName, instanceName, bindAddress, databasePath, log
 }
 
 // ClusterMemberJoin : Cluster join function.
-func ClusterMemberJoin(logicalName, instanceName, bindAddress, joinAddress, databasePath, logPath, secret string) *ClusterMember {
-	member := NewClusterMember(logicalName, instanceName, databasePath, logPath)
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, logPath, secret string) *ClusterMember {
+	member := NewClusterMember(logicalName, databasePath, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
@@ -180,7 +179,7 @@ func ClusterMemberJoin(logicalName, instanceName, bindAddress, joinAddress, data
 			gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databasePath, "gandalf")
 			if err == nil {
 				var result bool
-				result, err = utils.ValidateSecret(gandalfDatabaseClient, "cluster", logicalName, instanceName, secret)
+				result, err = utils.ValidateSecret(gandalfDatabaseClient, "cluster", logicalName, secret, bindAddress)
 				fmt.Println("result")
 				fmt.Println(result)
 				if err == nil {

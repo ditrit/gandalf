@@ -59,63 +59,64 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle secret")
 	log.Println(secret)
 
-	if secret.GetTenant() == ch.Context["tenant"] {
-		//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
-		//if ok {
-		if dir == "in" {
-			if c.GetShosetType() == "c" {
-				shosets := net.GetByType(ch.ConnsByAddr, "cl")
-				if len(shosets) != 0 {
-					secret.Target = c.GetBindAddr()
-					index := getSecretSendIndex(shosets)
-					shosets[index].SendMessage(secret)
-					log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
-				} else {
-					log.Println("can't find clusters to send")
-					err = errors.New("can't find clusters to send")
+	//if secret.GetTenant() == ch.Context["tenant"] {
+	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
+	//if ok {
+	if dir == "in" {
+		if c.GetShosetType() == "c" {
+			shosets := net.GetByType(ch.ConnsByAddr, "cl")
+			if len(shosets) != 0 {
+				secret.Target = c.GetBindAddr()
+				secret.Tenant = ch.Context["tenant"].(string)
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(secret)
+				log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
+			} else {
+				log.Println("can't find clusters to send")
+				err = errors.New("can't find clusters to send")
+			}
+		} else {
+			log.Println("wrong Shoset type")
+			err = errors.New("wrong Shoset type")
+		}
+	}
+
+	if dir == "out" {
+		if c.GetShosetType() == "cl" {
+
+			if secret.GetTarget() == "" {
+				if secret.GetCommand() == "VALIDATION_REPLY" {
+					ch.Context["validation"] = secret.GetPayload()
 				}
 			} else {
-				log.Println("wrong Shoset type")
-				err = errors.New("wrong Shoset type")
+				shoset := ch.ConnsByAddr.Get(secret.GetTarget())
+				shoset.SendMessage(secret)
 			}
+		} else {
+			log.Println("wrong Shoset type")
+			err = errors.New("wrong Shoset type")
 		}
-
-		if dir == "out" {
-			if c.GetShosetType() == "cl" {
-
-				if secret.GetTarget() == "" {
-					if secret.GetCommand() == "VALIDATION_REPLY" {
-						ch.Context["validation"] = secret.GetPayload()
-					}
-				} else {
-					shoset := ch.ConnsByAddr.Get(secret.GetTarget())
-					shoset.SendMessage(secret)
-				}
-			} else {
-				log.Println("wrong Shoset type")
-				err = errors.New("wrong Shoset type")
-			}
-		}
-		/* } else {
-			log.Println("can't push to queue")
-			err = errors.New("can't push to queue")
-		} */
-	} else {
+	}
+	/* } else {
+		log.Println("can't push to queue")
+		err = errors.New("can't push to queue")
+	} */
+	/*} else {
 		log.Println("wrong tenant")
 		err = errors.New("wrong tenant")
-	}
+	}*/
 
 	return err
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, instanceName, tenant, secret string) (err error) {
+func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "aggregator"
 	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["instanceName"] = instanceName
 	secretMsg.GetContext()["secret"] = secret
+	secretMsg.GetContext()["bindAddress"] = bindAddress
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")

@@ -51,7 +51,7 @@ func InitConnectorKeys(){
 }*/
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPath string, versions []models.Version) *ConnectorMember {
+func NewConnectorMember(logicalName, connectorType, logPath string, versions []models.Version) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.logicalName = logicalName
 	member.connectorType = connectorType
@@ -60,8 +60,7 @@ func NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPat
 	member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
 	member.mapVersionConnectorCommands = make(map[int8][]string)
 	member.mapActiveWorkers = make(map[models.Version]bool)
-	member.chaussette.Context["instance"] = instanceName
-	member.chaussette.Context["tenant"] = tenant
+	//member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Context["connectorType"] = connectorType
 	member.chaussette.Context["versions"] = versions
 	member.chaussette.Context["mapActiveWorkers"] = member.mapActiveWorkers
@@ -112,8 +111,8 @@ func (m *ConnectorMember) Bind(addr string) error {
 }
 
 // GrpcBind : Connector grpcbind function.
-func (m *ConnectorMember) GrpcBind(addr string) (err error) {
-	m.connectorGrpc, err = grpc.NewConnectorGrpc(addr, m.timeoutMax, m.chaussette)
+func (m *ConnectorMember) GrpcBind(grpcBindAddress string) (err error) {
+	m.connectorGrpc, err = grpc.NewConnectorGrpc(grpcBindAddress, m.timeoutMax, m.chaussette)
 	go m.connectorGrpc.StartGrpcServer()
 
 	return err
@@ -135,8 +134,8 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 
 } */
 
-func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, instanceName, tenant, secret string) (result bool) {
-	shoset.SendSecret(nshoset, timeoutMax, logicalName, instanceName, tenant, secret)
+func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, secret, bindAddress string) (result bool) {
+	shoset.SendSecret(nshoset, timeoutMax, logicalName, secret, bindAddress)
 	time.Sleep(time.Second * time.Duration(5))
 
 	result = false
@@ -333,8 +332,8 @@ func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) 
 }
 
 // ConfigurationValidation : Validation configuration
-func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress string, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) (err error) {
-	workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, timeoutMax, chaussette, versions)
+func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, autoUpdateTime string, autoUpdate bool, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) (err error) {
+	workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, autoUpdateTime, autoUpdate, timeoutMax, chaussette, versions)
 	go workerAdmin.Run()
 	return
 }
@@ -352,8 +351,8 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBindAddress, linkAddress, connectorType, product, workerUrl, workerPath, logPath, secret string, timeoutMax int64, versions []models.Version) (*ConnectorMember, error) {
-	member := NewConnectorMember(logicalName, instanceName, tenant, connectorType, logPath, versions)
+func ConnectorMemberInit(logicalName, bindAddress, grpcSocketDir, linkAddress, connectorType, product, workerUrl, workerPath, logPath, secret, autoUpdateTime string, autoUpdate bool, timeoutMax int64, versions []models.Version) (*ConnectorMember, error) {
+	member := NewConnectorMember(logicalName, connectorType, logPath, versions)
 	member.timeoutMax = timeoutMax
 
 	err := member.Bind(bindAddress)
@@ -362,14 +361,15 @@ func ConnectorMemberInit(logicalName, instanceName, tenant, bindAddress, grpcBin
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, instanceName, tenant, secret)
+			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, secret, bindAddress)
 			if validateSecret {
+				var grpcBindAddress = grpcSocketDir + logicalName + "_" + utils.GenerateHash(logicalName)
 				err = member.GrpcBind(grpcBindAddress)
 				if err == nil {
-					err = member.StartWorkerAdmin(logicalName, connectorType, product, workerUrl, workerPath, grpcBindAddress, timeoutMax, member.GetChaussette(), versions)
+					err = member.StartWorkerAdmin(logicalName, connectorType, product, workerUrl, workerPath, grpcBindAddress, autoUpdateTime, autoUpdate, timeoutMax, member.GetChaussette(), versions)
 					if err == nil {
 
-						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, tenant, bindAddress, grpcBindAddress, linkAddress)
+						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, member.chaussette.Context["tenant"], bindAddress, grpcBindAddress, linkAddress)
 						fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 					} else {
 						log.Fatalf("Can't start worker admin")
