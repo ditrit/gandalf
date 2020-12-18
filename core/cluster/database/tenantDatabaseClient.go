@@ -283,6 +283,7 @@ func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector1", Secret: "TOTO"})
 	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector2", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector3", Secret: "TOTO"})
 }
 
 //DemoCreateConnectorType
@@ -290,6 +291,7 @@ func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Admin"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Utils"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Workflow"})
+	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Demo"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
 }
@@ -347,6 +349,25 @@ func DemoCreateApplicationUtils(tenantDatabaseClient *gorm.DB) {
 		Aggregator:    AggregatorUtils,
 		Connector:     ConnectorUtils,
 		ConnectorType: ConnectorTypeUtils})
+}
+
+//DemoCreateApplicationUtils
+func DemoCreateApplicationDocker(tenantDatabaseClient *gorm.DB) {
+	var AggregatorDocker models.Aggregator
+	var ConnectorDocker models.Connector
+	var ConnectorTypeDocker models.ConnectorType
+
+	tenantDatabaseClient.Where("logical_name = ?", "Aggregator1").First(&AggregatorDocker)
+	tenantDatabaseClient.Where("logical_name = ?", "Connector2").First(&ConnectorDocker)
+	tenantDatabaseClient.Where("name = ?", "Workflow").First(&ConnectorTypeDocker)
+
+	fmt.Println(AggregatorDocker)
+	fmt.Println(ConnectorDocker)
+
+	tenantDatabaseClient.Create(&models.Application{Name: "Application2",
+		Aggregator:    AggregatorDocker,
+		Connector:     ConnectorDocker,
+		ConnectorType: ConnectorTypeDocker})
 }
 
 /* //DemoCreateProductUtils
