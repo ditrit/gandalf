@@ -77,15 +77,17 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 	//if ok {
 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-	databasePath := ch.Context["databasePath"].(string)
+	databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+	//databasePath := ch.Context["databasePath"].(string)
 	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(secret.GetTenant(), databasePath, mapDatabaseClient)
+		databaseClient := cutils.GetDatabaseClientByTenant(secret.GetTenant(), databaseBindAddr, mapDatabaseClient)
 		if databaseClient != nil {
 			if secret.GetCommand() == "VALIDATION" {
 
 				var result bool
 				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
-
+				fmt.Println("RESULT")
+				fmt.Println(result)
 				if err == nil {
 					target := secret.GetTarget()
 					if secret.GetContext()["componentType"] == "aggregator" {

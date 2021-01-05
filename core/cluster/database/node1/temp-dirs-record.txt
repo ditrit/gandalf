@@ -1,0 +1,1 @@
+/home/romainfairant/go/src/gandalf/core/cluster/database/node1/cockroach-temp593208431

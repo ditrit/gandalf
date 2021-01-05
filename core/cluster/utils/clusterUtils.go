@@ -15,30 +15,18 @@ import (
 )
 
 // GetDatabaseClientByTenant : Cluster database client getter by tenant.
-func GetDatabaseClientByTenant(tenant, databasePath string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
-	fmt.Println("databasePath")
-	fmt.Println(databasePath)
-	fmt.Println("tenant")
-	fmt.Println(tenant)
+func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
 	if _, ok := mapDatabaseClient[tenant]; !ok {
-		var databaseCreated, err = database.IsDatabaseCreated(databasePath, tenant)
+
+		//var tenantDatabaseClient *gorm.DB
+		tenantDatabaseClient, err := database.NewTenantDatabaseClient(addr, tenant)
 		if err == nil {
-			fmt.Println("databaseCreated")
-			fmt.Println(databaseCreated)
-			if databaseCreated {
-				var tenantDatabaseClient *gorm.DB
-				tenantDatabaseClient, err = database.NewTenantDatabaseClient(tenant, databasePath)
-				if err == nil {
-					mapDatabaseClient[tenant] = tenantDatabaseClient
-				} else {
-					log.Println("Can't create database client")
-				}
-			} else {
-				return nil
-			}
+			mapDatabaseClient[tenant] = tenantDatabaseClient
 		} else {
-			log.Println("Can't detect if the database is created or not")
+			log.Println("Can't create database client")
+			return nil
 		}
+
 	}
 
 	return mapDatabaseClient[tenant]
@@ -179,6 +167,8 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 	case "aggregator":
 		var aggregator models.Aggregator
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&aggregator).Error
+		fmt.Println("err")
+		fmt.Println(err)
 		if err == nil {
 			if aggregator != (models.Aggregator{}) {
 				if aggregator.BindAddress == "" || aggregator.BindAddress == bindAddress {

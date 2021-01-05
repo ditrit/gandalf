@@ -10,35 +10,26 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-// NewTenantDatabaseClient : Tenant database client constructor.
-func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient *gorm.DB, err error) {
-
-	databaseFullPath := databasePath + "/" + tenant + ".db"
-
-	tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-	if err != nil {
-		log.Println("failed to connect database")
-	}
+// NewGandalfDatabaseClient : Gandalf database client constructor.
+func NewTenantDatabase(dataDir, addr, tenant string) (err error) {
+	CoackroachCreateDatabase(dataDir, addr, tenant)
+	fmt.Println(err)
 
 	return
+}
 
-	/*databaseFullPath := databasePath + "/" + tenant + ".db"
-
-	 	if _, err := os.Stat(databaseFullPath); err == nil {
-			tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-
-		} else if os.IsNotExist(err) {
-			tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-			if err != nil {
-				log.Println("failed to connect database")
-			}
-
-			InitTenantDatabase(tenantDatabaseClient)
-		}
-
-		//DemoPopulateTenantDatabase(tenantDatabaseClient) */
+// NewGandalfDatabaseClient : Gandalf database client constructor.
+func NewTenantDatabaseClient(addr, tenant string) (tenantDatabaseClient *gorm.DB, err error) {
+	//TODO REVOIR
+	dsn := "postgres://" + tenant + ":" + tenant + "@" + addr + "/" + tenant + "?sslmode=require"
+	tenantDatabaseClient, err = gorm.Open("postgres", dsn)
+	if err != nil {
+		fmt.Println(err)
+		log.Println("failed to connect database")
+	}
 
 	return
 }

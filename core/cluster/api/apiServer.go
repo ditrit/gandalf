@@ -33,7 +33,7 @@ func NewServerAPI(databasePath string) *ServerAPI {
 	serverAPI.rooturl = server_address + server_port
 
 	serverAPI.mapDatabase = make(map[string]*gorm.DB)
-	gandalfDatabase, _ := database.NewGandalfDatabaseClient(databasePath, "gandalf")
+	gandalfDatabase, _ := database.NewGandalfDatabaseClient("gandalf")
 	serverAPI.gandalfDatabase = gandalfDatabase
 
 	serverAPI.router = GetRouter(gandalfDatabase, serverAPI.mapDatabase, databasePath)
