@@ -152,7 +152,10 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 	switch componentType {
 	case "cluster":
 		var cluster models.Cluster
+		fmt.Println("logicalName")
 		fmt.Println(logicalName)
+		fmt.Println("secret")
+		fmt.Println(secret)
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&cluster).Error
 		fmt.Println("err")
 		fmt.Println(err)

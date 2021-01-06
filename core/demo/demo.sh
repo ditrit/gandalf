@@ -3,7 +3,7 @@ echo 'Running Demo'
 
 echo 'Build' 
 cd "${BASH_SOURCE%/*}/.."
-go build -tags libsqlite3 -o gandalf
+go build -o gandalf
 
 sleep 5
 echo 'Cluster' 

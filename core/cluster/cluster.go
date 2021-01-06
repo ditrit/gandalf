@@ -10,7 +10,6 @@ import (
 
 	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
-	"github.com/ditrit/gandalf/core/cluster/utils"
 	coreLog "github.com/ditrit/gandalf/core/log"
 
 	net "github.com/ditrit/shoset"
@@ -48,7 +47,7 @@ func NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath strin
 	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
 	member.chaussette.Queue["secret"] = msg.NewQueue()
 	member.chaussette.Get["secret"] = shoset.GetSecret
-	member.chaussette.Send["secret"] = shoset.SendSecret
+	//member.chaussette.Send["secret"] = shoset.SendSecret
 	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
 
@@ -203,83 +202,74 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 
 	if err == nil {
 		_, err = member.Join(joinAddress)
+		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
 
-			var isNodeExist = database.IsNodeExist("/home/romainfairant/gandalf", "node2")
-			fmt.Println("isNodeExist")
-			fmt.Println(isNodeExist)
-			if !isNodeExist {
+			var validateSecret bool
+			validateSecret = member.ValidateSecret(member.GetChaussette(), 1000, logicalName, "", secret, bindAddress)
+			fmt.Println("validateSecret")
+			fmt.Println(validateSecret)
+			if err == nil {
+				if validateSecret {
+					var isNodeExist = database.IsNodeExist("/home/romainfairant/gandalf", "node2")
+					fmt.Println("isNodeExist")
+					fmt.Println(isNodeExist)
+					if !isNodeExist {
 
-				//getBrothers(bindAddress, member)
-				err = database.CoackroachStart("/home/romainfairant/gandalf", "node2", "localhost:26290", "localhost:8091", "localhost:26270,localhost:26290")
-				fmt.Println("err")
-				fmt.Println(err)
+						//getBrothers(bindAddress, member)
+						err = database.CoackroachStart("/home/romainfairant/gandalf", "node2", "localhost:26291", "localhost:8091", "localhost:26270,localhost:26291")
+						fmt.Println("err")
+						fmt.Println(err)
 
-				if err == nil {
-					log.Printf("New database node bind on %s \n", "")
-
-					var gandalfDatabaseClient *gorm.DB
-					gandalfDatabaseClient, err = database.NewGandalfDatabaseClient("localhost:26290", "gandalf")
-					member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-
-					if err == nil {
-						log.Printf("New gandalf database client")
-						var result bool
-						result, err = utils.ValidateSecret(gandalfDatabaseClient, "cluster", logicalName, secret, bindAddress)
-						fmt.Println("result")
-						fmt.Println(result)
 						if err == nil {
-							if result {
-								log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+							log.Printf("New database node bind on %s \n", "")
+
+							var gandalfDatabaseClient *gorm.DB
+							gandalfDatabaseClient, err = database.NewGandalfDatabaseClient("localhost:26291", "gandalf")
+							member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+
+							if err == nil {
+								log.Printf("New gandalf database client")
+
 							} else {
-								log.Fatalf("Invalid secret")
+								log.Fatalf("Can't create database client")
 							}
 						} else {
-							log.Fatalf("Can't validate secret")
+							log.Fatalf("Can't create node")
 						}
 					} else {
-						log.Fatalf("Can't create database client")
+						log.Println("Node already exist")
+
+						//getBrothers(bindAddress, member)
+						err = database.CoackroachStart("/home/romainfairant/gandalf", "node2", "localhost:26291", "localhost:8090", "localhost:26270,localhost:26291")
+						fmt.Println("errStart")
+						fmt.Println(err)
+
+						if err == nil {
+							log.Printf("New database node bind on %s \n", "")
+
+							var gandalfDatabaseClient *gorm.DB
+							gandalfDatabaseClient, err = database.NewGandalfDatabaseClient("localhost:26291", "gandalf")
+							member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+
+							if err == nil {
+								log.Printf("New gandalf database client")
+								log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+
+							} else {
+								log.Fatalf("Can't create database client")
+							}
+						} else {
+							log.Fatalf("Can't start node")
+						}
 					}
+					log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 				} else {
-					log.Fatalf("Can't create node")
+					log.Fatalf("Invalid secret")
 				}
 			} else {
-				log.Println("Node already exist")
-
-				//getBrothers(bindAddress, member)
-				err = database.CoackroachStart("/home/romainfairant/gandalf", "node2", "localhost:26290", "localhost:8090", "localhost:26270,localhost:26290")
-				fmt.Println("err")
-				fmt.Println(err)
-
-				if err == nil {
-					log.Printf("New database node bind on %s \n", "")
-
-					var gandalfDatabaseClient *gorm.DB
-					gandalfDatabaseClient, err = database.NewGandalfDatabaseClient("localhost:26290", "gandalf")
-					member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-
-					if err == nil {
-						log.Printf("New gandalf database client")
-						var result bool
-						result, err = utils.ValidateSecret(gandalfDatabaseClient, "cluster", logicalName, secret, bindAddress)
-						fmt.Println("result")
-						fmt.Println(result)
-						if err == nil {
-							if result {
-								log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-							} else {
-								log.Fatalf("Invalid secret")
-							}
-						} else {
-							log.Fatalf("Can't validate secret")
-						}
-					} else {
-						log.Fatalf("Can't create database client")
-					}
-				} else {
-					log.Fatalf("Can't start node")
-				}
+				log.Fatalf("Can't validate secret")
 			}
 		} else {
 			log.Fatalf("Can't join shoset on %s", joinAddress)
@@ -289,6 +279,23 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 	}
 
 	return member
+}
+
+func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (result bool) {
+	fmt.Println("SEND")
+	shoset.SendSecret(nshoset, timeoutMax, logicalName, tenant, secret, bindAddress)
+	time.Sleep(time.Second * time.Duration(5))
+
+	result = false
+
+	resultString := m.chaussette.Context["validation"].(string)
+	if resultString != "" {
+		if resultString == "true" {
+			result = true
+		}
+	}
+
+	return
 }
 
 // CreateStore : Cluster create store function.
