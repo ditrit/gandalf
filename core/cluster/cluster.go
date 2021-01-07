@@ -212,57 +212,27 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
-					var isNodeExist = database.IsNodeExist("/home/romainfairant/gandalf", "node2")
-					fmt.Println("isNodeExist")
-					fmt.Println(isNodeExist)
-					if !isNodeExist {
+					//getBrothers(bindAddress, member)
+					//TODO REVOIR BROTHERS COCKROACHDB
+					err = database.CoackroachStart(databasePath, databaseName, databaseBindAddr, databaseHttpAddr, "localhost:26270,localhost:26291")
+					fmt.Println("err")
+					fmt.Println(err)
 
-						//getBrothers(bindAddress, member)
-						err = database.CoackroachStart("/home/romainfairant/gandalf", "node2", "localhost:26291", "localhost:8091", "localhost:26270,localhost:26291")
-						fmt.Println("err")
-						fmt.Println(err)
+					if err == nil {
+						log.Printf("New database node bind on %s \n", "")
+
+						var gandalfDatabaseClient *gorm.DB
+						gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databaseBindAddr, "gandalf")
+						member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 
 						if err == nil {
-							log.Printf("New database node bind on %s \n", "")
+							log.Printf("New gandalf database client")
 
-							var gandalfDatabaseClient *gorm.DB
-							gandalfDatabaseClient, err = database.NewGandalfDatabaseClient("localhost:26291", "gandalf")
-							member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-
-							if err == nil {
-								log.Printf("New gandalf database client")
-
-							} else {
-								log.Fatalf("Can't create database client")
-							}
 						} else {
-							log.Fatalf("Can't create node")
+							log.Fatalf("Can't create database client")
 						}
 					} else {
-						log.Println("Node already exist")
-
-						//getBrothers(bindAddress, member)
-						err = database.CoackroachStart("/home/romainfairant/gandalf", "node2", "localhost:26291", "localhost:8090", "localhost:26270,localhost:26291")
-						fmt.Println("errStart")
-						fmt.Println(err)
-
-						if err == nil {
-							log.Printf("New database node bind on %s \n", "")
-
-							var gandalfDatabaseClient *gorm.DB
-							gandalfDatabaseClient, err = database.NewGandalfDatabaseClient("localhost:26291", "gandalf")
-							member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-
-							if err == nil {
-								log.Printf("New gandalf database client")
-								log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
-
-							} else {
-								log.Fatalf("Can't create database client")
-							}
-						} else {
-							log.Fatalf("Can't start node")
-						}
+						log.Fatalf("Can't create node")
 					}
 					log.Printf("%s.JoinBrothers Join(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 				} else {

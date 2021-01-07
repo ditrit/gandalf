@@ -9,7 +9,7 @@ LISTEN_ADDR=$3
 HTTP_ADDR=$4
 MEMBERS=$5
 
-mkdir $DATADIR/database
+mkdir -p $DATADIR/database
 cd $DATADIR/database
 $COCKROACH start \
 		--certs-dir=$CERTDIR \
