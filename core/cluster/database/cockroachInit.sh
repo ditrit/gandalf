@@ -1,10 +1,11 @@
 #!/bin/bash
 
+BINDIR=~/bin
+DATADIR=$1
 CERTDIR=$DATADIR/certs
 COCKROACH=$BINDIR/cockroach
-MEMBER_ADDR=localhost:26257
-MEMBERS=$MEMBER_ADDR
+HOST=$2
 
 $COCKROACH init \
 		--certs-dir=$CERTDIR \
-		--host=$MEMBERS 
+		--host=$HOST 

@@ -2,23 +2,28 @@
 package database
 
 import (
-	"log"
-	"os"
+	"fmt"
+	"os/user"
 
 	"github.com/ditrit/gandalf/core/models"
-
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 // NewGandalfDatabaseClient : Gandalf database client constructor.
-func NewGandalfDatabaseClient(databasePath, name string) (gandalfDatabaseClient *gorm.DB, err error) {
+func NewGandalfDatabase(dataDir, addr, name string) (err error) {
+	err = CoackroachCreateDatabase(dataDir, addr, name)
+	fmt.Println(err)
 
-	databaseFullPath := databasePath + "/" + name + ".db"
+	return
+}
 
-	gandalfDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-	if err != nil {
-		log.Println("failed to connect database")
-	}
+// NewGandalfDatabaseClient : Gandalf database client constructor.
+func NewGandalfDatabaseClient(addr, name string) (gandalfDatabaseClient *gorm.DB, err error) {
+	//TODO REVOIR
+	//databaseFullPath := databasePath + "/" + name + ".db"
+	dsn := "postgres://" + name + ":" + name + "@" + addr + "/" + name + "?sslmode=require"
+	gandalfDatabaseClient, err = gorm.Open("postgres", dsn)
 
 	return
 }
@@ -60,7 +65,12 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 	gandalfDatabaseClient.Create(&models.Tenant{Name: "tenant1"})
 	var tenant models.Tenant
 	gandalfDatabaseClient.Where("name = ?", "tenant1").First(&tenant)
-	tenantDatabaseClient, _ := NewTenantDatabaseClient("tenant1", os.Getenv("HOME")+"/gandalf/database")
+
+	user, err := user.Current()
+	fmt.Println(user.HomeDir + "/gandalf")
+	err = NewTenantDatabase(user.HomeDir+"/gandalf", "127.0.0.1:10000", "tenant1")
+	fmt.Println(err)
+	tenantDatabaseClient, _ := NewTenantDatabaseClient("127.0.0.1:10000", "tenant1")
 	InitTenantDatabase(tenantDatabaseClient)
 
 }

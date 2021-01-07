@@ -33,7 +33,11 @@ func main() {
 
 		switch gandalfType {
 		case "cluster":
-			gandalfDBPath, err := configuration.GetStringConfig("gandalf_db")
+			gandalfDBPath, err := configuration.GetStringConfig("db_path")
+			if err != nil {
+				log.Fatalf("No valid database path : %v", err)
+			}
+			gandalfDBName, err := configuration.GetStringConfig("db_name")
 			if err != nil {
 				log.Fatalf("No valid database path : %v", err)
 			}
@@ -52,7 +56,7 @@ func main() {
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						cluster.ClusterMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfDBPath, gandalfLogPath)
+						cluster.ClusterMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfDBPath, gandalfDBName, gandalfLogPath)
 						//add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						//go database.DatabaseMemberInit(add, gandalfDBPath, 1)
 						<-done
@@ -75,7 +79,7 @@ func main() {
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath, gandalfSecret)
+						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfDBName, gandalfLogPath, gandalfSecret)
 						/*member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
 						 add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						id := len(*member.Store)

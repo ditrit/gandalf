@@ -134,7 +134,8 @@ func InitAggregatorKeys() {
 //initiation of the cluster keys
 func InitClusterKeys() {
 	_ = SetStringKeyConfig("cluster", "cluster_join", "j", "", "cluster command (join)", false)
-	_ = SetStringKeyConfig("cluster", "gandalf_db", "d", homePath+"/gandalf/database", "path for the gandalf database", false)
+	_ = SetStringKeyConfig("cluster", "db_path", "", homePath+"/gandalf/database", "path for the gandalf database", true)
+	_ = SetStringKeyConfig("cluster", "db_name", "", "node1", "path for the gandalf database", true)
 }
 
 //parse the configuration from the CLI parameters

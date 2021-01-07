@@ -27,22 +27,12 @@ cd gandalf-core
 
 # Installer les dependences go
 go get
-
-## Installer gcc, pour sqlite et dqlite
-sudo apt install build-essential
-
-## Installer libsqlite
-sudo apt install sqlite3 libsqlite3-dev
-
-## Installer dqlite
-### Ubuntu https://dqlite.io/
-sudo add-apt-repository -y ppa:dqlite/stable && sudo apt install dqlite
 ```
 
 ## Build :
 
 ```bash
-go build -tags libsqlite3 -o gandalf
+go build -o gandalf
 ```
 
 ## Documentation

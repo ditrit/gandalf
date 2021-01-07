@@ -10,35 +10,26 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
-// NewTenantDatabaseClient : Tenant database client constructor.
-func NewTenantDatabaseClient(tenant, databasePath string) (tenantDatabaseClient *gorm.DB, err error) {
-
-	databaseFullPath := databasePath + "/" + tenant + ".db"
-
-	tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-	if err != nil {
-		log.Println("failed to connect database")
-	}
+// NewGandalfDatabaseClient : Gandalf database client constructor.
+func NewTenantDatabase(dataDir, addr, tenant string) (err error) {
+	CoackroachCreateDatabase(dataDir, addr, tenant)
+	fmt.Println(err)
 
 	return
+}
 
-	/*databaseFullPath := databasePath + "/" + tenant + ".db"
-
-	 	if _, err := os.Stat(databaseFullPath); err == nil {
-			tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-
-		} else if os.IsNotExist(err) {
-			tenantDatabaseClient, err = gorm.Open("sqlite3", databaseFullPath)
-			if err != nil {
-				log.Println("failed to connect database")
-			}
-
-			InitTenantDatabase(tenantDatabaseClient)
-		}
-
-		//DemoPopulateTenantDatabase(tenantDatabaseClient) */
+// NewGandalfDatabaseClient : Gandalf database client constructor.
+func NewTenantDatabaseClient(addr, tenant string) (tenantDatabaseClient *gorm.DB, err error) {
+	//TODO REVOIR
+	dsn := "postgres://" + tenant + ":" + tenant + "@" + addr + "/" + tenant + "?sslmode=require"
+	tenantDatabaseClient, err = gorm.Open("postgres", dsn)
+	if err != nil {
+		fmt.Println(err)
+		log.Println("failed to connect database")
+	}
 
 	return
 }
@@ -283,6 +274,7 @@ func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector1", Secret: "TOTO"})
 	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector2", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector3", Secret: "TOTO"})
 }
 
 //DemoCreateConnectorType
@@ -290,6 +282,7 @@ func DemoCreateConnectorType(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Admin"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Utils"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Workflow"})
+	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Demo"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
 }
@@ -347,6 +340,25 @@ func DemoCreateApplicationUtils(tenantDatabaseClient *gorm.DB) {
 		Aggregator:    AggregatorUtils,
 		Connector:     ConnectorUtils,
 		ConnectorType: ConnectorTypeUtils})
+}
+
+//DemoCreateApplicationUtils
+func DemoCreateApplicationDocker(tenantDatabaseClient *gorm.DB) {
+	var AggregatorDocker models.Aggregator
+	var ConnectorDocker models.Connector
+	var ConnectorTypeDocker models.ConnectorType
+
+	tenantDatabaseClient.Where("logical_name = ?", "Aggregator1").First(&AggregatorDocker)
+	tenantDatabaseClient.Where("logical_name = ?", "Connector2").First(&ConnectorDocker)
+	tenantDatabaseClient.Where("name = ?", "Workflow").First(&ConnectorTypeDocker)
+
+	fmt.Println(AggregatorDocker)
+	fmt.Println(ConnectorDocker)
+
+	tenantDatabaseClient.Create(&models.Application{Name: "Application2",
+		Aggregator:    AggregatorDocker,
+		Connector:     ConnectorDocker,
+		ConnectorType: ConnectorTypeDocker})
 }
 
 /* //DemoCreateProductUtils

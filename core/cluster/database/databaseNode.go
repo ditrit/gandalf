@@ -1,53 +1,61 @@
-//Package database :
 package database
 
 import (
-	"log"
+	"fmt"
 	"os"
-	"path/filepath"
-	"strconv"
-	"time"
-
-	net "github.com/ditrit/shoset"
-
-	dqlite "github.com/canonical/go-dqlite"
-	"github.com/pkg/errors"
+	"os/exec"
 )
 
-// DatabaseNode : DatabaseNode struct.
-type DatabaseNode struct {
-	nodeDirectory  string
-	nodeConnection string
-	nodeID         uint64
+/* func installCockroach() {
+
+	cmd := exec.Command("/bin/sh", "./installCockroach.sh")
+	cmd.Stdout = os.Stdout
+	err := cmd.Start()
+	if err != nil {
+		log.Printf("Can't install cockroach")
+	}
 }
 
-// NewDatabaseNode : DatabaseNode constructor.
-func NewDatabaseNode(bindAddress string, nodeDirectory string, nodeID uint64) (node *dqlite.Node, err error) {
-
-	nodeConnection, _ := net.DeltaAddress(bindAddress, 1000)
-
-	if nodeID == 0 {
-		log.Println("id must be greater than zero")
-		err = errors.New("id must be greater than zero")
-	}
-
-	nodeDirectory = filepath.Join(nodeDirectory, strconv.FormatUint(nodeID, 10))
-
-	if err = os.MkdirAll(nodeDirectory, 0750); err != nil {
-		log.Printf("can't create %s", nodeDirectory)
-		err = errors.New("can't create " + nodeDirectory)
-	}
-
-	node, err = dqlite.New(
-		nodeID, nodeConnection, nodeDirectory,
-		dqlite.WithBindAddress(nodeConnection),
-		dqlite.WithNetworkLatency(20*time.Millisecond),
-	)
-
+func setupCoackroach() {
+	cmd := exec.Command("/bin/sh", "./setupCockroach.sh")
+	cmd.Stdout = os.Stdout
+	err := cmd.Start()
 	if err != nil {
-		log.Printf("failed to create node")
-		err = errors.New("failed to create node")
+		log.Printf("Can't setup cockroach")
 	}
+} */
 
-	return
+func CoackroachStart(dataDir, node, bindAddress, httpAddress, members string) error {
+	path, err := os.Getwd()
+	fmt.Println(path)
+	cmd := exec.Command("/bin/sh", "./cockroachStart.sh", dataDir, node, bindAddress, httpAddress, members)
+	cmd.Dir = path + "/cluster/database/"
+	cmd.Stderr = os.Stdout
+	cmd.Stdout = os.Stdout
+	cmd.Start()
+	err = cmd.Wait()
+
+	return err
+}
+
+func CoackroachInit(dataDir, host string) error {
+	path, err := os.Getwd()
+	fmt.Println(path)
+	cmd := exec.Command("/bin/sh", "./cockroachInit.sh", dataDir, host)
+	cmd.Dir = path + "/cluster/database/"
+
+	cmd.Start()
+	err = cmd.Wait()
+	return err
+}
+
+func CoackroachCreateDatabase(dataDir, host, database string) error {
+	path, err := os.Getwd()
+	fmt.Println(path)
+	cmd := exec.Command("/bin/sh", "./cockroachCreateDatabase.sh", dataDir, host, database)
+	cmd.Dir = path + "/cluster/database/"
+
+	cmd.Start()
+	err = cmd.Wait()
+	return err
 }

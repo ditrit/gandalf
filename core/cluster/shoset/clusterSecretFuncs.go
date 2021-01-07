@@ -17,20 +17,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+var secretSendIndex = 0
+
 func GetSecret(c *net.ShosetConn) (msg.Message, error) {
 	var conf cmsg.Secret
 	err := c.ReadMessage(&conf)
 	return conf, err
-}
-
-// SendConfig :
-func SendSecret(c *net.Shoset, cmd msg.Message) {
-	fmt.Print("Sending Secret.\n")
-	c.ConnsByAddr.Iterate(
-		func(key string, conn *net.ShosetConn) {
-			conn.SendMessage(cmd)
-		},
-	)
 }
 
 // WaitConfig :
@@ -67,56 +59,96 @@ func WaitSecret(c *net.Shoset, replies *msg.Iterator, args map[string]string, ti
 func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	secret := message.(cmsg.Secret)
 	ch := c.GetCh()
+	dir := c.GetDir()
 
 	err = nil
 
 	log.Println("Handle secret")
 	log.Println(secret)
-
+	fmt.Println("dir")
+	fmt.Println(dir)
 	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
-
 	//if ok {
-	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-	databasePath := ch.Context["databasePath"].(string)
-	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(secret.GetTenant(), databasePath, mapDatabaseClient)
-		if databaseClient != nil {
-			if secret.GetCommand() == "VALIDATION" {
+	if secret.GetCommand() == "VALIDATION" {
 
-				var result bool
-				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
-
-				if err == nil {
-					target := secret.GetTarget()
-					if secret.GetContext()["componentType"] == "aggregator" {
-						target = ""
-					}
-					if result {
-						secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "true")
-						secretReply.Tenant = secret.GetTenant()
-						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-
-						shoset.SendMessage(secretReply)
-					} else {
-						secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "false")
-						secretReply.Tenant = secret.GetTenant()
-						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-
-						shoset.SendMessage(secretReply)
-					}
-				} else {
-					log.Println("Can't validate secret")
-					err = errors.New("Can't validate secret")
-				}
-			}
+		var databaseClient *gorm.DB
+		//databasePath := ch.Context["databasePath"].(string)
+		if secret.GetContext()["componentType"].(string) == "cluster" {
+			fmt.Println("CLUSTER")
+			databaseClient = ch.Context["gandalfDatabase"].(*gorm.DB)
 		} else {
-			log.Println("Can't get database client by tenant")
-			err = errors.New("Can't get database client by tenant")
+			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+			databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+			if mapDatabaseClient != nil {
+				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), databaseBindAddr, mapDatabaseClient)
+			} else {
+				log.Println("Database client map is empty")
+				err = errors.New("Database client map is empty")
+			}
 		}
-	} else {
-		log.Println("Database client map is empty")
-		err = errors.New("Database client map is empty")
+
+		if databaseClient != nil {
+			bindAddr := secret.GetContext()["bindAddress"].(string)
+
+			var result bool
+			result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
+			fmt.Println("RESULT")
+			fmt.Println(result)
+			if err == nil {
+				target := secret.GetTarget()
+				if secret.GetContext()["componentType"] == "aggregator" || secret.GetContext()["componentType"] == "cluster" {
+					target = ""
+				}
+				if result {
+					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "true")
+					secretReply.Tenant = secret.GetTenant()
+
+					var shoset *net.ShosetConn
+					if secret.GetContext()["componentType"].(string) == "cluster" {
+						fmt.Println("ch.ConnsJoin")
+						fmt.Println(ch.ConnsJoin)
+						fmt.Println("c.GetBindAddr()")
+						fmt.Println(c.GetBindAddr())
+						shoset = ch.ConnsJoin.Get(bindAddr)
+					} else {
+						shoset = ch.ConnsByAddr.Get(bindAddr)
+
+					}
+
+					shoset.SendMessage(secretReply)
+				} else {
+					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "false")
+					secretReply.Tenant = secret.GetTenant()
+
+					var shoset *net.ShosetConn
+					if secret.GetContext()["componentType"].(string) == "cluster" {
+						shoset = ch.ConnsJoin.Get(bindAddr)
+					} else {
+						shoset = ch.ConnsByAddr.Get(bindAddr)
+
+					}
+					shoset.SendMessage(secretReply)
+				}
+			} else {
+				log.Println("Can't validate secret")
+				err = errors.New("Can't validate secret")
+			}
+
+		} else {
+			log.Println("Can't get database client")
+			err = errors.New("Can't get database client")
+		}
+	} else if secret.GetCommand() == "VALIDATION_REPLY" {
+		ch.Context["validation"] = secret.GetPayload()
 	}
+
+	/* if dir == "out" {
+		if c.GetShosetType() == "cl" {
+			if secret.GetCommand() == "VALIDATION_REPLY" {
+				ch.Context["validation"] = secret.GetPayload()
+			}
+		}
+	} */
 	/* 	} else {
 		log.Println("Can't push to queue")
 		err = errors.New("Can't push to queue")
@@ -131,4 +163,69 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	   	} */
 
 	return err
+}
+
+//SendSecret :
+func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (err error) {
+	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
+	//secretMsg.Tenant = "cluster"
+	secretMsg.GetContext()["componentType"] = "cluster"
+	secretMsg.GetContext()["logicalName"] = logicalName
+	secretMsg.GetContext()["secret"] = secret
+	secretMsg.GetContext()["bindAddress"] = bindAddress
+	//conf.GetContext()["product"] = shoset.Context["product"]
+
+	fmt.Println("shoset.ConnsByAddr")
+	fmt.Println(shoset.ConnsByAddr)
+
+	fmt.Println("shoset.ConnsJoin")
+	fmt.Println(shoset.ConnsJoin)
+
+	shosets := net.GetByType(shoset.ConnsJoin, "")
+	fmt.Println("len(shosets)")
+	fmt.Println(len(shosets))
+	if len(shosets) != 0 {
+		if secretMsg.GetTimeout() > timeoutMax {
+			secretMsg.Timeout = timeoutMax
+		}
+
+		notSend := true
+		for notSend {
+
+			index := getSecretSendIndex(shosets)
+			shosets[index].SendMessage(secretMsg)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["validation"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		}
+
+	} else {
+		log.Println("can't find cluster to send")
+		err = errors.New("can't find cluster to send")
+	}
+
+	return err
+}
+
+// getCommandSendIndex : Aggregator getSendIndex function.
+func getSecretSendIndex(conns []*net.ShosetConn) int {
+	aux := secretSendIndex
+	secretSendIndex++
+
+	if secretSendIndex >= len(conns) {
+		secretSendIndex = 0
+	}
+
+	return aux
 }
