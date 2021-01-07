@@ -101,7 +101,10 @@ func getBrothers(address string, member *ClusterMember) []string {
 
 //TODO REVOIR
 // ClusterMemberInit : Cluster init function.
-func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseBindAddr, databaseHttpAddr, databaseName, logPath string) *ClusterMember {
+func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseHttpAddr, databaseName, logPath string) *ClusterMember {
+
+	databaseBindAddr, _ := net.DeltaAddress(bindAddress, 1000)
+
 	member := NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath)
 	err := member.Bind(bindAddress)
 	if err == nil {
@@ -196,7 +199,9 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseBindAddr,
 }
 
 // ClusterMemberJoin : Cluster join function.
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, databaseBindAddr, databaseHttpAddr, databaseName, logPath, secret string) *ClusterMember {
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, databaseHttpAddr, databaseName, logPath, secret string) *ClusterMember {
+	databaseBindAddr, _ := net.DeltaAddress(bindAddress, 1000)
+
 	member := NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath)
 	err := member.Bind(bindAddress)
 
@@ -212,9 +217,12 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
-					//getBrothers(bindAddress, member)
-					//TODO REVOIR BROTHERS COCKROACHDB
-					err = database.CoackroachStart(databasePath, databaseName, databaseBindAddr, databaseHttpAddr, "localhost:26270,localhost:26291")
+
+					databaseStore := CreateStore(getBrothers(bindAddress, member))
+					fmt.Println("databaseStore")
+					fmt.Println(databaseStore)
+					time.Sleep(5 * time.Second)
+					err = database.CoackroachStart(databasePath, databaseName, databaseBindAddr, databaseHttpAddr, databaseStore)
 					fmt.Println("err")
 					fmt.Println(err)
 
@@ -269,15 +277,23 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, lo
 }
 
 // CreateStore : Cluster create store function.
-func CreateStore(bros []string) *[]string {
-	store := []string{}
+func CreateStore(bros []string) string {
+	var store string
 
-	for _, bro := range bros {
-		thisDBBro, ok := net.DeltaAddress(bro, 1000)
-		if ok {
-			store = append(store, thisDBBro)
+	for i, bro := range bros {
+		if i == 0 {
+			thisDBBro, ok := net.DeltaAddress(bro, 1000)
+			if ok {
+				store = thisDBBro
+			}
+		} else {
+			thisDBBro, ok := net.DeltaAddress(bro, 1000)
+			if ok {
+				store = store + ", " + thisDBBro
+			}
 		}
+
 	}
 
-	return &store
+	return store
 }

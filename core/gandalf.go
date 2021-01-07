@@ -37,10 +37,6 @@ func main() {
 			if err != nil {
 				log.Fatalf("No valid database path : %v", err)
 			}
-			gandalfDBBindAddr, err := configuration.GetStringConfig("db_bind_addr")
-			if err != nil {
-				log.Fatalf("No valid database path : %v", err)
-			}
 			gandalfDBHttpAddr, err := configuration.GetStringConfig("db_http_addr")
 			if err != nil {
 				log.Fatalf("No valid database path : %v", err)
@@ -64,7 +60,7 @@ func main() {
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						cluster.ClusterMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfDBPath, gandalfDBBindAddr, gandalfDBHttpAddr, gandalfDBName, gandalfLogPath)
+						cluster.ClusterMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfDBPath, gandalfDBHttpAddr, gandalfDBName, gandalfLogPath)
 						//add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						//go database.DatabaseMemberInit(add, gandalfDBPath, 1)
 						<-done
@@ -87,7 +83,7 @@ func main() {
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfDBBindAddr, gandalfDBHttpAddr, gandalfDBName, gandalfLogPath, gandalfSecret)
+						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfDBHttpAddr, gandalfDBName, gandalfLogPath, gandalfSecret)
 						/*member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
 						 add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						id := len(*member.Store)
