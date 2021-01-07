@@ -3,6 +3,7 @@ package database
 
 import (
 	"fmt"
+	"os/user"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -64,9 +65,12 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 	gandalfDatabaseClient.Create(&models.Tenant{Name: "tenant1"})
 	var tenant models.Tenant
 	gandalfDatabaseClient.Where("name = ?", "tenant1").First(&tenant)
-	err := NewTenantDatabase("/home/romainfairant/gandalf", "localhost:26270", "tenant1")
+
+	user, err := user.Current()
+	fmt.Println(user.HomeDir + "/gandalf")
+	err = NewTenantDatabase(user.HomeDir+"/gandalf", "127.0.0.1:10000", "tenant1")
 	fmt.Println(err)
-	tenantDatabaseClient, _ := NewTenantDatabaseClient("localhost:26270", "tenant1")
+	tenantDatabaseClient, _ := NewTenantDatabaseClient("127.0.0.1:10000", "tenant1")
 	InitTenantDatabase(tenantDatabaseClient)
 
 }

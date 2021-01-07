@@ -101,9 +101,10 @@ func getBrothers(address string, member *ClusterMember) []string {
 
 //TODO REVOIR
 // ClusterMemberInit : Cluster init function.
-func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseHttpAddr, databaseName, logPath string) *ClusterMember {
+func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseName, logPath string) *ClusterMember {
 
 	databaseBindAddr, _ := net.DeltaAddress(bindAddress, 1000)
+	databaseHttpAddr, _ := net.DeltaAddress(bindAddress, 100)
 
 	member := NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath)
 	err := member.Bind(bindAddress)
@@ -199,9 +200,10 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseHttpAddr,
 }
 
 // ClusterMemberJoin : Cluster join function.
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, databaseHttpAddr, databaseName, logPath, secret string) *ClusterMember {
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, databaseName, logPath, secret string) *ClusterMember {
 	databaseBindAddr, _ := net.DeltaAddress(bindAddress, 1000)
-
+	databaseHttpAddr, _ := net.DeltaAddress(bindAddress, 100)
+	databaseName = "node2"
 	member := NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath)
 	err := member.Bind(bindAddress)
 
@@ -289,7 +291,7 @@ func CreateStore(bros []string) string {
 		} else {
 			thisDBBro, ok := net.DeltaAddress(bro, 1000)
 			if ok {
-				store = store + ", " + thisDBBro
+				store = store + "," + thisDBBro
 			}
 		}
 

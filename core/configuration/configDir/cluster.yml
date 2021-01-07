@@ -1,6 +1,4 @@
 cluster:
   cluster_join:
   db_path: /home/romainfairant/gandalf
-  db_bind_addr: localhost:26270
-  db_http_addr: localhost:8080
   db_name: node1
