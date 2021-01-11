@@ -2,14 +2,10 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/ditrit/gandalf/core/models"
-
-	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/jinzhu/gorm"
 )
@@ -26,26 +22,9 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-func GetDatabase(mapDatabase map[string]*gorm.DB, databasePath, tenant string) *gorm.DB {
+func GetDatabase(mapDatabase map[string]*gorm.DB, tenant string) *gorm.DB {
 	if _, ok := mapDatabase[tenant]; !ok {
-		var databaseCreated, err = database.IsDatabaseCreated(databasePath, tenant)
-		if err == nil {
-			fmt.Println("databaseCreated")
-			fmt.Println(databaseCreated)
-			if databaseCreated {
-				var tenantDatabaseClient *gorm.DB
-				tenantDatabaseClient, err = database.NewTenantDatabaseClient(tenant, databasePath)
-				if err == nil {
-					mapDatabase[tenant] = tenantDatabaseClient
-				} else {
-					log.Println("Can't create database client")
-				}
-			} else {
-				return nil
-			}
-		} else {
-			log.Println("Can't detect if the database is created or not")
-		}
+		return nil
 	}
 
 	return mapDatabase[tenant]

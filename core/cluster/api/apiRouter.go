@@ -7,10 +7,10 @@ import (
 )
 
 // GetRouter :
-func GetRouter(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath string) *mux.Router {
+func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB, databasePath, databaseBindAddr string) *mux.Router {
 
 	//CONTROLLERS
-	controllers := ReturnControllers(gandalfDatabase, mapDatabase, databasePath)
+	controllers := ReturnControllers(gandalfDatabaseClient, mapTenantDatabaseClients, databasePath, databaseBindAddr)
 
 	//URLS
 	urls := ReturnURLS()

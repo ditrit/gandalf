@@ -39,17 +39,22 @@ func NewAuthenticationController(mapDatabase map[string]*gorm.DB, databasePath s
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, ac.databasePath, tenant)
+	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	if database != nil {
 
-	user := &models.User{}
-	err := json.NewDecoder(r.Body).Decode(user)
-	if err != nil {
-		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
+		user := &models.User{}
+		err := json.NewDecoder(r.Body).Decode(user)
+		if err != nil {
+			var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
+			json.NewEncoder(w).Encode(resp)
+			return
+		}
+		resp := ac.FindOne(database, user.Email, user.Password, tenant)
 		json.NewEncoder(w).Encode(resp)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-	resp := ac.FindOne(database, user.Email, user.Password, tenant)
-	json.NewEncoder(w).Encode(resp)
 }
 
 // FindOne :

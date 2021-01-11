@@ -3,6 +3,7 @@ package cluster
 
 import (
 	"fmt"
+	"gandalf/core/cluster/api"
 	"log"
 	"time"
 
@@ -21,8 +22,9 @@ import (
 type ClusterMember struct {
 	chaussette *net.Shoset
 	//databaseNode      *database.DatabaseNode
-	Store             *[]string
-	MapDatabaseClient map[string]*gorm.DB
+	Store                    *[]string
+	GandalfDatabaseClient    *gorm.DB
+	MapTenantDatabaseClients map[string]*gorm.DB
 }
 
 /*
@@ -37,10 +39,11 @@ func InitClusterKeys(){
 func NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath string) *ClusterMember {
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
-	member.MapDatabaseClient = make(map[string]*gorm.DB)
+	member.MapTenantDatabaseClients = make(map[string]*gorm.DB)
 	member.chaussette.Context["databasePath"] = databasePath
 	member.chaussette.Context["databaseBindAddr"] = databaseBindAddr
-	member.chaussette.Context["tenantDatabases"] = member.MapDatabaseClient
+	member.chaussette.Context["gandalfDatabase"] = member.GandalfDatabaseClient
+	member.chaussette.Context["tenantDatabases"] = member.MapTenantDatabaseClients
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
@@ -131,7 +134,8 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseName, log
 						log.Printf("New gandalf database")
 						var gandalfDatabaseClient *gorm.DB
 						gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databaseBindAddr, "gandalf")
-						member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+						member.GandalfDatabaseClient = gandalfDatabaseClient
+						//member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 						fmt.Println("errCLient")
 						fmt.Println(err)
 						if err == nil {
@@ -153,8 +157,8 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseName, log
 							}
 
 							//TODO TEST API
-							//server := api.NewServerAPI(databasePath)
-							//server.Run()
+							server := api.NewServerAPI(databasePath, databaseBindAddr, member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+							server.Run()
 							//
 
 						} else {
@@ -179,7 +183,8 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseName, log
 
 				var gandalfDatabaseClient *gorm.DB
 				gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(databaseBindAddr, "gandalf")
-				member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+				member.GandalfDatabaseClient = gandalfDatabaseClient
+				//member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 				fmt.Println("errCLient")
 				fmt.Println(err)
 				if err == nil {

@@ -18,15 +18,19 @@ import (
 
 // TenantController :
 type TenantController struct {
-	gandalfDatabase *gorm.DB
-	databasePath    string
+	gandalfDatabase   *gorm.DB
+	mapTenantDatabase map[string]*gorm.DB
+	databasePath      string
+	databaseBindAddr  string
 }
 
 // NewTenantController :
-func NewTenantController(gandalfDatabase *gorm.DB, databasePath string) (tenantController *TenantController) {
+func NewTenantController(gandalfDatabase *gorm.DB, mapTenantDatabase map[string]*gorm.DB, databasePath, databaseBindAddr string) (tenantController *TenantController) {
 	tenantController = new(TenantController)
 	tenantController.gandalfDatabase = gandalfDatabase
+	tenantController.mapTenantDatabase = mapTenantDatabase
 	tenantController.databasePath = databasePath
+	tenantController.databaseBindAddr = databaseBindAddr
 
 	return
 }
@@ -59,24 +63,34 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 
 	err := dao.CreateTenant(tc.gandalfDatabase, tenant)
 	if err == nil {
-		var tenantDatabaseClient *gorm.DB
-		tenantDatabaseClient, err := database.NewTenantDatabaseClient(tenant.Name, tc.databasePath)
+
+		err == database.NewTenantDatabase(tc.databasePath, tc.databaseBindAddr, tenant.Name)
 		if err == nil {
 
-			login, password, err = database.InitTenantDatabase(tenantDatabaseClient)
+			var tenantDatabaseClient *gorm.DB
+			tenantDatabaseClient, err := database.NewTenantDatabaseClient(tc.databaseBindAddr, tenant.Name)
+			tc.mapTenantDatabase[tenant.name] = tenantDatabaseClient
 
 			if err == nil {
-				result["login"] = login
-				result["password"] = password
-				result["tenant"] = tenant
 
+				login, password, err = database.InitTenantDatabase(tenantDatabaseClient)
+
+				if err == nil {
+					result["login"] = login
+					result["password"] = password
+					result["tenant"] = tenant
+
+				} else {
+					dao.DeleteTenant(tc.gandalfDatabase, int(tenant.ID))
+					utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+					return
+				}
 			} else {
 				dao.DeleteTenant(tc.gandalfDatabase, int(tenant.ID))
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 				return
 			}
 		} else {
-			dao.DeleteTenant(tc.gandalfDatabase, int(tenant.ID))
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

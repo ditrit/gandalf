@@ -133,7 +133,7 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid tenant : %v", err)
 			} */
-			gandalfGRPCBindAddressDir, err := configuration.GetStringConfig("grpc_bind_address")
+			gandalfGRPCBindAddress, err := configuration.GetStringConfig("grpc_bind_address")
 			if err != nil {
 				log.Fatalf("Invalid  bind address : %v", err)
 			}
@@ -197,7 +197,7 @@ func main() {
 			fmt.Println("  Logical Name : " + gandalfLogicalName)
 			//fmt.Println("  Tenant : " + gandalfTenant)
 			fmt.Println("  Bind Address : " + gandalfBindAddress)
-			fmt.Println("  Grpc Bind Address : " + gandalfGRPCBindAddressDir)
+			fmt.Println("  Grpc Bind Address : " + gandalfGRPCBindAddress)
 			fmt.Println("  Link Address : " + gandalfAggregatorLink)
 			fmt.Println("  Connector Type : " + gandalfConnectorType)
 			fmt.Println("  Product : " + gandalfProduct)
@@ -209,7 +209,7 @@ func main() {
 			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 			done := make(chan bool)
-			connector.ConnectorMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfGRPCBindAddressDir, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, gandalfAutoUpdateTime, gandalfAutoUpdate, int64(gandalfMaxTimeout), gandalfVersions)
+			connector.ConnectorMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, gandalfAutoUpdateTime, gandalfAutoUpdate, int64(gandalfMaxTimeout), gandalfVersions)
 			//go oauth2.NewOAuth2Client()
 			<-done
 			break
