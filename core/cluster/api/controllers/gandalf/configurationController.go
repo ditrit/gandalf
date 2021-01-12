@@ -1,14 +1,16 @@
-package configuration
+package gandalf
 
 import (
 	"database/sql"
 	"fmt"
-	"gandalf/core/cluster/api/dao"
-	"gandalf/core/cluster/api/utils"
-	"gandalf/core/models"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+	"github.com/ditrit/gandalf/core/models"
+
+	"github.com/ditrit/gandalf/core/cluster/api/dao"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -28,7 +30,7 @@ func NewConfigurationController(gandalfDatabase *gorm.DB) (configurationControll
 	return
 }
 
-func Upload(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationController) Upload(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("File Upload Endpoint Hit")
 
 	r.ParseMultipartForm(10 << 20)
@@ -55,7 +57,7 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	gandalfDatabase.Save(&configurationCluster)
+	cc.gandalfDatabase.Save(&configurationCluster)
 
 	fmt.Fprintf(w, "Successfully Uploaded File\n")
 }

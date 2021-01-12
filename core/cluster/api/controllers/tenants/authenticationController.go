@@ -22,15 +22,13 @@ import (
 
 // AuthenticationController :
 type AuthenticationController struct {
-	mapDatabase  map[string]*gorm.DB
-	databasePath string
+	mapDatabase map[string]*gorm.DB
 }
 
 //NewAuthenticationController :
-func NewAuthenticationController(mapDatabase map[string]*gorm.DB, databasePath string) (authenticationController *AuthenticationController) {
+func NewAuthenticationController(mapDatabase map[string]*gorm.DB) (authenticationController *AuthenticationController) {
 	authenticationController = new(AuthenticationController)
 	authenticationController.mapDatabase = mapDatabase
-	authenticationController.databasePath = databasePath
 
 	return
 }

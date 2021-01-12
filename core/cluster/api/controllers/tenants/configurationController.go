@@ -1,14 +1,15 @@
-package configuration
+package tenants
 
 import (
 	"database/sql"
 	"fmt"
-	"gandalf/core/cluster/api/dao"
-	"gandalf/core/cluster/api/utils"
-	"gandalf/core/models"
 	"io/ioutil"
 	"net/http"
 	"strconv"
+
+	"github.com/ditrit/gandalf/core/cluster/api/dao"
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
+	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -17,21 +18,21 @@ import (
 
 // ConfigurationController :
 type ConfigurationController struct {
-	gandalfDatabase *gorm.DB
+	mapDatabase map[string]*gorm.DB
 }
 
 // NewConfigurationController :
-func NewConfigurationController(gandalfDatabase *gorm.DB) (configurationController *ConfigurationController) {
+func NewConfigurationController(mapDatabase map[string]*gorm.DB) (configurationController *ConfigurationController) {
 	configurationController = new(ConfigurationController)
-	configurationController.gandalfDatabase = gandalfDatabase
+	configurationController.mapDatabase = mapDatabase
 
 	return
 }
 
-func UploadConnector(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationController) UploadConnector(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
 	if database != nil {
 
 		fmt.Println("File Upload Endpoint Hit")
@@ -60,7 +61,7 @@ func UploadConnector(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 		}
 
-		gandalfDatabase.Save(&configurationConnector)
+		database.Save(&configurationConnector)
 
 		fmt.Fprintf(w, "Successfully Uploaded File\n")
 	} else {
@@ -69,10 +70,10 @@ func UploadConnector(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UploadAggregator(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationController) UploadAggregator(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
 	if database != nil {
 		fmt.Println("File Upload Endpoint Hit")
 
@@ -112,45 +113,60 @@ func UploadAggregator(w http.ResponseWriter, r *http.Request) {
 // Read :
 func (cc ConfigurationController) ReadConnector(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
-		return
-	}
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	if database != nil {
 
-	var cluster models.Cluster
-	if cluster, err = dao.ReadCluster(cc.gandalfDatabase, id); err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-		default:
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			return
 		}
+
+		var cluster models.Cluster
+		if cluster, err = dao.ReadCluster(database, id); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, cluster)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	utils.RespondWithJSON(w, http.StatusOK, cluster)
 }
 
 // Read :
 func (cc ConfigurationController) ReadAggregator(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
-		return
-	}
-
-	var cluster models.Cluster
-	if cluster, err = dao.ReadCluster(cc.gandalfDatabase, id); err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-		default:
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+	tenant := vars["tenant"]
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	if database != nil {
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			return
 		}
+
+		var cluster models.Cluster
+		if cluster, err = dao.ReadCluster(database, id); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, cluster)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	utils.RespondWithJSON(w, http.StatusOK, cluster)
 }

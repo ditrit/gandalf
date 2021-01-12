@@ -64,12 +64,12 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	err := dao.CreateTenant(tc.gandalfDatabase, tenant)
 	if err == nil {
 
-		err == database.NewTenantDatabase(tc.databasePath, tc.databaseBindAddr, tenant.Name)
+		err = database.NewTenantDatabase(tc.databasePath, tc.databaseBindAddr, tenant.Name)
 		if err == nil {
 
 			var tenantDatabaseClient *gorm.DB
 			tenantDatabaseClient, err := database.NewTenantDatabaseClient(tc.databaseBindAddr, tenant.Name)
-			tc.mapTenantDatabase[tenant.name] = tenantDatabaseClient
+			tc.mapTenantDatabase[tenant.Name] = tenantDatabaseClient
 
 			if err == nil {
 

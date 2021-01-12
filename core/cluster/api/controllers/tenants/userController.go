@@ -16,15 +16,13 @@ import (
 
 // UserController :
 type UserController struct {
-	mapDatabase  map[string]*gorm.DB
-	databasePath string
+	mapDatabase map[string]*gorm.DB
 }
 
 // NewUserController :
-func NewUserController(mapDatabase map[string]*gorm.DB, databasePath string) (userController *UserController) {
+func NewUserController(mapDatabase map[string]*gorm.DB) (userController *UserController) {
 	userController = new(UserController)
 	userController.mapDatabase = mapDatabase
-	userController.databasePath = databasePath
 
 	return
 }
@@ -33,7 +31,7 @@ func NewUserController(mapDatabase map[string]*gorm.DB, databasePath string) (us
 func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
 	if database != nil {
 		users, err := dao.ListUser(database)
 		if err != nil {
@@ -52,7 +50,7 @@ func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
 	if database != nil {
 		var user models.User
 		decoder := json.NewDecoder(r.Body)
@@ -78,7 +76,7 @@ func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -107,7 +105,7 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -140,7 +138,7 @@ func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

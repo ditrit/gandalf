@@ -16,15 +16,13 @@ import (
 
 // RoleController :
 type RoleController struct {
-	mapDatabase  map[string]*gorm.DB
-	databasePath string
+	mapDatabase map[string]*gorm.DB
 }
 
 // NewRoleController :
-func NewRoleController(mapDatabase map[string]*gorm.DB, databasePath string) (roleController *RoleController) {
+func NewRoleController(mapDatabase map[string]*gorm.DB) (roleController *RoleController) {
 	roleController = new(RoleController)
 	roleController.mapDatabase = mapDatabase
-	roleController.databasePath = databasePath
 
 	return
 }
@@ -33,7 +31,7 @@ func NewRoleController(mapDatabase map[string]*gorm.DB, databasePath string) (ro
 func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(rc.mapDatabase, tenant)
 	if database != nil {
 		roles, err := dao.ListRole(database)
 		if err != nil {
@@ -52,7 +50,7 @@ func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(rc.mapDatabase, tenant)
 	if database != nil {
 		var role models.Role
 		decoder := json.NewDecoder(r.Body)
@@ -78,7 +76,7 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(rc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -108,7 +106,7 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(rc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -141,7 +139,7 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 func (rc RoleController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabase(rc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

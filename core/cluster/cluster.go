@@ -3,9 +3,10 @@ package cluster
 
 import (
 	"fmt"
-	"gandalf/core/cluster/api"
 	"log"
 	"time"
+
+	"github.com/ditrit/gandalf/core/cluster/api"
 
 	"github.com/ditrit/shoset/msg"
 
@@ -149,18 +150,17 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseName, log
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", logicalName, secret)
 
+								//TODO TEST API
+								server := api.NewServerAPI(databasePath, databaseBindAddr, member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+								server.Run()
+								//
+
 								log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
 
 							} else {
 								log.Fatalf("Can't initialize database")
 								//TODO WIPE DATABASE
 							}
-
-							//TODO TEST API
-							server := api.NewServerAPI(databasePath, databaseBindAddr, member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
-							server.Run()
-							//
-
 						} else {
 							log.Fatalf("Can't create database client")
 						}
@@ -189,6 +189,11 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseName, log
 				fmt.Println(err)
 				if err == nil {
 					log.Printf("New gandalf database client")
+
+					//TODO TEST API
+					server := api.NewServerAPI(databasePath, databaseBindAddr, member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+					server.Run()
+					//
 				} else {
 					log.Fatalf("Can't create database client")
 				}
@@ -243,6 +248,10 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 						if err == nil {
 							log.Printf("New gandalf database client")
 
+							//TODO TEST API
+							server := api.NewServerAPI(databasePath, databaseBindAddr, member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+							server.Run()
+							//
 						} else {
 							log.Fatalf("Can't create database client")
 						}

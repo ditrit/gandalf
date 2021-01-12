@@ -1,6 +1,9 @@
 package models
 
+import "github.com/jinzhu/gorm"
+
 type ConfigurationConnector struct {
+	gorm.Model
 	LogicalName     string
 	GRPCBindAddress string
 	ConnectorType   string
