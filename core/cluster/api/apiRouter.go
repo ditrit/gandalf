@@ -57,8 +57,8 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	subg.HandleFunc(urls.GANDALF_USER_PATH_DELETE, controllers.gandalfUserController.Delete).Methods("DELETE")
 
 	//CONFIGURATION
-	subg.HandleFunc(urls.GANDALF_USER_PATH_LIST, controllers.gandalfUserController.List).Methods("POST")
-	subg.HandleFunc(urls.GANDALF_USER_PATH_CREATE, controllers.gandalfUserController.Create).Methods("POST")
+	subg.HandleFunc(urls.GANDALF_CONFIGURATION_CLUSTER_PATH_UPLOAD, controllers.gandalfConfigurationController.Upload).Methods("POST")
+	subg.HandleFunc(urls.GANDALF_CONFIGURATION_CLUSTER_PATH_READ, controllers.gandalfConfigurationController.Read).Methods("POST")
 
 	subt := mux.PathPrefix("/auth").Subrouter()
 	subt.Use(TenantsJwtVerify)
@@ -92,8 +92,10 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	subt.HandleFunc(urls.TENANTS_USER_PATH_DELETE, controllers.tenantsUserController.Delete).Methods("DELETE")
 
 	//CONFIGURATION
-	subg.HandleFunc(urls.GANDALF_USER_PATH_LIST, controllers.gandalfUserController.List).Methods("POST")
-	subg.HandleFunc(urls.GANDALF_USER_PATH_CREATE, controllers.gandalfUserController.Create).Methods("POST")
+	subg.HandleFunc(urls.TENANTS_CONFIGURATION_AGGREGATOR_PATH_UPLOAD, controllers.tenantsConfigurationController.UploadAggregator).Methods("POST")
+	subg.HandleFunc(urls.TENANTS_CONFIGURATION_AGGREGATOR_PATH_READ, controllers.tenantsConfigurationController.ReadAggregator).Methods("POST")
+	subg.HandleFunc(urls.TENANTS_CONFIGURATION_CONNECTOR_PATH_UPLOAD, controllers.tenantsConfigurationController.UploadConnector).Methods("POST")
+	subg.HandleFunc(urls.TENANTS_CONFIGURATION_CONNECTOR_PATH_READ, controllers.tenantsConfigurationController.ReadConnector).Methods("POST")
 
 	return mux
 }

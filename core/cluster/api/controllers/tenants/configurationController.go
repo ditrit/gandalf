@@ -28,7 +28,7 @@ func NewConfigurationController(gandalfDatabase *gorm.DB) (configurationControll
 	return
 }
 
-func UploadConnectorConfiguration(w http.ResponseWriter, r *http.Request) {
+func UploadConnector(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	database := utils.GetDatabase(ac.mapDatabase, tenant)
@@ -69,7 +69,7 @@ func UploadConnectorConfiguration(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UploadAggregatorConfiguration(w http.ResponseWriter, r *http.Request) {
+func UploadAggregator(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	database := utils.GetDatabase(ac.mapDatabase, tenant)
@@ -110,7 +110,7 @@ func UploadAggregatorConfiguration(w http.ResponseWriter, r *http.Request) {
 }
 
 // Read :
-func (cc ConfigurationController) ReadConnectorConfiguration(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationController) ReadConnector(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -133,7 +133,7 @@ func (cc ConfigurationController) ReadConnectorConfiguration(w http.ResponseWrit
 }
 
 // Read :
-func (cc ConfigurationController) ReadAggregatorConfiguration(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationController) ReadAggregator(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {

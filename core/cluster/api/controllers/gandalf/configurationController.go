@@ -28,7 +28,7 @@ func NewConfigurationController(gandalfDatabase *gorm.DB) (configurationControll
 	return
 }
 
-func UploadClusterConfiguration(w http.ResponseWriter, r *http.Request) {
+func Upload(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("File Upload Endpoint Hit")
 
 	r.ParseMultipartForm(10 << 20)
