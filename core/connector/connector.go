@@ -338,6 +338,16 @@ func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, 
 	return
 }
 
+func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationConnector *models.ConfigurationConnector) {
+	fmt.Println("SEND")
+	shoset.SendConfiguration(nshoset, timeoutMax, logicalName, bindAddress)
+	time.Sleep(time.Second * time.Duration(5))
+
+	configurationConnector = m.chaussette.Context["configuration"].(*models.ConfigurationConnector)
+
+	return
+}
+
 // getBrothers : Connector list brothers function.
 func getBrothers(address string, member *ConnectorMember) []string {
 	bros := []string{address}
@@ -363,6 +373,9 @@ func ConnectorMemberInit(logicalName, bindAddress, grpcSocketDir, linkAddress, c
 			var validateSecret bool
 			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, secret, bindAddress)
 			if validateSecret {
+				//TODO
+				configurationConnector := member.GetConfiguration(member.GetChaussette(), timeoutMax, logicalName, bindAddress)
+
 				var grpcBindAddress = grpcSocketDir + logicalName + "_" + utils.GenerateHash(logicalName)
 				err = member.GrpcBind(grpcBindAddress)
 				if err == nil {

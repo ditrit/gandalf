@@ -169,7 +169,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (err error) {
+func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (err error) {
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
 	//secretMsg.Tenant = "cluster"
 	configurationMsg.GetContext()["componentType"] = "cluster"

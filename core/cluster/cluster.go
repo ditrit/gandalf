@@ -3,6 +3,7 @@ package cluster
 
 import (
 	"fmt"
+	"gandalf/core/models"
 	"log"
 	"time"
 
@@ -54,6 +55,10 @@ func NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath strin
 	//member.chaussette.Send["secret"] = shoset.SendSecret
 	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
+	member.chaussette.Queue["configuration"] = msg.NewQueue()
+	member.chaussette.Get["configuration"] = shoset.GetConfiguration
+	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration
+	member.chaussette.Handle["configuration"] = shoset.HandleConfiguration
 
 	coreLog.OpenLogFile(logPath)
 
@@ -224,11 +229,13 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
 
 			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette(), 1000, logicalName, "", secret, bindAddress)
+			validateSecret = member.ValidateSecret(member.GetChaussette(), 1000, logicalName, secret, bindAddress)
 			fmt.Println("validateSecret")
 			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
+					//TODO
+					configurationCluster := member.GetConfiguration(member.GetChaussette(), 1000, logicalName, bindAddress)
 
 					databaseStore := CreateStore(getBrothers(bindAddress, member))
 					fmt.Println("databaseStore")
@@ -275,9 +282,9 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 	return member
 }
 
-func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (result bool) {
+func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, secret, bindAddress string) (result bool) {
 	fmt.Println("SEND")
-	shoset.SendSecret(nshoset, timeoutMax, logicalName, tenant, secret, bindAddress)
+	shoset.SendSecret(nshoset, timeoutMax, logicalName, secret, bindAddress)
 	time.Sleep(time.Second * time.Duration(5))
 
 	result = false
@@ -288,6 +295,16 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, lo
 			result = true
 		}
 	}
+
+	return
+}
+
+func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationCluster *models.ConfigurationCluster) {
+	fmt.Println("SEND")
+	shoset.SendConfiguration(nshoset, timeoutMax, logicalName, bindAddress)
+	time.Sleep(time.Second * time.Duration(5))
+
+	configurationCluster = m.chaussette.Context["configuration"].(*models.ConfigurationCluster)
 
 	return
 }
