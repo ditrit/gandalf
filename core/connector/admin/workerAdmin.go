@@ -359,23 +359,6 @@ func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) 
 	return
 }
 
-/* func addCommandsAdmin(config *models.ConnectorConfig) {
-
-	schemaVersion := `{"$schema": "http://json-schema.org/draft-04/schema#","type": "object","properties": {"Major": { "type": "integer" },"Minor": { "type": "integer" }},"required": ["Major","Minor"]}`
-	schemaString := `{"type":"string"}`
-	actionExecute := models.Action{Name: "Execute"}
-
-	commandAdminGetWorker := models.Object{Name: "ADMIN_GET_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
-	commandAdminStartWorker := models.Object{Name: "ADMIN_START_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
-	commandAdminStopWorker := models.Object{Name: "ADMIN_STOP_WORKER", Schema: schemaVersion, Actions: []models.Action{actionExecute}}
-	commandAdminGetLastVersionWorker := models.Object{Name: "ADMIN_GET_LAST_VERSION_WORKER", Schema: schemaString, Actions: []models.Action{actionExecute}}
-
-	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminGetWorker)
-	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminStartWorker)
-	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminStopWorker)
-	config.ConnectorCommands = append(config.ConnectorCommands, commandAdminGetLastVersionWorker)
-} */
-
 //getWorker()
 func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 
