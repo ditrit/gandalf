@@ -3,9 +3,10 @@ package aggregator
 
 import (
 	"fmt"
-	"gandalf/core/models"
 	"log"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/shoset/msg"
 
@@ -112,7 +113,7 @@ func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int6
 }
 
 // AggregatorMemberInit : Aggregator init function.
-func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, timeoutMax int64) *AggregatorMember {
+func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string) *AggregatorMember {
 	member := NewAggregatorMember(logicalName, tenant, logPath)
 	err := member.Bind(bindAddress)
 
@@ -121,10 +122,11 @@ func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret, bindAddress)
+			validateSecret = member.ValidateSecret(member.GetChaussette(), 1000, logicalName, tenant, secret, bindAddress)
 			if validateSecret {
 				//TODO
-				configurationAggregator := member.GetConfiguration(member.GetChaussette(), timeoutMax, logicalName, bindAddress)
+				configurationAggregator := member.GetConfiguration(member.GetChaussette(), 1000, logicalName, bindAddress)
+				fmt.Println(configurationAggregator)
 
 				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
 				time.Sleep(time.Second * time.Duration(5))

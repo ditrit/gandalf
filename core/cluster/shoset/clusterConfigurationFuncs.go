@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gandalf/core/cluster/utils"
-	"gandalf/core/models"
 	"log"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
@@ -95,11 +95,11 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 			switch configuration.GetContext()["componentType"] {
 			case "cluster":
-				config := utils.GetConfigurationCluster(logicalName, databaseClient)
+				config := cutils.GetConfigurationCluster(logicalName, databaseClient)
 				configMarshal, err := json.Marshal(config)
 				if err == nil {
 					target := ""
-					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", configMarshal)
+					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 					configurationReply.Tenant = configuration.GetTenant()
 					configurationReply.Context["configuration"] = config
 					shoset := ch.ConnsJoin.Get(bindAddr)
@@ -108,11 +108,11 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 				break
 			case "aggregator":
-				config := utils.GetConfigurationAggregator(logicalName, databaseClient)
+				config := cutils.GetConfigurationAggregator(logicalName, databaseClient)
 				configMarshal, err := json.Marshal(config)
 				if err == nil {
 					target := ""
-					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", configMarshal)
+					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 					configurationReply.Tenant = configuration.GetTenant()
 					configurationReply.Context["configuration"] = config
 					shoset := ch.ConnsByAddr.Get(bindAddr)
@@ -120,11 +120,11 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 				}
 				break
 			case "connector":
-				config := utils.GetConfigurationCluster(logicalName, databaseClient)
+				config := cutils.GetConfigurationCluster(logicalName, databaseClient)
 				configMarshal, err := json.Marshal(config)
 				if err == nil {
 					target := configuration.GetTarget()
-					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", configMarshal)
+					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 					configurationReply.Tenant = configuration.GetTenant()
 					configurationReply.Context["configuration"] = config
 					shoset := ch.ConnsByAddr.Get(bindAddr)

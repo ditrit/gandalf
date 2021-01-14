@@ -79,7 +79,7 @@ func main() {
 						fmt.Println("  Db Path : " + gandalfDBPath)
 
 						done := make(chan bool)
-						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfDBName, gandalfLogPath, gandalfSecret)
+						cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfLogPath, gandalfSecret)
 						/*member := cluster.ClusterMemberJoin(gandalfLogicalName, gandalfBindAddress, gandalfJoin, gandalfDBPath, gandalfLogPath)
 						 add, _ := net.DeltaAddress(gandalfBindAddress, 1000)
 						id := len(*member.Store)
@@ -123,7 +123,7 @@ func main() {
 				fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 				done := make(chan bool)
-				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath, gandalfSecret, int64(gandalfMaxTimeout))
+				aggregator.AggregatorMemberInit(gandalfLogicalName, gandalfTenant, gandalfBindAddress, gandalfClusterLink, gandalfLogPath, gandalfSecret)
 
 				<-done
 			}
@@ -187,10 +187,12 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid autoupdate : %v", err)
 			}
+			fmt.Println(gandalfAutoUpdate)
 			gandalfAutoUpdateTime, err := configuration.GetStringConfig("auto_update_time")
 			if err != nil {
 				log.Fatalf("Invalid autoupdate time : %v", err)
 			}
+			fmt.Println(gandalfAutoUpdateTime)
 
 			//CREATE CONNECTOR
 			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
@@ -209,7 +211,7 @@ func main() {
 			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 			done := make(chan bool)
-			connector.ConnectorMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfGRPCBindAddress, gandalfAggregatorLink, gandalfConnectorType, gandalfProduct, gandalfWorkersUrl, gandalfWorkers, gandalfLogPath, gandalfSecret, gandalfAutoUpdateTime, gandalfAutoUpdate, int64(gandalfMaxTimeout), gandalfVersions)
+			connector.ConnectorMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfAggregatorLink, gandalfLogPath, gandalfSecret)
 			//go oauth2.NewOAuth2Client()
 			<-done
 			break

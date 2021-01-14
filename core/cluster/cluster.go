@@ -3,9 +3,10 @@ package cluster
 
 import (
 	"fmt"
-	"gandalf/core/models"
 	"log"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/gandalf/core/cluster/api"
 
@@ -38,11 +39,11 @@ func InitClusterKeys(){
 */
 
 // NewClusterMember : Cluster struct constructor.
-func NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath string) *ClusterMember {
+func NewClusterMember(logicalName, databaseBindAddr, logPath string) *ClusterMember {
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
 	member.MapTenantDatabaseClients = make(map[string]*gorm.DB)
-	member.chaussette.Context["databasePath"] = databasePath
+	//member.chaussette.Context["databasePath"] = databasePath
 	member.chaussette.Context["databaseBindAddr"] = databaseBindAddr
 	member.chaussette.Context["gandalfDatabase"] = member.GandalfDatabaseClient
 	member.chaussette.Context["tenantDatabases"] = member.MapTenantDatabaseClients
@@ -115,7 +116,9 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseName, log
 	databaseBindAddr, _ := net.DeltaAddress(bindAddress, 1000)
 	databaseHttpAddr, _ := net.DeltaAddress(bindAddress, 100)
 
-	member := NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath)
+	member := NewClusterMember(logicalName, databaseBindAddr, logPath)
+	member.GetChaussette().Context["databasePath"] = databasePath
+
 	err := member.Bind(bindAddress)
 	if err == nil {
 		log.Printf("New Cluster member %s command %s bind on %s \n", logicalName, "init", bindAddress)
@@ -215,11 +218,11 @@ func ClusterMemberInit(logicalName, bindAddress, databasePath, databaseName, log
 }
 
 // ClusterMemberJoin : Cluster join function.
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, databaseName, logPath, secret string) *ClusterMember {
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress, logPath, secret string) *ClusterMember {
 	databaseBindAddr, _ := net.DeltaAddress(bindAddress, 1000)
 	databaseHttpAddr, _ := net.DeltaAddress(bindAddress, 100)
-	databaseName = "node2"
-	member := NewClusterMember(logicalName, databasePath, databaseBindAddr, logPath)
+
+	member := NewClusterMember(logicalName, databaseBindAddr, logPath)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
@@ -228,20 +231,19 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 		if err == nil {
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", logicalName, "join", bindAddress, joinAddress)
 
-			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette(), 1000, logicalName, secret, bindAddress)
+			validateSecret := member.ValidateSecret(member.GetChaussette(), 1000, logicalName, secret, bindAddress)
 			fmt.Println("validateSecret")
 			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
-					//TODO
 					configurationCluster := member.GetConfiguration(member.GetChaussette(), 1000, logicalName, bindAddress)
+					member.GetChaussette().Context["databasePath"] = configurationCluster.DBPath
 
 					databaseStore := CreateStore(getBrothers(bindAddress, member))
 					fmt.Println("databaseStore")
 					fmt.Println(databaseStore)
 					time.Sleep(5 * time.Second)
-					err = database.CoackroachStart(databasePath, databaseName, databaseBindAddr, databaseHttpAddr, databaseStore)
+					err = database.CoackroachStart(configurationCluster.DBPath, configurationCluster.DBName, databaseBindAddr, databaseHttpAddr, databaseStore)
 					fmt.Println("err")
 					fmt.Println(err)
 
@@ -256,7 +258,7 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 							log.Printf("New gandalf database client")
 
 							//TODO TEST API
-							server := api.NewServerAPI(databasePath, databaseBindAddr, member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+							server := api.NewServerAPI(configurationCluster.DBPath, databaseBindAddr, member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
 							server.Run()
 							//
 						} else {

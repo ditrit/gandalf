@@ -4,9 +4,10 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	"gandalf/core/models"
 	"log"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
@@ -116,7 +117,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, configuration, bindAddress string) (err error) {
+func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (err error) {
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
 	configurationMsg.Tenant = shoset.Context["tenant"].(string)
 	configurationMsg.GetContext()["componentType"] = "aggregator"
