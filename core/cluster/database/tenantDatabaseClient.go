@@ -59,6 +59,7 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password s
 	DemoCreateConnectorType(tenantDatabaseClient)
 	DemoCreateAction(tenantDatabaseClient)
 	DemoCreateApplicationUtils(tenantDatabaseClient)
+	DemoConfiguration(tenantDatabaseClient)
 	//TODO REMOVE
 	//DemoCreateUser1(tenantDatabaseClient)
 	//DemoCreateConnectorType(tenantDatabaseClient)
@@ -359,6 +360,29 @@ func DemoCreateApplicationDocker(tenantDatabaseClient *gorm.DB) {
 		Aggregator:    AggregatorDocker,
 		Connector:     ConnectorDocker,
 		ConnectorType: ConnectorTypeDocker})
+}
+
+//DemoConfiguration
+func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
+	var configurationAggregator models.ConfigurationAggregator
+	var configurationConnector models.ConfigurationConnector
+
+	configurationAggregator.LogicalName = "Aggregator1"
+	tenantDatabaseClient.Save(&configurationAggregator)
+
+	configurationConnector.LogicalName = "Connector1"
+	configurationConnector.ConnectorType = "Utils"
+	configurationConnector.Product = "Custom"
+	configurationConnector.GRPCSocketDir = "/tmp/"
+	configurationConnector.WorkersUrl = "https://github.com/ditrit/workers/raw/master"
+	configurationConnector.WorkersPath = "home/romainfairant/gandalf/workers"
+	configurationConnector.AutoUpdateTime = "13:00"
+	configurationConnector.AutoUpdate = true
+	configurationConnector.MaxTimeout = 1000
+	configurationConnector.VersionsMajor = 1
+	configurationConnector.VersionsMinor = 0
+	tenantDatabaseClient.Save(&configurationConnector)
+
 }
 
 /* //DemoCreateProductUtils
