@@ -41,6 +41,10 @@ func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember 
 	member.chaussette.Get["secret"] = shoset.GetSecret
 	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
+	member.chaussette.Queue["configuration"] = msg.NewQueue()
+	member.chaussette.Get["configuration"] = shoset.GetConfiguration
+	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration
+	member.chaussette.Handle["configuration"] = shoset.HandleConfiguration
 	//coreLog.OpenLogFile("/var/log")
 
 	coreLog.OpenLogFile(logPath)

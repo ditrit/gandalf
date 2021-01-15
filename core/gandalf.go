@@ -141,58 +141,10 @@ func main() {
 			if err != nil {
 				log.Fatalf("Invalid aggregator address to link to : %v", err)
 			}
-			gandalfConnectorType, err := configuration.GetStringConfig("connector_type")
-			if err != nil {
-				log.Fatalf("Invalid connector type : %v", err)
-			}
-			gandalfProduct, err := configuration.GetStringConfig("product_name")
-			if err != nil {
-				log.Fatalf("Invalid product: %v", err)
-			}
-			gandalfProductUrl, err := configuration.GetStringConfig("product_url")
-			if err != nil {
-				log.Fatalf("Invalid product url : %v", err)
-			}
-			gandalfWorkersUrl, err := configuration.GetStringConfig("workers_url")
-			if err != nil {
-				log.Fatalf("Invalid workers path: %v", err)
-			}
-			gandalfWorkers, err := configuration.GetStringConfig("workers")
-			if err != nil {
-				log.Fatalf("Invalid workers path: %v", err)
-			}
-			gandalfVersionsString, err := configuration.GetStringConfig("versions")
-			if err != nil {
-				log.Fatalf("Invalid versions : %v", err)
-			}
-			gandalfVersions, err := configuration.GetVersionsList(gandalfVersionsString)
-			if err != nil {
-				log.Fatalf("Invalid versions : %v", err)
-			}
-			fmt.Println("gandalfVerions")
-			fmt.Println(gandalfVersions)
 			gandalfSecret, err := configuration.GetStringConfig("gandalf_secret")
 			if err != nil {
 				log.Fatalf("No valid gandalf secret : %v", err)
 			}
-			gandalfMaxTimeout, err := configuration.GetIntegerConfig("max_timeout")
-			if err != nil {
-				log.Fatalf("Invalid maximum timeout : %v", err)
-			}
-			gandalfAutoUpdateString, err := configuration.GetStringConfig("auto_update")
-			if err != nil {
-				log.Fatalf("Invalid autoupdate : %v", err)
-			}
-			gandalfAutoUpdate, err := configuration.GetAutoUpdate(gandalfAutoUpdateString)
-			if err != nil {
-				log.Fatalf("Invalid autoupdate : %v", err)
-			}
-			fmt.Println(gandalfAutoUpdate)
-			gandalfAutoUpdateTime, err := configuration.GetStringConfig("auto_update_time")
-			if err != nil {
-				log.Fatalf("Invalid autoupdate time : %v", err)
-			}
-			fmt.Println(gandalfAutoUpdateTime)
 
 			//CREATE CONNECTOR
 			fmt.Println("Running Gandalf for a " + gandalfType + " with :")
@@ -201,14 +153,7 @@ func main() {
 			fmt.Println("  Bind Address : " + gandalfBindAddress)
 			fmt.Println("  Grpc Bind Address : " + gandalfGRPCBindAddress)
 			fmt.Println("  Link Address : " + gandalfAggregatorLink)
-			fmt.Println("  Connector Type : " + gandalfConnectorType)
-			fmt.Println("  Product : " + gandalfProduct)
-			fmt.Println("  Product Url : " + gandalfProductUrl)
-			fmt.Println("  Workers Url : " + gandalfWorkersUrl)
-			fmt.Println("  Workers Path : " + gandalfWorkers)
 			fmt.Println("  Log Path : " + gandalfLogPath)
-			fmt.Println("  Versions :", gandalfVersionsString)
-			fmt.Println("  Maximum timeout :", gandalfMaxTimeout)
 
 			done := make(chan bool)
 			connector.ConnectorMemberInit(gandalfLogicalName, gandalfBindAddress, gandalfAggregatorLink, gandalfLogPath, gandalfSecret)

@@ -4,6 +4,7 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -62,6 +63,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle configuration")
 	log.Println(configuration)
 
+	fmt.Println("Handle configuration")
+	fmt.Println(configuration)
 	//if configuration.GetTenant() == ch.Context["tenant"] {
 	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
 	//if ok {

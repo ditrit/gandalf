@@ -375,7 +375,7 @@ func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
 	configurationConnector.Product = "Custom"
 	configurationConnector.GRPCSocketDir = "/tmp/"
 	configurationConnector.WorkersUrl = "https://github.com/ditrit/workers/raw/master"
-	configurationConnector.WorkersPath = "home/romainfairant/gandalf/workers"
+	configurationConnector.WorkersPath = "/home/romainfairant/gandalf/workers"
 	configurationConnector.AutoUpdateTime = "13:00"
 	configurationConnector.AutoUpdate = true
 	configurationConnector.MaxTimeout = 1000

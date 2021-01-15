@@ -63,6 +63,9 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle configuration")
 	log.Println(configuration)
 
+	fmt.Println("Handle configuration")
+	fmt.Println(configuration)
+
 	if configuration.GetCommand() == "CONFIGURATION_REPLY" {
 		var configurationConnector *models.ConfigurationConnector
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationConnector)

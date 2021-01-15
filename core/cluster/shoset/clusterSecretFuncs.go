@@ -102,6 +102,10 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 				}
 				secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
 				secretReply.Tenant = secret.GetTenant()
+				fmt.Println("strconv.FormatBool(result)")
+				fmt.Println(strconv.FormatBool(result))
+				fmt.Println("secretReply")
+				fmt.Println(secretReply)
 
 				var shoset *net.ShosetConn
 				if secret.GetContext()["componentType"].(string) == "cluster" {
@@ -111,10 +115,11 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 					fmt.Println(c.GetBindAddr())
 					shoset = ch.ConnsJoin.Get(bindAddr)
 				} else {
-					shoset = ch.ConnsByAddr.Get(bindAddr)
+					shoset = ch.ConnsByAddr.Get(c.GetBindAddr())
 
 				}
-
+				fmt.Println("shoset")
+				fmt.Println(shoset)
 				shoset.SendMessage(secretReply)
 
 			} else {

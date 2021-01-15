@@ -61,24 +61,25 @@ func WaitConfiguration(c *net.Shoset, replies *msg.Iterator, args map[string]str
 func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	configuration := message.(cmsg.Configuration)
 	ch := c.GetCh()
-	dir := c.GetDir()
+	//dir := c.GetDir()
 
 	err = nil
 
-	log.Println("Handle secret")
+	log.Println("Handle configuration")
 	log.Println(configuration)
-	fmt.Println("dir")
-	fmt.Println(dir)
+	fmt.Println("handle configuration")
+	fmt.Println(configuration)
 	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if configuration.GetCommand() == "CONFIGURATION" {
-
+		fmt.Println("CONFIG")
 		var databaseClient *gorm.DB
 		//databasePath := ch.Context["databasePath"].(string)
 		if configuration.GetContext()["componentType"].(string) == "cluster" {
 			fmt.Println("CLUSTER")
 			databaseClient = ch.Context["gandalfDatabase"].(*gorm.DB)
 		} else {
+			fmt.Println("TENANT")
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 			databaseBindAddr := ch.Context["databaseBindAddr"].(string)
 			if mapDatabaseClient != nil {
@@ -101,33 +102,37 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 					target := ""
 					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 					configurationReply.Tenant = configuration.GetTenant()
-					configurationReply.Context["configuration"] = config
 					shoset := ch.ConnsJoin.Get(bindAddr)
 					shoset.SendMessage(configurationReply)
 				}
 
 				break
 			case "aggregator":
+				fmt.Println("Aggregator")
 				config := cutils.GetConfigurationAggregator(logicalName, databaseClient)
+				fmt.Println("Configuration")
+				fmt.Println(config)
 				configMarshal, err := json.Marshal(config)
 				if err == nil {
+					fmt.Println("MARSHALL")
 					target := ""
 					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 					configurationReply.Tenant = configuration.GetTenant()
-					configurationReply.Context["configuration"] = config
-					shoset := ch.ConnsByAddr.Get(bindAddr)
+					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+					fmt.Println("shoset")
+					fmt.Println(shoset)
 					shoset.SendMessage(configurationReply)
 				}
 				break
 			case "connector":
-				config := cutils.GetConfigurationCluster(logicalName, databaseClient)
+				fmt.Println("Connector")
+				config := cutils.GetConfigurationConnector(logicalName, databaseClient)
 				configMarshal, err := json.Marshal(config)
 				if err == nil {
 					target := configuration.GetTarget()
 					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 					configurationReply.Tenant = configuration.GetTenant()
-					configurationReply.Context["configuration"] = config
-					shoset := ch.ConnsByAddr.Get(bindAddr)
+					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 					shoset.SendMessage(configurationReply)
 				}
 				break
