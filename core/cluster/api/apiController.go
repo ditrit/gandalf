@@ -16,12 +16,13 @@ type Controllers struct {
 	gandalfUserController           *gandalf.UserController
 	gandalfConfigurationController  *gandalf.ConfigurationController
 
-	tenantsAuthenticationController *tenants.AuthenticationController
-	tenantsAggregatorController     *tenants.AggregatorController
-	tenantsConnectorController      *tenants.ConnectorController
-	tenantsRoleController           *tenants.RoleController
-	tenantsUserController           *tenants.UserController
-	tenantsConfigurationController  *tenants.ConfigurationController
+	tenantsAuthenticationController          *tenants.AuthenticationController
+	tenantsAggregatorController              *tenants.AggregatorController
+	tenantsConnectorController               *tenants.ConnectorController
+	tenantsRoleController                    *tenants.RoleController
+	tenantsUserController                    *tenants.UserController
+	tenantsConfigurationAggregatorController *tenants.ConfigurationAggregatorController
+	tenantsConfigurationConnectorController  *tenants.ConfigurationConnectorController
 }
 
 // ReturnControllers :
@@ -40,7 +41,8 @@ func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB
 	controllers.tenantsAggregatorController = tenants.NewAggregatorController(mapDatabase)
 	controllers.tenantsUserController = tenants.NewUserController(mapDatabase)
 	controllers.tenantsRoleController = tenants.NewRoleController(mapDatabase)
-	controllers.tenantsConfigurationController = tenants.NewConfigurationController(mapDatabase)
+	controllers.tenantsConfigurationAggregatorController = tenants.NewConfigurationAggregatorController(mapDatabase)
+	controllers.tenantsConfigurationConnectorController = tenants.NewConfigurationConnectorController(mapDatabase)
 
 	return controllers
 }

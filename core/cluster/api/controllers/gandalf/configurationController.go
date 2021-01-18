@@ -2,6 +2,7 @@ package gandalf
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -51,15 +52,44 @@ func (cc ConfigurationController) Upload(w http.ResponseWriter, r *http.Request)
 		fmt.Println(err)
 	}
 
-	var configurationCluster *models.ConfigurationCluster
-	err = yaml.Unmarshal(fileBytes, &configurationCluster)
+	var configurationConfigurationCluster *models.ConfigurationCluster
+	err = yaml.Unmarshal(fileBytes, &configurationConfigurationCluster)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	cc.gandalfDatabase.Save(&configurationCluster)
+	cc.gandalfDatabase.Save(&configurationConfigurationCluster)
 
 	fmt.Fprintf(w, "Successfully Uploaded File\n")
+}
+
+// List :
+func (cc ConfigurationController) List(w http.ResponseWriter, r *http.Request) {
+	configurationCluster, err := dao.ListConfigurationCluster(cc.gandalfDatabase)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, configurationCluster)
+}
+
+// Create :
+func (cc ConfigurationController) Create(w http.ResponseWriter, r *http.Request) {
+	var configurationCluster models.ConfigurationCluster
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&configurationCluster); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+	defer r.Body.Close()
+
+	if err := dao.CreateConfigurationCluster(cc.gandalfDatabase, configurationCluster); err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusCreated, configurationCluster)
 }
 
 // Read :
@@ -71,8 +101,8 @@ func (cc ConfigurationController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var cluster models.Cluster
-	if cluster, err = dao.ReadCluster(cc.gandalfDatabase, id); err != nil {
+	var configurationCluster models.ConfigurationCluster
+	if configurationCluster, err = dao.ReadConfigurationCluster(cc.gandalfDatabase, id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -82,5 +112,48 @@ func (cc ConfigurationController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, cluster)
+	utils.RespondWithJSON(w, http.StatusOK, configurationCluster)
+}
+
+// Update :
+func (cc ConfigurationController) Update(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		return
+	}
+
+	var configurationCluster models.ConfigurationCluster
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&configurationCluster); err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
+		return
+	}
+	defer r.Body.Close()
+	configurationCluster.ID = uint(id)
+
+	if err := dao.UpdateConfigurationCluster(cc.gandalfDatabase, configurationCluster); err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, configurationCluster)
+}
+
+// Delete :
+func (cc ConfigurationController) Delete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+		return
+	}
+
+	if err := dao.DeleteConfigurationCluster(cc.gandalfDatabase, id); err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }

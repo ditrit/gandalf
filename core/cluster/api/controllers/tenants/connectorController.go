@@ -147,7 +147,7 @@ func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := dao.DeleteAggregator(database, id); err != nil {
+		if err := dao.DeleteConnector(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
