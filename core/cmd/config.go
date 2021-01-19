@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/user"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -21,21 +20,6 @@ const (
 	isInt
 	isBool
 )
-
-// CheckNotEmpty is a helper function to check a string value is not empty
-var CheckNotEmpty = func(val interface{}) bool {
-	strVal, ok := val.(string)
-	return ok && strVal != ""
-}
-
-// TrimToLower is a helper function to normalize value
-var TrimToLower = func(val interface{}) interface{} {
-	strVal, ok := val.(string)
-	if ok {
-		return strings.ToLower(strings.TrimSpace(strVal))
-	}
-	return val
-}
 
 // ConfigCmd allows configuration
 type ConfigCmd struct {
