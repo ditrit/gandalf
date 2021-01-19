@@ -8,11 +8,16 @@ import (
 
 	"github.com/ditrit/gandalf/core/aggregator"
 	"github.com/ditrit/gandalf/core/cluster"
+	"github.com/ditrit/gandalf/core/cmd"
 	"github.com/ditrit/gandalf/core/configuration"
 	"github.com/ditrit/gandalf/core/connector"
 )
 
 func main() {
+	cmd.Execute()
+}
+
+func oldMain() {
 
 	configuration.ConfigMain(os.Args[0], os.Args[1:])
 
