@@ -2,8 +2,11 @@
 package aggregator
 
 import (
+	"fmt"
 	"log"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/shoset/msg"
 
@@ -38,6 +41,10 @@ func NewAggregatorMember(logicalName, tenant, logPath string) *AggregatorMember 
 	member.chaussette.Get["secret"] = shoset.GetSecret
 	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
+	member.chaussette.Queue["configuration"] = msg.NewQueue()
+	member.chaussette.Get["configuration"] = shoset.GetConfiguration
+	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration
+	member.chaussette.Handle["configuration"] = shoset.HandleConfiguration
 	//coreLog.OpenLogFile("/var/log")
 
 	coreLog.OpenLogFile(logPath)
@@ -99,8 +106,18 @@ func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64,
 	return
 }
 
+func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationAggregator *models.ConfigurationAggregator) {
+	fmt.Println("SEND")
+	shoset.SendConfiguration(nshoset, timeoutMax, logicalName, bindAddress)
+	time.Sleep(time.Second * time.Duration(5))
+
+	configurationAggregator = m.chaussette.Context["configuration"].(*models.ConfigurationAggregator)
+
+	return
+}
+
 // AggregatorMemberInit : Aggregator init function.
-func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, timeoutMax int64) *AggregatorMember {
+func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string) *AggregatorMember {
 	member := NewAggregatorMember(logicalName, tenant, logPath)
 	err := member.Bind(bindAddress)
 
@@ -109,8 +126,12 @@ func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette(), timeoutMax, logicalName, tenant, secret, bindAddress)
+			validateSecret = member.ValidateSecret(member.GetChaussette(), 1000, logicalName, tenant, secret, bindAddress)
 			if validateSecret {
+				//TODO
+				configurationAggregator := member.GetConfiguration(member.GetChaussette(), 1000, logicalName, bindAddress)
+				fmt.Println(configurationAggregator)
+
 				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", logicalName, tenant, bindAddress, linkAddress)
 				time.Sleep(time.Second * time.Duration(5))
 				log.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))

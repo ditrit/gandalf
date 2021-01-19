@@ -14,29 +14,35 @@ type Controllers struct {
 	gandalfTenantController         *gandalf.TenantController
 	gandalfRoleController           *gandalf.RoleController
 	gandalfUserController           *gandalf.UserController
+	gandalfConfigurationController  *gandalf.ConfigurationController
 
-	tenantsAuthenticationController *tenants.AuthenticationController
-	tenantsAggregatorController     *tenants.AggregatorController
-	tenantsConnectorController      *tenants.ConnectorController
-	tenantsRoleController           *tenants.RoleController
-	tenantsUserController           *tenants.UserController
+	tenantsAuthenticationController          *tenants.AuthenticationController
+	tenantsAggregatorController              *tenants.AggregatorController
+	tenantsConnectorController               *tenants.ConnectorController
+	tenantsRoleController                    *tenants.RoleController
+	tenantsUserController                    *tenants.UserController
+	tenantsConfigurationAggregatorController *tenants.ConfigurationAggregatorController
+	tenantsConfigurationConnectorController  *tenants.ConfigurationConnectorController
 }
 
 // ReturnControllers :
-func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath string) *Controllers {
+func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath, databaseBindAddr string) *Controllers {
 
 	controllers := new(Controllers)
 	controllers.gandalfAuthenticationController = gandalf.NewAuthenticationController(gandalfDatabase)
 	controllers.gandalfClusterController = gandalf.NewClusterController(gandalfDatabase)
-	controllers.gandalfTenantController = gandalf.NewTenantController(gandalfDatabase, databasePath)
+	controllers.gandalfTenantController = gandalf.NewTenantController(gandalfDatabase, mapDatabase, databasePath, databaseBindAddr)
 	controllers.gandalfUserController = gandalf.NewUserController(gandalfDatabase)
 	controllers.gandalfRoleController = gandalf.NewRoleController(gandalfDatabase)
+	controllers.gandalfConfigurationController = gandalf.NewConfigurationController(gandalfDatabase)
 
-	controllers.tenantsAuthenticationController = tenants.NewAuthenticationController(mapDatabase, databasePath)
-	controllers.tenantsConnectorController = tenants.NewConnectorController(mapDatabase, databasePath)
-	controllers.tenantsAggregatorController = tenants.NewAggregatorController(mapDatabase, databasePath)
-	controllers.tenantsUserController = tenants.NewUserController(mapDatabase, databasePath)
-	controllers.tenantsRoleController = tenants.NewRoleController(mapDatabase, databasePath)
+	controllers.tenantsAuthenticationController = tenants.NewAuthenticationController(mapDatabase)
+	controllers.tenantsConnectorController = tenants.NewConnectorController(mapDatabase)
+	controllers.tenantsAggregatorController = tenants.NewAggregatorController(mapDatabase)
+	controllers.tenantsUserController = tenants.NewUserController(mapDatabase)
+	controllers.tenantsRoleController = tenants.NewRoleController(mapDatabase)
+	controllers.tenantsConfigurationAggregatorController = tenants.NewConfigurationAggregatorController(mapDatabase)
+	controllers.tenantsConfigurationConnectorController = tenants.NewConfigurationConnectorController(mapDatabase)
 
 	return controllers
 }

@@ -30,7 +30,7 @@ func NewGandalfDatabaseClient(addr, name string) (gandalfDatabaseClient *gorm.DB
 
 // InitGandalfDatabase : Gandalf database init.
 func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (login string, password string, secret string, err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{})
+	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationCluster{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()
@@ -61,6 +61,7 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (lo
 func Test(gandalfDatabaseClient *gorm.DB) {
 
 	DemoCreateCluster(gandalfDatabaseClient)
+	DemoConfigurationCluster(gandalfDatabaseClient)
 	//CREATE TENANT
 	gandalfDatabaseClient.Create(&models.Tenant{Name: "tenant1"})
 	var tenant models.Tenant
@@ -79,4 +80,14 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 func DemoCreateCluster(gandalfDatabaseClient *gorm.DB) {
 	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", Secret: "TUTU"})
 	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", Secret: "TITI"})
+}
+
+//DemoConfiguration
+func DemoConfigurationCluster(tenantDatabaseClient *gorm.DB) {
+	var configurationCluster models.ConfigurationCluster
+
+	configurationCluster.LogicalName = "Cluster"
+	configurationCluster.DBPath = "/home/romainfairant/gandalf"
+	configurationCluster.DBName = "Node1"
+	tenantDatabaseClient.Save(&configurationCluster)
 }

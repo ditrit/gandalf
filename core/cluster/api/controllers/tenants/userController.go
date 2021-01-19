@@ -16,15 +16,13 @@ import (
 
 // UserController :
 type UserController struct {
-	mapDatabase  map[string]*gorm.DB
-	databasePath string
+	mapDatabase map[string]*gorm.DB
 }
 
 // NewUserController :
-func NewUserController(mapDatabase map[string]*gorm.DB, databasePath string) (userController *UserController) {
+func NewUserController(mapDatabase map[string]*gorm.DB) (userController *UserController) {
 	userController = new(UserController)
 	userController.mapDatabase = mapDatabase
-	userController.databasePath = databasePath
 
 	return
 }
@@ -33,109 +31,129 @@ func NewUserController(mapDatabase map[string]*gorm.DB, databasePath string) (us
 func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, uc.databasePath, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	if database != nil {
+		users, err := dao.ListUser(database)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-	users, err := dao.ListUser(database)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondWithJSON(w, http.StatusOK, users)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	utils.RespondWithJSON(w, http.StatusOK, users)
 }
 
 // Create :
 func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, uc.databasePath, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	if database != nil {
+		var user models.User
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&user); err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+			return
+		}
+		defer r.Body.Close()
 
-	var user models.User
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		if err := dao.CreateUser(database, user); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusCreated, user)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-	defer r.Body.Close()
-
-	if err := dao.CreateUser(database, user); err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusCreated, user)
 }
 
 // Read :
 func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, uc.databasePath, tenant)
-
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
-		return
-	}
-	var user models.User
-	if user, err = dao.ReadUser(database, id); err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-		default:
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	if database != nil {
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			return
 		}
+		var user models.User
+		if user, err = dao.ReadUser(database, id); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, user)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	utils.RespondWithJSON(w, http.StatusOK, user)
 }
 
 // Update :
 func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, uc.databasePath, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	if database != nil {
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			return
+		}
 
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		var user models.User
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&user); err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
+			return
+		}
+		defer r.Body.Close()
+		user.ID = uint(id)
+
+		if err := dao.UpdateUser(database, user); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, user)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	var user models.User
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&user); err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
-		return
-	}
-	defer r.Body.Close()
-	user.ID = uint(id)
-
-	if err := dao.UpdateUser(database, user); err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusOK, user)
 }
 
 // Delete :
 func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, uc.databasePath, tenant)
+	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	if database != nil {
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
 
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+		if err := dao.DeleteUser(database, id); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	if err := dao.DeleteUser(database, id); err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }

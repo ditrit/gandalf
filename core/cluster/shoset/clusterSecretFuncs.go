@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/ditrit/gandalf/core/cluster/utils"
@@ -20,9 +21,9 @@ import (
 var secretSendIndex = 0
 
 func GetSecret(c *net.ShosetConn) (msg.Message, error) {
-	var conf cmsg.Secret
-	err := c.ReadMessage(&conf)
-	return conf, err
+	var secret cmsg.Secret
+	err := c.ReadMessage(&secret)
+	return secret, err
 }
 
 // WaitConfig :
@@ -99,36 +100,28 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 				if secret.GetContext()["componentType"] == "aggregator" || secret.GetContext()["componentType"] == "cluster" {
 					target = ""
 				}
-				if result {
-					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "true")
-					secretReply.Tenant = secret.GetTenant()
+				secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
+				secretReply.Tenant = secret.GetTenant()
+				fmt.Println("strconv.FormatBool(result)")
+				fmt.Println(strconv.FormatBool(result))
+				fmt.Println("secretReply")
+				fmt.Println(secretReply)
 
-					var shoset *net.ShosetConn
-					if secret.GetContext()["componentType"].(string) == "cluster" {
-						fmt.Println("ch.ConnsJoin")
-						fmt.Println(ch.ConnsJoin)
-						fmt.Println("c.GetBindAddr()")
-						fmt.Println(c.GetBindAddr())
-						shoset = ch.ConnsJoin.Get(bindAddr)
-					} else {
-						shoset = ch.ConnsByAddr.Get(bindAddr)
-
-					}
-
-					shoset.SendMessage(secretReply)
+				var shoset *net.ShosetConn
+				if secret.GetContext()["componentType"].(string) == "cluster" {
+					fmt.Println("ch.ConnsJoin")
+					fmt.Println(ch.ConnsJoin)
+					fmt.Println("c.GetBindAddr()")
+					fmt.Println(c.GetBindAddr())
+					shoset = ch.ConnsJoin.Get(bindAddr)
 				} else {
-					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", "false")
-					secretReply.Tenant = secret.GetTenant()
+					shoset = ch.ConnsByAddr.Get(c.GetBindAddr())
 
-					var shoset *net.ShosetConn
-					if secret.GetContext()["componentType"].(string) == "cluster" {
-						shoset = ch.ConnsJoin.Get(bindAddr)
-					} else {
-						shoset = ch.ConnsByAddr.Get(bindAddr)
-
-					}
-					shoset.SendMessage(secretReply)
 				}
+				fmt.Println("shoset")
+				fmt.Println(shoset)
+				shoset.SendMessage(secretReply)
+
 			} else {
 				log.Println("Can't validate secret")
 				err = errors.New("Can't validate secret")
@@ -166,7 +159,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (err error) {
+func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, secret, bindAddress string) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	//secretMsg.Tenant = "cluster"
 	secretMsg.GetContext()["componentType"] = "cluster"

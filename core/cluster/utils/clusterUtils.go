@@ -42,6 +42,27 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 	return
 }
 
+// GetConfigurationCluster :
+func GetConfigurationCluster(logicalName string, client *gorm.DB) (configurationCluster models.ConfigurationCluster) {
+	client.Where("logical_name = ?", logicalName).First(&configurationCluster)
+
+	return
+}
+
+// GetConfigurationAggregator :
+func GetConfigurationAggregator(logicalName string, client *gorm.DB) (configurationAggregator models.ConfigurationAggregator) {
+	client.Where("logical_name = ?", logicalName).First(&configurationAggregator)
+
+	return
+}
+
+// GetConfigurationConnector :
+func GetConfigurationConnector(logicalName string, client *gorm.DB) (configurationConnector models.ConfigurationConnector) {
+	client.Where("logical_name = ?", logicalName).First(&configurationConnector)
+
+	return
+}
+
 // GetConnectorConfiguration : Cluster application context getter.
 func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []models.ConnectorConfig) {
 	client.Order("connector_type_id, connector_product_id, major desc").Preload("ConnectorType").Preload("ConnectorProduct").Preload("ConnectorCommands").Preload("ConnectorEvents").Find(&connectorsConfiguration)

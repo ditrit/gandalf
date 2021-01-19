@@ -16,15 +16,13 @@ import (
 
 // ConnectorController :
 type ConnectorController struct {
-	mapDatabase  map[string]*gorm.DB
-	databasePath string
+	mapDatabase map[string]*gorm.DB
 }
 
 // NewConnectorController :
-func NewConnectorController(mapDatabase map[string]*gorm.DB, databasePath string) (connectorController *ConnectorController) {
+func NewConnectorController(mapDatabase map[string]*gorm.DB) (connectorController *ConnectorController) {
 	connectorController = new(ConnectorController)
 	connectorController.mapDatabase = mapDatabase
-	connectorController.databasePath = databasePath
 
 	return
 }
@@ -33,110 +31,130 @@ func NewConnectorController(mapDatabase map[string]*gorm.DB, databasePath string
 func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	if database != nil {
+		connectors, err := dao.ListConnector(database)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
-	connectors, err := dao.ListConnector(database)
-	if err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		utils.RespondWithJSON(w, http.StatusOK, connectors)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	utils.RespondWithJSON(w, http.StatusOK, connectors)
 }
 
 // Create :
 func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	if database != nil {
+		var connector models.Connector
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&connector); err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+			return
+		}
+		defer r.Body.Close()
 
-	var connector models.Connector
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&connector); err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+		if err := dao.CreateConnector(database, connector); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusCreated, connector)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-	defer r.Body.Close()
-
-	if err := dao.CreateConnector(database, connector); err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusCreated, connector)
 }
 
 // Read :
 func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
-
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
-		return
-	}
-
-	var connector models.Connector
-	if connector, err = dao.ReadConnector(database, id); err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-		default:
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	if database != nil {
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			return
 		}
+
+		var connector models.Connector
+		if connector, err = dao.ReadConnector(database, id); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, connector)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	utils.RespondWithJSON(w, http.StatusOK, connector)
 }
 
 // Update :
 func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	if database != nil {
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			return
+		}
 
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		var connector models.Connector
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&connector); err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
+			return
+		}
+		defer r.Body.Close()
+		connector.ID = uint(id)
+
+		if err := dao.UpdateConnector(database, connector); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, connector)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	var connector models.Connector
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&connector); err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
-		return
-	}
-	defer r.Body.Close()
-	connector.ID = uint(id)
-
-	if err := dao.UpdateConnector(database, connector); err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusOK, connector)
 }
 
 // Delete :
 func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, cc.databasePath, tenant)
+	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	if database != nil {
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
 
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+		if err := dao.DeleteConnector(database, id); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	if err := dao.DeleteAggregator(database, id); err != nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 }
