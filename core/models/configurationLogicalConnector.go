@@ -2,14 +2,12 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-type ConfigurationConnector struct {
+type ConfigurationLogicalConnector struct {
 	gorm.Model
 	LogicalName    string
 	ConnectorType  string
 	Product        string
-	GRPCSocketDir  string
 	WorkersUrl     string
-	WorkersPath    string
 	AutoUpdateTime string
 	AutoUpdate     bool
 	MaxTimeout     int64

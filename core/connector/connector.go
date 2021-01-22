@@ -352,7 +352,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, bindAddress, linkAddress, logPath, secret string) (*ConnectorMember, error) {
+func ConnectorMemberInit(logicalName, bindAddress, linkAddress, gRPCSocketDir, workersPath, logPath, secret string) (*ConnectorMember, error) {
 	member := NewConnectorMember(logicalName, logPath)
 	//member.timeoutMax = timeoutMax
 
@@ -372,11 +372,11 @@ func ConnectorMemberInit(logicalName, bindAddress, linkAddress, logPath, secret 
 				member.GetChaussette().Context["connectorType"] = configurationConnector.ConnectorType
 				member.GetChaussette().Context["versions"] = versions
 
-				var grpcBindAddress = configurationConnector.GRPCSocketDir + logicalName + "_" + utils.GenerateHash(logicalName)
+				var grpcBindAddress = gRPCSocketDir + logicalName + "_" + configurationConnector.ConnectorType + "_" + configurationConnector.Product + "_" + utils.GenerateHash(logicalName)
 				err = member.GrpcBind(grpcBindAddress)
 				if err == nil {
 					//var versions []*models.Version{Major: configurationConnector.VersionsMajor, Minor: configurationConnector.VersionsMinor}
-					err = member.StartWorkerAdmin(logicalName, configurationConnector.ConnectorType, configurationConnector.Product, configurationConnector.WorkersUrl, configurationConnector.WorkersPath, grpcBindAddress, configurationConnector.AutoUpdateTime, configurationConnector.AutoUpdate, configurationConnector.MaxTimeout, member.GetChaussette(), versions)
+					err = member.StartWorkerAdmin(logicalName, configurationConnector.ConnectorType, configurationConnector.Product, configurationConnector.WorkersUrl, workersPath, grpcBindAddress, configurationConnector.AutoUpdateTime, configurationConnector.AutoUpdate, configurationConnector.MaxTimeout, member.GetChaussette(), versions)
 					if err == nil {
 
 						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, member.chaussette.Context["tenant"], bindAddress, grpcBindAddress, linkAddress)

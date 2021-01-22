@@ -10,6 +10,7 @@ import (
 
 	"github.com/ditrit/gandalf/core/cluster/utils"
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
+	"github.com/ditrit/gandalf/core/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	"github.com/ditrit/shoset/msg"
@@ -79,9 +80,11 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			databaseClient = ch.Context["gandalfDatabase"].(*gorm.DB)
 		} else {
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-			databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+			configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
+
 			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), databaseBindAddr, mapDatabaseClient)
+				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationInstanceCluster.DatabaseBindAddr, mapDatabaseClient)
 			} else {
 				log.Println("Database client map is empty")
 				err = errors.New("Database client map is empty")

@@ -3,6 +3,7 @@ package shoset
 
 import (
 	"errors"
+	"gandalf/core/models"
 	"log"
 
 	net "github.com/ditrit/shoset"
@@ -21,7 +22,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle command")
 	log.Println(cmd)
-	if cmd.GetTenant() == ch.Context["tenant"] {
+	configurationLogicalAggregator := ch.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
+
+	if cmd.GetTenant() == configurationLogicalAggregator.Tenant {
 		//_ = ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 
 		//if ok {

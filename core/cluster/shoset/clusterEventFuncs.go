@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/ditrit/gandalf/core/cluster/utils"
+	"github.com/ditrit/gandalf/core/models"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
@@ -27,9 +28,11 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 
 	//if ok {
 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-	databasePath := ch.Context["databasePath"].(string)
+	//databasePath := ch.Context["databasePath"].(string)
+	configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
+
 	if mapDatabaseClient != nil {
-		databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), databasePath, mapDatabaseClient)
+		databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), configurationInstanceCluster.DatabasePath, mapDatabaseClient)
 		if databaseClient != nil {
 			ok := utils.CaptureMessage(message, "evt", databaseClient)
 			if ok {

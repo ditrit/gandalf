@@ -73,7 +73,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				configuration.Target = c.GetBindAddr()
-				configuration.Tenant = ch.Context["tenant"].(string)
+				configurationLogicalAggregator := ch.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
+				configuration.Tenant = configurationLogicalAggregator.Tenant
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(configuration)
 				log.Printf("%s : send in configuration %s to %s\n", thisOne, configuration.GetCommand(), shosets[index])
@@ -92,7 +93,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 			if configuration.GetTarget() == "" {
 				if configuration.GetCommand() == "CONFIGURATION_REPLY" {
-					var configurationAggregator *models.ConfigurationAggregator
+					var configurationAggregator *models.ConfigurationLogicalAggregator
 					err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationAggregator)
 					if err == nil {
 						ch.Context["configuration"] = configurationAggregator
@@ -122,7 +123,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 //SendSecret :
 func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (err error) {
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
-	configurationMsg.Tenant = shoset.Context["tenant"].(string)
+	configurationLogicalAggregator := shoset.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
+	configurationMsg.Tenant = configurationLogicalAggregator.Tenant
 	configurationMsg.GetContext()["componentType"] = "aggregator"
 	configurationMsg.GetContext()["logicalName"] = logicalName
 	configurationMsg.GetContext()["bindAddress"] = bindAddress

@@ -3,6 +3,7 @@ package shoset
 
 import (
 	"errors"
+	"gandalf/core/models"
 	"log"
 	"time"
 
@@ -67,7 +68,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				secret.Target = c.GetBindAddr()
-				secret.Tenant = ch.Context["tenant"].(string)
+				configurationLogicalAggregator := ch.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
+				secret.Tenant = configurationLogicalAggregator.Tenant
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(secret)
 				log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
@@ -112,7 +114,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 //SendSecret :
 func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
-	secretMsg.Tenant = shoset.Context["tenant"].(string)
+	configurationLogicalAggregator := shoset.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
+	secretMsg.Tenant = configurationLogicalAggregator.Tenant
 	secretMsg.GetContext()["componentType"] = "aggregator"
 	secretMsg.GetContext()["logicalName"] = logicalName
 	secretMsg.GetContext()["secret"] = secret

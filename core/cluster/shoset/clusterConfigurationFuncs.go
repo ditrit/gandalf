@@ -81,9 +81,11 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		} else {
 			fmt.Println("TENANT")
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-			databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+			configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
+
 			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), databaseBindAddr, mapDatabaseClient)
+				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationInstanceCluster.DatabaseBindAddr, mapDatabaseClient)
 			} else {
 				log.Println("Database client map is empty")
 				err = errors.New("Database client map is empty")
@@ -143,7 +145,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			err = errors.New("Can't get database client")
 		}
 	} else if configuration.GetCommand() == "CONFIGURATION_REPLY" {
-		var configurationCluster *models.ConfigurationCluster
+		var configurationCluster *models.ConfigurationLogicalCluster
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationCluster)
 		if err == nil {
 			ch.Context["configuration"] = configurationCluster

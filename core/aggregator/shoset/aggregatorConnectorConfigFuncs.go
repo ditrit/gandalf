@@ -3,6 +3,7 @@ package shoset
 
 import (
 	"errors"
+	"gandalf/core/models"
 	"log"
 
 	net "github.com/ditrit/shoset"
@@ -21,8 +22,8 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle connector config")
 	log.Println(conf)
-
-	if conf.GetTenant() == ch.Context["tenant"] {
+	configurationLogicalAggregator := ch.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
+	if conf.GetTenant() == configurationLogicalAggregator.Tenant {
 		//ok := ch.Queue["config"].Push(conf, c.ShosetType, c.GetBindAddr())
 
 		//if ok {
