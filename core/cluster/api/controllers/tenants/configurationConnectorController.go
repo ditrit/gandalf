@@ -56,7 +56,7 @@ func (cc ConfigurationConnectorController) Upload(w http.ResponseWriter, r *http
 			fmt.Println(err)
 		}
 
-		var configurationConfigurationConnector *models.ConfigurationConnector
+		var configurationConfigurationConnector *models.ConfigurationLogicalConnector
 		err = yaml.Unmarshal(fileBytes, &configurationConfigurationConnector)
 		if err != nil {
 			fmt.Println(err)
@@ -96,7 +96,7 @@ func (cc ConfigurationConnectorController) Create(w http.ResponseWriter, r *http
 	tenant := vars["tenant"]
 	database := utils.GetDatabase(cc.mapDatabase, tenant)
 	if database != nil {
-		var configurationConnector models.ConfigurationConnector
+		var configurationConnector models.ConfigurationLogicalConnector
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&configurationConnector); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -128,7 +128,7 @@ func (cc ConfigurationConnectorController) Read(w http.ResponseWriter, r *http.R
 			return
 		}
 
-		var configurationConnector models.ConfigurationConnector
+		var configurationConnector models.ConfigurationLogicalConnector
 		if configurationConnector, err = dao.ReadConfigurationConnector(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -158,7 +158,7 @@ func (cc ConfigurationConnectorController) Update(w http.ResponseWriter, r *http
 			return
 		}
 
-		var configurationConnector models.ConfigurationConnector
+		var configurationConnector models.ConfigurationLogicalConnector
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&configurationConnector); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")

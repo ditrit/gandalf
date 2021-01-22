@@ -43,21 +43,21 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 }
 
 // GetConfigurationCluster :
-func GetConfigurationCluster(logicalName string, client *gorm.DB) (configurationCluster models.ConfigurationCluster) {
+func GetConfigurationCluster(logicalName string, client *gorm.DB) (configurationCluster models.ConfigurationLogicalCluster) {
 	client.Where("logical_name = ?", logicalName).First(&configurationCluster)
 
 	return
 }
 
 // GetConfigurationAggregator :
-func GetConfigurationAggregator(logicalName string, client *gorm.DB) (configurationAggregator models.ConfigurationAggregator) {
+func GetConfigurationAggregator(logicalName string, client *gorm.DB) (configurationAggregator models.ConfigurationLogicalAggregator) {
 	client.Where("logical_name = ?", logicalName).First(&configurationAggregator)
 
 	return
 }
 
 // GetConfigurationConnector :
-func GetConfigurationConnector(logicalName string, client *gorm.DB) (configurationConnector models.ConfigurationConnector) {
+func GetConfigurationConnector(logicalName string, client *gorm.DB) (configurationConnector models.ConfigurationLogicalConnector) {
 	client.Where("logical_name = ?", logicalName).First(&configurationConnector)
 
 	return

@@ -114,7 +114,7 @@ func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64,
 	return
 }
 
-func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationAggregator *models.ConfigurationAggregator) {
+func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationAggregator *models.ConfigurationLogicalAggregator) {
 	fmt.Println("SEND")
 	shoset.SendConfiguration(nshoset, timeoutMax, logicalName, bindAddress)
 	time.Sleep(time.Second * time.Duration(5))

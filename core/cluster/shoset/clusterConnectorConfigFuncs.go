@@ -31,7 +31,7 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 	configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
 
 	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), configurationInstanceCluster.DatabaseBindAddr, mapDatabaseClient)
+		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), configurationInstanceCluster.DatabaseBindAddress, mapDatabaseClient)
 		if databaseClient != nil {
 			ok := cutils.CaptureMessage(message, "config", databaseClient)
 			if ok {

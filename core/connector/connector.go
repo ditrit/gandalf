@@ -20,15 +20,17 @@ import (
 
 // ConnectorMember : Connector struct.
 type ConnectorMember struct {
-	logicalName                 string
-	chaussette                  *net.Shoset
-	connectorGrpc               grpc.ConnectorGrpc
-	connectorType               string
-	versions                    []models.Version
-	timeoutMax                  int64
-	mapActiveWorkers            map[models.Version]bool
-	mapConnectorsConfig         map[string][]*models.ConnectorConfig
-	mapVersionConnectorCommands map[int8][]string
+	logicalName                    string
+	chaussette                     *net.Shoset
+	ConfigurationInstanceConnector *models.ConfigurationInstanceConnector
+	ConfigurationLogicalConnector  *models.ConfigurationLogicalConnector
+	connectorGrpc                  grpc.ConnectorGrpc
+	connectorType                  string
+	versions                       []models.Version
+	timeoutMax                     int64
+	mapActiveWorkers               map[models.Version]bool
+	mapConnectorsConfig            map[string][]*models.ConnectorConfig
+	mapVersionConnectorCommands    map[int8][]string
 }
 
 /*
@@ -44,7 +46,7 @@ func InitConnectorKeys(){
 }*/
 
 // NewConnectorMember : Connector struct constructor.
-func NewConnectorMember(logicalName, logPath string) *ConnectorMember {
+func NewConnectorMember(logicalName, bindAddress, linkAddress, gRPCSocketDirectory, workersPath, logPath, connectorType, product, workersUrl, autoUpdateTime, secret string, autoUpdate bool, maxTimeout int64, versionsMajor, versionsMinor int8) *ConnectorMember {
 	member := new(ConnectorMember)
 	member.logicalName = logicalName
 	//member.connectorType = connectorType
@@ -56,6 +58,12 @@ func NewConnectorMember(logicalName, logPath string) *ConnectorMember {
 	//member.chaussette.Context["tenant"] = tenant
 	//member.chaussette.Context["connectorType"] = connectorType
 	//member.chaussette.Context["versions"] = versions
+
+	member.ConfigurationInstanceConnector = models.NewConfigurationInstanceConnector(bindAddress, linkAddress, logPath, gRPCSocketDirectory, workersPath, secret)
+	member.chaussette.Context["configurationInstanceConnector"] = member.ConfigurationInstanceConnector
+	member.ConfigurationLogicalConnector = models.NewConfigurationLogicalConnector(logicalName, connectorType, product, workersUrl, autoUpdateTime, autoUpdate, maxTimeout, versionsMajor, versionsMinor)
+	member.chaussette.Context["configurationLogicalConnector"] = member.ConfigurationLogicalConnector
+
 	member.chaussette.Context["mapActiveWorkers"] = member.mapActiveWorkers
 	member.chaussette.Context["mapConnectorsConfig"] = member.mapConnectorsConfig
 	member.chaussette.Context["mapVersionConnectorCommands"] = member.mapVersionConnectorCommands
@@ -146,182 +154,6 @@ func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, 
 	return
 }
 
-/*
-// GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
-func (m *ConnectorMember) GetConfiguration(baseurl, connectorType, product string, versions []models.Version, nshoset *net.Shoset, timeoutMax int64) (listConfigurationKeys []models.ConfigurationKeys, err error) {
-
-	shoset.SendConnectorConfig(nshoset, timeoutMax)
-	time.Sleep(time.Second * time.Duration(5))
-
-	//mapVersionsKeys = make(map[int64][]string)
-	config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-
-	if config != nil {
-		//first := true
-		configConnectorTypeKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/keys.yaml")
-		configProductKeys, _ := utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/keys.yaml")
-
-		var listConfigurationConnectorTypeKeys []models.ConfigurationKeys
-		err = yaml.Unmarshal([]byte(configConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		var listConfigurationProductKeys []models.ConfigurationKeys
-		err = yaml.Unmarshal([]byte(configProductKeys), &listConfigurationProductKeys)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
-		listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
-
-		for _, version := range versions {
-			connectorConfig := utils.GetConnectorTypeConfigByVersion(version.Major, config[connectorType])
-			if connectorConfig == nil {
-
-				connectorConfig, _ = utils.DownloadConfiguration(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_configuration.yaml")
-
-				connectorConfig.ConnectorType.Name = connectorType
-				connectorConfig.Major = version.Major
-
-				//connectorConfig.ConnectorProduct.Name = product
-
-				connectorConfig.ConnectorTypeKeys = configConnectorTypeKeys
-				connectorConfig.ProductKeys = configProductKeys
-
-				connectorConfig.VersionMajorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_keys.yaml")
-				connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(baseurl, "/"+strings.ToLower(connectorType)+"/"+strings.ToLower(product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_keys.yaml")
-
-
-				shoset.SendSaveConnectorConfig(nshoset, timeoutMax, connectorConfig)
-			}
-
-			var listConfigurationVersionMajorKeys []models.ConfigurationKeys
-			err = yaml.Unmarshal([]byte(connectorConfig.VersionMajorKeys), &listConfigurationVersionMajorKeys)
-			if err != nil {
-				fmt.Println(err)
-			}
-
-			var listConfigurationVersionMinorKeys []models.ConfigurationKeys
-			err = yaml.Unmarshal([]byte(connectorConfig.VersionMinorKeys), &listConfigurationVersionMinorKeys)
-			if err != nil {
-				fmt.Println(err)
-			}
-
-
-			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMajorKeys...)
-			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMinorKeys...)
-
-			//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ConnectorTypeKeys)
-			//mapVersionsKeys[version] = append(mapVersionsKeys[version], connectorConfig.ProductKeys)
-
-			//
-			config[connectorType] = append(config[connectorType], connectorConfig)
-		}
-		m.chaussette.Context["mapConnectorsConfig"] = config
-	}
-
-	return
-}
-
-// GetAndStartWorkers : Get worker from baseurl/connectortype/ and baseurl/connectortype/product/
-func (m *ConnectorMember) GetAndStartWorkers(baseurl, connectortype, product, workerPath, grpcBindAddress, stdinargs string, versions []models.Version) (err error) {
-
-	for _, version := range versions {
-		//versionSplit := strings.Split(strconv.FormatFloat(float64(version), 'f', -1, 32), ".")
-		ressourceDir := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
-		workersPathVersion := workerPath + "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
-		fileWorkersPathVersion := workerPath + ressourceDir + "worker"
-
-		if !utils.CheckFileExistAndIsExecAll(fileWorkersPathVersion) {
-			ressourceURL := "/" + strings.ToLower(connectortype) + "/" + strings.ToLower(product) + "/" + strconv.Itoa(int(version.Major)) + "_" + strconv.Itoa(int(version.Minor)) + "_"
-
-			url := baseurl + ressourceURL + "worker.zip"
-
-			src := workerPath + ressourceDir + "worker.zip"
-			dest := workerPath + ressourceDir
-
-			if _, err := os.Stat(dest); os.IsNotExist(err) {
-				os.MkdirAll(dest, os.ModePerm)
-			}
-
-			err = utils.DownloadWorkers(url, src)
-
-			if err == nil {
-				_, err = utils.Unzip(src, dest)
-				if err != nil {
-					log.Println("Can't unzip workers")
-				}
-			} else {
-				log.Println("Can't download workers")
-			}
-		}
-
-		args := []string{m.GetLogicalName(), strconv.FormatInt(m.GetTimeoutMax(), 10), grpcBindAddress}
-
-		cmd := exec.Command("./worker", args...)
-		cmd.Dir = workersPathVersion
-		cmd.Stdout = os.Stdout
-
-		stdin, err := cmd.StdinPipe()
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		err = cmd.Start()
-		if err != nil {
-			log.Printf("Can't start worker %s", fileWorkersPathVersion)
-		}
-		time.Sleep(time.Second * time.Duration(5))
-
-		go func() {
-			defer stdin.Close()
-			io.WriteString(stdin, stdinargs)
-		}()
-	}
-
-	return
-}
-
-// ConfigurationValidation : Validation configuration
-func (m *ConnectorMember) ConfigurationValidation(tenant, connectorType string) (result bool) {
-	result = false
-	validation := true
-
-	mapVersionConnectorCommands := m.chaussette.Context["mapVersionConnectorCommands"].(map[int8][]string)
-
-	if mapVersionConnectorCommands != nil {
-		config := m.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-
-		if config != nil {
-			for version, commands := range mapVersionConnectorCommands {
-				var configCommands []string
-
-				connectorConfig := utils.GetConnectorTypeConfigByVersion(version, config[connectorType])
-				if connectorConfig != nil {
-					for _, command := range connectorConfig.ConnectorCommands {
-						configCommands = append(configCommands, command.Name)
-					}
-
-					validation = validation && reflect.DeepEqual(commands, configCommands)
-
-					result = validation
-				} else {
-					log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, version)
-				}
-			}
-		} else {
-			log.Printf("Connectors configuration not found")
-		}
-	} else {
-		log.Printf("Map version/commands not found")
-
-	}
-
-	return
-} */
-
 // ConfigurationValidation : Validation configuration
 func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, autoUpdateTime string, autoUpdate bool, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) (err error) {
 	workerAdmin := admin.NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, autoUpdateTime, autoUpdate, timeoutMax, chaussette, versions)
@@ -329,12 +161,12 @@ func (m *ConnectorMember) StartWorkerAdmin(logicalName, connectorType, product, 
 	return
 }
 
-func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationConnector *models.ConfigurationConnector) {
+func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationConnector *models.ConfigurationLogicalConnector) {
 	fmt.Println("SEND")
 	shoset.SendConfiguration(nshoset, timeoutMax, logicalName, bindAddress)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationConnector = m.chaussette.Context["configuration"].(*models.ConfigurationConnector)
+	configurationConnector = m.chaussette.Context["configuration"].(*models.ConfigurationLogicalConnector)
 
 	return
 }
@@ -352,50 +184,53 @@ func getBrothers(address string, member *ConnectorMember) []string {
 }
 
 // ConnectorMemberInit : Connector init function.
-func ConnectorMemberInit(logicalName, bindAddress, linkAddress, gRPCSocketDir, workersPath, logPath, secret string) (*ConnectorMember, error) {
-	member := NewConnectorMember(logicalName, logPath)
+func ConnectorMemberInit(logicalName, bindAddress, linkAddress, gRPCSocketDir, workersPath, logPath, connectorType, product, workersUrl, autoUpdateTime, secret string, autoUpdate bool, maxTimeout int64, versionsMajor, versionsMinor int8) (*ConnectorMember, error) {
+	member := NewConnectorMember(logicalName, bindAddress, linkAddress, gRPCSocketDir, workersPath, logPath, connectorType, product, workersUrl, autoUpdateTime, secret, autoUpdate, maxTimeout, versionsMajor, versionsMinor)
 	//member.timeoutMax = timeoutMax
 
-	err := member.Bind(bindAddress)
+	err := member.Bind(member.ConfigurationInstanceConnector.BindAddress)
 	if err == nil {
-		_, err = member.Link(linkAddress)
+		_, err = member.Link(member.ConfigurationInstanceConnector.LinkAddress)
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
-			validateSecret := member.ValidateSecret(member.GetChaussette(), 1000, logicalName, secret, bindAddress)
+			validateSecret := member.ValidateSecret(member.GetChaussette(), 1000, member.ConfigurationLogicalConnector.LogicalName, member.ConfigurationInstanceConnector.Secret, member.ConfigurationInstanceConnector.BindAddress)
 			if validateSecret {
-				configurationConnector := member.GetConfiguration(member.GetChaussette(), 1000, logicalName, bindAddress)
+				configurationConnector := member.GetConfiguration(member.GetChaussette(), 1000, member.ConfigurationLogicalConnector.LogicalName, member.ConfigurationInstanceConnector.BindAddress)
 
-				version := models.Version{Major: configurationConnector.VersionsMajor, Minor: configurationConnector.VersionsMinor}
+				version := models.Version{Major: member.ConfigurationLogicalConnector.VersionsMajor, Minor: member.ConfigurationLogicalConnector.VersionsMinor}
 				versions := []models.Version{version}
 
 				member.timeoutMax = configurationConnector.MaxTimeout
-				member.GetChaussette().Context["connectorType"] = configurationConnector.ConnectorType
+				//TODO
+				//member.GetChaussette().Context["connectorType"] = member.ConfigurationLogicalConnector.ConnectorType
 				member.GetChaussette().Context["versions"] = versions
 
-				var grpcBindAddress = gRPCSocketDir + logicalName + "_" + configurationConnector.ConnectorType + "_" + configurationConnector.Product + "_" + utils.GenerateHash(logicalName)
-				err = member.GrpcBind(grpcBindAddress)
+				var grpcBindAddress = member.ConfigurationInstanceConnector.GRPCSocketDirectory + member.ConfigurationLogicalConnector.LogicalName + "_" + member.ConfigurationLogicalConnector.ConnectorType + "_" + member.ConfigurationLogicalConnector.Product + "_" + utils.GenerateHash(member.ConfigurationLogicalConnector.LogicalName)
+				member.ConfigurationInstanceConnector.GRPCSocketBind = grpcBindAddress
+
+				err = member.GrpcBind(member.ConfigurationInstanceConnector.GRPCSocketBind)
 				if err == nil {
 					//var versions []*models.Version{Major: configurationConnector.VersionsMajor, Minor: configurationConnector.VersionsMinor}
-					err = member.StartWorkerAdmin(logicalName, configurationConnector.ConnectorType, configurationConnector.Product, configurationConnector.WorkersUrl, workersPath, grpcBindAddress, configurationConnector.AutoUpdateTime, configurationConnector.AutoUpdate, configurationConnector.MaxTimeout, member.GetChaussette(), versions)
+					err = member.StartWorkerAdmin(member.ConfigurationLogicalConnector.LogicalName, member.ConfigurationLogicalConnector.ConnectorType, member.ConfigurationLogicalConnector.Product, member.ConfigurationLogicalConnector.WorkersUrl, member.ConfigurationInstanceConnector.WorkersPath, member.ConfigurationInstanceConnector.GRPCSocketBind, member.ConfigurationLogicalConnector.AutoUpdateTime, member.ConfigurationLogicalConnector.AutoUpdate, member.ConfigurationLogicalConnector.MaxTimeout, member.GetChaussette(), versions)
 					if err == nil {
 
-						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", logicalName, member.chaussette.Context["tenant"], bindAddress, grpcBindAddress, linkAddress)
-						fmt.Printf("%s.JoinBrothers Init(%#v)\n", bindAddress, getBrothers(bindAddress, member))
+						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", member.ConfigurationLogicalConnector.LogicalName, member.ConfigurationLogicalConnector.Tenant, member.ConfigurationInstanceConnector.BindAddress, member.ConfigurationInstanceConnector.GRPCSocketBind, member.ConfigurationInstanceConnector.LinkAddress)
+						fmt.Printf("%s.JoinBrothers Init(%#v)\n", member.ConfigurationInstanceConnector.BindAddress, getBrothers(member.ConfigurationInstanceConnector.BindAddress, member))
 					} else {
 						log.Fatalf("Can't start worker admin")
 					}
 				} else {
-					log.Fatalf("Can't Grpc bind shoset on %s", grpcBindAddress)
+					log.Fatalf("Can't Grpc bind shoset on %s", member.ConfigurationInstanceConnector.GRPCSocketBind)
 				}
 			} else {
 				log.Fatalf("Invalid secret")
 			}
 		} else {
-			log.Fatalf("Can't link shoset on %s", linkAddress)
+			log.Fatalf("Can't link shoset on %s", member.ConfigurationInstanceConnector.LinkAddress)
 		}
 
 	} else {
-		log.Fatalf("Can't bind shoset on %s", bindAddress)
+		log.Fatalf("Can't bind shoset on %s", member.ConfigurationInstanceConnector.BindAddress)
 	}
 	return member, err
 }

@@ -85,7 +85,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
 
 			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationInstanceCluster.DatabaseBindAddr, mapDatabaseClient)
+				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationInstanceCluster.DatabaseBindAddress, mapDatabaseClient)
 			} else {
 				log.Println("Database client map is empty")
 				err = errors.New("Database client map is empty")

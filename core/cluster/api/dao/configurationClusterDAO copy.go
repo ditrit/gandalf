@@ -9,13 +9,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func ListConfigurationCluster(database *gorm.DB) (configurationClusters []models.ConfigurationCluster, err error) {
+func ListConfigurationCluster(database *gorm.DB) (configurationClusters []models.ConfigurationLogicalCluster, err error) {
 	err = database.Find(&configurationClusters).Error
 
 	return
 }
 
-func CreateConfigurationCluster(database *gorm.DB, configurationCluster models.ConfigurationCluster) (err error) {
+func CreateConfigurationCluster(database *gorm.DB, configurationCluster models.ConfigurationLogicalCluster) (err error) {
 	admin, err := utils.GetStateGandalf(database)
 	if err == nil {
 		if admin {
@@ -28,13 +28,13 @@ func CreateConfigurationCluster(database *gorm.DB, configurationCluster models.C
 	return
 }
 
-func ReadConfigurationCluster(database *gorm.DB, id int) (configurationCluster models.ConfigurationCluster, err error) {
+func ReadConfigurationCluster(database *gorm.DB, id int) (configurationCluster models.ConfigurationLogicalCluster, err error) {
 	err = database.First(&configurationCluster, id).Error
 
 	return
 }
 
-func UpdateConfigurationCluster(database *gorm.DB, configurationCluster models.ConfigurationCluster) (err error) {
+func UpdateConfigurationCluster(database *gorm.DB, configurationCluster models.ConfigurationLogicalCluster) (err error) {
 	err = database.Save(&configurationCluster).Error
 
 	return
@@ -44,7 +44,7 @@ func DeleteConfigurationCluster(database *gorm.DB, id int) (err error) {
 	admin, err := utils.GetStateGandalf(database)
 	if err == nil {
 		if admin {
-			var configurationCluster models.ConfigurationCluster
+			var configurationCluster models.ConfigurationLogicalCluster
 			err = database.Delete(&configurationCluster, id).Error
 		} else {
 			err = errors.New("Invalid state")

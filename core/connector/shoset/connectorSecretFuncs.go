@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ditrit/gandalf/core/models"
+
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
@@ -61,7 +63,10 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(secret)
 
 	if secret.GetCommand() == "VALIDATION_REPLY" {
-		ch.Context["tenant"] = secret.GetTenant()
+		//ch.Context["tenant"] = secret.GetTenant()
+		configurationLogicalConnector := ch.Context["configurationLogicalConnector"].(*models.ConfigurationLogicalConnector)
+		configurationLogicalConnector.Tenant = secret.GetTenant()
+		ch.Context["configurationLogicalConnector"] = configurationLogicalConnector
 		ch.Context["validation"] = secret.GetPayload()
 	}
 

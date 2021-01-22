@@ -67,7 +67,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	fmt.Println(configuration)
 
 	if configuration.GetCommand() == "CONFIGURATION_REPLY" {
-		var configurationConnector *models.ConfigurationConnector
+		var configurationConnector *models.ConfigurationLogicalConnector
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationConnector)
 		if err == nil {
 			ch.Context["configuration"] = configurationConnector

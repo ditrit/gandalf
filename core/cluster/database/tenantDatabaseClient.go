@@ -36,7 +36,7 @@ func NewTenantDatabaseClient(addr, tenant string) (tenantDatabaseClient *gorm.DB
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password string, err error) {
-	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Permission{}, &models.ConfigurationAggregator{}, &models.ConfigurationConnector{})
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Permission{}, &models.ConfigurationLogicalAggregator{}, &models.ConfigurationLogicalConnector{})
 
 	//Init State
 	state := models.State{Admin: false}
@@ -364,8 +364,8 @@ func DemoCreateApplicationDocker(tenantDatabaseClient *gorm.DB) {
 
 //DemoConfiguration
 func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
-	var configurationAggregator models.ConfigurationAggregator
-	var configurationConnector models.ConfigurationConnector
+	var configurationAggregator models.ConfigurationLogicalAggregator
+	var configurationConnector models.ConfigurationLogicalConnector
 
 	configurationAggregator.LogicalName = "Aggregator1"
 	tenantDatabaseClient.Save(&configurationAggregator)
@@ -373,9 +373,7 @@ func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
 	configurationConnector.LogicalName = "Connector1"
 	configurationConnector.ConnectorType = "Utils"
 	configurationConnector.Product = "Custom"
-	configurationConnector.GRPCSocketDir = "/tmp/"
 	configurationConnector.WorkersUrl = "https://github.com/ditrit/workers/raw/master"
-	configurationConnector.WorkersPath = "/home/romainfairant/gandalf/workers"
 	configurationConnector.AutoUpdateTime = "13:00"
 	configurationConnector.AutoUpdate = true
 	configurationConnector.MaxTimeout = 1000

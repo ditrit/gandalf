@@ -44,8 +44,9 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 //SendConnectorConfig : Connector send connector config function.
 func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 	conf := msg.NewConfig("", "CONFIG", "")
-	conf.Tenant = shoset.Context["tenant"].(string)
-	conf.GetContext()["connectorType"] = shoset.Context["connectorType"]
+	configurationLogicalConnector := shoset.Context["configurationLogicalConnector"].(*models.ConfigurationLogicalConnector)
+	conf.Tenant = configurationLogicalConnector.Tenant
+	conf.GetContext()["connectorType"] = configurationLogicalConnector.ConnectorType
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
@@ -88,7 +89,8 @@ func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 func SendSaveConnectorConfig(shoset *net.Shoset, timeoutMax int64, connectorConfig *models.ConnectorConfig) (err error) {
 	jsonData, err := json.Marshal(connectorConfig)
 	conf := msg.NewConfig("", "SAVE_CONFIG", string(jsonData))
-	conf.Tenant = shoset.Context["tenant"].(string)
+	configurationLogicalConnector := shoset.Context["configurationLogicalConnector"].(*models.ConfigurationLogicalConnector)
+	conf.Tenant = configurationLogicalConnector.Tenant
 
 	//conf.GetContext()["product"] = shoset.Context["product"]
 

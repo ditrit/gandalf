@@ -127,7 +127,7 @@ func ClusterMemberInit(logicalName, bindAddress, logPath, databasePath, database
 
 	err := member.Bind(bindAddress)
 	if err == nil {
-		log.Printf("New Cluster member %s command %s bind on %s \n", member.ConfigurationInstanceCluster.LogicalName, "init", member.ConfigurationInstanceCluster.BindAddress)
+		log.Printf("New Cluster member %s command %s bind on %s \n", member.ConfigurationLogicalCluster.LogicalName, "init", member.ConfigurationInstanceCluster.BindAddress)
 		time.Sleep(time.Second * time.Duration(5))
 
 		var isNodeExist = database.IsNodeExist(member.ConfigurationInstanceCluster.DatabasePath, member.ConfigurationInstanceCluster.DatabaseName)
@@ -159,10 +159,10 @@ func ClusterMemberInit(logicalName, bindAddress, logPath, databasePath, database
 							log.Printf("populating database")
 
 							var login, password, secret string
-							login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, member.ConfigurationInstanceCluster.LogicalName)
+							login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, member.ConfigurationLogicalCluster.LogicalName)
 							if err == nil {
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
-								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", member.ConfigurationInstanceCluster.LogicalName, secret)
+								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", member.ConfigurationLogicalCluster.LogicalName, secret)
 
 								//TODO TEST API
 								server := api.NewServerAPI(member.ConfigurationInstanceCluster.DatabasePath, member.ConfigurationInstanceCluster.DatabaseBindAddress, member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
@@ -233,14 +233,14 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 		_, err = member.Join(joinAddress)
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
-			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", member.ConfigurationInstanceCluster.LogicalName, "join", member.ConfigurationInstanceCluster.BindAddress, member.ConfigurationInstanceCluster.JoinAddress)
+			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", member.ConfigurationLogicalCluster.LogicalName, "join", member.ConfigurationInstanceCluster.BindAddress, member.ConfigurationInstanceCluster.JoinAddress)
 
-			validateSecret := member.ValidateSecret(member.GetChaussette(), 1000, member.ConfigurationInstanceCluster.LogicalName, member.ConfigurationInstanceCluster.Secret, member.ConfigurationInstanceCluster.BindAddress)
+			validateSecret := member.ValidateSecret(member.GetChaussette(), 1000, member.ConfigurationLogicalCluster.LogicalName, member.ConfigurationInstanceCluster.Secret, member.ConfigurationInstanceCluster.BindAddress)
 			fmt.Println("validateSecret")
 			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
-					configurationCluster := member.GetConfiguration(member.GetChaussette(), 1000, member.ConfigurationInstanceCluster.LogicalName, member.ConfigurationInstanceCluster.BindAddress)
+					configurationCluster := member.GetConfiguration(member.GetChaussette(), 1000, member.ConfigurationLogicalCluster.LogicalName, member.ConfigurationInstanceCluster.BindAddress)
 					fmt.Println(configurationCluster)
 					//member.GetChaussette().Context["databasePath"] = databasePath
 
@@ -248,7 +248,7 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 					fmt.Println("databaseStore")
 					fmt.Println(databaseStore)
 					time.Sleep(5 * time.Second)
-					err = database.CoackroachStart(member.ConfigurationInstanceCluster.DatabasePath, member.ConfigurationInstanceCluster.DatabaseName, member.ConfigurationInstanceCluster.DatabaseBindAddress, member.ConfigurationInstanceCluster.DatabaseHttpAddress, member.ConfigurationInstanceCluster.DatabaseStore)
+					err = database.CoackroachStart(member.ConfigurationInstanceCluster.DatabasePath, member.ConfigurationInstanceCluster.DatabaseName, member.ConfigurationInstanceCluster.DatabaseBindAddress, member.ConfigurationInstanceCluster.DatabaseHttpAddress, databaseStore)
 					fmt.Println("err")
 					fmt.Println(err)
 
