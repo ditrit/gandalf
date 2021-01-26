@@ -69,8 +69,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				secret.Target = c.GetBindAddr()
-				configurationLogicalAggregator := ch.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
-				secret.Tenant = configurationLogicalAggregator.Tenant
+				configurationAggregator := ch.Context["configurationAggregator"].(*models.ConfigurationAggregator)
+				secret.Tenant = configurationAggregator.Tenant
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(secret)
 				log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
@@ -115,8 +115,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 //SendSecret :
 func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
-	configurationLogicalAggregator := shoset.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
-	secretMsg.Tenant = configurationLogicalAggregator.Tenant
+	configurationAggregator := shoset.Context["configurationAggregator"].(*models.ConfigurationAggregator)
+	secretMsg.Tenant = configurationAggregator.Tenant
 	secretMsg.GetContext()["componentType"] = "aggregator"
 	secretMsg.GetContext()["logicalName"] = logicalName
 	secretMsg.GetContext()["secret"] = secret

@@ -73,8 +73,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				configuration.Target = c.GetBindAddr()
-				configurationLogicalAggregator := ch.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
-				configuration.Tenant = configurationLogicalAggregator.Tenant
+				configurationAggregator := ch.Context["configurationAggregator"].(*models.ConfigurationAggregator)
+				configuration.Tenant = configurationAggregator.Tenant
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(configuration)
 				log.Printf("%s : send in configuration %s to %s\n", thisOne, configuration.GetCommand(), shosets[index])

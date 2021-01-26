@@ -82,10 +82,10 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			fmt.Println("TENANT")
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
+			configurationCluster := ch.Context["configurationCluster"].(*models.ConfigurationCluster)
 
 			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationInstanceCluster.DatabaseBindAddress, mapDatabaseClient)
+				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationCluster.DatabaseBindAddress, mapDatabaseClient)
 			} else {
 				log.Println("Database client map is empty")
 				err = errors.New("Database client map is empty")

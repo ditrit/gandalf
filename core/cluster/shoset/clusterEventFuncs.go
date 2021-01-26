@@ -29,10 +29,10 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	//if ok {
 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	//databasePath := ch.Context["databasePath"].(string)
-	configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
+	configurationCluster := ch.Context["configurationCluster"].(*models.ConfigurationCluster)
 
 	if mapDatabaseClient != nil {
-		databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), configurationInstanceCluster.DatabasePath, mapDatabaseClient)
+		databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), configurationCluster.DatabasePath, mapDatabaseClient)
 		if databaseClient != nil {
 			ok := utils.CaptureMessage(message, "evt", databaseClient)
 			if ok {

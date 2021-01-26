@@ -64,9 +64,9 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 	if secret.GetCommand() == "VALIDATION_REPLY" {
 		//ch.Context["tenant"] = secret.GetTenant()
-		configurationLogicalConnector := ch.Context["configurationLogicalConnector"].(*models.ConfigurationLogicalConnector)
-		configurationLogicalConnector.Tenant = secret.GetTenant()
-		ch.Context["configurationLogicalConnector"] = configurationLogicalConnector
+		configurationConnector := ch.Context["configurationConnector"].(*models.ConfigurationConnector)
+		configurationConnector.Tenant = secret.GetTenant()
+		ch.Context["configurationConnector"] = configurationConnector
 		ch.Context["validation"] = secret.GetPayload()
 	}
 

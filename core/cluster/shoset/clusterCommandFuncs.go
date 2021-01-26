@@ -29,9 +29,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	//if ok {
 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	//databasePath := ch.Context["databasePath"].(string)
-	configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
+	configurationCluster := ch.Context["configurationCluster"].(*models.ConfigurationCluster)
 	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(cmd.GetTenant(), configurationInstanceCluster.DatabasePath, mapDatabaseClient)
+		databaseClient := cutils.GetDatabaseClientByTenant(cmd.GetTenant(), configurationCluster.DatabasePath, mapDatabaseClient)
 		if databaseClient != nil {
 			ok := cutils.CaptureMessage(message, "cmd", databaseClient)
 			if ok {

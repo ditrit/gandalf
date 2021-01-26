@@ -16,9 +16,10 @@ type ConfigurationLogicalConnector struct {
 	VersionsMinor  int8
 }
 
-func NewConfigurationLogicalConnector(logicalName, connectorType, product, workersUrl, autoUpdateTime string, autoUpdate bool, maxTimeout int64, versionsMajor, versionsMinor int8) *ConfigurationLogicalConnector {
+func NewConfigurationLogicalConnector(logicalName, tenant, connectorType, product, workersUrl, autoUpdateTime string, autoUpdate bool, maxTimeout int64, versionsMajor, versionsMinor int8) *ConfigurationLogicalConnector {
 	configurationLogicalConnector := new(ConfigurationLogicalConnector)
 	configurationLogicalConnector.LogicalName = logicalName
+	configurationLogicalConnector.Tenant = tenant
 	configurationLogicalConnector.ConnectorType = connectorType
 	configurationLogicalConnector.Product = product
 	configurationLogicalConnector.WorkersUrl = workersUrl

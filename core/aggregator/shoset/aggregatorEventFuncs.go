@@ -21,9 +21,9 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle event")
 	log.Println(evt)
-	configurationLogicalAggregator := ch.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
+	configurationAggregator := ch.Context["configurationAggregator"].(*models.ConfigurationAggregator)
 
-	if evt.GetTenant() == configurationLogicalAggregator.Tenant {
+	if evt.GetTenant() == configurationAggregator.Tenant {
 		//ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
 		//if ok {
 		if dir == "in" {

@@ -81,10 +81,10 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		} else {
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
+			configurationCluster := ch.Context["configurationCluster"].(*models.ConfigurationCluster)
 
 			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationInstanceCluster.DatabaseBindAddress, mapDatabaseClient)
+				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationCluster.DatabaseBindAddress, mapDatabaseClient)
 			} else {
 				log.Println("Database client map is empty")
 				err = errors.New("Database client map is empty")

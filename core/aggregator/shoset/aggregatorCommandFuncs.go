@@ -23,9 +23,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle command")
 	log.Println(cmd)
-	configurationLogicalAggregator := ch.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
+	configurationAggregator := ch.Context["configurationAggregator"].(*models.ConfigurationAggregator)
 
-	if cmd.GetTenant() == configurationLogicalAggregator.Tenant {
+	if cmd.GetTenant() == configurationAggregator.Tenant {
 		//_ = ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 
 		//if ok {

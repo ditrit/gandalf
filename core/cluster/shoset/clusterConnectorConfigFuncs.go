@@ -28,10 +28,10 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 
 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-	configurationInstanceCluster := ch.Context["configurationInstanceCluster"].(*models.ConfigurationInstanceCluster)
+	configurationCluster := ch.Context["configurationCluster"].(*models.ConfigurationCluster)
 
 	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), configurationInstanceCluster.DatabaseBindAddress, mapDatabaseClient)
+		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), configurationCluster.DatabaseBindAddress, mapDatabaseClient)
 		if databaseClient != nil {
 			ok := cutils.CaptureMessage(message, "config", databaseClient)
 			if ok {

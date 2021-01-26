@@ -52,8 +52,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 				log.Println("Connectors configuration not found")
 			}
 		} else {
-			configurationLogicalConnector := ch.Context["configurationLogicalConnector"].(*models.ConfigurationLogicalConnector)
-			connectorType := configurationLogicalConnector.ConnectorType
+			configurationConnector := ch.Context["configurationConnector"].(*models.ConfigurationConnector)
+			connectorType := configurationConnector.ConnectorType
 			if connectorType != "" {
 				var connectorTypeConfig *models.ConnectorConfig
 				if listConnectorTypeConfig, ok := config[connectorType]; ok {
