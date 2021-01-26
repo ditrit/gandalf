@@ -64,7 +64,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 	if secret.GetCommand() == "VALIDATION_REPLY" {
 		//ch.Context["tenant"] = secret.GetTenant()
-		configurationConnector := ch.Context["configurationConnector"].(*models.ConfigurationConnector)
+		configurationConnector := ch.Context["configuration"].(*models.ConfigurationConnector)
 		configurationConnector.Tenant = secret.GetTenant()
 		ch.Context["configurationConnector"] = configurationConnector
 		ch.Context["validation"] = secret.GetPayload()
@@ -74,21 +74,22 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, secret, bindAddress string) (err error) {
+func SendSecret(shoset *net.Shoset) (err error) {
+	configurationConnector := shoset.Context["configuration"].(*models.ConfigurationConnector)
 
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	//secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "connector"
-	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["secret"] = secret
-	secretMsg.GetContext()["bindAddress"] = bindAddress
+	secretMsg.GetContext()["logicalName"] = configurationConnector.LogicalName
+	secretMsg.GetContext()["secret"] = configurationConnector.Secret
+	secretMsg.GetContext()["bindAddress"] = configurationConnector.BindAddress
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > timeoutMax {
-			secretMsg.Timeout = timeoutMax
+		if secretMsg.GetTimeout() > configurationConnector.MaxTimeout {
+			secretMsg.Timeout = configurationConnector.MaxTimeout
 		}
 
 		notSend := true

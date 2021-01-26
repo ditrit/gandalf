@@ -29,7 +29,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	//if ok {
 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	//databasePath := ch.Context["databasePath"].(string)
-	configurationCluster := ch.Context["configurationCluster"].(*models.ConfigurationCluster)
+	configurationCluster := ch.Context["configuration"].(*models.ConfigurationCluster)
 	if mapDatabaseClient != nil {
 		databaseClient := cutils.GetDatabaseClientByTenant(cmd.GetTenant(), configurationCluster.DatabasePath, mapDatabaseClient)
 		if databaseClient != nil {

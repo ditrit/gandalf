@@ -47,20 +47,23 @@ type WorkerAdmin struct {
 }
 
 //NewWorker : NewWorker
-func NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, autoUpdateTime string, autoUpdate bool, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) *WorkerAdmin {
+func NewWorkerAdmin(chaussette *net.Shoset, versions []models.Version) *WorkerAdmin {
 	workerAdmin := new(WorkerAdmin)
-	workerAdmin.logicalName = logicalName
-	workerAdmin.connectorType = connectorType
-	workerAdmin.product = product
-	workerAdmin.baseurl = baseurl
-	workerAdmin.workerPath = workerPath
-	workerAdmin.grpcBindAddress = grpcBindAddress
-	workerAdmin.timeoutMax = timeoutMax
 	workerAdmin.chaussette = chaussette
+
+	configurationConnector := workerAdmin.chaussette.Context["configuration"].(*models.ConfigurationConnector)
+
+	workerAdmin.logicalName = configurationConnector.LogicalName
+	workerAdmin.connectorType = configurationConnector.ConnectorType
+	workerAdmin.product = configurationConnector.Product
+	workerAdmin.baseurl = configurationConnector.WorkersUrl
+	workerAdmin.workerPath = configurationConnector.WorkersPath
+	workerAdmin.grpcBindAddress = configurationConnector.GRPCSocketBind
+	workerAdmin.timeoutMax = configurationConnector.MaxTimeout
 	workerAdmin.versions = versions
 
-	workerAdmin.autoUpdate = autoUpdate
-	autoUpdateTimeSplit := strings.Split(autoUpdateTime, ":")
+	workerAdmin.autoUpdate = configurationConnector.AutoUpdate
+	autoUpdateTimeSplit := strings.Split(configurationConnector.AutoUpdateTime, ":")
 	autoUpdateTimeHour, err := strconv.Atoi(autoUpdateTimeSplit[0])
 	if err == nil {
 		workerAdmin.autoUpdateHour = autoUpdateTimeHour
@@ -71,7 +74,6 @@ func NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, gr
 	}
 
 	workerAdmin.major = 0
-
 	workerAdmin.clientGandalf = goclient.NewClientGandalf(workerAdmin.logicalName, strconv.FormatInt(workerAdmin.timeoutMax, 10), strings.Split(workerAdmin.grpcBindAddress, ","))
 	workerAdmin.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
 
@@ -281,7 +283,7 @@ func (w WorkerAdmin) stopWorker(version models.Version) (err error) {
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getConfiguration() (err error) {
 
-	shoset.SendConnectorConfig(w.chaussette, w.timeoutMax)
+	shoset.SendConnectorConfig(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
@@ -308,7 +310,7 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 			//ADD COMMMANDS ADMIN
 			//addCommandsAdmin(connectorConfig)
 
-			shoset.SendSaveConnectorConfig(w.chaussette, w.timeoutMax, connectorConfig)
+			shoset.SendSaveConnectorConfig(w.chaussette, connectorConfig)
 		}
 
 		config[w.connectorType] = append(config[w.connectorType], connectorConfig)
@@ -322,7 +324,7 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) {
 
-	shoset.SendConnectorConfig(w.chaussette, w.timeoutMax)
+	shoset.SendConnectorConfig(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
@@ -349,7 +351,7 @@ func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) 
 			//ADD COMMMANDS ADMIN
 			//addCommandsAdmin(connectorConfig)
 
-			shoset.SendSaveConnectorConfig(w.chaussette, w.timeoutMax, connectorConfig)
+			shoset.SendSaveConnectorConfig(w.chaussette, connectorConfig)
 		}
 
 		config[w.connectorType] = append(config[w.connectorType], connectorConfig)

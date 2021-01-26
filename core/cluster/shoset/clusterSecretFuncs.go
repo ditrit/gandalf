@@ -81,7 +81,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		} else {
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			configurationCluster := ch.Context["configurationCluster"].(*models.ConfigurationCluster)
+			configurationCluster := ch.Context["configuration"].(*models.ConfigurationCluster)
 
 			if mapDatabaseClient != nil {
 				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationCluster.DatabaseBindAddress, mapDatabaseClient)
@@ -162,13 +162,15 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, secret, bindAddress string) (err error) {
+func SendSecret(shoset *net.Shoset) (err error) {
+	configurationCluster := shoset.Context["configuration"].(*models.ConfigurationCluster)
+
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	//secretMsg.Tenant = "cluster"
 	secretMsg.GetContext()["componentType"] = "cluster"
-	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["secret"] = secret
-	secretMsg.GetContext()["bindAddress"] = bindAddress
+	secretMsg.GetContext()["logicalName"] = configurationCluster.LogicalName
+	secretMsg.GetContext()["secret"] = configurationCluster.Secret
+	secretMsg.GetContext()["bindAddress"] = configurationCluster.BindAddress
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	fmt.Println("shoset.ConnsByAddr")
@@ -181,8 +183,8 @@ func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, secret, bindA
 	fmt.Println("len(shosets)")
 	fmt.Println(len(shosets))
 	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > timeoutMax {
-			secretMsg.Timeout = timeoutMax
+		if secretMsg.GetTimeout() > configurationCluster.MaxTimeout {
+			secretMsg.Timeout = configurationCluster.MaxTimeout
 		}
 
 		notSend := true

@@ -7,9 +7,10 @@ type ConfigurationAggregator struct {
 	LinkAddress string
 	LogPath     string
 	Secret      string
+	MaxTimeout  int64
 }
 
-func NewConfigurationAggregator(logicalName, tenant, bindAddress, linkAddress, logPath, secret string) *ConfigurationAggregator {
+func NewConfigurationAggregator(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, maxTimeout int64) *ConfigurationAggregator {
 	configurationAggregator := new(ConfigurationAggregator)
 	configurationAggregator.LogicalName = logicalName
 	configurationAggregator.Tenant = tenant
@@ -17,6 +18,7 @@ func NewConfigurationAggregator(logicalName, tenant, bindAddress, linkAddress, l
 	configurationAggregator.LinkAddress = linkAddress
 	configurationAggregator.LogPath = logPath
 	configurationAggregator.Secret = secret
+	configurationAggregator.MaxTimeout = maxTimeout
 
 	return configurationAggregator
 }

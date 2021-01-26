@@ -10,9 +10,10 @@ type ConfigurationCluster struct {
 	DatabaseBindAddress string
 	DatabaseHttpAddress string
 	Secret              string
+	MaxTimeout          int64
 }
 
-func NewConfigurationCluster(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret string) *ConfigurationCluster {
+func NewConfigurationCluster(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret string, maxTimeout int64) *ConfigurationCluster {
 	configurationCluster := new(ConfigurationCluster)
 	configurationCluster.LogicalName = logicalName
 	configurationCluster.BindAddress = bindAddress
@@ -23,6 +24,7 @@ func NewConfigurationCluster(logicalName, bindAddress, joinAddress, logPath, dat
 	configurationCluster.DatabaseBindAddress = databaseBindAddress
 	configurationCluster.DatabaseHttpAddress = databaseHttpAddress
 	configurationCluster.Secret = secret
+	configurationCluster.MaxTimeout = maxTimeout
 
 	return configurationCluster
 }

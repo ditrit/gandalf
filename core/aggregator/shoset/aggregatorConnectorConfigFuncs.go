@@ -23,7 +23,7 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle connector config")
 	log.Println(conf)
-	configurationAggregator := ch.Context["configurationAggregator"].(*models.ConfigurationAggregator)
+	configurationAggregator := ch.Context["configuration"].(*models.ConfigurationAggregator)
 	if conf.GetTenant() == configurationAggregator.Tenant {
 		//ok := ch.Queue["config"].Push(conf, c.ShosetType, c.GetBindAddr())
 

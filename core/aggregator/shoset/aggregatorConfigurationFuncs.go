@@ -121,20 +121,23 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (err error) {
+func SendConfiguration(shoset *net.Shoset) (err error) {
+	configurationAggregator := shoset.Context["configuration"].(*models.ConfigurationAggregator)
+	configurationLogicalAggregator := models.NewConfigurationLogicalAggregator(configurationAggregator.LogicalName, configurationAggregator.Tenant)
+
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
-	configurationLogicalAggregator := shoset.Context["configurationLogicalAggregator"].(*models.ConfigurationLogicalAggregator)
-	configurationMsg.Tenant = configurationLogicalAggregator.Tenant
+	configurationMsg.Tenant = configurationAggregator.Tenant
 	configurationMsg.GetContext()["componentType"] = "aggregator"
-	configurationMsg.GetContext()["logicalName"] = logicalName
-	configurationMsg.GetContext()["bindAddress"] = bindAddress
+	configurationMsg.GetContext()["logicalName"] = configurationAggregator.LogicalName
+	configurationMsg.GetContext()["bindAddress"] = configurationAggregator.BindAddress
+	configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
 	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > timeoutMax {
-			configurationMsg.Timeout = timeoutMax
+		if configurationMsg.GetTimeout() > configurationAggregator.MaxTimeout {
+			configurationMsg.Timeout = configurationAggregator.MaxTimeout
 		}
 
 		notSend := true
@@ -148,7 +151,7 @@ func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAd
 
 			time.Sleep(timeoutSend * time.Millisecond)
 
-			if shoset.Context["configuration"] != nil {
+			if shoset.Context["logicalConfiguration"] != nil {
 				notSend = false
 				break
 			}

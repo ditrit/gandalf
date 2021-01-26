@@ -113,21 +113,21 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (err error) {
+func SendSecret(shoset *net.Shoset) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
-	configurationAggregator := shoset.Context["configurationAggregator"].(*models.ConfigurationAggregator)
+	configurationAggregator := shoset.Context["configuration"].(*models.ConfigurationAggregator)
 	secretMsg.Tenant = configurationAggregator.Tenant
 	secretMsg.GetContext()["componentType"] = "aggregator"
-	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["secret"] = secret
-	secretMsg.GetContext()["bindAddress"] = bindAddress
+	secretMsg.GetContext()["logicalName"] = configurationAggregator.LogicalName
+	secretMsg.GetContext()["secret"] = configurationAggregator.Secret
+	secretMsg.GetContext()["bindAddress"] = configurationAggregator.BindAddress
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
 	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > timeoutMax {
-			secretMsg.Timeout = timeoutMax
+		if secretMsg.GetTimeout() > configurationAggregator.MaxTimeout {
+			secretMsg.Timeout = configurationAggregator.MaxTimeout
 		}
 
 		notSend := true

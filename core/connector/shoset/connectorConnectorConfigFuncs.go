@@ -42,9 +42,9 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendConnectorConfig : Connector send connector config function.
-func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
+func SendConnectorConfig(shoset *net.Shoset) (err error) {
 	conf := msg.NewConfig("", "CONFIG", "")
-	configurationConnector := shoset.Context["configurationConnector"].(*models.ConfigurationConnector)
+	configurationConnector := shoset.Context["configuration"].(*models.ConfigurationConnector)
 	conf.Tenant = configurationConnector.Tenant
 	conf.GetContext()["connectorType"] = configurationConnector.ConnectorType
 	//conf.GetContext()["product"] = shoset.Context["product"]
@@ -52,8 +52,8 @@ func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if conf.GetTimeout() > timeoutMax {
-			conf.Timeout = timeoutMax
+		if conf.GetTimeout() > configurationConnector.MaxTimeout {
+			conf.Timeout = configurationConnector.MaxTimeout
 		}
 
 		notSend := true
@@ -86,10 +86,10 @@ func SendConnectorConfig(shoset *net.Shoset, timeoutMax int64) (err error) {
 
 //TODO REVOIR SEND
 //SendConnectorConfig : Connector send connector config function.
-func SendSaveConnectorConfig(shoset *net.Shoset, timeoutMax int64, connectorConfig *models.ConnectorConfig) (err error) {
+func SendSaveConnectorConfig(shoset *net.Shoset, connectorConfig *models.ConnectorConfig) (err error) {
 	jsonData, err := json.Marshal(connectorConfig)
 	conf := msg.NewConfig("", "SAVE_CONFIG", string(jsonData))
-	configurationConnector := shoset.Context["configurationConnector"].(*models.ConfigurationConnector)
+	configurationConnector := shoset.Context["configuration"].(*models.ConfigurationConnector)
 	conf.Tenant = configurationConnector.Tenant
 
 	//conf.GetContext()["product"] = shoset.Context["product"]
@@ -97,8 +97,8 @@ func SendSaveConnectorConfig(shoset *net.Shoset, timeoutMax int64, connectorConf
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if conf.GetTimeout() > timeoutMax {
-			conf.Timeout = timeoutMax
+		if conf.GetTimeout() > configurationConnector.MaxTimeout {
+			conf.Timeout = configurationConnector.MaxTimeout
 		}
 
 		index := getConnectorConfigSendIndex(shosets)

@@ -30,12 +30,12 @@ type AggregatorMember struct {
 }*/
 
 // NewAggregatorMember :
-func NewAggregatorMember(logicalName, tenant, bindAddress, linkAddress, logPath, secret string) *AggregatorMember {
+func NewAggregatorMember(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, maxTimeout int64) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(logicalName, "a")
 
-	member.ConfigurationAggregator = models.NewConfigurationAggregator(logicalName, tenant, bindAddress, linkAddress, logPath, secret)
-	member.chaussette.Context["configurationAggregator"] = member.ConfigurationAggregator
+	member.ConfigurationAggregator = models.NewConfigurationAggregator(logicalName, tenant, bindAddress, linkAddress, logPath, secret, maxTimeout)
+	member.chaussette.Context["configuration"] = member.ConfigurationAggregator
 
 	//member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
@@ -94,9 +94,9 @@ func getBrothers(address string, member *AggregatorMember) []string {
 	return bros
 }
 
-func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (result bool) {
+func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
 
-	shoset.SendSecret(nshoset, timeoutMax, logicalName, tenant, secret, bindAddress)
+	shoset.SendSecret(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
 	result = false
@@ -111,19 +111,19 @@ func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64,
 	return
 }
 
-func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationAggregator *models.ConfigurationLogicalAggregator) {
+func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (configurationAggregator *models.ConfigurationLogicalAggregator) {
 	fmt.Println("SEND")
-	shoset.SendConfiguration(nshoset, timeoutMax, logicalName, bindAddress)
+	shoset.SendConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationAggregator = m.chaussette.Context["configuration"].(*models.ConfigurationLogicalAggregator)
+	configurationAggregator = m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalAggregator)
 
 	return
 }
 
 // AggregatorMemberInit : Aggregator init function.
-func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string) *AggregatorMember {
-	member := NewAggregatorMember(logicalName, tenant, bindAddress, linkAddress, logPath, secret)
+func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, maxTimeout int64) *AggregatorMember {
+	member := NewAggregatorMember(logicalName, tenant, bindAddress, linkAddress, logPath, secret, maxTimeout)
 	err := member.Bind(member.ConfigurationAggregator.BindAddress)
 
 	if err == nil {
@@ -131,10 +131,9 @@ func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette(), 1000, member.ConfigurationAggregator.LogicalName, member.ConfigurationAggregator.Tenant, member.ConfigurationAggregator.Secret, member.ConfigurationAggregator.BindAddress)
+			validateSecret = member.ValidateSecret(member.GetChaussette())
 			if validateSecret {
-				//TODO
-				configurationAggregator := member.GetConfiguration(member.GetChaussette(), 1000, member.ConfigurationAggregator.LogicalName, member.ConfigurationAggregator.BindAddress)
+				configurationAggregator := member.GetConfiguration(member.GetChaussette())
 				fmt.Println(configurationAggregator)
 
 				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", member.ConfigurationAggregator.LogicalName, member.ConfigurationAggregator.Tenant, member.ConfigurationAggregator.BindAddress, member.ConfigurationAggregator.LinkAddress)

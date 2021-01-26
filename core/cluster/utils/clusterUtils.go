@@ -43,22 +43,43 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 }
 
 // GetConfigurationCluster :
-func GetConfigurationCluster(logicalName string, client *gorm.DB) (configurationCluster models.ConfigurationLogicalCluster) {
-	client.Where("logical_name = ?", logicalName).First(&configurationCluster)
+func GetConfigurationCluster(logicalName string, client *gorm.DB) (configurationCluster models.ConfigurationLogicalCluster, err error) {
+	err = client.Where("logical_name = ?", logicalName).First(&configurationCluster).Error
+
+	return
+}
+
+// SaveConfigurationCluster :
+func SaveConfigurationCluster(configurationCluster models.ConfigurationLogicalCluster, client *gorm.DB) (err error) {
+	err = client.Create(&configurationCluster).Error
 
 	return
 }
 
 // GetConfigurationAggregator :
-func GetConfigurationAggregator(logicalName string, client *gorm.DB) (configurationAggregator models.ConfigurationLogicalAggregator) {
-	client.Where("logical_name = ?", logicalName).First(&configurationAggregator)
+func GetConfigurationAggregator(logicalName string, client *gorm.DB) (configurationAggregator models.ConfigurationLogicalAggregator, err error) {
+	err = client.Where("logical_name = ?", logicalName).First(&configurationAggregator).Error
+
+	return
+}
+
+// SaveConfigurationAggregator :
+func SaveConfigurationAggregator(configurationAggregator models.ConfigurationLogicalAggregator, client *gorm.DB) (err error) {
+	err = client.Create(&configurationAggregator).Error
 
 	return
 }
 
 // GetConfigurationConnector :
-func GetConfigurationConnector(logicalName string, client *gorm.DB) (configurationConnector models.ConfigurationLogicalConnector) {
-	client.Where("logical_name = ?", logicalName).First(&configurationConnector)
+func GetConfigurationConnector(logicalName string, client *gorm.DB) (configurationConnector models.ConfigurationLogicalConnector, err error) {
+	err = client.Where("logical_name = ?", logicalName).First(&configurationConnector).Error
+
+	return
+}
+
+// SaveConfigurationConnector :
+func SaveConfigurationConnector(configurationConnector models.ConfigurationLogicalConnector, client *gorm.DB) (err error) {
+	err = client.Create(&configurationConnector).Error
 
 	return
 }

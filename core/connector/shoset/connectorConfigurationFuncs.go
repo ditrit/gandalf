@@ -70,7 +70,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		var configurationConnector *models.ConfigurationLogicalConnector
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationConnector)
 		if err == nil {
-			ch.Context["configuration"] = configurationConnector
+			ch.Context["logicalConfiguration"] = configurationConnector
 		}
 	}
 
@@ -78,20 +78,23 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (err error) {
+func SendConfiguration(shoset *net.Shoset) (err error) {
+	configurationConnector := shoset.Context["configuration"].(*models.ConfigurationConnector)
+	configurationLogicalConnector := models.NewConfigurationLogicalConnector(configurationConnector.LogicalName, configurationConnector.Tenant, configurationConnector.ConnectorType, configurationConnector.Product, configurationConnector.WorkersUrl, configurationConnector.AutoUpdateTime, configurationConnector.AutoUpdate, configurationConnector.MaxTimeout, configurationConnector.VersionsMajor, configurationConnector.VersionsMinor)
 
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
 	//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 	configurationMsg.GetContext()["componentType"] = "connector"
-	configurationMsg.GetContext()["logicalName"] = logicalName
-	configurationMsg.GetContext()["bindAddress"] = bindAddress
+	configurationMsg.GetContext()["logicalName"] = configurationConnector.LogicalName
+	configurationMsg.GetContext()["bindAddress"] = configurationConnector.BindAddress
+	configurationMsg.GetContext()["configuration"] = configurationLogicalConnector
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > timeoutMax {
-			configurationMsg.Timeout = timeoutMax
+		if configurationMsg.GetTimeout() > configurationConnector.MaxTimeout {
+			configurationMsg.Timeout = configurationConnector.MaxTimeout
 		}
 
 		notSend := true

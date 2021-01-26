@@ -23,7 +23,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle command")
 	log.Println(cmd)
-	configurationAggregator := ch.Context["configurationAggregator"].(*models.ConfigurationAggregator)
+	configurationAggregator := ch.Context["configuration"].(*models.ConfigurationAggregator)
 
 	if cmd.GetTenant() == configurationAggregator.Tenant {
 		//_ = ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())

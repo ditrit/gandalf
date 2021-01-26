@@ -39,13 +39,13 @@ func InitClusterKeys(){
 */
 
 // NewClusterMember : Cluster struct constructor.
-func NewClusterMember(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret string) *ClusterMember {
+func NewClusterMember(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret string, maxTimeout int64) *ClusterMember {
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(logicalName, "cl")
 	member.MapTenantDatabaseClients = make(map[string]*gorm.DB)
 
-	member.ConfigurationCluster = models.NewConfigurationCluster(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret)
-	member.chaussette.Context["configurationCluster"] = member.ConfigurationCluster
+	member.ConfigurationCluster = models.NewConfigurationCluster(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret, maxTimeout)
+	member.chaussette.Context["configuration"] = member.ConfigurationCluster
 	//member.chaussette.Context["databasePath"] = databasePath
 	//member.chaussette.Context["databaseBindAddr"] = databaseBindAddr
 	member.chaussette.Context["gandalfDatabase"] = member.GandalfDatabaseClient
@@ -114,12 +114,12 @@ func getBrothers(address string, member *ClusterMember) []string {
 
 //TODO REVOIR
 // ClusterMemberInit : Cluster init function.
-func ClusterMemberInit(logicalName, bindAddress, logPath, databasePath, databaseName, secret string) *ClusterMember {
+func ClusterMemberInit(logicalName, bindAddress, logPath, databasePath, databaseName, secret string, maxTimeout int64) *ClusterMember {
 
 	databaseBindAddress, _ := net.DeltaAddress(bindAddress, 1000)
 	databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 100)
 
-	member := NewClusterMember(logicalName, bindAddress, "", logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret)
+	member := NewClusterMember(logicalName, bindAddress, "", logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret, maxTimeout)
 	//member.GetChaussette().Context["databasePath"] = databasePath
 
 	err := member.Bind(bindAddress)
@@ -219,11 +219,11 @@ func ClusterMemberInit(logicalName, bindAddress, logPath, databasePath, database
 }
 
 // ClusterMemberJoin : Cluster join function.
-func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, databaseName, logPath, secret string) *ClusterMember {
+func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, databaseName, logPath, secret string, maxTimeout int64) *ClusterMember {
 	databaseBindAddress, _ := net.DeltaAddress(bindAddress, 1000)
 	databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 100)
 
-	member := NewClusterMember(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret)
+	member := NewClusterMember(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret, maxTimeout)
 	err := member.Bind(bindAddress)
 
 	if err == nil {
@@ -232,12 +232,12 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 		if err == nil {
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", member.ConfigurationCluster.LogicalName, "join", member.ConfigurationCluster.BindAddress, member.ConfigurationCluster.JoinAddress)
 
-			validateSecret := member.ValidateSecret(member.GetChaussette(), 1000, member.ConfigurationCluster.LogicalName, member.ConfigurationCluster.Secret, member.ConfigurationCluster.BindAddress)
+			validateSecret := member.ValidateSecret(member.GetChaussette())
 			fmt.Println("validateSecret")
 			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
-					configurationCluster := member.GetConfiguration(member.GetChaussette(), 1000, member.ConfigurationCluster.LogicalName, member.ConfigurationCluster.BindAddress)
+					configurationCluster := member.GetConfiguration(member.GetChaussette())
 					fmt.Println(configurationCluster)
 					//member.GetChaussette().Context["databasePath"] = databasePath
 
@@ -286,9 +286,9 @@ func ClusterMemberJoin(logicalName, bindAddress, joinAddress, databasePath, data
 	return member
 }
 
-func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, logicalName, secret, bindAddress string) (result bool) {
+func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
 	fmt.Println("SEND")
-	shoset.SendSecret(nshoset, timeoutMax, logicalName, secret, bindAddress)
+	shoset.SendSecret(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
 	result = false
@@ -303,12 +303,12 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset, timeoutMax int64, lo
 	return
 }
 
-func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (configurationCluster *models.ConfigurationLogicalCluster) {
+func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (configurationCluster models.ConfigurationLogicalCluster) {
 	fmt.Println("SEND")
-	shoset.SendConfiguration(nshoset, timeoutMax, logicalName, bindAddress)
+	shoset.SendConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationCluster = m.chaussette.Context["configuration"].(*models.ConfigurationLogicalCluster)
+	configurationCluster = m.chaussette.Context["logicalConfiguration"].(models.ConfigurationLogicalCluster)
 
 	return
 }
