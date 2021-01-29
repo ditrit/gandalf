@@ -1,23 +1,22 @@
 package models
 
 type ConfigurationConnector struct {
-	LogicalName         string
-	Tenant              string
+	LogicalName         string //logical
+	Tenant              string //logical
 	BindAddress         string
 	LinkAddress         string
 	LogPath             string
 	GRPCSocketDirectory string
-	GRPCSocketBind      string
+	GRPCSocketBind      string //computed value = ConnectorType + Product + Hash
 	WorkersPath         string
-	Secret              string
-	ConnectorType       string
-	Product             string
-	WorkersUrl          string
-	AutoUpdateTime      string
+	Secret              string //logical
+	ConnectorType       string //logical
+	Product             string //logical
+	WorkersUrl          string //logical
+	AutoUpdateTime      string //logical
 	AutoUpdate          bool
-	MaxTimeout          int64
-	VersionsMajor       int8
-	VersionsMinor       int8
+	MaxTimeout          int64            //logical
+	Versions            []models.Version //logical
 }
 
 func NewConfigurationConnector(logicalName, tenant, bindAddress, linkAdress, logPath, gRPCSocketDirectory, workersPath, secret, connectorType, product, workersUrl, autoUpdateTime string, autoUpdate bool, maxTimeout int64, versionsMajor, versionsMinor int8) *ConfigurationConnector {

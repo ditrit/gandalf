@@ -6,14 +6,13 @@ type ConfigurationLogicalConnector struct {
 	gorm.Model
 	LogicalName    string
 	Tenant         string
+	Secret         string
 	ConnectorType  string
 	Product        string
 	WorkersUrl     string
 	AutoUpdateTime string
-	AutoUpdate     bool
 	MaxTimeout     int64
-	VersionsMajor  int8
-	VersionsMinor  int8
+	Versions       []models.Version
 }
 
 func NewConfigurationLogicalConnector(logicalName, tenant, connectorType, product, workersUrl, autoUpdateTime string, autoUpdate bool, maxTimeout int64, versionsMajor, versionsMinor int8) *ConfigurationLogicalConnector {

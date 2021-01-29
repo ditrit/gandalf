@@ -112,7 +112,7 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 
 			time.Sleep(timeoutSend * time.Millisecond)
 
-			if shoset.Context["configuration"] != nil {
+			if shoset.Context["logicalConfiguration"] != nil {
 				notSend = false
 				break
 			}

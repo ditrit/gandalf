@@ -1,13 +1,13 @@
 package models
 
 type ConfigurationAggregator struct {
-	LogicalName string
-	Tenant      string
+	LogicalName string //logical
+	Tenant      string //logical
 	BindAddress string
 	LinkAddress string
 	LogPath     string
-	Secret      string
-	MaxTimeout  int64
+	Secret      string //logical
+	MaxTimeout  int64  //logical
 }
 
 func NewConfigurationAggregator(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, maxTimeout int64) *ConfigurationAggregator {

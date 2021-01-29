@@ -307,9 +307,6 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 			connectorConfig.ConnectorType.Name = "Admin"
 			connectorConfig.Major = int8(w.major)
 
-			//ADD COMMMANDS ADMIN
-			//addCommandsAdmin(connectorConfig)
-
 			shoset.SendSaveConnectorConfig(w.chaussette, connectorConfig)
 		}
 

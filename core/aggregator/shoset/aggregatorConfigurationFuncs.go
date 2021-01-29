@@ -96,7 +96,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 					var configurationAggregator *models.ConfigurationLogicalAggregator
 					err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationAggregator)
 					if err == nil {
-						ch.Context["configuration"] = configurationAggregator
+						ch.Context["logicalConfiguration"] = configurationAggregator
 					}
 				}
 			} else {

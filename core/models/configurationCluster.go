@@ -1,7 +1,7 @@
 package models
 
 type ConfigurationCluster struct {
-	LogicalName         string
+	LogicalName         string //logical
 	BindAddress         string
 	JoinAddress         string
 	LogPath             string
@@ -9,8 +9,8 @@ type ConfigurationCluster struct {
 	DatabaseName        string
 	DatabaseBindAddress string
 	DatabaseHttpAddress string
-	Secret              string
-	MaxTimeout          int64
+	Secret              string //logical
+	MaxTimeout          int64  //logical
 }
 
 func NewConfigurationCluster(logicalName, bindAddress, joinAddress, logPath, databasePath, databaseName, databaseBindAddress, databaseHttpAddress, secret string, maxTimeout int64) *ConfigurationCluster {
