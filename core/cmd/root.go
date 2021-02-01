@@ -40,6 +40,9 @@ func init() {
 	rootCfg.Key("secret", isStr, "", "Path to the secret (absolute or relative to the configuration directory)")
 	rootCfg.SetCheck("secret", CheckNotEmpty)
 
+	rootCfg.Key("max_timeout", isInt, "", "maximum timeout of the connector")
+	rootCfg.SetDefault("max_timeout", 100)
+
 	rootCfg.Key("bind", isStr, "", "Address to bind (default is *:9099)")
 	rootCfg.SetDefault("bind", "*:9099")
 	rootCfg.SetNormalize("bind", TrimToLower)

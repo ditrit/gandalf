@@ -1,6 +1,10 @@
 package models
 
 import (
+	"gandalf/core/models"
+	"strconv"
+	"strings"
+
 	"github.com/spf13/viper"
 )
 
@@ -39,28 +43,28 @@ func (cc ConfigurationConnector) SetLinkAddress(linkAddress string) {
 	viper.Set("aggregator", linkAddress)
 }
 
-func (cc ConfigurationConnector) GetLogPath() string {
+/* func (cc ConfigurationConnector) GetLogPath() string {
 	return viper.GetString("logicalName")
 }
 
 func (cc ConfigurationConnector) SetLogPath(logPath string) {
 	viper.Set("", logPath)
-}
+} */
 
 func (cc ConfigurationConnector) GetGRPCSocketDirectory() string {
-	return viper.GetString("logicalName")
+	return viper.GetString("grpc_dir")
 }
 
 func (cc ConfigurationConnector) SetGRPCSocketDirectory(gRPCSocketDirectory string) {
-	viper.Set("", gRPCSocketDirectory)
+	viper.Set("grpc_dir", gRPCSocketDirectory)
 }
 
 func (cc ConfigurationConnector) GetGRPCSocketBind() string {
-	return viper.GetString("logicalName")
+	return viper.GetString("grpc_bind")
 }
 
 func (cc ConfigurationConnector) SetGRPCSocketBind(gRPCSocketBind string) {
-	viper.Set("", gRPCSocketBind)
+	viper.Set("grpc_bind", gRPCSocketBind)
 }
 
 func (cc ConfigurationConnector) GetWorkersPath() string {
@@ -96,11 +100,11 @@ func (cc ConfigurationConnector) SetProduct(product string) {
 }
 
 func (cc ConfigurationConnector) GetWorkersUrl() string {
-	return viper.GetString("logicalName")
+	return viper.GetString("workers_url")
 }
 
 func (cc ConfigurationConnector) SetWorkersUrl(workersUrl string) {
-	viper.Set("", workersUrl)
+	viper.Set("workers_url", workersUrl)
 }
 
 func (cc ConfigurationConnector) GetAutoUpdateTime() string {
@@ -127,11 +131,25 @@ func (cc ConfigurationConnector) SetMaxTimeout(maxTimeout int64) {
 	viper.Set("max_timeout", maxTimeout)
 }
 
-//TODO REVOIR
-func (cc ConfigurationConnector) GetVersions() string {
-	return viper.GetString("logicalName")
+func (cc ConfigurationConnector) GetVersions() (versions []models.Version) {
+	versionsSplit := strings.Split(viper.GetString("versions"), ",")
+	for _, versionSplit := range versionsSplit {
+		version := strings.Split(versionSplit, ".")
+		versionMajor, err := strconv.ParseInt(version[0], 10, 8)
+		if err == nil {
+			versionMinor, err := strconv.ParseInt(version[1], 10, 8)
+			if err == nil {
+				versions = append(versions, models.Version{Major: int8(versionMajor), Minor: int8(versionMinor)})
+			} else {
+				//TODO ERROR
+			}
+		} else {
+			//TODO ERROR
+		}
+	}
+	return
 }
 
-func (cc ConfigurationConnector) SetVersions(logicalName string) {
-	viper.Set("", logicalName)
+func (cc ConfigurationConnector) SetVersions(versions string) {
+	viper.Set("versions", versions)
 }

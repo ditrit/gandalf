@@ -42,14 +42,14 @@ func (ca ConfigurationAggregator) SetLinkAddress(linkAddress string) {
 
 }
 
-func (ca ConfigurationAggregator) GetLogPath() string {
+/* func (ca ConfigurationAggregator) GetLogPath() string {
 	return viper.GetString("logicalName")
 }
 
 func (ca ConfigurationAggregator) SetLogPath(logPath string) {
 	viper.Set("", logPath)
 
-}
+} */
 
 func (ca ConfigurationAggregator) GetSecret() string {
 	return viper.GetString("secret")
@@ -61,10 +61,10 @@ func (ca ConfigurationAggregator) SetSecret(secret string) {
 }
 
 func (ca ConfigurationAggregator) GetMaxTimeout() int64 {
-	return viper.GetString("logicalName")
+	return viper.GetString("max_timeout")
 }
 
 func (ca ConfigurationAggregator) SetMaxTimeout(maxTimeout int64) {
-	viper.Set("", maxTimeout)
+	viper.Set("max_timeout", maxTimeout)
 
 }

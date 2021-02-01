@@ -32,4 +32,11 @@ func init() {
 	clusterCfg.Key("db_nodename", isStr, "", "name of the gandalf node")
 	clusterCfg.SetDefault("db_nodename", "node1")
 
+	//TODO REPLACE CALCULATED
+	clusterCfg.Key("db_bind", isStr, "", "Database address to bind (default is *:10099)")
+	clusterCfg.SetDefault("db_bind", "*:10099")
+
+	clusterCfg.Key("db_http_bind", isStr, "", "Database HTTP address to bind (default is *:11099)")
+	clusterCfg.SetDefault("db_http_bind", "*:11099")
+
 }

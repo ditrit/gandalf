@@ -20,6 +20,7 @@ import (
 	"github.com/ditrit/gandalf/core/connector/utils"
 	"github.com/ditrit/gandalf/libraries/goclient"
 
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 	"github.com/ditrit/gandalf/core/models"
 	net "github.com/ditrit/shoset"
 	"gopkg.in/yaml.v2"
@@ -47,23 +48,23 @@ type WorkerAdmin struct {
 }
 
 //NewWorker : NewWorker
-func NewWorkerAdmin(chaussette *net.Shoset, versions []models.Version) *WorkerAdmin {
+func NewWorkerAdmin(chaussette *net.Shoset) *WorkerAdmin {
 	workerAdmin := new(WorkerAdmin)
 	workerAdmin.chaussette = chaussette
 
-	configurationConnector := workerAdmin.chaussette.Context["configuration"].(*models.ConfigurationConnector)
+	configurationConnector := workerAdmin.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
 
-	workerAdmin.logicalName = configurationConnector.LogicalName
-	workerAdmin.connectorType = configurationConnector.ConnectorType
-	workerAdmin.product = configurationConnector.Product
-	workerAdmin.baseurl = configurationConnector.WorkersUrl
-	workerAdmin.workerPath = configurationConnector.WorkersPath
-	workerAdmin.grpcBindAddress = configurationConnector.GRPCSocketBind
-	workerAdmin.timeoutMax = configurationConnector.MaxTimeout
-	workerAdmin.versions = versions
+	workerAdmin.logicalName = configurationConnector.GetLogicalName()
+	workerAdmin.connectorType = configurationConnector.GetConnectorType()
+	workerAdmin.product = configurationConnector.GetProduct()
+	workerAdmin.baseurl = configurationConnector.GetWorkersUrl()
+	workerAdmin.workerPath = configurationConnector.GetWorkersPath()
+	workerAdmin.grpcBindAddress = configurationConnector.GetGRPCSocketBind()
+	workerAdmin.timeoutMax = configurationConnector.GetMaxTimeout()
+	workerAdmin.versions = configurationConnector.GetVersions()
 
-	workerAdmin.autoUpdate = configurationConnector.AutoUpdate
-	autoUpdateTimeSplit := strings.Split(configurationConnector.AutoUpdateTime, ":")
+	workerAdmin.autoUpdate = configurationConnector.GetAutoUpdate()
+	autoUpdateTimeSplit := strings.Split(configurationConnector.GetAutoUpdateTime(), ":")
 	autoUpdateTimeHour, err := strconv.Atoi(autoUpdateTimeSplit[0])
 	if err == nil {
 		workerAdmin.autoUpdateHour = autoUpdateTimeHour
