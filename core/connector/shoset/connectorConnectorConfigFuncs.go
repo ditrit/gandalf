@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 	"github.com/ditrit/gandalf/core/models"
 
 	net "github.com/ditrit/shoset"
@@ -44,9 +45,9 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 //SendConnectorConfig : Connector send connector config function.
 func SendConnectorConfig(shoset *net.Shoset) (err error) {
 	conf := msg.NewConfig("", "CONFIG", "")
-	configurationConnector := shoset.Context["configuration"].(*models.ConfigurationConnector)
-	conf.Tenant = configurationConnector.Tenant
-	conf.GetContext()["connectorType"] = configurationConnector.ConnectorType
+	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	conf.Tenant = configurationConnector.GetTenant()
+	conf.GetContext()["connectorType"] = configurationConnector.GetConnectorType()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
@@ -89,16 +90,16 @@ func SendConnectorConfig(shoset *net.Shoset) (err error) {
 func SendSaveConnectorConfig(shoset *net.Shoset, connectorConfig *models.ConnectorConfig) (err error) {
 	jsonData, err := json.Marshal(connectorConfig)
 	conf := msg.NewConfig("", "SAVE_CONFIG", string(jsonData))
-	configurationConnector := shoset.Context["configuration"].(*models.ConfigurationConnector)
-	conf.Tenant = configurationConnector.Tenant
+	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	conf.Tenant = configurationConnector.GetTenant()
 
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if conf.GetTimeout() > configurationConnector.MaxTimeout {
-			conf.Timeout = configurationConnector.MaxTimeout
+		if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
+			conf.Timeout = configurationConnector.GetMaxTimeout()
 		}
 
 		index := getConnectorConfigSendIndex(shosets)

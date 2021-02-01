@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gandalf/core/models"
 	"log"
 
-	"github.com/ditrit/gandalf/core/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
@@ -79,22 +80,22 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendSecret :
 func SendConfiguration(shoset *net.Shoset) (err error) {
-	configurationConnector := shoset.Context["configuration"].(*models.ConfigurationConnector)
-	configurationLogicalConnector := models.NewConfigurationLogicalConnector(configurationConnector.LogicalName, configurationConnector.Tenant, configurationConnector.ConnectorType, configurationConnector.Product, configurationConnector.WorkersUrl, configurationConnector.AutoUpdateTime, configurationConnector.AutoUpdate, configurationConnector.MaxTimeout, configurationConnector.VersionsMajor, configurationConnector.VersionsMinor)
+	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	configurationLogicalConnector := models.NewConfigurationLogicalConnector(configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetConnectorType(), configurationConnector.GetProduct(), configurationConnector.GetWorkersUrl(), configurationConnector.GetAutoUpdateTime(), configurationConnector.GetAutoUpdate(), configurationConnector.GetMaxTimeout(), configurationConnector.GetVersions())
 
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
 	//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 	configurationMsg.GetContext()["componentType"] = "connector"
-	configurationMsg.GetContext()["logicalName"] = configurationConnector.LogicalName
-	configurationMsg.GetContext()["bindAddress"] = configurationConnector.BindAddress
+	configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
+	configurationMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
 	configurationMsg.GetContext()["configuration"] = configurationLogicalConnector
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > configurationConnector.MaxTimeout {
-			configurationMsg.Timeout = configurationConnector.MaxTimeout
+		if configurationMsg.GetTimeout() > configurationConnector.GetMaxTimeout() {
+			configurationMsg.Timeout = configurationConnector.GetMaxTimeout()
 		}
 
 		notSend := true

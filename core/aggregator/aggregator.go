@@ -6,11 +6,10 @@ import (
 	"log"
 	"time"
 
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/shoset/msg"
-
-	coreLog "github.com/ditrit/gandalf/core/log"
 
 	"github.com/ditrit/gandalf/core/aggregator/shoset"
 
@@ -19,8 +18,7 @@ import (
 
 // AggregatorMember : Aggregator struct.
 type AggregatorMember struct {
-	chaussette              *net.Shoset
-	ConfigurationAggregator *models.ConfigurationAggregator
+	chaussette *net.Shoset
 }
 
 /*func InitAggregatorKeys(){
@@ -30,13 +28,11 @@ type AggregatorMember struct {
 }*/
 
 // NewAggregatorMember :
-func NewAggregatorMember(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, maxTimeout int64) *AggregatorMember {
+func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
 	member := new(AggregatorMember)
-	member.chaussette = net.NewShoset(logicalName, "a")
+	member.chaussette = net.NewShoset(configurationAggregator.GetLogicalName(), "a")
 
-	member.ConfigurationAggregator = models.NewConfigurationAggregator(logicalName, tenant, bindAddress, linkAddress, logPath, secret, maxTimeout)
-	member.chaussette.Context["configuration"] = member.ConfigurationAggregator
-
+	member.chaussette.Context["configuration"] = configurationAggregator
 	//member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
@@ -52,7 +48,7 @@ func NewAggregatorMember(logicalName, tenant, bindAddress, linkAddress, logPath,
 	member.chaussette.Handle["configuration"] = shoset.HandleConfiguration
 	//coreLog.OpenLogFile("/var/log")
 
-	coreLog.OpenLogFile(logPath)
+	//coreLog.OpenLogFile(logPath)
 
 	return member
 }
@@ -122,12 +118,12 @@ func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (configurationA
 }
 
 // AggregatorMemberInit : Aggregator init function.
-func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath, secret string, maxTimeout int64) *AggregatorMember {
-	member := NewAggregatorMember(logicalName, tenant, bindAddress, linkAddress, logPath, secret, maxTimeout)
-	err := member.Bind(member.ConfigurationAggregator.BindAddress)
+func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
+	member := NewAggregatorMember(configurationAggregator)
+	err := member.Bind(configurationAggregator.GetBindAddress())
 
 	if err == nil {
-		_, err = member.Link(member.ConfigurationAggregator.LinkAddress)
+		_, err = member.Link(configurationAggregator.GetLinkAddress())
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
@@ -136,17 +132,17 @@ func AggregatorMemberInit(logicalName, tenant, bindAddress, linkAddress, logPath
 				configurationAggregator := member.GetConfiguration(member.GetChaussette())
 				fmt.Println(configurationAggregator)
 
-				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", member.ConfigurationAggregator.LogicalName, member.ConfigurationAggregator.Tenant, member.ConfigurationAggregator.BindAddress, member.ConfigurationAggregator.LinkAddress)
+				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant(), configurationAggregator.GetBindAddress(), configurationAggregator.GetLinkAddress())
 				time.Sleep(time.Second * time.Duration(5))
-				log.Printf("%s.JoinBrothers Init(%#v)\n", member.ConfigurationAggregator.BindAddress, getBrothers(member.ConfigurationAggregator.BindAddress, member))
+				log.Printf("%s.JoinBrothers Init(%#v)\n", configurationAggregator.GetBindAddress(), getBrothers(configurationAggregator.GetBindAddress(), member))
 			} else {
 				log.Fatalf("Invalid secret")
 			}
 		} else {
-			log.Fatalf("Can't link shoset on %s", member.ConfigurationAggregator.LinkAddress)
+			log.Fatalf("Can't link shoset on %s", configurationAggregator.GetLinkAddress())
 		}
 	} else {
-		log.Fatalf("Can't bind shoset on %s", member.ConfigurationAggregator.BindAddress)
+		log.Fatalf("Can't bind shoset on %s", configurationAggregator.GetBindAddress())
 	}
 
 	return member

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 	"github.com/ditrit/gandalf/core/connector/utils"
 	"github.com/ditrit/gandalf/core/models"
 
@@ -52,8 +53,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 				log.Println("Connectors configuration not found")
 			}
 		} else {
-			configurationConnector := ch.Context["configuration"].(*models.ConfigurationConnector)
-			connectorType := configurationConnector.ConnectorType
+			configurationConnector := ch.Context["configuration"].(*cmodels.ConfigurationConnector)
+			connectorType := configurationConnector.GetConnectorType()
 			if connectorType != "" {
 				var connectorTypeConfig *models.ConnectorConfig
 				if listConnectorTypeConfig, ok := config[connectorType]; ok {

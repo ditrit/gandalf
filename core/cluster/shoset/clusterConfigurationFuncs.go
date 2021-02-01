@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gandalf/core/models"
 	"log"
 	"time"
 
-	"github.com/ditrit/gandalf/core/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
@@ -82,10 +83,10 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			fmt.Println("TENANT")
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			configurationCluster := ch.Context["configurationCluster"].(*models.ConfigurationCluster)
+			configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationCluster.DatabaseBindAddress, mapDatabaseClient)
+				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
 			} else {
 				log.Println("Database client map is empty")
 				err = errors.New("Database client map is empty")

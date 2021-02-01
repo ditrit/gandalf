@@ -4,9 +4,10 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"gandalf/core/models"
 	"log"
 
-	"github.com/ditrit/gandalf/core/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
@@ -28,10 +29,10 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 
 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-	configurationCluster := ch.Context["configuration"].(*models.ConfigurationCluster)
+	configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), configurationCluster.DatabaseBindAddress, mapDatabaseClient)
+		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
 		if databaseClient != nil {
 			ok := cutils.CaptureMessage(message, "config", databaseClient)
 			if ok {

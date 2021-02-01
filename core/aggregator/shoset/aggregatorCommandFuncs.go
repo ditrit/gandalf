@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/ditrit/gandalf/core/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
@@ -23,9 +23,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle command")
 	log.Println(cmd)
-	configurationAggregator := ch.Context["configuration"].(*models.ConfigurationAggregator)
+	configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 
-	if cmd.GetTenant() == configurationAggregator.Tenant {
+	if cmd.GetTenant() == configurationAggregator.GetTenant() {
 		//_ = ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 
 		//if ok {

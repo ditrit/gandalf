@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/ditrit/gandalf/core/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
@@ -69,8 +69,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				secret.Target = c.GetBindAddr()
-				configurationAggregator := ch.Context["configurationAggregator"].(*models.ConfigurationAggregator)
-				secret.Tenant = configurationAggregator.Tenant
+				configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+				secret.Tenant = configurationAggregator.GetTenant()
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(secret)
 				log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
@@ -115,12 +115,12 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 //SendSecret :
 func SendSecret(shoset *net.Shoset) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
-	configurationAggregator := shoset.Context["configuration"].(*models.ConfigurationAggregator)
-	secretMsg.Tenant = configurationAggregator.Tenant
+	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	secretMsg.Tenant = configurationAggregator.GetTenant()
 	secretMsg.GetContext()["componentType"] = "aggregator"
-	secretMsg.GetContext()["logicalName"] = configurationAggregator.LogicalName
-	secretMsg.GetContext()["secret"] = configurationAggregator.Secret
-	secretMsg.GetContext()["bindAddress"] = configurationAggregator.BindAddress
+	secretMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
+	secretMsg.GetContext()["secret"] = configurationAggregator.GetSecret()
+	secretMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")

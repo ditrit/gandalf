@@ -10,7 +10,7 @@ import (
 
 	"github.com/ditrit/gandalf/core/cluster/utils"
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
-	"github.com/ditrit/gandalf/core/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	"github.com/ditrit/shoset/msg"
@@ -81,10 +81,10 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		} else {
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			configurationCluster := ch.Context["configuration"].(*models.ConfigurationCluster)
+			configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationCluster.DatabaseBindAddress, mapDatabaseClient)
+				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
 			} else {
 				log.Println("Database client map is empty")
 				err = errors.New("Database client map is empty")
@@ -163,14 +163,14 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendSecret :
 func SendSecret(shoset *net.Shoset) (err error) {
-	configurationCluster := shoset.Context["configuration"].(*models.ConfigurationCluster)
+	configurationCluster := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	//secretMsg.Tenant = "cluster"
 	secretMsg.GetContext()["componentType"] = "cluster"
-	secretMsg.GetContext()["logicalName"] = configurationCluster.LogicalName
-	secretMsg.GetContext()["secret"] = configurationCluster.Secret
-	secretMsg.GetContext()["bindAddress"] = configurationCluster.BindAddress
+	secretMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()
+	secretMsg.GetContext()["secret"] = configurationCluster.GetSecret()
+	secretMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	fmt.Println("shoset.ConnsByAddr")

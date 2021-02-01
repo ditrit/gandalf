@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ditrit/gandalf/core/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
@@ -64,9 +64,9 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 	if secret.GetCommand() == "VALIDATION_REPLY" {
 		//ch.Context["tenant"] = secret.GetTenant()
-		configurationConnector := ch.Context["configuration"].(*models.ConfigurationConnector)
-		configurationConnector.Tenant = secret.GetTenant()
-		ch.Context["configurationConnector"] = configurationConnector
+		configurationConnector := ch.Context["configuration"].(*cmodels.ConfigurationConnector)
+		configurationConnector.SetTenant(secret.GetTenant())
+		//ch.Context["configurationConnector"] = configurationConnector
 		ch.Context["validation"] = secret.GetPayload()
 	}
 
@@ -75,21 +75,21 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendSecret :
 func SendSecret(shoset *net.Shoset) (err error) {
-	configurationConnector := shoset.Context["configuration"].(*models.ConfigurationConnector)
+	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	//secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "connector"
-	secretMsg.GetContext()["logicalName"] = configurationConnector.LogicalName
-	secretMsg.GetContext()["secret"] = configurationConnector.Secret
-	secretMsg.GetContext()["bindAddress"] = configurationConnector.BindAddress
+	secretMsg.GetContext()["logicalName"] = configurationConnector.GEtLogicalName()
+	secretMsg.GetContext()["secret"] = configurationConnector.GetSecret()
+	secretMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > configurationConnector.MaxTimeout {
-			secretMsg.Timeout = configurationConnector.MaxTimeout
+		if secretMsg.GetTimeout() > configurationConnector.GetMaxTimeout() {
+			secretMsg.Timeout = configurationConnector.GetMaxTimeout()
 		}
 
 		notSend := true

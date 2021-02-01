@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"gandalf/core/models"
 	"log"
 	"time"
 
-	"github.com/ditrit/gandalf/core/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
@@ -73,8 +74,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				configuration.Target = c.GetBindAddr()
-				configurationAggregator := ch.Context["configurationAggregator"].(*models.ConfigurationAggregator)
-				configuration.Tenant = configurationAggregator.Tenant
+				configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+				configuration.Tenant = configurationAggregator.GetTenant()
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(configuration)
 				log.Printf("%s : send in configuration %s to %s\n", thisOne, configuration.GetCommand(), shosets[index])
