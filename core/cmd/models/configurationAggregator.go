@@ -7,6 +7,11 @@ import (
 type ConfigurationAggregator struct {
 }
 
+func NewConfigurationAggregator() *ConfigurationAggregator {
+	configurationAggregator := new(ConfigurationAggregator)
+	return configurationAggregator
+}
+
 func (ca ConfigurationAggregator) GetLogicalName() string {
 	return viper.GetString("lname")
 }

@@ -1,4 +1,3 @@
-// Package cmd is part of Gandalf
 package cmd
 
 import (
@@ -6,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"strconv"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -24,6 +24,9 @@ const (
 // ConfigCmd allows configuration
 type ConfigCmd struct {
 	cmd *cobra.Command
+
+	// name of the app
+	appName string
 
 	// function to call for the command
 	runf func(cfg *ConfigCmd, args []string)
@@ -44,17 +47,40 @@ type ConfigCmd struct {
 	isRequired map[string]bool
 
 	keyType map[string]ConfigType
+
+	//  offset
+	offset int
+
+	// constraints are predicate functions to be satisfied as a prequisite to command execution
+	constraints map[string]func() bool
+
+	// computedValue function provides dynamic values as default for a key
+	computedValue map[string]func() interface{}
 }
 
-func checkAndRun(sub *ConfigCmd, runf func(cfg *ConfigCmd, args []string)) func(*cobra.Command, []string) {
+// ErrorAndHelp print error and help
+func ErrorAndHelp(cfg *ConfigCmd, err string) {
+	fmt.Println(err)
+	fmt.Printf("\n---\n\n")
+	cfg.cmd.Help()
+	fmt.Printf("\n---\n")
+	fmt.Println(err)
+	os.Exit(1)
+}
+
+// Run :
+func Run(sub *ConfigCmd, runf func(cfg *ConfigCmd, args []string)) func(*cobra.Command, []string) {
 	return func(cobraCmd *cobra.Command, args []string) {
-		if sub.ValidOK() {
-			runf(sub, args)
-		} else {
-			fmt.Printf("---\n\n")
-			sub.cmd.Help()
-			fmt.Printf("\n---\n")
+		runf(sub, args)
+	}
+}
+
+func preRunCheck(sub *ConfigCmd) func(*cobra.Command, []string) {
+	return func(cobraCmd *cobra.Command, args []string) {
+		if !sub.ValidOK() {
+			ErrorAndHelp(sub, "")
 			sub.ValidOK()
+			os.Exit(1)
 		}
 	}
 }
@@ -63,9 +89,10 @@ func checkAndRun(sub *ConfigCmd, runf func(cfg *ConfigCmd, args []string)) func(
 func (c ConfigCmd) CallSubRun(subName string) {
 	sub, exists := c.subCmds[subName]
 	if exists {
-		checkAndRun(sub, sub.runf)(sub.cmd, []string{})
+		preRunCheck(sub)(sub.cmd, []string{})
+		Run(sub, sub.runf)(sub.cmd, []string{})
 	} else {
-		log.Println("No command found with the name " + subName)
+		ErrorAndHelp(&c, "Error : No command found to execute")
 	}
 }
 
@@ -75,7 +102,8 @@ func NewConfigCmd(use string, shortDesc string, longDesc string, runf func(cfg *
 	var cobraCmd = new(cobra.Command)
 	var cfg = new(ConfigCmd)
 
-	cobraCmd.Run = checkAndRun(cfg, runf)
+	cobraCmd.PreRun = preRunCheck(cfg)
+	cobraCmd.Run = Run(cfg, runf)
 	cobraCmd.Use = use
 	cobraCmd.Short = shortDesc
 	cobraCmd.Long = longDesc
@@ -86,7 +114,46 @@ func NewConfigCmd(use string, shortDesc string, longDesc string, runf func(cfg *
 	cfg.isRequired = make(map[string]bool)
 	cfg.normalize = make(map[string]func(interface{}) interface{})
 	cfg.keyType = make(map[string]ConfigType)
+	cfg.constraints = make(map[string]func() bool)
+	cfg.computedValue = make(map[string]func() interface{})
 	return cfg
+}
+
+// GetOffset :
+func GetOffset() int {
+	return viper.GetInt("offset")
+}
+
+func initOffset(c *ConfigCmd) {
+	appName := c.GetAppName()
+	// initConfig reads in config file and ENV variables if set.
+	viper.SetEnvPrefix(appName)
+	viper.BindEnv("offset")
+	valStr := viper.GetString("offset")
+	var offset int64
+	offset, err := strconv.ParseInt(valStr, 10, 0)
+	if err != nil {
+		ErrorAndHelp(c, "Error : if defined, offset is an integer (value provided is '"+valStr+"')")
+	}
+	viper.Set("offset", int(offset))
+}
+
+// GetAppName :
+func (c ConfigCmd) GetAppName() string {
+	if c.parentCmd != nil {
+		return c.parentCmd.GetAppName()
+	}
+	return c.cmd.Name()
+}
+
+// GetInstanceName :
+func (c ConfigCmd) GetInstanceName() string {
+	appName := c.GetAppName()
+	offset := GetOffset()
+	if offset != 0 {
+		appName = appName + "_" + strconv.Itoa(offset)
+	}
+	return appName
 }
 
 // ValidOK checks if config keys have valid values
@@ -95,6 +162,12 @@ func (c ConfigCmd) ValidOK() bool {
 
 	if c.parentCmd != nil {
 		ret = c.parentCmd.ValidOK()
+	}
+
+	for key, compute := range c.computedValue {
+		if viper.IsSet(key) == false {
+			viper.Set(key, compute())
+		}
 	}
 
 	for key := range c.isRequired {
@@ -116,10 +189,17 @@ func (c ConfigCmd) ValidOK() bool {
 		valKey := viper.Get(key)
 		isSet := viper.IsSet(key)
 		if isSet && !isValid(valKey) {
-			fmt.Printf("\nError : value '%s' found for the key '%s' is invalid.\n", valKey, key)
 			ret = false
 		}
 	}
+
+	for msg, constraint := range c.constraints {
+		if constraint() == false {
+			fmt.Printf("\nError : %s\n", msg)
+			ret = false
+		}
+	}
+
 	return ret
 }
 
@@ -132,6 +212,7 @@ func (c ConfigCmd) AddConfig(sub *ConfigCmd) {
 
 // Execute Configuration (call it only for root command)
 func (c ConfigCmd) Execute() {
+	//SetLogFile(c.cmd.Name())
 	if err := c.cmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -156,6 +237,16 @@ func (c ConfigCmd) SetDefault(name string, value interface{}) {
 // SetRequired sets a key as required
 func (c ConfigCmd) SetRequired(name string) {
 	c.isRequired[name] = true
+}
+
+// SetConstraint sets a constraint
+func (c ConfigCmd) SetConstraint(msg string, constraint func() bool) {
+	c.constraints[msg] = constraint
+}
+
+// SetComputedValue sets a value dynamically as the default for a key
+func (c ConfigCmd) SetComputedValue(name string, fval func() interface{}) {
+	c.computedValue[name] = fval
 }
 
 // Key defines a flag in cobra bound to env and config file
@@ -193,11 +284,12 @@ func Key(cmd *cobra.Command, name string, valType ConfigType, short string, usag
 }
 
 // InitConfig init Config management
-func InitConfig(appName string) {
-	// initConfig reads in config file and ENV variables if set.
-	viper.SetEnvPrefix(appName)
-	viper.BindEnv("mode")
+func InitConfig(c *ConfigCmd) {
+	initOffset(c)
+	instanceName := c.GetInstanceName()
+	viper.SetEnvPrefix(instanceName)
 
+	viper.BindEnv("mode")
 	var cfgFile = viper.GetString("config")
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -210,22 +302,21 @@ func InitConfig(appName string) {
 		}
 		homeDir := username.HomeDir
 
-		wd, err := os.Getwd()
-		if err != nil {
-			log.Fatalf(err.Error())
-		}
+		wd := GetWorkingDir()
 
 		// Define Paths where search the configuration file
 		viper.AddConfigPath("/etc/")
-		viper.AddConfigPath("/etc/" + appName + "/")
+		viper.AddConfigPath("/etc/" + instanceName + "/")
 		viper.AddConfigPath(homeDir + "/")
-		viper.AddConfigPath(homeDir + "/.gandalf/")
+		viper.AddConfigPath(homeDir + "/." + instanceName + "/")
 		viper.AddConfigPath(wd + "/")
-		viper.AddConfigPath(wd + "/.gandalf")
+		viper.AddConfigPath(wd + "/." + instanceName + "/")
 
-		viper.SetConfigName(appName)
+		viper.SetConfigName(instanceName)
 		viper.SetConfigType("yaml")
 	}
+
+	SetLogFile(instanceName)
 
 	viper.AutomaticEnv() // read in environment variables that match
 
@@ -234,6 +325,6 @@ func InitConfig(appName string) {
 }
 
 // Initialize handle initial configuration
-func (c ConfigCmd) Initialize(appName string) {
-	cobra.OnInitialize(func() { InitConfig(appName) })
+func (c ConfigCmd) Initialize() {
+	cobra.OnInitialize(func() { InitConfig(&c) })
 }

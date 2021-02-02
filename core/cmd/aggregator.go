@@ -8,7 +8,7 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
+	"gandalf/core/aggregator"
 
 	"github.com/spf13/viper"
 )
@@ -19,12 +19,20 @@ var aggregatorCfg = NewConfigCmd(
 	"Launch gandalf in 'aggregator' mode.",
 	`Gandalf is launched as an aggregator instance.`,
 	func(cfg *ConfigCmd, args []string) {
-		certDir := viper.GetString("cert_dir")
-		fmt.Printf("cert_dir value = %s", certDir)
-
 		fmt.Println("aggregator called")
 		fmt.Printf("tenant = '%s'\n", viper.GetString("tenant"))
 		fmt.Println("cluster to connect = " + viper.GetString("cluster"))
+		done := make(chan bool)
+		viper.WriteConfig()
+		
+		aggregator.AggregatorMemberInit(
+			viper.GetString("lname"),
+			viper.GetString("tenant"),
+			viper.GetString("bind"),
+			viper.GetString("cluster"),
+			"logpath",
+			viper.GetString("secret"))
+		<-done
 	})
 
 func init() {
@@ -38,9 +46,5 @@ func init() {
 	aggregatorCfg.Key("cluster", isStr, "c", "remote address of one of the cluster members to link")
 	aggregatorCfg.SetCheck("cluster", CheckNotEmpty)
 	aggregatorCfg.SetRequired("cluster")
-	aggregatorCfg.SetNormalize("cluster",
-		func(value interface{}) interface{} {
-			str := value.(string)
-			return strings.ToLower(strings.TrimSpace(str))
-		})
+	aggregatorCfg.SetNormalize("cluster", TrimToLower)
 }

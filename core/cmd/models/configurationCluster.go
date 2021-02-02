@@ -7,6 +7,11 @@ import (
 type ConfigurationCluster struct {
 }
 
+func NewConfigurationCluster() *ConfigurationCluster {
+	configurationCluster := new(ConfigurationCluster)
+	return configurationCluster
+}
+
 func (cc ConfigurationCluster) GetLogicalName() string {
 	return viper.GetString("lname")
 }

@@ -8,7 +8,11 @@ package cmd
 
 import (
 	"fmt"
+	"gandalf/core/connector"
+	"gandalf/core/connector/utils"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 var connectorCfg = NewConfigCmd(
@@ -17,6 +21,14 @@ var connectorCfg = NewConfigCmd(
 	`Gandalf is launched as a connector instance.`,
 	func(cfg *ConfigCmd, args []string) {
 		fmt.Println("connector called")
+		done := make(chan bool)
+		connector.ConnectorMemberInit(
+			viper.GetString("lname"),
+			viper.GetString("bind"),
+			viper.GetString("aggregator"),
+			viper.GetString("secret"))
+		//go oauth2.NewOAuth2Client()
+		<-done
 	})
 
 func init() {
@@ -40,20 +52,21 @@ func init() {
 	connectorCfg.Key("workers", isStr, "w", "path for the workers configuration (absolute or relative to the certificates directory)")
 	connectorCfg.SetDefault("workers", "workers")
 
-	//TODO REVOIR
-	connectorCfg.Key("grpc_dir", isStr, "w", "path for the sockets directory (absolute or relative to the certificates directory)")
+	//TODO REVOIR DEFAULT
+	connectorCfg.Key("grpc_dir", isStr, "g", "path for the sockets directory (absolute or relative to the certificates directory)")
 	connectorCfg.SetDefault("grpc_dir", "/tmp")
 
-	//TODO CALCULATED
-	connectorCfg.Key("grpc_bind", isStr, "w", "GRPC address to bind (default is [grpc_dir]_[class]_[product]_[hash])")
-	connectorCfg.SetDefault("grpc_bind", "")
+	//connectorCfg.Key("grpc_bind", isStr, "", "GRPC address to bind (default is [grpc_dir]_[class]_[product]_[hash])")
+	connectorCfg.SetComputedValue("grpc_bind",
+		func() interface{} {
+			return viper.GetString("grpc_dir") + "_" + viper.GetString("lname") + "_" + viper.GetString("class") + "_" + viper.GetString("product") + "_" + utils.GenerateHash(viper.GetString("lname"))
+		})
 
-	connectorCfg.Key("workers_url", isStr, "w", "workers URL")
+	connectorCfg.Key("workers_url", isStr, "u", "workers URL")
 	connectorCfg.SetDefault("workers_url", "https://github.com/ditrit/workers/raw/master")
 
-	connectorCfg.Key("versions", isStr, "w", "worker versions")
+	connectorCfg.Key("versions", isStr, "v", "worker versions")
 
-	//END TODO
 	connectorCfg.Key("update_mode", isStr, "", "update mode (manual|auto|planed)")
 	connectorCfg.SetDefault("update_mode", "manual")
 	connectorCfg.SetCheck("update_mode", func(val interface{}) bool {

@@ -11,6 +11,11 @@ import (
 type ConfigurationConnector struct {
 }
 
+func NewConfigurationConnector() *ConfigurationConnector {
+	configurationConnector := new(ConfigurationConnector)
+	return configurationConnector
+}
+
 func (cc ConfigurationConnector) GetLogicalName() string {
 	return viper.GetString("lname")
 }

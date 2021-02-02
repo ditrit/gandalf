@@ -27,7 +27,9 @@ func Execute() {
 
 func init() {
 	// cobra.OnInitialize(initConfig)
-	rootCfg.Initialize("gandalf")
+	rootCfg.Initialize()
+
+	rootCfg.Key("offset", isInt, "", "Offset used in case of multiple Gandals instances hosted on the same host")
 
 	// flags common to all commands
 	rootCfg.Key("lname", isStr, "l", "logical name (non empty value required)")
@@ -61,9 +63,12 @@ func init() {
 
 	rootCfg.Key("ca_key_pem", isStr, "", "path of the CA key (absolute or relative to the certificates directory)")
 	rootCfg.SetDefault("ca_key_pem", "ca_key.pem")
+
+	rootCfg.Key("log_dir", isStr, "", "directory to store gandalf logfile")
+	rootCfg.SetDefault("log_dir", "/var/log/")
 }
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	InitConfig("gandalf")
+	InitConfig(rootCfg)
 }
