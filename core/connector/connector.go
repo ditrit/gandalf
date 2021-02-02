@@ -8,7 +8,6 @@ import (
 	"github.com/ditrit/gandalf/core/connector/admin"
 	"github.com/ditrit/gandalf/core/connector/grpc"
 	"github.com/ditrit/gandalf/core/connector/shoset"
-	"github.com/ditrit/gandalf/core/connector/utils"
 
 	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 	"github.com/ditrit/gandalf/core/models"
@@ -150,8 +149,8 @@ func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
 }
 
 // ConfigurationValidation : Validation configuration
-func (m *ConnectorMember) StartWorkerAdmin(chaussette *net.Shoset, versions []models.Version) (err error) {
-	workerAdmin := admin.NewWorkerAdmin(chaussette, versions)
+func (m *ConnectorMember) StartWorkerAdmin(chaussette *net.Shoset) (err error) {
+	workerAdmin := admin.NewWorkerAdmin(chaussette)
 	go workerAdmin.Run()
 	return
 }
@@ -190,25 +189,25 @@ func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector)
 		if err == nil {
 			validateSecret := member.ValidateSecret(member.GetChaussette())
 			if validateSecret {
-				configurationConnector := member.GetConfiguration(member.GetChaussette())
-
+				configurationLogicalConnector := member.GetConfiguration(member.GetChaussette())
+				fmt.Println(configurationLogicalConnector)
 				//TODO REVOIR
-				version := models.Version{Major: member.ConfigurationConnector.VersionsMajor, Minor: member.ConfigurationConnector.VersionsMinor}
-				versions := []models.Version{version}
+				//version := models.Version{Major: member.ConfigurationConnector.VersionsMajor, Minor: member.ConfigurationConnector.VersionsMinor}
+				//versions := []models.Version{version}
 
-				member.timeoutMax = configurationConnector.MaxTimeout
+				//member.timeoutMax = configurationConnector.GetMaxTimeout()
 				//TODO
 				//member.GetChaussette().Context["connectorType"] = member.ConfigurationLogicalConnector.ConnectorType
-				member.GetChaussette().Context["versions"] = versions
+				member.GetChaussette().Context["versions"] = configurationConnector.GetVersions()
 
 				//TODO REVOIR
-				var grpcBindAddress = member.ConfigurationConnector.GRPCSocketDirectory + member.ConfigurationConnector.LogicalName + "_" + member.ConfigurationConnector.ConnectorType + "_" + member.ConfigurationConnector.Product + "_" + utils.GenerateHash(member.ConfigurationConnector.LogicalName)
-				member.ConfigurationConnector.GRPCSocketBind = grpcBindAddress
+				//var grpcBindAddress = member.ConfigurationConnector.GRPCSocketDirectory + member.ConfigurationConnector.LogicalName + "_" + member.ConfigurationConnector.ConnectorType + "_" + member.ConfigurationConnector.Product + "_" + utils.GenerateHash(member.ConfigurationConnector.LogicalName)
+				//member.ConfigurationConnector.GRPCSocketBind = grpcBindAddress
 
 				err = member.GrpcBind(configurationConnector.GetGRPCSocketBind())
 				if err == nil {
 					//var versions []*models.Version{Major: configurationConnector.VersionsMajor, Minor: configurationConnector.VersionsMinor}
-					err = member.StartWorkerAdmin(member.GetChaussette(), configurationConnector)
+					err = member.StartWorkerAdmin(member.GetChaussette())
 					if err == nil {
 
 						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetBindAddress(), configurationConnector.GetGRPCSocketBind(), configurationConnector.GetLinkAddress())

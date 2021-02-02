@@ -129,8 +129,8 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 			var validateSecret bool
 			validateSecret = member.ValidateSecret(member.GetChaussette())
 			if validateSecret {
-				configurationAggregator := member.GetConfiguration(member.GetChaussette())
-				fmt.Println(configurationAggregator)
+				configurationLogicalAggregator := member.GetConfiguration(member.GetChaussette())
+				fmt.Println(configurationLogicalAggregator)
 
 				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant(), configurationAggregator.GetBindAddress(), configurationAggregator.GetLinkAddress())
 				time.Sleep(time.Second * time.Duration(5))

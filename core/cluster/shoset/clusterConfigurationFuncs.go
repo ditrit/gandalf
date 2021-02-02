@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gandalf/core/models"
 	"log"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
@@ -220,14 +221,14 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendSecret :
 func SendConfiguration(shoset *net.Shoset) (err error) {
-	configurationCluster := shoset.Context["configuration"].(*models.ConfigurationCluster)
+	configurationCluster := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
 
-	configurationLogicalCluster := models.NewConfigurationLogicalCluster(configurationCluster.LogicalName)
+	configurationLogicalCluster := models.NewConfigurationLogicalCluster(configurationCluster.GetLogicalName())
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
 	//secretMsg.Tenant = "cluster"
 	configurationMsg.GetContext()["componentType"] = "cluster"
-	configurationMsg.GetContext()["logicalName"] = configurationCluster.LogicalName
-	configurationMsg.GetContext()["bindAddress"] = configurationCluster.BindAddress
+	configurationMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()
+	configurationMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
 	configurationMsg.GetContext()["configuration"] = configurationLogicalCluster
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
@@ -241,8 +242,8 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 	fmt.Println("len(shosets)")
 	fmt.Println(len(shosets))
 	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > configurationCluster.MaxTimeout {
-			configurationMsg.Timeout = configurationCluster.MaxTimeout
+		if configurationMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
+			configurationMsg.Timeout = configurationCluster.GetMaxTimeout()
 		}
 
 		notSend := true

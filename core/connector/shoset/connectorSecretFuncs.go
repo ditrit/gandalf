@@ -80,7 +80,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	//secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "connector"
-	secretMsg.GetContext()["logicalName"] = configurationConnector.GEtLogicalName()
+	secretMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
 	secretMsg.GetContext()["secret"] = configurationConnector.GetSecret()
 	secretMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]

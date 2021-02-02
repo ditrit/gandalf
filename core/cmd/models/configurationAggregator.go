@@ -39,7 +39,7 @@ func (ca ConfigurationAggregator) SetBindAddress(bindAdress string) {
 }
 
 func (ca ConfigurationAggregator) GetLinkAddress() string {
-	return viper.GetInt64("cluster")
+	return viper.GetString("cluster")
 }
 
 func (ca ConfigurationAggregator) SetLinkAddress(linkAddress string) {
@@ -66,7 +66,7 @@ func (ca ConfigurationAggregator) SetSecret(secret string) {
 }
 
 func (ca ConfigurationAggregator) GetMaxTimeout() int64 {
-	return viper.GetString("max_timeout")
+	return viper.GetInt64("max_timeout")
 }
 
 func (ca ConfigurationAggregator) SetMaxTimeout(maxTimeout int64) {

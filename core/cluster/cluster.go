@@ -157,7 +157,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 							login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName())
 							if err == nil {
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
-								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", member.ConfigurationCluster.LogicalName, secret)
+								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
 								//TODO TEST API
 								server := api.NewServerAPI(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
@@ -235,8 +235,8 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
-					configurationCluster := member.GetConfiguration(member.GetChaussette())
-					fmt.Println(configurationCluster)
+					configurationLogicalCluster := member.GetConfiguration(member.GetChaussette())
+					fmt.Println(configurationLogicalCluster)
 					//member.GetChaussette().Context["databasePath"] = databasePath
 
 					databaseStore := CreateStore(getBrothers(configurationCluster.GetBindAddress(), member))

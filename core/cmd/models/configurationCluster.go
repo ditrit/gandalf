@@ -85,7 +85,7 @@ func (cc ConfigurationCluster) SetSecret(secret string) {
 }
 
 func (cc ConfigurationCluster) GetMaxTimeout() int64 {
-	return viper.Getint64("max_timeout")
+	return viper.GetInt64("max_timeout")
 }
 
 func (cc ConfigurationCluster) SetMaxTimeout(maxTimeout int64) {

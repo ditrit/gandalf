@@ -3,8 +3,9 @@ package shoset
 
 import (
 	"errors"
-	"gandalf/core/models"
 	"log"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 

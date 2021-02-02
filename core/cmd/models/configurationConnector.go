@@ -1,9 +1,10 @@
 package models
 
 import (
-	"gandalf/core/models"
 	"strconv"
 	"strings"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/spf13/viper"
 )
@@ -129,7 +130,7 @@ func (cc ConfigurationConnector) SetAutoUpdate(autoUpdate string) {
 }
 
 func (cc ConfigurationConnector) GetMaxTimeout() int64 {
-	return viper.Getint64("max_timeout")
+	return viper.GetInt64("max_timeout")
 }
 
 func (cc ConfigurationConnector) SetMaxTimeout(maxTimeout int64) {
@@ -153,6 +154,10 @@ func (cc ConfigurationConnector) GetVersions() (versions []models.Version) {
 		}
 	}
 	return
+}
+
+func (cc ConfigurationConnector) GetVersionsString() string {
+	return viper.GetString("versions")
 }
 
 func (cc ConfigurationConnector) SetVersions(versions string) {

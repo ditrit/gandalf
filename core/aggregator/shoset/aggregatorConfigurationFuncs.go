@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"gandalf/core/models"
 	"log"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
@@ -123,22 +124,22 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendSecret :
 func SendConfiguration(shoset *net.Shoset) (err error) {
-	configurationAggregator := shoset.Context["configuration"].(*models.ConfigurationAggregator)
-	configurationLogicalAggregator := models.NewConfigurationLogicalAggregator(configurationAggregator.LogicalName, configurationAggregator.Tenant)
+	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	configurationLogicalAggregator := models.NewConfigurationLogicalAggregator(configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant())
 
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
-	configurationMsg.Tenant = configurationAggregator.Tenant
+	configurationMsg.Tenant = configurationAggregator.GetTenant()
 	configurationMsg.GetContext()["componentType"] = "aggregator"
-	configurationMsg.GetContext()["logicalName"] = configurationAggregator.LogicalName
-	configurationMsg.GetContext()["bindAddress"] = configurationAggregator.BindAddress
+	configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
+	configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
 	configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
 	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > configurationAggregator.MaxTimeout {
-			configurationMsg.Timeout = configurationAggregator.MaxTimeout
+		if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+			configurationMsg.Timeout = configurationAggregator.GetMaxTimeout()
 		}
 
 		notSend := true

@@ -126,8 +126,8 @@ func SendSecret(shoset *net.Shoset) (err error) {
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
 	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > configurationAggregator.MaxTimeout {
-			secretMsg.Timeout = configurationAggregator.MaxTimeout
+		if secretMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+			secretMsg.Timeout = configurationAggregator.GetMaxTimeout()
 		}
 
 		notSend := true

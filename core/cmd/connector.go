@@ -8,10 +8,11 @@ package cmd
 
 import (
 	"fmt"
-	"gandalf/core/cmd/models"
-	"gandalf/core/connector"
-	"gandalf/core/connector/utils"
 	"strings"
+
+	"github.com/ditrit/gandalf/core/cmd/models"
+	"github.com/ditrit/gandalf/core/connector"
+	"github.com/ditrit/gandalf/core/connector/utils"
 
 	"github.com/spf13/viper"
 )

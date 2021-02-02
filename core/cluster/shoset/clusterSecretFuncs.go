@@ -183,8 +183,8 @@ func SendSecret(shoset *net.Shoset) (err error) {
 	fmt.Println("len(shosets)")
 	fmt.Println(len(shosets))
 	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > configurationCluster.MaxTimeout {
-			secretMsg.Timeout = configurationCluster.MaxTimeout
+		if secretMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
+			secretMsg.Timeout = configurationCluster.GetMaxTimeout()
 		}
 
 		notSend := true

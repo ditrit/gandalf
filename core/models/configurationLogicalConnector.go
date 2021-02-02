@@ -1,6 +1,8 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/jinzhu/gorm"
+)
 
 type ConfigurationLogicalConnector struct {
 	gorm.Model
@@ -12,10 +14,10 @@ type ConfigurationLogicalConnector struct {
 	WorkersUrl     string
 	AutoUpdateTime string
 	MaxTimeout     int64
-	Versions       []models.Version
+	Versions       string
 }
 
-func NewConfigurationLogicalConnector(logicalName, tenant, connectorType, product, workersUrl, autoUpdateTime string, autoUpdate bool, maxTimeout int64, versionsMajor, versionsMinor int8) *ConfigurationLogicalConnector {
+func NewConfigurationLogicalConnector(logicalName, tenant, connectorType, product, workersUrl, autoUpdateTime string, maxTimeout int64, versions string) *ConfigurationLogicalConnector {
 	configurationLogicalConnector := new(ConfigurationLogicalConnector)
 	configurationLogicalConnector.LogicalName = logicalName
 	configurationLogicalConnector.Tenant = tenant
@@ -23,10 +25,8 @@ func NewConfigurationLogicalConnector(logicalName, tenant, connectorType, produc
 	configurationLogicalConnector.Product = product
 	configurationLogicalConnector.WorkersUrl = workersUrl
 	configurationLogicalConnector.AutoUpdateTime = autoUpdateTime
-	configurationLogicalConnector.AutoUpdate = autoUpdate
 	configurationLogicalConnector.MaxTimeout = maxTimeout
-	configurationLogicalConnector.VersionsMajor = versionsMajor
-	configurationLogicalConnector.VersionsMinor = versionsMinor
+	configurationLogicalConnector.Versions = versions
 
 	return configurationLogicalConnector
 }

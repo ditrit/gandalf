@@ -33,7 +33,7 @@ type WorkerAdmin struct {
 	baseurl          string
 	workerPath       string
 	grpcBindAddress  string
-	autoUpdate       bool
+	autoUpdate       string
 	autoUpdateHour   int
 	autoUpdateMinute int
 	chaussette       *net.Shoset
@@ -119,14 +119,27 @@ func (w WorkerAdmin) Run() {
 			}
 		}
 	}
-	if w.autoUpdate {
+
+	switch w.autoUpdate {
+	case "auto":
+		w.updateByMinute()
+		break
+	case "planed":
+		if w.autoUpdateHour > 0 || w.autoUpdateMinute > 0 {
+			w.updateByTime(w.autoUpdateHour, w.autoUpdateMinute)
+		}
+		break
+
+	}
+
+	/* 	if w.autoUpdate {
 		//TODO REVOIR
 		if w.autoUpdateHour > 0 || w.autoUpdateMinute > 0 {
 			w.updateByTime(w.autoUpdateHour, w.autoUpdateMinute)
 		} else {
 			w.updateByMinute()
 		}
-	}
+	} */
 
 	//
 	w.RegisterCommandsFuncs("ADMIN_GET_WORKER", w.GetWorker)

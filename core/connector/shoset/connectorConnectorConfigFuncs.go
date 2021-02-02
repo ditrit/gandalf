@@ -53,8 +53,8 @@ func SendConnectorConfig(shoset *net.Shoset) (err error) {
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if conf.GetTimeout() > configurationConnector.MaxTimeout {
-			conf.Timeout = configurationConnector.MaxTimeout
+		if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
+			conf.Timeout = configurationConnector.GetMaxTimeout()
 		}
 
 		notSend := true

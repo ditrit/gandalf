@@ -8,8 +8,9 @@ package cmd
 
 import (
 	"fmt"
-	"gandalf/core/cluster"
-	"gandalf/core/cmd/models"
+
+	"github.com/ditrit/gandalf/core/cluster"
+	"github.com/ditrit/gandalf/core/cmd/models"
 
 	"github.com/spf13/viper"
 )
