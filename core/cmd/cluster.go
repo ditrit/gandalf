@@ -31,7 +31,8 @@ var clusterCfg = NewConfigCmd(
 
 		done := make(chan bool)
 		configurationCluster := models.NewConfigurationCluster()
-
+		//fmt.Println(viper.GetString("bind"))
+		//fmt.Println(configurationCluster.GetBindAddress())
 		if !viper.IsSet("join") {
 			fmt.Printf("calling ClusterMemberInit\n")
 			cluster.ClusterMemberInit(configurationCluster)
@@ -52,26 +53,28 @@ func init() {
 
 	clusterCfg.Key("db_path", isStr, "", "path for the gandalf database (absolute or relative to the configuration directory)")
 	clusterCfg.SetCheck("db_path", CheckNotEmpty)
-	clusterCfg.SetDefault("db_path", "db")
+	//TEST
+	clusterCfg.SetDefault("db_path", "/home/romainfairant/gandalf")
 
 	clusterCfg.Key("db_nodename", isStr, "", "name of the gandalf node")
 	clusterCfg.SetCheck("db_nodename", CheckNotEmpty)
 	clusterCfg.SetDefault("db_nodename", "node1")
 
-	//TODO REPLACE CALCULATED
-	//clusterCfg.Key("db_bind", isStr, "", "Database address to bind (default is *:10099)")
-	//clusterCfg.SetDefault("db_bind", "*:10099")
-	connectorCfg.SetComputedValue("db_bind",
-		func() interface{} {
-			return 9199 + GetOffset()
-		})
+	clusterCfg.Key("db_port", isInt, "", "Address to bind (default is *:9199)")
+	clusterCfg.SetDefault("db_port", 9199+GetOffset())
 
-	//clusterCfg.Key("db_http_bind", isStr, "", "Database HTTP address to bind (default is *:11099)")
-	//clusterCfg.SetDefault("db_http_bind", "*:11099")
-	connectorCfg.SetComputedValue("db_http_bind",
-		func() interface{} {
-			return 9299 + GetOffset()
-		})
+	/* 	connectorCfg.SetComputedValue("db_port",
+	func() interface{} {
+		return 9199 + GetOffset()
+	}) */
+
+	clusterCfg.Key("db_http_port", isInt, "", "Address to bind (default is *:9299)")
+	clusterCfg.SetDefault("db_http_port", 9299+GetOffset())
+
+	/* 	connectorCfg.SetComputedValue("db_http_port",
+	func() interface{} {
+		return 9299 + GetOffset()
+	}) */
 
 	clusterCfg.SetConstraint("a secret can not be set for cluster initialization (no join provided)",
 		func() bool {
@@ -82,10 +85,4 @@ func init() {
 		func() bool {
 			return !viper.IsSet("join") || viper.IsSet("secret")
 		})
-
-	clusterCfg.SetComputedValue("port",
-		func() interface{} {
-			return 9099 + GetOffset()
-		})
-
 }

@@ -29,13 +29,24 @@ func (ca ConfigurationAggregator) SetTenant(tenant string) {
 
 }
 
-func (ca ConfigurationAggregator) GetBindAddress() string {
+func (cc ConfigurationAggregator) GetAddress() string {
 	return viper.GetString("bind")
 }
 
-func (ca ConfigurationAggregator) SetBindAddress(bindAdress string) {
-	viper.Set("bind", bindAdress)
+func (cc ConfigurationAggregator) SetAddress(bindAddress string) {
+	viper.Set("bind", bindAddress)
+}
 
+func (cc ConfigurationAggregator) GetPort() string {
+	return viper.GetString("port")
+}
+
+func (cc ConfigurationAggregator) SetPort(bindAddress string) {
+	viper.Set("port", bindAddress)
+}
+
+func (cc ConfigurationAggregator) GetBindAddress() string {
+	return viper.GetString("bind") + ":" + viper.GetString("port")
 }
 
 func (ca ConfigurationAggregator) GetLinkAddress() string {

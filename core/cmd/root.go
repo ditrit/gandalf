@@ -45,9 +45,12 @@ func init() {
 	rootCfg.Key("max_timeout", isInt, "", "maximum timeout of the connector")
 	rootCfg.SetDefault("max_timeout", 100)
 
-	rootCfg.Key("bind", isStr, "", "Address to bind (default is *:9099)")
-	rootCfg.SetDefault("bind", "*:9099")
+	rootCfg.Key("bind", isStr, "", "Address to bind (default is 127.0.0.1)")
+	rootCfg.SetDefault("bind", "127.0.0.1")
 	rootCfg.SetNormalize("bind", TrimToLower)
+
+	rootCfg.Key("port", isInt, "", "Address to bind (default is *:9099)")
+	rootCfg.SetDefault("port", 9099+GetOffset())
 
 	rootCfg.Key("cert_dir", isStr, "", "path of the certificates directory (absolute or relative to the configuration directory)")
 	rootCfg.SetDefault("cert_dir", "certs")

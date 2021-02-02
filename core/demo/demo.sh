@@ -8,18 +8,11 @@ go build -o gandalf
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
-./gandalf -g cluster -l Cluster -b 127.0.0.1:9000 
-sleep 5
-echo 'Join ClusterMember' 
-./gandalf -g cluster -l Cluster -b 127.0.0.1:9001 -j 127.0.0.1:9000
-sleep 5
-echo 'Join ClusterMember' 
-./gandalf -g cluster -l Cluster -b 127.0.0.1:9002 -j 127.0.0.1:9000 
-sleep 5
+./gandalf cluster -l Cluster --bind 127.0.0.1
 
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'
-./gandalf -g aggregator -l Aggregator1 -t tenant1 -b 127.0.0.1:8000 -c 127.0.0.1:9000 -s TATA
+./gandalf aggregator -l Aggregator1 -t tenant1 --bind 127.0.0.1 --port 10000 --cluster 127.0.0.1:9099 --secret TATA
 sleep 5
 
 echo 'Connector'

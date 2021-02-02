@@ -114,22 +114,28 @@ func getBrothers(address string, member *ClusterMember) []string {
 // ClusterMemberInit : Cluster init function.
 func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *ClusterMember {
 
-	//databaseBindAddress, _ := net.DeltaAddress(bindAddress, 1000)
-	//databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 100)
-
+	//databaseBindAddress, _ := net.DeltaAddress(bindAddress, 100)
+	//databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 200)
+	fmt.Println("INIT")
 	member := NewClusterMember(configurationCluster)
 	//member.GetChaussette().Context["databasePath"] = databasePath
 
 	err := member.Bind(configurationCluster.GetBindAddress())
+	fmt.Println(configurationCluster.GetBindAddress())
+	fmt.Println(err)
 	if err == nil {
 		log.Printf("New Cluster member %s command %s bind on %s \n", configurationCluster.GetLogicalName(), "init", configurationCluster.GetBindAddress())
 		time.Sleep(time.Second * time.Duration(5))
+		fmt.Println("INIT 2")
 
 		var isNodeExist = database.IsNodeExist(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName())
 		fmt.Println("isNodeExist")
 		fmt.Println(isNodeExist)
 		if !isNodeExist {
-
+			fmt.Println("INIT 3")
+			fmt.Println(configurationCluster.GetDatabasePath())
+			fmt.Println(configurationCluster.GetDatabaseName())
+			fmt.Println(configurationCluster.GetDatabaseBindAddress())
 			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
 			fmt.Println("err")
 			fmt.Println(err)

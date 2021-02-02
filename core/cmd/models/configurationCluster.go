@@ -20,20 +20,32 @@ func (cc ConfigurationCluster) SetLogicalName(logicalName string) {
 	viper.Set("lname", logicalName)
 }
 
-func (cc ConfigurationCluster) GetBindAddress() string {
-	return viper.GetString("logicalName")
+func (cc ConfigurationCluster) GetAddress() string {
+	return viper.GetString("bind")
 }
 
-func (cc ConfigurationCluster) SetBindAddress(bindAddress string) {
-	viper.Set("", bindAddress)
+func (cc ConfigurationCluster) SetAddress(bindAddress string) {
+	viper.Set("bind", bindAddress)
+}
+
+func (cc ConfigurationCluster) GetPort() string {
+	return viper.GetString("port")
+}
+
+func (cc ConfigurationCluster) SetPort(bindAddress string) {
+	viper.Set("port", bindAddress)
+}
+
+func (cc ConfigurationCluster) GetBindAddress() string {
+	return viper.GetString("bind") + ":" + viper.GetString("port")
 }
 
 func (cc ConfigurationCluster) GetJoinAddress() string {
-	return viper.GetString("logicalName")
+	return viper.GetString("join")
 }
 
 func (cc ConfigurationCluster) SetJoinAddress(joinAddress string) {
-	viper.Set("", joinAddress)
+	viper.Set("join", joinAddress)
 }
 
 /* func (cc ConfigurationCluster) GetLogPath() string {
@@ -60,20 +72,28 @@ func (cc ConfigurationCluster) SetDatabaseName(databaseName string) {
 	viper.Set("db_nodename", databaseName)
 }
 
-func (cc ConfigurationCluster) GetDatabaseBindAddress() string {
-	return viper.GetString("db_bind")
+func (cc ConfigurationCluster) GetDatabasePort() string {
+	return viper.GetString("db_port")
 }
 
-func (cc ConfigurationCluster) SetDatabaseBindAddress(databaseBindAddress string) {
-	viper.Set("db_bind", databaseBindAddress)
+func (cc ConfigurationCluster) SetDatabasePort(databaseBindAddress string) {
+	viper.Set("db_port", databaseBindAddress)
+}
+
+func (cc ConfigurationCluster) GetDatabaseBindAddress() string {
+	return viper.GetString("bind") + ":" + viper.GetString("db_port")
+}
+
+func (cc ConfigurationCluster) GetDatabaseHttpPort() string {
+	return viper.GetString("db_http_port")
+}
+
+func (cc ConfigurationCluster) SetDatabaseHttpPort(databaseHttpAddress string) {
+	viper.Set("db_http_port", databaseHttpAddress)
 }
 
 func (cc ConfigurationCluster) GetDatabaseHttpAddress() string {
-	return viper.GetString("db_http_bind")
-}
-
-func (cc ConfigurationCluster) SetDatabaseHttpAddress(databaseHttpAddress string) {
-	viper.Set("db_http_bind", databaseHttpAddress)
+	return viper.GetString("bind") + ":" + viper.GetString("db_http_port")
 }
 
 func (cc ConfigurationCluster) GetSecret() string {

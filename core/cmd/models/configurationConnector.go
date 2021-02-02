@@ -33,12 +33,24 @@ func (cc ConfigurationConnector) SetTenant(tenant string) {
 	viper.Set("tenant", tenant)
 }
 
-func (cc ConfigurationConnector) GetBindAddress() string {
+func (cc ConfigurationConnector) GetAddress() string {
 	return viper.GetString("bind")
 }
 
-func (cc ConfigurationConnector) SetBindAddress(bindAddress string) {
+func (cc ConfigurationConnector) SetAddress(bindAddress string) {
 	viper.Set("bind", bindAddress)
+}
+
+func (cc ConfigurationConnector) GetPort() string {
+	return viper.GetString("port")
+}
+
+func (cc ConfigurationConnector) SetPort(bindAddress string) {
+	viper.Set("port", bindAddress)
+}
+
+func (cc ConfigurationConnector) GetBindAddress() string {
+	return viper.GetString("bind") + ":" + viper.GetString("port")
 }
 
 func (cc ConfigurationConnector) GetLinkAddress() string {

@@ -58,6 +58,7 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (lo
 	return
 }
 
+//TODO REMOVE
 func Test(gandalfDatabaseClient *gorm.DB) {
 
 	DemoCreateCluster(gandalfDatabaseClient)
@@ -69,9 +70,9 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 
 	user, err := user.Current()
 	fmt.Println(user.HomeDir + "/gandalf")
-	err = NewTenantDatabase(user.HomeDir+"/gandalf", "127.0.0.1:10000", "tenant1")
+	err = NewTenantDatabase(user.HomeDir+"/gandalf", "127.0.0.1:9199", "tenant1")
 	fmt.Println(err)
-	tenantDatabaseClient, _ := NewTenantDatabaseClient("127.0.0.1:10000", "tenant1")
+	tenantDatabaseClient, _ := NewTenantDatabaseClient("127.0.0.1:9199", "tenant1")
 	InitTenantDatabase(tenantDatabaseClient)
 
 }
