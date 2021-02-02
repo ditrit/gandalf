@@ -9,6 +9,7 @@ package cmd
 import (
 	"fmt"
 	"gandalf/core/aggregator"
+	"gandalf/core/cmd/models"
 
 	"github.com/spf13/viper"
 )
@@ -24,14 +25,9 @@ var aggregatorCfg = NewConfigCmd(
 		fmt.Println("cluster to connect = " + viper.GetString("cluster"))
 		done := make(chan bool)
 		viper.WriteConfig()
-		
-		aggregator.AggregatorMemberInit(
-			viper.GetString("lname"),
-			viper.GetString("tenant"),
-			viper.GetString("bind"),
-			viper.GetString("cluster"),
-			"logpath",
-			viper.GetString("secret"))
+
+		configurationAggregator := models.NewConfigurationAggregator()
+		aggregator.AggregatorMemberInit(configurationAggregator)
 		<-done
 	})
 

@@ -9,6 +9,7 @@ package cmd
 import (
 	"fmt"
 	"gandalf/core/cluster"
+	"gandalf/core/cmd/models"
 
 	"github.com/spf13/viper"
 )
@@ -28,21 +29,14 @@ var clusterCfg = NewConfigCmd(
 		fmt.Printf("computed offset : %d\n", offset)
 
 		done := make(chan bool)
+		configurationCluster := models.NewConfigurationCluster()
+
 		if !viper.IsSet("join") {
 			fmt.Printf("calling ClusterMemberInit\n")
-			cluster.ClusterMemberInit(
-				viper.GetString("lname"),
-				viper.GetString("bind"),
-				viper.GetString("db_path"),
-				viper.GetString("db_nodename"))
+			cluster.ClusterMemberInit(configurationCluster)
 		} else {
 			fmt.Printf("calling ClusterMemberJoin\n")
-			cluster.ClusterMemberJoin(
-				viper.GetString("lname"),
-				viper.GetString("bind"),
-				viper.GetString("join"),
-				viper.GetString("db_path"), // why not db_node ?
-				viper.GetString("secret"))
+			cluster.ClusterMemberJoin(configurationCluster)
 		}
 		fmt.Printf("Cluster call done\n")
 		<-done

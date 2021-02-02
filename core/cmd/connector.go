@@ -8,6 +8,7 @@ package cmd
 
 import (
 	"fmt"
+	"gandalf/core/cmd/models"
 	"gandalf/core/connector"
 	"gandalf/core/connector/utils"
 	"strings"
@@ -22,11 +23,8 @@ var connectorCfg = NewConfigCmd(
 	func(cfg *ConfigCmd, args []string) {
 		fmt.Println("connector called")
 		done := make(chan bool)
-		connector.ConnectorMemberInit(
-			viper.GetString("lname"),
-			viper.GetString("bind"),
-			viper.GetString("aggregator"),
-			viper.GetString("secret"))
+		configurationConnector := models.NewConfigurationConnector()
+		connector.ConnectorMemberInit(configurationConnector)
 		//go oauth2.NewOAuth2Client()
 		<-done
 	})
