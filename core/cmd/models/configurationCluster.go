@@ -1,6 +1,8 @@
 package models
 
 import (
+	"gandalf/core/models"
+
 	"github.com/spf13/viper"
 )
 
@@ -110,4 +112,18 @@ func (cc ConfigurationCluster) GetMaxTimeout() int64 {
 
 func (cc ConfigurationCluster) SetMaxTimeout(maxTimeout int64) {
 	viper.Set("max_timeout", maxTimeout)
+}
+
+func (cc ConfigurationCluster) ConfigurationToDatabase() *models.ConfigurationLogicalCluster {
+	configurationLogicalCluster := new(models.ConfigurationLogicalCluster)
+	configurationLogicalCluster.LogicalName = cc.GetLogicalName()
+	configurationLogicalCluster.Secret = cc.GetSecret()
+	configurationLogicalCluster.MaxTimeout = cc.GetMaxTimeout()
+	return configurationLogicalCluster
+}
+
+func (cc ConfigurationCluster) DatabaseToConfiguration(configurationLogicalCluster *models.ConfigurationLogicalCluster) {
+	cc.SetLogicalName(configurationLogicalCluster.LogicalName)
+	cc.SetSecret(configurationLogicalCluster.Secret)
+	cc.SetMaxTimeout(configurationLogicalCluster.MaxTimeout)
 }

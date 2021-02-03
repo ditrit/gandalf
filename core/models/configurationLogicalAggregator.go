@@ -9,11 +9,3 @@ type ConfigurationLogicalAggregator struct {
 	Secret      string
 	MaxTimeout  int64
 }
-
-func NewConfigurationLogicalAggregator(logicalName, tenant string) *ConfigurationLogicalAggregator {
-	configurationLogicalAggregator := new(ConfigurationLogicalAggregator)
-	configurationLogicalAggregator.LogicalName = logicalName
-	configurationLogicalAggregator.Tenant = tenant
-
-	return configurationLogicalAggregator
-}

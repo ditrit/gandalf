@@ -8,10 +8,3 @@ type ConfigurationLogicalCluster struct {
 	Secret      string
 	MaxTimeout  int64
 }
-
-func NewConfigurationLogicalCluster(logicalName string) *ConfigurationLogicalCluster {
-	configurationLogicalCluster := new(ConfigurationLogicalCluster)
-	configurationLogicalCluster.LogicalName = logicalName
-
-	return configurationLogicalCluster
-}
