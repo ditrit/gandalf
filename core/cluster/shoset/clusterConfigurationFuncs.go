@@ -8,9 +8,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/ditrit/gandalf/core/models"
-
 	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	"github.com/ditrit/gandalf/core/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
@@ -223,7 +222,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 func SendConfiguration(shoset *net.Shoset) (err error) {
 	configurationCluster := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
 
-	configurationLogicalCluster := models.NewConfigurationLogicalCluster(configurationCluster.GetLogicalName())
+	configurationLogicalCluster := configurationCluster.ConfigurationToDatabase()
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
 	//secretMsg.Tenant = "cluster"
 	configurationMsg.GetContext()["componentType"] = "cluster"

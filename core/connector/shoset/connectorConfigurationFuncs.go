@@ -7,9 +7,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ditrit/gandalf/core/models"
-
 	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	"github.com/ditrit/gandalf/core/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
@@ -82,7 +81,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 //SendSecret :
 func SendConfiguration(shoset *net.Shoset) (err error) {
 	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-	configurationLogicalConnector := models.NewConfigurationLogicalConnector(configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetConnectorType(), configurationConnector.GetProduct(), configurationConnector.GetWorkersUrl(), configurationConnector.GetAutoUpdateTime(), configurationConnector.GetMaxTimeout(), configurationConnector.GetVersionsString())
+	configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
 
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
 	//configurationMsg.Tenant = shoset.Context["tenant"].(string)

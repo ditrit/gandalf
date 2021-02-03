@@ -10,7 +10,7 @@ import (
 	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator"
-	"github.com/ditrit/gandalf/core/cmd/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	"github.com/spf13/viper"
 )
@@ -27,7 +27,7 @@ var aggregatorCfg = NewConfigCmd(
 		done := make(chan bool)
 		viper.WriteConfig()
 
-		configurationAggregator := models.NewConfigurationAggregator()
+		configurationAggregator := cmodels.NewConfigurationAggregator()
 		aggregator.AggregatorMemberInit(configurationAggregator)
 		<-done
 	})

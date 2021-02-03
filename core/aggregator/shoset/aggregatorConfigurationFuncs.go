@@ -8,9 +8,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/ditrit/gandalf/core/models"
-
 	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	"github.com/ditrit/gandalf/core/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
@@ -125,7 +124,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 //SendSecret :
 func SendConfiguration(shoset *net.Shoset) (err error) {
 	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
-	configurationLogicalAggregator := models.NewConfigurationLogicalAggregator(configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant())
+	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
 
 	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
 	configurationMsg.Tenant = configurationAggregator.GetTenant()

@@ -1,4 +1,4 @@
-package models
+package cmd
 
 import (
 	"strconv"
@@ -203,3 +203,21 @@ func (cc ConfigurationConnector) DatabaseToConfiguration(configurationLogicalCon
 	cc.SetMaxTimeout(configurationLogicalConnector.MaxTimeout)
 	cc.SetVersionsString(configurationLogicalConnector.Versions)
 }
+
+/* func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfigurationKeys []models.ConfigurationKeys) bool {
+	for _, configurationKey := range listConfigurationKeys {
+		switch configurationKey.Type {
+		case "string":
+			cc.cfg.Key(configurationKey.Name, 1, "", "")
+		case "int":
+			cc.cfg.Key(configurationKey.Name, 2, "", "")
+		case "bool":
+			cc.cfg.Key(configurationKey.Name, 3, "", "")
+		}
+		cc.cfg.SetDefault(configurationKey.Name, configurationKey.DefaultValue)
+		if configurationKey.Mandatory {
+			cc.cfg.SetRequired(configurationKey.Name)
+		}
+	}
+	return cc.cfg.ValidOK()
+} */

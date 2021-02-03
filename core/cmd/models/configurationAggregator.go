@@ -1,7 +1,7 @@
-package models
+package cmd
 
 import (
-	"gandalf/core/models"
+	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/spf13/viper"
 )

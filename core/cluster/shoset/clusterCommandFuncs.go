@@ -5,9 +5,8 @@ import (
 	"errors"
 	"log"
 
-	"github.com/ditrit/gandalf/core/models"
-
 	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	"github.com/ditrit/gandalf/core/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 

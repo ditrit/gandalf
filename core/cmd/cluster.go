@@ -10,7 +10,7 @@ import (
 	"fmt"
 
 	"github.com/ditrit/gandalf/core/cluster"
-	"github.com/ditrit/gandalf/core/cmd/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 
 	"github.com/spf13/viper"
 )
@@ -30,7 +30,7 @@ var clusterCfg = NewConfigCmd(
 		fmt.Printf("computed offset : %d\n", offset)
 
 		done := make(chan bool)
-		configurationCluster := models.NewConfigurationCluster()
+		configurationCluster := cmodels.NewConfigurationCluster()
 		//fmt.Println(viper.GetString("bind"))
 		//fmt.Println(configurationCluster.GetBindAddress())
 		if !viper.IsSet("join") {

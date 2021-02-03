@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ditrit/gandalf/core/cmd/models"
+	cmodels "github.com/ditrit/gandalf/core/cmd/models"
 	"github.com/ditrit/gandalf/core/connector"
 	"github.com/ditrit/gandalf/core/connector/utils"
 
@@ -24,7 +24,7 @@ var connectorCfg = NewConfigCmd(
 	func(cfg *ConfigCmd, args []string) {
 		fmt.Println("connector called")
 		done := make(chan bool)
-		configurationConnector := models.NewConfigurationConnector()
+		configurationConnector := cmodels.NewConfigurationConnector()
 		connector.ConnectorMemberInit(configurationConnector)
 		//go oauth2.NewOAuth2Client()
 		<-done
