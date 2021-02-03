@@ -15,12 +15,11 @@ import (
 
 	"github.com/ditrit/shoset/msg"
 
-	"github.com/ditrit/gandalf/core/configuration"
 	"github.com/ditrit/gandalf/core/connector/shoset"
 	"github.com/ditrit/gandalf/core/connector/utils"
 	"github.com/ditrit/gandalf/libraries/goclient"
 
-	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 	net "github.com/ditrit/shoset"
 	"gopkg.in/yaml.v2"
@@ -445,13 +444,15 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMajorKeys...)
 			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMinorKeys...)
 
-			configuration.WorkerKeyParse(listConfigurationKeys)
-			err = configuration.IsConfigValid()
+			configurationConnector := w.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
+			configurationConnector.AddConnectorConfigurationKeys(listConfigurationKeys)
+			//configuration.WorkerKeyParse(listConfigurationKeys)
+			//err = configuration.IsConfigValid()
 
 			if err == nil {
 
 				var stdinargs string
-				stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
+				stdinargs = configurationConnector.GetConfigurationKeys(listConfigurationKeys)
 
 				workersPathVersion := w.workerPath + "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
 				fileWorkersPathVersion := workersPathVersion + "/worker"

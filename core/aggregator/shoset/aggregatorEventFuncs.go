@@ -5,7 +5,7 @@ import (
 	"errors"
 	"log"
 
-	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"

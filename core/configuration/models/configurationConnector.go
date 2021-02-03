@@ -1,8 +1,10 @@
-package cmd
+package models
 
 import (
 	"strconv"
 	"strings"
+
+	"github.com/ditrit/gandalf/core/configuration/config"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -10,10 +12,12 @@ import (
 )
 
 type ConfigurationConnector struct {
+	cfg *config.ConfigCmd
 }
 
-func NewConfigurationConnector() *ConfigurationConnector {
+func NewConfigurationConnector(cfg *config.ConfigCmd) *ConfigurationConnector {
 	configurationConnector := new(ConfigurationConnector)
+	configurationConnector.cfg = cfg
 	return configurationConnector
 }
 
@@ -204,15 +208,15 @@ func (cc ConfigurationConnector) DatabaseToConfiguration(configurationLogicalCon
 	cc.SetVersionsString(configurationLogicalConnector.Versions)
 }
 
-/* func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfigurationKeys []models.ConfigurationKeys) bool {
+func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfigurationKeys []models.ConfigurationKeys) bool {
 	for _, configurationKey := range listConfigurationKeys {
 		switch configurationKey.Type {
 		case "string":
-			cc.cfg.Key(configurationKey.Name, 1, "", "")
+			cc.cfg.Key(configurationKey.Name, config.IsStr, "", "")
 		case "int":
-			cc.cfg.Key(configurationKey.Name, 2, "", "")
+			cc.cfg.Key(configurationKey.Name, config.IsInt, "", "")
 		case "bool":
-			cc.cfg.Key(configurationKey.Name, 3, "", "")
+			cc.cfg.Key(configurationKey.Name, config.IsBool, "", "")
 		}
 		cc.cfg.SetDefault(configurationKey.Name, configurationKey.DefaultValue)
 		if configurationKey.Mandatory {
@@ -220,4 +224,26 @@ func (cc ConfigurationConnector) DatabaseToConfiguration(configurationLogicalCon
 		}
 	}
 	return cc.cfg.ValidOK()
-} */
+}
+
+func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []models.ConfigurationKeys) (stindargs string) {
+	var value string
+	for i, configurationKey := range listConfigurationKeys {
+		switch configurationKey.Type {
+		case "string":
+			value = viper.GetString(configurationKey.Name)
+		case "int":
+			value = string(viper.GetInt(configurationKey.Name))
+		case "bool":
+			value = strconv.FormatBool(viper.GetBool(configurationKey.Name))
+		}
+		if i == 0 {
+			stindargs = "{\"" + configurationKey.Name + "\":" + "\"" + value + "\""
+		} else {
+			stindargs = stindargs + ", \"" + configurationKey.Name + "\":" + "\"" + value + "\""
+		}
+
+	}
+	stindargs = stindargs + "}"
+	return
+}

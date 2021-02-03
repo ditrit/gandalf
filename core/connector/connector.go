@@ -9,7 +9,7 @@ import (
 	"github.com/ditrit/gandalf/core/connector/grpc"
 	"github.com/ditrit/gandalf/core/connector/shoset"
 
-	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/ditrit/shoset/msg"
 

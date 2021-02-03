@@ -1,4 +1,4 @@
-package cmd
+package config
 
 import (
 	"fmt"
@@ -16,9 +16,9 @@ type ConfigType int
 
 const (
 	_ ConfigType = iota
-	isStr
-	isInt
-	isBool
+	IsStr
+	IsInt
+	IsBool
 )
 
 // ConfigCmd allows configuration
@@ -258,19 +258,19 @@ func (c ConfigCmd) Key(name string, valType ConfigType, short string, usage stri
 // Key defines a flag in cobra bound to env and files
 func Key(cmd *cobra.Command, name string, valType ConfigType, short string, usage string) error {
 	switch valType {
-	case isStr:
+	case IsStr:
 		if short != "" {
 			cmd.PersistentFlags().StringP(name, short, "", usage)
 		} else {
 			cmd.PersistentFlags().String(name, "", usage)
 		}
-	case isInt:
+	case IsInt:
 		if short != "" {
 			cmd.PersistentFlags().IntP(name, short, 0, usage)
 		} else {
 			cmd.PersistentFlags().Int(name, 0, usage)
 		}
-	case isBool:
+	case IsBool:
 		if short != "" {
 			cmd.PersistentFlags().BoolP(name, short, false, usage)
 		} else {

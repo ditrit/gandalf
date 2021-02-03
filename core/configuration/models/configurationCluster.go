@@ -1,4 +1,4 @@
-package cmd
+package models
 
 import (
 	"github.com/ditrit/gandalf/core/models"

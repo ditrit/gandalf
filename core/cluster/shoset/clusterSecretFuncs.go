@@ -10,7 +10,7 @@ import (
 
 	"github.com/ditrit/gandalf/core/cluster/utils"
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
-	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	"github.com/ditrit/shoset/msg"

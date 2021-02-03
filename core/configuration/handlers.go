@@ -1,5 +1,5 @@
 // Package cmd is part of Gandalf
-package cmd
+package configuration
 
 import "strings"
 

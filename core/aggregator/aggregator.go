@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	cmodels "github.com/ditrit/gandalf/core/cmd/models"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/shoset/msg"
