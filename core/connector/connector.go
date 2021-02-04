@@ -197,6 +197,7 @@ func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector)
 				fmt.Println("INIT4")
 				configurationLogicalConnector := member.GetConfiguration(member.GetChaussette())
 				fmt.Println(configurationLogicalConnector)
+				configurationConnector.DatabaseToConfiguration(configurationLogicalConnector)
 				//TODO REVOIR
 				//version := models.Version{Major: member.ConfigurationConnector.VersionsMajor, Minor: member.ConfigurationConnector.VersionsMinor}
 				//versions := []models.Version{version}

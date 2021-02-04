@@ -243,6 +243,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 				if validateSecret {
 					configurationLogicalCluster := member.GetConfiguration(member.GetChaussette())
 					fmt.Println(configurationLogicalCluster)
+					configurationCluster.DatabaseToConfiguration(configurationLogicalCluster)
 					//member.GetChaussette().Context["databasePath"] = databasePath
 
 					databaseStore := CreateStore(getBrothers(configurationCluster.GetBindAddress(), member))
@@ -307,12 +308,12 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
 	return
 }
 
-func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (configurationCluster models.ConfigurationLogicalCluster) {
+func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (configurationCluster *models.ConfigurationLogicalCluster) {
 	fmt.Println("SEND")
 	shoset.SendConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationCluster = m.chaussette.Context["logicalConfiguration"].(models.ConfigurationLogicalCluster)
+	configurationCluster = m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalCluster)
 
 	return
 }
