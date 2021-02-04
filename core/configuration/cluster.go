@@ -53,25 +53,28 @@ func init() {
 	clusterCfg.SetCheck("join", CheckNotEmpty)
 	clusterCfg.SetNormalize("join", TrimToLower)
 
+	clusterCfg.Key("api_port", config.IsInt, "", "Address to bind (default is *:9199)")
+	clusterCfg.SetDefault("api_port", 9199+config.GetOffset())
+
 	clusterCfg.Key("db_path", config.IsStr, "", "path for the gandalf database (absolute or relative to the configuration directory)")
 	clusterCfg.SetCheck("db_path", CheckNotEmpty)
 	//TEST
-	clusterCfg.SetDefault("db_path", "/tmp/")
+	clusterCfg.SetDefault("db_path", "/home/romainfairant/gandalf/")
 
 	clusterCfg.Key("db_nodename", config.IsStr, "", "name of the gandalf node")
 	clusterCfg.SetCheck("db_nodename", CheckNotEmpty)
 	clusterCfg.SetDefault("db_nodename", "node1")
 
-	clusterCfg.Key("db_port", config.IsInt, "", "Address to bind (default is *:9199)")
-	clusterCfg.SetDefault("db_port", 9199+config.GetOffset())
+	clusterCfg.Key("db_port", config.IsInt, "", "Address to bind (default is *:9299)")
+	clusterCfg.SetDefault("db_port", 9299+config.GetOffset())
 
 	/* 	connectorCfg.SetComputedValue("db_port",
 	func() interface{} {
 		return 9199 + GetOffset()
 	}) */
 
-	clusterCfg.Key("db_http_port", config.IsInt, "", "Address to bind (default is *:9299)")
-	clusterCfg.SetDefault("db_http_port", 9299+config.GetOffset())
+	clusterCfg.Key("db_http_port", config.IsInt, "", "Address to bind (default is *:9399)")
+	clusterCfg.SetDefault("db_http_port", 9399+config.GetOffset())
 
 	/* 	connectorCfg.SetComputedValue("db_http_port",
 	func() interface{} {

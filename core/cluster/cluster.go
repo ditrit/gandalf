@@ -165,10 +165,12 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
-								//TODO TEST API
-								server := api.NewServerAPI(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
-								server.Run()
-								//
+								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+								if err == nil {
+									log.Printf("New API server")
+								} else {
+									log.Fatalf("Can't create API servcer")
+								}
 
 								log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 
@@ -204,10 +206,12 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 				if err == nil {
 					log.Printf("New gandalf database client")
 
-					//TODO TEST API
-					server := api.NewServerAPI(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
-					server.Run()
-					//
+					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+					if err == nil {
+						log.Printf("New API server")
+					} else {
+						log.Fatalf("Can't create API servcer")
+					}
 				} else {
 					log.Fatalf("Can't create database client")
 				}
@@ -264,10 +268,12 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						if err == nil {
 							log.Printf("New gandalf database client")
 
-							//TODO TEST API
-							server := api.NewServerAPI(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
-							server.Run()
-							//
+							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+							if err == nil {
+								log.Printf("New API server")
+							} else {
+								log.Fatalf("Can't create API servcer")
+							}
 						} else {
 							log.Fatalf("Can't create database client")
 						}
@@ -314,6 +320,15 @@ func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (configurationClus
 	time.Sleep(time.Second * time.Duration(5))
 
 	configurationCluster = m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalCluster)
+
+	return
+}
+
+// ConfigurationValidation : Validation configuration
+func (m *ClusterMember) StartAPI(bindAdress, databasePath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) (err error) {
+
+	server := api.NewServerAPI(bindAdress, databasePath, databaseBindAddress, gandalfDatabaseClient, mapTenantDatabaseClients)
+	server.Run()
 
 	return
 }

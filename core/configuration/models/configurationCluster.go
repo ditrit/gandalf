@@ -50,6 +50,18 @@ func (cc ConfigurationCluster) SetJoinAddress(joinAddress string) {
 	viper.Set("join", joinAddress)
 }
 
+func (cc ConfigurationCluster) GetAPIPort() string {
+	return viper.GetString("api_port")
+}
+
+func (cc ConfigurationCluster) SetAPIPort(apiPort string) {
+	viper.Set("api_port", apiPort)
+}
+
+func (cc ConfigurationCluster) GetAPIBindAddress() string {
+	return viper.GetString("bind") + ":" + viper.GetString("api_port")
+}
+
 /* func (cc ConfigurationCluster) GetLogPath() string {
 	return viper.GetString("logicalName")
 }
