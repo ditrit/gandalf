@@ -77,6 +77,8 @@ func NewWorkerAdmin(chaussette *net.Shoset) *WorkerAdmin {
 	}
 	fmt.Println("INIT6.1")
 	workerAdmin.major = 0
+	fmt.Println("configurationConnector.GetGRPCSocketBind()")
+	fmt.Println(configurationConnector.GetGRPCSocketBind())
 	workerAdmin.clientGandalf = goclient.NewClientGandalf(workerAdmin.logicalName, strconv.FormatInt(workerAdmin.timeoutMax, 10), strings.Split(workerAdmin.grpcBindAddress, ","))
 	fmt.Println("INIT6.2")
 	workerAdmin.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)

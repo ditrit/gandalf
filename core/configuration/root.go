@@ -69,7 +69,8 @@ func init() {
 	rootCfg.SetDefault("ca_key_pem", "ca_key.pem")
 
 	rootCfg.Key("log_dir", config.IsStr, "", "directory to store gandalf logfile")
-	rootCfg.SetDefault("log_dir", "/var/log/")
+	//rootCfg.SetDefault("log_dir", "/var/log/")
+	rootCfg.SetDefault("log_dir", "home/romainfairant/gandalf/log/")
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201208152321-12d3514ce164
+	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20210119135440-4017cbb6360f
 	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201123160255-94c665cab23c
 	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
 	github.com/go-chi/chi v4.1.2+incompatible // indirect

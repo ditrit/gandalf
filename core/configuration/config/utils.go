@@ -60,6 +60,6 @@ func SetLogFile(appName string) {
 			log.Fatalf("error opening file: %v", err)
 		}
 	}
-	defer f.Close()
+	//defer f.Close()
 	log.SetOutput(f)
 }

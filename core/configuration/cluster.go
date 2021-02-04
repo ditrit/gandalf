@@ -56,7 +56,7 @@ func init() {
 	clusterCfg.Key("db_path", config.IsStr, "", "path for the gandalf database (absolute or relative to the configuration directory)")
 	clusterCfg.SetCheck("db_path", CheckNotEmpty)
 	//TEST
-	clusterCfg.SetDefault("db_path", "/home/romainfairant/gandalf")
+	clusterCfg.SetDefault("db_path", "/tmp/")
 
 	clusterCfg.Key("db_nodename", config.IsStr, "", "name of the gandalf node")
 	clusterCfg.SetCheck("db_nodename", CheckNotEmpty)

@@ -14,7 +14,6 @@ import (
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/connector"
-	"github.com/ditrit/gandalf/core/connector/utils"
 
 	"github.com/spf13/viper"
 )
@@ -51,16 +50,16 @@ func init() {
 	connectorCfg.SetNormalize("product", TrimToLower)
 
 	connectorCfg.Key("workers", config.IsStr, "w", "path for the workers configuration (absolute or relative to the certificates directory)")
-	connectorCfg.SetDefault("workers", "workers")
+	connectorCfg.SetDefault("workers", "/tmp/")
 
 	//TODO REVOIR DEFAULT
 	connectorCfg.Key("grpc_dir", config.IsStr, "g", "path for the sockets directory (absolute or relative to the certificates directory)")
-	connectorCfg.SetDefault("grpc_dir", "/tmp")
+	connectorCfg.SetDefault("grpc_dir", "/tmp/")
 
 	//connectorCfg.Key("grpc_bind", isStr, "", "GRPC address to bind (default is [grpc_dir]_[class]_[product]_[hash])")
 	connectorCfg.SetComputedValue("grpc_bind",
 		func() interface{} {
-			return viper.GetString("grpc_dir") + "/" + viper.GetString("lname") + "_" + viper.GetString("class") + "_" + viper.GetString("product") + "_" + utils.GenerateHash(viper.GetString("lname"))
+			return viper.GetString("grpc_dir") + viper.GetString("lname") + "_" + viper.GetString("class") + "_" + viper.GetString("product") //+ "_" + utils.GenerateHash(viper.GetString("lname"))
 		})
 
 	connectorCfg.Key("workers_url", config.IsStr, "u", "workers URL")
