@@ -171,9 +171,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								} else {
 									log.Fatalf("Can't create API servcer")
 								}
-
 								log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
-
 							} else {
 								log.Fatalf("Can't initialize database")
 							}
@@ -212,6 +210,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 					} else {
 						log.Fatalf("Can't create API servcer")
 					}
+					log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 				} else {
 					log.Fatalf("Can't create database client")
 				}
@@ -274,13 +273,13 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 							} else {
 								log.Fatalf("Can't create API servcer")
 							}
+							log.Printf("%s.JoinBrothers Join(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 						} else {
 							log.Fatalf("Can't create database client")
 						}
 					} else {
 						log.Fatalf("Can't create node")
 					}
-					log.Printf("%s.JoinBrothers Join(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 				} else {
 					log.Fatalf("Invalid secret")
 				}
