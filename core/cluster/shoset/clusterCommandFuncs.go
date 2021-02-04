@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
@@ -28,9 +29,10 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	//if ok {
 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-	databasePath := ch.Context["databasePath"].(string)
+	//databasePath := ch.Context["databasePath"].(string)
+	configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(cmd.GetTenant(), databasePath, mapDatabaseClient)
+		databaseClient := cutils.GetDatabaseClientByTenant(cmd.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
 		if databaseClient != nil {
 			ok := cutils.CaptureMessage(message, "cmd", databaseClient)
 			if ok {

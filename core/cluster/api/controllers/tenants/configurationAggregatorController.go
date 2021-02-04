@@ -55,7 +55,7 @@ func (cc ConfigurationAggregatorController) Upload(w http.ResponseWriter, r *htt
 			fmt.Println(err)
 		}
 
-		var configurationAggregator *models.ConfigurationAggregator
+		var configurationAggregator *models.ConfigurationLogicalAggregator
 		err = yaml.Unmarshal(fileBytes, &configurationAggregator)
 		if err != nil {
 			fmt.Println(err)
@@ -96,7 +96,7 @@ func (cc ConfigurationAggregatorController) Create(w http.ResponseWriter, r *htt
 	database := utils.GetDatabase(cc.mapDatabase, tenant)
 	if database != nil {
 
-		var configurationAggregator models.ConfigurationAggregator
+		var configurationAggregator models.ConfigurationLogicalAggregator
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&configurationAggregator); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -129,7 +129,7 @@ func (cc ConfigurationAggregatorController) Read(w http.ResponseWriter, r *http.
 			return
 		}
 
-		var configurationAggregator models.ConfigurationAggregator
+		var configurationAggregator models.ConfigurationLogicalAggregator
 		if configurationAggregator, err = dao.ReadConfigurationAggregator(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
@@ -160,7 +160,7 @@ func (cc ConfigurationAggregatorController) Update(w http.ResponseWriter, r *htt
 			return
 		}
 
-		var configurationAggregator models.ConfigurationAggregator
+		var configurationAggregator models.ConfigurationLogicalAggregator
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&configurationAggregator); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")

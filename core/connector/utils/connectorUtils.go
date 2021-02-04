@@ -16,8 +16,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ditrit/gandalf/core/configuration"
-
 	"github.com/ditrit/gandalf/core/models"
 	"gopkg.in/yaml.v2"
 
@@ -280,21 +278,6 @@ func Unzip(zipPath string, dirPath string) ([]string, error) {
 		}
 	}
 	return filenames, nil
-}
-
-func GetConfigurationKeys(configkeys []models.ConfigurationKeys) (stindargs string) {
-	var keyValue string
-	for i, configkey := range configkeys {
-		keyValue, _ = configuration.GetStringConfig(configkey.Name)
-		if i == 0 {
-			stindargs = "{\"" + configkey.Name + "\":" + "\"" + keyValue + "\""
-		} else {
-			stindargs = stindargs + ", \"" + configkey.Name + "\":" + "\"" + keyValue + "\""
-		}
-
-	}
-	stindargs = stindargs + "}"
-	return
 }
 
 // IsExecAll : IsExecAll

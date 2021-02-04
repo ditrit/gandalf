@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
@@ -67,10 +68,10 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	fmt.Println(configuration)
 
 	if configuration.GetCommand() == "CONFIGURATION_REPLY" {
-		var configurationConnector *models.ConfigurationConnector
+		var configurationConnector *models.ConfigurationLogicalConnector
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationConnector)
 		if err == nil {
-			ch.Context["configuration"] = configurationConnector
+			ch.Context["logicalConfiguration"] = configurationConnector
 		}
 	}
 
@@ -78,20 +79,24 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (err error) {
+func SendConfiguration(shoset *net.Shoset) (err error) {
+	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
+	configMarshal, err := json.Marshal(configurationLogicalConnector)
 
-	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
+	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
 	//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 	configurationMsg.GetContext()["componentType"] = "connector"
-	configurationMsg.GetContext()["logicalName"] = logicalName
-	configurationMsg.GetContext()["bindAddress"] = bindAddress
+	configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
+	configurationMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
+	//configurationMsg.GetContext()["configuration"] = configurationLogicalConnector
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > timeoutMax {
-			configurationMsg.Timeout = timeoutMax
+		if configurationMsg.GetTimeout() > configurationConnector.GetMaxTimeout() {
+			configurationMsg.Timeout = configurationConnector.GetMaxTimeout()
 		}
 
 		notSend := true
@@ -109,7 +114,7 @@ func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAd
 
 			time.Sleep(timeoutSend * time.Millisecond)
 
-			if shoset.Context["configuration"] != nil {
+			if shoset.Context["logicalConfiguration"] != nil {
 				notSend = false
 				break
 			}

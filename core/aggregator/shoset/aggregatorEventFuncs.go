@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
 )
@@ -19,8 +21,9 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle event")
 	log.Println(evt)
+	configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 
-	if evt.GetTenant() == ch.Context["tenant"] {
+	if evt.GetTenant() == configurationAggregator.GetTenant() {
 		//ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
 		//if ok {
 		if dir == "in" {

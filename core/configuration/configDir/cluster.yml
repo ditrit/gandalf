@@ -1,4 +1,0 @@
-cluster:
-  cluster_join:
-  db_path: /home/romainfairant/gandalf
-  db_name: node1

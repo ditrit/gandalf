@@ -8,6 +8,7 @@ import (
 	"log"
 	"time"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
@@ -69,11 +70,13 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if dir == "in" {
+		fmt.Println("IN")
 		if c.GetShosetType() == "c" {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				configuration.Target = c.GetBindAddr()
-				configuration.Tenant = ch.Context["tenant"].(string)
+				configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+				configuration.Tenant = configurationAggregator.GetTenant()
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(configuration)
 				log.Printf("%s : send in configuration %s to %s\n", thisOne, configuration.GetCommand(), shosets[index])
@@ -88,17 +91,19 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	}
 
 	if dir == "out" {
+		fmt.Println("OUT")
 		if c.GetShosetType() == "cl" {
-
 			if configuration.GetTarget() == "" {
 				if configuration.GetCommand() == "CONFIGURATION_REPLY" {
-					var configurationAggregator *models.ConfigurationAggregator
+					var configurationAggregator *models.ConfigurationLogicalAggregator
 					err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationAggregator)
 					if err == nil {
-						ch.Context["configuration"] = configurationAggregator
+						ch.Context["logicalConfiguration"] = configurationAggregator
 					}
 				}
 			} else {
+				fmt.Println("TARGET")
+				fmt.Println(configuration.GetTarget())
 				shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
 				shoset.SendMessage(configuration)
 			}
@@ -120,19 +125,24 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAddress string) (err error) {
-	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
-	configurationMsg.Tenant = shoset.Context["tenant"].(string)
+func SendConfiguration(shoset *net.Shoset) (err error) {
+	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
+	configMarshal, err := json.Marshal(configurationLogicalAggregator)
+
+	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
+	configurationMsg.Tenant = configurationAggregator.GetTenant()
 	configurationMsg.GetContext()["componentType"] = "aggregator"
-	configurationMsg.GetContext()["logicalName"] = logicalName
-	configurationMsg.GetContext()["bindAddress"] = bindAddress
+	configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
+	configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
+	//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
 	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > timeoutMax {
-			configurationMsg.Timeout = timeoutMax
+		if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+			configurationMsg.Timeout = configurationAggregator.GetMaxTimeout()
 		}
 
 		notSend := true
@@ -146,7 +156,7 @@ func SendConfiguration(shoset *net.Shoset, timeoutMax int64, logicalName, bindAd
 
 			time.Sleep(timeoutSend * time.Millisecond)
 
-			if shoset.Context["configuration"] != nil {
+			if shoset.Context["logicalConfiguration"] != nil {
 				notSend = false
 				break
 			}

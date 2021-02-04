@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
 )
@@ -21,8 +23,8 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle connector config")
 	log.Println(conf)
-
-	if conf.GetTenant() == ch.Context["tenant"] {
+	configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	if conf.GetTenant() == configurationAggregator.GetTenant() {
 		//ok := ch.Queue["config"].Push(conf, c.ShosetType, c.GetBindAddr())
 
 		//if ok {

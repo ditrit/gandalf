@@ -30,7 +30,7 @@ func NewGandalfDatabaseClient(addr, name string) (gandalfDatabaseClient *gorm.DB
 
 // InitGandalfDatabase : Gandalf database init.
 func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (login string, password string, secret string, err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationCluster{})
+	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationLogicalCluster{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()
@@ -58,6 +58,7 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (lo
 	return
 }
 
+//TODO REMOVE
 func Test(gandalfDatabaseClient *gorm.DB) {
 
 	DemoCreateCluster(gandalfDatabaseClient)
@@ -69,9 +70,9 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 
 	user, err := user.Current()
 	fmt.Println(user.HomeDir + "/gandalf")
-	err = NewTenantDatabase(user.HomeDir+"/gandalf", "127.0.0.1:10000", "tenant1")
+	err = NewTenantDatabase(user.HomeDir+"/gandalf", "127.0.0.1:9199", "tenant1")
 	fmt.Println(err)
-	tenantDatabaseClient, _ := NewTenantDatabaseClient("127.0.0.1:10000", "tenant1")
+	tenantDatabaseClient, _ := NewTenantDatabaseClient("127.0.0.1:9199", "tenant1")
 	InitTenantDatabase(tenantDatabaseClient)
 
 }
@@ -84,10 +85,8 @@ func DemoCreateCluster(gandalfDatabaseClient *gorm.DB) {
 
 //DemoConfiguration
 func DemoConfigurationCluster(tenantDatabaseClient *gorm.DB) {
-	var configurationCluster models.ConfigurationCluster
+	var configurationCluster models.ConfigurationLogicalCluster
 
 	configurationCluster.LogicalName = "Cluster"
-	configurationCluster.DBPath = "/home/romainfairant/gandalf"
-	configurationCluster.DBName = "Node1"
 	tenantDatabaseClient.Save(&configurationCluster)
 }

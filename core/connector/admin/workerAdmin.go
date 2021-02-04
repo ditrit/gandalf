@@ -15,11 +15,11 @@ import (
 
 	"github.com/ditrit/shoset/msg"
 
-	"github.com/ditrit/gandalf/core/configuration"
 	"github.com/ditrit/gandalf/core/connector/shoset"
 	"github.com/ditrit/gandalf/core/connector/utils"
 	"github.com/ditrit/gandalf/libraries/goclient"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 	net "github.com/ditrit/shoset"
 	"gopkg.in/yaml.v2"
@@ -32,7 +32,7 @@ type WorkerAdmin struct {
 	baseurl          string
 	workerPath       string
 	grpcBindAddress  string
-	autoUpdate       bool
+	autoUpdate       string
 	autoUpdateHour   int
 	autoUpdateMinute int
 	chaussette       *net.Shoset
@@ -47,32 +47,40 @@ type WorkerAdmin struct {
 }
 
 //NewWorker : NewWorker
-func NewWorkerAdmin(logicalName, connectorType, product, baseurl, workerPath, grpcBindAddress, autoUpdateTime string, autoUpdate bool, timeoutMax int64, chaussette *net.Shoset, versions []models.Version) *WorkerAdmin {
+func NewWorkerAdmin(chaussette *net.Shoset) *WorkerAdmin {
 	workerAdmin := new(WorkerAdmin)
-	workerAdmin.logicalName = logicalName
-	workerAdmin.connectorType = connectorType
-	workerAdmin.product = product
-	workerAdmin.baseurl = baseurl
-	workerAdmin.workerPath = workerPath
-	workerAdmin.grpcBindAddress = grpcBindAddress
-	workerAdmin.timeoutMax = timeoutMax
 	workerAdmin.chaussette = chaussette
-	workerAdmin.versions = versions
 
-	workerAdmin.autoUpdate = autoUpdate
-	autoUpdateTimeSplit := strings.Split(autoUpdateTime, ":")
-	autoUpdateTimeHour, err := strconv.Atoi(autoUpdateTimeSplit[0])
-	if err == nil {
-		workerAdmin.autoUpdateHour = autoUpdateTimeHour
-	}
-	autoUpdateTimeMinute, err := strconv.Atoi(autoUpdateTimeSplit[1])
-	if err == nil {
-		workerAdmin.autoUpdateMinute = autoUpdateTimeMinute
-	}
+	configurationConnector := workerAdmin.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
 
+	workerAdmin.logicalName = configurationConnector.GetLogicalName()
+	workerAdmin.connectorType = configurationConnector.GetConnectorType()
+	workerAdmin.product = configurationConnector.GetProduct()
+	workerAdmin.baseurl = configurationConnector.GetWorkersUrl()
+	workerAdmin.workerPath = configurationConnector.GetWorkersPath()
+	workerAdmin.grpcBindAddress = configurationConnector.GetGRPCSocketBind()
+	workerAdmin.timeoutMax = configurationConnector.GetMaxTimeout()
+	workerAdmin.versions = configurationConnector.GetVersions()
+
+	workerAdmin.autoUpdate = configurationConnector.GetAutoUpdate()
+	//TODO REVOIR
+	if workerAdmin.autoUpdate == "planned" {
+		autoUpdateTimeSplit := strings.Split(configurationConnector.GetAutoUpdateTime(), ":")
+		autoUpdateTimeHour, err := strconv.Atoi(autoUpdateTimeSplit[0])
+		if err == nil {
+			workerAdmin.autoUpdateHour = autoUpdateTimeHour
+		}
+		autoUpdateTimeMinute, err := strconv.Atoi(autoUpdateTimeSplit[1])
+		if err == nil {
+			workerAdmin.autoUpdateMinute = autoUpdateTimeMinute
+		}
+	}
+	fmt.Println("INIT6.1")
 	workerAdmin.major = 0
-
+	fmt.Println("configurationConnector.GetGRPCSocketBind()")
+	fmt.Println(configurationConnector.GetGRPCSocketBind())
 	workerAdmin.clientGandalf = goclient.NewClientGandalf(workerAdmin.logicalName, strconv.FormatInt(workerAdmin.timeoutMax, 10), strings.Split(workerAdmin.grpcBindAddress, ","))
+	fmt.Println("INIT6.2")
 	workerAdmin.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
 
 	return workerAdmin
@@ -116,14 +124,27 @@ func (w WorkerAdmin) Run() {
 			}
 		}
 	}
-	if w.autoUpdate {
+
+	switch w.autoUpdate {
+	case "auto":
+		w.updateByMinute()
+		break
+	case "planed":
+		if w.autoUpdateHour > 0 || w.autoUpdateMinute > 0 {
+			w.updateByTime(w.autoUpdateHour, w.autoUpdateMinute)
+		}
+		break
+
+	}
+
+	/* 	if w.autoUpdate {
 		//TODO REVOIR
 		if w.autoUpdateHour > 0 || w.autoUpdateMinute > 0 {
 			w.updateByTime(w.autoUpdateHour, w.autoUpdateMinute)
 		} else {
 			w.updateByMinute()
 		}
-	}
+	} */
 
 	//
 	w.RegisterCommandsFuncs("ADMIN_GET_WORKER", w.GetWorker)
@@ -281,7 +302,7 @@ func (w WorkerAdmin) stopWorker(version models.Version) (err error) {
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getConfiguration() (err error) {
 
-	shoset.SendConnectorConfig(w.chaussette, w.timeoutMax)
+	shoset.SendConnectorConfig(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
@@ -305,10 +326,7 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 			connectorConfig.ConnectorType.Name = "Admin"
 			connectorConfig.Major = int8(w.major)
 
-			//ADD COMMMANDS ADMIN
-			//addCommandsAdmin(connectorConfig)
-
-			shoset.SendSaveConnectorConfig(w.chaussette, w.timeoutMax, connectorConfig)
+			shoset.SendSaveConnectorConfig(w.chaussette, connectorConfig)
 		}
 
 		config[w.connectorType] = append(config[w.connectorType], connectorConfig)
@@ -322,7 +340,7 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) {
 
-	shoset.SendConnectorConfig(w.chaussette, w.timeoutMax)
+	shoset.SendConnectorConfig(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
 	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
@@ -349,7 +367,7 @@ func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) 
 			//ADD COMMMANDS ADMIN
 			//addCommandsAdmin(connectorConfig)
 
-			shoset.SendSaveConnectorConfig(w.chaussette, w.timeoutMax, connectorConfig)
+			shoset.SendSaveConnectorConfig(w.chaussette, connectorConfig)
 		}
 
 		config[w.connectorType] = append(config[w.connectorType], connectorConfig)
@@ -432,13 +450,15 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMajorKeys...)
 			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMinorKeys...)
 
-			configuration.WorkerKeyParse(listConfigurationKeys)
-			err = configuration.IsConfigValid()
+			configurationConnector := w.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
+			configurationConnector.AddConnectorConfigurationKeys(listConfigurationKeys)
+			//configuration.WorkerKeyParse(listConfigurationKeys)
+			//err = configuration.IsConfigValid()
 
 			if err == nil {
 
 				var stdinargs string
-				stdinargs = utils.GetConfigurationKeys(listConfigurationKeys)
+				stdinargs = configurationConnector.GetConfigurationKeys(listConfigurationKeys)
 
 				workersPathVersion := w.workerPath + "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
 				fileWorkersPathVersion := workersPathVersion + "/worker"

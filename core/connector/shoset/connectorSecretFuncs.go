@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
@@ -61,7 +63,10 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(secret)
 
 	if secret.GetCommand() == "VALIDATION_REPLY" {
-		ch.Context["tenant"] = secret.GetTenant()
+		//ch.Context["tenant"] = secret.GetTenant()
+		configurationConnector := ch.Context["configuration"].(*cmodels.ConfigurationConnector)
+		configurationConnector.SetTenant(secret.GetTenant())
+		//ch.Context["configurationConnector"] = configurationConnector
 		ch.Context["validation"] = secret.GetPayload()
 	}
 
@@ -69,21 +74,22 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, secret, bindAddress string) (err error) {
+func SendSecret(shoset *net.Shoset) (err error) {
+	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	//secretMsg.Tenant = shoset.Context["tenant"].(string)
 	secretMsg.GetContext()["componentType"] = "connector"
-	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["secret"] = secret
-	secretMsg.GetContext()["bindAddress"] = bindAddress
+	secretMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
+	secretMsg.GetContext()["secret"] = configurationConnector.GetSecret()
+	secretMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > timeoutMax {
-			secretMsg.Timeout = timeoutMax
+		if secretMsg.GetTimeout() > configurationConnector.GetMaxTimeout() {
+			secretMsg.Timeout = configurationConnector.GetMaxTimeout()
 		}
 
 		notSend := true

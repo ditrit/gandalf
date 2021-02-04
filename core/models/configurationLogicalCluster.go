@@ -2,7 +2,9 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-type ConfigurationAggregator struct {
+type ConfigurationLogicalCluster struct {
 	gorm.Model
 	LogicalName string
+	Secret      string
+	MaxTimeout  int64
 }

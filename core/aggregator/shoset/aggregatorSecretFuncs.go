@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
@@ -67,7 +69,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				secret.Target = c.GetBindAddr()
-				secret.Tenant = ch.Context["tenant"].(string)
+				configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+				secret.Tenant = configurationAggregator.GetTenant()
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(secret)
 				log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
@@ -110,20 +113,21 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, tenant, secret, bindAddress string) (err error) {
+func SendSecret(shoset *net.Shoset) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
-	secretMsg.Tenant = shoset.Context["tenant"].(string)
+	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	secretMsg.Tenant = configurationAggregator.GetTenant()
 	secretMsg.GetContext()["componentType"] = "aggregator"
-	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["secret"] = secret
-	secretMsg.GetContext()["bindAddress"] = bindAddress
+	secretMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
+	secretMsg.GetContext()["secret"] = configurationAggregator.GetSecret()
+	secretMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
 	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > timeoutMax {
-			secretMsg.Timeout = timeoutMax
+		if secretMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+			secretMsg.Timeout = configurationAggregator.GetMaxTimeout()
 		}
 
 		notSend := true

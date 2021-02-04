@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201208152321-12d3514ce164
+	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20210119135440-4017cbb6360f
 	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201123160255-94c665cab23c
 	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
 	github.com/go-chi/chi v4.1.2+incompatible // indirect
@@ -16,6 +16,8 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/jinzhu/gorm v1.9.14
 	github.com/pkg/errors v0.9.1
+	github.com/spf13/cobra v1.1.1
+	github.com/spf13/viper v1.7.1
 	github.com/techknowlogick/go-oauth2-gorm v0.0.0-20191219033350-a561e9f2b1cf // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0

@@ -36,7 +36,7 @@ func NewTenantDatabaseClient(addr, tenant string) (tenantDatabaseClient *gorm.DB
 
 // InitTenantDatabase : Tenant database init.
 func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password string, err error) {
-	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Permission{}, &models.ConfigurationAggregator{}, &models.ConfigurationConnector{})
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Permission{}, &models.ConfigurationLogicalAggregator{}, &models.ConfigurationLogicalConnector{})
 
 	//Init State
 	state := models.State{Admin: false}
@@ -59,7 +59,7 @@ func InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password s
 	DemoCreateConnectorType(tenantDatabaseClient)
 	DemoCreateAction(tenantDatabaseClient)
 	DemoCreateApplicationUtils(tenantDatabaseClient)
-	DemoConfiguration(tenantDatabaseClient)
+	//DemoConfiguration(tenantDatabaseClient)
 	//TODO REMOVE
 	//DemoCreateUser1(tenantDatabaseClient)
 	//DemoCreateConnectorType(tenantDatabaseClient)
@@ -268,14 +268,14 @@ func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
 
 //DemoCreateAggregator
 func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Aggregator{LogicalName: "Aggregator1", Secret: "TATA"})
+	tenantDatabaseClient.Create(&models.Aggregator{LogicalName: "aggregator1", Secret: "TATA"})
 }
 
 //DemoCreateConnector
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector1", Secret: "TOTO"})
-	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector2", Secret: "TOTO"})
-	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector3", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "connector1", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "connector2", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "connector3", Secret: "TOTO"})
 }
 
 //DemoCreateConnectorType
@@ -362,10 +362,10 @@ func DemoCreateApplicationDocker(tenantDatabaseClient *gorm.DB) {
 		ConnectorType: ConnectorTypeDocker})
 }
 
-//DemoConfiguration
+/* //DemoConfiguration
 func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
-	var configurationAggregator models.ConfigurationAggregator
-	var configurationConnector models.ConfigurationConnector
+	var configurationAggregator models.ConfigurationLogicalAggregator
+	var configurationConnector models.ConfigurationLogicalConnector
 
 	configurationAggregator.LogicalName = "Aggregator1"
 	tenantDatabaseClient.Save(&configurationAggregator)
@@ -373,232 +373,9 @@ func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
 	configurationConnector.LogicalName = "Connector1"
 	configurationConnector.ConnectorType = "Utils"
 	configurationConnector.Product = "Custom"
-	configurationConnector.GRPCSocketDir = "/tmp/"
 	configurationConnector.WorkersUrl = "https://github.com/ditrit/workers/raw/master"
-	configurationConnector.WorkersPath = "/home/romainfairant/gandalf/workers"
 	configurationConnector.AutoUpdateTime = "13:00"
-	configurationConnector.AutoUpdate = true
 	configurationConnector.MaxTimeout = 1000
-	configurationConnector.VersionsMajor = 1
-	configurationConnector.VersionsMinor = 0
 	tenantDatabaseClient.Save(&configurationConnector)
-
-}
-
-/* //DemoCreateProductUtils
-func DemoCreateProductUtils(tenantDatabaseClient *gorm.DB) {
-
-	var ConnectorTypeUtils models.ConnectorType
-	tenantDatabaseClient.Where("name = ?", "Utils").First(&ConnectorTypeUtils)
-
-	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Custom", Version: "1", ConnectorType: ConnectorTypeUtils})
-	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Custom", Version: "2", ConnectorType: ConnectorTypeUtils})
-}
-
-//DemoCreateProductWorkflow
-func DemoCreateProductWorkflow(tenantDatabaseClient *gorm.DB) {
-
-	var ConnectorTypeWorkflow models.ConnectorType
-	tenantDatabaseClient.Where("name = ?", "Workflow").First(&ConnectorTypeWorkflow)
-
-	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Custom", Version: "1", ConnectorType: ConnectorTypeWorkflow})
-	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Custom", Version: "2", ConnectorType: ConnectorTypeWorkflow})
-}
-
-//DemoCreateApplicationUtils
-func DemoCreateApplicationUtils(tenantDatabaseClient *gorm.DB) {
-	var AggregatorUtils models.Aggregator
-	var ConnectorUtils models.Connector
-	var ConnectorTypeUtils models.ConnectorType
-
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator1", "Aggregator1").First(&AggregatorUtils)
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector1", "Connector1").First(&ConnectorUtils)
-	tenantDatabaseClient.Where("logical_name = ?", "Utils").First(&ConnectorTypeUtils)
-
-	tenantDatabaseClient.Create(&models.Application{Name: "Application1",
-		Aggregator:    AggregatorUtils,
-		Connector:     ConnectorUtils,
-		ConnectorType: ConnectorTypeUtils})
-}
-
-//DemoCreateApplicationWorkflow
-func DemoCreateApplicationWorkflow(tenantDatabaseClient *gorm.DB) {
-	var AggregatorWorkflow models.Aggregator
-	var ConnectorWorkflow models.Connector
-	var ConnectorTypeWorkflow models.ConnectorType
-
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator2", "Aggregator2").First(&AggregatorWorkflow)
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector2", "Connector2").First(&ConnectorWorkflow)
-	tenantDatabaseClient.Where("name = ?", "Workflow").First(&ConnectorTypeWorkflow)
-
-	tenantDatabaseClient.Create(&models.Application{Name: "Application2",
-		Aggregator:    AggregatorWorkflow,
-		Connector:     ConnectorWorkflow,
-		ConnectorType: ConnectorTypeWorkflow})
-
-}
-
-//DemoCreateApplicationAzure
-func DemoCreateApplicationAzure(tenantDatabaseClient *gorm.DB) {
-	var AggregatorAzure models.Aggregator
-	var ConnectorAzure models.Connector
-	var ConnectorTypeAzure models.ConnectorType
-
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator3", "Aggregator3").First(&AggregatorAzure)
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector3", "Connector3").First(&ConnectorAzure)
-	tenantDatabaseClient.Where("name = ?", "Gitlab").First(&ConnectorTypeAzure)
-
-	tenantDatabaseClient.Create(&models.Application{Name: "Application3",
-		Aggregator:    AggregatorAzure,
-		Connector:     ConnectorAzure,
-		ConnectorType: ConnectorTypeAzure})
-}
-
-//DemoCreateApplicationGitlab
-func DemoCreateApplicationGitlab(tenantDatabaseClient *gorm.DB) {
-	var AggregatorGitlab models.Aggregator
-	var ConnectorGitlab models.Connector
-	var ConnectorTypeGitlab models.ConnectorType
-
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Aggregator4", "Aggregator4").First(&AggregatorGitlab)
-	tenantDatabaseClient.Where("logical_name = ? and instance_name = ?", "Connector4", "Connector4").First(&ConnectorGitlab)
-	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorTypeGitlab)
-
-	tenantDatabaseClient.Create(&models.Application{Name: "Application4",
-		Aggregator:    AggregatorGitlab,
-		Connector:     ConnectorGitlab,
-		ConnectorType: ConnectorTypeGitlab})
-}
-
-//DemoCreateConfigurationUtils
-func DemoCreateConfigurationUtils(tenantDatabaseClient *gorm.DB) {
-
-	var ConnectorTypeUtils models.ConnectorType
-	var ConnectorUtilsCommands []models.ConnectorCommand
-	var ConnectorUtilsEvents []models.ConnectorEvent
-
-	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Utils"})
-	tenantDatabaseClient.Where("name = ?", "Utils").First(&ConnectorTypeUtils)
-
-	tenantDatabaseClient.Create(&models.ConnectorCommand{Name: "SEND_AUTH_MAIL", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/MailPayload","definitions":{"MailPayload":{"required":["Sender","Body","Receivers","Username","Password","Host"],"properties":{"Sender":{"type":"string"},"Body":{"type":"string"},"Receivers":{"items":{"type":"string"},"type":"array"},"Username":{"type":"string"},"Password":{"type":"string"},"Host":{"type":"string"}},"additionalProperties":false,"type":"object"}}}`})
-	tenantDatabaseClient.Create(&models.ConnectorCommand{Name: "CREATE_FORM", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/FormPayload","definitions":{"Field":{"required":["Name","HtmlType","Value"],"properties":{"Name":{"type":"string"},"HtmlType":{"type":"string"},"Value":{"additionalProperties":true}},"additionalProperties":false,"type":"object"},"FormPayload":{"required":["Fields"],"properties":{"Fields":{"items":{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/Field"},"type":"array"}},"additionalProperties":false,"type":"object"}}}`})
-
-	tenantDatabaseClient.Where("name IN (?)", []string{"SEND_AUTH_MAIL", "CREATE_FORM"}).Find(&ConnectorUtilsCommands)
-
-	tenantDatabaseClient.Create(&models.ConnectorEvent{Name: "NEW_APP", Schema: `{"type":"string"}`})
-
-	tenantDatabaseClient.Where("name IN (?)", []string{"NEW_APP"}).Find(&ConnectorUtilsEvents)
-
-	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig1",
-		ConnectorType:     ConnectorTypeUtils,
-		Version:           1,
-		ConnectorCommands: ConnectorUtilsCommands,
-		ConnectorEvents:   ConnectorUtilsEvents})
-
-	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig2",
-		ConnectorType:     ConnectorTypeUtils,
-		Version:           2,
-		ConnectorCommands: ConnectorUtilsCommands,
-		ConnectorEvents:   ConnectorUtilsEvents})
-
-}
-
-//DemoCreateConfigurationWorkflow
-func DemoCreateConfigurationWorkflow(tenantDatabaseClient *gorm.DB) {
-	var ConnectorWorkflowCommands []models.ConnectorCommand
-	var ConnectorTypeWorkflow models.ConnectorType
-
-	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Workflow"})
-	tenantDatabaseClient.Where("name = ?", "Workflow").First(&ConnectorTypeWorkflow)
-
-	tenantDatabaseClient.Where("name IN (?)", []string{}).Find(&ConnectorWorkflowCommands)
-
-	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig3",
-		ConnectorType:     ConnectorTypeWorkflow,
-		Version:           1,
-		ConnectorCommands: ConnectorWorkflowCommands,
-		ConnectorEvents:   []models.ConnectorEvent{}})
-}
-
-//DemoCreateConfigurationAzure
-func DemoCreateConfigurationAzure(tenantDatabaseClient *gorm.DB) {
-	var ConnectorAzureCommands []models.ConnectorCommand
-	var ConnectorTypeAzure models.ConnectorType
-	var ConnectorProductAzure models.ConnectorProduct
-
-	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Azure"})
-	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorTypeAzure)
-
-	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Azure", Version: "0"})
-	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorProductAzure)
-
-	tenantDatabaseClient.Create(&models.ConnectorCommand{Name: "CREATE_VM_BY_JSON", Schema: `{"$schema":"http://json-schema.org/draft-04/schema#","$ref":"#/definitions/ComputeByJSONPayload","definitions":{"ComputeByJSONPayload":{"required":["ResourceGroupName","ResourceGroupLocation","DeploymentName","TemplateFile","ParametersFile"],"properties":{"ResourceGroupName":{"type":"string"},"ResourceGroupLocation":{"type":"string"},"DeploymentName":{"type":"string"},"TemplateFile":{"type":"string"},"ParametersFile":{"type":"string"}},"additionalProperties":false,"type":"object"}}}`})
-
-	tenantDatabaseClient.Where("name IN (?)", []string{"CREATE_VM_BY_JSON"}).Find(&ConnectorAzureCommands)
-
-	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig4",
-		ConnectorType:     ConnectorTypeAzure,
-		Version:           1,
-		ConnectorProduct:  ConnectorProductAzure,
-		ConnectorCommands: ConnectorAzureCommands,
-		ConnectorEvents:   []models.ConnectorEvent{}})
-}
-
-//DemoCreateConfigurationGitlab
-func DemoCreateConfigurationGitlab(tenantDatabaseClient *gorm.DB) {
-	var ConnectorGitlabCommands []models.ConnectorCommand
-	var ConnectorTypeGitlab models.ConnectorType
-	var ConnectorProductGitlab models.ConnectorProduct
-
-	tenantDatabaseClient.Create(&models.ConnectorType{Name: "Gitlab"})
-	tenantDatabaseClient.Where("name = ?", "Gitlab").First(&ConnectorTypeGitlab)
-
-	tenantDatabaseClient.Create(&models.ConnectorProduct{Name: "Gitlab", Version: "0"})
-	tenantDatabaseClient.Where("name = ?", "Azure").First(&ConnectorProductGitlab)
-
-	tenantDatabaseClient.Create(&models.ConnectorCommand{Name: "Gitlab1", Schema: ""})
-	tenantDatabaseClient.Create(&models.ConnectorCommand{Name: "Gitlab2", Schema: ""})
-	tenantDatabaseClient.Create(&models.ConnectorCommand{Name: "Gitlab3", Schema: ""})
-
-	tenantDatabaseClient.Where("name IN (?)", []string{"Gitlab1", "Gitlab2", "Gitlab3"}).Find(&ConnectorGitlabCommands)
-
-	tenantDatabaseClient.Create(&models.ConnectorConfig{Name: "ConnectorConfig5",
-		ConnectorType:     ConnectorTypeGitlab,
-		Version:           1,
-		ConnectorProduct:  ConnectorProductGitlab,
-		ConnectorCommands: ConnectorGitlabCommands,
-		ConnectorEvents:   []models.ConnectorEvent{}})
-
-}
-
-// DemoPopulateTenantDatabase : Populate database demo.
-func DemoPopulateTenantDatabase(tenantDatabaseClient *gorm.DB) {
-
-	//CORE
-	DemoCreateAggregator(tenantDatabaseClient)
-	DemoCreateConnector(tenantDatabaseClient)
-	DemoCreateConnectorType(tenantDatabaseClient)
-	DemoCreateRole(tenantDatabaseClient)
-
-	//PRODUCT
-	DemoCreateProductUtils(tenantDatabaseClient)
-	DemoCreateProductWorkflow(tenantDatabaseClient)
-
-	//USER
-	DemoCreateUser1(tenantDatabaseClient)
-	DemoCreateUser2(tenantDatabaseClient)
-
-	//APPLICATION
-	DemoCreateApplicationUtils(tenantDatabaseClient)
-	DemoCreateApplicationWorkflow(tenantDatabaseClient)
-	DemoCreateApplicationAzure(tenantDatabaseClient)
-	DemoCreateApplicationGitlab(tenantDatabaseClient)
-
-	//CONFIGURATION
-	//DemoCreateConfigurationUtils(tenantDatabaseClient)
-	DemoCreateConfigurationWorkflow(tenantDatabaseClient)
-	DemoCreateConfigurationAzure(tenantDatabaseClient)
-	DemoCreateConfigurationGitlab(tenantDatabaseClient)
-
 }
 */

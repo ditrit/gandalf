@@ -9,13 +9,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func ListConfigurationConnector(database *gorm.DB) (configurationConnectors []models.ConfigurationConnector, err error) {
+func ListConfigurationConnector(database *gorm.DB) (configurationConnectors []models.ConfigurationLogicalConnector, err error) {
 	err = database.Find(&configurationConnectors).Error
 
 	return
 }
 
-func CreateConfigurationConnector(database *gorm.DB, configurationConnector models.ConfigurationConnector) (err error) {
+func CreateConfigurationConnector(database *gorm.DB, configurationConnector models.ConfigurationLogicalConnector) (err error) {
 	admin, err := utils.GetStateGandalf(database)
 	if err == nil {
 		if admin {
@@ -28,13 +28,13 @@ func CreateConfigurationConnector(database *gorm.DB, configurationConnector mode
 	return
 }
 
-func ReadConfigurationConnector(database *gorm.DB, id int) (configurationConnector models.ConfigurationConnector, err error) {
+func ReadConfigurationConnector(database *gorm.DB, id int) (configurationConnector models.ConfigurationLogicalConnector, err error) {
 	err = database.First(&configurationConnector, id).Error
 
 	return
 }
 
-func UpdateConfigurationConnector(database *gorm.DB, configurationConnector models.ConfigurationConnector) (err error) {
+func UpdateConfigurationConnector(database *gorm.DB, configurationConnector models.ConfigurationLogicalConnector) (err error) {
 	err = database.Save(&configurationConnector).Error
 
 	return
@@ -44,7 +44,7 @@ func DeleteConfigurationConnector(database *gorm.DB, id int) (err error) {
 	admin, err := utils.GetStateGandalf(database)
 	if err == nil {
 		if admin {
-			var configurationConnector models.ConfigurationConnector
+			var configurationConnector models.ConfigurationLogicalConnector
 			err = database.Delete(&configurationConnector, id).Error
 		} else {
 			err = errors.New("Invalid state")

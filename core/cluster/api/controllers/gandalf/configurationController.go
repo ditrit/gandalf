@@ -52,7 +52,7 @@ func (cc ConfigurationController) Upload(w http.ResponseWriter, r *http.Request)
 		fmt.Println(err)
 	}
 
-	var configurationConfigurationCluster *models.ConfigurationCluster
+	var configurationConfigurationCluster *models.ConfigurationLogicalCluster
 	err = yaml.Unmarshal(fileBytes, &configurationConfigurationCluster)
 	if err != nil {
 		fmt.Println(err)
@@ -76,7 +76,7 @@ func (cc ConfigurationController) List(w http.ResponseWriter, r *http.Request) {
 
 // Create :
 func (cc ConfigurationController) Create(w http.ResponseWriter, r *http.Request) {
-	var configurationCluster models.ConfigurationCluster
+	var configurationCluster models.ConfigurationLogicalCluster
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&configurationCluster); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -101,7 +101,7 @@ func (cc ConfigurationController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var configurationCluster models.ConfigurationCluster
+	var configurationCluster models.ConfigurationLogicalCluster
 	if configurationCluster, err = dao.ReadConfigurationCluster(cc.gandalfDatabase, id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -124,7 +124,7 @@ func (cc ConfigurationController) Update(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var configurationCluster models.ConfigurationCluster
+	var configurationCluster models.ConfigurationLogicalCluster
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&configurationCluster); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
