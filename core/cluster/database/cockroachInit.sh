@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BINDIR=~/bin
+BINDIR=/usr/local/bin
 DATADIR=$1
 CERTDIR=$DATADIR/certs
 COCKROACH=$BINDIR/cockroach

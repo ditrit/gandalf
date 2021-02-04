@@ -4,6 +4,8 @@ package cluster
 import (
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -249,7 +251,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 					configurationCluster.DatabaseToConfiguration(configurationLogicalCluster)
 					//member.GetChaussette().Context["databasePath"] = databasePath
 
-					databaseStore := CreateStore(getBrothers(configurationCluster.GetBindAddress(), member))
+					databaseStore := CreateStore(getBrothers(configurationCluster.GetBindAddress(), member), configurationCluster.GetDatabasePort())
 					fmt.Println("databaseStore")
 					fmt.Println(databaseStore)
 					time.Sleep(5 * time.Second)
@@ -333,17 +335,17 @@ func (m *ClusterMember) StartAPI(bindAdress, databasePath, databaseBindAddress s
 }
 
 // CreateStore : Cluster create store function.
-func CreateStore(bros []string) string {
+func CreateStore(bros []string, port int) string {
 	var store string
 
 	for i, bro := range bros {
 		if i == 0 {
-			thisDBBro, ok := net.DeltaAddress(bro, 1000)
+			thisDBBro, ok := ChangePort(bro, port)
 			if ok {
 				store = thisDBBro
 			}
 		} else {
-			thisDBBro, ok := net.DeltaAddress(bro, 1000)
+			thisDBBro, ok := ChangePort(bro, port)
 			if ok {
 				store = store + "," + thisDBBro
 			}
@@ -352,4 +354,16 @@ func CreateStore(bros []string) string {
 	}
 
 	return store
+}
+
+func ChangePort(addr string, port int) (string, bool) {
+	parts := strings.Split(addr, ":")
+	if len(parts) == 2 {
+		port, err := strconv.Atoi(parts[1])
+		if err == nil {
+			return fmt.Sprintf("%s:%d", parts[0], port), true
+		}
+		return "", false
+	}
+	return "", false
 }
