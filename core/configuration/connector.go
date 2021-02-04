@@ -60,7 +60,7 @@ func init() {
 	//connectorCfg.Key("grpc_bind", isStr, "", "GRPC address to bind (default is [grpc_dir]_[class]_[product]_[hash])")
 	connectorCfg.SetComputedValue("grpc_bind",
 		func() interface{} {
-			return viper.GetString("grpc_dir") + "_" + viper.GetString("lname") + "_" + viper.GetString("class") + "_" + viper.GetString("product") + "_" + utils.GenerateHash(viper.GetString("lname"))
+			return viper.GetString("grpc_dir") + "/" + viper.GetString("lname") + "_" + viper.GetString("class") + "_" + viper.GetString("product") + "_" + utils.GenerateHash(viper.GetString("lname"))
 		})
 
 	connectorCfg.Key("workers_url", config.IsStr, "u", "workers URL")

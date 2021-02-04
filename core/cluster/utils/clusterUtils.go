@@ -211,6 +211,10 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 		break
 	case "aggregator":
 		var aggregator models.Aggregator
+		fmt.Println("logicalName")
+		fmt.Println(logicalName)
+		fmt.Println("secret")
+		fmt.Println(secret)
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&aggregator).Error
 		fmt.Println("err")
 		fmt.Println(err)

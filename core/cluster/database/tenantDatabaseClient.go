@@ -268,14 +268,14 @@ func DemoTestHierachical(tenantDatabaseClient *gorm.DB) {
 
 //DemoCreateAggregator
 func DemoCreateAggregator(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Aggregator{LogicalName: "Aggregator1", Secret: "TATA"})
+	tenantDatabaseClient.Create(&models.Aggregator{LogicalName: "aggregator1", Secret: "TATA"})
 }
 
 //DemoCreateConnector
 func DemoCreateConnector(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector1", Secret: "TOTO"})
-	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector2", Secret: "TOTO"})
-	tenantDatabaseClient.Create(&models.Connector{LogicalName: "Connector3", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "connector1", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "connector2", Secret: "TOTO"})
+	tenantDatabaseClient.Create(&models.Connector{LogicalName: "connector3", Secret: "TOTO"})
 }
 
 //DemoCreateConnectorType

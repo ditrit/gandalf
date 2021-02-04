@@ -70,6 +70,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if dir == "in" {
+		fmt.Println("IN")
 		if c.GetShosetType() == "c" {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
@@ -90,8 +91,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	}
 
 	if dir == "out" {
+		fmt.Println("OUT")
 		if c.GetShosetType() == "cl" {
-
 			if configuration.GetTarget() == "" {
 				if configuration.GetCommand() == "CONFIGURATION_REPLY" {
 					var configurationAggregator *models.ConfigurationLogicalAggregator
@@ -101,6 +102,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 					}
 				}
 			} else {
+				fmt.Println("TARGET")
+				fmt.Println(configuration.GetTarget())
 				shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
 				shoset.SendMessage(configuration)
 			}
@@ -125,13 +128,14 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 func SendConfiguration(shoset *net.Shoset) (err error) {
 	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
+	configMarshal, err := json.Marshal(configurationLogicalAggregator)
 
-	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
+	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
 	configurationMsg.Tenant = configurationAggregator.GetTenant()
 	configurationMsg.GetContext()["componentType"] = "aggregator"
 	configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
 	configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
-	configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
+	//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")

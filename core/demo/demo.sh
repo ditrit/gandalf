@@ -8,16 +8,17 @@ go build -o gandalf
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
-./gandalf cluster -l Cluster --bind 127.0.0.1
+./gandalf cluster -l Cluster
 
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'
-./gandalf aggregator -l Aggregator1 -t tenant1 --bind 127.0.0.1 --port 10000 --cluster 127.0.0.1:9099 --secret TATA
+./gandalf aggregator -l Aggregator1 -t tenant1 --port 10000 --cluster 127.0.0.1:9099 --secret TATA
 sleep 5
 
 echo 'Connector'
 echo 'ConnectorMember Con1 and Con2' 
-./gandalf -g connector -l Connector1 -b 127.0.0.1:7000 -a 127.0.0.1:8000 -s TOTO
+./gandalf connector -l Connector1 --port 10100 --aggregator 127.0.0.1:10000 --secret TOTO --class utils --product Custom
+
 ./gandalf -g connector -l Connector1 -b 127.0.0.1:7000 -r /tmp/ -a 127.0.0.1:8000 -y Utils -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
 ./gandalf -g connector -l Connector2 -b 127.0.0.1:7100 -r /tmp/ -a 127.0.0.1:8000 -y Workflow -p Docker -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
 ./gandalf -g connector -l Connector3 -b 127.0.0.1:7100 -r /tmp/ -a 127.0.0.1:8000 -y Workflow -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO

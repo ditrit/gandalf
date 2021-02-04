@@ -82,13 +82,14 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 func SendConfiguration(shoset *net.Shoset) (err error) {
 	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 	configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
+	configMarshal, err := json.Marshal(configurationLogicalConnector)
 
-	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
+	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
 	//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 	configurationMsg.GetContext()["componentType"] = "connector"
 	configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
 	configurationMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
-	configurationMsg.GetContext()["configuration"] = configurationLogicalConnector
+	//configurationMsg.GetContext()["configuration"] = configurationLogicalConnector
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")

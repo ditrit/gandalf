@@ -63,18 +63,22 @@ func NewWorkerAdmin(chaussette *net.Shoset) *WorkerAdmin {
 	workerAdmin.versions = configurationConnector.GetVersions()
 
 	workerAdmin.autoUpdate = configurationConnector.GetAutoUpdate()
-	autoUpdateTimeSplit := strings.Split(configurationConnector.GetAutoUpdateTime(), ":")
-	autoUpdateTimeHour, err := strconv.Atoi(autoUpdateTimeSplit[0])
-	if err == nil {
-		workerAdmin.autoUpdateHour = autoUpdateTimeHour
+	//TODO REVOIR
+	if workerAdmin.autoUpdate == "planned" {
+		autoUpdateTimeSplit := strings.Split(configurationConnector.GetAutoUpdateTime(), ":")
+		autoUpdateTimeHour, err := strconv.Atoi(autoUpdateTimeSplit[0])
+		if err == nil {
+			workerAdmin.autoUpdateHour = autoUpdateTimeHour
+		}
+		autoUpdateTimeMinute, err := strconv.Atoi(autoUpdateTimeSplit[1])
+		if err == nil {
+			workerAdmin.autoUpdateMinute = autoUpdateTimeMinute
+		}
 	}
-	autoUpdateTimeMinute, err := strconv.Atoi(autoUpdateTimeSplit[1])
-	if err == nil {
-		workerAdmin.autoUpdateMinute = autoUpdateTimeMinute
-	}
-
+	fmt.Println("INIT6.1")
 	workerAdmin.major = 0
 	workerAdmin.clientGandalf = goclient.NewClientGandalf(workerAdmin.logicalName, strconv.FormatInt(workerAdmin.timeoutMax, 10), strings.Split(workerAdmin.grpcBindAddress, ","))
+	fmt.Println("INIT6.2")
 	workerAdmin.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
 
 	return workerAdmin

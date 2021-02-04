@@ -101,88 +101,95 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			case "cluster":
 				fmt.Println("Cluster")
 				config, err := cutils.GetConfigurationCluster(logicalName, databaseClient)
-				if err == nil {
-					if (config == models.ConfigurationLogicalCluster{}) {
-						config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalCluster)
+				if (config == models.ConfigurationLogicalCluster{}) {
+					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
+					if err == nil {
+						//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalCluster)
 						err = cutils.SaveConfigurationCluster(config, databaseClient)
 						if err != nil {
 							log.Println("Can't save logical configuration Cluster")
 						}
+					} else {
+						log.Println("Can't unmarshall logical configuration Cluster")
 					}
-					fmt.Println("Configuration")
-					fmt.Println(config)
-					configMarshal, err := json.Marshal(config)
-					if err == nil {
-						fmt.Println("MARSHALL")
-						target := ""
-						configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
-						configurationReply.Tenant = configuration.GetTenant()
-						shoset := ch.ConnsJoin.Get(bindAddr)
-						shoset.SendMessage(configurationReply)
-					}
-				} else {
-					log.Println("Can't get logical configuration Cluster")
+				}
+				fmt.Println("Configuration")
+				fmt.Println(config)
+				configMarshal, err := json.Marshal(config)
+				if err == nil {
+					fmt.Println("MARSHALL")
+					target := ""
+					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
+					configurationReply.Tenant = configuration.GetTenant()
+					shoset := ch.ConnsJoin.Get(bindAddr)
+					shoset.SendMessage(configurationReply)
 				}
 
 				break
 			case "aggregator":
 				fmt.Println("Aggregator")
 				config, err := cutils.GetConfigurationAggregator(logicalName, databaseClient)
-				if err == nil {
-					if (config == models.ConfigurationLogicalAggregator{}) {
-						config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalAggregator)
+				fmt.Println("config")
+				fmt.Println(config)
+				fmt.Println(err)
+				fmt.Println("Aggregator1")
+				if (config == models.ConfigurationLogicalAggregator{}) {
+					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
+					if err == nil {
+						//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalAggregator)
+						fmt.Println("SAVE")
 						err = cutils.SaveConfigurationAggregator(config, databaseClient)
 						if err != nil {
 							log.Println("Can't save logical configuration Aggregator")
 						}
+					} else {
+						log.Println("Can't unmarshall logical configuration Aggregator")
 					}
-					fmt.Println("Configuration")
-					fmt.Println(config)
-					configMarshal, err := json.Marshal(config)
-					if err == nil {
-						fmt.Println("MARSHALL")
-						target := ""
-						configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
-						configurationReply.Tenant = configuration.GetTenant()
-						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-						fmt.Println("shoset")
-						fmt.Println(shoset)
-						shoset.SendMessage(configurationReply)
-					}
-				} else {
-					log.Println("Can't get logical configuration Aggregator")
+				}
+				fmt.Println("Configuration")
+				fmt.Println(config)
+				configMarshal, err := json.Marshal(config)
+				if err == nil {
+					fmt.Println("MARSHALL")
+					target := ""
+					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
+					configurationReply.Tenant = configuration.GetTenant()
+					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+					fmt.Println("shoset")
+					fmt.Println(shoset)
+					shoset.SendMessage(configurationReply)
 				}
 
 				break
 			case "connector":
 				fmt.Println("Connector")
 				config, err := cutils.GetConfigurationConnector(logicalName, databaseClient)
-				if err == nil {
-					if (config == models.ConfigurationLogicalConnector{}) {
-						config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalConnector)
+				if (config == models.ConfigurationLogicalConnector{}) {
+					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
+					if err == nil {
+						//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalConnector)
 						err = cutils.SaveConfigurationConnector(config, databaseClient)
 						if err != nil {
 							log.Println("Can't save logical configuration Connector")
 						}
+					} else {
+						log.Println("Can't unmarshall logical configuration Connector")
 					}
-					fmt.Println("Configuration")
-					fmt.Println(config)
-					configMarshal, err := json.Marshal(config)
-					if err == nil {
-						fmt.Println("MARSHALL")
-						target := configuration.GetTarget()
-						configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
-						configurationReply.Tenant = configuration.GetTenant()
-						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-						shoset.SendMessage(configurationReply)
-					}
-				} else {
-					log.Println("Can't get logical configuration Connector")
-
 				}
+				fmt.Println("Configuration")
+				fmt.Println(config)
+				configMarshal, err := json.Marshal(config)
+				if err == nil {
+					fmt.Println("MARSHALL")
+					target := configuration.GetTarget()
+					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
+					configurationReply.Tenant = configuration.GetTenant()
+					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+					shoset.SendMessage(configurationReply)
+				}
+
 				break
 			}
-
 		} else {
 			log.Println("Can't get database client")
 			err = errors.New("Can't get database client")
@@ -223,12 +230,14 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 	configurationCluster := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 	configurationLogicalCluster := configurationCluster.ConfigurationToDatabase()
-	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", "")
+	configMarshal, err := json.Marshal(configurationLogicalCluster)
+
+	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
 	//secretMsg.Tenant = "cluster"
 	configurationMsg.GetContext()["componentType"] = "cluster"
 	configurationMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()
 	configurationMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
-	configurationMsg.GetContext()["configuration"] = configurationLogicalCluster
+	//configurationMsg.GetContext()["configuration"] = configurationLogicalCluster
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	fmt.Println("shoset.ConnsByAddr")
