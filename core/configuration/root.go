@@ -51,7 +51,11 @@ func init() {
 	rootCfg.SetNormalize("bind", TrimToLower)
 
 	rootCfg.Key("port", config.IsInt, "", "Address to bind (default is *:9099)")
-	rootCfg.SetDefault("port", 9099+config.GetOffset())
+	//rootCfg.SetDefault("port", 9099+config.GetOffset())
+	rootCfg.SetComputedValue("port",
+		func() interface{} {
+			return 9099 + config.GetOffset()
+		})
 
 	rootCfg.Key("cert_dir", config.IsStr, "", "path of the certificates directory (absolute or relative to the configuration directory)")
 	rootCfg.SetDefault("cert_dir", "certs")

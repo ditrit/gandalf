@@ -9,7 +9,8 @@ sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
 ./gandalf cluster -l Cluster
-
+./gandalf cluster -l Cluster --offset 1 --db_nodename node2 --join 127.0.0.1:9099 --secret TUTU
+./gandalf cluster -l Cluster --offset 2 --db_nodename node3 --join 127.0.0.1:9099 --secret TITI
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'
 ./gandalf aggregator -l Aggregator1 -t tenant1 --port 10000 --cluster 127.0.0.1:9099 --secret TATA

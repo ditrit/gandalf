@@ -92,7 +92,11 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		}
 
 		if databaseClient != nil {
+			fmt.Println("NOT NIL")
+
 			bindAddr := secret.GetContext()["bindAddress"].(string)
+			fmt.Println("bindAddr")
+			fmt.Println(bindAddr)
 
 			var result bool
 			result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))

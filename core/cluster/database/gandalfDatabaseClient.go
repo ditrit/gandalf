@@ -79,8 +79,8 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 
 //DemoCreateCluster
 func DemoCreateCluster(gandalfDatabaseClient *gorm.DB) {
-	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", Secret: "TUTU"})
-	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "Cluster", Secret: "TITI"})
+	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "cluster", Secret: "TUTU"})
+	gandalfDatabaseClient.Create(&models.Cluster{LogicalName: "cluster", Secret: "TITI"})
 }
 
 //DemoConfiguration
