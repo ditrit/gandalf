@@ -131,15 +131,15 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 		if !isNodeExist {
 
-			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
+			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
 
 			if err == nil {
 				log.Printf("New database node bind on %s \n", "")
 
-				err = database.CoackroachInit(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress())
+				err = database.CoackroachInit(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress())
 				if err == nil {
 					log.Printf("New database node init")
-					err = database.NewGandalfDatabase(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), "gandalf")
+					err = database.NewGandalfDatabase(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), "gandalf")
 					if err == nil {
 						log.Printf("New gandalf database")
 						var gandalfDatabaseClient *gorm.DB
@@ -157,7 +157,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
-								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
 								if err == nil {
 									log.Printf("New API server")
 								} else {
@@ -182,7 +182,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 		} else {
 			log.Println("Node already exist")
 
-			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
+			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
 			if err == nil {
 
 				var gandalfDatabaseClient *gorm.DB
@@ -192,7 +192,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 				if err == nil {
 					log.Printf("New gandalf database client")
 
-					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
 					if err == nil {
 						log.Printf("New API server")
 					} else {
@@ -242,7 +242,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 					}
 
 					time.Sleep(5 * time.Second)
-					err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), databaseStore)
+					err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), databaseStore)
 
 					if err == nil {
 						log.Printf("New database node bind on %s \n", "")
@@ -254,7 +254,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						if err == nil {
 							log.Printf("New gandalf database client")
 
-							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
 							if err == nil {
 								log.Printf("New API server")
 							} else {
@@ -310,9 +310,9 @@ func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (configurationClus
 }
 
 // ConfigurationValidation : Validation configuration
-func (m *ClusterMember) StartAPI(bindAdress, databasePath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) (err error) {
+func (m *ClusterMember) StartAPI(bindAdress, databasePath, certsPath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) (err error) {
 
-	server := api.NewServerAPI(bindAdress, databasePath, databaseBindAddress, gandalfDatabaseClient, mapTenantDatabaseClients)
+	server := api.NewServerAPI(bindAdress, databasePath, certsPath, databaseBindAddress, gandalfDatabaseClient, mapTenantDatabaseClients)
 	server.Run()
 
 	return

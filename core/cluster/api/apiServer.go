@@ -18,14 +18,14 @@ type ServerAPI struct {
 }
 
 // NewServerAPI :
-func NewServerAPI(bindAddress, databasePath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) *ServerAPI {
+func NewServerAPI(bindAddress, databasePath, certsPath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) *ServerAPI {
 	serverAPI := new(ServerAPI)
 	serverAPI.bindAddress = bindAddress
 
 	serverAPI.gandalfDatabaseClient = gandalfDatabaseClient
 	serverAPI.mapTenantDatabaseClients = mapTenantDatabaseClients
 
-	serverAPI.router = GetRouter(serverAPI.gandalfDatabaseClient, serverAPI.mapTenantDatabaseClients, databasePath, databaseBindAddress)
+	serverAPI.router = GetRouter(serverAPI.gandalfDatabaseClient, serverAPI.mapTenantDatabaseClients, databasePath, certsPath, databaseBindAddress)
 
 	return serverAPI
 }

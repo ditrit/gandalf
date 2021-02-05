@@ -58,7 +58,7 @@ func init() {
 		})
 
 	rootCfg.Key("cert_dir", config.IsStr, "", "path of the certificates directory (absolute or relative to the configuration directory)")
-	rootCfg.SetDefault("cert_dir", "certs")
+	rootCfg.SetDefault("cert_dir", "/etc/gandalf/certs/")
 
 	rootCfg.Key("cert_pem", config.IsStr, "", "path of the TLS certificate (absolute or relative to the certificates directory)")
 	rootCfg.SetDefault("cert_pem", "cert.pem")
@@ -74,7 +74,7 @@ func init() {
 
 	rootCfg.Key("log_dir", config.IsStr, "", "directory to store gandalf logfile")
 	//rootCfg.SetDefault("log_dir", "/var/log/")
-	rootCfg.SetDefault("log_dir", "/var/log/")
+	rootCfg.SetDefault("log_dir", "/var/log/gandalf/")
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -11,8 +11,8 @@ import (
 )
 
 // NewGandalfDatabaseClient : Gandalf database client constructor.
-func NewGandalfDatabase(dataDir, addr, name string) (err error) {
-	err = CoackroachCreateDatabase(dataDir, addr, name)
+func NewGandalfDatabase(dataDir, certsDir, addr, name string) (err error) {
+	err = CoackroachCreateDatabase(dataDir, certsDir, addr, name)
 	fmt.Println(err)
 
 	return
@@ -53,7 +53,7 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (lo
 		}
 	}
 	//TODO REMOVE
-	Test(gandalfDatabaseClient)
+	//Test(gandalfDatabaseClient)
 
 	return
 }
@@ -70,7 +70,7 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 
 	user, err := user.Current()
 	fmt.Println(user.HomeDir + "/gandalf")
-	err = NewTenantDatabase(user.HomeDir+"/gandalf", "127.0.0.1:9299", "tenant1")
+	err = NewTenantDatabase(user.HomeDir+"/gandalf", "certsDir", "127.0.0.1:9299", "tenant1")
 	fmt.Println(err)
 	tenantDatabaseClient, _ := NewTenantDatabaseClient("127.0.0.1:9299", "tenant1")
 	InitTenantDatabase(tenantDatabaseClient)

@@ -130,6 +130,14 @@ func (cc ConfigurationCluster) SetMaxTimeout(maxTimeout int64) {
 	viper.Set("max_timeout", maxTimeout)
 }
 
+func (cc ConfigurationCluster) GetCertsPath() string {
+	return viper.GetString("cert_dir")
+}
+
+func (cc ConfigurationCluster) SetCertsPath(maxTimeout string) {
+	viper.Set("cert_dir", maxTimeout)
+}
+
 func (cc ConfigurationCluster) ConfigurationToDatabase() *models.ConfigurationLogicalCluster {
 	configurationLogicalCluster := new(models.ConfigurationLogicalCluster)
 	configurationLogicalCluster.LogicalName = cc.GetLogicalName()
