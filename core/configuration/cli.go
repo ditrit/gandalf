@@ -10,7 +10,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ditrit/gandalf/core/cli"
 	"github.com/ditrit/gandalf/core/configuration/config"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 
 	"github.com/spf13/viper"
 )
@@ -23,6 +25,8 @@ var cliCfg = config.NewConfigCmd(
 	func(cfg *config.ConfigCmd, args []string) {
 		fmt.Println("cli called")
 		fmt.Println("IsSet('config') =", viper.IsSet("config"), ", value('config') = ", viper.Get("config"))
+		configurationCli := cmodels.NewConfigurationCli()
+		cli.Cli(configurationCli)
 	})
 
 func init() {
