@@ -12,6 +12,7 @@ chown_dir() {
   then
       sudo chown -R $user $dir
       if [ ! $? ]
+      then
 	 echo "ERROR : can not change owner of $dir to $user"
 	 exit 1
       fi
@@ -20,11 +21,13 @@ chown_dir() {
 
 create_dir() {
   dir=$1
-  if [ -n "$dir" ] $
+  if [ -n "$dir" ] 
   then 
     if [ ! -d "$dir" ] 
+    then
       sudo mkdir -p "$dir"
       if [ ! $? ]
+      then
 	 echo "ERROR : can not create $dir"
 	 exit 1
       fi
@@ -37,7 +40,7 @@ move_to() {
   dst=$2
   if [ -n $1 -a -n $2 ] 
   then
-    mv "$src" "$dst"
+    sudo mv "$src" "$dst"
     if [ ! $? ]
     then 
       echo "ERROR : can not move ""$src"" to ""$dst"""
@@ -81,20 +84,21 @@ case $1 in
 esac
 
 create_service() {
-  cat >/etc/systemd/system/igandalf.service<<EOF
+cat >/tmp/gandalf.service<<EOF
 [Unit]
 Description=Gandalf service
-Requires=Network.target
-After=Network.target
+Requires=network.target
+After=network.target
 
 [Service]
-Type=oneshot
+User=gandalf
 RemainAfterExit=yes
 ExecStart=$INSTDIR/gandalf $mode
 
 [Install]
 WantedBy=multi-user.target
 EOF
+sudo mv /tmp/gandalf.service /etc/systemd/system/
 }
 
 howto_start() {
@@ -105,7 +109,9 @@ howto_start() {
   echo "Next steps :"
   echo "1. configure gandalf : "
   echo "   vim /etc/gandalf/gandalf.conf"
-  echo "2. start the gandalf service : "
+  echo "2. enable the gandalf service : "
+  echo "     systemctl enable gandalf"
+  echo "3. start the gandalf service : "
   echo "     systemctl start gandailf"
   echo
 }
@@ -120,6 +126,7 @@ create_user gandalf /home/gandalf
 
 # create and populate config directory
 create_dir $CONFDIR
+[ -d $CONFDIR/certs ] && sudo rm -rf $CONFDIR/certs
 move_to ./certs $CONFDIR/
 chown_dir $CONFDIR gandalf
 
@@ -128,12 +135,12 @@ create_dir $DATADIR
 chown_dir $DATADIR gandalf
 
 # prepare log destination
-create_dir $LOGFILE
+create_dir $LOGDIR
 chown_dir $LOGDIR gandalf
 
 # install gandalf service
 create_service
-systemctl enable gandalf
 
 # ready to go...
 [ $? ] && howto_start
+
