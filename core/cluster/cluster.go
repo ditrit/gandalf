@@ -118,31 +118,21 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 	//databaseBindAddress, _ := net.DeltaAddress(bindAddress, 100)
 	//databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 200)
-	fmt.Println("INIT")
 	member := NewClusterMember(configurationCluster)
 	//member.GetChaussette().Context["databasePath"] = databasePath
 
 	err := member.Bind(configurationCluster.GetBindAddress())
-	fmt.Println(configurationCluster.GetBindAddress())
-	fmt.Println(err)
+
 	if err == nil {
 		log.Printf("New Cluster member %s command %s bind on %s \n", configurationCluster.GetLogicalName(), "init", configurationCluster.GetBindAddress())
 		time.Sleep(time.Second * time.Duration(5))
-		fmt.Println("INIT 2")
 
 		var isNodeExist = database.IsNodeExist(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName())
-		fmt.Println("isNodeExist")
-		fmt.Println(isNodeExist)
+
 		if !isNodeExist {
-			fmt.Println("INIT 3")
-			fmt.Println(configurationCluster.GetDatabasePath())
-			fmt.Println(configurationCluster.GetDatabaseName())
-			fmt.Println(configurationCluster.GetDatabaseBindAddress())
-			fmt.Println(configurationCluster.GetOffset())
-			fmt.Println(getBrothers(configurationCluster.GetBindAddress(), member))
+
 			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
-			fmt.Println("err")
-			fmt.Println(err)
+
 			if err == nil {
 				log.Printf("New database node bind on %s \n", "")
 
@@ -156,8 +146,6 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
 						member.GandalfDatabaseClient = gandalfDatabaseClient
 						member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-						fmt.Println("errCLient")
-						fmt.Println(err)
 						if err == nil {
 							log.Printf("New gandalf database client")
 
@@ -195,16 +183,12 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			log.Println("Node already exist")
 
 			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
-			fmt.Println("err")
-			fmt.Println(err)
 			if err == nil {
 
 				var gandalfDatabaseClient *gorm.DB
 				gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
 				member.GandalfDatabaseClient = gandalfDatabaseClient
 				member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-				fmt.Println("errCLient")
-				fmt.Println(err)
 				if err == nil {
 					log.Printf("New gandalf database client")
 
@@ -233,26 +217,18 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *ClusterMember {
 	//databaseBindAddress, _ := net.DeltaAddress(bindAddress, 1000)
 	//databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 100)
-	fmt.Println("INIT")
 
 	member := NewClusterMember(configurationCluster)
 	err := member.Bind(configurationCluster.GetBindAddress())
-	fmt.Println("err")
-	fmt.Println(err)
 	if err == nil {
-		fmt.Println("INIT2")
 
 		_, err = member.Join(configurationCluster.GetJoinAddress())
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
-			fmt.Println("INIT3")
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", configurationCluster.GetLogicalName(), "join", configurationCluster.GetBindAddress(), configurationCluster.GetJoinAddress())
 
 			validateSecret := member.ValidateSecret(member.GetChaussette())
-			fmt.Println("validateSecret")
-			fmt.Println(validateSecret)
 			if err == nil {
-				fmt.Println("INIT4")
 				if validateSecret {
 					configurationLogicalCluster := member.GetConfiguration(member.GetChaussette())
 					fmt.Println(configurationLogicalCluster)
@@ -264,17 +240,11 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 					} else {
 						databaseStore = CreateStore(getBrothers(configurationCluster.GetBindAddress(), member), configurationCluster.GetDatabasePort())
 					}
-					fmt.Println("brothers")
-					fmt.Println(getBrothers(configurationCluster.GetBindAddress(), member))
-					fmt.Println("databaseStore")
-					fmt.Println(databaseStore)
+
 					time.Sleep(5 * time.Second)
 					err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), databaseStore)
-					fmt.Println("err")
-					fmt.Println(err)
 
 					if err == nil {
-						fmt.Println("INIT5")
 						log.Printf("New database node bind on %s \n", "")
 
 						var gandalfDatabaseClient *gorm.DB
@@ -282,12 +252,10 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 
 						if err == nil {
-							fmt.Println("INIT6")
 							log.Printf("New gandalf database client")
 
 							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
 							if err == nil {
-								fmt.Println("INIT7")
 								log.Printf("New API server")
 							} else {
 								log.Fatalf("Can't create API servcer")
@@ -316,7 +284,6 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 }
 
 func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
-	fmt.Println("SEND")
 	shoset.SendSecret(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 

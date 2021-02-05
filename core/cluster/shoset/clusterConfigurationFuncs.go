@@ -68,19 +68,15 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle configuration")
 	log.Println(configuration)
-	fmt.Println("handle configuration")
-	fmt.Println(configuration)
+
 	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if configuration.GetCommand() == "CONFIGURATION" {
-		fmt.Println("CONFIG")
 		var databaseClient *gorm.DB
 		//databasePath := ch.Context["databasePath"].(string)
 		if configuration.GetContext()["componentType"].(string) == "cluster" {
-			fmt.Println("CLUSTER")
 			databaseClient = ch.Context["gandalfDatabase"].(*gorm.DB)
 		} else {
-			fmt.Println("TENANT")
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
 			configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
@@ -99,7 +95,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 			switch configuration.GetContext()["componentType"] {
 			case "cluster":
-				fmt.Println("Cluster")
 				config, err := cutils.GetConfigurationCluster(logicalName, databaseClient)
 				if (config == models.ConfigurationLogicalCluster{}) {
 					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
@@ -113,11 +108,9 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 						log.Println("Can't unmarshall logical configuration Cluster")
 					}
 				}
-				fmt.Println("Configuration")
-				fmt.Println(config)
+
 				configMarshal, err := json.Marshal(config)
 				if err == nil {
-					fmt.Println("MARSHALL")
 					target := ""
 					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 					configurationReply.Tenant = configuration.GetTenant()
@@ -127,12 +120,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 				break
 			case "aggregator":
-				fmt.Println("Aggregator")
 				config, err := cutils.GetConfigurationAggregator(logicalName, databaseClient)
-				fmt.Println("config")
-				fmt.Println(config)
-				fmt.Println(err)
-				fmt.Println("Aggregator1")
+
 				if (config == models.ConfigurationLogicalAggregator{}) {
 					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
 					if err == nil {
@@ -146,23 +135,19 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 						log.Println("Can't unmarshall logical configuration Aggregator")
 					}
 				}
-				fmt.Println("Configuration")
-				fmt.Println(config)
+
 				configMarshal, err := json.Marshal(config)
 				if err == nil {
-					fmt.Println("MARSHALL")
 					target := ""
 					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 					configurationReply.Tenant = configuration.GetTenant()
 					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-					fmt.Println("shoset")
-					fmt.Println(shoset)
+
 					shoset.SendMessage(configurationReply)
 				}
 
 				break
 			case "connector":
-				fmt.Println("Connector")
 				config, err := cutils.GetConfigurationConnector(logicalName, databaseClient)
 				if (config == models.ConfigurationLogicalConnector{}) {
 					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
@@ -176,8 +161,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 						log.Println("Can't unmarshall logical configuration Connector")
 					}
 				}
-				fmt.Println("Configuration")
-				fmt.Println(config)
+
 				configMarshal, err := json.Marshal(config)
 				if err == nil {
 					fmt.Println("MARSHALL")
@@ -240,15 +224,8 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 	//configurationMsg.GetContext()["configuration"] = configurationLogicalCluster
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
-	fmt.Println("shoset.ConnsByAddr")
-	fmt.Println(shoset.ConnsByAddr)
-
-	fmt.Println("shoset.ConnsJoin")
-	fmt.Println(shoset.ConnsJoin)
-
 	shosets := net.GetByType(shoset.ConnsJoin, "")
-	fmt.Println("len(shosets)")
-	fmt.Println(len(shosets))
+
 	if len(shosets) != 0 {
 		if configurationMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
 			configurationMsg.Timeout = configurationCluster.GetMaxTimeout()

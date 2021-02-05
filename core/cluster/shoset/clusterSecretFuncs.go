@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -61,14 +60,13 @@ func WaitSecret(c *net.Shoset, replies *msg.Iterator, args map[string]string, ti
 func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	secret := message.(cmsg.Secret)
 	ch := c.GetCh()
-	dir := c.GetDir()
+	//dir := c.GetDir()
 
 	err = nil
 
 	log.Println("Handle secret")
 	log.Println(secret)
-	fmt.Println("dir")
-	fmt.Println(dir)
+
 	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if secret.GetCommand() == "VALIDATION" {
@@ -76,7 +74,6 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		var databaseClient *gorm.DB
 		//databasePath := ch.Context["databasePath"].(string)
 		if secret.GetContext()["componentType"].(string) == "cluster" {
-			fmt.Println("CLUSTER")
 			databaseClient = ch.Context["gandalfDatabase"].(*gorm.DB)
 		} else {
 			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
@@ -92,16 +89,12 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		}
 
 		if databaseClient != nil {
-			fmt.Println("NOT NIL")
 
 			bindAddr := secret.GetContext()["bindAddress"].(string)
-			fmt.Println("bindAddr")
-			fmt.Println(bindAddr)
 
 			var result bool
 			result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
-			fmt.Println("RESULT")
-			fmt.Println(result)
+
 			if err == nil {
 				target := secret.GetTarget()
 				if secret.GetContext()["componentType"] == "aggregator" || secret.GetContext()["componentType"] == "cluster" {
@@ -109,24 +102,16 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 				}
 				secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
 				secretReply.Tenant = secret.GetTenant()
-				fmt.Println("strconv.FormatBool(result)")
-				fmt.Println(strconv.FormatBool(result))
-				fmt.Println("secretReply")
-				fmt.Println(secretReply)
 
 				var shoset *net.ShosetConn
 				if secret.GetContext()["componentType"].(string) == "cluster" {
-					fmt.Println("ch.ConnsJoin")
-					fmt.Println(ch.ConnsJoin)
-					fmt.Println("c.GetBindAddr()")
-					fmt.Println(c.GetBindAddr())
+
 					shoset = ch.ConnsJoin.Get(bindAddr)
 				} else {
 					shoset = ch.ConnsByAddr.Get(c.GetBindAddr())
 
 				}
-				fmt.Println("shoset")
-				fmt.Println(shoset)
+
 				shoset.SendMessage(secretReply)
 
 			} else {
@@ -177,15 +162,8 @@ func SendSecret(shoset *net.Shoset) (err error) {
 	secretMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
-	fmt.Println("shoset.ConnsByAddr")
-	fmt.Println(shoset.ConnsByAddr)
-
-	fmt.Println("shoset.ConnsJoin")
-	fmt.Println(shoset.ConnsJoin)
-
 	shosets := net.GetByType(shoset.ConnsJoin, "")
-	fmt.Println("len(shosets)")
-	fmt.Println(len(shosets))
+
 	if len(shosets) != 0 {
 		if secretMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
 			secretMsg.Timeout = configurationCluster.GetMaxTimeout()

@@ -120,14 +120,9 @@ func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (configurationA
 // AggregatorMemberInit : Aggregator init function.
 func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
 	member := NewAggregatorMember(configurationAggregator)
-	fmt.Println("INIT 1")
 	err := member.Bind(configurationAggregator.GetBindAddress())
-	fmt.Println("INIT 2")
-	fmt.Println(err)
 	if err == nil {
 		_, err = member.Link(configurationAggregator.GetLinkAddress())
-		fmt.Println(err)
-		fmt.Println("INIT 3")
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
