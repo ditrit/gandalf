@@ -64,9 +64,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle configuration")
 	log.Println(configuration)
 
-	fmt.Println("Handle configuration")
-	fmt.Println(configuration)
-
 	if configuration.GetCommand() == "CONFIGURATION_REPLY" {
 		var configurationConnector *models.ConfigurationLogicalConnector
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationConnector)
@@ -109,8 +106,6 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
 
 			timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-			fmt.Println("timeoutSend")
-			fmt.Println(timeoutSend)
 
 			time.Sleep(timeoutSend * time.Millisecond)
 

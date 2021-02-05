@@ -51,10 +51,14 @@ func init() {
 	rootCfg.SetNormalize("bind", TrimToLower)
 
 	rootCfg.Key("port", config.IsInt, "", "Address to bind (default is *:9099)")
-	rootCfg.SetDefault("port", 9099+config.GetOffset())
+	//rootCfg.SetDefault("port", 9099+config.GetOffset())
+	rootCfg.SetComputedValue("port",
+		func() interface{} {
+			return 9099 + config.GetOffset()
+		})
 
 	rootCfg.Key("cert_dir", config.IsStr, "", "path of the certificates directory (absolute or relative to the configuration directory)")
-	rootCfg.SetDefault("cert_dir", "certs")
+	rootCfg.SetDefault("cert_dir", "/etc/gandalf/certs/")
 
 	rootCfg.Key("cert_pem", config.IsStr, "", "path of the TLS certificate (absolute or relative to the certificates directory)")
 	rootCfg.SetDefault("cert_pem", "cert.pem")
@@ -70,7 +74,7 @@ func init() {
 
 	rootCfg.Key("log_dir", config.IsStr, "", "directory to store gandalf logfile")
 	//rootCfg.SetDefault("log_dir", "/var/log/")
-	rootCfg.SetDefault("log_dir", "home/romainfairant/gandalf/log/")
+	rootCfg.SetDefault("log_dir", "/var/log/gandalf/")
 }
 
 // initConfig reads in config file and ENV variables if set.

@@ -14,6 +14,10 @@ func NewConfigurationCluster() *ConfigurationCluster {
 	return configurationCluster
 }
 
+func (cc ConfigurationCluster) GetOffset() int {
+	return viper.GetInt("offset")
+}
+
 func (cc ConfigurationCluster) GetLogicalName() string {
 	return viper.GetString("lname")
 }
@@ -50,6 +54,18 @@ func (cc ConfigurationCluster) SetJoinAddress(joinAddress string) {
 	viper.Set("join", joinAddress)
 }
 
+func (cc ConfigurationCluster) GetAPIPort() int {
+	return viper.GetInt("api_port")
+}
+
+func (cc ConfigurationCluster) SetAPIPort(apiPort int) {
+	viper.Set("api_port", apiPort)
+}
+
+func (cc ConfigurationCluster) GetAPIBindAddress() string {
+	return viper.GetString("bind") + ":" + viper.GetString("api_port")
+}
+
 /* func (cc ConfigurationCluster) GetLogPath() string {
 	return viper.GetString("logicalName")
 }
@@ -74,11 +90,11 @@ func (cc ConfigurationCluster) SetDatabaseName(databaseName string) {
 	viper.Set("db_nodename", databaseName)
 }
 
-func (cc ConfigurationCluster) GetDatabasePort() string {
-	return viper.GetString("db_port")
+func (cc ConfigurationCluster) GetDatabasePort() int {
+	return viper.GetInt("db_port")
 }
 
-func (cc ConfigurationCluster) SetDatabasePort(databaseBindAddress string) {
+func (cc ConfigurationCluster) SetDatabasePort(databaseBindAddress int) {
 	viper.Set("db_port", databaseBindAddress)
 }
 
@@ -86,11 +102,11 @@ func (cc ConfigurationCluster) GetDatabaseBindAddress() string {
 	return viper.GetString("bind") + ":" + viper.GetString("db_port")
 }
 
-func (cc ConfigurationCluster) GetDatabaseHttpPort() string {
-	return viper.GetString("db_http_port")
+func (cc ConfigurationCluster) GetDatabaseHttpPort() int {
+	return viper.GetInt("db_http_port")
 }
 
-func (cc ConfigurationCluster) SetDatabaseHttpPort(databaseHttpAddress string) {
+func (cc ConfigurationCluster) SetDatabaseHttpPort(databaseHttpAddress int) {
 	viper.Set("db_http_port", databaseHttpAddress)
 }
 
@@ -112,6 +128,14 @@ func (cc ConfigurationCluster) GetMaxTimeout() int64 {
 
 func (cc ConfigurationCluster) SetMaxTimeout(maxTimeout int64) {
 	viper.Set("max_timeout", maxTimeout)
+}
+
+func (cc ConfigurationCluster) GetCertsPath() string {
+	return viper.GetString("cert_dir")
+}
+
+func (cc ConfigurationCluster) SetCertsPath(maxTimeout string) {
+	viper.Set("cert_dir", maxTimeout)
 }
 
 func (cc ConfigurationCluster) ConfigurationToDatabase() *models.ConfigurationLogicalCluster {

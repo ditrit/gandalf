@@ -150,16 +150,12 @@ func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
 
 // ConfigurationValidation : Validation configuration
 func (m *ConnectorMember) StartWorkerAdmin(chaussette *net.Shoset) (err error) {
-	fmt.Println("INIT 6")
 	workerAdmin := admin.NewWorkerAdmin(chaussette)
-	fmt.Println("INIT 7")
 	go workerAdmin.Run()
-	fmt.Println("INIT 8")
 	return
 }
 
 func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset) (configurationConnector *models.ConfigurationLogicalConnector) {
-	fmt.Println("SEND")
 	shoset.SendConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
@@ -184,19 +180,14 @@ func getBrothers(address string, member *ConnectorMember) []string {
 func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector) (*ConnectorMember, error) {
 	member := NewConnectorMember(configurationConnector)
 	//member.timeoutMax = timeoutMax
-	fmt.Println("INIT")
 	err := member.Bind(configurationConnector.GetBindAddress())
 	if err == nil {
-		fmt.Println("INIT2")
 		_, err = member.Link(configurationConnector.GetLinkAddress())
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
-			fmt.Println("INIT3")
 			validateSecret := member.ValidateSecret(member.GetChaussette())
 			if validateSecret {
-				fmt.Println("INIT4")
 				configurationLogicalConnector := member.GetConfiguration(member.GetChaussette())
-				fmt.Println(configurationLogicalConnector)
 				configurationConnector.DatabaseToConfiguration(configurationLogicalConnector)
 				//TODO REVOIR
 				//version := models.Version{Major: member.ConfigurationConnector.VersionsMajor, Minor: member.ConfigurationConnector.VersionsMinor}
@@ -213,11 +204,9 @@ func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector)
 
 				err = member.GrpcBind(configurationConnector.GetGRPCSocketBind())
 				if err == nil {
-					fmt.Println("INIT5")
 					//var versions []*models.Version{Major: configurationConnector.VersionsMajor, Minor: configurationConnector.VersionsMinor}
 					err = member.StartWorkerAdmin(member.GetChaussette())
 					if err == nil {
-						fmt.Println("INIT9")
 						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetBindAddress(), configurationConnector.GetGRPCSocketBind(), configurationConnector.GetLinkAddress())
 						fmt.Printf("%s.JoinBrothers Init(%#v)\n", configurationConnector.GetBindAddress(), getBrothers(configurationConnector.GetBindAddress(), member))
 					} else {

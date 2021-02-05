@@ -13,7 +13,7 @@ import (
 )
 
 func IsNodeExist(dataDir, node string) (result bool) {
-	nodeFullPath := dataDir + "/database/" + node
+	nodeFullPath := dataDir + node
 	fmt.Println(nodeFullPath)
 	if _, err := os.Stat(nodeFullPath); err == nil {
 		result = true
@@ -25,7 +25,7 @@ func IsNodeExist(dataDir, node string) (result bool) {
 }
 
 func IsDatabaseCreated(dataDir, node string) (result bool, err error) {
-	nodeFullPath := dataDir + "/database/" + node + "/"
+	nodeFullPath := dataDir + node + "/"
 
 	if _, err := os.Stat(nodeFullPath); err == nil {
 		result = true

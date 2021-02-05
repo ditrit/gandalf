@@ -1,11 +1,11 @@
 #!/bin/bash
 
-BINDIR=~/bin
-DATADIR=$1
-CERTDIR=$DATADIR/certs
+BINDIR=/usr/local/bin
 COCKROACH=$BINDIR/cockroach
-HOST=$2
-DATABASE=$3
+DATADIR=$1
+CERTDIR=$2
+HOST=$3
+DATABASE=$4
 
 $COCKROACH sql 	\
 		--certs-dir=$CERTDIR \

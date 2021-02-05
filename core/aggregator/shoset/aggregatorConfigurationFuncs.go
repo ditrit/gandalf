@@ -64,8 +64,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle configuration")
 	log.Println(configuration)
 
-	fmt.Println("Handle configuration")
-	fmt.Println(configuration)
 	//if configuration.GetTenant() == ch.Context["tenant"] {
 	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
 	//if ok {
@@ -102,8 +100,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 					}
 				}
 			} else {
-				fmt.Println("TARGET")
-				fmt.Println(configuration.GetTarget())
 				shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
 				shoset.SendMessage(configuration)
 			}

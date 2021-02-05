@@ -4,6 +4,8 @@ package cluster
 import (
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 	"time"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -116,44 +118,34 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 	//databaseBindAddress, _ := net.DeltaAddress(bindAddress, 100)
 	//databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 200)
-	fmt.Println("INIT")
 	member := NewClusterMember(configurationCluster)
 	//member.GetChaussette().Context["databasePath"] = databasePath
 
 	err := member.Bind(configurationCluster.GetBindAddress())
-	fmt.Println(configurationCluster.GetBindAddress())
-	fmt.Println(err)
+
 	if err == nil {
 		log.Printf("New Cluster member %s command %s bind on %s \n", configurationCluster.GetLogicalName(), "init", configurationCluster.GetBindAddress())
 		time.Sleep(time.Second * time.Duration(5))
-		fmt.Println("INIT 2")
 
 		var isNodeExist = database.IsNodeExist(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName())
-		fmt.Println("isNodeExist")
-		fmt.Println(isNodeExist)
+
 		if !isNodeExist {
-			fmt.Println("INIT 3")
-			fmt.Println(configurationCluster.GetDatabasePath())
-			fmt.Println(configurationCluster.GetDatabaseName())
-			fmt.Println(configurationCluster.GetDatabaseBindAddress())
-			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
-			fmt.Println("err")
-			fmt.Println(err)
+
+			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
+
 			if err == nil {
 				log.Printf("New database node bind on %s \n", "")
 
-				err = database.CoackroachInit(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress())
+				err = database.CoackroachInit(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress())
 				if err == nil {
 					log.Printf("New database node init")
-					err = database.NewGandalfDatabase(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), "gandalf")
+					err = database.NewGandalfDatabase(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), "gandalf")
 					if err == nil {
 						log.Printf("New gandalf database")
 						var gandalfDatabaseClient *gorm.DB
 						gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
 						member.GandalfDatabaseClient = gandalfDatabaseClient
-						//member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-						fmt.Println("errCLient")
-						fmt.Println(err)
+						member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 						if err == nil {
 							log.Printf("New gandalf database client")
 
@@ -165,13 +157,13 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
-								//TODO TEST API
-								server := api.NewServerAPI(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
-								server.Run()
-								//
-
+								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+								if err == nil {
+									log.Printf("New API server")
+								} else {
+									log.Fatalf("Can't create API servcer")
+								}
 								log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
-
 							} else {
 								log.Fatalf("Can't initialize database")
 							}
@@ -190,24 +182,23 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 		} else {
 			log.Println("Node already exist")
 
-			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
-			fmt.Println("err")
-			fmt.Println(err)
+			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
 			if err == nil {
 
 				var gandalfDatabaseClient *gorm.DB
 				gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
 				member.GandalfDatabaseClient = gandalfDatabaseClient
-				//member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
-				fmt.Println("errCLient")
-				fmt.Println(err)
+				member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 				if err == nil {
 					log.Printf("New gandalf database client")
 
-					//TODO TEST API
-					server := api.NewServerAPI(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
-					server.Run()
-					//
+					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+					if err == nil {
+						log.Printf("New API server")
+					} else {
+						log.Fatalf("Can't create API servcer")
+					}
+					log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 				} else {
 					log.Fatalf("Can't create database client")
 				}
@@ -229,30 +220,29 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 	member := NewClusterMember(configurationCluster)
 	err := member.Bind(configurationCluster.GetBindAddress())
-
 	if err == nil {
+
 		_, err = member.Join(configurationCluster.GetJoinAddress())
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", configurationCluster.GetLogicalName(), "join", configurationCluster.GetBindAddress(), configurationCluster.GetJoinAddress())
 
 			validateSecret := member.ValidateSecret(member.GetChaussette())
-			fmt.Println("validateSecret")
-			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
 					configurationLogicalCluster := member.GetConfiguration(member.GetChaussette())
 					fmt.Println(configurationLogicalCluster)
 					configurationCluster.DatabaseToConfiguration(configurationLogicalCluster)
 					//member.GetChaussette().Context["databasePath"] = databasePath
+					var databaseStore string
+					if configurationCluster.GetOffset() > 0 {
+						databaseStore = CreateStoreOffSet(getBrothers(configurationCluster.GetBindAddress(), member), 200)
+					} else {
+						databaseStore = CreateStore(getBrothers(configurationCluster.GetBindAddress(), member), configurationCluster.GetDatabasePort())
+					}
 
-					databaseStore := CreateStore(getBrothers(configurationCluster.GetBindAddress(), member))
-					fmt.Println("databaseStore")
-					fmt.Println(databaseStore)
 					time.Sleep(5 * time.Second)
-					err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), databaseStore)
-					fmt.Println("err")
-					fmt.Println(err)
+					err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), databaseStore)
 
 					if err == nil {
 						log.Printf("New database node bind on %s \n", "")
@@ -264,17 +254,19 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						if err == nil {
 							log.Printf("New gandalf database client")
 
-							//TODO TEST API
-							server := api.NewServerAPI(configurationCluster.GetDatabasePath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
-							server.Run()
-							//
+							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+							if err == nil {
+								log.Printf("New API server")
+							} else {
+								log.Fatalf("Can't create API servcer")
+							}
+							log.Printf("%s.JoinBrothers Join(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 						} else {
 							log.Fatalf("Can't create database client")
 						}
 					} else {
 						log.Fatalf("Can't create node")
 					}
-					log.Printf("%s.JoinBrothers Join(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 				} else {
 					log.Fatalf("Invalid secret")
 				}
@@ -292,7 +284,6 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 }
 
 func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
-	fmt.Println("SEND")
 	shoset.SendSecret(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
@@ -318,24 +309,75 @@ func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (configurationClus
 	return
 }
 
-// CreateStore : Cluster create store function.
-func CreateStore(bros []string) string {
-	var store string
+// ConfigurationValidation : Validation configuration
+func (m *ClusterMember) StartAPI(bindAdress, databasePath, certsPath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) (err error) {
 
+	server := api.NewServerAPI(bindAdress, databasePath, certsPath, databaseBindAddress, gandalfDatabaseClient, mapTenantDatabaseClients)
+	server.Run()
+
+	return
+}
+
+// CreateStore : Cluster create store function.
+func CreateStoreOffSet(bros []string, delta int) string {
+	var store string
 	for i, bro := range bros {
 		if i == 0 {
-			thisDBBro, ok := net.DeltaAddress(bro, 1000)
+			thisDBBro, ok := ChangePortOffSet(bro, delta)
 			if ok {
 				store = thisDBBro
 			}
 		} else {
-			thisDBBro, ok := net.DeltaAddress(bro, 1000)
+			thisDBBro, ok := ChangePortOffSet(bro, delta)
 			if ok {
 				store = store + "," + thisDBBro
 			}
 		}
-
 	}
 
 	return store
+}
+
+func ChangePortOffSet(addr string, delta int) (string, bool) {
+	parts := strings.Split(addr, ":")
+	if len(parts) == 2 {
+		port, err := strconv.Atoi(parts[1])
+		if err == nil {
+			return fmt.Sprintf("%s:%d", parts[0], port+delta), true
+		}
+		return "", false
+	}
+	return "", false
+}
+
+// CreateStore : Cluster create store function.
+func CreateStore(bros []string, port int) string {
+	var store string
+	for i, bro := range bros {
+		if i == 0 {
+			thisDBBro, ok := ChangePort(bro, port)
+			if ok {
+				store = thisDBBro
+			}
+		} else {
+			thisDBBro, ok := ChangePort(bro, port)
+			if ok {
+				store = store + "," + thisDBBro
+			}
+		}
+	}
+
+	return store
+}
+
+func ChangePort(addr string, port int) (string, bool) {
+	parts := strings.Split(addr, ":")
+	if len(parts) == 2 {
+		port, err := strconv.Atoi(parts[1])
+		if err == nil {
+			return fmt.Sprintf("%s:%d", parts[0], port), true
+		}
+		return "", false
+	}
+	return "", false
 }

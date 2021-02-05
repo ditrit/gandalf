@@ -13,8 +13,8 @@ import (
 
 func main() {
 
-	var agent string
-	flag.StringVar(&agent, "agent", "gandalf", "a string var")
+	var bindAddress string
+	flag.StringVar(&bindAddress, "bindAddress", "", "a string var")
 
 	var typeDB string
 	flag.StringVar(&typeDB, "typeDB", "", "a string var")
@@ -39,7 +39,6 @@ func main() {
 
 	flag.Parse()
 
-	fmt.Println("agent:", agent)
 	fmt.Println("typeDB:", typeDB)
 	fmt.Println("tenant:", tenant)
 	fmt.Println("models:", models)
@@ -47,7 +46,7 @@ func main() {
 	fmt.Println("token:", token)
 	fmt.Println("value:", value)
 
-	cliClient := client.NewClient(agent)
+	cliClient := client.NewClient("cli")
 
 	if typeDB == "gandalf" {
 		switch models {

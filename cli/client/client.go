@@ -12,11 +12,6 @@ import (
 	"time"
 )
 
-// BaseURLV1 :
-const (
-	BaseURLV1 = "http://localhost:3010"
-)
-
 // Client :
 type Client struct {
 	BaseURL                      *url.URL
@@ -35,16 +30,16 @@ type Client struct {
 }
 
 // NewClient :
-func NewClient(userAgent string) (client *Client) {
+func NewClient(bindAddress string) (client *Client) {
 
-	u, err := url.Parse(BaseURLV1)
+	u, err := url.Parse(bindAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	client = &Client{
 		BaseURL:   u,
-		UserAgent: userAgent,
+		UserAgent: "cli",
 		HTTPClient: &http.Client{
 			Timeout: time.Minute,
 		},
