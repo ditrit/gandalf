@@ -1,9 +1,9 @@
 /*
 !/*/
 !/*.go
+!/*.sh
 
 !.gitignore
 !go.mod
 !go.sum
-!go.sh
 !README.md
