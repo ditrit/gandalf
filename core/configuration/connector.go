@@ -24,6 +24,7 @@ var connectorCfg = config.NewConfigCmd(
 	`Gandalf is launched as a connector instance.`,
 	func(cfg *config.ConfigCmd, args []string) {
 		fmt.Println("connector called")
+
 		done := make(chan bool)
 		configurationConnector := cmodels.NewConfigurationConnector(cfg)
 		connector.ConnectorMemberInit(configurationConnector)

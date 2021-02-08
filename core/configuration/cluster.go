@@ -25,12 +25,6 @@ var clusterCfg = config.NewConfigCmd(
 	func(cfg *config.ConfigCmd, args []string) {
 		fmt.Println("cluster called")
 
-		port := viper.GetInt("port")
-		fmt.Printf("computed port : %d\n", port)
-
-		dbport := viper.GetInt("db_port")
-		fmt.Printf("computed db port : %d\n", dbport)
-
 		offset := config.GetOffset()
 		fmt.Printf("computed offset : %d\n", offset)
 
