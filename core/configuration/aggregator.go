@@ -37,6 +37,8 @@ var aggregatorCfg = config.NewConfigCmd(
 func init() {
 	rootCfg.AddConfig(aggregatorCfg)
 
+	aggregatorCfg.SetRequired("lname")
+
 	aggregatorCfg.Key("tenant", config.IsStr, "t", "name of the tenant name of the aggregator")
 	aggregatorCfg.SetCheck("tenant", CheckNotEmpty)
 	aggregatorCfg.SetRequired("tenant")
@@ -46,4 +48,7 @@ func init() {
 	aggregatorCfg.SetCheck("cluster", CheckNotEmpty)
 	aggregatorCfg.SetRequired("cluster")
 	aggregatorCfg.SetNormalize("cluster", TrimToLower)
+
+	aggregatorCfg.SetRequired("secret")
+
 }

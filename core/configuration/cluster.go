@@ -8,6 +8,7 @@ package configuration
 
 import (
 	"fmt"
+	"gandalf/core/configuration/config"
 
 	"github.com/ditrit/gandalf/core/configuration/config"
 
@@ -52,34 +53,60 @@ var clusterCfg = config.NewConfigCmd(
 func init() {
 	rootCfg.AddConfig(clusterCfg)
 
+	//clusterCfg.SetRequired("lname")
+	clusterCfg.SetDefault("lname", "cluster")
+
 	clusterCfg.Key("join", config.IsStr, "j", "remote address (of an already existing member of cluster) to join")
 	clusterCfg.SetCheck("join", CheckNotEmpty)
 	clusterCfg.SetNormalize("join", TrimToLower)
 
-	clusterCfg.Key("api_port", config.IsInt, "", "Address to bind (default is *:9199)")
+	clusterCfg.Key("api_port", config.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
 	//clusterCfg.SetDefault("api_port", 9199+config.GetOffset())
+	clusterCfg.SetCheck("api_port", CheckTcpHighPort)
 	clusterCfg.SetComputedValue("api_port",
 		func() interface{} {
 			return 9199 + config.GetOffset()
 		})
 
 	clusterCfg.Key("db_path", config.IsStr, "", "path for the gandalf database (absolute or relative to the configuration directory)")
-	clusterCfg.SetCheck("db_path", CheckNotEmpty)
-	clusterCfg.SetDefault("db_path", "/var/lib/cockroach/")
+	clusterCfg.SetCheck("db_path", func(val interface{}) bool {
+		valStr, ok := val.(string)
+		if ok {
+			return config.CreateWritableDirectory(valStr)
+		}
+		return false
+	})
+	clusterCfg.SetComputedValue("db_path",
+		func() interface{} {
+			ok := config.CreateWritableDirectory("/var/lib/cockroach/")
+			if ok {
+				return "/var/lib/cockroach/"
+			}
+			dbDir := config.GetHomeDirectory() + "/cockroach/"
+			ok = config.CreateWritableDirectory(dbDir)
+			if ok {
+				return dbDir
+			}
+			fmt.Println("Error: can't use or write into database directory")
+			return nil
+		})
+	//clusterCfg.SetDefault("db_path", "/var/lib/cockroach/")
 
 	clusterCfg.Key("db_nodename", config.IsStr, "", "name of the gandalf node")
 	clusterCfg.SetCheck("db_nodename", CheckNotEmpty)
 	clusterCfg.SetDefault("db_nodename", "node1")
 
-	clusterCfg.Key("db_port", config.IsInt, "", "Address to bind (default is *:9299)")
+	clusterCfg.Key("db_port", config.IsInt, "", "Port to bind (default is 9299 + offset if defined)")
 	//clusterCfg.SetDefault("db_port", 9299)
+	clusterCfg.SetCheck("db_port", CheckTcpHighPort)
 	clusterCfg.SetComputedValue("db_port",
 		func() interface{} {
 			return 9299 + config.GetOffset()
 		})
 
-	clusterCfg.Key("db_http_port", config.IsInt, "", "Address to bind (default is *:9399)")
+	clusterCfg.Key("db_http_port", config.IsInt, "", "Port to bind (default is 9399 + offset if defined)")
 	//clusterCfg.SetDefault("db_http_port", 9399+config.GetOffset())
+	clusterCfg.SetCheck("db_http_port", CheckTcpHighPort)
 	clusterCfg.SetComputedValue("db_http_port",
 		func() interface{} {
 			return 9399 + config.GetOffset()

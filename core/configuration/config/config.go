@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -290,31 +291,56 @@ func InitConfig(c *ConfigCmd) {
 	viper.SetEnvPrefix(instanceName)
 
 	viper.BindEnv("mode")
-	var cfgFile = viper.GetString("config")
+	var cfgFile = viper.GetString("config_file")
 	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-
-		username, err := user.Current()
-		if err != nil {
-			log.Fatalf(err.Error())
+		if FileExist(cfgFile) {
+			// Use config file from the flag.
+			viper.SetConfigFile(cfgFile)
+		} else {
+			ErrorAndHelp(c, "Error: No usable config file found")
 		}
-		homeDir := username.HomeDir
 
-		wd := GetWorkingDir()
-
-		// Define Paths where search the configuration file
-		viper.AddConfigPath("/etc/")
-		viper.AddConfigPath("/etc/" + instanceName + "/")
-		viper.AddConfigPath(homeDir + "/")
-		viper.AddConfigPath(homeDir + "/." + instanceName + "/")
-		viper.AddConfigPath(wd + "/")
-		viper.AddConfigPath(wd + "/." + instanceName + "/")
-
-		viper.SetConfigName(instanceName)
-		viper.SetConfigType("yaml")
 	}
+
+	username, err := user.Current()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	homeDir := username.HomeDir
+
+	//wd := GetWorkingDir()
+
+	configDir := viper.GetString("config_dir")
+	if !DirectoryExist(configDir) {
+		if DirectoryExist("/etc/gandalf/") {
+			viper.Set("config_dir", "/etc/gandalf/")
+		} else {
+			if DirectoryExist(homeDir + "/.gandalf/") {
+				viper.Set("config_dir", homeDir+"/.gandalf/")
+			} else {
+				if DirectoryExist(homeDir + "/gandalf/") {
+					viper.Set("config_dir", homeDir+"/gandalf/")
+				} else {
+					if cfgFile != "" {
+						cfgFileDir := filepath.Dir(cfgFile)
+						if DirectoryExist(cfgFileDir) {
+							viper.Set("config_dir", cfgFileDir+"/")
+						} else {
+							ErrorAndHelp(c, "Error: No usable config directory found")
+						}
+					} else {
+						ErrorAndHelp(c, "Error: No usable config file or directory found")
+					}
+				}
+			}
+		}
+	}
+
+	if cfgFile == "" {
+		viper.AddConfigPath(configDir)
+		viper.SetConfigName(instanceName)
+	}
+	viper.SetConfigType("yaml")
 
 	SetLogFile(instanceName)
 
