@@ -6,6 +6,9 @@ import (
 	"errors"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+	"github.com/ditrit/gandalf/core/models"
+
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
 	net "github.com/ditrit/shoset"
@@ -24,34 +27,47 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle connector config")
 	log.Println(conf)
 
-	mapDatabaseClient := ch.Context["database"].(map[string]*gorm.DB)
-	databasePath := ch.Context["databasePath"].(string)
+	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+	//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+	configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
+
 	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), databasePath, mapDatabaseClient)
-		ok := cutils.CaptureMessage(message, "config", databaseClient)
-		if ok {
-			log.Printf("Succes capture config %s on tenant %s \n", conf.GetCommand(), conf.GetTenant())
+		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
+		if databaseClient != nil {
+			ok := cutils.CaptureMessage(message, "config", databaseClient)
+			if ok {
+				log.Printf("Succes capture config %s on tenant %s \n", conf.GetCommand(), conf.GetTenant())
+			} else {
+				log.Printf("Fail capture config %s on tenant %s \n", conf.GetCommand(), conf.GetTenant())
+				err = errors.New("Fail capture command" + conf.GetCommand() + " on tenant" + conf.GetTenant())
+			}
+			if conf.GetCommand() == "CONFIG" {
+				configurations := cutils.GetConnectorsConfiguration(databaseClient)
+				jsonData, err := json.Marshal(configurations)
+
+				if err == nil {
+					cmdReply := msg.NewConfig(conf.GetTarget(), "CONFIG_REPLY", string(jsonData))
+					cmdReply.Tenant = conf.GetTenant()
+					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+
+					shoset.SendMessage(cmdReply)
+				} else {
+					log.Println("Can't unmarshall configuration")
+					err = errors.New("Can't unmarshall configuration")
+				}
+			} else if conf.GetCommand() == "SAVE_CONFIG" {
+				//connectorConfig := conf.GetContext()["connectorConfig"].(models.ConnectorConfig)
+				var connectorConfig *models.ConnectorConfig
+				err = json.Unmarshal([]byte(conf.GetPayload()), &connectorConfig)
+				cutils.SaveConnectorsConfiguration(connectorConfig, databaseClient)
+			}
 		} else {
-			log.Printf("Fail capture config %s on tenant %s \n", conf.GetCommand(), conf.GetTenant())
-			err = errors.New("Fail capture command" + conf.GetCommand() + " on tenant" + conf.GetTenant())
+			log.Println("Can't get database client by tenant")
+			err = errors.New("Can't get database client by tenant")
 		}
-
-		configurations := cutils.GetConnectorsConfiguration(conf, databaseClient)
-		jsonData, err := json.Marshal(configurations)
-
-		if err == nil {
-			cmdReply := msg.NewConfig(conf.GetTarget(), "CONF_REPLY", string(jsonData))
-			shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-
-			shoset.SendMessage(cmdReply)
-		} else {
-			log.Println("Can't unmarshall configuration")
-			err = errors.New("Can't unmarshall configuration")
-		}
-
 	} else {
-		log.Println("Can't get database client by tenant")
-		err = errors.New("Can't get database client by tenant")
+		log.Println("Can't get database clients")
+		err = errors.New("Can't get database clients")
 	}
 
 	/* 	gandalfdatabaseClient := cutils.GetGandalfDatabaseClient(databasePath)

@@ -6,9 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ditrit/gandalf/libraries/goclient/models"
-
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"github.com/ditrit/gandalf/libraries/goclient/client"
 
@@ -48,17 +46,18 @@ func NewClientGandalf(identity, timeout string, clientConnections []string) (cli
 }
 
 //SendCommand
-func (cg ClientGandalf) SendCommand(request string, options *models.Options) (commandMessageUUID *pb.CommandMessageUUID) {
+func (cg ClientGandalf) SendCommand(request string, options map[string]string) string {
 	var notSend bool
 	requestSplit := strings.Split(request, ".")
-	timeout := options.GetTimeout()
+	timeout := options["timeout"]
 	if timeout == "" {
 		timeout = cg.Timeout
 	}
 
-	for stay, timeoutLoop := true, time.After(time.Second); stay; {
+	var commandMessageUUID *pb.CommandMessageUUID
 
-		commandMessageUUID = cg.Clients[getClientIndex(cg.Clients, true)].SendCommand(requestSplit[0], requestSplit[1], timeout, options.GetPayload())
+	for stay, timeoutLoop := true, time.After(time.Second); stay; {
+		commandMessageUUID = cg.Clients[getClientIndex(cg.Clients, true)].SendCommand(requestSplit[0], requestSplit[1], timeout, options["payload"])
 		if commandMessageUUID != nil {
 			notSend = false
 			break
@@ -73,23 +72,56 @@ func (cg ClientGandalf) SendCommand(request string, options *models.Options) (co
 	}
 
 	if notSend {
-		return nil
+		return ""
 	}
 
-	return commandMessageUUID
+	return commandMessageUUID.GetUUID()
+}
+
+//SendAdminCommand
+func (cg ClientGandalf) SendAdminCommand(request string, options map[string]string) string {
+	var notSend bool
+	requestSplit := strings.Split(request, ".")
+	timeout := options["timeout"]
+	if timeout == "" {
+		timeout = cg.Timeout
+	}
+	var commandMessageUUID *pb.CommandMessageUUID
+
+	for stay, timeoutLoop := true, time.After(time.Second); stay; {
+
+		commandMessageUUID = cg.Clients[getClientIndex(cg.Clients, true)].SendAdminCommand(requestSplit[0], requestSplit[1], timeout, options["payload"])
+		if commandMessageUUID != nil {
+			notSend = false
+			break
+		}
+
+		select {
+		case <-timeoutLoop:
+			stay = false
+			notSend = true
+		default:
+		}
+	}
+
+	if notSend {
+		return ""
+	}
+
+	return commandMessageUUID.GetUUID()
 }
 
 //SendEvent
-func (cg ClientGandalf) SendEvent(topic, event string, options *models.Options) (empty *pb.Empty) {
+func (cg ClientGandalf) SendEvent(topic, event string, options map[string]string) (empty *pb.Empty) {
 	var notSend bool
-	timeout := options.GetTimeout()
+	timeout := options["timeout"]
 	if timeout == "" {
 		timeout = cg.Timeout
 	}
 
 	for stay, timeoutLoop := true, time.After(time.Second); stay; {
 
-		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendEvent(topic, event, "", timeout, options.GetPayload())
+		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendEvent(topic, event, "", timeout, options["payload"])
 
 		if empty != nil {
 			notSend = false
@@ -111,17 +143,17 @@ func (cg ClientGandalf) SendEvent(topic, event string, options *models.Options) 
 	return empty
 }
 
-//SendEvent
-func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *models.Options) (empty *pb.Empty) {
+//SendReply
+func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options map[string]string) (empty *pb.Empty) {
 	var notSend bool
-	timeout := options.GetTimeout()
+	timeout := options["timeout"]
 	if timeout == "" {
 		timeout = cg.Timeout
 	}
 
 	for stay, timeoutLoop := true, time.After(time.Second); stay; {
 
-		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendEvent(topic, event, referenceUUID, timeout, options.GetPayload())
+		empty = cg.Clients[getClientIndex(cg.Clients, true)].SendEvent(topic, event, referenceUUID, timeout, options["payload"])
 
 		if empty != nil {
 			notSend = false
@@ -144,10 +176,13 @@ func (cg ClientGandalf) SendReply(topic, event, referenceUUID string, options *m
 }
 
 //SendCommandList
-func (cg ClientGandalf) SendCommandList(version int64, commands []string) (empty *pb.Empty) {
-	empty = cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(version, commands)
+func (cg ClientGandalf) SendCommandList(major, minor int64, commands []string) bool {
+	return cg.Clients[getClientIndex(cg.Clients, true)].SendCommandList(major, minor, commands).GetValid()
+}
 
-	return empty
+//SendStop
+func (cg ClientGandalf) SendStop(major, minor int64) bool {
+	return cg.Clients[getClientIndex(cg.Clients, true)].SendStop(major, minor).GetValid()
 }
 
 //WaitCommand
@@ -176,7 +211,7 @@ func (cg ClientGandalf) WaitReplyByTopic(topic, referenceUUID, idIterator string
 }
 
 //WaitAllReplyByTopic
-func (cg ClientGandalf) WaitAllReplyByTopic(topic, referenceUUID, idIterator, version string) (eventMessages []msg.Event) {
+func (cg ClientGandalf) WaitAllReplyByTopic(topic, referenceUUID, idIterator string) (eventMessages []msg.Event) {
 	client := cg.Clients[getClientIndex(cg.Clients, false)]
 	for {
 		message := pb.EventFromGrpc(client.WaitTopic(topic, referenceUUID, idIterator))

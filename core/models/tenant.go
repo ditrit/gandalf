@@ -8,5 +8,5 @@ import (
 // Tenant : Tenant struct.
 type Tenant struct {
 	gorm.Model
-	Name string
+	Name string `gorm:"unique"`
 }

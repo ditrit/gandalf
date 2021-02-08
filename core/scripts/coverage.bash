@@ -27,7 +27,7 @@ KO_PROMPT="${_RED}==FAIL==${_END}"
 echo "0" > "$RES_FILE"
 
 (
-	cd "$GOPATH/src/mia"
+	cd "$GOPATH/src/gandalf/core/"
 	echo "mode: ${COVER_MODE}" > "${COVERAGE_FILE}"
 
 	COVERPKG=$(go list ./... | tr '\n' ',' | sed 's/,$//g')

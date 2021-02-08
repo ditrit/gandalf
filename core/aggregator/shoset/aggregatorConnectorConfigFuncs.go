@@ -5,11 +5,13 @@ import (
 	"errors"
 	"log"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
 )
 
-var workerSendIndex = 0
+var connectorConfigSendIndex = 0
 
 // HandleConnectorConfig : Aggregator handle connector config function.
 func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
@@ -21,17 +23,17 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle connector config")
 	log.Println(conf)
+	configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	if conf.GetTenant() == configurationAggregator.GetTenant() {
+		//ok := ch.Queue["config"].Push(conf, c.ShosetType, c.GetBindAddr())
 
-	//if conf.GetTenant() == ch.Context["tenant"] {
-	ok := ch.Queue["config"].Push(conf, c.ShosetType, c.GetBindAddr())
-
-	if ok {
+		//if ok {
 		if dir == "in" {
 			if c.GetShosetType() == "c" {
 				shosets := net.GetByType(ch.ConnsByAddr, "cl")
 				if len(shosets) != 0 {
 					conf.Target = c.GetBindAddr()
-					index := getWorkerSendIndex(shosets)
+					index := getConnectorConfigSendIndex(shosets)
 					shosets[index].SendMessage(conf)
 					log.Printf("%s : send in command %s to %s\n", thisOne, conf.GetCommand(), shosets[index])
 				} else {
@@ -53,25 +55,25 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 				err = errors.New("wrong Shoset type")
 			}
 		}
+		/* } else {
+			log.Println("can't push to queue")
+			err = errors.New("can't push to queue")
+		} */
 	} else {
-		log.Println("can't push to queue")
-		err = errors.New("can't push to queue")
-	}
-	/* 	} else {
 		log.Println("wrong tenant")
 		err = errors.New("wrong tenant")
-	} */
+	}
 
 	return err
 }
 
 // getCommandSendIndex : Aggregator getSendIndex function.
-func getWorkerSendIndex(conns []*net.ShosetConn) int {
-	aux := workerSendIndex
-	workerSendIndex++
+func getConnectorConfigSendIndex(conns []*net.ShosetConn) int {
+	aux := connectorConfigSendIndex
+	connectorConfigSendIndex++
 
-	if workerSendIndex >= len(conns) {
-		workerSendIndex = 0
+	if connectorConfigSendIndex >= len(conns) {
+		connectorConfigSendIndex = 0
 	}
 
 	return aux

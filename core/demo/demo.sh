@@ -3,36 +3,26 @@ echo 'Running Demo'
 
 echo 'Build' 
 cd "${BASH_SOURCE%/*}/.."
-go build -tags libsqlite3 -o gandalf
-
-mkdir -p ~/gandalf/logs/{aggregator/,cluster/}
+go build -o gandalf
 
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
-./gandalf cluster init cluster 127.0.0.1:9000 
-sleep 5
-echo 'Join ClusterMember' 
-./gandalf cluster join cluster 127.0.0.1:9001 127.0.0.1:9000 
-sleep 5
-echo 'Join ClusterMember' 
-./gandalf cluster join cluster 127.0.0.1:9002 127.0.0.1:9000 
-sleep 5
-
+./gandalf cluster -l Cluster
+./gandalf cluster -l Cluster --offset 1 --db_nodename node2 --join 127.0.0.1:9099 --secret TUTU
+./gandalf cluster -l Cluster --offset 2 --db_nodename node3 --join 127.0.0.1:9099 --secret TITI
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'
-./gandalf aggregator Aggregator1 tenant1 127.0.0.1:8000 127.0.0.1:9000
-./gandalf aggregator Aggregator2 tenant1 127.0.0.1:8100 127.0.0.1:9000
-./gandalf aggregator Aggregator3 tenant1 127.0.0.1:8200 127.0.0.1:9000
-./gandalf aggregator Aggregator4 tenant1 127.0.0.1:8300 127.0.0.1:9000
+./gandalf aggregator -l Aggregator1 -t tenant1 --port 10000 --cluster 127.0.0.1:9099 --secret TATA
 sleep 5
 
 echo 'Connector'
 echo 'ConnectorMember Con1 and Con2' 
-./gandalf connector Connector1 tenant1 127.0.0.1:7000 127.0.0.1:7010 127.0.0.1:8000 Utils 1,2
-./gandalf connector Connector2 tenant1 127.0.0.1:7100 127.0.0.1:7110 127.0.0.1:8100 Workflow 1
-./gandalf connector Connector3 tenant1 127.0.0.1:7200 127.0.0.1:7210 127.0.0.1:8200 Azure
-./gandalf connector Connector4 tenant1 127.0.0.1:7300 127.0.0.1:7310 127.0.0.1:8300 Gitlab
+./gandalf connector -l Connector1 --port 10100 --aggregator 127.0.0.1:10000 --secret TOTO --class utils --product Custom
+
+./gandalf -g connector -l Connector1 -b 127.0.0.1:7000 -r /tmp/ -a 127.0.0.1:8000 -y Utils -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
+./gandalf -g connector -l Connector2 -b 127.0.0.1:7100 -r /tmp/ -a 127.0.0.1:8000 -y Workflow -p Docker -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
+./gandalf -g connector -l Connector3 -b 127.0.0.1:7100 -r /tmp/ -a 127.0.0.1:8000 -y Workflow -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
 sleep 5
 
 

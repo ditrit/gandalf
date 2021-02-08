@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	pb "github.com/ditrit/gandalf/libraries/goclient/grpc"
+	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
@@ -26,7 +26,7 @@ func NewClientEvent(identity, clientEventConnection string) (clientEvent *Client
 	clientEvent.Identity = identity
 	clientEvent.ClientEventConnection = clientEventConnection
 
-	conn, err := grpc.Dial(clientEvent.ClientEventConnection, grpc.WithInsecure())
+	conn, err := grpc.Dial("unix:"+clientEvent.ClientEventConnection, grpc.WithInsecure())
 
 	if err != nil {
 		fmt.Println("clientEvent failed dial")
@@ -47,6 +47,7 @@ func (ce ClientEvent) SendEvent(topic, event, referenceUUID, timeout, payload st
 	eventMessage.Event = event
 	eventMessage.Payload = payload
 	eventMessage.ReferenceUUID = referenceUUID
+
 	empty, _ := ce.client.SendEventMessage(context.Background(), eventMessage)
 
 	return empty
@@ -63,7 +64,7 @@ func (ce ClientEvent) WaitEvent(topic, event, referenceUUID, idIterator string) 
 	eventMessage, _ := ce.client.WaitEventMessage(context.Background(), eventMessageWait)
 
 	for eventMessage == nil {
-		time.Sleep(time.Duration(1) * time.Millisecond)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 
 	return eventMessage
@@ -79,7 +80,7 @@ func (ce ClientEvent) WaitTopic(topic, referenceUUID, idIterator string) *pb.Eve
 	eventMessage, _ := ce.client.WaitTopicMessage(context.Background(), topicMessageWait)
 
 	for eventMessage == nil {
-		time.Sleep(time.Duration(1) * time.Millisecond)
+		time.Sleep(time.Duration(1) * time.Second)
 	}
 
 	return eventMessage

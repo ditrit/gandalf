@@ -8,6 +8,6 @@ import (
 // ConnectorType : ConnectorType struct.
 type ConnectorType struct {
 	gorm.Model
-	Name string
+	Name string `gorm:"unique"`
 	//Commands []ConnectorTypeCommand
 }
