@@ -70,7 +70,9 @@ create_user() {
 INSTDIR=/usr/local/bin
 CONFDIR=/etc/gandalf
 LOGDIR=/var/log/gandalf
-DATADIR=/var/lib/cockroach
+RUNDIR=/var/run/gandalf
+VARDIR=/var/lib/gandalf
+VARDATADIR=/var/lib/cockroach
 
 # Validate argument
 case $1 in 
@@ -121,26 +123,42 @@ create_dir $INSTDIR
 move_to ./gandalf $INSTDIR/
 [ "$mode" == "cluster" ] && move_to ./cockroach $INSTDIR
 
-# create user
-create_user gandalf /home/gandalf
+if [ "$mode" != "cli "] # not a deamon
+then 
+  # create user
+  create_user gandalf /home/gandalf
 
-# create and populate config directory
-create_dir $CONFDIR
-[ -d $CONFDIR/certs ] && sudo rm -rf $CONFDIR/certs
-move_to ./certs $CONFDIR/
-chown_dir $CONFDIR gandalf
+  # create and populate config directory
+  create_dir $CONFDIR
+  [ "$mode" == "connector" ] && create_dir $CONFDIR/workers
+  [ -d $CONFDIR/certs ] && sudo rm -rf $CONFDIR/certs
+  move_to ./certs $CONFDIR/
+  chown_dir $CONFDIR gandalf
 
-# Create DATADIR
-create_dir $DATADIR
-chown_dir $DATADIR gandalf
+  # Create VARDATADIR
+  create_dir $VARDIR
+  [ "$mode" == "connector" ] && create_dir $VARDIR/workers
+  chown_dir $VARDIR gandalf
 
-# prepare log destination
-create_dir $LOGDIR
-chown_dir $LOGDIR gandalf
+  # Create VARDATADIR
+  create_dir $VARDATADIR
+  chown_dir $VARDATADIR gandalf
 
-# install gandalf service
-create_service
+  # prepare log destination
+  create_dir $LOGDIR
+  chown_dir $LOGDIR gandalf
 
-# ready to go...
-[ $? ] && howto_start
+  # prepare run directory
+  if [ "$mode" == "connector" ]
+  then
+    create_dir $RUNDIR
+    chown_dir $RUNDIR gandalf
+  fi
 
+  # install gandalf service
+  create_service
+
+  # ready to go...
+  [ $? ] && howto_start
+
+fi
