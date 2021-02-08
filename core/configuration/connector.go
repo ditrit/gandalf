@@ -8,7 +8,6 @@ package configuration
 
 import (
 	"fmt"
-	"gandalf/core/configuration/config"
 	"strings"
 
 	"github.com/ditrit/gandalf/core/configuration/config"
@@ -81,7 +80,7 @@ func init() {
 
 	connectorCfg.SetComputedValue("workers",
 		func() interface{} {
-			viper.Set("gandalf_var", connectorCfg.computedValue["gandalf_var"])
+			viper.Set("gandalf_var", connectorCfg.GetComputedValue()["gandalf_var"])
 			ok := config.CreateWritableDirectory(viper.GetString("config_dir") + "workers")
 			if !ok {
 				fmt.Println("Error: can't create workers subdirectory into config directory")

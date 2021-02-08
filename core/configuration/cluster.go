@@ -8,7 +8,6 @@ package configuration
 
 import (
 	"fmt"
-	"gandalf/core/configuration/config"
 
 	"github.com/ditrit/gandalf/core/configuration/config"
 

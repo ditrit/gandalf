@@ -250,6 +250,11 @@ func (c ConfigCmd) SetComputedValue(name string, fval func() interface{}) {
 	c.computedValue[name] = fval
 }
 
+// SetComputedValue sets a value dynamically as the default for a key
+func (c ConfigCmd) GetComputedValue() map[string]func() interface{} {
+	return c.computedValue
+}
+
 // Key defines a flag in cobra bound to env and config file
 func (c ConfigCmd) Key(name string, valType ConfigType, short string, usage string) error {
 	c.keyType[name] = valType
