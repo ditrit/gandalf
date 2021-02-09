@@ -49,6 +49,9 @@ type ConfigCmd struct {
 
 	keyType map[string]ConfigType
 
+	// Required Number of args (no argument allowed by default)
+	nbArgs int
+
 	//  offset
 	offset int
 
@@ -78,7 +81,7 @@ func Run(sub *ConfigCmd, runf func(cfg *ConfigCmd, args []string)) func(*cobra.C
 
 func preRunCheck(sub *ConfigCmd) func(*cobra.Command, []string) {
 	return func(cobraCmd *cobra.Command, args []string) {
-		if !sub.ValidOK() {
+		if !(sub.ValidOK() && len(args) == sub.nbArgs) {
 			ErrorAndHelp(sub, "")
 			sub.ValidOK()
 			os.Exit(1)
@@ -220,6 +223,11 @@ func (c ConfigCmd) Execute() {
 	}
 }
 
+// SetNbArgs : function to fix the number of args
+func (c ConfigCmd) SetNbArgs(nb int) {
+	c.nbArgs = nb
+}
+
 // SetCheck : function to valid the value of a config key
 func (c ConfigCmd) SetCheck(name string, isValid func(interface{}) bool) {
 	c.isValid[name] = isValid
@@ -250,7 +258,7 @@ func (c ConfigCmd) SetComputedValue(name string, fval func() interface{}) {
 	c.computedValue[name] = fval
 }
 
-// SetComputedValue sets a value dynamically as the default for a key
+// GetComputedValue sets a value dynamically as the default for a key
 func (c ConfigCmd) GetComputedValue() map[string]func() interface{} {
 	return c.computedValue
 }
