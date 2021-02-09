@@ -143,7 +143,7 @@ func initOffset(c *ConfigCmd) {
 }
 
 // GetAppName :
-func (c ConfigCmd) GetAppName() string {
+func (c *ConfigCmd) GetAppName() string {
 	if c.parentCmd != nil {
 		return c.parentCmd.GetAppName()
 	}
@@ -151,7 +151,7 @@ func (c ConfigCmd) GetAppName() string {
 }
 
 // GetInstanceName :
-func (c ConfigCmd) GetInstanceName() string {
+func (c *ConfigCmd) GetInstanceName() string {
 	appName := c.GetAppName()
 	offset := GetOffset()
 	if offset != 0 {
@@ -161,7 +161,7 @@ func (c ConfigCmd) GetInstanceName() string {
 }
 
 // ValidOK checks if config keys have valid values
-func (c ConfigCmd) ValidOK() bool {
+func (c *ConfigCmd) ValidOK() bool {
 	ret := true
 
 	if c.parentCmd != nil {
@@ -208,14 +208,14 @@ func (c ConfigCmd) ValidOK() bool {
 }
 
 // AddConfig adds a sub configuration
-func (c ConfigCmd) AddConfig(sub *ConfigCmd) {
+func (c *ConfigCmd) AddConfig(sub *ConfigCmd) {
 	c.cmd.AddCommand(sub.cmd)
 	c.subCmds[sub.cmd.Name()] = sub
-	sub.parentCmd = &c
+	sub.parentCmd = c
 }
 
 // Execute Configuration (call it only for root command)
-func (c ConfigCmd) Execute() {
+func (c *ConfigCmd) Execute() {
 	//SetLogFile(c.cmd.Name())
 	if err := c.cmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -224,47 +224,47 @@ func (c ConfigCmd) Execute() {
 }
 
 // SetNbArgs : function to fix the number of args
-func (c ConfigCmd) SetNbArgs(nb int) {
+func (c *ConfigCmd) SetNbArgs(nb int) {
 	c.nbArgs = nb
 }
 
 // SetCheck : function to valid the value of a config key
-func (c ConfigCmd) SetCheck(name string, isValid func(interface{}) bool) {
+func (c *ConfigCmd) SetCheck(name string, isValid func(interface{}) bool) {
 	c.isValid[name] = isValid
 }
 
 // SetNormalize : function to normalize the value of a config Key (if set)
-func (c ConfigCmd) SetNormalize(name string, normalize func(interface{}) interface{}) {
+func (c *ConfigCmd) SetNormalize(name string, normalize func(interface{}) interface{}) {
 	c.normalize[name] = normalize
 }
 
 // SetDefault : set default value for a key
-func (c ConfigCmd) SetDefault(name string, value interface{}) {
+func (c *ConfigCmd) SetDefault(name string, value interface{}) {
 	viper.SetDefault(name, value)
 }
 
 // SetRequired sets a key as required
-func (c ConfigCmd) SetRequired(name string) {
+func (c *ConfigCmd) SetRequired(name string) {
 	c.isRequired[name] = true
 }
 
 // SetConstraint sets a constraint
-func (c ConfigCmd) SetConstraint(msg string, constraint func() bool) {
+func (c *ConfigCmd) SetConstraint(msg string, constraint func() bool) {
 	c.constraints[msg] = constraint
 }
 
 // SetComputedValue sets a value dynamically as the default for a key
-func (c ConfigCmd) SetComputedValue(name string, fval func() interface{}) {
+func (c *ConfigCmd) SetComputedValue(name string, fval func() interface{}) {
 	c.computedValue[name] = fval
 }
 
 // GetComputedValue sets a value dynamically as the default for a key
-func (c ConfigCmd) GetComputedValue() map[string]func() interface{} {
+func (c *ConfigCmd) GetComputedValue() map[string]func() interface{} {
 	return c.computedValue
 }
 
 // Key defines a flag in cobra bound to env and config file
-func (c ConfigCmd) Key(name string, valType ConfigType, short string, usage string) error {
+func (c *ConfigCmd) Key(name string, valType ConfigType, short string, usage string) error {
 	c.keyType[name] = valType
 	return Key(c.cmd, name, valType, short, usage)
 }
@@ -364,6 +364,6 @@ func InitConfig(c *ConfigCmd) {
 }
 
 // Initialize handle initial configuration
-func (c ConfigCmd) Initialize() {
-	cobra.OnInitialize(func() { InitConfig(&c) })
+func (c *ConfigCmd) Initialize() {
+	cobra.OnInitialize(func() { InitConfig(c) })
 }
