@@ -81,12 +81,13 @@ func init() {
 
 	connectorCfg.SetComputedValue("workers",
 		func() interface{} {
-			viper.Set("gandalf_var", connectorCfg.GetComputedValue()["gandalf_var"])
+			//viper.Set("gandalf_var", connectorCfg.GetComputedValue()["gandalf_var"])
 			ok := config.CreateWritableDirectory(viper.GetString("config_dir") + "workers")
 			if !ok {
 				fmt.Println("Error: can't create workers subdirectory into config directory")
 				return nil
 			}
+			fmt.Println(viper.GetString("gandalf_var"))
 			workersVarDir := viper.GetString("gandalf_var") + "workers"
 			ok = config.CreateWritableDirectory(workersVarDir)
 			if !ok {

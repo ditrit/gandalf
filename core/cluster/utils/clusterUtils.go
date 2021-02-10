@@ -194,16 +194,14 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 	switch componentType {
 	case "cluster":
 		var cluster models.Cluster
-		fmt.Println("logicalName")
-		fmt.Println(logicalName)
-		fmt.Println("secret")
-		fmt.Println(secret)
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&cluster).Error
-		fmt.Println("err")
-		fmt.Println(err)
 		if err == nil {
 			if cluster != (models.Cluster{}) {
-				if cluster.BindAddress == "" || cluster.BindAddress == bindAddress {
+				if cluster.BindAddress == "" {
+					cluster.BindAddress = bindAddress
+					databaseClient.Save(cluster)
+					result = true
+				} else if cluster.BindAddress == bindAddress {
 					result = true
 				}
 			}
@@ -211,16 +209,14 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 		break
 	case "aggregator":
 		var aggregator models.Aggregator
-		fmt.Println("logicalName")
-		fmt.Println(logicalName)
-		fmt.Println("secret")
-		fmt.Println(secret)
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&aggregator).Error
-		fmt.Println("err")
-		fmt.Println(err)
 		if err == nil {
 			if aggregator != (models.Aggregator{}) {
-				if aggregator.BindAddress == "" || aggregator.BindAddress == bindAddress {
+				if aggregator.BindAddress == "" {
+					aggregator.BindAddress = bindAddress
+					databaseClient.Save(aggregator)
+					result = true
+				} else if aggregator.BindAddress == bindAddress {
 					result = true
 				}
 			}
@@ -232,7 +228,11 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&connector).Error
 		if err == nil {
 			if connector != (models.Connector{}) {
-				if connector.BindAddress == "" || connector.BindAddress == bindAddress {
+				if connector.BindAddress == "" {
+					connector.BindAddress = bindAddress
+					databaseClient.Save(connector)
+					result = true
+				} else if connector.BindAddress == bindAddress {
 					result = true
 				}
 			}

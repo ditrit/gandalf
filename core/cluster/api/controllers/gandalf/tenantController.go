@@ -26,11 +26,10 @@ type TenantController struct {
 }
 
 // NewTenantController :
-func NewTenantController(gandalfDatabase *gorm.DB, mapTenantDatabase map[string]*gorm.DB, databasePath, certsPath, databaseBindAddr string) (tenantController *TenantController) {
+func NewTenantController(gandalfDatabase *gorm.DB, mapTenantDatabase map[string]*gorm.DB, certsPath, databaseBindAddr string) (tenantController *TenantController) {
 	tenantController = new(TenantController)
 	tenantController.gandalfDatabase = gandalfDatabase
 	tenantController.mapTenantDatabase = mapTenantDatabase
-	tenantController.databasePath = databasePath
 	tenantController.certsPath = certsPath
 	tenantController.databaseBindAddr = databaseBindAddr
 
@@ -66,7 +65,7 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	err := dao.CreateTenant(tc.gandalfDatabase, tenant)
 	if err == nil {
 
-		err = database.NewTenantDatabase(tc.databasePath, tc.certsPath, tc.databaseBindAddr, tenant.Name)
+		err = database.NewTenantDatabase(tc.certsPath, tc.databaseBindAddr, tenant.Name)
 		if err == nil {
 
 			var tenantDatabaseClient *gorm.DB

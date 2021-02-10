@@ -2,10 +2,9 @@
 
 BINDIR=/usr/local/bin
 COCKROACH=$BINDIR/cockroach
-DATADIR=$1
-CERTDIR=$2
-HOST=$3
-DATABASE=$4
+CERTDIR=$1
+HOST=$2
+DATABASE=$3
 
 $COCKROACH sql 	\
 		--certs-dir=$CERTDIR \

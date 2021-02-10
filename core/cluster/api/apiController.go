@@ -26,12 +26,12 @@ type Controllers struct {
 }
 
 // ReturnControllers :
-func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, databasePath, certsPath, databaseBindAddr string) *Controllers {
+func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, certsPath, databaseBindAddr string) *Controllers {
 
 	controllers := new(Controllers)
 	controllers.gandalfAuthenticationController = gandalf.NewAuthenticationController(gandalfDatabase)
 	controllers.gandalfClusterController = gandalf.NewClusterController(gandalfDatabase)
-	controllers.gandalfTenantController = gandalf.NewTenantController(gandalfDatabase, mapDatabase, databasePath, certsPath, databaseBindAddr)
+	controllers.gandalfTenantController = gandalf.NewTenantController(gandalfDatabase, mapDatabase, certsPath, databaseBindAddr)
 	controllers.gandalfUserController = gandalf.NewUserController(gandalfDatabase)
 	controllers.gandalfRoleController = gandalf.NewRoleController(gandalfDatabase)
 	controllers.gandalfConfigurationController = gandalf.NewConfigurationController(gandalfDatabase)
