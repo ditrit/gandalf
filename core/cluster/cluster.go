@@ -136,11 +136,11 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			if err == nil {
 				log.Printf("New database node bind on %s \n", "")
 
-				err = database.CoackroachInit(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress())
+				err = database.CoackroachInit(configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress())
 				if err == nil {
 					log.Printf("New database node init")
-					err = database.NewGandalfDatabase(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), "gandalf")
-					if err == nil {
+					err = database.NewGandalfDatabase(configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), "gandalf")
+					if err == nil {	
 						log.Printf("New gandalf database")
 						var gandalfDatabaseClient *gorm.DB
 						gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
@@ -157,7 +157,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
-								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
 								if err == nil {
 									log.Printf("New API server")
 								} else {
@@ -192,7 +192,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 				if err == nil {
 					log.Printf("New gandalf database client")
 
-					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
 					if err == nil {
 						log.Printf("New API server")
 					} else {
@@ -254,7 +254,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						if err == nil {
 							log.Printf("New gandalf database client")
 
-							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
+							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), member.GandalfDatabaseClient, member.MapTenantDatabaseClients)
 							if err == nil {
 								log.Printf("New API server")
 							} else {
@@ -310,9 +310,9 @@ func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (configurationClus
 }
 
 // ConfigurationValidation : Validation configuration
-func (m *ClusterMember) StartAPI(bindAdress, databasePath, certsPath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) (err error) {
+func (m *ClusterMember) StartAPI(bindAdress, certsPath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) (err error) {
 
-	server := api.NewServerAPI(bindAdress, databasePath, certsPath, databaseBindAddress, gandalfDatabaseClient, mapTenantDatabaseClients)
+	server := api.NewServerAPI(bindAdress, certsPath, databaseBindAddress, gandalfDatabaseClient, mapTenantDatabaseClients)
 	server.Run()
 
 	return

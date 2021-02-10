@@ -14,8 +14,8 @@ import (
 )
 
 // NewGandalfDatabaseClient : Gandalf database client constructor.
-func NewTenantDatabase(dataDir, certsDir, addr, tenant string) (err error) {
-	CoackroachCreateDatabase(dataDir, certsDir, addr, tenant)
+func NewTenantDatabase(certsDir, addr, tenant string) (err error) {
+	CoackroachCreateDatabase(certsDir, addr, tenant)
 	fmt.Println(err)
 
 	return
