@@ -31,6 +31,7 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	//CLUSTER
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_LIST, controllers.gandalfClusterController.List).Methods("GET")
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_CREATE, controllers.gandalfClusterController.Create).Methods("POST")
+	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_DECLARE_MEMBER, controllers.gandalfClusterController.DeclareMember).Methods("POST")
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_READ, controllers.gandalfClusterController.Read).Methods("GET")
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_UPDATE, controllers.gandalfClusterController.Update).Methods("PUT")
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_DELETE, controllers.gandalfClusterController.Delete).Methods("DELETE")
@@ -70,6 +71,7 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	//AGGREGATOR
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_LIST, controllers.tenantsAggregatorController.List).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_CREATE, controllers.tenantsAggregatorController.Create).Methods("POST")
+	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DECLARE_MEMBER, controllers.tenantsAggregatorController.DeclareMember).Methods("POST")
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_READ, controllers.tenantsAggregatorController.Read).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_UPDATE, controllers.tenantsAggregatorController.Update).Methods("PUT")
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DELETE, controllers.tenantsAggregatorController.Delete).Methods("DELETE")
@@ -77,6 +79,7 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	//CONNECTOR
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_LIST, controllers.tenantsConnectorController.List).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_CREATE, controllers.tenantsConnectorController.Create).Methods("POST")
+	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DECLARE_MEMBER, controllers.tenantsConnectorController.DeclareMember).Methods("POST")
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_READ, controllers.tenantsConnectorController.Read).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_UPDATE, controllers.tenantsConnectorController.Update).Methods("PUT")
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DELETE, controllers.tenantsConnectorController.Delete).Methods("DELETE")
