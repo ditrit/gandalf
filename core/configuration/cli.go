@@ -22,23 +22,24 @@ var cliUpdate = config.NewConfigCmd("update", "update user|tenant|role|domain", 
 var cliDelete = config.NewConfigCmd("delete", "delete user|tenant|role|domain", "update command allows deleting of Gandalf objects (users, tenants, roles and domains).", nil)
 var cliDeclare = config.NewConfigCmd("declare", "declare cluster|agregator|connector", "declare command allows to declare a new Gandalf component name or member (cluster, aggregator, connector).", nil)
 var cliLogin = config.NewConfigCmd("login", "log in as a user into Gandalf", "login command allows user to authenticate using its credentials.", runLogin)
-var cliCreateUser = config.NewConfigCmd("user", "create user <username> [options]", "create user command allows the creation of a new user", runCreateUser)
-var cliListUsers = config.NewConfigCmd("user", "list users [options]", "list users command allows to list all or filtered (using regexp) Gandalf users.", runListUsers)
+
+var cliCreateUser = config.NewConfigCmd("user", "create user <username> <email> <password>", "create user command allows the creation of a new user", runCreateUser)
+var cliListUsers = config.NewConfigCmd("user", "list users", "list users command allows to list Gandalf users.", runListUsers)
 var cliUpdateUser = config.NewConfigCmd("user", "update user <username> [options]", "update user command allows to update a Gandalf user.", runUpdateUser)
 var cliDeleteUser = config.NewConfigCmd("user", "delete user <username>", "delete user command allows to delete a Gandalf user.", runDeleteUser)
 
-var cliCreateTenant = config.NewConfigCmd("tenant", "create tenant <tenantname> [options]", "create tenant command allows the creation of a new tenant", runCreateTenant)
-var cliListTenants = config.NewConfigCmd("tenant", "list tenants <tenantname> [options]", "list tenants command allows to list all or filtered (using regexp) Gandalf tenants.", runListTenants)
+var cliCreateTenant = config.NewConfigCmd("tenant", "create tenant <tenantname>", "create tenant command allows the creation of a new tenant", runCreateTenant)
+var cliListTenants = config.NewConfigCmd("tenant", "list tenants <tenantname>", "list tenants command allows to list Gandalf tenants.", runListTenants)
 var cliUpdateTenant = config.NewConfigCmd("tenant", "update tenant <tenantname> [options]", "update tenant command allows to update a Gandalf tenant.", runUpdateTenant)
 var cliDeleteTenant = config.NewConfigCmd("tenant", "delete tenant <tenantname>", "delete tenant command allows to delete a Gandalf tenant.", runDeleteTenant)
 
-var cliCreateRole = config.NewConfigCmd("role", "create role <rolename> [options]", "create role command allows the creation of a new role", runCreateRole)
-var cliListRoles = config.NewConfigCmd("role", "list roles <rolename> [options]", "list roles command allows to list all or filtered (using regexp) Gandalf roles.", runListRoles)
+var cliCreateRole = config.NewConfigCmd("role", "create role <rolename> ", "create role command allows the creation of a new role", runCreateRole)
+var cliListRoles = config.NewConfigCmd("role", "list roles <rolename> ", "list roles command allows to list Gandalf roles.", runListRoles)
 var cliUpdateRole = config.NewConfigCmd("role", "update role <rolename> [options]", "update role command allows to update a Gandalf role.", runUpdateRole)
 var cliDeleteRole = config.NewConfigCmd("role", "delete role <rolename>", "delete role command allows to delete a Gandalf role.", runDeleteRole)
 
-var cliCreateDomain = config.NewConfigCmd("domain", "create domain <domainname> [options]", "create domain command allows the creation of a new domain", runCreateDomain)
-var cliListDomains = config.NewConfigCmd("domain", "list domains <domainname> [options]", "list domains command allows to list all or filtered (using regexp) Gandalf domains.", runListDomains)
+var cliCreateDomain = config.NewConfigCmd("domain", "create domain <domainname>", "create domain command allows the creation of a new domain (in the form <[name.]*name>)", runCreateDomain)
+var cliListDomains = config.NewConfigCmd("domain", "list domains ", "list domains command allows to list Gandalf domains.", runListDomains)
 var cliUpdateDomain = config.NewConfigCmd("domain", "update domain <domainname> [options]", "update domain command allows to update a Gandalf domain.", runUpdateDomain)
 var cliDeleteDomain = config.NewConfigCmd("domain", "delete domain <domainname>", "delete domain command allows to delete a Gandalf domain.", runDeleteDomain)
 
@@ -95,45 +96,38 @@ func init() {
 	cliDeclareConnector.AddConfig(cliDeclareConnectorName)
 	cliDeclareConnector.AddConfig(cliDeclareConnectorMember)
 
-	cliLogin.SetNbArgs(2)
-	cliCfg.Key("endpoint", config.IsStr, "e", "Gandalf auth token")
+	cliCfg.Key("endpoint", config.IsStr, "e", "Gandalf endpoint")
 	cliCfg.SetRequired("endpoint")
 	cliCfg.Key("token", config.IsStr, "t", "Gandalf auth token")
 	cliCfg.SetRequired("token")
 
-	cliCreateUser.SetNbArgs(1)
+	cliLogin.SetNbArgs(2)
+
+	cliCreateUser.SetNbArgs(3)
 	cliListUsers.SetNbArgs(0)
 	cliUpdateUser.SetNbArgs(1)
 	cliDeleteUser.SetNbArgs(1)
-	cliCreateUser.Key("email", config.IsStr, "m", "mail of the user")
-	cliCreateUser.SetRequired("email")
-	cliCreateUser.Key("password", config.IsStr, "p", "password of the user")
-	cliCreateUser.SetRequired("password")
-	cliUpdateUser.Key("name", config.IsStr, "n", "name of the user")
+	cliUpdateUser.Key("username", config.IsStr, "u", "name of the user")
 	cliUpdateUser.Key("email", config.IsStr, "m", "mail of the user")
 	cliUpdateUser.Key("password", config.IsStr, "p", "password of the user")
-	cliListUsers.Key("filter", config.IsStr, "f", "regexp to filter results")
 
 	cliCreateTenant.SetNbArgs(1)
 	cliListTenants.SetNbArgs(0)
 	cliUpdateTenant.SetNbArgs(1)
 	cliDeleteTenant.SetNbArgs(1)
-	cliUpdateTenant.Key("name", config.IsStr, "n", "name of the Tenant")
-	cliListTenants.Key("filter", config.IsStr, "f", "regexp to filter results")
+	cliUpdateTenant.Key("tenantname", config.IsStr, "t", "name of the Tenant")
 
 	cliCreateRole.SetNbArgs(1)
 	cliListRoles.SetNbArgs(0)
 	cliUpdateRole.SetNbArgs(1)
 	cliDeleteRole.SetNbArgs(1)
-	cliUpdateRole.Key("name", config.IsStr, "n", "name of the Role")
-	cliListRoles.Key("filter", config.IsStr, "f", "regexp to filter results")
+	cliUpdateRole.Key("rolename", config.IsStr, "r", "name of the Role")
 
-	cliCreateDomain.SetNbArgs(2)
+	cliCreateDomain.SetNbArgs(1)
 	cliListDomains.SetNbArgs(0)
-	cliUpdateDomain.SetNbArgs(2)
+	cliUpdateDomain.SetNbArgs(1)
 	cliDeleteDomain.SetNbArgs(1)
-	cliUpdateDomain.Key("name", config.IsStr, "n", "name of the Domain")
-	cliListDomains.Key("filter", config.IsStr, "f", "regexp to filter results")
+	cliUpdateDomain.Key("domainname", config.IsStr, "d", "name of the Domain")
 
 	cliDeclareClusterMember.SetNbArgs(0)
 	cliDeclareAggregatorName.SetNbArgs(1)
@@ -150,20 +144,19 @@ func runLogin(cfg *config.ConfigCmd, args []string) {
 
 func runCreateUser(cfg *config.ConfigCmd, args []string) {
 	name := args[0]
-	email := viper.GetViper().GetString("email")
-	password := viper.GetViper().GetString("password")
+	email := args[1]
+	password := args[2]
 
 	fmt.Printf("gandalf cli create user called with username=%s, email=%s, password=%s\n", name, email, password)
 }
 
 func runListUsers(cfg *config.ConfigCmd, args []string) {
-	filter := viper.GetString("filter")
-	fmt.Printf("gandalf cli list users with filter=%s\n", filter)
+	fmt.Printf("gandalf cli list users\n")
 }
 
 func runUpdateUser(cfg *config.ConfigCmd, args []string) {
 	name := args[0]
-	newName := viper.GetString("name")
+	newName := viper.GetString("username")
 	email := viper.GetViper().GetString("email")
 	password := viper.GetViper().GetString("password")
 	fmt.Printf("gandalf cli update user called with username=%s, newname=%s, email=%s, password=%s\n", name, newName, email, password)
@@ -201,8 +194,7 @@ func runCreateRole(cfg *config.ConfigCmd, args []string) {
 }
 
 func runListRoles(cfg *config.ConfigCmd, args []string) {
-	filter := viper.GetString("filter")
-	fmt.Printf("gandalf cli list roles with filter=%s\n", filter)
+	fmt.Printf("gandalf cli list roles\n")
 }
 
 func runUpdateRole(cfg *config.ConfigCmd, args []string) {
@@ -223,8 +215,7 @@ func runCreateDomain(cfg *config.ConfigCmd, args []string) {
 }
 
 func runListDomains(cfg *config.ConfigCmd, args []string) {
-	filter := viper.GetString("filter")
-	fmt.Printf("gandalf cli list domains called with filter=%s\n", filter)
+	fmt.Printf("gandalf cli list domains\n")
 }
 
 func runUpdateDomain(cfg *config.ConfigCmd, args []string) {

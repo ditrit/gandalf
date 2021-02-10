@@ -111,6 +111,7 @@ func NewConfigCmd(use string, shortDesc string, longDesc string, runf func(cfg *
 	cobraCmd.Use = use
 	cobraCmd.Short = shortDesc
 	cobraCmd.Long = longDesc
+
 	cfg.cmd = cobraCmd
 	cfg.runf = runf
 	cfg.subCmds = make(map[string]*ConfigCmd)
@@ -120,6 +121,7 @@ func NewConfigCmd(use string, shortDesc string, longDesc string, runf func(cfg *
 	cfg.keyType = make(map[string]ConfigType)
 	cfg.constraints = make(map[string]func() bool)
 	cfg.computedValue = make(map[string]func() interface{})
+
 	return cfg
 }
 
