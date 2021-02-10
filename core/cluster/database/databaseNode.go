@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 )
