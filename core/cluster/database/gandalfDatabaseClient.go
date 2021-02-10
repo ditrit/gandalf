@@ -29,12 +29,12 @@ func NewGandalfDatabaseClient(addr, name string) (gandalfDatabaseClient *gorm.DB
 }
 
 // InitGandalfDatabase : Gandalf database init.
-func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (login string, password string, secret string, err error) {
+func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login string, password string, secret string, err error) {
 	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationLogicalCluster{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()
-	cluster := models.Cluster{LogicalName: logicalName, Secret: secret}
+	cluster := models.Cluster{LogicalName: logicalName, BindAddress: bindAddress, Secret: secret}
 	err = gandalfDatabaseClient.Create(&cluster).Error
 
 	//Init State

@@ -152,7 +152,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 							log.Printf("populating database")
 
 							var login, password, secret string
-							login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName())
+							login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
 							if err == nil {
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)

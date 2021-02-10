@@ -233,7 +233,6 @@ func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector)
 		} else {
 			log.Fatalf("Can't link shoset on %s", configurationConnector.GetLinkAddress())
 		}
-
 	} else {
 		log.Fatalf("Can't bind shoset on %s", configurationConnector.GetBindAddress())
 	}

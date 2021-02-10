@@ -1,9 +1,14 @@
 package utils
 
 import (
+	"crypto/sha512"
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"math/rand"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -70,6 +75,17 @@ func ChangeStateGandalf(client *gorm.DB) (err error) {
 		}
 	}
 	return err
+}
+
+func GenerateHash() string {
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+
+	concatenated := fmt.Sprint(random.Intn(100))
+	sha512 := sha512.New()
+	sha512.Write([]byte(concatenated))
+	hash := base64.URLEncoding.EncodeToString(sha512.Sum(nil))
+	return hash
 }
 
 //TODO REVOIR UTILE ???

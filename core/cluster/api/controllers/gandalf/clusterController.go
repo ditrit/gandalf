@@ -56,6 +56,25 @@ func (cc ClusterController) Create(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, http.StatusCreated, cluster)
 }
 
+// DeclareMember :
+func (cc ClusterController) DeclareMember(w http.ResponseWriter, r *http.Request) {
+
+	cluster, err := dao.ReadFirstCluster(cc.gandalfDatabase)
+	if err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+	}
+	newCluster := new(models.Cluster)
+	newCluster.Name = cluster.Name
+	newCluster.Secret = utils.GenerateHash()
+
+	if err := dao.CreateCluster(cc.gandalfDatabase, newCluster); err != nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusCreated, newCluster)
+}
+
 // Read :
 func (cc ClusterController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
