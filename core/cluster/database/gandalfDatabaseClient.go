@@ -53,6 +53,7 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (lo
 		}
 	}
 	//TODO REMOVE
+	DemoCreateCluster(gandalfDatabaseClient)
 	//Test(gandalfDatabaseClient)
 
 	return
