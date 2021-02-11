@@ -77,17 +77,18 @@ func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 func (ac AggregatorController) DeclareMember(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
+	name := vars["name"]
 	database := utils.GetDatabase(ac.mapDatabase, tenant)
 	if database != nil {
-		aggregator, err := dao.ReadFirstCluster(database)
+		aggregator, err := dao.ReadAggregatorByName(database, name)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
-		newAggregator := new(models.Aggregator)
-		newAggregator.Name = aggregator.Name
+		var newAggregator models.Aggregator
+		newAggregator.LogicalName = aggregator.LogicalName
 		newAggregator.Secret = utils.GenerateHash()
 
-		if err := dao.CreateCluster(database, newAggregator); err != nil {
+		if err := dao.CreateAggregator(database, newAggregator); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

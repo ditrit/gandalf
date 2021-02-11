@@ -10,7 +10,7 @@ type TenantsConnectorService struct {
 }
 
 // List :
-func (as *TenantsConnectorService) List(token string, tenant string) ([]models.Connector, error) {
+func (as *TenantsConnectorService) List(token, tenant string) ([]models.Connector, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors/", token, nil)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (as *TenantsConnectorService) List(token string, tenant string) ([]models.C
 }
 
 // Create :
-func (as *TenantsConnectorService) Create(token string, tenant string, connector models.Connector) error {
+func (as *TenantsConnectorService) Create(token, tenant string, connector models.Connector) error {
 	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/connectors/", token, connector)
 	if err != nil {
 		return err
@@ -30,8 +30,18 @@ func (as *TenantsConnectorService) Create(token string, tenant string, connector
 	return err
 }
 
+// DeclareMember :
+func (as *TenantsConnectorService) DeclareMember(token, tenant, name string) error {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors/declare/"+name, token, nil)
+	if err != nil {
+		return err
+	}
+	err = as.client.do(req, nil)
+	return err
+}
+
 // Read :
-func (as *TenantsConnectorService) Read(token string, tenant string, id int) (*models.Connector, error) {
+func (as *TenantsConnectorService) Read(token, tenant string, id int) (*models.Connector, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
@@ -42,7 +52,7 @@ func (as *TenantsConnectorService) Read(token string, tenant string, id int) (*m
 }
 
 // Update :
-func (as *TenantsConnectorService) Update(token string, tenant string, id int, connector models.Connector) error {
+func (as *TenantsConnectorService) Update(token, tenant string, id int, connector models.Connector) error {
 	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/connectors/"+string(id), token, connector)
 	if err != nil {
 		return err
@@ -52,7 +62,7 @@ func (as *TenantsConnectorService) Update(token string, tenant string, id int, c
 }
 
 // Delete :
-func (as *TenantsConnectorService) Delete(token string, tenant string, id int) error {
+func (as *TenantsConnectorService) Delete(token, tenant string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/connectors/"+string(id), token, nil)
 	if err != nil {
 		return err

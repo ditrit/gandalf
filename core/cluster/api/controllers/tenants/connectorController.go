@@ -76,17 +76,18 @@ func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 func (cc ConnectorController) DeclareMember(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
+	name := vars["name"]
 	database := utils.GetDatabase(cc.mapDatabase, tenant)
 	if database != nil {
-		connector, err := dao.ReadFirstCluster(database)
+		connector, err := dao.ReadConnectorByName(database, name)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
-		newConnector := new(models.Connector)
-		newConnector.Name = connector.Name
+		var newConnector models.Connector
+		newConnector.LogicalName = connector.LogicalName
 		newConnector.Secret = utils.GenerateHash()
 
-		if err := dao.CreateCluster(database, newConnector); err != nil {
+		if err := dao.CreateConnector(database, newConnector); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

@@ -10,7 +10,7 @@ type TenantsAggregatorService struct {
 }
 
 // List :
-func (as *TenantsAggregatorService) List(token string, tenant string) ([]models.Aggregator, error) {
+func (as *TenantsAggregatorService) List(token, tenant string) ([]models.Aggregator, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/", token, nil)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (as *TenantsAggregatorService) List(token string, tenant string) ([]models.
 }
 
 // Create :
-func (as *TenantsAggregatorService) Create(token string, tenant string, aggregator models.Aggregator) error {
+func (as *TenantsAggregatorService) Create(token, tenant string, aggregator models.Aggregator) error {
 	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/aggregators/", token, aggregator)
 	if err != nil {
 		return err
@@ -30,8 +30,18 @@ func (as *TenantsAggregatorService) Create(token string, tenant string, aggregat
 	return err
 }
 
+// DeclareMember :
+func (as *TenantsAggregatorService) DeclareMember(token, tenant, name string) error {
+	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/declare/"+name, token, nil)
+	if err != nil {
+		return err
+	}
+	err = as.client.do(req, nil)
+	return err
+}
+
 // Read :
-func (as *TenantsAggregatorService) Read(token string, tenant string, id int) (*models.Aggregator, error) {
+func (as *TenantsAggregatorService) Read(token, tenant string, id int) (*models.Aggregator, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
@@ -42,7 +52,7 @@ func (as *TenantsAggregatorService) Read(token string, tenant string, id int) (*
 }
 
 // Update :
-func (as *TenantsAggregatorService) Update(token string, tenant string, id int, aggregator models.Aggregator) error {
+func (as *TenantsAggregatorService) Update(token, tenant string, id int, aggregator models.Aggregator) error {
 	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, aggregator)
 	if err != nil {
 		return err
@@ -52,7 +62,7 @@ func (as *TenantsAggregatorService) Update(token string, tenant string, id int, 
 }
 
 // Delete :
-func (as *TenantsAggregatorService) Delete(token string, tenant string, id int) error {
+func (as *TenantsAggregatorService) Delete(token, tenant string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/aggregators/"+string(id), token, nil)
 	if err != nil {
 		return err

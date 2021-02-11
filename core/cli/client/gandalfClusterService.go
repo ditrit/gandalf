@@ -30,6 +30,16 @@ func (as *GandalfClusterService) Create(token string, cluster models.Cluster) er
 	return err
 }
 
+// DeclareMember :
+func (as *GandalfClusterService) DeclareMember(token string) error {
+	req, err := as.client.newRequest("GET", "/auth/gandalf/clusters/declare/", token, nil)
+	if err != nil {
+		return err
+	}
+	err = as.client.do(req, nil)
+	return err
+}
+
 // Read :
 func (as *GandalfClusterService) Read(token string, id int) (*models.Cluster, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/clusters/"+string(id), token, nil)

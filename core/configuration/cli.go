@@ -9,6 +9,10 @@ package configuration
 import (
 	"fmt"
 
+	"github.com/ditrit/gandalf/core/cli/client"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+	"github.com/ditrit/gandalf/core/models"
+
 	"github.com/ditrit/gandalf/core/configuration/config"
 	"github.com/spf13/viper"
 )
@@ -139,7 +143,18 @@ func init() {
 func runLogin(cfg *config.ConfigCmd, args []string) {
 	name := args[0]
 	password := args[1]
+
 	fmt.Printf("gandalf cli login called with username=%s and password=%s\n", name, password)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	user := models.NewUser(name, "", password)
+	token, err := cliClient.GandalfAuthenticationService.Login(user)
+	if err == nil {
+		fmt.Println(token)
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runCreateUser(cfg *config.ConfigCmd, args []string) {
@@ -148,10 +163,29 @@ func runCreateUser(cfg *config.ConfigCmd, args []string) {
 	password := args[2]
 
 	fmt.Printf("gandalf cli create user called with username=%s, email=%s, password=%s\n", name, email, password)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	user := models.NewUser(name, email, password)
+	err := cliClient.GandalfUserService.Create(configurationCli.GetToken(), user)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func runListUsers(cfg *config.ConfigCmd, args []string) {
 	fmt.Printf("gandalf cli list users\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	users, err := cliClient.GandalfUserService.List(configurationCli.GetToken())
+	if err == nil {
+		for user := range users {
+			fmt.Println(user)
+		}
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runUpdateUser(cfg *config.ConfigCmd, args []string) {
@@ -160,21 +194,57 @@ func runUpdateUser(cfg *config.ConfigCmd, args []string) {
 	email := viper.GetViper().GetString("email")
 	password := viper.GetViper().GetString("password")
 	fmt.Printf("gandalf cli update user called with username=%s, newname=%s, email=%s, password=%s\n", name, newName, email, password)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
+	if err == nil {
+		user := models.NewUser(newName, email, password)
+		cliClient.GandalfUserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
+	}
 }
 
 func runDeleteUser(cfg *config.ConfigCmd, args []string) {
 	name := args[0]
 	fmt.Printf("gandalf cli delete user called with username=%s\n", name)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
+	if err == nil {
+		cliClient.GandalfUserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
+	}
 }
 
 func runCreateTenant(cfg *config.ConfigCmd, args []string) {
 	name := args[0]
 	fmt.Printf("gandalf cli create tenant called with tenant=%s\n", name)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	tenant := models.Tenant{Name: name}
+	login, password, err := cliClient.GandalfTenantService.Create(configurationCli.GetToken(), tenant)
+	if err == nil {
+		fmt.Println("login : " + login)
+		fmt.Println("password : " + password)
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runListTenants(cfg *config.ConfigCmd, args []string) {
-	filter := viper.GetString("filter")
-	fmt.Printf("gandalf cli list tenants with filter=%s\n", filter)
+	fmt.Printf("gandalf cli list tenants\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	tenants, err := cliClient.GandalfTenantService.List(configurationCli.GetToken())
+	if err == nil {
+		for tenant := range tenants {
+			fmt.Println(tenant)
+		}
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runUpdateTenant(cfg *config.ConfigCmd, args []string) {

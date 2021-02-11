@@ -30,7 +30,7 @@ func NewGandalfDatabaseClient(addr, name string) (gandalfDatabaseClient *gorm.DB
 
 // InitGandalfDatabase : Gandalf database init.
 func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login string, password string, secret string, err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationLogicalCluster{})
+	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationLogicalCluster{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()
@@ -42,16 +42,10 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddres
 	err = gandalfDatabaseClient.Create(&state).Error
 
 	//Init Administrator
-	err = gandalfDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error
-	if err == nil {
-		var admin models.Role
-		err = gandalfDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
-		if err == nil {
-			login, password = "Administrator", GenerateRandomHash()
-			user := models.NewUser(login, login, password)
-			err = gandalfDatabaseClient.Create(&user).Error
-		}
-	}
+	login, password = "Administrator", GenerateRandomHash()
+	user := models.NewUser(login, login, password)
+	err = gandalfDatabaseClient.Create(&user).Error
+
 	//TODO REMOVE
 	DemoCreateCluster(gandalfDatabaseClient)
 	//Test(gandalfDatabaseClient)

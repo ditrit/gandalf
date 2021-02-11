@@ -63,8 +63,8 @@ func (cc ClusterController) DeclareMember(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 	}
-	newCluster := new(models.Cluster)
-	newCluster.Name = cluster.Name
+	var newCluster models.Cluster
+	newCluster.LogicalName = cluster.LogicalName
 	newCluster.Secret = utils.GenerateHash()
 
 	if err := dao.CreateCluster(cc.gandalfDatabase, newCluster); err != nil {

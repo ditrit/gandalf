@@ -34,6 +34,12 @@ func ReadConnector(database *gorm.DB, id int) (connector models.Connector, err e
 	return
 }
 
+func ReadConnectorByName(database *gorm.DB, name string) (connector models.Connector, err error) {
+	err = database.Where("name = ?", name).First(&connector).Error
+
+	return
+}
+
 func UpdateConnector(database *gorm.DB, connector models.Connector) (err error) {
 	err = database.Save(&connector).Error
 
