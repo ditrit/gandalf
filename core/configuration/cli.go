@@ -134,10 +134,10 @@ func init() {
 	cliUpdateDomain.Key("domainname", config.IsStr, "d", "name of the Domain")
 
 	cliDeclareClusterMember.SetNbArgs(0)
-	cliDeclareAggregatorName.SetNbArgs(1)
-	cliDeclareAggregatorMember.SetNbArgs(1)
-	cliDeclareConnectorName.SetNbArgs(1)
-	cliDeclareConnectorMember.SetNbArgs(1)
+	cliDeclareAggregatorName.SetNbArgs(2)
+	cliDeclareAggregatorMember.SetNbArgs(2)
+	cliDeclareConnectorName.SetNbArgs(2)
+	cliDeclareConnectorMember.SetNbArgs(2)
 }
 
 func runLogin(cfg *config.ConfigCmd, args []string) {
@@ -200,7 +200,12 @@ func runUpdateUser(cfg *config.ConfigCmd, args []string) {
 	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
 		user := models.NewUser(newName, email, password)
-		cliClient.GandalfUserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
+		err = cliClient.GandalfUserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -212,7 +217,12 @@ func runDeleteUser(cfg *config.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		cliClient.GandalfUserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
+		err = cliClient.GandalfUserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -302,26 +312,69 @@ func runDeleteDomain(cfg *config.ConfigCmd, args []string) {
 
 func runDeclareClusterMember(cfg *config.ConfigCmd, args []string) {
 	fmt.Printf("gandalf declare cluster member\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	err := cliClient.GandalfClusterService.DeclareMember(configurationCli.GetToken())
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func runDeclareAggregatorName(cfg *config.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare aggregator name with name=%s\n", name)
+	tenant := args[0]
+	name := args[1]
+	fmt.Printf("gandalf declare aggregator name with name=%s on tenant=%s\n", name, tenant)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	var aggregator models.Aggregator
+	aggregator.LogicalName = name
+	err := cliClient.TenantsAggregatorService.Create(configurationCli.GetToken(), tenant, aggregator)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func runDeclareAggregatorMember(cfg *config.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare aggregator member with name=%s\n", name)
+	tenant := args[0]
+	name := args[1]
+	fmt.Printf("gandalf declare aggregator member with name=%s on tenant=%s\n", name, tenant)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	err := cliClient.TenantsAggregatorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func runDeclareConnectorName(cfg *config.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare connector name with name=%s\n", name)
+	tenant := args[0]
+	name := args[1]
+	fmt.Printf("gandalf declare connector name with name=%s on tenant=%s\n", name, tenant)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	var connector models.Connector
+	connector.LogicalName = name
+	err := cliClient.TenantsConnectorService.Create(configurationCli.GetToken(), tenant, connector)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func runDeclareConnectorMember(cfg *config.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare connector member with name=%s\n", name)
+	tenant := args[0]
+	name := args[1]
+	fmt.Printf("gandalf declare connector member with name=%s on tenant=%s\n", name, tenant)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	err := cliClient.TenantsConnectorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 /*
