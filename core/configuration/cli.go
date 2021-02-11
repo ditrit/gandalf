@@ -103,7 +103,7 @@ func init() {
 	cliCfg.Key("endpoint", config.IsStr, "e", "Gandalf endpoint")
 	cliCfg.SetRequired("endpoint")
 	cliCfg.Key("token", config.IsStr, "t", "Gandalf auth token")
-	cliCfg.SetRequired("token")
+	//cliCfg.SetRequired("token")
 
 	cliLogin.SetNbArgs(2)
 
@@ -146,12 +146,17 @@ func runLogin(cfg *config.ConfigCmd, args []string) {
 
 	fmt.Printf("gandalf cli login called with username=%s and password=%s\n", name, password)
 	configurationCli := cmodels.NewConfigurationCli()
+	fmt.Println(configurationCli.GetEndpoint())
 	cliClient := client.NewClient(configurationCli.GetEndpoint())
 
-	user := models.NewUser(name, "", password)
+	var user models.User
+	user.Name = name
+	user.Email = name
+	user.Password = password
+	//user := models.NewUser(name, name, password)
 	token, err := cliClient.GandalfAuthenticationService.Login(user)
 	if err == nil {
-		fmt.Println(token)
+		fmt.Println("Token: " + token)
 	} else {
 		fmt.Println(err)
 	}
@@ -180,7 +185,7 @@ func runListUsers(cfg *config.ConfigCmd, args []string) {
 
 	users, err := cliClient.GandalfUserService.List(configurationCli.GetToken())
 	if err == nil {
-		for user := range users {
+		for _, user := range users {
 			fmt.Println(user)
 		}
 	} else {

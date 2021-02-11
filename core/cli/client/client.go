@@ -34,6 +34,7 @@ func NewClient(bindAddress string) (client *Client) {
 
 	u, err := url.Parse(bindAddress)
 	if err != nil {
+		fmt.Println(err)
 		log.Fatal(err)
 	}
 

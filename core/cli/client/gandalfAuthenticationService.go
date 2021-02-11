@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/pkg/errors"
 )
 
 // GandalfAuthenticationService :
@@ -18,6 +19,9 @@ func (as *GandalfAuthenticationService) Login(user models.User) (string, error) 
 	}
 	var mapLogin map[string]interface{}
 	err = as.client.do(req, &mapLogin)
-
-	return mapLogin["token"].(string), err
+	token, ok := mapLogin["token"].(string)
+	if ok {
+		return token, err
+	}
+	return "", errors.Errorf("Can't parse token")
 }

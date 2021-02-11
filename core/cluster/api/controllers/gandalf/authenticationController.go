@@ -33,7 +33,7 @@ func NewAuthenticationController(gandalfDatabase *gorm.DB) (authenticationContro
 // Login :
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{}
-
+	fmt.Println("LOGIN")
 	err := json.NewDecoder(r.Body).Decode(user)
 	if err != nil {
 
@@ -41,7 +41,8 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
-
+	fmt.Println(user.Email)
+	fmt.Println(user.Password)
 	resp := ac.FindOne(user.Email, user.Password)
 	json.NewEncoder(w).Encode(resp)
 }
