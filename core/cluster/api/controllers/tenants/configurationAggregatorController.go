@@ -33,7 +33,7 @@ func NewConfigurationAggregatorController(mapDatabase map[string]*gorm.DB) (conf
 func (cc ConfigurationAggregatorController) Upload(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		fmt.Println("File Upload Endpoint Hit")
 
@@ -74,7 +74,7 @@ func (cc ConfigurationAggregatorController) Upload(w http.ResponseWriter, r *htt
 func (cc ConfigurationAggregatorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		configurationAggregators, err := dao.ListConfigurationAggregator(database)
 		if err != nil {
@@ -93,7 +93,7 @@ func (cc ConfigurationAggregatorController) List(w http.ResponseWriter, r *http.
 func (cc ConfigurationAggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 
 		var configurationAggregator models.ConfigurationLogicalAggregator
@@ -120,7 +120,7 @@ func (cc ConfigurationAggregatorController) Create(w http.ResponseWriter, r *htt
 func (cc ConfigurationAggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 
 		id, err := strconv.Atoi(vars["id"])
@@ -151,7 +151,7 @@ func (cc ConfigurationAggregatorController) Read(w http.ResponseWriter, r *http.
 func (cc ConfigurationAggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 
 		id, err := strconv.Atoi(vars["id"])
@@ -185,7 +185,7 @@ func (cc ConfigurationAggregatorController) Update(w http.ResponseWriter, r *htt
 func (cc ConfigurationAggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

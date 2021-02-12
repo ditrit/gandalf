@@ -27,7 +27,6 @@ func NewTenantDatabaseClient(addr, tenant string) (tenantDatabaseClient *gorm.DB
 	dsn := "postgres://" + tenant + ":" + tenant + "@" + addr + "/" + tenant + "?sslmode=require"
 	tenantDatabaseClient, err = gorm.Open("postgres", dsn)
 	if err != nil {
-		fmt.Println(err)
 		log.Println("failed to connect database")
 	}
 

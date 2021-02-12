@@ -33,7 +33,7 @@ func NewConfigurationConnectorController(mapDatabase map[string]*gorm.DB) (confi
 func (cc ConfigurationConnectorController) Upload(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 
 		fmt.Println("File Upload Endpoint Hit")
@@ -75,7 +75,7 @@ func (cc ConfigurationConnectorController) Upload(w http.ResponseWriter, r *http
 func (cc ConfigurationConnectorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		configurationConnectors, err := dao.ListConfigurationConnector(database)
 		if err != nil {
@@ -94,7 +94,7 @@ func (cc ConfigurationConnectorController) List(w http.ResponseWriter, r *http.R
 func (cc ConfigurationConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		var configurationConnector models.ConfigurationLogicalConnector
 		decoder := json.NewDecoder(r.Body)
@@ -120,7 +120,7 @@ func (cc ConfigurationConnectorController) Create(w http.ResponseWriter, r *http
 func (cc ConfigurationConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -150,7 +150,7 @@ func (cc ConfigurationConnectorController) Read(w http.ResponseWriter, r *http.R
 func (cc ConfigurationConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -183,7 +183,7 @@ func (cc ConfigurationConnectorController) Update(w http.ResponseWriter, r *http
 func (cc ConfigurationConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

@@ -254,7 +254,7 @@ func runListTenants(cfg *config.ConfigCmd, args []string) {
 
 	tenants, err := cliClient.GandalfTenantService.List(configurationCli.GetToken())
 	if err == nil {
-		for tenant := range tenants {
+		for _, tenant := range tenants {
 			fmt.Println(tenant)
 		}
 	} else {

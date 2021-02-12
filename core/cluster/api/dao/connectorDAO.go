@@ -35,7 +35,7 @@ func ReadConnector(database *gorm.DB, id int) (connector models.Connector, err e
 }
 
 func ReadConnectorByName(database *gorm.DB, name string) (connector models.Connector, err error) {
-	err = database.Where("name = ?", name).First(&connector).Error
+	err = database.Where("logical_name = ?", name).First(&connector).Error
 
 	return
 }

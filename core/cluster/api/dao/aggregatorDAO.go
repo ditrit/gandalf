@@ -35,7 +35,7 @@ func ReadAggregator(database *gorm.DB, id int) (aggregator models.Aggregator, er
 }
 
 func ReadAggregatorByName(database *gorm.DB, name string) (aggregator models.Aggregator, err error) {
-	err = database.Where("name = ?", name).First(&aggregator).Error
+	err = database.Where("logical_name = ?", name).First(&aggregator).Error
 
 	return
 }

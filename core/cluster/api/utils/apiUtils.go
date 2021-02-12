@@ -5,10 +5,13 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -27,12 +30,23 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-func GetDatabase(mapDatabase map[string]*gorm.DB, tenant string) *gorm.DB {
-	if _, ok := mapDatabase[tenant]; !ok {
-		return nil
+//TODO
+// GetDatabaseClientByTenant : Cluster database client getter by tenant.
+func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
+	if _, ok := mapDatabaseClient[tenant]; !ok {
+
+		//var tenantDatabaseClient *gorm.DB
+		tenantDatabaseClient, err := database.NewTenantDatabaseClient(addr, tenant)
+		if err == nil {
+			mapDatabaseClient[tenant] = tenantDatabaseClient
+		} else {
+			log.Println("Can't create database client")
+			return nil
+		}
+
 	}
 
-	return mapDatabase[tenant]
+	return mapDatabaseClient[tenant]
 }
 
 func ExtractToken(r *http.Request) string {
@@ -60,18 +74,15 @@ func ChangeStateGandalf(client *gorm.DB) (err error) {
 	err = client.First(&state).Error
 	if err == nil {
 		if !state.Admin {
-			var roleadmin models.Role
-			err = client.Where("name = ?", "Administrator").First(&roleadmin).Error
-			if err == nil {
-				var users []models.User
-				result := client.Where("role_id = ?", roleadmin.ID).Preload("Role").Find(&users)
-				if result.Error == nil {
-					if result.RowsAffected >= 2 {
-						state.Admin = true
-						client.Save(&state)
-					}
+			var users []models.User
+			result := client.Find(&users)
+			if result.Error == nil {
+				if result.RowsAffected >= 2 {
+					state.Admin = true
+					client.Save(&state)
 				}
 			}
+
 		}
 	}
 	return err

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
+	"github.com/ditrit/gandalf/core/cluster/api/utils"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -32,35 +33,34 @@ func NewAuthenticationController(gandalfDatabase *gorm.DB) (authenticationContro
 
 // Login :
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
-	user := &models.User{}
+	ruser := &models.User{}
 	fmt.Println("LOGIN")
-	err := json.NewDecoder(r.Body).Decode(user)
+	err := json.NewDecoder(r.Body).Decode(ruser)
 	if err != nil {
 
-		var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
-		json.NewEncoder(w).Encode(resp)
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+
+		//var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
+		//json.NewEncoder(w).Encode(resp)
 		return
 	}
-	fmt.Println(user.Email)
-	fmt.Println(user.Password)
-	resp := ac.FindOne(user.Email, user.Password)
-	json.NewEncoder(w).Encode(resp)
-}
-
-// FindOne :
-func (ac AuthenticationController) FindOne(email, password string) map[string]interface{} {
 	user := models.User{}
-	var err error
-	if user, err = dao.ReadUserByEmail(ac.gandalfDatabase, email); err != nil {
-		var resp = map[string]interface{}{"status": false, "message": "Email address not found"}
-		return resp
+	if user, err = dao.ReadUserByName(ac.gandalfDatabase, ruser.Name); err != nil {
+
+		//var resp = map[string]interface{}{"status": false, "message": "Username not found"}
+		//return resp
+		utils.RespondWithError(w, http.StatusNotFound, "Username not found")
+		return
 	}
 	expiresAt := time.Now().Add(time.Minute * 100000).Unix()
 
-	errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(ruser.Password))
 	if errf != nil && errf == bcrypt.ErrMismatchedHashAndPassword { //Password does not match!
-		var resp = map[string]interface{}{"status": false, "message": "Invalid login credentials. Please try again"}
-		return resp
+		//var resp = map[string]interface{}{"status": false, "message": "Invalid login credentials. Please try again"}
+		//return resp
+		//return http.StatusUnauthorized, "", "Invalid login credentials. Please try again"
+		utils.RespondWithError(w, http.StatusUnauthorized, "Invalid login credentials. Please try again")
+		return
 	}
 	tk := &apimodels.Claims{
 		UserID: user.ID,
@@ -74,13 +74,56 @@ func (ac AuthenticationController) FindOne(email, password string) map[string]in
 
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 
-	tokenString, error := token.SignedString([]byte("gandalf"))
-	if error != nil {
-		fmt.Println(error)
+	tokenString, err := token.SignedString([]byte("gandalf"))
+	if err != nil {
+		fmt.Println(err)
+		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	utils.RespondWithJSON(w, http.StatusOK, tokenString)
+	return
+
+}
+
+/* // FindOne :
+func (ac AuthenticationController) FindOne(name, password string) (int, string, string) {
+	user := models.User{}
+	var err error
+	if user, err = dao.ReadUserByName(ac.gandalfDatabase, name); err != nil {
+
+		//var resp = map[string]interface{}{"status": false, "message": "Username not found"}
+		//return resp
+		return http.StatusNotFound, "", "Username not found"
+	}
+	expiresAt := time.Now().Add(time.Minute * 100000).Unix()
+
+	errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if errf != nil && errf == bcrypt.ErrMismatchedHashAndPassword { //Password does not match!
+		//var resp = map[string]interface{}{"status": false, "message": "Invalid login credentials. Please try again"}
+		//return resp
+		return http.StatusUnauthorized, "", "Invalid login credentials. Please try again"
+	}
+	tk := &apimodels.Claims{
+		UserID: user.ID,
+		Name:   user.Name,
+		Email:  user.Email,
+		Tenant: "gandalf",
+		StandardClaims: &jwt.StandardClaims{
+			ExpiresAt: expiresAt,
+		},
 	}
 
-	var resp = map[string]interface{}{"status": false, "message": "logged in"}
-	resp["token"] = tokenString //Store the token in the response
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+
+	tokenString, err := token.SignedString([]byte("gandalf"))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//var resp = map[string]interface{}{"status": true, "message": "logged in"}
+	//resp["token"] = tokenString //Store the token in the response
 	//resp["user"] = user
-	return resp
+	//return resp
+	return http.StatusOK, tokenString, ""
 }
+*/

@@ -37,7 +37,69 @@ func NewAuthenticationController(mapDatabase map[string]*gorm.DB) (authenticatio
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(ac.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
+	if database != nil {
+
+		ruser := &models.User{}
+		fmt.Println("LOGIN")
+		err := json.NewDecoder(r.Body).Decode(ruser)
+		if err != nil {
+
+			utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+
+			//var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
+			//json.NewEncoder(w).Encode(resp)
+			return
+		}
+		user := models.User{}
+		if user, err = dao.ReadUserByName(database, ruser.Name); err != nil {
+
+			//var resp = map[string]interface{}{"status": false, "message": "Username not found"}
+			//return resp
+			utils.RespondWithError(w, http.StatusNotFound, "Username not found")
+			return
+		}
+		expiresAt := time.Now().Add(time.Minute * 100000).Unix()
+
+		errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(ruser.Password))
+		if errf != nil && errf == bcrypt.ErrMismatchedHashAndPassword { //Password does not match!
+			//var resp = map[string]interface{}{"status": false, "message": "Invalid login credentials. Please try again"}
+			//return resp
+			//return http.StatusUnauthorized, "", "Invalid login credentials. Please try again"
+			utils.RespondWithError(w, http.StatusUnauthorized, "Invalid login credentials. Please try again")
+			return
+		}
+		tk := &apimodels.Claims{
+			UserID: user.ID,
+			Name:   user.Name,
+			Email:  user.Email,
+			Tenant: "gandalf",
+			StandardClaims: &jwt.StandardClaims{
+				ExpiresAt: expiresAt,
+			},
+		}
+
+		token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+
+		tokenString, err := token.SignedString([]byte("gandalf"))
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		utils.RespondWithJSON(w, http.StatusOK, tokenString)
+		return
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
+/*
+func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
 	if database != nil {
 
 		user := &models.User{}
@@ -83,7 +145,7 @@ func (ac AuthenticationController) FindOne(database *gorm.DB, email, password, t
 
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 
-	tokenString, error := token.SignedString([]byte("tenants"))
+	tokenString, error := token.SignedString([]byte("gandalf"))
 	if error != nil {
 		fmt.Println(error)
 	}
@@ -93,3 +155,4 @@ func (ac AuthenticationController) FindOne(database *gorm.DB, email, password, t
 	resp["user"] = user
 	return resp
 }
+*/

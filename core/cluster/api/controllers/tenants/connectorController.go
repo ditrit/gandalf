@@ -31,7 +31,7 @@ func NewConnectorController(mapDatabase map[string]*gorm.DB) (connectorControlle
 func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		connectors, err := dao.ListConnector(database)
 		if err != nil {
@@ -50,7 +50,7 @@ func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		var connector models.Connector
 		decoder := json.NewDecoder(r.Body)
@@ -77,7 +77,7 @@ func (cc ConnectorController) DeclareMember(w http.ResponseWriter, r *http.Reque
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	name := vars["name"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		connector, err := dao.ReadConnectorByName(database, name)
 		if err != nil {
@@ -103,7 +103,7 @@ func (cc ConnectorController) DeclareMember(w http.ResponseWriter, r *http.Reque
 func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -133,7 +133,7 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -166,7 +166,7 @@ func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := utils.GetDatabaseClientByTenant(cc.mapDatabase, tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
