@@ -1,6 +1,7 @@
 //Package database :
 package database
 
+/*
 import (
 	"fmt"
 	"log"
@@ -361,7 +362,7 @@ func DemoCreateApplicationDocker(tenantDatabaseClient *gorm.DB) {
 		ConnectorType: ConnectorTypeDocker})
 }
 
-/* //DemoConfiguration
+//DemoConfiguration
 func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
 	var configurationAggregator models.ConfigurationLogicalAggregator
 	var configurationConnector models.ConfigurationLogicalConnector
@@ -377,4 +378,5 @@ func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
 	configurationConnector.MaxTimeout = 1000
 	tenantDatabaseClient.Save(&configurationConnector)
 }
+
 */

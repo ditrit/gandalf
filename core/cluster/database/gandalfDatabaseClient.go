@@ -1,6 +1,7 @@
 //Package database :
 package database
 
+/*
 import (
 	"fmt"
 	"os/user"
@@ -85,3 +86,4 @@ func DemoConfigurationCluster(tenantDatabaseClient *gorm.DB) {
 	configurationCluster.LogicalName = "Cluster"
 	tenantDatabaseClient.Save(&configurationCluster)
 }
+*/

@@ -57,7 +57,7 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	err := dao.CreateTenant(tc.databaseConnection.GetGandalfDatabaseClient(), tenant)
 	if err == nil {
 
-		err = database.NewTenantDatabase(tc.databaseConnection.GetConfigurationCluster().GetCertsPath(), tc.databaseConnection.GetConfigurationCluster().GetDatabaseBindAddress(), tenant.Name)
+		err = tc.databaseConnection.NewDatabase(tenant.Name)
 		if err == nil {
 
 			//var tenantDatabaseClient *gorm.DB
@@ -66,7 +66,7 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 
 			if tenantDatabaseClient != nil {
 
-				login, password, err = database.InitTenantDatabase(tenantDatabaseClient)
+				login, password, err = tc.databaseConnection.InitTenantDatabase(tenantDatabaseClient)
 
 				if err == nil {
 					result["login"] = login

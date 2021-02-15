@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ditrit/gandalf/core/cluster/database"
-
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/shoset/msg"
@@ -14,7 +12,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// GetDatabaseClientByTenant : Cluster database client getter by tenant.
+/* // GetDatabaseClientByTenant : Cluster database client getter by tenant.
 func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
 	if _, ok := mapDatabaseClient[tenant]; !ok {
 
@@ -30,7 +28,7 @@ func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string
 	}
 
 	return mapDatabaseClient[tenant]
-}
+} */
 
 // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {

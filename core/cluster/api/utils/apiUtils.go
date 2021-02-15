@@ -5,13 +5,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -30,7 +27,7 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Write(response)
 }
 
-//TODO
+/* //TODO
 // GetDatabaseClientByTenant : Cluster database client getter by tenant.
 func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
 	if _, ok := mapDatabaseClient[tenant]; !ok {
@@ -47,7 +44,7 @@ func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string
 	}
 
 	return mapDatabaseClient[tenant]
-}
+} */
 
 func ExtractToken(r *http.Request) string {
 	bearToken := r.Header.Get("Authorization")

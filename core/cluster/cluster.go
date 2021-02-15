@@ -141,7 +141,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 				err = database.CoackroachInit(configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress())
 				if err == nil {
 					log.Printf("New database node init")
-					err = database.NewGandalfDatabase(configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress(), "gandalf")
+					err = member.DatabaseConnection.NewDatabase("gandalf")
 					if err == nil {
 						log.Printf("New gandalf database")
 						//var gandalfDatabaseClient *gorm.DB
@@ -156,7 +156,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 							log.Printf("populating database")
 
 							var login, password, secret string
-							login, password, secret, err = database.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
+							login, password, secret, err = member.DatabaseConnection.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
 							if err == nil {
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
