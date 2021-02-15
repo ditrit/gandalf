@@ -311,7 +311,6 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 }
 
 func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalCluster, error) {
-	fmt.Println("SEND")
 	shoset.SendConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
@@ -324,7 +323,6 @@ func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (*models.Configura
 
 // ConfigurationValidation : Validation configuration
 func (m *ClusterMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection) (err error) {
-
 	server := api.NewServerAPI(bindAdress, databaseConnection)
 	server.Run()
 

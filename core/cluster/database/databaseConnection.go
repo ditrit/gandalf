@@ -90,10 +90,7 @@ func (dc DatabaseConnection) GetConfigurationCluster() *cmodels.ConfigurationClu
 }
 
 func (dc DatabaseConnection) GetGandalfDatabaseClient() *gorm.DB {
-	fmt.Println("dc.gandalfDatabaseClient")
-	fmt.Println(dc.gandalfDatabaseClient)
 	if dc.gandalfDatabaseClient == nil {
-		fmt.Println("nil")
 		gandalfDatabaseClient, err := dc.newDatabaseClient("gandalf")
 		if err == nil {
 			dc.gandalfDatabaseClient = gandalfDatabaseClient

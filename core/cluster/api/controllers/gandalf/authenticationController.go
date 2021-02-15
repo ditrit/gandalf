@@ -34,7 +34,6 @@ func NewAuthenticationController(databaseConnection *database.DatabaseConnection
 // Login :
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
 	ruser := &models.User{}
-	fmt.Println("LOGIN")
 	err := json.NewDecoder(r.Body).Decode(ruser)
 	if err != nil {
 
@@ -49,6 +48,7 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 
 		//var resp = map[string]interface{}{"status": false, "message": "Username not found"}
 		//return resp
+		fmt.Println("LOGIN3")
 		utils.RespondWithError(w, http.StatusNotFound, "Username not found")
 		return
 	}

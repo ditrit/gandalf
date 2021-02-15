@@ -22,8 +22,7 @@ type ServerAPI struct {
 func NewServerAPI(bindAddress string, databaseConnection *database.DatabaseConnection) *ServerAPI {
 	serverAPI := new(ServerAPI)
 	serverAPI.bindAddress = bindAddress
-
-	databaseConnection = databaseConnection
+	serverAPI.databaseConnection = databaseConnection
 	//serverAPI.gandalfDatabaseClient = gandalfDatabaseClient
 	//serverAPI.mapTenantDatabaseClients = mapTenantDatabaseClients
 
