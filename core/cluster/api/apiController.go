@@ -1,10 +1,10 @@
 package api
 
 import (
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/controllers/gandalf"
 	"github.com/ditrit/gandalf/core/cluster/api/controllers/tenants"
-
-	"github.com/jinzhu/gorm"
 )
 
 // Controllers :
@@ -26,23 +26,23 @@ type Controllers struct {
 }
 
 // ReturnControllers :
-func ReturnControllers(gandalfDatabase *gorm.DB, mapDatabase map[string]*gorm.DB, certsPath, databaseBindAddr string) *Controllers {
+func ReturnControllers(databaseConnection *database.DatabaseConnection) *Controllers {
 
 	controllers := new(Controllers)
-	controllers.gandalfAuthenticationController = gandalf.NewAuthenticationController(gandalfDatabase)
-	controllers.gandalfClusterController = gandalf.NewClusterController(gandalfDatabase)
-	controllers.gandalfTenantController = gandalf.NewTenantController(gandalfDatabase, mapDatabase, certsPath, databaseBindAddr)
-	controllers.gandalfUserController = gandalf.NewUserController(gandalfDatabase)
-	controllers.gandalfRoleController = gandalf.NewRoleController(gandalfDatabase)
-	controllers.gandalfConfigurationController = gandalf.NewConfigurationController(gandalfDatabase)
+	controllers.gandalfAuthenticationController = gandalf.NewAuthenticationController(databaseConnection)
+	controllers.gandalfClusterController = gandalf.NewClusterController(databaseConnection)
+	controllers.gandalfTenantController = gandalf.NewTenantController(databaseConnection)
+	controllers.gandalfUserController = gandalf.NewUserController(databaseConnection)
+	controllers.gandalfRoleController = gandalf.NewRoleController(databaseConnection)
+	controllers.gandalfConfigurationController = gandalf.NewConfigurationController(databaseConnection)
 
-	controllers.tenantsAuthenticationController = tenants.NewAuthenticationController(mapDatabase)
-	controllers.tenantsConnectorController = tenants.NewConnectorController(mapDatabase)
-	controllers.tenantsAggregatorController = tenants.NewAggregatorController(mapDatabase)
-	controllers.tenantsUserController = tenants.NewUserController(mapDatabase)
-	controllers.tenantsRoleController = tenants.NewRoleController(mapDatabase)
-	controllers.tenantsConfigurationAggregatorController = tenants.NewConfigurationAggregatorController(mapDatabase)
-	controllers.tenantsConfigurationConnectorController = tenants.NewConfigurationConnectorController(mapDatabase)
+	controllers.tenantsAuthenticationController = tenants.NewAuthenticationController(databaseConnection)
+	controllers.tenantsConnectorController = tenants.NewConnectorController(databaseConnection)
+	controllers.tenantsAggregatorController = tenants.NewAggregatorController(databaseConnection)
+	controllers.tenantsUserController = tenants.NewUserController(databaseConnection)
+	controllers.tenantsRoleController = tenants.NewRoleController(databaseConnection)
+	controllers.tenantsConfigurationAggregatorController = tenants.NewConfigurationAggregatorController(databaseConnection)
+	controllers.tenantsConfigurationConnectorController = tenants.NewConfigurationConnectorController(databaseConnection)
 
 	return controllers
 }

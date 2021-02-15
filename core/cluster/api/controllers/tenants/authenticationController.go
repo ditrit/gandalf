@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 
 	"golang.org/x/crypto/bcrypt"
@@ -16,19 +18,17 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
-
-	"github.com/jinzhu/gorm"
 )
 
 // AuthenticationController :
 type AuthenticationController struct {
-	mapDatabase map[string]*gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 //NewAuthenticationController :
-func NewAuthenticationController(mapDatabase map[string]*gorm.DB) (authenticationController *AuthenticationController) {
+func NewAuthenticationController(databaseConnection *database.DatabaseConnection) (authenticationController *AuthenticationController) {
 	authenticationController = new(AuthenticationController)
-	authenticationController.mapDatabase = mapDatabase
+	authenticationController.databaseConnection = databaseConnection
 
 	return
 }
@@ -37,7 +37,7 @@ func NewAuthenticationController(mapDatabase map[string]*gorm.DB) (authenticatio
 func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 
 		ruser := &models.User{}

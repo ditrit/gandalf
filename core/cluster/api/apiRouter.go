@@ -1,16 +1,16 @@
 package api
 
 import (
-	"github.com/jinzhu/gorm"
+	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/gorilla/mux"
 )
 
 // GetRouter :
-func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB, certsPath, databaseBindAddr string) *mux.Router {
+func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 
 	//CONTROLLERS
-	controllers := ReturnControllers(gandalfDatabaseClient, mapTenantDatabaseClients, certsPath, databaseBindAddr)
+	controllers := ReturnControllers(databaseConnection)
 
 	//URLS
 	urls := ReturnURLS()

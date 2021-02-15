@@ -8,6 +8,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
@@ -73,110 +75,116 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	//if ok {
 	if configuration.GetCommand() == "CONFIGURATION" {
 		var databaseClient *gorm.DB
-		//databasePath := ch.Context["databasePath"].(string)
-		if configuration.GetContext()["componentType"].(string) == "cluster" {
-			databaseClient = ch.Context["gandalfDatabase"].(*gorm.DB)
-		} else {
-			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
-
-			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
+		databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
+		if databaseConnection != nil {
+			//databasePath := ch.Context["databasePath"].(string)
+			if configuration.GetContext()["componentType"].(string) == "cluster" {
+				databaseClient = databaseConnection.GetGandalfDatabaseClient()
 			} else {
-				log.Println("Database client map is empty")
-				err = errors.New("Database client map is empty")
+				//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+				//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+				//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
+				databaseClient = databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
+				/* 	if mapDatabaseClient != nil {
+					databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
+				} else {
+					log.Println("Database client map is empty")
+					err = errors.New("Database client map is empty")
+				} */
 			}
-		}
 
-		if databaseClient != nil {
-			bindAddr := configuration.GetContext()["bindAddress"].(string)
-			logicalName := configuration.GetContext()["logicalName"].(string)
+			if databaseClient != nil {
+				bindAddr := configuration.GetContext()["bindAddress"].(string)
+				logicalName := configuration.GetContext()["logicalName"].(string)
 
-			switch configuration.GetContext()["componentType"] {
-			case "cluster":
-				config, err := cutils.GetConfigurationCluster(logicalName, databaseClient)
-				if (config == models.ConfigurationLogicalCluster{}) {
-					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
-					if err == nil {
-						//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalCluster)
-						err = cutils.SaveConfigurationCluster(config, databaseClient)
-						if err != nil {
-							log.Println("Can't save logical configuration Cluster")
+				switch configuration.GetContext()["componentType"] {
+				case "cluster":
+					config, err := cutils.GetConfigurationCluster(logicalName, databaseClient)
+					if (config == models.ConfigurationLogicalCluster{}) {
+						err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
+						if err == nil {
+							//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalCluster)
+							err = cutils.SaveConfigurationCluster(config, databaseClient)
+							if err != nil {
+								log.Println("Can't save logical configuration Cluster")
+							}
+						} else {
+							log.Println("Can't unmarshall logical configuration Cluster")
 						}
-					} else {
-						log.Println("Can't unmarshall logical configuration Cluster")
 					}
-				}
 
-				configMarshal, err := json.Marshal(config)
-				if err == nil {
-					target := ""
-					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
-					configurationReply.Tenant = configuration.GetTenant()
-					shoset := ch.ConnsJoin.Get(bindAddr)
-					shoset.SendMessage(configurationReply)
-				}
-
-				break
-			case "aggregator":
-				config, err := cutils.GetConfigurationAggregator(logicalName, databaseClient)
-
-				if (config == models.ConfigurationLogicalAggregator{}) {
-					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
+					configMarshal, err := json.Marshal(config)
 					if err == nil {
-						//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalAggregator)
-						fmt.Println("SAVE")
-						err = cutils.SaveConfigurationAggregator(config, databaseClient)
-						if err != nil {
-							log.Println("Can't save logical configuration Aggregator")
-						}
-					} else {
-						log.Println("Can't unmarshall logical configuration Aggregator")
+						target := ""
+						configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
+						configurationReply.Tenant = configuration.GetTenant()
+						shoset := ch.ConnsJoin.Get(bindAddr)
+						shoset.SendMessage(configurationReply)
 					}
-				}
 
-				configMarshal, err := json.Marshal(config)
-				if err == nil {
-					target := ""
-					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
-					configurationReply.Tenant = configuration.GetTenant()
-					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+					break
+				case "aggregator":
+					config, err := cutils.GetConfigurationAggregator(logicalName, databaseClient)
 
-					shoset.SendMessage(configurationReply)
-				}
+					if (config == models.ConfigurationLogicalAggregator{}) {
+						err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
+						if err == nil {
+							//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalAggregator)
+							fmt.Println("SAVE")
+							err = cutils.SaveConfigurationAggregator(config, databaseClient)
+							if err != nil {
+								log.Println("Can't save logical configuration Aggregator")
+							}
+						} else {
+							log.Println("Can't unmarshall logical configuration Aggregator")
+						}
+					}
 
-				break
-			case "connector":
-				config, err := cutils.GetConfigurationConnector(logicalName, databaseClient)
-				if (config == models.ConfigurationLogicalConnector{}) {
-					err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
+					configMarshal, err := json.Marshal(config)
 					if err == nil {
-						//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalConnector)
-						err = cutils.SaveConfigurationConnector(config, databaseClient)
-						if err != nil {
-							log.Println("Can't save logical configuration Connector")
-						}
-					} else {
-						log.Println("Can't unmarshall logical configuration Connector")
+						target := ""
+						configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
+						configurationReply.Tenant = configuration.GetTenant()
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+
+						shoset.SendMessage(configurationReply)
 					}
-				}
 
-				configMarshal, err := json.Marshal(config)
-				if err == nil {
-					fmt.Println("MARSHALL")
-					target := configuration.GetTarget()
-					configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
-					configurationReply.Tenant = configuration.GetTenant()
-					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-					shoset.SendMessage(configurationReply)
-				}
+					break
+				case "connector":
+					config, err := cutils.GetConfigurationConnector(logicalName, databaseClient)
+					if (config == models.ConfigurationLogicalConnector{}) {
+						err = json.Unmarshal([]byte(configuration.GetPayload()), &config)
+						if err == nil {
+							//config = configuration.GetContext()["configuration"].(models.ConfigurationLogicalConnector)
+							err = cutils.SaveConfigurationConnector(config, databaseClient)
+							if err != nil {
+								log.Println("Can't save logical configuration Connector")
+							}
+						} else {
+							log.Println("Can't unmarshall logical configuration Connector")
+						}
+					}
 
-				break
+					configMarshal, err := json.Marshal(config)
+					if err == nil {
+						fmt.Println("MARSHALL")
+						target := configuration.GetTarget()
+						configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
+						configurationReply.Tenant = configuration.GetTenant()
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+						shoset.SendMessage(configurationReply)
+					}
+
+					break
+				}
+			} else {
+				log.Println("Can't get database client")
+				err = errors.New("Can't get database client")
 			}
 		} else {
-			log.Println("Can't get database client")
-			err = errors.New("Can't get database client")
+			log.Println("Database connection is empty")
+			err = errors.New("Database connection is empty")
 		}
 	} else if configuration.GetCommand() == "CONFIGURATION_REPLY" {
 		var configurationCluster *models.ConfigurationLogicalCluster

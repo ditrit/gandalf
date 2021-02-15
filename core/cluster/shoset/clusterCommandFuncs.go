@@ -5,14 +5,14 @@ import (
 	"errors"
 	"log"
 
-	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
-	"github.com/jinzhu/gorm"
 )
 
 var sendIndex = 0
@@ -28,11 +28,12 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	//ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 
 	//if ok {
-	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+	//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+	databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 	//databasePath := ch.Context["databasePath"].(string)
-	configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
-	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(cmd.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
+	//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
+	if databaseConnection != nil {
+		databaseClient := databaseConnection.GetDatabaseClientByTenant(cmd.GetTenant())
 		if databaseClient != nil {
 			ok := cutils.CaptureMessage(message, "cmd", databaseClient)
 			if ok {
@@ -70,8 +71,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			err = errors.New("Can't get database client by tenant")
 		}
 	} else {
-		log.Println("Database client map is empty")
-		err = errors.New("Database client map is empty")
+		log.Println("Database connection is empty")
+		err = errors.New("Database connection is empty")
 	}
 	/* 	} else {
 		log.Println("Can't push to queue")

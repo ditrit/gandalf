@@ -47,7 +47,7 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddres
 	err = gandalfDatabaseClient.Create(&user).Error
 
 	//TODO REMOVE
-	DemoCreateCluster(gandalfDatabaseClient)
+	//DemoCreateCluster(gandalfDatabaseClient)
 	//Test(gandalfDatabaseClient)
 
 	return

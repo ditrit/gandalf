@@ -6,23 +6,24 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 // AggregatorController :
 type AggregatorController struct {
-	mapDatabase map[string]*gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewAggregatorController :
-func NewAggregatorController(mapDatabase map[string]*gorm.DB) (aggregatorController *AggregatorController) {
+func NewAggregatorController(databaseConnection *database.DatabaseConnection) (aggregatorController *AggregatorController) {
 	aggregatorController = new(AggregatorController)
-	aggregatorController.mapDatabase = mapDatabase
+	aggregatorController.databaseConnection = databaseConnection
 
 	return
 }
@@ -31,7 +32,7 @@ func NewAggregatorController(mapDatabase map[string]*gorm.DB) (aggregatorControl
 func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		aggregators, err := dao.ListAggregator(database)
 		if err != nil {
@@ -50,7 +51,7 @@ func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
 func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 
 		var aggregator models.Aggregator
@@ -78,7 +79,7 @@ func (ac AggregatorController) DeclareMember(w http.ResponseWriter, r *http.Requ
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	name := vars["name"]
-	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		aggregator, err := dao.ReadAggregatorByName(database, name)
 		if err != nil {
@@ -104,7 +105,7 @@ func (ac AggregatorController) DeclareMember(w http.ResponseWriter, r *http.Requ
 func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 
 		id, err := strconv.Atoi(vars["id"])
@@ -135,7 +136,7 @@ func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 
 		id, err := strconv.Atoi(vars["id"])
@@ -169,7 +170,7 @@ func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 func (ac AggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabaseClientByTenant(ac.mapDatabase, tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

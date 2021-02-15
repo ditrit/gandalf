@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
 
@@ -14,19 +16,17 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	apimodels "github.com/ditrit/gandalf/core/cluster/api/models"
 	"github.com/ditrit/gandalf/core/models"
-
-	"github.com/jinzhu/gorm"
 )
 
 // AuthenticationController :
 type AuthenticationController struct {
-	gandalfDatabase *gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewAuthenticationController :
-func NewAuthenticationController(gandalfDatabase *gorm.DB) (authenticationController *AuthenticationController) {
+func NewAuthenticationController(databaseConnection *database.DatabaseConnection) (authenticationController *AuthenticationController) {
 	authenticationController = new(AuthenticationController)
-	authenticationController.gandalfDatabase = gandalfDatabase
+	authenticationController.databaseConnection = databaseConnection
 
 	return
 }
@@ -45,7 +45,7 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	user := models.User{}
-	if user, err = dao.ReadUserByName(ac.gandalfDatabase, ruser.Name); err != nil {
+	if user, err = dao.ReadUserByName(ac.databaseConnection.GetGandalfDatabaseClient(), ruser.Name); err != nil {
 
 		//var resp = map[string]interface{}{"status": false, "message": "Username not found"}
 		//return resp

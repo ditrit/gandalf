@@ -13,25 +13,17 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 // TenantController :
 type TenantController struct {
-	gandalfDatabase   *gorm.DB
-	mapTenantDatabase map[string]*gorm.DB
-	databasePath      string
-	certsPath         string
-	databaseBindAddr  string
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewTenantController :
-func NewTenantController(gandalfDatabase *gorm.DB, mapTenantDatabase map[string]*gorm.DB, certsPath, databaseBindAddr string) (tenantController *TenantController) {
+func NewTenantController(databaseConnection *database.DatabaseConnection) (tenantController *TenantController) {
 	tenantController = new(TenantController)
-	tenantController.gandalfDatabase = gandalfDatabase
-	tenantController.mapTenantDatabase = mapTenantDatabase
-	tenantController.certsPath = certsPath
-	tenantController.databaseBindAddr = databaseBindAddr
+	tenantController.databaseConnection = databaseConnection
 
 	return
 }
@@ -39,7 +31,7 @@ func NewTenantController(gandalfDatabase *gorm.DB, mapTenantDatabase map[string]
 // List :
 func (tc TenantController) List(w http.ResponseWriter, r *http.Request) {
 
-	tenants, err := dao.ListTenant(tc.gandalfDatabase)
+	tenants, err := dao.ListTenant(tc.databaseConnection.GetGandalfDatabaseClient())
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -62,17 +54,17 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	err := dao.CreateTenant(tc.gandalfDatabase, tenant)
+	err := dao.CreateTenant(tc.databaseConnection.GetGandalfDatabaseClient(), tenant)
 	if err == nil {
 
-		err = database.NewTenantDatabase(tc.certsPath, tc.databaseBindAddr, tenant.Name)
+		err = database.NewTenantDatabase(tc.databaseConnection.GetConfigurationCluster().GetCertsPath(), tc.databaseConnection.GetConfigurationCluster().GetDatabaseBindAddress(), tenant.Name)
 		if err == nil {
 
-			var tenantDatabaseClient *gorm.DB
-			tenantDatabaseClient, err := database.NewTenantDatabaseClient(tc.databaseBindAddr, tenant.Name)
-			tc.mapTenantDatabase[tenant.Name] = tenantDatabaseClient
+			//var tenantDatabaseClient *gorm.DB
+			tenantDatabaseClient := tc.databaseConnection.GetDatabaseClientByTenant(tenant.Name)
+			//tc.mapTenantDatabase[tenant.Name] = tenantDatabaseClient
 
-			if err == nil {
+			if tenantDatabaseClient != nil {
 
 				login, password, err = database.InitTenantDatabase(tenantDatabaseClient)
 
@@ -82,12 +74,12 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 					result["tenant"] = tenant
 
 				} else {
-					dao.DeleteTenant(tc.gandalfDatabase, int(tenant.ID))
+					dao.DeleteTenant(tc.databaseConnection.GetGandalfDatabaseClient(), int(tenant.ID))
 					utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 					return
 				}
 			} else {
-				dao.DeleteTenant(tc.gandalfDatabase, int(tenant.ID))
+				dao.DeleteTenant(tc.databaseConnection.GetGandalfDatabaseClient(), int(tenant.ID))
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -113,7 +105,7 @@ func (tc TenantController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var tenant models.Tenant
-	if tenant, err = dao.ReadTenant(tc.gandalfDatabase, id); err != nil {
+	if tenant, err = dao.ReadTenant(tc.databaseConnection.GetGandalfDatabaseClient(), id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -144,7 +136,7 @@ func (tc TenantController) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	tenant.ID = uint(id)
 
-	if err := dao.UpdateTenant(tc.gandalfDatabase, tenant); err != nil {
+	if err := dao.UpdateTenant(tc.databaseConnection.GetGandalfDatabaseClient(), tenant); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -161,7 +153,7 @@ func (tc TenantController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := dao.DeleteTenant(tc.gandalfDatabase, id); err != nil {
+	if err := dao.DeleteTenant(tc.databaseConnection.GetGandalfDatabaseClient(), id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

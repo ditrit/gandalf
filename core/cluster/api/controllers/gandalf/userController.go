@@ -6,23 +6,24 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 // UserController :
 type UserController struct {
-	gandalfDatabase *gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewUserController :
-func NewUserController(gandalfDatabase *gorm.DB) (userController *UserController) {
+func NewUserController(databaseConnection *database.DatabaseConnection) (userController *UserController) {
 	userController = new(UserController)
-	userController.gandalfDatabase = gandalfDatabase
+	userController.databaseConnection = databaseConnection
 
 	return
 }
@@ -30,7 +31,7 @@ func NewUserController(gandalfDatabase *gorm.DB) (userController *UserController
 // List :
 func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 
-	users, err := dao.ListUser(uc.gandalfDatabase)
+	users, err := dao.ListUser(uc.databaseConnection.GetGandalfDatabaseClient())
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -49,7 +50,7 @@ func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	if err := dao.CreateUser(uc.gandalfDatabase, user); err != nil {
+	if err := dao.CreateUser(uc.databaseConnection.GetGandalfDatabaseClient(), user); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -66,7 +67,7 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var user models.User
-	if user, err = dao.ReadUser(uc.gandalfDatabase, id); err != nil {
+	if user, err = dao.ReadUser(uc.databaseConnection.GetGandalfDatabaseClient(), id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -86,7 +87,7 @@ func (uc UserController) ReadByName(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	var err error
-	if user, err = dao.ReadUserByName(uc.gandalfDatabase, name); err != nil {
+	if user, err = dao.ReadUserByName(uc.databaseConnection.GetGandalfDatabaseClient(), name); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -117,7 +118,7 @@ func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	user.ID = uint(id)
 
-	if err := dao.UpdateUser(uc.gandalfDatabase, user); err != nil {
+	if err := dao.UpdateUser(uc.databaseConnection.GetGandalfDatabaseClient(), user); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -134,7 +135,7 @@ func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := dao.DeleteUser(uc.gandalfDatabase, id); err != nil {
+	if err := dao.DeleteUser(uc.databaseConnection.GetGandalfDatabaseClient(), id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

@@ -33,8 +33,11 @@ sleep 5
 
 
 echo 'Cli' 
-./gandalf cli -e http://localhost:9199 login
-./gandalf cli -e http://localhost:9199 list user -t
+./gandalf cli -e http://localhost:9200 login
+./gandalf cli -e http://localhost:9200 create user <username> <email> <password> -t <token>
+./gandalf cli -e http://localhost:9200 list user -t <token>
+./gandalf cli -e http://localhost:9200 create tenant <tenant> -t <token>
+./gandalf cli -e http://localhost:9200 list tenant -t <token>
 
 
 #echo 'Worker'
