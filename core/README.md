@@ -71,57 +71,79 @@ usage:
 ```
 
 ## Demo
+
+### Cluster : 
+
+**Initialisation Cluster :**
 ```bash
-CLUSTER : 
-Initialisation Cluster :
 ./gandalf cluster -l Cluster --offset 1
-
-Authentification a la CLI :
+```
+**Authentification a la CLI :**
+```bash
 ./gandalf cli -e http://localhost:9200 login <login> <password>
-
-Creation administrateur :  
+```
+**Creation administrateur :** 
+```bash
 ./gandalf cli -e http://localhost:9200 create user <username> <email> <password> -t <token>
-
-Declaration cluster 2 :
+```
+**Declaration cluster 2 :**
+```bash
 ./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
-
-Demarage cluster 2 : 
+```
+**Demarage cluster 2 :** 
+```bash
 ./gandalf cluster -l Cluster --offset 2 --db_nodename node2 --join 127.0.0.1:9100 --secret <secret>
-
-Declaration cluster 3 :
+```
+**Declaration cluster 3 :**
+```bash
 ./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
-
-Demarage cluster 3 : 
+```
+**Demarage cluster 3 :**
+```bash
 ./gandalf cluster -l Cluster --offset 3 --db_nodename node3 --join 127.0.0.1:9100 --secret <secret>
+```
 
-TENANT : 
-Creation tenant : 
+### Tenant : 
+
+**Creation tenant :**
+```bash
 ./gandalf cli -e http://localhost:9200 create tenant <tenant> -t <token>
+```
 
-Creation administrateur tenant :
+**Creation administrateur tenant :**
+```bash
 TODO
+```
 
-AGGREGATEUR :
-Creation aggregateur : 
+### Aggregateur : 
+**Creation aggregateur :** 
+```bash
 ./gandalf cli -e http://localhost:9200 declare aggregator name <tenant> <name> -t <token>
-
-Declaration aggregateur : 
+```
+**Declaration aggregateur :** 
+```bash
 ./gandalf cli -e http://localhost:9200 declare aggregator member <tenant> <name> -t <token>
-
-Demarage aggregateur : 
+```
+**Demarage aggregateur :** 
+```bash
 ./gandalf aggregator -l <name> -t <tenant> --port 10000 --cluster 127.0.0.1:9100 --secret <secret>
+```
 
-CONNECTEUR :
+### Connecteur :
 
-Creation connecteur : 
+**Creation connecteur :** 
+```bash
 ./gandalf cli -e http://localhost:9200 declare connector name <tenant> <name> -t <token>
+```
 
-Declaration connecteur : 
+**Declaration connecteur :** 
+```bash
 ./gandalf cli -e http://localhost:9200 declare connector member <tenant> <name> -t <token>
-
-Demarage connecteur : 
+```
+**Demarage connecteur :** 
+```bash
 ./gandalf connector -l <name> --port 10100 --aggregator 127.0.0.1:10000 --secret <secret> --class utils --product Custom
-
+```
 
 
 
