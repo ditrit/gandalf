@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 )
@@ -27,7 +26,6 @@ func setupCoackroach() {
 
 func CoackroachStart(dataDir, certsDir, node, bindAddress, httpAddress, members string) error {
 	path, err := os.Getwd()
-	fmt.Println(path)
 	cmd := exec.Command("/bin/sh", "./cockroachStart.sh", dataDir, certsDir, node, bindAddress, httpAddress, members)
 	cmd.Dir = path + "/cluster/database/"
 	cmd.Stderr = os.Stdout
@@ -38,10 +36,9 @@ func CoackroachStart(dataDir, certsDir, node, bindAddress, httpAddress, members 
 	return err
 }
 
-func CoackroachInit(dataDir, certsDir, host string) error {
+func CoackroachInit(certsDir, host string) error {
 	path, err := os.Getwd()
-	fmt.Println(path)
-	cmd := exec.Command("/bin/sh", "./cockroachInit.sh", dataDir, certsDir, host)
+	cmd := exec.Command("/bin/sh", "./cockroachInit.sh", certsDir, host)
 	cmd.Dir = path + "/cluster/database/"
 
 	cmd.Start()
@@ -49,10 +46,9 @@ func CoackroachInit(dataDir, certsDir, host string) error {
 	return err
 }
 
-func CoackroachCreateDatabase(dataDir, certsDir, host, database string) error {
+func CoackroachCreateDatabase(certsDir, host, database string) error {
 	path, err := os.Getwd()
-	fmt.Println(path)
-	cmd := exec.Command("/bin/sh", "./cockroachCreateDatabase.sh", dataDir, certsDir, host, database)
+	cmd := exec.Command("/bin/sh", "./cockroachCreateDatabase.sh", certsDir, host, database)
 	cmd.Dir = path + "/cluster/database/"
 
 	cmd.Start()

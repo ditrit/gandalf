@@ -10,7 +10,7 @@ type TenantsUserService struct {
 }
 
 // List :
-func (as *TenantsUserService) List(token string, tenant string) ([]models.User, error) {
+func (as *TenantsUserService) List(token, tenant string) ([]models.User, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users/", token, nil)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (as *TenantsUserService) List(token string, tenant string) ([]models.User, 
 }
 
 // Create :
-func (as *TenantsUserService) Create(token string, tenant string, user models.User) error {
+func (as *TenantsUserService) Create(token, tenant string, user models.User) error {
 	req, err := as.client.newRequest("POST", "/auth/tenants/"+tenant+"/users/", token, user)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (as *TenantsUserService) Create(token string, tenant string, user models.Us
 }
 
 // Read :
-func (as *TenantsUserService) Read(token string, tenant string, id int) (*models.User, error) {
+func (as *TenantsUserService) Read(token, tenant string, id int) (*models.User, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/users/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (as *TenantsUserService) Read(token string, tenant string, id int) (*models
 }
 
 // Update :
-func (as *TenantsUserService) Update(token string, tenant string, id int, user models.User) error {
+func (as *TenantsUserService) Update(token, tenant string, id int, user models.User) error {
 	req, err := as.client.newRequest("PUT", "/auth/tenants/"+tenant+"/users/"+string(id), token, user)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func (as *TenantsUserService) Update(token string, tenant string, id int, user m
 }
 
 // Delete :
-func (as *TenantsUserService) Delete(token string, tenant string, id int) error {
+func (as *TenantsUserService) Delete(token, tenant string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/tenants/"+tenant+"/users/"+string(id), token, nil)
 	if err != nil {
 		return err

@@ -114,7 +114,7 @@ howto_start() {
   echo "2. enable the gandalf service : "
   echo "     systemctl enable gandalf"
   echo "3. start the gandalf service : "
-  echo "     systemctl start gandailf"
+  echo "     systemctl start gandalf"
   echo
 }
 
@@ -123,7 +123,7 @@ create_dir $INSTDIR
 move_to ./gandalf $INSTDIR/
 [ "$mode" == "cluster" ] && move_to ./cockroach $INSTDIR
 
-if [ "$mode" != "cli "] # not a deamon
+if [ "$mode" != "cli" ] # not a deamon
 then 
   # create user
   create_user gandalf /home/gandalf

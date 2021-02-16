@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
 	"log"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -93,6 +92,25 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		}
 
 		notSend := true
+		for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
+			index := getSecretSendIndex(shosets)
+			shosets[index].SendMessage(secretMsg)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["validation"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		}
+		/* notSend := true
 		for notSend {
 
 			fmt.Println("SEND")
@@ -116,7 +134,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		if notSend {
 			return nil
 		}
-
+		*/
 	} else {
 		log.Println("can't find aggregator to send")
 		err = errors.New("can't find aggregator to send")

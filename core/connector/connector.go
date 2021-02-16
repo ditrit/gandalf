@@ -133,19 +133,21 @@ func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
 
 } */
 
-func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
+func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 	shoset.SendSecret(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	result = false
-
-	resultString := m.chaussette.Context["validation"].(string)
-	if resultString != "" {
-		if resultString == "true" {
-			result = true
+	resultString, ok := m.chaussette.Context["validation"].(string)
+	if ok {
+		if resultString != "" {
+			if resultString == "true" {
+				return true, nil
+			}
+			return false, nil
 		}
+		return false, fmt.Errorf("Validation empty")
 	}
-	return
+	return false, fmt.Errorf("Validation nil")
 }
 
 // ConfigurationValidation : Validation configuration
@@ -155,13 +157,15 @@ func (m *ConnectorMember) StartWorkerAdmin(chaussette *net.Shoset) (err error) {
 	return
 }
 
-func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset) (configurationConnector *models.ConfigurationLogicalConnector) {
+func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalConnector, error) {
 	shoset.SendConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationConnector = m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalConnector)
-
-	return
+	configurationConnector, ok := m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalConnector)
+	if ok {
+		return configurationConnector, nil
+	}
+	return nil, fmt.Errorf("Configuration nil")
 }
 
 // getBrothers : Connector list brothers function.
@@ -185,43 +189,50 @@ func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector)
 		_, err = member.Link(configurationConnector.GetLinkAddress())
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
-			validateSecret := member.ValidateSecret(member.GetChaussette())
-			if validateSecret {
-				configurationLogicalConnector := member.GetConfiguration(member.GetChaussette())
-				configurationConnector.DatabaseToConfiguration(configurationLogicalConnector)
-				//TODO REVOIR
-				//version := models.Version{Major: member.ConfigurationConnector.VersionsMajor, Minor: member.ConfigurationConnector.VersionsMinor}
-				//versions := []models.Version{version}
-
-				//member.timeoutMax = configurationConnector.GetMaxTimeout()
-				//TODO
-				//member.GetChaussette().Context["connectorType"] = member.ConfigurationLogicalConnector.ConnectorType
-				member.GetChaussette().Context["versions"] = configurationConnector.GetVersions()
-
-				//TODO REVOIR
-				//var grpcBindAddress = member.ConfigurationConnector.GRPCSocketDirectory + member.ConfigurationConnector.LogicalName + "_" + member.ConfigurationConnector.ConnectorType + "_" + member.ConfigurationConnector.Product + "_" + utils.GenerateHash(member.ConfigurationConnector.LogicalName)
-				//member.ConfigurationConnector.GRPCSocketBind = grpcBindAddress
-
-				err = member.GrpcBind(configurationConnector.GetGRPCSocketBind())
-				if err == nil {
-					//var versions []*models.Version{Major: configurationConnector.VersionsMajor, Minor: configurationConnector.VersionsMinor}
-					err = member.StartWorkerAdmin(member.GetChaussette())
+			validateSecret, err := member.ValidateSecret(member.GetChaussette())
+			if err == nil {
+				if validateSecret {
+					configurationLogicalConnector, err := member.GetConfiguration(member.GetChaussette())
 					if err == nil {
-						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetBindAddress(), configurationConnector.GetGRPCSocketBind(), configurationConnector.GetLinkAddress())
-						fmt.Printf("%s.JoinBrothers Init(%#v)\n", configurationConnector.GetBindAddress(), getBrothers(configurationConnector.GetBindAddress(), member))
+						configurationConnector.DatabaseToConfiguration(configurationLogicalConnector)
+						//TODO REVOIR
+						//version := models.Version{Major: member.ConfigurationConnector.VersionsMajor, Minor: member.ConfigurationConnector.VersionsMinor}
+						//versions := []models.Version{version}
+
+						//member.timeoutMax = configurationConnector.GetMaxTimeout()
+						//TODO
+						//member.GetChaussette().Context["connectorType"] = member.ConfigurationLogicalConnector.ConnectorType
+						member.GetChaussette().Context["versions"] = configurationConnector.GetVersions()
+
+						//TODO REVOIR
+						//var grpcBindAddress = member.ConfigurationConnector.GRPCSocketDirectory + member.ConfigurationConnector.LogicalName + "_" + member.ConfigurationConnector.ConnectorType + "_" + member.ConfigurationConnector.Product + "_" + utils.GenerateHash(member.ConfigurationConnector.LogicalName)
+						//member.ConfigurationConnector.GRPCSocketBind = grpcBindAddress
+
+						err = member.GrpcBind(configurationConnector.GetGRPCSocketBind())
+						if err == nil {
+							//var versions []*models.Version{Major: configurationConnector.VersionsMajor, Minor: configurationConnector.VersionsMinor}
+							err = member.StartWorkerAdmin(member.GetChaussette())
+							if err == nil {
+								log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetBindAddress(), configurationConnector.GetGRPCSocketBind(), configurationConnector.GetLinkAddress())
+								fmt.Printf("%s.JoinBrothers Init(%#v)\n", configurationConnector.GetBindAddress(), getBrothers(configurationConnector.GetBindAddress(), member))
+							} else {
+								log.Fatalf("Can't start worker admin")
+							}
+						} else {
+							log.Fatalf("Can't Grpc bind shoset on %s", configurationConnector.GetGRPCSocketBind())
+						}
 					} else {
-						log.Fatalf("Can't start worker admin")
+						log.Fatalf("Can't get configuration")
 					}
 				} else {
-					log.Fatalf("Can't Grpc bind shoset on %s", configurationConnector.GetGRPCSocketBind())
+					log.Fatalf("Invalid secret")
 				}
 			} else {
-				log.Fatalf("Invalid secret")
+				log.Fatalf("Can't get secret")
 			}
 		} else {
 			log.Fatalf("Can't link shoset on %s", configurationConnector.GetLinkAddress())
 		}
-
 	} else {
 		log.Fatalf("Can't bind shoset on %s", configurationConnector.GetBindAddress())
 	}

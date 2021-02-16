@@ -6,23 +6,24 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 // RoleController :
 type RoleController struct {
-	mapDatabase map[string]*gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewRoleController :
-func NewRoleController(mapDatabase map[string]*gorm.DB) (roleController *RoleController) {
+func NewRoleController(databaseConnection *database.DatabaseConnection) (roleController *RoleController) {
 	roleController = new(RoleController)
-	roleController.mapDatabase = mapDatabase
+	roleController.databaseConnection = databaseConnection
 
 	return
 }
@@ -31,7 +32,7 @@ func NewRoleController(mapDatabase map[string]*gorm.DB) (roleController *RoleCon
 func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(rc.mapDatabase, tenant)
+	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		roles, err := dao.ListRole(database)
 		if err != nil {
@@ -50,7 +51,7 @@ func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(rc.mapDatabase, tenant)
+	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		var role models.Role
 		decoder := json.NewDecoder(r.Body)
@@ -76,7 +77,7 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(rc.mapDatabase, tenant)
+	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -106,7 +107,7 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(rc.mapDatabase, tenant)
+	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -139,7 +140,7 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 func (rc RoleController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(rc.mapDatabase, tenant)
+	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

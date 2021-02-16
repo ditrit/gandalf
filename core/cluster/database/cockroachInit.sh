@@ -2,8 +2,7 @@
 
 BINDIR=/usr/local/bin
 COCKROACH=$BINDIR/cockroach
-DATADIR=$1
-CERTDIR=$2
+CERTDIR=$1
 HOST=$2
 
 $COCKROACH init \

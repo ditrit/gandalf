@@ -1,6 +1,7 @@
 //Package database :
 package database
 
+/*
 import (
 	"fmt"
 	"os/user"
@@ -11,8 +12,8 @@ import (
 )
 
 // NewGandalfDatabaseClient : Gandalf database client constructor.
-func NewGandalfDatabase(dataDir, certsDir, addr, name string) (err error) {
-	err = CoackroachCreateDatabase(dataDir, certsDir, addr, name)
+func NewGandalfDatabase(certsDir, addr, name string) (err error) {
+	err = CoackroachCreateDatabase(certsDir, addr, name)
 	fmt.Println(err)
 
 	return
@@ -29,12 +30,12 @@ func NewGandalfDatabaseClient(addr, name string) (gandalfDatabaseClient *gorm.DB
 }
 
 // InitGandalfDatabase : Gandalf database init.
-func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (login string, password string, secret string, err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.Role{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationLogicalCluster{})
+func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login string, password string, secret string, err error) {
+	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationLogicalCluster{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()
-	cluster := models.Cluster{LogicalName: logicalName, Secret: secret}
+	cluster := models.Cluster{LogicalName: logicalName, BindAddress: bindAddress, Secret: secret}
 	err = gandalfDatabaseClient.Create(&cluster).Error
 
 	//Init State
@@ -42,17 +43,12 @@ func InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName string) (lo
 	err = gandalfDatabaseClient.Create(&state).Error
 
 	//Init Administrator
-	err = gandalfDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error
-	if err == nil {
-		var admin models.Role
-		err = gandalfDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
-		if err == nil {
-			login, password = "Administrator", GenerateRandomHash()
-			user := models.NewUser(login, login, password)
-			err = gandalfDatabaseClient.Create(&user).Error
-		}
-	}
+	login, password = "Administrator", GenerateRandomHash()
+	user := models.NewUser(login, login, password)
+	err = gandalfDatabaseClient.Create(&user).Error
+
 	//TODO REMOVE
+	//DemoCreateCluster(gandalfDatabaseClient)
 	//Test(gandalfDatabaseClient)
 
 	return
@@ -70,7 +66,7 @@ func Test(gandalfDatabaseClient *gorm.DB) {
 
 	user, err := user.Current()
 	fmt.Println(user.HomeDir + "/gandalf")
-	err = NewTenantDatabase(user.HomeDir+"/gandalf", "certsDir", "127.0.0.1:9299", "tenant1")
+	err = NewTenantDatabase("certsDir", "127.0.0.1:9299", "tenant1")
 	fmt.Println(err)
 	tenantDatabaseClient, _ := NewTenantDatabaseClient("127.0.0.1:9299", "tenant1")
 	InitTenantDatabase(tenantDatabaseClient)
@@ -90,3 +86,4 @@ func DemoConfigurationCluster(tenantDatabaseClient *gorm.DB) {
 	configurationCluster.LogicalName = "Cluster"
 	tenantDatabaseClient.Save(&configurationCluster)
 }
+*/

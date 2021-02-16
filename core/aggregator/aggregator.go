@@ -90,31 +90,34 @@ func getBrothers(address string, member *AggregatorMember) []string {
 	return bros
 }
 
-func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) (result bool) {
+func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 
 	shoset.SendSecret(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	result = false
-
-	resultString := m.chaussette.Context["validation"].(string)
-	if resultString != "" {
-		if resultString == "true" {
-			result = true
+	resultString, ok := m.chaussette.Context["validation"].(string)
+	if ok {
+		if resultString != "" {
+			if resultString == "true" {
+				return true, nil
+			}
+			return false, nil
 		}
+		return false, fmt.Errorf("Validation empty")
 	}
-
-	return
+	return false, fmt.Errorf("Validation nil")
 }
 
-func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (configurationAggregator *models.ConfigurationLogicalAggregator) {
+func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalAggregator, error) {
 	fmt.Println("SEND")
 	shoset.SendConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationAggregator = m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalAggregator)
-
-	return
+	configurationAggregator, ok := m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalAggregator)
+	if ok {
+		return configurationAggregator, nil
+	}
+	return nil, fmt.Errorf("Configuration nil")
 }
 
 // AggregatorMemberInit : Aggregator init function.
@@ -126,17 +129,25 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 		time.Sleep(time.Second * time.Duration(5))
 		if err == nil {
 			var validateSecret bool
-			validateSecret = member.ValidateSecret(member.GetChaussette())
-			if validateSecret {
-				configurationLogicalAggregator := member.GetConfiguration(member.GetChaussette())
-				fmt.Println(configurationLogicalAggregator)
-				configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
+			validateSecret, err = member.ValidateSecret(member.GetChaussette())
+			if err == nil {
+				if validateSecret {
+					configurationLogicalAggregator, err := member.GetConfiguration(member.GetChaussette())
+					if err == nil {
+						fmt.Println(configurationLogicalAggregator)
+						configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
 
-				log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant(), configurationAggregator.GetBindAddress(), configurationAggregator.GetLinkAddress())
-				time.Sleep(time.Second * time.Duration(5))
-				log.Printf("%s.JoinBrothers Init(%#v)\n", configurationAggregator.GetBindAddress(), getBrothers(configurationAggregator.GetBindAddress(), member))
+						log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant(), configurationAggregator.GetBindAddress(), configurationAggregator.GetLinkAddress())
+						time.Sleep(time.Second * time.Duration(5))
+						log.Printf("%s.JoinBrothers Init(%#v)\n", configurationAggregator.GetBindAddress(), getBrothers(configurationAggregator.GetBindAddress(), member))
+					} else {
+						log.Fatalf("Can't get configuration")
+					}
+				} else {
+					log.Fatalf("Invalid secret")
+				}
 			} else {
-				log.Fatalf("Invalid secret")
+				log.Fatalf("Can't get secret")
 			}
 		} else {
 			log.Fatalf("Can't link shoset on %s", configurationAggregator.GetLinkAddress())

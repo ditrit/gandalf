@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"path/filepath"
 	"strconv"
 
 	"github.com/spf13/cobra"
@@ -48,6 +49,9 @@ type ConfigCmd struct {
 
 	keyType map[string]ConfigType
 
+	// Required Number of args (no argument allowed by default)
+	nbArgs int
+
 	//  offset
 	offset int
 
@@ -77,7 +81,7 @@ func Run(sub *ConfigCmd, runf func(cfg *ConfigCmd, args []string)) func(*cobra.C
 
 func preRunCheck(sub *ConfigCmd) func(*cobra.Command, []string) {
 	return func(cobraCmd *cobra.Command, args []string) {
-		if !sub.ValidOK() {
+		if !(sub.ValidOK() && len(args) == sub.nbArgs) {
 			ErrorAndHelp(sub, "")
 			sub.ValidOK()
 			os.Exit(1)
@@ -107,6 +111,7 @@ func NewConfigCmd(use string, shortDesc string, longDesc string, runf func(cfg *
 	cobraCmd.Use = use
 	cobraCmd.Short = shortDesc
 	cobraCmd.Long = longDesc
+
 	cfg.cmd = cobraCmd
 	cfg.runf = runf
 	cfg.subCmds = make(map[string]*ConfigCmd)
@@ -116,6 +121,7 @@ func NewConfigCmd(use string, shortDesc string, longDesc string, runf func(cfg *
 	cfg.keyType = make(map[string]ConfigType)
 	cfg.constraints = make(map[string]func() bool)
 	cfg.computedValue = make(map[string]func() interface{})
+
 	return cfg
 }
 
@@ -139,7 +145,7 @@ func initOffset(c *ConfigCmd) {
 }
 
 // GetAppName :
-func (c ConfigCmd) GetAppName() string {
+func (c *ConfigCmd) GetAppName() string {
 	if c.parentCmd != nil {
 		return c.parentCmd.GetAppName()
 	}
@@ -147,7 +153,7 @@ func (c ConfigCmd) GetAppName() string {
 }
 
 // GetInstanceName :
-func (c ConfigCmd) GetInstanceName() string {
+func (c *ConfigCmd) GetInstanceName() string {
 	appName := c.GetAppName()
 	offset := GetOffset()
 	if offset != 0 {
@@ -157,7 +163,7 @@ func (c ConfigCmd) GetInstanceName() string {
 }
 
 // ValidOK checks if config keys have valid values
-func (c ConfigCmd) ValidOK() bool {
+func (c *ConfigCmd) ValidOK() bool {
 	ret := true
 
 	if c.parentCmd != nil {
@@ -204,14 +210,14 @@ func (c ConfigCmd) ValidOK() bool {
 }
 
 // AddConfig adds a sub configuration
-func (c ConfigCmd) AddConfig(sub *ConfigCmd) {
+func (c *ConfigCmd) AddConfig(sub *ConfigCmd) {
 	c.cmd.AddCommand(sub.cmd)
 	c.subCmds[sub.cmd.Name()] = sub
-	sub.parentCmd = &c
+	sub.parentCmd = c
 }
 
 // Execute Configuration (call it only for root command)
-func (c ConfigCmd) Execute() {
+func (c *ConfigCmd) Execute() {
 	//SetLogFile(c.cmd.Name())
 	if err := c.cmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -219,38 +225,48 @@ func (c ConfigCmd) Execute() {
 	}
 }
 
+// SetNbArgs : function to fix the number of args
+func (c *ConfigCmd) SetNbArgs(nb int) {
+	c.nbArgs = nb
+}
+
 // SetCheck : function to valid the value of a config key
-func (c ConfigCmd) SetCheck(name string, isValid func(interface{}) bool) {
+func (c *ConfigCmd) SetCheck(name string, isValid func(interface{}) bool) {
 	c.isValid[name] = isValid
 }
 
 // SetNormalize : function to normalize the value of a config Key (if set)
-func (c ConfigCmd) SetNormalize(name string, normalize func(interface{}) interface{}) {
+func (c *ConfigCmd) SetNormalize(name string, normalize func(interface{}) interface{}) {
 	c.normalize[name] = normalize
 }
 
 // SetDefault : set default value for a key
-func (c ConfigCmd) SetDefault(name string, value interface{}) {
+func (c *ConfigCmd) SetDefault(name string, value interface{}) {
 	viper.SetDefault(name, value)
 }
 
 // SetRequired sets a key as required
-func (c ConfigCmd) SetRequired(name string) {
+func (c *ConfigCmd) SetRequired(name string) {
 	c.isRequired[name] = true
 }
 
 // SetConstraint sets a constraint
-func (c ConfigCmd) SetConstraint(msg string, constraint func() bool) {
+func (c *ConfigCmd) SetConstraint(msg string, constraint func() bool) {
 	c.constraints[msg] = constraint
 }
 
 // SetComputedValue sets a value dynamically as the default for a key
-func (c ConfigCmd) SetComputedValue(name string, fval func() interface{}) {
+func (c *ConfigCmd) SetComputedValue(name string, fval func() interface{}) {
 	c.computedValue[name] = fval
 }
 
+// GetComputedValue sets a value dynamically as the default for a key
+func (c *ConfigCmd) GetComputedValue() map[string]func() interface{} {
+	return c.computedValue
+}
+
 // Key defines a flag in cobra bound to env and config file
-func (c ConfigCmd) Key(name string, valType ConfigType, short string, usage string) error {
+func (c *ConfigCmd) Key(name string, valType ConfigType, short string, usage string) error {
 	c.keyType[name] = valType
 	return Key(c.cmd, name, valType, short, usage)
 }
@@ -290,31 +306,56 @@ func InitConfig(c *ConfigCmd) {
 	viper.SetEnvPrefix(instanceName)
 
 	viper.BindEnv("mode")
-	var cfgFile = viper.GetString("config")
+	var cfgFile = viper.GetString("config_file")
 	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-
-		username, err := user.Current()
-		if err != nil {
-			log.Fatalf(err.Error())
+		if FileExist(cfgFile) {
+			// Use config file from the flag.
+			viper.SetConfigFile(cfgFile)
+		} else {
+			ErrorAndHelp(c, "Error: No usable config file found")
 		}
-		homeDir := username.HomeDir
 
-		wd := GetWorkingDir()
-
-		// Define Paths where search the configuration file
-		viper.AddConfigPath("/etc/")
-		viper.AddConfigPath("/etc/" + instanceName + "/")
-		viper.AddConfigPath(homeDir + "/")
-		viper.AddConfigPath(homeDir + "/." + instanceName + "/")
-		viper.AddConfigPath(wd + "/")
-		viper.AddConfigPath(wd + "/." + instanceName + "/")
-
-		viper.SetConfigName(instanceName)
-		viper.SetConfigType("yaml")
 	}
+
+	username, err := user.Current()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+	homeDir := username.HomeDir
+
+	//wd := GetWorkingDir()
+
+	configDir := viper.GetString("config_dir")
+	if !DirectoryExist(configDir) {
+		if DirectoryExist("/etc/gandalf/") {
+			viper.Set("config_dir", "/etc/gandalf/")
+		} else {
+			if DirectoryExist(homeDir + "/.gandalf/") {
+				viper.Set("config_dir", homeDir+"/.gandalf/")
+			} else {
+				if DirectoryExist(homeDir + "/gandalf/") {
+					viper.Set("config_dir", homeDir+"/gandalf/")
+				} else {
+					if cfgFile != "" {
+						cfgFileDir := filepath.Dir(cfgFile)
+						if DirectoryExist(cfgFileDir) {
+							viper.Set("config_dir", cfgFileDir+"/")
+						} else {
+							ErrorAndHelp(c, "Error: No usable config directory found")
+						}
+					} else {
+						ErrorAndHelp(c, "Error: No usable config file or directory found")
+					}
+				}
+			}
+		}
+	}
+
+	if cfgFile == "" {
+		viper.AddConfigPath(configDir)
+		viper.SetConfigName(instanceName)
+	}
+	viper.SetConfigType("yaml")
 
 	SetLogFile(instanceName)
 
@@ -325,6 +366,6 @@ func InitConfig(c *ConfigCmd) {
 }
 
 // Initialize handle initial configuration
-func (c ConfigCmd) Initialize() {
-	cobra.OnInitialize(func() { InitConfig(&c) })
+func (c *ConfigCmd) Initialize() {
+	cobra.OnInitialize(func() { InitConfig(c) })
 }

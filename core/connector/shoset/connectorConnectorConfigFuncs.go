@@ -58,6 +58,25 @@ func SendConnectorConfig(shoset *net.Shoset) (err error) {
 		}
 
 		notSend := true
+		for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
+			index := getSecretSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["mapConnectorsConfig"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		}
+		/* 	notSend := true
 		for notSend {
 			index := getConnectorConfigSendIndex(shosets)
 			shosets[index].SendMessage(conf)
@@ -75,7 +94,7 @@ func SendConnectorConfig(shoset *net.Shoset) (err error) {
 
 		if notSend {
 			return nil
-		}
+		} */
 
 	} else {
 		log.Println("can't find aggregators to send")

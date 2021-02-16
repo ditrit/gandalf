@@ -5,13 +5,12 @@ import (
 	"errors"
 	"log"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/utils"
-	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
-
-	"github.com/jinzhu/gorm"
 )
 
 // HandleEvent : Cluster handle event function.
@@ -27,12 +26,13 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	//ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
 
 	//if ok {
-	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+	databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
+	//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	//databasePath := ch.Context["databasePath"].(string)
-	configurationCluster := ch.Context["configurationCluster"].(*cmodels.ConfigurationCluster)
+	//configurationCluster := ch.Context["configurationCluster"].(*cmodels.ConfigurationCluster)
 
-	if mapDatabaseClient != nil {
-		databaseClient := utils.GetDatabaseClientByTenant(evt.GetTenant(), configurationCluster.GetDatabasePath(), mapDatabaseClient)
+	if databaseConnection != nil {
+		databaseClient := databaseConnection.GetDatabaseClientByTenant(evt.GetTenant())
 		if databaseClient != nil {
 			ok := utils.CaptureMessage(message, "evt", databaseClient)
 			if ok {

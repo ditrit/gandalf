@@ -7,22 +7,24 @@ type Urls struct {
 	GANDALF_PATH string
 	TENANTS_PATH string
 
-	GANDALF_LOGIN_PATH                string
-	GANDALF_CLUSTER_PATH              string
-	GANDALF_CLUSTER_PATH_LIST         string
-	GANDALF_CLUSTER_PATH_CREATE       string
-	GANDALF_CLUSTER_PATH_READ         string
-	GANDALF_CLUSTER_PATH_UPDATE       string
-	GANDALF_CLUSTER_PATH_DELETE       string
-	GANDALF_ROLE_PATH                 string
-	GANDALF_ROLE_PATH_LIST            string
-	GANDALF_ROLE_PATH_CREATE          string
-	GANDALF_ROLE_PATH_READ            string
-	GANDALF_ROLE_PATH_UPDATE          string
-	GANDALF_ROLE_PATH_DELETE          string
+	GANDALF_LOGIN_PATH                  string
+	GANDALF_CLUSTER_PATH                string
+	GANDALF_CLUSTER_PATH_LIST           string
+	GANDALF_CLUSTER_PATH_CREATE         string
+	GANDALF_CLUSTER_PATH_DECLARE_MEMBER string
+	GANDALF_CLUSTER_PATH_READ           string
+	GANDALF_CLUSTER_PATH_UPDATE         string
+	GANDALF_CLUSTER_PATH_DELETE         string
+	//GANDALF_ROLE_PATH                   string
+	//GANDALF_ROLE_PATH_LIST              string
+	//GANDALF_ROLE_PATH_CREATE            string
+	//GANDALF_ROLE_PATH_READ              string
+	//GANDALF_ROLE_PATH_UPDATE            string
+	//GANDALF_ROLE_PATH_DELETE            string
 	GANDALF_USER_PATH                 string
 	GANDALF_USER_PATH_LIST            string
 	GANDALF_USER_PATH_CREATE          string
+	GANDALF_USER_PATH_READ_BY_NAME    string
 	GANDALF_USER_PATH_READ            string
 	GANDALF_USER_PATH_UPDATE          string
 	GANDALF_USER_PATH_DELETE          string
@@ -44,12 +46,14 @@ type Urls struct {
 	TENANTS_CONNECTOR_PATH                       string
 	TENANTS_CONNECTOR_PATH_LIST                  string
 	TENANTS_CONNECTOR_PATH_CREATE                string
+	TENANTS_CONNECTOR_PATH_DECLARE_MEMBER        string
 	TENANTS_CONNECTOR_PATH_READ                  string
 	TENANTS_CONNECTOR_PATH_UPDATE                string
 	TENANTS_CONNECTOR_PATH_DELETE                string
 	TENANTS_AGGREGATOR_PATH                      string
 	TENANTS_AGGREGATOR_PATH_LIST                 string
 	TENANTS_AGGREGATOR_PATH_CREATE               string
+	TENANTS_AGGREGATOR_PATH_DECLARE_MEMBER       string
 	TENANTS_AGGREGATOR_PATH_READ                 string
 	TENANTS_AGGREGATOR_PATH_UPDATE               string
 	TENANTS_AGGREGATOR_PATH_DELETE               string
@@ -96,19 +100,21 @@ func ReturnURLS() *Urls {
 	apiurls.GANDALF_CLUSTER_PATH = apiurls.GANDALF_PATH + "/clusters"
 	apiurls.GANDALF_CLUSTER_PATH_LIST = apiurls.GANDALF_CLUSTER_PATH + "/"
 	apiurls.GANDALF_CLUSTER_PATH_CREATE = apiurls.GANDALF_CLUSTER_PATH + "/"
+	apiurls.GANDALF_CLUSTER_PATH_DECLARE_MEMBER = apiurls.GANDALF_CLUSTER_PATH + "/declare/"
 	apiurls.GANDALF_CLUSTER_PATH_READ = apiurls.GANDALF_CLUSTER_PATH + "/{id}"
 	apiurls.GANDALF_CLUSTER_PATH_UPDATE = apiurls.GANDALF_CLUSTER_PATH + "/{id:[0-9]+}"
 	apiurls.GANDALF_CLUSTER_PATH_DELETE = apiurls.GANDALF_CLUSTER_PATH + "/{id:[0-9]+}"
-	apiurls.GANDALF_ROLE_PATH = apiurls.GANDALF_PATH + "/roles"
-	apiurls.GANDALF_ROLE_PATH_LIST = apiurls.GANDALF_ROLE_PATH + "/"
-	apiurls.GANDALF_ROLE_PATH_CREATE = apiurls.GANDALF_ROLE_PATH + "/"
-	apiurls.GANDALF_ROLE_PATH_READ = apiurls.GANDALF_ROLE_PATH + "/{id:[0-9]+}"
-	apiurls.GANDALF_ROLE_PATH_UPDATE = apiurls.GANDALF_ROLE_PATH + "/{id:[0-9]+}"
-	apiurls.GANDALF_ROLE_PATH_DELETE = apiurls.GANDALF_ROLE_PATH + "/{id:[0-9]+}"
+	//apiurls.GANDALF_ROLE_PATH = apiurls.GANDALF_PATH + "/roles"
+	//apiurls.GANDALF_ROLE_PATH_LIST = apiurls.GANDALF_ROLE_PATH + "/"
+	//apiurls.GANDALF_ROLE_PATH_CREATE = apiurls.GANDALF_ROLE_PATH + "/"
+	//apiurls.GANDALF_ROLE_PATH_READ = apiurls.GANDALF_ROLE_PATH + "/{id:[0-9]+}"
+	//apiurls.GANDALF_ROLE_PATH_UPDATE = apiurls.GANDALF_ROLE_PATH + "/{id:[0-9]+}"
+	//apiurls.GANDALF_ROLE_PATH_DELETE = apiurls.GANDALF_ROLE_PATH + "/{id:[0-9]+}"
 	apiurls.GANDALF_USER_PATH = apiurls.GANDALF_PATH + "/users"
 	apiurls.GANDALF_USER_PATH_LIST = apiurls.GANDALF_USER_PATH + "/"
 	apiurls.GANDALF_USER_PATH_CREATE = apiurls.GANDALF_USER_PATH + "/"
 	apiurls.GANDALF_USER_PATH_READ = apiurls.GANDALF_USER_PATH + "/{id:[0-9]+}"
+	apiurls.GANDALF_USER_PATH_READ_BY_NAME = apiurls.GANDALF_USER_PATH + "/{name}"
 	apiurls.GANDALF_USER_PATH_UPDATE = apiurls.GANDALF_USER_PATH + "/{id:[0-9]+}"
 	apiurls.GANDALF_USER_PATH_DELETE = apiurls.GANDALF_USER_PATH + "/{id:[0-9]+}"
 	apiurls.GANDALF_TENANT_PATH = apiurls.GANDALF_PATH + "/tenants"
@@ -123,19 +129,21 @@ func ReturnURLS() *Urls {
 	apiurls.GANDALF_CONFIGURATION_PATH_READ = apiurls.GANDALF_CONFIGURATION_PATH + "/{id:[0-9]+}"
 	apiurls.GANDALF_CONFIGURATION_PATH_UPDATE = apiurls.GANDALF_CONFIGURATION_PATH + "/{id:[0-9]+}"
 	apiurls.GANDALF_CONFIGURATION_PATH_DELETE = apiurls.GANDALF_CONFIGURATION_PATH + "/{id:[0-9]+}"
-	apiurls.GANDALF_CONFIGURATION_PATH_UPLOAD = apiurls.GANDALF_CONFIGURATION_PATH + "/upload"
+	apiurls.GANDALF_CONFIGURATION_PATH_UPLOAD = apiurls.GANDALF_CONFIGURATION_PATH + "/upload/"
 
 	//TENANTS
 	apiurls.TENANTS_LOGIN_PATH = apiurls.TENANTS_PATH + "/login/"
 	apiurls.TENANTS_CONNECTOR_PATH = apiurls.TENANTS_PATH + "/connectors"
 	apiurls.TENANTS_CONNECTOR_PATH_LIST = apiurls.TENANTS_CONNECTOR_PATH + "/"
 	apiurls.TENANTS_CONNECTOR_PATH_CREATE = apiurls.TENANTS_CONNECTOR_PATH + "/"
+	apiurls.TENANTS_CONNECTOR_PATH_DECLARE_MEMBER = apiurls.TENANTS_CONNECTOR_PATH + "/declare/{name}"
 	apiurls.TENANTS_CONNECTOR_PATH_READ = apiurls.TENANTS_CONNECTOR_PATH + "/{id:[0-9]+}"
 	apiurls.TENANTS_CONNECTOR_PATH_UPDATE = apiurls.TENANTS_CONNECTOR_PATH + "/{id:[0-9]+}"
 	apiurls.TENANTS_CONNECTOR_PATH_DELETE = apiurls.TENANTS_CONNECTOR_PATH + "/{id:[0-9]+}"
 	apiurls.TENANTS_AGGREGATOR_PATH = apiurls.TENANTS_PATH + "/aggregators"
 	apiurls.TENANTS_AGGREGATOR_PATH_LIST = apiurls.TENANTS_AGGREGATOR_PATH + "/"
 	apiurls.TENANTS_AGGREGATOR_PATH_CREATE = apiurls.TENANTS_AGGREGATOR_PATH + "/"
+	apiurls.TENANTS_AGGREGATOR_PATH_DECLARE_MEMBER = apiurls.TENANTS_AGGREGATOR_PATH + "/declare/{name}"
 	apiurls.TENANTS_AGGREGATOR_PATH_READ = apiurls.TENANTS_AGGREGATOR_PATH + "/{id:[0-9]+}"
 	apiurls.TENANTS_AGGREGATOR_PATH_UPDATE = apiurls.TENANTS_AGGREGATOR_PATH + "/{id:[0-9]+}"
 	apiurls.TENANTS_AGGREGATOR_PATH_DELETE = apiurls.TENANTS_AGGREGATOR_PATH + "/{id:[0-9]+}"

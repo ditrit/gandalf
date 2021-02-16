@@ -41,6 +41,17 @@ func (as *GandalfUserService) Read(token string, id int) (*models.User, error) {
 	return &user, err
 }
 
+// Read :
+func (as *GandalfUserService) ReadByName(token string, name string) (*models.User, error) {
+	req, err := as.client.newRequest("GET", "/auth/gandalf/users/"+name, token, nil)
+	if err != nil {
+		return nil, err
+	}
+	var user models.User
+	err = as.client.do(req, &user)
+	return &user, err
+}
+
 // Update :
 func (as *GandalfUserService) Update(token string, id int, user models.User) error {
 	req, err := as.client.newRequest("PUT", "/auth/gandalf/users/"+string(id), token, user)

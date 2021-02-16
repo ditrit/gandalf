@@ -129,8 +129,26 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		if secretMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
 			secretMsg.Timeout = configurationAggregator.GetMaxTimeout()
 		}
-
 		notSend := true
+		for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
+			index := getSecretSendIndex(shosets)
+			shosets[index].SendMessage(secretMsg)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["validation"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		}
+		/* notSend := true
 		for notSend {
 
 			index := getSecretSendIndex(shosets)
@@ -149,7 +167,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 
 		if notSend {
 			return nil
-		}
+		} */
 
 	} else {
 		log.Println("can't find cluster to send")

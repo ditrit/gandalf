@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ditrit/gandalf/core/cluster/database"
-
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/shoset/msg"
@@ -14,7 +12,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// GetDatabaseClientByTenant : Cluster database client getter by tenant.
+/* // GetDatabaseClientByTenant : Cluster database client getter by tenant.
 func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
 	if _, ok := mapDatabaseClient[tenant]; !ok {
 
@@ -30,7 +28,7 @@ func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string
 	}
 
 	return mapDatabaseClient[tenant]
-}
+} */
 
 // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
@@ -194,16 +192,14 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 	switch componentType {
 	case "cluster":
 		var cluster models.Cluster
-		fmt.Println("logicalName")
-		fmt.Println(logicalName)
-		fmt.Println("secret")
-		fmt.Println(secret)
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&cluster).Error
-		fmt.Println("err")
-		fmt.Println(err)
 		if err == nil {
 			if cluster != (models.Cluster{}) {
-				if cluster.BindAddress == "" || cluster.BindAddress == bindAddress {
+				if cluster.BindAddress == "" {
+					cluster.BindAddress = bindAddress
+					databaseClient.Save(cluster)
+					result = true
+				} else if cluster.BindAddress == bindAddress {
 					result = true
 				}
 			}
@@ -211,16 +207,14 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 		break
 	case "aggregator":
 		var aggregator models.Aggregator
-		fmt.Println("logicalName")
-		fmt.Println(logicalName)
-		fmt.Println("secret")
-		fmt.Println(secret)
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&aggregator).Error
-		fmt.Println("err")
-		fmt.Println(err)
 		if err == nil {
 			if aggregator != (models.Aggregator{}) {
-				if aggregator.BindAddress == "" || aggregator.BindAddress == bindAddress {
+				if aggregator.BindAddress == "" {
+					aggregator.BindAddress = bindAddress
+					databaseClient.Save(aggregator)
+					result = true
+				} else if aggregator.BindAddress == bindAddress {
 					result = true
 				}
 			}
@@ -232,7 +226,11 @@ func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret,
 		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&connector).Error
 		if err == nil {
 			if connector != (models.Connector{}) {
-				if connector.BindAddress == "" || connector.BindAddress == bindAddress {
+				if connector.BindAddress == "" {
+					connector.BindAddress = bindAddress
+					databaseClient.Save(connector)
+					result = true
+				} else if connector.BindAddress == bindAddress {
 					result = true
 				}
 			}

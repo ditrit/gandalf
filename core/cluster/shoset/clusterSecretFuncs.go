@@ -7,8 +7,9 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/utils"
-	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
@@ -72,56 +73,64 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	if secret.GetCommand() == "VALIDATION" {
 
 		var databaseClient *gorm.DB
-		//databasePath := ch.Context["databasePath"].(string)
-		if secret.GetContext()["componentType"].(string) == "cluster" {
-			databaseClient = ch.Context["gandalfDatabase"].(*gorm.DB)
-		} else {
-			mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
-
-			if mapDatabaseClient != nil {
-				databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
+		databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
+		if databaseConnection != nil {
+			//databasePath := ch.Context["databasePath"].(string)
+			if secret.GetContext()["componentType"].(string) == "cluster" {
+				databaseClient = databaseConnection.GetGandalfDatabaseClient()
 			} else {
-				log.Println("Database client map is empty")
-				err = errors.New("Database client map is empty")
-			}
-		}
+				databaseClient = databaseConnection.GetDatabaseClientByTenant(secret.GetTenant())
 
-		if databaseClient != nil {
+				/* 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+				//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+				configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
-			bindAddr := secret.GetContext()["bindAddress"].(string)
-
-			var result bool
-			result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
-
-			if err == nil {
-				target := secret.GetTarget()
-				if secret.GetContext()["componentType"] == "aggregator" || secret.GetContext()["componentType"] == "cluster" {
-					target = ""
-				}
-				secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
-				secretReply.Tenant = secret.GetTenant()
-
-				var shoset *net.ShosetConn
-				if secret.GetContext()["componentType"].(string) == "cluster" {
-
-					shoset = ch.ConnsJoin.Get(bindAddr)
+				if mapDatabaseClient != nil {
+					databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
 				} else {
-					shoset = ch.ConnsByAddr.Get(c.GetBindAddr())
-
-				}
-
-				shoset.SendMessage(secretReply)
-
-			} else {
-				log.Println("Can't validate secret")
-				err = errors.New("Can't validate secret")
+					log.Println("Database client map is empty")
+					err = errors.New("Database client map is empty")
+				} */
 			}
 
+			if databaseClient != nil {
+
+				bindAddr := secret.GetContext()["bindAddress"].(string)
+
+				var result bool
+				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
+
+				if err == nil {
+					target := secret.GetTarget()
+					if secret.GetContext()["componentType"] == "aggregator" || secret.GetContext()["componentType"] == "cluster" {
+						target = ""
+					}
+					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
+					secretReply.Tenant = secret.GetTenant()
+
+					var shoset *net.ShosetConn
+					if secret.GetContext()["componentType"].(string) == "cluster" {
+
+						shoset = ch.ConnsJoin.Get(bindAddr)
+					} else {
+						shoset = ch.ConnsByAddr.Get(c.GetBindAddr())
+
+					}
+
+					shoset.SendMessage(secretReply)
+
+				} else {
+					log.Println("Can't validate secret")
+					err = errors.New("Can't validate secret")
+				}
+
+			} else {
+				log.Println("Can't get database client")
+				err = errors.New("Can't get database client")
+			}
 		} else {
-			log.Println("Can't get database client")
-			err = errors.New("Can't get database client")
+			log.Println("Database connection is empty")
+			err = errors.New("Database connection is empty")
 		}
 	} else if secret.GetCommand() == "VALIDATION_REPLY" {
 		ch.Context["validation"] = secret.GetPayload()
@@ -168,10 +177,8 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		if secretMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
 			secretMsg.Timeout = configurationCluster.GetMaxTimeout()
 		}
-
 		notSend := true
-		for notSend {
-
+		for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
 			index := getSecretSendIndex(shosets)
 			shosets[index].SendMessage(secretMsg)
 			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
@@ -189,6 +196,27 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		if notSend {
 			return nil
 		}
+
+		/* 		notSend := true
+		   		for notSend {
+
+		   			index := getSecretSendIndex(shosets)
+		   			shosets[index].SendMessage(secretMsg)
+		   			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+
+		   			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
+
+		   			time.Sleep(timeoutSend * time.Millisecond)
+
+		   			if shoset.Context["validation"] != nil {
+		   				notSend = false
+		   				break
+		   			}
+		   		}
+
+		   		if notSend {
+		   			return nil
+		   		} */
 
 	} else {
 		log.Println("can't find cluster to send")

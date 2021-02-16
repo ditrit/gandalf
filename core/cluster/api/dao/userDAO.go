@@ -43,6 +43,14 @@ func DeleteUser(database *gorm.DB, id int) (err error) {
 	return
 }
 
+func ReadUserByName(database *gorm.DB, name string) (user models.User, err error) {
+	fmt.Println("DAO")
+	err = database.Where("Name = ?", name).First(&user).Error
+	fmt.Println(err)
+	fmt.Println(user)
+	return
+}
+
 func ReadUserByEmail(database *gorm.DB, email string) (user models.User, err error) {
 	fmt.Println("DAO")
 	err = database.Where("Email = ?", email).First(&user).Error

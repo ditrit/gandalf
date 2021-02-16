@@ -6,15 +6,14 @@ import (
 	"errors"
 	"log"
 
-	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
-
-	"github.com/jinzhu/gorm"
 )
 
 // HandleConnectorConfig : Cluster handle connector config function.
@@ -27,12 +26,13 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle connector config")
 	log.Println(conf)
 
-	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+	databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
+	//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-	configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
+	//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
-	if mapDatabaseClient != nil {
-		databaseClient := cutils.GetDatabaseClientByTenant(conf.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
+	if databaseConnection != nil {
+		databaseClient := databaseConnection.GetDatabaseClientByTenant(conf.GetTenant())
 		if databaseClient != nil {
 			ok := cutils.CaptureMessage(message, "config", databaseClient)
 			if ok {

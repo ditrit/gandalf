@@ -142,6 +142,26 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 		}
 
 		notSend := true
+		for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
+			index := getSecretSendIndex(shosets)
+			shosets[index].SendMessage(configurationMsg)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["logicalConfiguration"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		}
+
+		/* notSend := true
 		for notSend {
 
 			index := getSecretSendIndex(shosets)
@@ -160,7 +180,7 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 
 		if notSend {
 			return nil
-		}
+		} */
 
 	} else {
 		log.Println("can't find cluster to send")
