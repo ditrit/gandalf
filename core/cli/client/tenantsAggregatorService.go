@@ -31,13 +31,14 @@ func (as *TenantsAggregatorService) Create(token, tenant string, aggregator mode
 }
 
 // DeclareMember :
-func (as *TenantsAggregatorService) DeclareMember(token, tenant, name string) error {
+func (as *TenantsAggregatorService) DeclareMember(token, tenant, name string) (*models.Aggregator, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/aggregators/declare/"+name, token, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = as.client.do(req, nil)
-	return err
+	var aggregator models.Aggregator
+	err = as.client.do(req, &aggregator)
+	return &aggregator, err
 }
 
 // Read :

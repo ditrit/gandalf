@@ -47,7 +47,7 @@ var cliListDomains = config.NewConfigCmd("domain", "list domains ", "list domain
 var cliUpdateDomain = config.NewConfigCmd("domain", "update domain <domainname> [options]", "update domain command allows to update a Gandalf domain.", runUpdateDomain)
 var cliDeleteDomain = config.NewConfigCmd("domain", "delete domain <domainname>", "delete domain command allows to delete a Gandalf domain.", runDeleteDomain)
 
-var cliDeclareCluster = config.NewConfigCmd("custer", "declare cluster", "declare cluster command allows to declare a new cluster memeber", nil)
+var cliDeclareCluster = config.NewConfigCmd("cluster", "declare cluster", "declare cluster command allows to declare a new cluster memeber", nil)
 var cliDeclareAggregator = config.NewConfigCmd("aggregator", "declare aggregator name|member", "declare aggregator command allows to declare the name or a new member for an aggragator.", nil)
 var cliDeclareConnector = config.NewConfigCmd("connector", "declare connector name|member", "declare connector command allows to declare the name or a new member for a connector.", nil)
 
@@ -320,8 +320,10 @@ func runDeclareClusterMember(cfg *config.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := client.NewClient(configurationCli.GetEndpoint())
 
-	err := cliClient.GandalfClusterService.DeclareMember(configurationCli.GetToken())
-	if err != nil {
+	cluster, err := cliClient.GandalfClusterService.DeclareMember(configurationCli.GetToken())
+	if err == nil {
+		fmt.Println(cluster)
+	} else {
 		fmt.Println(err)
 	}
 }
@@ -348,8 +350,10 @@ func runDeclareAggregatorMember(cfg *config.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := client.NewClient(configurationCli.GetEndpoint())
 
-	err := cliClient.TenantsAggregatorService.DeclareMember(configurationCli.GetToken(), tenant, name)
-	if err != nil {
+	aggregator, err := cliClient.TenantsAggregatorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+	if err == nil {
+		fmt.Println(aggregator)
+	} else {
 		fmt.Println(err)
 	}
 }
@@ -376,8 +380,10 @@ func runDeclareConnectorMember(cfg *config.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := client.NewClient(configurationCli.GetEndpoint())
 
-	err := cliClient.TenantsConnectorService.DeclareMember(configurationCli.GetToken(), tenant, name)
-	if err != nil {
+	connector, err := cliClient.TenantsConnectorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+	if err == nil {
+		fmt.Println(connector)
+	} else {
 		fmt.Println(err)
 	}
 }

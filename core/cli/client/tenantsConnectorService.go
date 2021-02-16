@@ -31,13 +31,14 @@ func (as *TenantsConnectorService) Create(token, tenant string, connector models
 }
 
 // DeclareMember :
-func (as *TenantsConnectorService) DeclareMember(token, tenant, name string) error {
+func (as *TenantsConnectorService) DeclareMember(token, tenant, name string) (*models.Connector, error) {
 	req, err := as.client.newRequest("GET", "/auth/tenants/"+tenant+"/connectors/declare/"+name, token, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = as.client.do(req, nil)
-	return err
+	var connector models.Connector
+	err = as.client.do(req, &connector)
+	return &connector, err
 }
 
 // Read :

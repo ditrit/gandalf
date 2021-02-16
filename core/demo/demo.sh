@@ -19,7 +19,7 @@ echo 'Init ClusterMember'
 
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'
-./gandalf aggregator -l Aggregator1 -t tenant1 --port 10000 --cluster 127.0.0.1:9099 --secret TATA
+./gandalf aggregator -l Aggregator1 -t tenant1 --port 10000 --cluster 127.0.0.1:9099 --secret hesQi342rysAuj4LwuLs54L7-G70lG31-RuN3ZeKVZ9Kbk-IlrTcfesboicD_8Xc77ZQxUxgvI2YskEaXCGR8Q==
 sleep 5
 
 echo 'Connector'
@@ -33,11 +33,19 @@ sleep 5
 
 
 echo 'Cli' 
-./gandalf cli -e http://localhost:9200 login
+./gandalf cli -e http://localhost:9200 login <login> <password>
 ./gandalf cli -e http://localhost:9200 create user <username> <email> <password> -t <token>
 ./gandalf cli -e http://localhost:9200 list user -t <token>
 ./gandalf cli -e http://localhost:9200 create tenant <tenant> -t <token>
 ./gandalf cli -e http://localhost:9200 list tenant -t <token>
+# CREATE TENANT ADMIN
+./gandalf cli -e http://localhost:9200 list tenant -t <token>
+./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
+./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
+./gandalf cli -e http://localhost:9200 declare aggregator name <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9200 declare aggregator member <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9200 declare connector name <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9200 declare connector member <tenant> <name> -t <token>
 
 
 #echo 'Worker'

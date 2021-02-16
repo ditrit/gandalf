@@ -31,13 +31,14 @@ func (as *GandalfClusterService) Create(token string, cluster models.Cluster) er
 }
 
 // DeclareMember :
-func (as *GandalfClusterService) DeclareMember(token string) error {
+func (as *GandalfClusterService) DeclareMember(token string) (*models.Cluster, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/clusters/declare/", token, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	err = as.client.do(req, nil)
-	return err
+	var cluster models.Cluster
+	err = as.client.do(req, &cluster)
+	return &cluster, err
 }
 
 // Read :
