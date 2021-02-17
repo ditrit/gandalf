@@ -5,4 +5,5 @@ import "github.com/ditrit/gandalf/core/configuration"
 
 func main() {
 	configuration.Execute()
+	configuration.Execute()
 }
