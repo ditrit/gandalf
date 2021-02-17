@@ -4,28 +4,29 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/ditrit/gandalf/core/cluster/database"
 
-	"github.com/jinzhu/gorm"
+	"github.com/gorilla/mux"
 )
 
 // ServerAPI :
 type ServerAPI struct {
-	bindAddress              string
-	router                   *mux.Router
-	gandalfDatabaseClient    *gorm.DB
-	mapTenantDatabaseClients map[string]*gorm.DB
+	bindAddress        string
+	router             *mux.Router
+	databaseConnection *database.DatabaseConnection
+	//gandalfDatabaseClient    *gorm.DB
+	//mapTenantDatabaseClients map[string]*gorm.DB
 }
 
 // NewServerAPI :
-func NewServerAPI(bindAddress, certsPath, databaseBindAddress string, gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB) *ServerAPI {
+func NewServerAPI(bindAddress string, databaseConnection *database.DatabaseConnection) *ServerAPI {
 	serverAPI := new(ServerAPI)
 	serverAPI.bindAddress = bindAddress
+	serverAPI.databaseConnection = databaseConnection
+	//serverAPI.gandalfDatabaseClient = gandalfDatabaseClient
+	//serverAPI.mapTenantDatabaseClients = mapTenantDatabaseClients
 
-	serverAPI.gandalfDatabaseClient = gandalfDatabaseClient
-	serverAPI.mapTenantDatabaseClients = mapTenantDatabaseClients
-
-	serverAPI.router = GetRouter(serverAPI.gandalfDatabaseClient, serverAPI.mapTenantDatabaseClients, certsPath, databaseBindAddress)
+	serverAPI.router = GetRouter(serverAPI.databaseConnection)
 
 	return serverAPI
 }

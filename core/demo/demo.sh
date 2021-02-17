@@ -8,12 +8,18 @@ go build -o gandalf
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
-./gandalf cluster -l Cluster
-./gandalf cluster -l Cluster --offset 1 --db_nodename node2 --join 127.0.0.1:9099 --secret TUTU
-./gandalf cluster -l Cluster --offset 2 --db_nodename node3 --join 127.0.0.1:9099 --secret TITI
+./gandalf cluster -l Cluster --offset 1
+./gandalf cluster -l Cluster --offset 2 --db_nodename node2 --join 127.0.0.1:9099 --secret TUTU
+./gandalf cluster -l Cluster --offset 3 --db_nodename node3 --join 127.0.0.1:9099 --secret TITI
+
+./gandalf cluster -l Cluster 
+./gandalf cluster -l Cluster --join 127.0.0.1:9099 --secret TUTU
+./gandalf cluster -l Cluster --join 127.0.0.1:9099 --secret TITI
+
+
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'
-./gandalf aggregator -l Aggregator1 -t tenant1 --port 10000 --cluster 127.0.0.1:9099 --secret TATA
+./gandalf aggregator -l Aggregator1 -t tenant1 --port 10000 --cluster 127.0.0.1:9099 --secret hesQi342rysAuj4LwuLs54L7-G70lG31-RuN3ZeKVZ9Kbk-IlrTcfesboicD_8Xc77ZQxUxgvI2YskEaXCGR8Q==
 sleep 5
 
 echo 'Connector'
@@ -24,6 +30,22 @@ echo 'ConnectorMember Con1 and Con2'
 ./gandalf -g connector -l Connector2 -b 127.0.0.1:7100 -r /tmp/ -a 127.0.0.1:8000 -y Workflow -p Docker -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
 ./gandalf -g connector -l Connector3 -b 127.0.0.1:7100 -r /tmp/ -a 127.0.0.1:8000 -y Workflow -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
 sleep 5
+
+
+echo 'Cli' 
+./gandalf cli -e http://localhost:9200 login <login> <password>
+./gandalf cli -e http://localhost:9200 create user <username> <email> <password> -t <token>
+./gandalf cli -e http://localhost:9200 list user -t <token>
+./gandalf cli -e http://localhost:9200 create tenant <tenant> -t <token>
+./gandalf cli -e http://localhost:9200 list tenant -t <token>
+# CREATE TENANT ADMIN
+./gandalf cli -e http://localhost:9200 list tenant -t <token>
+./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
+./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
+./gandalf cli -e http://localhost:9200 declare aggregator name <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9200 declare aggregator member <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9200 declare connector name <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9200 declare connector member <tenant> <name> -t <token>
 
 
 #echo 'Worker'

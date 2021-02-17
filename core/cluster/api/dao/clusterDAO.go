@@ -29,6 +29,12 @@ func CreateCluster(database *gorm.DB, cluster models.Cluster) (err error) {
 
 }
 
+func ReadFirstCluster(database *gorm.DB) (cluster models.Cluster, err error) {
+	err = database.First(&cluster).Error
+
+	return
+}
+
 func ReadCluster(database *gorm.DB, id int) (cluster models.Cluster, err error) {
 	err = database.First(&cluster, id).Error
 

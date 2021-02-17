@@ -6,23 +6,24 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 // UserController :
 type UserController struct {
-	mapDatabase map[string]*gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewUserController :
-func NewUserController(mapDatabase map[string]*gorm.DB) (userController *UserController) {
+func NewUserController(databaseConnection *database.DatabaseConnection) (userController *UserController) {
 	userController = new(UserController)
-	userController.mapDatabase = mapDatabase
+	userController.databaseConnection = databaseConnection
 
 	return
 }
@@ -31,7 +32,7 @@ func NewUserController(mapDatabase map[string]*gorm.DB) (userController *UserCon
 func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	database := uc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		users, err := dao.ListUser(database)
 		if err != nil {
@@ -50,7 +51,7 @@ func (uc UserController) List(w http.ResponseWriter, r *http.Request) {
 func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	database := uc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		var user models.User
 		decoder := json.NewDecoder(r.Body)
@@ -76,7 +77,7 @@ func (uc UserController) Create(w http.ResponseWriter, r *http.Request) {
 func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	database := uc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -105,7 +106,7 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	database := uc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -138,7 +139,7 @@ func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 func (uc UserController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(uc.mapDatabase, tenant)
+	database := uc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

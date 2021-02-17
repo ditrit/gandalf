@@ -48,7 +48,6 @@ func IsDatabasePopulated(gandalfDatabaseClient *gorm.DB) (result bool) {
 
 }
 
-//TODO REVOIR ERROR
 func GenerateRandomHash() string {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)

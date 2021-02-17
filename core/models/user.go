@@ -10,7 +10,7 @@ import (
 // User : user struct
 type User struct {
 	gorm.Model
-	Name     string
+	Name     string `gorm:"unique"`
 	Email    string `gorm:"unique"`
 	Password string
 }

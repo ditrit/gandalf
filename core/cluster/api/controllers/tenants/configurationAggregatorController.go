@@ -8,24 +8,25 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"gopkg.in/yaml.v2"
 )
 
 // ConfigurationAggregatorController :
 type ConfigurationAggregatorController struct {
-	mapDatabase map[string]*gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewConfigurationController :
-func NewConfigurationAggregatorController(mapDatabase map[string]*gorm.DB) (configurationAggregatorController *ConfigurationAggregatorController) {
+func NewConfigurationAggregatorController(databaseConnection *database.DatabaseConnection) (configurationAggregatorController *ConfigurationAggregatorController) {
 	configurationAggregatorController = new(ConfigurationAggregatorController)
-	configurationAggregatorController.mapDatabase = mapDatabase
+	configurationAggregatorController.databaseConnection = databaseConnection
 
 	return
 }
@@ -33,7 +34,7 @@ func NewConfigurationAggregatorController(mapDatabase map[string]*gorm.DB) (conf
 func (cc ConfigurationAggregatorController) Upload(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		fmt.Println("File Upload Endpoint Hit")
 
@@ -74,7 +75,7 @@ func (cc ConfigurationAggregatorController) Upload(w http.ResponseWriter, r *htt
 func (cc ConfigurationAggregatorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		configurationAggregators, err := dao.ListConfigurationAggregator(database)
 		if err != nil {
@@ -93,7 +94,7 @@ func (cc ConfigurationAggregatorController) List(w http.ResponseWriter, r *http.
 func (cc ConfigurationAggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 
 		var configurationAggregator models.ConfigurationLogicalAggregator
@@ -120,7 +121,7 @@ func (cc ConfigurationAggregatorController) Create(w http.ResponseWriter, r *htt
 func (cc ConfigurationAggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 
 		id, err := strconv.Atoi(vars["id"])
@@ -151,7 +152,7 @@ func (cc ConfigurationAggregatorController) Read(w http.ResponseWriter, r *http.
 func (cc ConfigurationAggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 
 		id, err := strconv.Atoi(vars["id"])
@@ -185,7 +186,7 @@ func (cc ConfigurationAggregatorController) Update(w http.ResponseWriter, r *htt
 func (cc ConfigurationAggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

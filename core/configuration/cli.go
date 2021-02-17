@@ -9,6 +9,10 @@ package configuration
 import (
 	"fmt"
 
+	"github.com/ditrit/gandalf/core/cli/client"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+	"github.com/ditrit/gandalf/core/models"
+
 	"github.com/ditrit/gandalf/core/configuration/config"
 	"github.com/spf13/viper"
 )
@@ -43,7 +47,7 @@ var cliListDomains = config.NewConfigCmd("domain", "list domains ", "list domain
 var cliUpdateDomain = config.NewConfigCmd("domain", "update domain <domainname> [options]", "update domain command allows to update a Gandalf domain.", runUpdateDomain)
 var cliDeleteDomain = config.NewConfigCmd("domain", "delete domain <domainname>", "delete domain command allows to delete a Gandalf domain.", runDeleteDomain)
 
-var cliDeclareCluster = config.NewConfigCmd("custer", "declare cluster", "declare cluster command allows to declare a new cluster memeber", nil)
+var cliDeclareCluster = config.NewConfigCmd("cluster", "declare cluster", "declare cluster command allows to declare a new cluster memeber", nil)
 var cliDeclareAggregator = config.NewConfigCmd("aggregator", "declare aggregator name|member", "declare aggregator command allows to declare the name or a new member for an aggragator.", nil)
 var cliDeclareConnector = config.NewConfigCmd("connector", "declare connector name|member", "declare connector command allows to declare the name or a new member for a connector.", nil)
 
@@ -99,7 +103,7 @@ func init() {
 	cliCfg.Key("endpoint", config.IsStr, "e", "Gandalf endpoint")
 	cliCfg.SetRequired("endpoint")
 	cliCfg.Key("token", config.IsStr, "t", "Gandalf auth token")
-	cliCfg.SetRequired("token")
+	//cliCfg.SetRequired("token")
 
 	cliLogin.SetNbArgs(2)
 
@@ -130,16 +134,32 @@ func init() {
 	cliUpdateDomain.Key("domainname", config.IsStr, "d", "name of the Domain")
 
 	cliDeclareClusterMember.SetNbArgs(0)
-	cliDeclareAggregatorName.SetNbArgs(1)
-	cliDeclareAggregatorMember.SetNbArgs(1)
-	cliDeclareConnectorName.SetNbArgs(1)
-	cliDeclareConnectorMember.SetNbArgs(1)
+	cliDeclareAggregatorName.SetNbArgs(2)
+	cliDeclareAggregatorMember.SetNbArgs(2)
+	cliDeclareConnectorName.SetNbArgs(2)
+	cliDeclareConnectorMember.SetNbArgs(2)
 }
 
 func runLogin(cfg *config.ConfigCmd, args []string) {
 	name := args[0]
 	password := args[1]
+
 	fmt.Printf("gandalf cli login called with username=%s and password=%s\n", name, password)
+	configurationCli := cmodels.NewConfigurationCli()
+	fmt.Println(configurationCli.GetEndpoint())
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	var user models.User
+	user.Name = name
+	user.Email = name
+	user.Password = password
+	//user := models.NewUser(name, name, password)
+	token, err := cliClient.GandalfAuthenticationService.Login(user)
+	if err == nil {
+		fmt.Println("Token: " + token)
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runCreateUser(cfg *config.ConfigCmd, args []string) {
@@ -148,10 +168,29 @@ func runCreateUser(cfg *config.ConfigCmd, args []string) {
 	password := args[2]
 
 	fmt.Printf("gandalf cli create user called with username=%s, email=%s, password=%s\n", name, email, password)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	user := models.NewUser(name, email, password)
+	err := cliClient.GandalfUserService.Create(configurationCli.GetToken(), user)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func runListUsers(cfg *config.ConfigCmd, args []string) {
 	fmt.Printf("gandalf cli list users\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	users, err := cliClient.GandalfUserService.List(configurationCli.GetToken())
+	if err == nil {
+		for _, user := range users {
+			fmt.Println(user)
+		}
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runUpdateUser(cfg *config.ConfigCmd, args []string) {
@@ -160,21 +199,67 @@ func runUpdateUser(cfg *config.ConfigCmd, args []string) {
 	email := viper.GetViper().GetString("email")
 	password := viper.GetViper().GetString("password")
 	fmt.Printf("gandalf cli update user called with username=%s, newname=%s, email=%s, password=%s\n", name, newName, email, password)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
+	if err == nil {
+		user := models.NewUser(newName, email, password)
+		err = cliClient.GandalfUserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runDeleteUser(cfg *config.ConfigCmd, args []string) {
 	name := args[0]
 	fmt.Printf("gandalf cli delete user called with username=%s\n", name)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
+	if err == nil {
+		err = cliClient.GandalfUserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
+		if err != nil {
+			fmt.Println(err)
+		}
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runCreateTenant(cfg *config.ConfigCmd, args []string) {
 	name := args[0]
 	fmt.Printf("gandalf cli create tenant called with tenant=%s\n", name)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	tenant := models.Tenant{Name: name}
+	login, password, err := cliClient.GandalfTenantService.Create(configurationCli.GetToken(), tenant)
+	if err == nil {
+		fmt.Println("login : " + login)
+		fmt.Println("password : " + password)
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runListTenants(cfg *config.ConfigCmd, args []string) {
-	filter := viper.GetString("filter")
-	fmt.Printf("gandalf cli list tenants with filter=%s\n", filter)
+	fmt.Printf("gandalf cli list tenants\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	tenants, err := cliClient.GandalfTenantService.List(configurationCli.GetToken())
+	if err == nil {
+		for _, tenant := range tenants {
+			fmt.Println(tenant)
+		}
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runUpdateTenant(cfg *config.ConfigCmd, args []string) {
@@ -232,26 +317,75 @@ func runDeleteDomain(cfg *config.ConfigCmd, args []string) {
 
 func runDeclareClusterMember(cfg *config.ConfigCmd, args []string) {
 	fmt.Printf("gandalf declare cluster member\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	cluster, err := cliClient.GandalfClusterService.DeclareMember(configurationCli.GetToken())
+	if err == nil {
+		fmt.Println(cluster)
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runDeclareAggregatorName(cfg *config.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare aggregator name with name=%s\n", name)
+	tenant := args[0]
+	name := args[1]
+	fmt.Printf("gandalf declare aggregator name with name=%s on tenant=%s\n", name, tenant)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	var aggregator models.Aggregator
+	aggregator.LogicalName = name
+	err := cliClient.TenantsAggregatorService.Create(configurationCli.GetToken(), tenant, aggregator)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func runDeclareAggregatorMember(cfg *config.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare aggregator member with name=%s\n", name)
+	tenant := args[0]
+	name := args[1]
+	fmt.Printf("gandalf declare aggregator member with name=%s on tenant=%s\n", name, tenant)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	aggregator, err := cliClient.TenantsAggregatorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+	if err == nil {
+		fmt.Println(aggregator)
+	} else {
+		fmt.Println(err)
+	}
 }
 
 func runDeclareConnectorName(cfg *config.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare connector name with name=%s\n", name)
+	tenant := args[0]
+	name := args[1]
+	fmt.Printf("gandalf declare connector name with name=%s on tenant=%s\n", name, tenant)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	var connector models.Connector
+	connector.LogicalName = name
+	err := cliClient.TenantsConnectorService.Create(configurationCli.GetToken(), tenant, connector)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func runDeclareConnectorMember(cfg *config.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare connector member with name=%s\n", name)
+	tenant := args[0]
+	name := args[1]
+	fmt.Printf("gandalf declare connector member with name=%s on tenant=%s\n", name, tenant)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := client.NewClient(configurationCli.GetEndpoint())
+
+	connector, err := cliClient.TenantsConnectorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+	if err == nil {
+		fmt.Println(connector)
+	} else {
+		fmt.Println(err)
+	}
 }
 
 /*

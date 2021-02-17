@@ -1,6 +1,7 @@
 //Package database :
 package database
 
+/*
 import (
 	"fmt"
 	"log"
@@ -27,7 +28,6 @@ func NewTenantDatabaseClient(addr, tenant string) (tenantDatabaseClient *gorm.DB
 	dsn := "postgres://" + tenant + ":" + tenant + "@" + addr + "/" + tenant + "?sslmode=require"
 	tenantDatabaseClient, err = gorm.Open("postgres", dsn)
 	if err != nil {
-		fmt.Println(err)
 		log.Println("failed to connect database")
 	}
 
@@ -362,7 +362,7 @@ func DemoCreateApplicationDocker(tenantDatabaseClient *gorm.DB) {
 		ConnectorType: ConnectorTypeDocker})
 }
 
-/* //DemoConfiguration
+//DemoConfiguration
 func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
 	var configurationAggregator models.ConfigurationLogicalAggregator
 	var configurationConnector models.ConfigurationLogicalConnector
@@ -378,4 +378,5 @@ func DemoConfiguration(tenantDatabaseClient *gorm.DB) {
 	configurationConnector.MaxTimeout = 1000
 	tenantDatabaseClient.Save(&configurationConnector)
 }
+
 */

@@ -6,23 +6,24 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 )
 
 // ConnectorController :
 type ConnectorController struct {
-	mapDatabase map[string]*gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewConnectorController :
-func NewConnectorController(mapDatabase map[string]*gorm.DB) (connectorController *ConnectorController) {
+func NewConnectorController(databaseConnection *database.DatabaseConnection) (connectorController *ConnectorController) {
 	connectorController = new(ConnectorController)
-	connectorController.mapDatabase = mapDatabase
+	connectorController.databaseConnection = databaseConnection
 
 	return
 }
@@ -31,7 +32,7 @@ func NewConnectorController(mapDatabase map[string]*gorm.DB) (connectorControlle
 func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		connectors, err := dao.ListConnector(database)
 		if err != nil {
@@ -50,7 +51,7 @@ func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		var connector models.Connector
 		decoder := json.NewDecoder(r.Body)
@@ -72,11 +73,38 @@ func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// DeclareMember :
+func (cc ConnectorController) DeclareMember(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	name := vars["name"]
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
+	if database != nil {
+		connector, err := dao.ReadConnectorByName(database, name)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		var newConnector models.Connector
+		newConnector.LogicalName = connector.LogicalName
+		newConnector.Secret = utils.GenerateHash()
+
+		if err := dao.CreateConnector(database, newConnector); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusCreated, newConnector)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
 // Read :
 func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -106,7 +134,7 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -139,7 +167,7 @@ func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := utils.GetDatabase(cc.mapDatabase, tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

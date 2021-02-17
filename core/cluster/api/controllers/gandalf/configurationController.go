@@ -8,25 +8,26 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/gandalf/core/cluster/database"
+
 	"github.com/ditrit/gandalf/core/cluster/api/utils"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/gandalf/core/cluster/api/dao"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"gopkg.in/yaml.v2"
 )
 
 // ConfigurationController :
 type ConfigurationController struct {
-	gandalfDatabase *gorm.DB
+	databaseConnection *database.DatabaseConnection
 }
 
 // NewConfigurationController :
-func NewConfigurationController(gandalfDatabase *gorm.DB) (configurationController *ConfigurationController) {
+func NewConfigurationController(databaseConnection *database.DatabaseConnection) (configurationController *ConfigurationController) {
 	configurationController = new(ConfigurationController)
-	configurationController.gandalfDatabase = gandalfDatabase
+	configurationController.databaseConnection = databaseConnection
 
 	return
 }
@@ -58,14 +59,14 @@ func (cc ConfigurationController) Upload(w http.ResponseWriter, r *http.Request)
 		fmt.Println(err)
 	}
 
-	cc.gandalfDatabase.Save(&configurationConfigurationCluster)
+	cc.databaseConnection.GetGandalfDatabaseClient().Save(&configurationConfigurationCluster)
 
 	fmt.Fprintf(w, "Successfully Uploaded File\n")
 }
 
 // List :
 func (cc ConfigurationController) List(w http.ResponseWriter, r *http.Request) {
-	configurationCluster, err := dao.ListConfigurationCluster(cc.gandalfDatabase)
+	configurationCluster, err := dao.ListConfigurationCluster(cc.databaseConnection.GetGandalfDatabaseClient())
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -84,7 +85,7 @@ func (cc ConfigurationController) Create(w http.ResponseWriter, r *http.Request)
 	}
 	defer r.Body.Close()
 
-	if err := dao.CreateConfigurationCluster(cc.gandalfDatabase, configurationCluster); err != nil {
+	if err := dao.CreateConfigurationCluster(cc.databaseConnection.GetGandalfDatabaseClient(), configurationCluster); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -102,7 +103,7 @@ func (cc ConfigurationController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var configurationCluster models.ConfigurationLogicalCluster
-	if configurationCluster, err = dao.ReadConfigurationCluster(cc.gandalfDatabase, id); err != nil {
+	if configurationCluster, err = dao.ReadConfigurationCluster(cc.databaseConnection.GetGandalfDatabaseClient(), id); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -133,7 +134,7 @@ func (cc ConfigurationController) Update(w http.ResponseWriter, r *http.Request)
 	defer r.Body.Close()
 	configurationCluster.ID = uint(id)
 
-	if err := dao.UpdateConfigurationCluster(cc.gandalfDatabase, configurationCluster); err != nil {
+	if err := dao.UpdateConfigurationCluster(cc.databaseConnection.GetGandalfDatabaseClient(), configurationCluster); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -150,7 +151,7 @@ func (cc ConfigurationController) Delete(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := dao.DeleteConfigurationCluster(cc.gandalfDatabase, id); err != nil {
+	if err := dao.DeleteConfigurationCluster(cc.databaseConnection.GetGandalfDatabaseClient(), id); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

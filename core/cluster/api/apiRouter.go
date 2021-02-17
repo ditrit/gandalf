@@ -1,16 +1,16 @@
 package api
 
 import (
-	"github.com/jinzhu/gorm"
+	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/gorilla/mux"
 )
 
 // GetRouter :
-func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[string]*gorm.DB, certsPath, databaseBindAddr string) *mux.Router {
+func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 
 	//CONTROLLERS
-	controllers := ReturnControllers(gandalfDatabaseClient, mapTenantDatabaseClients, certsPath, databaseBindAddr)
+	controllers := ReturnControllers(databaseConnection)
 
 	//URLS
 	urls := ReturnURLS()
@@ -31,16 +31,17 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	//CLUSTER
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_LIST, controllers.gandalfClusterController.List).Methods("GET")
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_CREATE, controllers.gandalfClusterController.Create).Methods("POST")
+	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_DECLARE_MEMBER, controllers.gandalfClusterController.DeclareMember).Methods("GET")
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_READ, controllers.gandalfClusterController.Read).Methods("GET")
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_UPDATE, controllers.gandalfClusterController.Update).Methods("PUT")
 	subg.HandleFunc(urls.GANDALF_CLUSTER_PATH_DELETE, controllers.gandalfClusterController.Delete).Methods("DELETE")
 
 	//ROLE
-	subg.HandleFunc(urls.GANDALF_ROLE_PATH_LIST, controllers.gandalfRoleController.List).Methods("GET")
-	subg.HandleFunc(urls.GANDALF_ROLE_PATH_CREATE, controllers.gandalfRoleController.Create).Methods("POST")
-	subg.HandleFunc(urls.GANDALF_ROLE_PATH_READ, controllers.gandalfRoleController.Read).Methods("GET")
-	subg.HandleFunc(urls.GANDALF_ROLE_PATH_UPDATE, controllers.gandalfRoleController.Update).Methods("PUT")
-	subg.HandleFunc(urls.GANDALF_ROLE_PATH_DELETE, controllers.gandalfRoleController.Delete).Methods("DELETE")
+	//subg.HandleFunc(urls.GANDALF_ROLE_PATH_LIST, controllers.gandalfRoleController.List).Methods("GET")
+	//subg.HandleFunc(urls.GANDALF_ROLE_PATH_CREATE, controllers.gandalfRoleController.Create).Methods("POST")
+	//subg.HandleFunc(urls.GANDALF_ROLE_PATH_READ, controllers.gandalfRoleController.Read).Methods("GET")
+	//subg.HandleFunc(urls.GANDALF_ROLE_PATH_UPDATE, controllers.gandalfRoleController.Update).Methods("PUT")
+	//subg.HandleFunc(urls.GANDALF_ROLE_PATH_DELETE, controllers.gandalfRoleController.Delete).Methods("DELETE")
 
 	//TENANT
 	subg.HandleFunc(urls.GANDALF_TENANT_PATH_LIST, controllers.gandalfTenantController.List).Methods("GET")
@@ -53,6 +54,7 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	subg.HandleFunc(urls.GANDALF_USER_PATH_LIST, controllers.gandalfUserController.List).Methods("GET")
 	subg.HandleFunc(urls.GANDALF_USER_PATH_CREATE, controllers.gandalfUserController.Create).Methods("POST")
 	subg.HandleFunc(urls.GANDALF_USER_PATH_READ, controllers.gandalfUserController.Read).Methods("GET")
+	subg.HandleFunc(urls.GANDALF_USER_PATH_READ_BY_NAME, controllers.gandalfUserController.ReadByName).Methods("GET")
 	subg.HandleFunc(urls.GANDALF_USER_PATH_UPDATE, controllers.gandalfUserController.Update).Methods("PUT")
 	subg.HandleFunc(urls.GANDALF_USER_PATH_DELETE, controllers.gandalfUserController.Delete).Methods("DELETE")
 
@@ -70,6 +72,7 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	//AGGREGATOR
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_LIST, controllers.tenantsAggregatorController.List).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_CREATE, controllers.tenantsAggregatorController.Create).Methods("POST")
+	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DECLARE_MEMBER, controllers.tenantsAggregatorController.DeclareMember).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_READ, controllers.tenantsAggregatorController.Read).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_UPDATE, controllers.tenantsAggregatorController.Update).Methods("PUT")
 	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DELETE, controllers.tenantsAggregatorController.Delete).Methods("DELETE")
@@ -77,6 +80,7 @@ func GetRouter(gandalfDatabaseClient *gorm.DB, mapTenantDatabaseClients map[stri
 	//CONNECTOR
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_LIST, controllers.tenantsConnectorController.List).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_CREATE, controllers.tenantsConnectorController.Create).Methods("POST")
+	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DECLARE_MEMBER, controllers.tenantsConnectorController.DeclareMember).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_READ, controllers.tenantsConnectorController.Read).Methods("GET")
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_UPDATE, controllers.tenantsConnectorController.Update).Methods("PUT")
 	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DELETE, controllers.tenantsConnectorController.Delete).Methods("DELETE")
