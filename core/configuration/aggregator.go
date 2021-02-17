@@ -9,20 +9,19 @@ package configuration
 import (
 	"fmt"
 
-	"github.com/ditrit/gandalf/core/configuration/config"
-
 	"github.com/ditrit/gandalf/core/aggregator"
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+	"github.com/ditrit/gandalf/verdeter"
 
 	"github.com/spf13/viper"
 )
 
 // aggregatorCmd represents the aggregator command
-var aggregatorCfg = config.NewConfigCmd(
+var aggregatorCfg = verdeter.NewConfigCmd(
 	"aggregator",
 	"Launch gandalf in 'aggregator' mode.",
 	`Gandalf is launched as an aggregator instance.`,
-	func(cfg *config.ConfigCmd, args []string) {
+	func(cfg *verdeter.ConfigCmd, args []string) {
 		fmt.Println("aggregator called")
 		fmt.Printf("tenant = '%s'\n", viper.GetString("tenant"))
 		fmt.Println("cluster to connect = " + viper.GetString("cluster"))
@@ -39,12 +38,12 @@ func init() {
 
 	aggregatorCfg.SetRequired("lname")
 
-	aggregatorCfg.Key("tenant", config.IsStr, "t", "name of the tenant name of the aggregator")
+	aggregatorCfg.Key("tenant", verdeter.IsStr, "t", "name of the tenant name of the aggregator")
 	aggregatorCfg.SetCheck("tenant", CheckNotEmpty)
 	aggregatorCfg.SetRequired("tenant")
 	aggregatorCfg.SetNormalize("tenant", TrimToLower)
 
-	aggregatorCfg.Key("cluster", config.IsStr, "c", "remote address of one of the cluster members to link")
+	aggregatorCfg.Key("cluster", verdeter.IsStr, "c", "remote address of one of the cluster members to link")
 	aggregatorCfg.SetCheck("cluster", CheckNotEmpty)
 	aggregatorCfg.SetRequired("cluster")
 	aggregatorCfg.SetNormalize("cluster", TrimToLower)

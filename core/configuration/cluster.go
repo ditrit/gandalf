@@ -9,7 +9,7 @@ package configuration
 import (
 	"fmt"
 
-	"github.com/ditrit/gandalf/core/configuration/config"
+	"github.com/ditrit/gandalf/verdeter"
 
 	"github.com/ditrit/gandalf/core/cluster"
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -18,14 +18,14 @@ import (
 )
 
 // clusterCmd represents the cluster command
-var clusterCfg = config.NewConfigCmd(
+var clusterCfg = verdeter.NewConfigCmd(
 	"cluster",
 	"Launch gandalf in 'cluster' mode.",
 	`Gandalf is launched as a cluster member of a Gandalf system.`,
-	func(cfg *config.ConfigCmd, args []string) {
+	func(cfg *verdeter.ConfigCmd, args []string) {
 		fmt.Println("cluster called")
 
-		offset := config.GetOffset()
+		offset := verdeter.GetOffset()
 		fmt.Printf("computed offset : %d\n", offset)
 
 		done := make(chan bool)
@@ -49,34 +49,34 @@ func init() {
 	//clusterCfg.SetRequired("lname")
 	clusterCfg.SetDefault("lname", "cluster")
 
-	clusterCfg.Key("join", config.IsStr, "j", "remote address (of an already existing member of cluster) to join")
+	clusterCfg.Key("join", verdeter.IsStr, "j", "remote address (of an already existing member of cluster) to join")
 	clusterCfg.SetCheck("join", CheckNotEmpty)
 	clusterCfg.SetNormalize("join", TrimToLower)
 
-	clusterCfg.Key("api_port", config.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
-	//clusterCfg.SetDefault("api_port", 9199+config.GetOffset())
+	clusterCfg.Key("api_port", verdeter.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
+	//clusterCfg.SetDefault("api_port", 9199+verdeter.GetOffset())
 	clusterCfg.SetCheck("api_port", CheckTcpHighPort)
 	clusterCfg.SetComputedValue("api_port",
 		func() interface{} {
-			return 9199 + config.GetOffset()
+			return 9199 + verdeter.GetOffset()
 		})
 
-	clusterCfg.Key("db_path", config.IsStr, "", "path for the gandalf database (absolute or relative to the configuration directory)")
+	clusterCfg.Key("db_path", verdeter.IsStr, "", "path for the gandalf database (absolute or relative to the configuration directory)")
 	clusterCfg.SetCheck("db_path", func(val interface{}) bool {
 		valStr, ok := val.(string)
 		if ok {
-			return config.CreateWritableDirectory(valStr)
+			return verdeter.CreateWritableDirectory(valStr)
 		}
 		return false
 	})
 	clusterCfg.SetComputedValue("db_path",
 		func() interface{} {
-			ok := config.CreateWritableDirectory("/var/lib/cockroach/")
+			ok := verdeter.CreateWritableDirectory("/var/lib/cockroach/")
 			if ok {
 				return "/var/lib/cockroach/"
 			}
-			dbDir := config.GetHomeDirectory() + "/cockroach/"
-			ok = config.CreateWritableDirectory(dbDir)
+			dbDir := verdeter.GetHomeDirectory() + "/cockroach/"
+			ok = verdeter.CreateWritableDirectory(dbDir)
 			if ok {
 				return dbDir
 			}
@@ -85,24 +85,24 @@ func init() {
 		})
 	//clusterCfg.SetDefault("db_path", "/var/lib/cockroach/")
 
-	clusterCfg.Key("db_nodename", config.IsStr, "", "name of the gandalf node")
+	clusterCfg.Key("db_nodename", verdeter.IsStr, "", "name of the gandalf node")
 	clusterCfg.SetCheck("db_nodename", CheckNotEmpty)
 	clusterCfg.SetDefault("db_nodename", "node1")
 
-	clusterCfg.Key("db_port", config.IsInt, "", "Port to bind (default is 9299 + offset if defined)")
+	clusterCfg.Key("db_port", verdeter.IsInt, "", "Port to bind (default is 9299 + offset if defined)")
 	//clusterCfg.SetDefault("db_port", 9299)
 	clusterCfg.SetCheck("db_port", CheckTcpHighPort)
 	clusterCfg.SetComputedValue("db_port",
 		func() interface{} {
-			return 9299 + config.GetOffset()
+			return 9299 + verdeter.GetOffset()
 		})
 
-	clusterCfg.Key("db_http_port", config.IsInt, "", "Port to bind (default is 9399 + offset if defined)")
-	//clusterCfg.SetDefault("db_http_port", 9399+config.GetOffset())
+	clusterCfg.Key("db_http_port", verdeter.IsInt, "", "Port to bind (default is 9399 + offset if defined)")
+	//clusterCfg.SetDefault("db_http_port", 9399+verdeter.GetOffset())
 	clusterCfg.SetCheck("db_http_port", CheckTcpHighPort)
 	clusterCfg.SetComputedValue("db_http_port",
 		func() interface{} {
-			return 9399 + config.GetOffset()
+			return 9399 + verdeter.GetOffset()
 		})
 	/* 	connectorCfg.SetComputedValue("db_http_port",
 	func() interface{} {
