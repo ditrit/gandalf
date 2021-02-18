@@ -87,7 +87,11 @@ func init() {
 
 	clusterCfg.Key("db_nodename", verdeter.IsStr, "", "name of the gandalf node")
 	clusterCfg.SetCheck("db_nodename", CheckNotEmpty)
-	clusterCfg.SetDefault("db_nodename", "node1")
+	//clusterCfg.SetDefault("db_nodename", "node1")
+	clusterCfg.SetComputedValue("db_nodename",
+		func() interface{} {
+			return fmt.Sprint("node", verdeter.GetOffset())
+		})
 
 	clusterCfg.Key("db_port", verdeter.IsInt, "", "Port to bind (default is 9299 + offset if defined)")
 	//clusterCfg.SetDefault("db_port", 9299)
