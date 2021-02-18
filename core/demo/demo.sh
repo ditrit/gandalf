@@ -9,8 +9,8 @@ sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
 ./gandalf cluster --offset 1 -l Cluster
-./gandalf cluster --offset 2 -l Cluster --db_nodename node2 --join 127.0.0.1:9100 --secret <secret>
-./gandalf cluster --offset 3 -l Cluster --db_nodename node3 --join 127.0.0.1:9100 --secret <secret>
+./gandalf cluster --offset 2 -l Cluster --join 127.0.0.1:9100 --secret <secret>
+./gandalf cluster --offset 3 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'

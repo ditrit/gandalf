@@ -12,7 +12,6 @@ type Controllers struct {
 	gandalfAuthenticationController *gandalf.AuthenticationController
 	gandalfClusterController        *gandalf.ClusterController
 	gandalfTenantController         *gandalf.TenantController
-	gandalfRoleController           *gandalf.RoleController
 	gandalfUserController           *gandalf.UserController
 	gandalfConfigurationController  *gandalf.ConfigurationController
 
@@ -33,7 +32,6 @@ func ReturnControllers(databaseConnection *database.DatabaseConnection) *Control
 	controllers.gandalfClusterController = gandalf.NewClusterController(databaseConnection)
 	controllers.gandalfTenantController = gandalf.NewTenantController(databaseConnection)
 	controllers.gandalfUserController = gandalf.NewUserController(databaseConnection)
-	controllers.gandalfRoleController = gandalf.NewRoleController(databaseConnection)
 	controllers.gandalfConfigurationController = gandalf.NewConfigurationController(databaseConnection)
 
 	controllers.tenantsAuthenticationController = tenants.NewAuthenticationController(databaseConnection)

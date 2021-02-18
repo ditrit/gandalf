@@ -66,38 +66,36 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.HandleFunc(urls.GANDALF_CONFIGURATION_PATH_DELETE, controllers.gandalfConfigurationController.Delete).Methods("DELETE")
 	subg.HandleFunc(urls.GANDALF_CONFIGURATION_PATH_UPLOAD, controllers.gandalfConfigurationController.Upload).Methods("POST")
 
-	subt := mux.PathPrefix("/auth").Subrouter()
-	subt.Use(TenantsJwtVerify)
 	//TENANTS
 	//AGGREGATOR
-	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_LIST, controllers.tenantsAggregatorController.List).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_CREATE, controllers.tenantsAggregatorController.Create).Methods("POST")
-	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DECLARE_MEMBER, controllers.tenantsAggregatorController.DeclareMember).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_READ, controllers.tenantsAggregatorController.Read).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_UPDATE, controllers.tenantsAggregatorController.Update).Methods("PUT")
-	subt.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DELETE, controllers.tenantsAggregatorController.Delete).Methods("DELETE")
+	subg.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_LIST, controllers.tenantsAggregatorController.List).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_CREATE, controllers.tenantsAggregatorController.Create).Methods("POST")
+	subg.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DECLARE_MEMBER, controllers.tenantsAggregatorController.DeclareMember).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_READ, controllers.tenantsAggregatorController.Read).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_UPDATE, controllers.tenantsAggregatorController.Update).Methods("PUT")
+	subg.HandleFunc(urls.TENANTS_AGGREGATOR_PATH_DELETE, controllers.tenantsAggregatorController.Delete).Methods("DELETE")
 
 	//CONNECTOR
-	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_LIST, controllers.tenantsConnectorController.List).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_CREATE, controllers.tenantsConnectorController.Create).Methods("POST")
-	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DECLARE_MEMBER, controllers.tenantsConnectorController.DeclareMember).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_READ, controllers.tenantsConnectorController.Read).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_UPDATE, controllers.tenantsConnectorController.Update).Methods("PUT")
-	subt.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DELETE, controllers.tenantsConnectorController.Delete).Methods("DELETE")
+	subg.HandleFunc(urls.TENANTS_CONNECTOR_PATH_LIST, controllers.tenantsConnectorController.List).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_CONNECTOR_PATH_CREATE, controllers.tenantsConnectorController.Create).Methods("POST")
+	subg.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DECLARE_MEMBER, controllers.tenantsConnectorController.DeclareMember).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_CONNECTOR_PATH_READ, controllers.tenantsConnectorController.Read).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_CONNECTOR_PATH_UPDATE, controllers.tenantsConnectorController.Update).Methods("PUT")
+	subg.HandleFunc(urls.TENANTS_CONNECTOR_PATH_DELETE, controllers.tenantsConnectorController.Delete).Methods("DELETE")
 
 	//ROLE
-	subt.HandleFunc(urls.TENANTS_ROLE_PATH_LIST, controllers.tenantsRoleController.List).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_ROLE_PATH_CREATE, controllers.tenantsRoleController.Create).Methods("POST")
-	subt.HandleFunc(urls.TENANTS_ROLE_PATH_READ, controllers.tenantsRoleController.Read).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_ROLE_PATH_UPDATE, controllers.tenantsRoleController.Update).Methods("PUT")
-	subt.HandleFunc(urls.TENANTS_ROLE_PATH_DELETE, controllers.tenantsRoleController.Delete).Methods("DELETE")
+	subg.HandleFunc(urls.TENANTS_ROLE_PATH_LIST, controllers.tenantsRoleController.List).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_ROLE_PATH_CREATE, controllers.tenantsRoleController.Create).Methods("POST")
+	subg.HandleFunc(urls.TENANTS_ROLE_PATH_READ, controllers.tenantsRoleController.Read).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_ROLE_PATH_UPDATE, controllers.tenantsRoleController.Update).Methods("PUT")
+	subg.HandleFunc(urls.TENANTS_ROLE_PATH_DELETE, controllers.tenantsRoleController.Delete).Methods("DELETE")
 
 	//USER
-	subt.HandleFunc(urls.TENANTS_USER_PATH_LIST, controllers.tenantsUserController.List).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_USER_PATH_CREATE, controllers.tenantsUserController.Create).Methods("POST")
-	subt.HandleFunc(urls.TENANTS_USER_PATH_READ, controllers.tenantsUserController.Read).Methods("GET")
-	subt.HandleFunc(urls.TENANTS_USER_PATH_UPDATE, controllers.tenantsUserController.Update).Methods("PUT")
-	subt.HandleFunc(urls.TENANTS_USER_PATH_DELETE, controllers.tenantsUserController.Delete).Methods("DELETE")
+	subg.HandleFunc(urls.TENANTS_USER_PATH_LIST, controllers.tenantsUserController.List).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_USER_PATH_CREATE, controllers.tenantsUserController.Create).Methods("POST")
+	subg.HandleFunc(urls.TENANTS_USER_PATH_READ, controllers.tenantsUserController.Read).Methods("GET")
+	subg.HandleFunc(urls.TENANTS_USER_PATH_UPDATE, controllers.tenantsUserController.Update).Methods("PUT")
+	subg.HandleFunc(urls.TENANTS_USER_PATH_DELETE, controllers.tenantsUserController.Delete).Methods("DELETE")
 
 	//CONFIGURATION AGGREGATOR
 	subg.HandleFunc(urls.TENANTS_CONFIGURATION_AGGREGATOR_PATH_LIST, controllers.tenantsConfigurationAggregatorController.List).Methods("GET")
