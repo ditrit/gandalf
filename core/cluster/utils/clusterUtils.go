@@ -41,6 +41,13 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext
 }
 
 // GetConfigurationCluster :
+func GetTenant(tenantName string, client *gorm.DB) (tenant models.Tenant, err error) {
+	err = client.Where("name = ?", tenantName).First(&tenant).Error
+
+	return
+}
+
+// GetConfigurationCluster :
 func GetConfigurationCluster(logicalName string, client *gorm.DB) (configurationCluster models.ConfigurationLogicalCluster, err error) {
 	err = client.Where("logical_name = ?", logicalName).First(&configurationCluster).Error
 

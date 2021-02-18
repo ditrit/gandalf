@@ -38,6 +38,13 @@ func init() {
 
 	aggregatorCfg.SetRequired("lname")
 
+	aggregatorCfg.Key("api_port", verdeter.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
+	aggregatorCfg.SetCheck("api_port", CheckTcpHighPort)
+	aggregatorCfg.SetComputedValue("api_port",
+		func() interface{} {
+			return 9199 + verdeter.GetOffset()
+		})
+
 	aggregatorCfg.Key("tenant", verdeter.IsStr, "t", "name of the tenant name of the aggregator")
 	aggregatorCfg.SetCheck("tenant", CheckNotEmpty)
 	aggregatorCfg.SetRequired("tenant")

@@ -6,6 +6,9 @@ import (
 	"log"
 	"time"
 
+	"github.com/ditrit/gandalf/core/aggregator/api"
+
+	"github.com/ditrit/gandalf/core/aggregator/database"
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
@@ -46,6 +49,10 @@ func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregato
 	member.chaussette.Get["configuration"] = shoset.GetConfiguration
 	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration
 	member.chaussette.Handle["configuration"] = shoset.HandleConfiguration
+	member.chaussette.Queue["configurationDatabase"] = msg.NewQueue()
+	member.chaussette.Get["configurationDatabase"] = shoset.GetConfigurationDatabase
+	member.chaussette.Wait["configurationDatabase"] = shoset.WaitConfigurationDatabase
+	member.chaussette.Handle["configurationDatabase"] = shoset.HandleConfigurationDatabase
 	//coreLog.OpenLogFile("/var/log")
 
 	//coreLog.OpenLogFile(logPath)
@@ -120,6 +127,26 @@ func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (*models.Config
 	return nil, fmt.Errorf("Configuration nil")
 }
 
+func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*models.Tenant, error) {
+	fmt.Println("SEND DATABASE")
+	shoset.SendConfigurationDatabase(nshoset)
+	time.Sleep(time.Second * time.Duration(5))
+
+	configurationAggregator, ok := m.chaussette.Context["databaseConfiguration"].(*models.Tenant)
+	if ok {
+		return configurationAggregator, nil
+	}
+	return nil, fmt.Errorf("Configuration database nil")
+}
+
+// StartAPI :
+func (m *AggregatorMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection) (err error) {
+	server := api.NewServerAPI(bindAdress, databaseConnection)
+	server.Run()
+
+	return
+}
+
 // AggregatorMemberInit : Aggregator init function.
 func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
 	member := NewAggregatorMember(configurationAggregator)
@@ -137,9 +164,23 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 						fmt.Println(configurationLogicalAggregator)
 						configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
 
-						log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant(), configurationAggregator.GetBindAddress(), configurationAggregator.GetLinkAddress())
-						time.Sleep(time.Second * time.Duration(5))
-						log.Printf("%s.JoinBrothers Init(%#v)\n", configurationAggregator.GetBindAddress(), getBrothers(configurationAggregator.GetBindAddress(), member))
+						//TODO ADD CONFIGURATION DATABASE
+						configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
+						if err == nil {
+							//TODO START API
+							databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator)
+							err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection)
+							if err == nil {
+								log.Printf("New API server")
+								log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant(), configurationAggregator.GetBindAddress(), configurationAggregator.GetLinkAddress())
+								time.Sleep(time.Second * time.Duration(5))
+								log.Printf("%s.JoinBrothers Init(%#v)\n", configurationAggregator.GetBindAddress(), getBrothers(configurationAggregator.GetBindAddress(), member))
+							} else {
+								log.Fatalf("Can't create API server")
+							}
+						} else {
+							log.Fatalf("Can't get configuration database")
+						}
 					} else {
 						log.Fatalf("Can't get configuration")
 					}

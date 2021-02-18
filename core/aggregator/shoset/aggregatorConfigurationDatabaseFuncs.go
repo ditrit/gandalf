@@ -16,16 +16,16 @@ import (
 	"github.com/ditrit/shoset/msg"
 )
 
-var configurationSendIndex = 0
+var configurationDatabaseSendIndex = 0
 
-func GetConfiguration(c *net.ShosetConn) (msg.Message, error) {
-	var configuration cmsg.Configuration
-	err := c.ReadMessage(&configuration)
-	return configuration, err
+func GetConfigurationDatabase(c *net.ShosetConn) (msg.Message, error) {
+	var configurationDb cmsg.ConfigurationDatabase
+	err := c.ReadMessage(&configurationDb)
+	return configurationDb, err
 }
 
 // WaitConfig :
-func WaitConfiguration(c *net.Shoset, replies *msg.Iterator, args map[string]string, timeout int) *msg.Message {
+func WaitConfigurationDatabase(c *net.Shoset, replies *msg.Iterator, args map[string]string, timeout int) *msg.Message {
 	commandName, ok := args["name"]
 	if !ok {
 		return nil
@@ -55,21 +55,21 @@ func WaitConfiguration(c *net.Shoset, replies *msg.Iterator, args map[string]str
 }
 
 // HandleSecret :
-func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
-	configuration := message.(cmsg.Configuration)
+func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err error) {
+	configurationDb := message.(cmsg.ConfigurationDatabase)
 	ch := c.GetCh()
 	dir := c.GetDir()
-	err = nil
-	thisOne := ch.GetBindAddr()
-	log.Println("Handle configuration")
-	log.Println(configuration)
+	//err = nil
+	//thisOne := ch.GetBindAddr()
+	log.Println("Handle configuration database")
+	log.Println(configurationDb)
 
 	//if configuration.GetTenant() == ch.Context["tenant"] {
 	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if dir == "in" {
 		fmt.Println("IN")
-		if c.GetShosetType() == "c" {
+		/*if c.GetShosetType() == "c" {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				configuration.Target = c.GetBindAddr()
@@ -85,24 +85,20 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		} else {
 			log.Println("wrong Shoset type")
 			err = errors.New("wrong Shoset type")
-		}
+		} */
 	}
 
 	if dir == "out" {
 		fmt.Println("OUT")
 		if c.GetShosetType() == "cl" {
-			if configuration.GetTarget() == "" {
-				if configuration.GetCommand() == "CONFIGURATION_REPLY" {
-					var configurationAggregator *models.ConfigurationLogicalAggregator
-					err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationAggregator)
-					if err == nil {
-						ch.Context["logicalConfiguration"] = configurationAggregator
-					}
+			if configurationDb.GetCommand() == "CONFIGURATION_DATABASE_REPLY" {
+				var configurationDatabaseAggregator *models.ConfigurationDatabaseAggregator
+				err = json.Unmarshal([]byte(configurationDb.GetPayload()), &configurationDatabaseAggregator)
+				if err == nil {
+					ch.Context["databaseConfiguration"] = configurationDatabaseAggregator
 				}
-			} else {
-				shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
-				shoset.SendMessage(configuration)
 			}
+
 		} else {
 			log.Println("wrong Shoset type")
 			err = errors.New("wrong Shoset type")
@@ -121,37 +117,34 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 }
 
 //SendSecret :
-func SendConfiguration(shoset *net.Shoset) (err error) {
+func SendConfigurationDatabase(shoset *net.Shoset) (err error) {
 	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
-	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
-	configMarshal, err := json.Marshal(configurationLogicalAggregator)
+	//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
+	//configMarshal, err := json.Marshal(configurationLogicalAggregator)
 
-	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
-	configurationMsg.Tenant = configurationAggregator.GetTenant()
-	configurationMsg.GetContext()["componentType"] = "aggregator"
-	configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
-	configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
+	configurationDbMsg := cmsg.NewConfiguration("", "CONFIGURATION_DATABASE", "")
+	configurationDbMsg.Tenant = configurationAggregator.GetTenant()
 	//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
 	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
-			configurationMsg.Timeout = configurationAggregator.GetMaxTimeout()
+		if configurationDbMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+			configurationDbMsg.Timeout = configurationAggregator.GetMaxTimeout()
 		}
 
 		notSend := true
-		for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
+		for start := time.Now(); time.Since(start) < time.Duration(configurationDbMsg.GetTimeout())*time.Millisecond; {
 			index := getSecretSendIndex(shosets)
-			shosets[index].SendMessage(configurationMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+			shosets[index].SendMessage(configurationDbMsg)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationDbMsg.GetCommand(), shosets[index])
 
-			timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
+			timeoutSend := time.Duration((int(configurationDbMsg.GetTimeout()) / len(shosets)))
 
 			time.Sleep(timeoutSend * time.Millisecond)
 
-			if shoset.Context["logicalConfiguration"] != nil {
+			if shoset.Context["databaseConfiguration"] != nil {
 				notSend = false
 				break
 			}
@@ -191,7 +184,7 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 }
 
 // getCommandSendIndex : Aggregator getSendIndex function.
-func getConfigurationSendIndex(conns []*net.ShosetConn) int {
+func getConfigurationDatabaseSendIndex(conns []*net.ShosetConn) int {
 	aux := configurationSendIndex
 	configurationSendIndex++
 

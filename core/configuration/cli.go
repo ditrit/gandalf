@@ -22,7 +22,7 @@ import (
 var cliCfg = verdeter.NewConfigCmd("cli", "Launch gandalf in 'cli' mode.", `Gandalf is launched as CLI (Command Line Interface) to interact with a Gandalf system.`, nil)
 
 var cliCreate = verdeter.NewConfigCmd("create", "create user|tenant|role|domain", "create command allows the creation of Gandalf objects (users, tenants, roles and domains).", nil)
-var cliList = verdeter.NewConfigCmd("list", "list users|tenants|roles|domains", "list command allows to list Gandalf objects (users, tenants, roles and domains).", nil)
+var cliList = verdeter.NewConfigCmd("list", "list users|tenants|roles|domain", "list command allows to list Gandalf objects (users, tenants, roles and domains).", nil)
 var cliUpdate = verdeter.NewConfigCmd("update", "update user|tenant|role|domain", "update command allows update of Gandalf objects (users, tenants, roles and domains).", nil)
 var cliDelete = verdeter.NewConfigCmd("delete", "delete user|tenant|role|domain", "update command allows deleting of Gandalf objects (users, tenants, roles and domains).", nil)
 var cliDeclare = verdeter.NewConfigCmd("declare", "declare cluster|agregator|connector", "declare command allows to declare a new Gandalf component name or member (cluster, aggregator, connector).", nil)

@@ -65,6 +65,10 @@ func NewClusterMember(configurationCluster *cmodels.ConfigurationCluster) *Clust
 	member.chaussette.Get["configuration"] = shoset.GetConfiguration
 	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration
 	member.chaussette.Handle["configuration"] = shoset.HandleConfiguration
+	member.chaussette.Queue["configurationDatabase"] = msg.NewQueue()
+	member.chaussette.Get["configurationDatabase"] = shoset.GetConfigurationDatabase
+	member.chaussette.Wait["configurationDatabase"] = shoset.WaitConfigurationDatabase
+	member.chaussette.Handle["configurationDatabase"] = shoset.HandleConfigurationDatabase
 
 	//coreLog.OpenLogFile(logPath)
 
@@ -165,7 +169,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								if err == nil {
 									log.Printf("New API server")
 								} else {
-									log.Fatalf("Can't create API servcer")
+									log.Fatalf("Can't create API server")
 								}
 								log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 							} else {
@@ -201,7 +205,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 					if err == nil {
 						log.Printf("New API server")
 					} else {
-						log.Fatalf("Can't create API servcer")
+						log.Fatalf("Can't create API server")
 					}
 					log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 				} else {
@@ -265,7 +269,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								if err == nil {
 									log.Printf("New API server")
 								} else {
-									log.Fatalf("Can't create API servcer")
+									log.Fatalf("Can't create API server")
 								}
 								log.Printf("%s.JoinBrothers Join(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 							} else {
