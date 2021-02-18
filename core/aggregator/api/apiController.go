@@ -8,27 +8,27 @@ import (
 
 // Controllers :
 type Controllers struct {
-	tenantsAuthenticationController          *controllers.AuthenticationController
-	tenantsAggregatorController              *controllers.AggregatorController
-	tenantsConnectorController               *controllers.ConnectorController
-	tenantsRoleController                    *controllers.RoleController
-	tenantsUserController                    *controllers.UserController
-	tenantsConfigurationAggregatorController *controllers.ConfigurationAggregatorController
-	tenantsConfigurationConnectorController  *controllers.ConfigurationConnectorController
+	AuthenticationController          *controllers.AuthenticationController
+	AggregatorController              *controllers.AggregatorController
+	ConnectorController               *controllers.ConnectorController
+	RoleController                    *controllers.RoleController
+	UserController                    *controllers.UserController
+	ConfigurationAggregatorController *controllers.ConfigurationAggregatorController
+	ConfigurationConnectorController  *controllers.ConfigurationConnectorController
 }
 
 // ReturnControllers :
 func ReturnControllers(databaseConnection *database.DatabaseConnection) *Controllers {
 
-	controllers := new(Controllers)
+	aggregatorControllers := new(Controllers)
 
-	controllers.tenantsAuthenticationController = controllers.NewAuthenticationController(databaseConnection)
-	controllers.tenantsConnectorController = controllers.NewConnectorController(databaseConnection)
-	controllers.tenantsAggregatorController = controllers.NewAggregatorController(databaseConnection)
-	controllers.tenantsUserController = controllers.NewUserController(databaseConnection)
-	controllers.tenantsRoleController = controllers.NewRoleController(databaseConnection)
-	controllers.tenantsConfigurationAggregatorController = controllers.NewConfigurationAggregatorController(databaseConnection)
-	controllers.tenantsConfigurationConnectorController = controllers.NewConfigurationConnectorController(databaseConnection)
+	aggregatorControllers.AuthenticationController = controllers.NewAuthenticationController(databaseConnection)
+	aggregatorControllers.ConnectorController = controllers.NewConnectorController(databaseConnection)
+	aggregatorControllers.AggregatorController = controllers.NewAggregatorController(databaseConnection)
+	aggregatorControllers.UserController = controllers.NewUserController(databaseConnection)
+	aggregatorControllers.RoleController = controllers.NewRoleController(databaseConnection)
+	aggregatorControllers.ConfigurationAggregatorController = controllers.NewConfigurationAggregatorController(databaseConnection)
+	aggregatorControllers.ConfigurationConnectorController = controllers.NewConfigurationConnectorController(databaseConnection)
 
-	return controllers
+	return aggregatorControllers
 }

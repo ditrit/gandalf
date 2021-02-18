@@ -127,12 +127,12 @@ func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (*models.Config
 	return nil, fmt.Errorf("Configuration nil")
 }
 
-func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*models.Tenant, error) {
+func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*models.ConfigurationDatabaseAggregator, error) {
 	fmt.Println("SEND DATABASE")
 	shoset.SendConfigurationDatabase(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationAggregator, ok := m.chaussette.Context["databaseConfiguration"].(*models.Tenant)
+	configurationAggregator, ok := m.chaussette.Context["databaseConfiguration"].(*models.ConfigurationDatabaseAggregator)
 	if ok {
 		return configurationAggregator, nil
 	}
