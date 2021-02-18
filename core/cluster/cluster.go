@@ -167,11 +167,8 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
 								if err != nil {
-									log.Printf("New API server")
-								} else {
 									log.Fatalf("Can't create API server")
 								}
-								log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 							} else {
 								log.Fatalf("Can't initialize database")
 							}
@@ -202,12 +199,9 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 					log.Printf("New gandalf database client")
 
 					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
-					if err == nil {
-						log.Printf("New API server")
-					} else {
+					if err != nil {
 						log.Fatalf("Can't create API server")
 					}
-					log.Printf("%s.JoinBrothers Init(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 				} else {
 					log.Fatalf("Can't create database client")
 				}
@@ -266,12 +260,9 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								log.Printf("New gandalf database client")
 
 								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
-								if err == nil {
-									log.Printf("New API server")
-								} else {
+								if err != nil {
 									log.Fatalf("Can't create API server")
 								}
-								log.Printf("%s.JoinBrothers Join(%#v)\n", configurationCluster.GetBindAddress(), getBrothers(configurationCluster.GetBindAddress(), member))
 							} else {
 								log.Fatalf("Can't create database client")
 							}

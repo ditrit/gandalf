@@ -4,7 +4,6 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -68,7 +67,6 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if dir == "in" {
-		fmt.Println("IN")
 		/*if c.GetShosetType() == "c" {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
@@ -89,7 +87,6 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	}
 
 	if dir == "out" {
-		fmt.Println("OUT")
 		if c.GetShosetType() == "cl" {
 			if configurationDb.GetCommand() == "CONFIGURATION_DATABASE_REPLY" {
 				var configurationDatabaseAggregator *models.ConfigurationDatabaseAggregator

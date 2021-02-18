@@ -170,12 +170,7 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 							//TODO START API
 							databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator)
 							err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection)
-							if err == nil {
-								log.Printf("New API server")
-								log.Printf("New Aggregator member %s for tenant %s bind on %s link on  %s \n", configurationAggregator.GetLogicalName(), configurationAggregator.GetTenant(), configurationAggregator.GetBindAddress(), configurationAggregator.GetLinkAddress())
-								time.Sleep(time.Second * time.Duration(5))
-								log.Printf("%s.JoinBrothers Init(%#v)\n", configurationAggregator.GetBindAddress(), getBrothers(configurationAggregator.GetBindAddress(), member))
-							} else {
+							if err != nil {
 								log.Fatalf("Can't create API server")
 							}
 						} else {

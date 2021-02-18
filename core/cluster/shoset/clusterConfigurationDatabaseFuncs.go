@@ -77,14 +77,9 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 		if databaseConnection != nil {
 			//databasePath := ch.Context["databasePath"].(string)
 			databaseClient = databaseConnection.GetGandalfDatabaseClient()
-			fmt.Println("databaseClient")
-			fmt.Println(databaseClient)
 			if databaseClient != nil {
-				fmt.Println("CONFIG DATABASE")
 				tenant, err := cutils.GetTenant(configurationDb.GetTenant(), databaseClient)
-				fmt.Println("tenant")
-				fmt.Println(tenant)
-				fmt.Println(err)
+
 				if err == nil {
 					configurationDatabaseAggregator := models.NewConfigurationDatabaseAggregator(tenant.Name, tenant.Password, databaseConnection.GetConfigurationCluster().GetDatabaseBindAddress())
 					configMarshal, err := json.Marshal(configurationDatabaseAggregator)
@@ -92,8 +87,7 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 						target := ""
 						configurationReply := cmsg.NewConfigurationDatabase(target, "CONFIGURATION_DATABASE_REPLY", string(configMarshal))
 						configurationReply.Tenant = configurationDb.GetTenant()
-						fmt.Println("c.GetBindAddr()")
-						fmt.Println(c.GetBindAddr())
+
 						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 						shoset.SendMessage(configurationReply)
 					}
