@@ -145,7 +145,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 				err = database.CoackroachInit(configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress())
 				if err == nil {
 					log.Printf("New database node init")
-					err = member.DatabaseConnection.NewDatabase("gandalf")
+					err = member.DatabaseConnection.NewDatabase("gandalf", "gandalf")
 					if err == nil {
 						log.Printf("New gandalf database")
 						//var gandalfDatabaseClient *gorm.DB
@@ -166,7 +166,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
 								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
-								if err == nil {
+								if err != nil {
 									log.Printf("New API server")
 								} else {
 									log.Fatalf("Can't create API server")

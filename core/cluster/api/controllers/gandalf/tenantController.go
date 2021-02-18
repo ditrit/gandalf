@@ -3,6 +3,7 @@ package gandalf
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -54,10 +55,13 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
+	tenant.Password = utils.GenerateHash()
+
 	err := dao.CreateTenant(tc.databaseConnection.GetGandalfDatabaseClient(), tenant)
 	if err == nil {
-
-		err = tc.databaseConnection.NewDatabase(tenant.Name)
+		fmt.Println(tenant.Password)
+		err = tc.databaseConnection.NewDatabase(tenant.Name, tenant.Password)
+		fmt.Println(err)
 		if err == nil {
 
 			//var tenantDatabaseClient *gorm.DB

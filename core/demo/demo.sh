@@ -17,6 +17,8 @@ echo 'Init AggregatorMember Agg1 and Agg2'
 ./gandalf aggregator --offset 4 -l Aggregator1 -t tenant1 --cluster 127.0.0.1:9100 --secret <secret>
 sleep 5
 
+
+
 echo 'Connector'
 echo 'ConnectorMember Con1 and Con2' 
 ./gandalf connector -offset 5 -l Connector1 --aggregator 127.0.0.1:9104 --secret <secret> --class utils --product Custom

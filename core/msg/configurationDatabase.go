@@ -12,8 +12,8 @@ type ConfigurationDatabase struct {
 
 // NewConfigurationDatabase : Configuration constructor
 // todo : passer une map pour gerer les valeurs optionnelles ?
-func NewConfigurationDatabase(target string, command string, payload string) *Configuration {
-	s := new(Configuration)
+func NewConfigurationDatabase(target string, command string, payload string) *ConfigurationDatabase {
+	s := new(ConfigurationDatabase)
 	s.InitMessageBase()
 
 	s.Target = target

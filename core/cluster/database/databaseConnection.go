@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ditrit/gandalf/core/cluster/utils"
+
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -25,17 +27,17 @@ func NewDatabaseConnection(configurationCluster *cmodels.ConfigurationCluster) *
 }
 
 // NewDatabase :
-func (dc DatabaseConnection) NewDatabase(name string) (err error) {
-	err = CoackroachCreateDatabase(dc.GetConfigurationCluster().GetCertsPath(), dc.GetConfigurationCluster().GetDatabaseBindAddress(), name)
+func (dc DatabaseConnection) NewDatabase(name, password string) (err error) {
+	err = CoackroachCreateDatabase(dc.GetConfigurationCluster().GetCertsPath(), dc.GetConfigurationCluster().GetDatabaseBindAddress(), name, password)
 	fmt.Println(err)
 
 	return
 }
 
-func (dc DatabaseConnection) newDatabaseClient(name string) (gandalfDatabaseClient *gorm.DB, err error) {
+func (dc DatabaseConnection) newDatabaseClient(name, password string) (gandalfDatabaseClient *gorm.DB, err error) {
 	//TODO REVOIR
 	//databaseFullPath := databasePath + "/" + name + ".db"
-	dsn := "postgres://" + name + ":" + name + "@" + dc.GetConfigurationCluster().GetDatabaseBindAddress() + "/" + name + "?sslmode=require"
+	dsn := "postgres://" + name + ":" + password + "@" + dc.GetConfigurationCluster().GetDatabaseBindAddress() + "/" + name + "?sslmode=require"
 	gandalfDatabaseClient, err = gorm.Open("postgres", dsn)
 
 	return
@@ -89,9 +91,10 @@ func (dc DatabaseConnection) GetConfigurationCluster() *cmodels.ConfigurationClu
 	return dc.configurationCluster
 }
 
+//TODO REVOIR
 func (dc DatabaseConnection) GetGandalfDatabaseClient() *gorm.DB {
 	if dc.gandalfDatabaseClient == nil {
-		gandalfDatabaseClient, err := dc.newDatabaseClient("gandalf")
+		gandalfDatabaseClient, err := dc.newDatabaseClient("gandalf", "gandalf")
 		if err == nil {
 			dc.gandalfDatabaseClient = gandalfDatabaseClient
 		} else {
@@ -103,19 +106,24 @@ func (dc DatabaseConnection) GetGandalfDatabaseClient() *gorm.DB {
 }
 
 // GetDatabaseClientByTenant : Cluster database client getter by tenant.
-func (dc DatabaseConnection) GetDatabaseClientByTenant(tenant string) *gorm.DB {
-	if _, ok := dc.mapTenantDatabaseClients[tenant]; !ok {
+func (dc DatabaseConnection) GetDatabaseClientByTenant(tenantName string) *gorm.DB {
+	if _, ok := dc.mapTenantDatabaseClients[tenantName]; !ok {
 
-		//var tenantDatabaseClient *gorm.DB
-		tenantDatabaseClient, err := dc.newDatabaseClient(tenant)
+		tenant, err := utils.GetTenant(tenantName, dc.GetGandalfDatabaseClient())
 		if err == nil {
-			dc.mapTenantDatabaseClients[tenant] = tenantDatabaseClient
+			//var tenantDatabaseClient *gorm.DB
+			tenantDatabaseClient, err := dc.newDatabaseClient(tenant.Name, tenant.Password)
+			if err == nil {
+				dc.mapTenantDatabaseClients[tenantName] = tenantDatabaseClient
+			} else {
+				log.Println("Can't create database client")
+				return nil
+			}
 		} else {
-			log.Println("Can't create database client")
-			return nil
+			log.Println("Can't get tenant " + tenantName)
 		}
 
 	}
 
-	return dc.mapTenantDatabaseClients[tenant]
+	return dc.mapTenantDatabaseClients[tenantName]
 }

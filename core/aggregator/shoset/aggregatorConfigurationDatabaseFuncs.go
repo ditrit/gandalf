@@ -19,9 +19,9 @@ import (
 var configurationDatabaseSendIndex = 0
 
 func GetConfigurationDatabase(c *net.ShosetConn) (msg.Message, error) {
-	var configurationDb cmsg.ConfigurationDatabase
-	err := c.ReadMessage(&configurationDb)
-	return configurationDb, err
+	var configurationDatabase cmsg.ConfigurationDatabase
+	err := c.ReadMessage(&configurationDatabase)
+	return configurationDatabase, err
 }
 
 // WaitConfig :
@@ -36,8 +36,8 @@ func WaitConfigurationDatabase(c *net.Shoset, replies *msg.Iterator, args map[st
 		for cont {
 			message := replies.Get().GetMessage()
 			if message != nil {
-				config := message.(cmsg.Configuration)
-				if config.GetCommand() == commandName {
+				configurationDatabase := message.(cmsg.ConfigurationDatabase)
+				if configurationDatabase.GetCommand() == commandName {
 					term <- &message
 				}
 			} else {
@@ -122,7 +122,7 @@ func SendConfigurationDatabase(shoset *net.Shoset) (err error) {
 	//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
 	//configMarshal, err := json.Marshal(configurationLogicalAggregator)
 
-	configurationDbMsg := cmsg.NewConfiguration("", "CONFIGURATION_DATABASE", "")
+	configurationDbMsg := cmsg.NewConfigurationDatabase("", "CONFIGURATION_DATABASE", "")
 	configurationDbMsg.Tenant = configurationAggregator.GetTenant()
 	//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 	//conf.GetContext()["product"] = shoset.Context["product"]

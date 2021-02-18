@@ -85,16 +85,16 @@ func (ac AggregatorController) DeclareMember(w http.ResponseWriter, r *http.Requ
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
-		var newAggregator models.Aggregator
-		newAggregator.LogicalName = aggregator.LogicalName
-		newAggregator.Secret = utils.GenerateHash()
+		//var newAggregator models.Aggregator
+		//newAggregator.LogicalName = aggregator.LogicalName
+		aggregator.Secret = utils.GenerateHash()
 
-		if err := dao.CreateAggregator(database, newAggregator); err != nil {
+		if err := dao.UpdateAggregator(database, aggregator); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, newAggregator)
+		utils.RespondWithJSON(w, http.StatusCreated, aggregator)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return

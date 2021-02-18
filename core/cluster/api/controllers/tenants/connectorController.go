@@ -84,16 +84,16 @@ func (cc ConnectorController) DeclareMember(w http.ResponseWriter, r *http.Reque
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
-		var newConnector models.Connector
-		newConnector.LogicalName = connector.LogicalName
-		newConnector.Secret = utils.GenerateHash()
+		//var newConnector models.Connector
+		//newConnector.LogicalName = connector.LogicalName
+		connector.Secret = utils.GenerateHash()
 
-		if err := dao.CreateConnector(database, newConnector); err != nil {
+		if err := dao.UpdateConnector(database, connector); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, newConnector)
+		utils.RespondWithJSON(w, http.StatusCreated, connector)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return

@@ -4,6 +4,7 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -20,12 +21,10 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-var configurationDatabaseSendIndex = 0
-
 func GetConfigurationDatabase(c *net.ShosetConn) (msg.Message, error) {
-	var configurationDb cmsg.ConfigurationDatabase
-	err := c.ReadMessage(&configurationDb)
-	return configurationDb, err
+	var configurationDatabase cmsg.ConfigurationDatabase
+	err := c.ReadMessage(&configurationDatabase)
+	return configurationDatabase, err
 }
 
 // WaitConfig :
@@ -40,8 +39,8 @@ func WaitConfigurationDatabase(c *net.Shoset, replies *msg.Iterator, args map[st
 		for cont {
 			message := replies.Get().GetMessage()
 			if message != nil {
-				config := message.(cmsg.Secret)
-				if config.GetCommand() == commandName {
+				configurationDatabase := message.(cmsg.ConfigurationDatabase)
+				if configurationDatabase.GetCommand() == commandName {
 					term <- &message
 				}
 			} else {
@@ -66,9 +65,10 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 
 	err = nil
 
-	log.Println("Handle configuration")
+	log.Println("Handle configuration database")
 	log.Println(configurationDb)
 
+	fmt.Println("CONFIGURATION_DATABASE")
 	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if configurationDb.GetCommand() == "CONFIGURATION_DATABASE" {
@@ -77,21 +77,25 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 		if databaseConnection != nil {
 			//databasePath := ch.Context["databasePath"].(string)
 			databaseClient = databaseConnection.GetGandalfDatabaseClient()
-
+			fmt.Println("databaseClient")
+			fmt.Println(databaseClient)
 			if databaseClient != nil {
-
+				fmt.Println("CONFIG DATABASE")
 				tenant, err := cutils.GetTenant(configurationDb.GetTenant(), databaseClient)
+				fmt.Println("tenant")
+				fmt.Println(tenant)
+				fmt.Println(err)
 				if err == nil {
-					if (tenant == models.Tenant{}) {
-						configurationDatabaseAggregator := models.NewConfigurationDatabaseAggregator(tenant.Name, tenant.Password, databaseConnection.GetConfigurationCluster().GetDatabaseBindAddress())
-						configMarshal, err := json.Marshal(configurationDatabaseAggregator)
-						if err == nil {
-							target := ""
-							configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_DATABASE_REPLY", string(configMarshal))
-							configurationReply.Tenant = configurationDb.GetTenant()
-							shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-							shoset.SendMessage(configurationReply)
-						}
+					configurationDatabaseAggregator := models.NewConfigurationDatabaseAggregator(tenant.Name, tenant.Password, databaseConnection.GetConfigurationCluster().GetDatabaseBindAddress())
+					configMarshal, err := json.Marshal(configurationDatabaseAggregator)
+					if err == nil {
+						target := ""
+						configurationReply := cmsg.NewConfigurationDatabase(target, "CONFIGURATION_DATABASE_REPLY", string(configMarshal))
+						configurationReply.Tenant = configurationDb.GetTenant()
+						fmt.Println("c.GetBindAddr()")
+						fmt.Println(c.GetBindAddr())
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+						shoset.SendMessage(configurationReply)
 					}
 				}
 
@@ -106,16 +110,4 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	}
 
 	return err
-}
-
-// getCommandSendIndex : Aggregator getSendIndex function.
-func getConfigurationDatabaseSendIndex(conns []*net.ShosetConn) int {
-	aux := configurationSendIndex
-	configurationSendIndex++
-
-	if configurationSendIndex >= len(conns) {
-		configurationSendIndex = 0
-	}
-
-	return aux
 }
