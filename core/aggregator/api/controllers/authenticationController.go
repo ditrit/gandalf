@@ -69,7 +69,6 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 			UserID: user.ID,
 			Name:   user.Name,
 			Email:  user.Email,
-			Tenant: "gandalf",
 			StandardClaims: &jwt.StandardClaims{
 				ExpiresAt: expiresAt,
 			},
@@ -77,7 +76,7 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 
 		token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 
-		tokenString, err := token.SignedString([]byte("gandalf"))
+		tokenString, err := token.SignedString([]byte("aggregator"))
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

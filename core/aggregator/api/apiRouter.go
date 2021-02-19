@@ -19,6 +19,7 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	mux.Use(CommonMiddleware)
 	//TODO REVOIR
 	mux.HandleFunc(urls.LOGIN_PATH, controllers.AuthenticationController.Login).Methods("POST")
+	mux.HandleFunc(urls.CLI_PATH, controllers.CliController.Cli).Methods("GET")
 
 	//mux.Handle("/images/*", http.StripPrefix("/images/", http.FileServer(http.Dir("./app/tmpl/images/"))))
 	//mux.PathPrefix("/api/v1/").Subrouter()

@@ -11,8 +11,6 @@ import (
 	apimodels "github.com/ditrit/gandalf/core/cluster/api/models"
 
 	"github.com/dgrijalva/jwt-go"
-
-	"github.com/gorilla/mux"
 )
 
 // CommonMiddleware :
@@ -29,8 +27,6 @@ func CommonMiddleware(next http.Handler) http.Handler {
 // TenantsJwtVerify :
 func TenantsJwtVerify(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		tenant := vars["tenant"]
 		//var header = r.Header.Get("x-access-token") //Grab the token from the header
 		header := utils.ExtractToken(r)
 
@@ -45,18 +41,12 @@ func TenantsJwtVerify(next http.Handler) http.Handler {
 		tk := &apimodels.Claims{}
 
 		_, err := jwt.ParseWithClaims(header, tk, func(token *jwt.Token) (interface{}, error) {
-			return []byte("gandalf"), nil
+			return []byte("aggregator"), nil
 		})
 
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode(apimodels.Exception{Message: err.Error()})
-			return
-		}
-
-		if tk.Tenant != tenant && tk.Tenant != "gandalf" {
-			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong tenant"})
 			return
 		}
 

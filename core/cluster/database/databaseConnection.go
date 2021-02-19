@@ -72,15 +72,27 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 	state := models.State{Admin: false}
 	err = tenantDatabaseClient.Create(&state).Error
 
-	//Init Administartor
+	//Init Root Domain
+	domain := models.Domain{Name: "Root"}
+	models.InsertDomainRoot(tenantDatabaseClient, &domain)
+
+	//Init Administartor Role
 	err = tenantDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error
+
 	if err == nil {
 		var admin models.Role
 		err = tenantDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
 		if err == nil {
-			login, password = "Administrator", GenerateRandomHash()
-			user := models.NewUser(login, login, password)
-			err = tenantDatabaseClient.Create(&user).Error
+			var root models.Domain
+			err = tenantDatabaseClient.Where("name = ?", "Root").First(&root).Error
+			if err == nil {
+				login, password = "Administrator", GenerateRandomHash()
+				user := models.NewUser(login, login, password)
+				err = tenantDatabaseClient.Create(&user).Error
+				if err == nil {
+					err = tenantDatabaseClient.Create(&models.Authorization{User: user, Role: admin, Domain: root}).Error
+				}
+			}
 		}
 	}
 

@@ -9,6 +9,7 @@ type Domain struct {
 	Name string
 }
 
+//TODO REVOIR ADD .ERROR + TRANSACTION
 func GetDomainDescendants(database *gorm.DB, id uint) (domains []Domain) {
 	database.Order("depth asc").Joins("JOIN domain_closures ON domains.id = domain_closures.descendant_id").Where("domain_closures.ancestor_id = ?", id).Find(&domains)
 

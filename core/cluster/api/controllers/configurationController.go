@@ -1,4 +1,4 @@
-package gandalf
+package controllers
 
 import (
 	"database/sql"

@@ -1,4 +1,4 @@
-package tenants
+package controllers
 
 import (
 	"database/sql"
@@ -15,59 +15,58 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// AggregatorController :
-type AggregatorController struct {
+// ConnectorController :
+type ConnectorController struct {
 	databaseConnection *database.DatabaseConnection
 }
 
-// NewAggregatorController :
-func NewAggregatorController(databaseConnection *database.DatabaseConnection) (aggregatorController *AggregatorController) {
-	aggregatorController = new(AggregatorController)
-	aggregatorController.databaseConnection = databaseConnection
+// NewConnectorController :
+func NewConnectorController(databaseConnection *database.DatabaseConnection) (connectorController *ConnectorController) {
+	connectorController = new(ConnectorController)
+	connectorController.databaseConnection = databaseConnection
 
 	return
 }
 
 // List :
-func (ac AggregatorController) List(w http.ResponseWriter, r *http.Request) {
+func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-		aggregators, err := dao.ListAggregator(database)
+		connectors, err := dao.ListConnector(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		utils.RespondWithJSON(w, http.StatusOK, aggregators)
+
+		utils.RespondWithJSON(w, http.StatusOK, connectors)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
 }
 
 // Create :
-func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
+func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-
-		var aggregator models.Aggregator
+		var connector models.Connector
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&aggregator); err != nil {
+		if err := decoder.Decode(&connector); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateAggregator(database, aggregator); err != nil {
+		if err := dao.CreateConnector(database, connector); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, aggregator)
+		utils.RespondWithJSON(w, http.StatusCreated, connector)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -75,26 +74,26 @@ func (ac AggregatorController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeclareMember :
-func (ac AggregatorController) DeclareMember(w http.ResponseWriter, r *http.Request) {
+func (cc ConnectorController) DeclareMember(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	name := vars["name"]
-	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-		aggregator, err := dao.ReadAggregatorByName(database, name)
+		connector, err := dao.ReadConnectorByName(database, name)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
-		//var newAggregator models.Aggregator
-		//newAggregator.LogicalName = aggregator.LogicalName
-		aggregator.Secret = utils.GenerateHash()
+		//var newConnector models.Connector
+		//newConnector.LogicalName = connector.LogicalName
+		connector.Secret = utils.GenerateHash()
 
-		if err := dao.UpdateAggregator(database, aggregator); err != nil {
+		if err := dao.UpdateConnector(database, connector); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, aggregator)
+		utils.RespondWithJSON(w, http.StatusCreated, connector)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -102,20 +101,19 @@ func (ac AggregatorController) DeclareMember(w http.ResponseWriter, r *http.Requ
 }
 
 // Read :
-func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
+func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
 		}
 
-		var aggregator models.Aggregator
-		if aggregator, err = dao.ReadAggregator(database, id); err != nil {
+		var connector models.Connector
+		if connector, err = dao.ReadConnector(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
 				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -125,7 +123,7 @@ func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, aggregator)
+		utils.RespondWithJSON(w, http.StatusOK, connector)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -133,33 +131,32 @@ func (ac AggregatorController) Read(w http.ResponseWriter, r *http.Request) {
 }
 
 // Update :
-func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
+func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
 		}
 
-		var aggregator models.Aggregator
+		var connector models.Connector
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&aggregator); err != nil {
+		if err := decoder.Decode(&connector); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 			return
 		}
 		defer r.Body.Close()
-		aggregator.ID = uint(id)
+		connector.ID = uint(id)
 
-		if err := dao.UpdateAggregator(database, aggregator); err != nil {
+		if err := dao.UpdateConnector(database, connector); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, aggregator)
+		utils.RespondWithJSON(w, http.StatusOK, connector)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -167,10 +164,10 @@ func (ac AggregatorController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete :
-func (ac AggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
+func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -178,7 +175,7 @@ func (ac AggregatorController) Delete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err = dao.DeleteAggregator(database, id); err != nil {
+		if err := dao.DeleteConnector(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

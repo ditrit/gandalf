@@ -1,4 +1,4 @@
-package tenants
+package controllers
 
 import (
 	"database/sql"
@@ -15,32 +15,32 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// RoleController :
-type RoleController struct {
+// AdminTenantController :
+type AdminTenantController struct {
 	databaseConnection *database.DatabaseConnection
 }
 
-// NewRoleController :
-func NewRoleController(databaseConnection *database.DatabaseConnection) (roleController *RoleController) {
-	roleController = new(RoleController)
-	roleController.databaseConnection = databaseConnection
+// NewAdminTenantController :
+func NewAdminTenantController(databaseConnection *database.DatabaseConnection) (adminTenantController *AdminTenantController) {
+	adminTenantController = new(AdminTenantController)
+	adminTenantController.databaseConnection = databaseConnection
 
 	return
 }
 
 // List :
-func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
+func (ac AdminTenantController) List(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-		roles, err := dao.ListRole(database)
+		users, err := dao.ListUser(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, roles)
+		utils.RespondWithJSON(w, http.StatusOK, users)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -48,25 +48,25 @@ func (rc RoleController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // Create :
-func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
+func (ac AdminTenantController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-		var role models.Role
+		var user models.User
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&role); err != nil {
+		if err := decoder.Decode(&user); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateRole(database, role); err != nil {
+		if err := dao.CreateUser(database, user); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, role)
+		utils.RespondWithJSON(w, http.StatusCreated, user)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -74,29 +74,28 @@ func (rc RoleController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // Read :
-func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
+func (ac AdminTenantController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid prodact ID")
 			return
 		}
-
-		var role models.Role
-		if role, err = dao.ReadRole(database, id); err != nil {
+		var user models.User
+		if user, err = dao.ReadUser(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+				utils.RespondWithError(w, http.StatusNotFound, "Prodact not found")
 			default:
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, role)
+		utils.RespondWithJSON(w, http.StatusOK, user)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -104,32 +103,32 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 }
 
 // Update :
-func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
+func (ac AdminTenantController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid prodact ID")
 			return
 		}
 
-		var role models.Role
+		var user models.User
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&role); err != nil {
+		if err := decoder.Decode(&user); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 			return
 		}
 		defer r.Body.Close()
-		role.ID = uint(id)
+		user.ID = uint(id)
 
-		if err := dao.UpdateRole(database, role); err != nil {
+		if err := dao.UpdateUser(database, user); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, role)
+		utils.RespondWithJSON(w, http.StatusOK, user)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -137,23 +136,23 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete :
-func (rc RoleController) Delete(w http.ResponseWriter, r *http.Request) {
+func (ac AdminTenantController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
-	database := rc.databaseConnection.GetDatabaseClientByTenant(tenant)
+	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Prodact ID")
 			return
 		}
 
-		if err := dao.DeleteRole(database, id); err != nil {
+		if err := dao.DeleteUser(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "saccess"})
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return

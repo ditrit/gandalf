@@ -9,6 +9,7 @@ import (
 // Controllers :
 type Controllers struct {
 	AuthenticationController          *controllers.AuthenticationController
+	CliController                     *controllers.CliController
 	AggregatorController              *controllers.AggregatorController
 	ConnectorController               *controllers.ConnectorController
 	RoleController                    *controllers.RoleController
@@ -23,6 +24,7 @@ func ReturnControllers(databaseConnection *database.DatabaseConnection) *Control
 	aggregatorControllers := new(Controllers)
 
 	aggregatorControllers.AuthenticationController = controllers.NewAuthenticationController(databaseConnection)
+	aggregatorControllers.CliController = controllers.NewCliController()
 	aggregatorControllers.ConnectorController = controllers.NewConnectorController(databaseConnection)
 	aggregatorControllers.AggregatorController = controllers.NewAggregatorController(databaseConnection)
 	aggregatorControllers.UserController = controllers.NewUserController(databaseConnection)

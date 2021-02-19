@@ -1,8 +1,10 @@
-package tenants
+package controllers
 
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -13,34 +15,76 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/gorilla/mux"
+	"gopkg.in/yaml.v2"
 )
 
-// ConnectorController :
-type ConnectorController struct {
+// ConfigurationConnectorController :
+type ConfigurationConnectorController struct {
 	databaseConnection *database.DatabaseConnection
 }
 
-// NewConnectorController :
-func NewConnectorController(databaseConnection *database.DatabaseConnection) (connectorController *ConnectorController) {
-	connectorController = new(ConnectorController)
-	connectorController.databaseConnection = databaseConnection
+// NewConfigurationConnectorController :
+func NewConfigurationConnectorController(databaseConnection *database.DatabaseConnection) (configurationConnectorController *ConfigurationConnectorController) {
+	configurationConnectorController = new(ConfigurationConnectorController)
+	configurationConnectorController.databaseConnection = databaseConnection
 
 	return
 }
 
-// List :
-func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationConnectorController) Upload(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-		connectors, err := dao.ListConnector(database)
+
+		fmt.Println("File Upload Endpoint Hit")
+
+		r.ParseMultipartForm(10 << 20)
+
+		file, handler, err := r.FormFile("myFile")
+		if err != nil {
+			fmt.Println("Error Retrieving the File")
+			fmt.Println(err)
+			return
+		}
+		defer file.Close()
+		fmt.Printf("Uploaded File: %+v\n", handler.Filename)
+		fmt.Printf("File Size: %+v\n", handler.Size)
+		fmt.Printf("MIME Header: %+v\n", handler.Header)
+
+		fileBytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		var configurationConfigurationConnector *models.ConfigurationLogicalConnector
+		err = yaml.Unmarshal(fileBytes, &configurationConfigurationConnector)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		database.Save(&configurationConfigurationConnector)
+
+		fmt.Fprintf(w, "Successfully Uploaded File\n")
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
+// List :
+func (cc ConfigurationConnectorController) List(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	tenant := vars["tenant"]
+	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
+	if database != nil {
+		configurationConnectors, err := dao.ListConfigurationConnector(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, connectors)
+		utils.RespondWithJSON(w, http.StatusOK, configurationConnectors)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -48,52 +92,25 @@ func (cc ConnectorController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // Create :
-func (cc ConnectorController) Create(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationConnectorController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-		var connector models.Connector
+		var configurationConnector models.ConfigurationLogicalConnector
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&connector); err != nil {
+		if err := decoder.Decode(&configurationConnector); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateConnector(database, connector); err != nil {
+		if err := dao.CreateConfigurationConnector(database, configurationConnector); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, connector)
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
-}
-
-// DeclareMember :
-func (cc ConnectorController) DeclareMember(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	tenant := vars["tenant"]
-	name := vars["name"]
-	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
-	if database != nil {
-		connector, err := dao.ReadConnectorByName(database, name)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-		}
-		//var newConnector models.Connector
-		//newConnector.LogicalName = connector.LogicalName
-		connector.Secret = utils.GenerateHash()
-
-		if err := dao.UpdateConnector(database, connector); err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		utils.RespondWithJSON(w, http.StatusCreated, connector)
+		utils.RespondWithJSON(w, http.StatusCreated, configurationConnector)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -101,7 +118,7 @@ func (cc ConnectorController) DeclareMember(w http.ResponseWriter, r *http.Reque
 }
 
 // Read :
-func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
@@ -112,8 +129,8 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var connector models.Connector
-		if connector, err = dao.ReadConnector(database, id); err != nil {
+		var configurationConnector models.ConfigurationLogicalConnector
+		if configurationConnector, err = dao.ReadConfigurationConnector(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
 				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -123,7 +140,7 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, connector)
+		utils.RespondWithJSON(w, http.StatusOK, configurationConnector)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -131,7 +148,7 @@ func (cc ConnectorController) Read(w http.ResponseWriter, r *http.Request) {
 }
 
 // Update :
-func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
@@ -142,21 +159,21 @@ func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var connector models.Connector
+		var configurationConnector models.ConfigurationLogicalConnector
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&connector); err != nil {
+		if err := decoder.Decode(&configurationConnector); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 			return
 		}
 		defer r.Body.Close()
-		connector.ID = uint(id)
+		configurationConnector.ID = uint(id)
 
-		if err := dao.UpdateConnector(database, connector); err != nil {
+		if err := dao.UpdateConfigurationConnector(database, configurationConnector); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, connector)
+		utils.RespondWithJSON(w, http.StatusOK, configurationConnector)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -164,7 +181,7 @@ func (cc ConnectorController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete :
-func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
+func (cc ConfigurationConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
 	database := cc.databaseConnection.GetDatabaseClientByTenant(tenant)
@@ -175,7 +192,7 @@ func (cc ConnectorController) Delete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := dao.DeleteConnector(database, id); err != nil {
+		if err := dao.DeleteConfigurationConnector(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

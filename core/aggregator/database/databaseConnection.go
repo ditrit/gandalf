@@ -20,6 +20,10 @@ func NewDatabaseConnection(configurationDatabaseAggregator *models.Configuration
 	return databaseConnection
 }
 
+func (dc DatabaseConnection) GetConfigurationDatabaseAggregator() *models.ConfigurationDatabaseAggregator {
+	return dc.configurationDatabaseAggregator
+}
+
 func (dc DatabaseConnection) GetTenantDatabaseClient() *gorm.DB {
 	if dc.tenantDatabaseClient == nil {
 		tenantDatabaseClient, err := dc.newDatabaseClient()

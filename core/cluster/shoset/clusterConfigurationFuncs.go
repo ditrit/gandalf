@@ -168,7 +168,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 					configMarshal, err := json.Marshal(config)
 					if err == nil {
-						fmt.Println("MARSHALL")
 						target := configuration.GetTarget()
 						configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 						configurationReply.Tenant = configuration.GetTenant()

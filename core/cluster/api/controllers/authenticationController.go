@@ -1,4 +1,4 @@
-package gandalf
+package controllers
 
 import (
 	"encoding/json"
@@ -66,7 +66,6 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 		UserID: user.ID,
 		Name:   user.Name,
 		Email:  user.Email,
-		Tenant: "gandalf",
 		StandardClaims: &jwt.StandardClaims{
 			ExpiresAt: expiresAt,
 		},

@@ -3,44 +3,40 @@ package api
 import (
 	"github.com/ditrit/gandalf/core/cluster/database"
 
-	"github.com/ditrit/gandalf/core/cluster/api/controllers/gandalf"
-	"github.com/ditrit/gandalf/core/cluster/api/controllers/tenants"
+	"github.com/ditrit/gandalf/core/cluster/api/controllers"
 )
 
 // Controllers :
 type Controllers struct {
-	gandalfAuthenticationController *gandalf.AuthenticationController
-	gandalfClusterController        *gandalf.ClusterController
-	gandalfTenantController         *gandalf.TenantController
-	gandalfUserController           *gandalf.UserController
-	gandalfConfigurationController  *gandalf.ConfigurationController
-
-	tenantsAuthenticationController          *tenants.AuthenticationController
-	tenantsAggregatorController              *tenants.AggregatorController
-	tenantsConnectorController               *tenants.ConnectorController
-	tenantsRoleController                    *tenants.RoleController
-	tenantsUserController                    *tenants.UserController
-	tenantsConfigurationAggregatorController *tenants.ConfigurationAggregatorController
-	tenantsConfigurationConnectorController  *tenants.ConfigurationConnectorController
+	AuthenticationController          *controllers.AuthenticationController
+	CliController                     *controllers.CliController
+	ClusterController                 *controllers.ClusterController
+	TenantController                  *controllers.TenantController
+	UserController                    *controllers.UserController
+	ConfigurationController           *controllers.ConfigurationController
+	AggregatorController              *controllers.AggregatorController
+	ConnectorController               *controllers.ConnectorController
+	AdminTenantController             *controllers.AdminTenantController
+	ConfigurationAggregatorController *controllers.ConfigurationAggregatorController
+	ConfigurationConnectorController  *controllers.ConfigurationConnectorController
 }
 
 // ReturnControllers :
 func ReturnControllers(databaseConnection *database.DatabaseConnection) *Controllers {
 
-	controllers := new(Controllers)
-	controllers.gandalfAuthenticationController = gandalf.NewAuthenticationController(databaseConnection)
-	controllers.gandalfClusterController = gandalf.NewClusterController(databaseConnection)
-	controllers.gandalfTenantController = gandalf.NewTenantController(databaseConnection)
-	controllers.gandalfUserController = gandalf.NewUserController(databaseConnection)
-	controllers.gandalfConfigurationController = gandalf.NewConfigurationController(databaseConnection)
+	clusterControllers := new(Controllers)
+	clusterControllers.AuthenticationController = controllers.NewAuthenticationController(databaseConnection)
+	clusterControllers.CliController = controllers.NewCliController()
+	clusterControllers.ClusterController = controllers.NewClusterController(databaseConnection)
+	clusterControllers.TenantController = controllers.NewTenantController(databaseConnection)
+	clusterControllers.UserController = controllers.NewUserController(databaseConnection)
+	clusterControllers.ConfigurationController = controllers.NewConfigurationController(databaseConnection)
 
-	controllers.tenantsAuthenticationController = tenants.NewAuthenticationController(databaseConnection)
-	controllers.tenantsConnectorController = tenants.NewConnectorController(databaseConnection)
-	controllers.tenantsAggregatorController = tenants.NewAggregatorController(databaseConnection)
-	controllers.tenantsUserController = tenants.NewUserController(databaseConnection)
-	controllers.tenantsRoleController = tenants.NewRoleController(databaseConnection)
-	controllers.tenantsConfigurationAggregatorController = tenants.NewConfigurationAggregatorController(databaseConnection)
-	controllers.tenantsConfigurationConnectorController = tenants.NewConfigurationConnectorController(databaseConnection)
+	clusterControllers.ConnectorController = controllers.NewConnectorController(databaseConnection)
+	clusterControllers.AggregatorController = controllers.NewAggregatorController(databaseConnection)
+	clusterControllers.UserController = controllers.NewUserController(databaseConnection)
+	clusterControllers.ConfigurationAggregatorController = controllers.NewConfigurationAggregatorController(databaseConnection)
+	clusterControllers.ConfigurationConnectorController = controllers.NewConfigurationConnectorController(databaseConnection)
 
-	return controllers
+	return clusterControllers
 }

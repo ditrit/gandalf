@@ -1,4 +1,4 @@
-package tenants
+package controllers
 
 import (
 	"database/sql"

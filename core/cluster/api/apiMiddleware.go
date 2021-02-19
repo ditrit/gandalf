@@ -41,18 +41,12 @@ func GandalfJwtVerify(next http.Handler) http.Handler {
 		tk := &apimodels.Claims{}
 
 		_, err := jwt.ParseWithClaims(header, tk, func(token *jwt.Token) (interface{}, error) {
-			return []byte("gandalf"), nil
+			return []byte("cluster"), nil
 		})
 
 		if err != nil {
 			w.WriteHeader(http.StatusForbidden)
 			json.NewEncoder(w).Encode(apimodels.Exception{Message: err.Error()})
-			return
-		}
-
-		if tk.Tenant != "gandalf" {
-			w.WriteHeader(http.StatusForbidden)
-			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Wrong tenant"})
 			return
 		}
 

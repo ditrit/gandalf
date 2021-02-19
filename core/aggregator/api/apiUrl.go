@@ -7,6 +7,7 @@ type Urls struct {
 	PATH        string
 
 	LOGIN_PATH                           string
+	CLI_PATH                             string
 	CONNECTOR_PATH                       string
 	CONNECTOR_PATH_LIST                  string
 	CONNECTOR_PATH_CREATE                string
@@ -60,6 +61,7 @@ func ReturnURLS() *Urls {
 
 	//TENANTS
 	apiurls.LOGIN_PATH = apiurls.PATH + "/login/"
+	apiurls.CLI_PATH = apiurls.PATH + "/cli/"
 	apiurls.CONNECTOR_PATH = apiurls.PATH + "/connectors"
 	apiurls.CONNECTOR_PATH_LIST = apiurls.CONNECTOR_PATH + "/"
 	apiurls.CONNECTOR_PATH_CREATE = apiurls.CONNECTOR_PATH + "/"
