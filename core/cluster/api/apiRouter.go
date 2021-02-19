@@ -17,7 +17,7 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 
 	mux := mux.NewRouter()
 	mux.Use(CommonMiddleware)
-	//TODO REVOIR
+
 	mux.HandleFunc(urls.LOGIN_PATH, controllers.AuthenticationController.Login).Methods("POST")
 	mux.HandleFunc(urls.CLI_PATH, controllers.CliController.Cli).Methods("GET")
 
@@ -35,13 +35,6 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.HandleFunc(urls.CLUSTER_PATH_READ, controllers.ClusterController.Read).Methods("GET")
 	subg.HandleFunc(urls.CLUSTER_PATH_UPDATE, controllers.ClusterController.Update).Methods("PUT")
 	subg.HandleFunc(urls.CLUSTER_PATH_DELETE, controllers.ClusterController.Delete).Methods("DELETE")
-
-	//ROLE
-	//subg.HandleFunc(urls.ROLE_PATH_LIST, controllers.RoleController.List).Methods("GET")
-	//subg.HandleFunc(urls.ROLE_PATH_CREATE, controllers.RoleController.Create).Methods("POST")
-	//subg.HandleFunc(urls.ROLE_PATH_READ, controllers.RoleController.Read).Methods("GET")
-	//subg.HandleFunc(urls.ROLE_PATH_UPDATE, controllers.RoleController.Update).Methods("PUT")
-	//subg.HandleFunc(urls.ROLE_PATH_DELETE, controllers.RoleController.Delete).Methods("DELETE")
 
 	//TENANT
 	subg.HandleFunc(urls.TENANT_PATH_LIST, controllers.TenantController.List).Methods("GET")
@@ -84,11 +77,11 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.HandleFunc(urls.CONNECTOR_PATH_DELETE, controllers.ConnectorController.Delete).Methods("DELETE")
 
 	//USER
-	subg.HandleFunc(urls.USER_PATH_LIST, controllers.UserController.List).Methods("GET")
-	subg.HandleFunc(urls.USER_PATH_CREATE, controllers.UserController.Create).Methods("POST")
-	subg.HandleFunc(urls.USER_PATH_READ, controllers.UserController.Read).Methods("GET")
-	subg.HandleFunc(urls.USER_PATH_UPDATE, controllers.UserController.Update).Methods("PUT")
-	subg.HandleFunc(urls.USER_PATH_DELETE, controllers.UserController.Delete).Methods("DELETE")
+	subg.HandleFunc(urls.ADMIN_TENANT_PATH_LIST, controllers.AdminTenantController.List).Methods("GET")
+	subg.HandleFunc(urls.ADMIN_TENANT_PATH_CREATE, controllers.AdminTenantController.Create).Methods("POST")
+	subg.HandleFunc(urls.ADMIN_TENANT_PATH_READ, controllers.AdminTenantController.Read).Methods("GET")
+	subg.HandleFunc(urls.ADMIN_TENANT_PATH_UPDATE, controllers.AdminTenantController.Update).Methods("PUT")
+	subg.HandleFunc(urls.ADMIN_TENANT_PATH_DELETE, controllers.AdminTenantController.Delete).Methods("DELETE")
 
 	//CONFIGURATION AGGREGATOR
 	subg.HandleFunc(urls.CONFIGURATION_AGGREGATOR_PATH_LIST, controllers.ConfigurationAggregatorController.List).Methods("GET")
