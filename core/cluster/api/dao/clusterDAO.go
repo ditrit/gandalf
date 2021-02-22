@@ -16,7 +16,7 @@ func ListCluster(database *gorm.DB) (clusters []models.Cluster, err error) {
 }
 
 func CreateCluster(database *gorm.DB, cluster models.Cluster) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			err = database.Create(&cluster).Error
@@ -48,7 +48,7 @@ func UpdateCluster(database *gorm.DB, cluster models.Cluster) (err error) {
 }
 
 func DeleteCluster(database *gorm.DB, id int) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var cluster models.Cluster

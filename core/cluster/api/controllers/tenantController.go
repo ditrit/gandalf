@@ -45,7 +45,7 @@ func (tc TenantController) List(w http.ResponseWriter, r *http.Request) {
 func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	var result map[string]interface{}
 	result = make(map[string]interface{})
-	var login, password string
+	var login, password []string
 
 	var tenant models.Tenant
 	decoder := json.NewDecoder(r.Body)
@@ -71,6 +71,7 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 			if tenantDatabaseClient != nil {
 
 				login, password, err = tc.databaseConnection.InitTenantDatabase(tenantDatabaseClient)
+				utils.ChangeStateTenant(tenantDatabaseClient)
 
 				if err == nil {
 					result["login"] = login

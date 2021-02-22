@@ -16,7 +16,6 @@ type Controllers struct {
 	ConfigurationController           *controllers.ConfigurationController
 	AggregatorController              *controllers.AggregatorController
 	ConnectorController               *controllers.ConnectorController
-	AdminTenantController             *controllers.AdminTenantController
 	ConfigurationAggregatorController *controllers.ConfigurationAggregatorController
 	ConfigurationConnectorController  *controllers.ConfigurationConnectorController
 }

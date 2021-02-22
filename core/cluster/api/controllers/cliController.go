@@ -12,7 +12,7 @@ type CliController struct {
 
 // NewCliController :
 func NewCliController() (cliController *CliController) {
-
+	cliController = new(CliController)
 	return
 }
 

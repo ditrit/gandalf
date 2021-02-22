@@ -65,7 +65,7 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 }
 
 // InitTenantDatabase : Tenant database init.
-func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login string, password string, err error) {
+func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login []string, password []string, err error) {
 	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Permission{}, &models.ConfigurationLogicalAggregator{}, &models.ConfigurationLogicalConnector{})
 
 	//Init State
@@ -86,22 +86,39 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 			var root models.Domain
 			err = tenantDatabaseClient.Where("name = ?", "Root").First(&root).Error
 			if err == nil {
-				login, password = "Administrator", GenerateRandomHash()
-				user := models.NewUser(login, login, password)
-				authorization := models.Authorization{User: user, Role: admin, Domain: root}
+				login1, password1 := "Administrator1", GenerateRandomHash()
+				user1 := models.NewUser(login1, login1, password1)
+				//authorization1 := models.Authorization{User: user1, Role: admin, Domain: root}
+				login2, password2 := "Administrator2", GenerateRandomHash()
+				user2 := models.NewUser(login2, login2, password2)
+				//authorization2 := models.Authorization{User: user2, Role: admin, Domain: root}
 				err = tenantDatabaseClient.Transaction(func(tx *gorm.DB) error {
 
-					if err := tx.Create(&user).Error; err != nil {
+					if err := tx.Create(&user1).Error; err != nil {
 						// return any error will rollback
 						return err
 					}
-					if err := tx.Create(&authorization).Error; err != nil {
+					authorization1 := models.Authorization{User: user1, Role: admin, Domain: root}
+					if err := tx.Create(&authorization1).Error; err != nil {
+						// return any error will rollback
+						return err
+					}
+					if err := tx.Create(&user2).Error; err != nil {
+						// return any error will rollback
+						return err
+					}
+					authorization2 := models.Authorization{User: user2, Role: admin, Domain: root}
+					if err := tx.Create(&authorization2).Error; err != nil {
 						// return any error will rollback
 						return err
 					}
 					return nil
 				})
 
+				if err == nil {
+					login = append(login, login1, login2)
+					password = append(password, password1, password2)
+				}
 			}
 		}
 	}

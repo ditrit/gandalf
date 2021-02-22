@@ -57,12 +57,6 @@ type Urls struct {
 	ROLE_PATH_READ                       string
 	ROLE_PATH_UPDATE                     string
 	ROLE_PATH_DELETE                     string
-	ADMIN_TENANT_PATH                    string
-	ADMIN_TENANT_PATH_LIST               string
-	ADMIN_TENANT_PATH_CREATE             string
-	ADMIN_TENANT_PATH_READ               string
-	ADMIN_TENANT_PATH_UPDATE             string
-	ADMIN_TENANT_PATH_DELETE             string
 	CONFIGURATION_TENANTS_PATH           string
 	CONFIGURATION_AGGREGATOR_PATH        string
 	CONFIGURATION_CONNECTOR_PATH         string
@@ -121,7 +115,6 @@ func ReturnURLS() *Urls {
 	apiurls.CONFIGURATION_PATH_UPLOAD = apiurls.CONFIGURATION_PATH + "/upload/"
 
 	//TENANTS
-	apiurls.LOGIN_PATH = apiurls.TENANTS_PATH + "/login/"
 	apiurls.CONNECTOR_PATH = apiurls.TENANTS_PATH + "/connectors"
 	apiurls.CONNECTOR_PATH_LIST = apiurls.CONNECTOR_PATH + "/"
 	apiurls.CONNECTOR_PATH_CREATE = apiurls.CONNECTOR_PATH + "/"
@@ -142,12 +135,6 @@ func ReturnURLS() *Urls {
 	apiurls.ROLE_PATH_READ = apiurls.ROLE_PATH + "/{id:[0-9]+}"
 	apiurls.ROLE_PATH_UPDATE = apiurls.ROLE_PATH + "/{id:[0-9]+}"
 	apiurls.ROLE_PATH_DELETE = apiurls.ROLE_PATH + "/{id:[0-9]+}"
-	apiurls.ADMIN_TENANT_PATH = apiurls.TENANTS_PATH + "/admins"
-	apiurls.ADMIN_TENANT_PATH_LIST = apiurls.USER_PATH + "/"
-	apiurls.ADMIN_TENANT_PATH_CREATE = apiurls.USER_PATH + "/"
-	apiurls.ADMIN_TENANT_PATH_READ = apiurls.USER_PATH + "/{id:[0-9]+}"
-	apiurls.ADMIN_TENANT_PATH_UPDATE = apiurls.USER_PATH + "/{id:[0-9]+}"
-	apiurls.ADMIN_TENANT_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
 	apiurls.CONFIGURATION_TENANTS_PATH = apiurls.TENANTS_PATH + "/configurations"
 	apiurls.CONFIGURATION_AGGREGATOR_PATH = apiurls.CONFIGURATION_TENANTS_PATH + "/aggregator"
 	apiurls.CONFIGURATION_CONNECTOR_PATH = apiurls.CONFIGURATION_TENANTS_PATH + "/connector"

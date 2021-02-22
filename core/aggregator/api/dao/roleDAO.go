@@ -16,7 +16,7 @@ func ListRole(database *gorm.DB) (roles []models.Role, err error) {
 }
 
 func CreateRole(database *gorm.DB, role models.Role) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			err = database.Create(&role).Error
@@ -41,7 +41,7 @@ func UpdateRole(database *gorm.DB, role models.Role) (err error) {
 }
 
 func DeleteRole(database *gorm.DB, id int) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var role models.Role

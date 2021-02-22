@@ -76,13 +76,6 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.HandleFunc(urls.CONNECTOR_PATH_UPDATE, controllers.ConnectorController.Update).Methods("PUT")
 	subg.HandleFunc(urls.CONNECTOR_PATH_DELETE, controllers.ConnectorController.Delete).Methods("DELETE")
 
-	//USER
-	subg.HandleFunc(urls.ADMIN_TENANT_PATH_LIST, controllers.AdminTenantController.List).Methods("GET")
-	subg.HandleFunc(urls.ADMIN_TENANT_PATH_CREATE, controllers.AdminTenantController.Create).Methods("POST")
-	//subg.HandleFunc(urls.ADMIN_TENANT_PATH_READ, controllers.AdminTenantController.Read).Methods("GET")
-	//subg.HandleFunc(urls.ADMIN_TENANT_PATH_UPDATE, controllers.AdminTenantController.Update).Methods("PUT")
-	//subg.HandleFunc(urls.ADMIN_TENANT_PATH_DELETE, controllers.AdminTenantController.Delete).Methods("DELETE")
-
 	//CONFIGURATION AGGREGATOR
 	subg.HandleFunc(urls.CONFIGURATION_AGGREGATOR_PATH_LIST, controllers.ConfigurationAggregatorController.List).Methods("GET")
 	subg.HandleFunc(urls.CONFIGURATION_AGGREGATOR_PATH_CREATE, controllers.ConfigurationAggregatorController.Create).Methods("POST")

@@ -16,7 +16,7 @@ func ListConfigurationCluster(database *gorm.DB) (configurationClusters []models
 }
 
 func CreateConfigurationCluster(database *gorm.DB, configurationCluster models.ConfigurationLogicalCluster) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			err = database.Create(&configurationCluster).Error
@@ -41,7 +41,7 @@ func UpdateConfigurationCluster(database *gorm.DB, configurationCluster models.C
 }
 
 func DeleteConfigurationCluster(database *gorm.DB, id int) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var configurationCluster models.ConfigurationLogicalCluster

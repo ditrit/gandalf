@@ -73,7 +73,7 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 
 	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
 
-	tokenString, err := token.SignedString([]byte("gandalf"))
+	tokenString, err := token.SignedString([]byte("cluster"))
 	if err != nil {
 		fmt.Println(err)
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

@@ -48,7 +48,7 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		user := models.User{}
-		if user, err = dao.ReadUserByName(database, ruser.Name); err != nil {
+		if user, err = dao.ReadAdminByName(database, ruser.Name); err != nil {
 
 			//var resp = map[string]interface{}{"status": false, "message": "Username not found"}
 			//return resp

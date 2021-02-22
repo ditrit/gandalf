@@ -16,7 +16,7 @@ func ListAggregator(database *gorm.DB) (aggregators []models.Aggregator, err err
 }
 
 func CreateAggregator(database *gorm.DB, aggregator models.Aggregator) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			err = database.Create(&aggregator).Error
@@ -47,7 +47,7 @@ func UpdateAggregator(database *gorm.DB, aggregator models.Aggregator) (err erro
 }
 
 func DeleteAggregator(database *gorm.DB, id int) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var aggregator models.Aggregator

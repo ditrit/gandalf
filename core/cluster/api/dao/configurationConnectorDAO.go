@@ -16,7 +16,7 @@ func ListConfigurationConnector(database *gorm.DB) (configurationConnectors []mo
 }
 
 func CreateConfigurationConnector(database *gorm.DB, configurationConnector models.ConfigurationLogicalConnector) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			err = database.Create(&configurationConnector).Error
@@ -41,7 +41,7 @@ func UpdateConfigurationConnector(database *gorm.DB, configurationConnector mode
 }
 
 func DeleteConfigurationConnector(database *gorm.DB, id int) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var configurationConnector models.ConfigurationLogicalConnector

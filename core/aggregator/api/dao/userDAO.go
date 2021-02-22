@@ -19,7 +19,7 @@ func ListUser(database *gorm.DB) (users []models.User, err error) {
 func CreateUser(database *gorm.DB, user models.User) (err error) {
 	err = database.Create(&user).Error
 	if err == nil {
-		err = utils.ChangeStateGandalf(database)
+		err = utils.ChangeStateTenant(database)
 	}
 	return
 }
@@ -40,6 +40,23 @@ func DeleteUser(database *gorm.DB, id int) (err error) {
 	var user models.User
 	err = database.Delete(&user, id).Error
 
+	return
+}
+
+func ReadAdminByName(database *gorm.DB, name string) (user models.User, err error) {
+	fmt.Println("DAO")
+	if err = database.Where("Name = ?", name).First(&user).Error; err != nil {
+		var admin models.Role
+		if err = database.Where("name = ?", "Administrator").First(&admin).Error; err != nil {
+			var root models.Domain
+			if err = database.Where("name = ?", "Root").First(&root).Error; err != nil {
+				var authorizations models.Authorization
+				err = database.Where("role_id = ? and domain_id = ? and user_id = ?", admin.ID, root.ID, user.ID).Preload("User").Preload("Role").Preload("Domain").Find(&authorizations).Error
+			}
+		}
+	}
+	fmt.Println(err)
+	fmt.Println(user)
 	return
 }
 

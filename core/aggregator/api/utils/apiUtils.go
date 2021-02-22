@@ -56,7 +56,7 @@ func ExtractToken(r *http.Request) string {
 	return ""
 }
 
-func GetStateGandalf(client *gorm.DB) (bool, error) {
+func GetState(client *gorm.DB) (bool, error) {
 	var state models.State
 	err := client.First(&state).Error
 	if err == nil {
@@ -80,6 +80,32 @@ func ChangeStateGandalf(client *gorm.DB) (err error) {
 				}
 			}
 
+		}
+	}
+	return err
+}
+
+func ChangeStateTenant(client *gorm.DB) (err error) {
+	var state models.State
+	err = client.First(&state).Error
+	if err == nil {
+		if !state.Admin {
+			var admin models.Role
+			err = client.Where("name = ?", "Administrator").First(&admin).Error
+			if err == nil {
+				var root models.Domain
+				err = client.Where("name = ?", "Root").First(&root).Error
+				if err == nil {
+					var authorizations []models.Authorization
+					result := client.Find(&authorizations)
+					if result.Error == nil {
+						if result.RowsAffected >= 2 {
+							state.Admin = true
+							client.Save(&state)
+						}
+					}
+				}
+			}
 		}
 	}
 	return err
