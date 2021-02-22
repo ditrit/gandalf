@@ -39,21 +39,21 @@ func init() {
 	aggregatorCfg.SetRequired("lname")
 
 	aggregatorCfg.Key("api_port", verdeter.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
-	aggregatorCfg.SetCheck("api_port", CheckTcpHighPort)
+	aggregatorCfg.SetCheck("api_port", verdeter.CheckTCPHighPort)
 	aggregatorCfg.SetComputedValue("api_port",
 		func() interface{} {
 			return 9199 + verdeter.GetOffset()
 		})
 
 	aggregatorCfg.Key("tenant", verdeter.IsStr, "t", "name of the tenant name of the aggregator")
-	aggregatorCfg.SetCheck("tenant", CheckNotEmpty)
+	aggregatorCfg.SetCheck("tenant", verdeter.CheckNotEmpty)
 	aggregatorCfg.SetRequired("tenant")
-	aggregatorCfg.SetNormalize("tenant", TrimToLower)
+	aggregatorCfg.SetNormalize("tenant", verdeter.TrimToLower)
 
 	aggregatorCfg.Key("cluster", verdeter.IsStr, "c", "remote address of one of the cluster members to link")
-	aggregatorCfg.SetCheck("cluster", CheckNotEmpty)
+	aggregatorCfg.SetCheck("cluster", verdeter.CheckNotEmpty)
 	aggregatorCfg.SetRequired("cluster")
-	aggregatorCfg.SetNormalize("cluster", TrimToLower)
+	aggregatorCfg.SetNormalize("cluster", verdeter.TrimToLower)
 
 	aggregatorCfg.SetRequired("secret")
 

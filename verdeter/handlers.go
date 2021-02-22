@@ -1,5 +1,4 @@
-// Package cmd is part of Gandalf
-package configuration
+package verdeter
 
 import (
 	"fmt"
@@ -25,11 +24,12 @@ var TrimToLower = func(val interface{}) interface{} {
 	return val
 }
 
-var CheckTcpHighPort = func(val interface{}) bool {
+// CheckTCPHighPort is a helper function to verify a port is tcp high port
+var CheckTCPHighPort = func(val interface{}) bool {
 	intVal, ok := val.(int)
 	if ok {
 		return intVal >= 1024 && intVal <= 65535
 	}
-	fmt.Printf("Error: value (%s) is not a TCP high port (between 1024 and 65535) \n", intVal)
+	fmt.Printf("Error: value (%d) is not a TCP high port (between 1024 and 65535) \n", intVal)
 	return false
 }

@@ -34,8 +34,8 @@ func init() {
 
 	// flags common to all commands
 	rootCfg.Key("lname", verdeter.IsStr, "l", "logical name (non empty value required)")
-	rootCfg.SetCheck("lname", CheckNotEmpty)
-	rootCfg.SetNormalize("lname", TrimToLower)
+	rootCfg.SetCheck("lname", verdeter.CheckNotEmpty)
+	rootCfg.SetNormalize("lname", verdeter.TrimToLower)
 
 	rootCfg.Key("config_dir", verdeter.IsStr, "", "Path to the config directory")
 	rootCfg.SetNormalize("config_dir", func(val interface{}) interface{} {
@@ -55,14 +55,14 @@ func init() {
 	rootCfg.Key("config_file", verdeter.IsStr, "", "Path to the config file")
 
 	rootCfg.Key("secret", verdeter.IsStr, "", "Path to the secret (absolute or relative to the configuration directory)")
-	rootCfg.SetCheck("secret", CheckNotEmpty)
+	rootCfg.SetCheck("secret", verdeter.CheckNotEmpty)
 
 	rootCfg.Key("max_timeout", verdeter.IsInt, "", "maximum timeout of the connector")
 	rootCfg.SetDefault("max_timeout", 100)
 
 	rootCfg.Key("bind", verdeter.IsStr, "", "Address to bind (default is 127.0.0.1)")
 	rootCfg.SetDefault("bind", "127.0.0.1")
-	rootCfg.SetNormalize("bind", TrimToLower)
+	rootCfg.SetNormalize("bind", verdeter.TrimToLower)
 	//If no offset use localhost else if local address is unique return it
 	rootCfg.SetComputedValue("bind",
 		func() interface{} {
@@ -80,7 +80,7 @@ func init() {
 
 	rootCfg.Key("port", verdeter.IsInt, "", "Port to bind (default is 9099 + offset if defined)")
 	//rootCfg.SetDefault("port", 9099+verdeter.GetOffset())
-	rootCfg.SetCheck("port", CheckTcpHighPort)
+	rootCfg.SetCheck("port", verdeter.CheckTCPHighPort)
 	rootCfg.SetComputedValue("port",
 		func() interface{} {
 			return 9099 + verdeter.GetOffset()

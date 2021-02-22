@@ -50,12 +50,12 @@ func init() {
 	clusterCfg.SetDefault("lname", "cluster")
 
 	clusterCfg.Key("join", verdeter.IsStr, "j", "remote address (of an already existing member of cluster) to join")
-	clusterCfg.SetCheck("join", CheckNotEmpty)
-	clusterCfg.SetNormalize("join", TrimToLower)
+	clusterCfg.SetCheck("join", verdeter.CheckNotEmpty)
+	clusterCfg.SetNormalize("join", verdeter.TrimToLower)
 
 	clusterCfg.Key("api_port", verdeter.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
 	//clusterCfg.SetDefault("api_port", 9199+verdeter.GetOffset())
-	clusterCfg.SetCheck("api_port", CheckTcpHighPort)
+	clusterCfg.SetCheck("api_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("api_port",
 		func() interface{} {
 			return 9199 + verdeter.GetOffset()
@@ -86,7 +86,7 @@ func init() {
 	//clusterCfg.SetDefault("db_path", "/var/lib/cockroach/")
 
 	clusterCfg.Key("db_nodename", verdeter.IsStr, "", "name of the gandalf node")
-	clusterCfg.SetCheck("db_nodename", CheckNotEmpty)
+	clusterCfg.SetCheck("db_nodename", verdeter.CheckNotEmpty)
 	//clusterCfg.SetDefault("db_nodename", "node1")
 	clusterCfg.SetComputedValue("db_nodename",
 		func() interface{} {
@@ -95,7 +95,7 @@ func init() {
 
 	clusterCfg.Key("db_port", verdeter.IsInt, "", "Port to bind (default is 9299 + offset if defined)")
 	//clusterCfg.SetDefault("db_port", 9299)
-	clusterCfg.SetCheck("db_port", CheckTcpHighPort)
+	clusterCfg.SetCheck("db_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("db_port",
 		func() interface{} {
 			return 9299 + verdeter.GetOffset()
@@ -103,7 +103,7 @@ func init() {
 
 	clusterCfg.Key("db_http_port", verdeter.IsInt, "", "Port to bind (default is 9399 + offset if defined)")
 	//clusterCfg.SetDefault("db_http_port", 9399+verdeter.GetOffset())
-	clusterCfg.SetCheck("db_http_port", CheckTcpHighPort)
+	clusterCfg.SetCheck("db_http_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("db_http_port",
 		func() interface{} {
 			return 9399 + verdeter.GetOffset()

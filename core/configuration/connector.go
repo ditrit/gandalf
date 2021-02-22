@@ -38,19 +38,19 @@ func init() {
 	connectorCfg.SetRequired("lname")
 
 	connectorCfg.Key("aggregator", verdeter.IsStr, "a", "remote address of one of the cluster members to link")
-	connectorCfg.SetCheck("aggregator", CheckNotEmpty)
+	connectorCfg.SetCheck("aggregator", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("aggregator")
-	connectorCfg.SetNormalize("aggregator", TrimToLower)
+	connectorCfg.SetNormalize("aggregator", verdeter.TrimToLower)
 
 	connectorCfg.Key("class", verdeter.IsStr, "c", "the type of connector (bus, csv, orchestrator, etc.)")
-	connectorCfg.SetCheck("class", CheckNotEmpty)
+	connectorCfg.SetCheck("class", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("class")
-	connectorCfg.SetNormalize("product", TrimToLower)
+	connectorCfg.SetNormalize("product", verdeter.TrimToLower)
 
 	connectorCfg.Key("product", verdeter.IsStr, "p", "the type of connector (bus, csv, orchestrator, etc.)")
-	connectorCfg.SetCheck("product", CheckNotEmpty)
+	connectorCfg.SetCheck("product", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("product")
-	connectorCfg.SetNormalize("product", TrimToLower)
+	connectorCfg.SetNormalize("product", verdeter.TrimToLower)
 
 	//connectorCfg.Key("workers", verdeter.IsStr, "w", "path for the workers configuration (absolute or relative to the certificates directory)")
 	//connectorCfg.SetDefault("workers", "/tmp/")
