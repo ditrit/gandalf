@@ -11,7 +11,7 @@ import (
 
 	"github.com/ditrit/gandalf/verdeter"
 
-	"github.com/ditrit/gandalf/core/cli/client"
+	"github.com/ditrit/gandalf/core/cli"
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
@@ -148,7 +148,7 @@ func runLogin(cfg *verdeter.ConfigCmd, args []string) {
 	fmt.Printf("gandalf cli login called with username=%s and password=%s\n", name, password)
 	configurationCli := cmodels.NewConfigurationCli()
 	fmt.Println(configurationCli.GetEndpoint())
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	var user models.User
 	user.Name = name
@@ -170,7 +170,7 @@ func runCreateUser(cfg *verdeter.ConfigCmd, args []string) {
 
 	fmt.Printf("gandalf cli create user called with username=%s, email=%s, password=%s\n", name, email, password)
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	user := models.NewUser(name, email, password)
 	err := cliClient.GandalfUserService.Create(configurationCli.GetToken(), user)
@@ -182,7 +182,7 @@ func runCreateUser(cfg *verdeter.ConfigCmd, args []string) {
 func runListUsers(cfg *verdeter.ConfigCmd, args []string) {
 	fmt.Printf("gandalf cli list users\n")
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	users, err := cliClient.GandalfUserService.List(configurationCli.GetToken())
 	if err == nil {
@@ -201,7 +201,7 @@ func runUpdateUser(cfg *verdeter.ConfigCmd, args []string) {
 	password := viper.GetViper().GetString("password")
 	fmt.Printf("gandalf cli update user called with username=%s, newname=%s, email=%s, password=%s\n", name, newName, email, password)
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
@@ -219,7 +219,7 @@ func runDeleteUser(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
 	fmt.Printf("gandalf cli delete user called with username=%s\n", name)
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
@@ -236,7 +236,7 @@ func runCreateTenant(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
 	fmt.Printf("gandalf cli create tenant called with tenant=%s\n", name)
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	tenant := models.Tenant{Name: name}
 	login, password, err := cliClient.GandalfTenantService.Create(configurationCli.GetToken(), tenant)
@@ -251,7 +251,7 @@ func runCreateTenant(cfg *verdeter.ConfigCmd, args []string) {
 func runListTenants(cfg *verdeter.ConfigCmd, args []string) {
 	fmt.Printf("gandalf cli list tenants\n")
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	tenants, err := cliClient.GandalfTenantService.List(configurationCli.GetToken())
 	if err == nil {
@@ -319,7 +319,7 @@ func runDeleteDomain(cfg *verdeter.ConfigCmd, args []string) {
 func runDeclareClusterMember(cfg *verdeter.ConfigCmd, args []string) {
 	fmt.Printf("gandalf declare cluster member\n")
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	cluster, err := cliClient.GandalfClusterService.DeclareMember(configurationCli.GetToken())
 	if err == nil {
@@ -334,7 +334,7 @@ func runDeclareAggregatorName(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[1]
 	fmt.Printf("gandalf declare aggregator name with name=%s on tenant=%s\n", name, tenant)
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	var aggregator models.Aggregator
 	aggregator.LogicalName = name
@@ -349,7 +349,7 @@ func runDeclareAggregatorMember(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[1]
 	fmt.Printf("gandalf declare aggregator member with name=%s on tenant=%s\n", name, tenant)
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	aggregator, err := cliClient.TenantsAggregatorService.DeclareMember(configurationCli.GetToken(), tenant, name)
 	if err == nil {
@@ -364,7 +364,7 @@ func runDeclareConnectorName(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[1]
 	fmt.Printf("gandalf declare connector name with name=%s on tenant=%s\n", name, tenant)
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	var connector models.Connector
 	connector.LogicalName = name
@@ -379,7 +379,7 @@ func runDeclareConnectorMember(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[1]
 	fmt.Printf("gandalf declare connector member with name=%s on tenant=%s\n", name, tenant)
 	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := client.NewClient(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	connector, err := cliClient.TenantsConnectorService.DeclareMember(configurationCli.GetToken(), tenant, name)
 	if err == nil {

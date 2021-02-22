@@ -108,26 +108,28 @@ func SendConnectorConfig(shoset *net.Shoset) (err error) {
 //SendConnectorConfig : Connector send connector config function.
 func SendSaveConnectorConfig(shoset *net.Shoset, connectorConfig *models.ConnectorConfig) (err error) {
 	jsonData, err := json.Marshal(connectorConfig)
-	conf := msg.NewConfig("", "SAVE_CONFIG", string(jsonData))
-	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-	conf.Tenant = configurationConnector.GetTenant()
+	if err == nil {
+		conf := msg.NewConfig("", "SAVE_CONFIG", string(jsonData))
+		configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+		conf.Tenant = configurationConnector.GetTenant()
 
-	//conf.GetContext()["product"] = shoset.Context["product"]
+		//conf.GetContext()["product"] = shoset.Context["product"]
 
-	shosets := net.GetByType(shoset.ConnsByAddr, "a")
+		shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
-	if len(shosets) != 0 {
-		if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
-			conf.Timeout = configurationConnector.GetMaxTimeout()
+		if len(shosets) != 0 {
+			if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
+				conf.Timeout = configurationConnector.GetMaxTimeout()
+			}
+
+			index := getConnectorConfigSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+
+		} else {
+			log.Println("can't find aggregators to send")
+			err = errors.New("can't find aggregators to send")
 		}
-
-		index := getConnectorConfigSendIndex(shosets)
-		shosets[index].SendMessage(conf)
-		log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
-
-	} else {
-		log.Println("can't find aggregators to send")
-		err = errors.New("can't find aggregators to send")
 	}
 
 	return err
