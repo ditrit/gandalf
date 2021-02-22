@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
 
@@ -34,7 +32,7 @@ func (ac AdminTenantController) List(w http.ResponseWriter, r *http.Request) {
 	tenant := vars["tenant"]
 	database := ac.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
-		users, err := dao.ListUser(database)
+		users, err := dao.ListAdminTenant(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
@@ -61,7 +59,7 @@ func (ac AdminTenantController) Create(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateUser(database, user); err != nil {
+		if err := dao.CreateAdminTenant(database, user); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -73,7 +71,7 @@ func (ac AdminTenantController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Read :
+/* // Read :
 func (ac AdminTenantController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tenant := vars["tenant"]
@@ -85,7 +83,7 @@ func (ac AdminTenantController) Read(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		var user models.User
-		if user, err = dao.ReadUser(database, id); err != nil {
+		if user, err = dao.ReadAdminTenant(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
 				utils.RespondWithError(w, http.StatusNotFound, "Prodact not found")
@@ -123,7 +121,7 @@ func (ac AdminTenantController) Update(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		user.ID = uint(id)
 
-		if err := dao.UpdateUser(database, user); err != nil {
+		if err := dao.UpdateAdminTenant(database, user); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -147,7 +145,7 @@ func (ac AdminTenantController) Delete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := dao.DeleteUser(database, id); err != nil {
+		if err := dao.DeleteAdminTenant(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -158,3 +156,4 @@ func (ac AdminTenantController) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+*/

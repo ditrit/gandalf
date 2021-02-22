@@ -88,10 +88,20 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 			if err == nil {
 				login, password = "Administrator", GenerateRandomHash()
 				user := models.NewUser(login, login, password)
-				err = tenantDatabaseClient.Create(&user).Error
-				if err == nil {
-					err = tenantDatabaseClient.Create(&models.Authorization{User: user, Role: admin, Domain: root}).Error
-				}
+				authorization := models.Authorization{User: user, Role: admin, Domain: root}
+				err = tenantDatabaseClient.Transaction(func(tx *gorm.DB) error {
+
+					if err := tx.Create(&user).Error; err != nil {
+						// return any error will rollback
+						return err
+					}
+					if err := tx.Create(&authorization).Error; err != nil {
+						// return any error will rollback
+						return err
+					}
+					return nil
+				})
+
 			}
 		}
 	}
