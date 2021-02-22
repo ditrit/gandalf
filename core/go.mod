@@ -22,3 +22,5 @@ require (
 )
 
 replace github.com/ditrit/gandalf/verdeter => ../verdeter
+replace github.com/ditrit/gandalf/libraries/goclient => ../libraries/goclient
+replace github.com/ditrit/gandalf/libraries/gogrpc => ../libraries/gogrpc
