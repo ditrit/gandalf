@@ -77,6 +77,7 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 					result["login"] = login
 					result["password"] = password
 					result["tenant"] = tenant
+					result["aggregator"] = ""
 
 				} else {
 					dao.DeleteTenant(tc.databaseConnection.GetGandalfDatabaseClient(), int(tenant.ID))

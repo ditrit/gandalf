@@ -17,7 +17,8 @@ type Client struct {
 	BaseURL                      *url.URL
 	UserAgent                    string
 	HTTPClient                   *http.Client
-	GandalfAuthenticationService *GandalfAuthenticationService
+	AuthenticationService        *AuthenticationService
+	CliService                   *CliService
 	GandalfClusterService        *GandalfClusterService
 	GandalfRoleService           *GandalfRoleService
 	GandalfTenantService         *GandalfTenantService
@@ -34,6 +35,7 @@ func NewClient(bindAddress string) (client *Client) {
 
 	u, err := url.Parse(bindAddress)
 	if err != nil {
+		fmt.Println("err")
 		fmt.Println(err)
 		log.Fatal(err)
 	}
@@ -46,7 +48,8 @@ func NewClient(bindAddress string) (client *Client) {
 		},
 	}
 
-	client.GandalfAuthenticationService = &GandalfAuthenticationService{client: client}
+	client.AuthenticationService = &AuthenticationService{client: client}
+	client.CliService = &CliService{client: client}
 	client.GandalfClusterService = &GandalfClusterService{client: client}
 	client.GandalfRoleService = &GandalfRoleService{client: client}
 	client.GandalfTenantService = &GandalfTenantService{client: client}

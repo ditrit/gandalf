@@ -61,7 +61,14 @@ var cliDeclareConnectorName = verdeter.NewConfigCmd("name", "declare  name <name
 var cliDeclareConnectorMember = verdeter.NewConfigCmd("member", "declare  member <name>", "declare  member command allows to declare a new member for an existing connector.", runDeclareAggregatorName)
 
 func init() {
+
 	rootCfg.AddConfig(cliCfg)
+
+	cliCfg.Key("endpoint", verdeter.IsStr, "e", "Gandalf endpoint")
+	cliCfg.SetRequired("endpoint")
+	cliCfg.Key("token", verdeter.IsStr, "t", "Gandalf auth token")
+	//cliCfg.SetRequired("token")
+
 	cliCfg.AddConfig(cliCreate)
 	cliCfg.AddConfig(cliList)
 	cliCfg.AddConfig(cliUpdate)
@@ -100,11 +107,6 @@ func init() {
 
 	cliDeclareConnector.AddConfig(cliDeclareConnectorName)
 	cliDeclareConnector.AddConfig(cliDeclareConnectorMember)
-
-	cliCfg.Key("endpoint", verdeter.IsStr, "e", "Gandalf endpoint")
-	cliCfg.SetRequired("endpoint")
-	cliCfg.Key("token", verdeter.IsStr, "t", "Gandalf auth token")
-	//cliCfg.SetRequired("token")
 
 	cliLogin.SetNbArgs(2)
 
@@ -152,10 +154,10 @@ func runLogin(cfg *verdeter.ConfigCmd, args []string) {
 
 	var user models.User
 	user.Name = name
-	user.Email = name
+	//user.Email = name
 	user.Password = password
 	//user := models.NewUser(name, name, password)
-	token, err := cliClient.GandalfAuthenticationService.Login(user)
+	token, err := cliClient.AuthenticationService.Login(user)
 	if err == nil {
 		fmt.Println("Token: " + token)
 	} else {
@@ -172,11 +174,23 @@ func runCreateUser(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	user := models.NewUser(name, email, password)
-	err := cliClient.GandalfUserService.Create(configurationCli.GetToken(), user)
-	if err != nil {
-		fmt.Println(err)
+	result, err := cliClient.CliService.Cli()
+	if err == nil {
+		if result == "cluster" {
+			user := models.NewUser(name, email, password)
+			err := cliClient.GandalfUserService.Create(configurationCli.GetToken(), user)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			/* 	user := models.NewUser(name, email, password)
+			err := cliClient.TenantsUserService.Create(configurationCli.GetToken(), user)
+			if err != nil {
+				fmt.Println(err)
+			} */
+		}
 	}
+
 }
 
 func runListUsers(cfg *verdeter.ConfigCmd, args []string) {
@@ -184,14 +198,29 @@ func runListUsers(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	users, err := cliClient.GandalfUserService.List(configurationCli.GetToken())
+	result, err := cliClient.CliService.Cli()
 	if err == nil {
-		for _, user := range users {
-			fmt.Println(user)
+		if result == "cluster" {
+			users, err := cliClient.GandalfUserService.List(configurationCli.GetToken())
+			if err == nil {
+				for _, user := range users {
+					fmt.Println(user)
+				}
+			} else {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			/* users, err := cliClient.TenantsUserService.List(configurationCli.GetToken())
+			if err == nil {
+				for _, user := range users {
+					fmt.Println(user)
+				}
+			} else {
+				fmt.Println(err)
+			} */
 		}
-	} else {
-		fmt.Println(err)
 	}
+
 }
 
 func runUpdateUser(cfg *verdeter.ConfigCmd, args []string) {
@@ -203,16 +232,33 @@ func runUpdateUser(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
+	result, err := cliClient.CliService.Cli()
 	if err == nil {
-		user := models.NewUser(newName, email, password)
-		err = cliClient.GandalfUserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
-		if err != nil {
-			fmt.Println(err)
+		if result == "cluster" {
+			oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
+			if err == nil {
+				user := models.NewUser(newName, email, password)
+				err = cliClient.GandalfUserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
+				if err != nil {
+					fmt.Println(err)
+				}
+			} else {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			/* oldUser, err := cliClient.TenantsUserService.ReadByName(configurationCli.GetToken(), name)
+			if err == nil {
+				user := models.NewUser(newName, email, password)
+				err = cliClient.TenantsUserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
+				if err != nil {
+					fmt.Println(err)
+				}
+			} else {
+				fmt.Println(err)
+			} */
 		}
-	} else {
-		fmt.Println(err)
 	}
+
 }
 
 func runDeleteUser(cfg *verdeter.ConfigCmd, args []string) {
@@ -221,14 +267,29 @@ func runDeleteUser(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
+	result, err := cliClient.CliService.Cli()
 	if err == nil {
-		err = cliClient.GandalfUserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
-		if err != nil {
-			fmt.Println(err)
+		if result == "cluster" {
+			oldUser, err := cliClient.GandalfUserService.ReadByName(configurationCli.GetToken(), name)
+			if err == nil {
+				err = cliClient.GandalfUserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
+				if err != nil {
+					fmt.Println(err)
+				}
+			} else {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			/* oldUser, err := cliClient.TenantsUserService.ReadByName(configurationCli.GetToken(), name)
+			if err == nil {
+				err = cliClient.TenantsUserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
+				if err != nil {
+					fmt.Println(err)
+				}
+			} else {
+				fmt.Println(err)
+			} */
 		}
-	} else {
-		fmt.Println(err)
 	}
 }
 
@@ -238,13 +299,20 @@ func runCreateTenant(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	tenant := models.Tenant{Name: name}
-	login, password, err := cliClient.GandalfTenantService.Create(configurationCli.GetToken(), tenant)
+	result, err := cliClient.CliService.Cli()
 	if err == nil {
-		fmt.Println("login : " + login)
-		fmt.Println("password : " + password)
-	} else {
-		fmt.Println(err)
+		if result == "cluster" {
+			tenant := models.Tenant{Name: name}
+			login, password, err := cliClient.GandalfTenantService.Create(configurationCli.GetToken(), tenant)
+			if err == nil {
+				fmt.Println("login : " + login)
+				fmt.Println("password : " + password)
+			} else {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			fmt.Println("Error: Not allowed")
+		}
 	}
 }
 
@@ -253,14 +321,22 @@ func runListTenants(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	tenants, err := cliClient.GandalfTenantService.List(configurationCli.GetToken())
+	result, err := cliClient.CliService.Cli()
 	if err == nil {
-		for _, tenant := range tenants {
-			fmt.Println(tenant)
+		if result == "cluster" {
+			tenants, err := cliClient.GandalfTenantService.List(configurationCli.GetToken())
+			if err == nil {
+				for _, tenant := range tenants {
+					fmt.Println(tenant)
+				}
+			} else {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			fmt.Println("Error: Not allowed")
 		}
-	} else {
-		fmt.Println(err)
 	}
+
 }
 
 func runUpdateTenant(cfg *verdeter.ConfigCmd, args []string) {
@@ -321,12 +397,20 @@ func runDeclareClusterMember(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	cluster, err := cliClient.GandalfClusterService.DeclareMember(configurationCli.GetToken())
+	result, err := cliClient.CliService.Cli()
 	if err == nil {
-		fmt.Println(cluster)
-	} else {
-		fmt.Println(err)
+		if result == "cluster" {
+			cluster, err := cliClient.GandalfClusterService.DeclareMember(configurationCli.GetToken())
+			if err == nil {
+				fmt.Println(cluster)
+			} else {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			fmt.Println("Error: Not allowed")
+		}
 	}
+
 }
 
 func runDeclareAggregatorName(cfg *verdeter.ConfigCmd, args []string) {
@@ -336,12 +420,25 @@ func runDeclareAggregatorName(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	var aggregator models.Aggregator
-	aggregator.LogicalName = name
-	err := cliClient.TenantsAggregatorService.Create(configurationCli.GetToken(), tenant, aggregator)
-	if err != nil {
-		fmt.Println(err)
+	result, err := cliClient.CliService.Cli()
+	if err == nil {
+		if result == "cluster" {
+			var aggregator models.Aggregator
+			aggregator.LogicalName = name
+			err := cliClient.TenantsAggregatorService.Create(configurationCli.GetToken(), tenant, aggregator)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			var aggregator models.Aggregator
+			aggregator.LogicalName = name
+			err := cliClient.TenantsAggregatorService.Create(configurationCli.GetToken(), tenant, aggregator)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
 	}
+
 }
 
 func runDeclareAggregatorMember(cfg *verdeter.ConfigCmd, args []string) {
@@ -351,12 +448,25 @@ func runDeclareAggregatorMember(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	aggregator, err := cliClient.TenantsAggregatorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+	result, err := cliClient.CliService.Cli()
 	if err == nil {
-		fmt.Println(aggregator)
-	} else {
-		fmt.Println(err)
+		if result == "cluster" {
+			aggregator, err := cliClient.TenantsAggregatorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+			if err == nil {
+				fmt.Println(aggregator)
+			} else {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			aggregator, err := cliClient.TenantsAggregatorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+			if err == nil {
+				fmt.Println(aggregator)
+			} else {
+				fmt.Println(err)
+			}
+		}
 	}
+
 }
 
 func runDeclareConnectorName(cfg *verdeter.ConfigCmd, args []string) {
@@ -366,12 +476,25 @@ func runDeclareConnectorName(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	var connector models.Connector
-	connector.LogicalName = name
-	err := cliClient.TenantsConnectorService.Create(configurationCli.GetToken(), tenant, connector)
-	if err != nil {
-		fmt.Println(err)
+	result, err := cliClient.CliService.Cli()
+	if err == nil {
+		if result == "cluster" {
+			var connector models.Connector
+			connector.LogicalName = name
+			err := cliClient.TenantsConnectorService.Create(configurationCli.GetToken(), tenant, connector)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			var connector models.Connector
+			connector.LogicalName = name
+			err := cliClient.TenantsConnectorService.Create(configurationCli.GetToken(), tenant, connector)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
 	}
+
 }
 
 func runDeclareConnectorMember(cfg *verdeter.ConfigCmd, args []string) {
@@ -381,12 +504,25 @@ func runDeclareConnectorMember(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	connector, err := cliClient.TenantsConnectorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+	result, err := cliClient.CliService.Cli()
 	if err == nil {
-		fmt.Println(connector)
-	} else {
-		fmt.Println(err)
+		if result == "cluster" {
+			connector, err := cliClient.TenantsConnectorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+			if err == nil {
+				fmt.Println(connector)
+			} else {
+				fmt.Println(err)
+			}
+		} else if result == "aggregator" {
+			connector, err := cliClient.TenantsConnectorService.DeclareMember(configurationCli.GetToken(), tenant, name)
+			if err == nil {
+				fmt.Println(connector)
+			} else {
+				fmt.Println(err)
+			}
+		}
 	}
+
 }
 
 /*

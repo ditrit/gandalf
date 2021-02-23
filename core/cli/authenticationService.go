@@ -5,12 +5,12 @@ import (
 )
 
 // GandalfAuthenticationService :
-type GandalfAuthenticationService struct {
+type AuthenticationService struct {
 	client *Client
 }
 
 // Login :
-func (as *GandalfAuthenticationService) Login(user models.User) (string, error) {
+func (as *AuthenticationService) Login(user models.User) (string, error) {
 
 	req, err := as.client.newRequest("POST", "/gandalf/login/", "", user)
 	if err != nil {
