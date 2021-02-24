@@ -4,13 +4,13 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 )
 
-// GandalfClusterService :
-type GandalfClusterService struct {
+// ClusterService :
+type ClusterService struct {
 	client *Client
 }
 
 // List :
-func (as *GandalfClusterService) List(token string) ([]models.Cluster, error) {
+func (as *ClusterService) List(token string) ([]models.Cluster, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/clusters/", token, nil)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (as *GandalfClusterService) List(token string) ([]models.Cluster, error) {
 }
 
 // Create :
-func (as *GandalfClusterService) Create(token string, cluster models.Cluster) error {
+func (as *ClusterService) Create(token string, cluster models.Cluster) error {
 	req, err := as.client.newRequest("POST", "/auth/gandalf/clusters/", token, cluster)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (as *GandalfClusterService) Create(token string, cluster models.Cluster) er
 }
 
 // DeclareMember :
-func (as *GandalfClusterService) DeclareMember(token string) (*models.Cluster, error) {
+func (as *ClusterService) DeclareMember(token string) (*models.Cluster, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/clusters/declare/", token, nil)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (as *GandalfClusterService) DeclareMember(token string) (*models.Cluster, e
 }
 
 // Read :
-func (as *GandalfClusterService) Read(token string, id int) (*models.Cluster, error) {
+func (as *ClusterService) Read(token string, id int) (*models.Cluster, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/clusters/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (as *GandalfClusterService) Read(token string, id int) (*models.Cluster, er
 }
 
 // Update :
-func (as *GandalfClusterService) Update(token string, id int, cluster models.Cluster) error {
+func (as *ClusterService) Update(token string, id int, cluster models.Cluster) error {
 	req, err := as.client.newRequest("PUT", "/auth/gandalf/clusters/"+string(id), token, cluster)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func (as *GandalfClusterService) Update(token string, id int, cluster models.Clu
 }
 
 // Delete :
-func (as *GandalfClusterService) Delete(token string, id int) error {
+func (as *ClusterService) Delete(token string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/gandalf/clusters/"+string(id), token, nil)
 	if err != nil {
 		return err

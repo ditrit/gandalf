@@ -4,13 +4,13 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 )
 
-// GandalfUserService :
-type GandalfUserService struct {
+// UserService :
+type UserService struct {
 	client *Client
 }
 
 // List :
-func (as *GandalfUserService) List(token string) ([]models.User, error) {
+func (as *UserService) List(token string) ([]models.User, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/users/", token, nil)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (as *GandalfUserService) List(token string) ([]models.User, error) {
 }
 
 // Create :
-func (as *GandalfUserService) Create(token string, user models.User) error {
+func (as *UserService) Create(token string, user models.User) error {
 	req, err := as.client.newRequest("POST", "/auth/gandalf/users/", token, user)
 	if err != nil {
 		return err
@@ -31,7 +31,7 @@ func (as *GandalfUserService) Create(token string, user models.User) error {
 }
 
 // Read :
-func (as *GandalfUserService) Read(token string, id int) (*models.User, error) {
+func (as *UserService) Read(token string, id int) (*models.User, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/users/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (as *GandalfUserService) Read(token string, id int) (*models.User, error) {
 }
 
 // Read :
-func (as *GandalfUserService) ReadByName(token string, name string) (*models.User, error) {
+func (as *UserService) ReadByName(token string, name string) (*models.User, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/users/"+name, token, nil)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (as *GandalfUserService) ReadByName(token string, name string) (*models.Use
 }
 
 // Update :
-func (as *GandalfUserService) Update(token string, id int, user models.User) error {
+func (as *UserService) Update(token string, id int, user models.User) error {
 	req, err := as.client.newRequest("PUT", "/auth/gandalf/users/"+string(id), token, user)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func (as *GandalfUserService) Update(token string, id int, user models.User) err
 }
 
 // Delete :
-func (as *GandalfUserService) Delete(token string, id int) error {
+func (as *UserService) Delete(token string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/gandalf/users/"+string(id), token, nil)
 	if err != nil {
 		return err

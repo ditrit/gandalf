@@ -4,13 +4,13 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 )
 
-// GandalfTenantService :
-type GandalfTenantService struct {
+// TenantService :
+type TenantService struct {
 	client *Client
 }
 
 // List :
-func (as *GandalfTenantService) List(token string) ([]models.Tenant, error) {
+func (as *TenantService) List(token string) ([]models.Tenant, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/tenants/", token, nil)
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (as *GandalfTenantService) List(token string) ([]models.Tenant, error) {
 }
 
 // Create :
-func (as *GandalfTenantService) Create(token string, tenant models.Tenant) (string, string, error) {
+func (as *TenantService) Create(token string, tenant models.Tenant) (string, string, error) {
 	req, err := as.client.newRequest("POST", "/auth/gandalf/tenants/", token, tenant)
 	if err != nil {
 		return "", "", err
@@ -37,7 +37,7 @@ func (as *GandalfTenantService) Create(token string, tenant models.Tenant) (stri
 }
 
 // Read :
-func (as *GandalfTenantService) Read(token string, id int) (*models.Tenant, error) {
+func (as *TenantService) Read(token string, id int) (*models.Tenant, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/tenants/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (as *GandalfTenantService) Read(token string, id int) (*models.Tenant, erro
 }
 
 // Update :
-func (as *GandalfTenantService) Update(token string, id int, tenant models.Tenant) error {
+func (as *TenantService) Update(token string, id int, tenant models.Tenant) error {
 	req, err := as.client.newRequest("PUT", "/auth/gandalf/tenants/"+string(id), token, tenant)
 	if err != nil {
 		return err
@@ -58,7 +58,7 @@ func (as *GandalfTenantService) Update(token string, id int, tenant models.Tenan
 }
 
 // Delete :
-func (as *GandalfTenantService) Delete(token string, id int) error {
+func (as *TenantService) Delete(token string, id int) error {
 	req, err := as.client.newRequest("DELETE", "/auth/gandalf/tenants/"+string(id), token, nil)
 	if err != nil {
 		return err

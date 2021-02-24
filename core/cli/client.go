@@ -14,20 +14,17 @@ import (
 
 // Client :
 type Client struct {
-	BaseURL                      *url.URL
-	UserAgent                    string
-	HTTPClient                   *http.Client
-	AuthenticationService        *AuthenticationService
-	CliService                   *CliService
-	GandalfClusterService        *GandalfClusterService
-	GandalfRoleService           *GandalfRoleService
-	GandalfTenantService         *GandalfTenantService
-	GandalfUserService           *GandalfUserService
-	TenantsAuthenticationService *TenantsAuthenticationService
-	TenantsAggregatorService     *TenantsAggregatorService
-	TenantsConnectorService      *TenantsConnectorService
-	TenantsRoleService           *TenantsRoleService
-	TenantsUserService           *TenantsUserService
+	BaseURL               *url.URL
+	UserAgent             string
+	HTTPClient            *http.Client
+	AuthenticationService *AuthenticationService
+	CliService            *CliService
+	ClusterService        *ClusterService
+	RoleService           *RoleService
+	TenantService         *TenantService
+	UserService           *UserService
+	AggregatorService     *AggregatorService
+	ConnectorService      *ConnectorService
 }
 
 // NewClient :
@@ -50,16 +47,12 @@ func NewClient(bindAddress string) (client *Client) {
 
 	client.AuthenticationService = &AuthenticationService{client: client}
 	client.CliService = &CliService{client: client}
-	client.GandalfClusterService = &GandalfClusterService{client: client}
-	client.GandalfRoleService = &GandalfRoleService{client: client}
-	client.GandalfTenantService = &GandalfTenantService{client: client}
-	client.GandalfUserService = &GandalfUserService{client: client}
-
-	client.TenantsAuthenticationService = &TenantsAuthenticationService{client: client}
-	client.TenantsAggregatorService = &TenantsAggregatorService{client: client}
-	client.TenantsConnectorService = &TenantsConnectorService{client: client}
-	client.TenantsRoleService = &TenantsRoleService{client: client}
-	client.TenantsUserService = &TenantsUserService{client: client}
+	client.ClusterService = &ClusterService{client: client}
+	client.RoleService = &RoleService{client: client}
+	client.TenantService = &TenantService{client: client}
+	client.UserService = &UserService{client: client}
+	client.AggregatorService = &AggregatorService{client: client}
+	client.ConnectorService = &ConnectorService{client: client}
 
 	return
 

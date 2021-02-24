@@ -59,7 +59,7 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.HandleFunc(urls.CONFIGURATION_PATH_DELETE, controllers.ConfigurationController.Delete).Methods("DELETE")
 	subg.HandleFunc(urls.CONFIGURATION_PATH_UPLOAD, controllers.ConfigurationController.Upload).Methods("POST")
 
-	//TENANTS
+	/* //TENANTS
 	//AGGREGATOR
 	subg.HandleFunc(urls.AGGREGATOR_PATH_LIST, controllers.AggregatorController.List).Methods("GET")
 	subg.HandleFunc(urls.AGGREGATOR_PATH_CREATE, controllers.AggregatorController.Create).Methods("POST")
@@ -90,7 +90,7 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.HandleFunc(urls.CONFIGURATION_CONNECTOR_PATH_READ, controllers.ConfigurationConnectorController.Read).Methods("GET")
 	subg.HandleFunc(urls.CONFIGURATION_CONNECTOR_PATH_UPDATE, controllers.ConfigurationConnectorController.Update).Methods("PUT")
 	subg.HandleFunc(urls.CONFIGURATION_CONNECTOR_PATH_DELETE, controllers.ConfigurationConnectorController.Delete).Methods("DELETE")
-	subg.HandleFunc(urls.CONFIGURATION_CONNECTOR_PATH_UPLOAD, controllers.ConfigurationConnectorController.Upload).Methods("POST")
+	subg.HandleFunc(urls.CONFIGURATION_CONNECTOR_PATH_UPLOAD, controllers.ConfigurationConnectorController.Upload).Methods("POST") */
 
 	return mux
 }
