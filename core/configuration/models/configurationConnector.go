@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ditrit/gandalf/core/configuration/config"
+	"github.com/ditrit/gandalf/verdeter"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -12,10 +12,10 @@ import (
 )
 
 type ConfigurationConnector struct {
-	cfg *config.ConfigCmd
+	cfg *verdeter.ConfigCmd
 }
 
-func NewConfigurationConnector(cfg *config.ConfigCmd) *ConfigurationConnector {
+func NewConfigurationConnector(cfg *verdeter.ConfigCmd) *ConfigurationConnector {
 	configurationConnector := new(ConfigurationConnector)
 	configurationConnector.cfg = cfg
 	return configurationConnector
@@ -212,11 +212,11 @@ func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfiguration
 	for _, configurationKey := range listConfigurationKeys {
 		switch configurationKey.Type {
 		case "string":
-			cc.cfg.Key(configurationKey.Name, config.IsStr, "", "")
+			cc.cfg.Key(configurationKey.Name, verdeter.IsStr, "", "")
 		case "int":
-			cc.cfg.Key(configurationKey.Name, config.IsInt, "", "")
+			cc.cfg.Key(configurationKey.Name, verdeter.IsInt, "", "")
 		case "bool":
-			cc.cfg.Key(configurationKey.Name, config.IsBool, "", "")
+			cc.cfg.Key(configurationKey.Name, verdeter.IsBool, "", "")
 		}
 		cc.cfg.SetDefault(configurationKey.Name, configurationKey.DefaultValue)
 		if configurationKey.Mandatory {

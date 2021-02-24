@@ -16,7 +16,7 @@ func ListConnector(database *gorm.DB) (connectors []models.Connector, err error)
 }
 
 func CreateConnector(database *gorm.DB, connector models.Connector) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			err = database.Create(&connector).Error
@@ -47,7 +47,7 @@ func UpdateConnector(database *gorm.DB, connector models.Connector) (err error) 
 }
 
 func DeleteConnector(database *gorm.DB, id int) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var connector models.Connector

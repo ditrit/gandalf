@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ditrit/gandalf/core/configuration/config"
+	"github.com/ditrit/gandalf/verdeter"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/connector"
@@ -18,11 +18,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-var connectorCfg = config.NewConfigCmd(
+var connectorCfg = verdeter.NewConfigCmd(
 	"connector",
 	"Launch gandalf in 'connector' mode.",
 	`Gandalf is launched as a connector instance.`,
-	func(cfg *config.ConfigCmd, args []string) {
+	func(cfg *verdeter.ConfigCmd, args []string) {
 		fmt.Println("connector called")
 
 		done := make(chan bool)
@@ -37,40 +37,40 @@ func init() {
 
 	connectorCfg.SetRequired("lname")
 
-	connectorCfg.Key("aggregator", config.IsStr, "a", "remote address of one of the cluster members to link")
-	connectorCfg.SetCheck("aggregator", CheckNotEmpty)
+	connectorCfg.Key("aggregator", verdeter.IsStr, "a", "remote address of one of the cluster members to link")
+	connectorCfg.SetCheck("aggregator", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("aggregator")
-	connectorCfg.SetNormalize("aggregator", TrimToLower)
+	connectorCfg.SetNormalize("aggregator", verdeter.TrimToLower)
 
-	connectorCfg.Key("class", config.IsStr, "c", "the type of connector (bus, csv, orchestrator, etc.)")
-	connectorCfg.SetCheck("class", CheckNotEmpty)
+	connectorCfg.Key("class", verdeter.IsStr, "c", "the type of connector (bus, csv, orchestrator, etc.)")
+	connectorCfg.SetCheck("class", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("class")
-	connectorCfg.SetNormalize("product", TrimToLower)
+	connectorCfg.SetNormalize("product", verdeter.TrimToLower)
 
-	connectorCfg.Key("product", config.IsStr, "p", "the type of connector (bus, csv, orchestrator, etc.)")
-	connectorCfg.SetCheck("product", CheckNotEmpty)
+	connectorCfg.Key("product", verdeter.IsStr, "p", "the type of connector (bus, csv, orchestrator, etc.)")
+	connectorCfg.SetCheck("product", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("product")
-	connectorCfg.SetNormalize("product", TrimToLower)
+	connectorCfg.SetNormalize("product", verdeter.TrimToLower)
 
-	//connectorCfg.Key("workers", config.IsStr, "w", "path for the workers configuration (absolute or relative to the certificates directory)")
+	//connectorCfg.Key("workers", verdeter.IsStr, "w", "path for the workers configuration (absolute or relative to the certificates directory)")
 	//connectorCfg.SetDefault("workers", "/tmp/")
 	/* 	connectorCfg.SetCheck("workers", func(val interface{}) bool {
 		valStr, ok := val.(string)
 		if ok {
-			return config.CreateWritableDirectory(viper.GetString("config_dir") + "workers")
+			return verdeter.CreateWritableDirectory(viper.GetString("config_dir") + "workers")
 		}
 		return false
 	}) */
 	connectorCfg.SetComputedValue("gandalf_var",
 		func() interface{} {
 			path := "/var/lib/gandalf/"
-			ok := config.CreateWritableDirectory(path)
+			ok := verdeter.CreateWritableDirectory(path)
 			if ok {
 				viper.Set("gandalf_var", path)
 				return path
 			}
-			path = config.GetHomeDirectory() + "/gandalf/"
-			ok = config.CreateWritableDirectory(path)
+			path = verdeter.GetHomeDirectory() + "/gandalf/"
+			ok = verdeter.CreateWritableDirectory(path)
 			if ok {
 				viper.Set("gandalf_var", path)
 				return path
@@ -82,14 +82,14 @@ func init() {
 	connectorCfg.SetComputedValue("workers",
 		func() interface{} {
 			//viper.Set("gandalf_var", connectorCfg.GetComputedValue()["gandalf_var"])
-			ok := config.CreateWritableDirectory(viper.GetString("config_dir") + "workers")
+			ok := verdeter.CreateWritableDirectory(viper.GetString("config_dir") + "workers")
 			if !ok {
 				fmt.Println("Error: can't create workers subdirectory into config directory")
 				return nil
 			}
 			fmt.Println(viper.GetString("gandalf_var"))
 			workersVarDir := viper.GetString("gandalf_var") + "workers"
-			ok = config.CreateWritableDirectory(workersVarDir)
+			ok = verdeter.CreateWritableDirectory(workersVarDir)
 			if !ok {
 				fmt.Println("Error: can't create workers subdirectory into config directory")
 				return nil
@@ -99,16 +99,16 @@ func init() {
 		})
 
 	//TODO REVOIR DEFAULT
-	//connectorCfg.Key("grpc_dir", config.IsStr, "g", "path for the sockets directory (absolute or relative to the certificates directory)")
+	//connectorCfg.Key("grpc_dir", verdeter.IsStr, "g", "path for the sockets directory (absolute or relative to the certificates directory)")
 	//connectorCfg.SetDefault("grpc_dir", "/tmp/")
 	connectorCfg.SetComputedValue("var_run_dir",
 		func() interface{} {
-			ok := config.CreateWritableDirectory("/var/run/gandalf/")
+			ok := verdeter.CreateWritableDirectory("/var/run/gandalf/")
 			if ok {
 				viper.Set("var_run_dir", "/var/run/gandalf/")
 				return "/var/run/gandalf/"
 			} else {
-				ok = config.CreateWritableDirectory("/tmp/gandalf/run/")
+				ok = verdeter.CreateWritableDirectory("/tmp/gandalf/run/")
 				if ok {
 					viper.Set("var_run_dir", "/tmp/gandalf/run/")
 					return "/tmp/gandalf/run/"
@@ -125,19 +125,19 @@ func init() {
 			return viper.GetString("var_run_dir") + viper.GetString("lname") + "_" + viper.GetString("class") + "_" + viper.GetString("product") //+ "_" + utils.GenerateHash(viper.GetString("lname"))
 		})
 
-	connectorCfg.Key("workers_url", config.IsStr, "u", "workers URL")
+	connectorCfg.Key("workers_url", verdeter.IsStr, "u", "workers URL")
 	connectorCfg.SetDefault("workers_url", "https://github.com/ditrit/workers/raw/master")
 
-	connectorCfg.Key("versions", config.IsStr, "v", "worker versions")
+	connectorCfg.Key("versions", verdeter.IsStr, "v", "worker versions")
 
-	connectorCfg.Key("update_mode", config.IsStr, "", "update mode (manual|auto|planed)")
+	connectorCfg.Key("update_mode", verdeter.IsStr, "", "update mode (manual|auto|planed)")
 	connectorCfg.SetDefault("update_mode", "manual")
 	connectorCfg.SetCheck("update_mode", func(val interface{}) bool {
 		strVal := strings.ToLower(strings.TrimSpace(val.(string)))
 		return map[string]bool{"manual": true, "auto": true, "planed": true}[strVal]
 	})
 
-	connectorCfg.Key("update_time", config.IsStr, "", "time for planed update mode")
+	connectorCfg.Key("update_time", verdeter.IsStr, "", "time for planed update mode")
 
 	connectorCfg.SetRequired("secret")
 }

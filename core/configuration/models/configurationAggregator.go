@@ -60,14 +60,17 @@ func (ca ConfigurationAggregator) SetLinkAddress(linkAddress string) {
 
 }
 
-/* func (ca ConfigurationAggregator) GetLogPath() string {
-	return viper.GetString("logicalName")
+func (ca ConfigurationAggregator) GetAPIPort() int {
+	return viper.GetInt("api_port")
 }
 
-func (ca ConfigurationAggregator) SetLogPath(logPath string) {
-	viper.Set("", logPath)
+func (ca ConfigurationAggregator) SetAPIPort(apiPort int) {
+	viper.Set("api_port", apiPort)
+}
 
-} */
+func (ca ConfigurationAggregator) GetAPIBindAddress() string {
+	return viper.GetString("bind") + ":" + viper.GetString("api_port")
+}
 
 func (ca ConfigurationAggregator) GetSecret() string {
 	return viper.GetString("secret")

@@ -19,9 +19,9 @@ import (
 var configurationSendIndex = 0
 
 func GetConfiguration(c *net.ShosetConn) (msg.Message, error) {
-	var conf cmsg.Configuration
-	err := c.ReadMessage(&conf)
-	return conf, err
+	var configuration cmsg.Configuration
+	err := c.ReadMessage(&configuration)
+	return configuration, err
 }
 
 // WaitConfig :
@@ -125,66 +125,67 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
 	configMarshal, err := json.Marshal(configurationLogicalAggregator)
+	if err == nil {
+		configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
+		configurationMsg.Tenant = configurationAggregator.GetTenant()
+		configurationMsg.GetContext()["componentType"] = "aggregator"
+		configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
+		configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
+		//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
+		//conf.GetContext()["product"] = shoset.Context["product"]
 
-	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
-	configurationMsg.Tenant = configurationAggregator.GetTenant()
-	configurationMsg.GetContext()["componentType"] = "aggregator"
-	configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
-	configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
-	//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
-	//conf.GetContext()["product"] = shoset.Context["product"]
+		shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
-	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
-
-	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
-			configurationMsg.Timeout = configurationAggregator.GetMaxTimeout()
-		}
-
-		notSend := true
-		for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
-			index := getSecretSendIndex(shosets)
-			shosets[index].SendMessage(configurationMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["logicalConfiguration"] != nil {
-				notSend = false
-				break
+		if len(shosets) != 0 {
+			if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+				configurationMsg.Timeout = configurationAggregator.GetMaxTimeout()
 			}
-		}
 
-		if notSend {
-			return nil
-		}
+			notSend := true
+			for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(configurationMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
 
-		/* notSend := true
-		for notSend {
+				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
 
-			index := getSecretSendIndex(shosets)
-			shosets[index].SendMessage(configurationMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+				time.Sleep(timeoutSend * time.Millisecond)
 
-			timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["logicalConfiguration"] != nil {
-				notSend = false
-				break
+				if shoset.Context["logicalConfiguration"] != nil {
+					notSend = false
+					break
+				}
 			}
+
+			if notSend {
+				return nil
+			}
+
+			/* notSend := true
+			for notSend {
+
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(configurationMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+
+				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
+
+				time.Sleep(timeoutSend * time.Millisecond)
+
+				if shoset.Context["logicalConfiguration"] != nil {
+					notSend = false
+					break
+				}
+			}
+
+			if notSend {
+				return nil
+			} */
+
+		} else {
+			log.Println("can't find cluster to send")
+			err = errors.New("can't find cluster to send")
 		}
-
-		if notSend {
-			return nil
-		} */
-
-	} else {
-		log.Println("can't find cluster to send")
-		err = errors.New("can't find cluster to send")
 	}
 
 	return err

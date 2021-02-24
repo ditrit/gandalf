@@ -46,9 +46,9 @@ func CoackroachInit(certsDir, host string) error {
 	return err
 }
 
-func CoackroachCreateDatabase(certsDir, host, database string) error {
+func CoackroachCreateDatabase(certsDir, host, database, password string) error {
 	path, err := os.Getwd()
-	cmd := exec.Command("/bin/sh", "./cockroachCreateDatabase.sh", certsDir, host, database)
+	cmd := exec.Command("/bin/sh", "./cockroachCreateDatabase.sh", certsDir, host, database, password)
 	cmd.Dir = path + "/cluster/database/"
 
 	cmd.Start()

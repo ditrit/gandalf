@@ -423,39 +423,29 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 			var listConfigurationKeys []models.ConfigurationKeys
 
 			var listConfigurationConnectorTypeKeys []models.ConfigurationKeys
-			err = yaml.Unmarshal([]byte(connectorConfig.ConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
-			if err != nil {
-				fmt.Println(err)
-			}
-
 			var listConfigurationProductKeys []models.ConfigurationKeys
-			err = yaml.Unmarshal([]byte(connectorConfig.ProductKeys), &listConfigurationProductKeys)
-			if err != nil {
-				fmt.Println(err)
-			}
 			var listConfigurationVersionMajorKeys []models.ConfigurationKeys
-			err = yaml.Unmarshal([]byte(connectorConfig.VersionMajorKeys), &listConfigurationVersionMajorKeys)
-			if err != nil {
-				fmt.Println(err)
-			}
-
 			var listConfigurationVersionMinorKeys []models.ConfigurationKeys
-			err = yaml.Unmarshal([]byte(connectorConfig.VersionMinorKeys), &listConfigurationVersionMinorKeys)
-			if err != nil {
-				fmt.Println(err)
+
+			err = yaml.Unmarshal([]byte(connectorConfig.ConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
+			if err == nil {
+				err = yaml.Unmarshal([]byte(connectorConfig.ProductKeys), &listConfigurationProductKeys)
+				if err == nil {
+					err = yaml.Unmarshal([]byte(connectorConfig.VersionMajorKeys), &listConfigurationVersionMajorKeys)
+					if err == nil {
+						err = yaml.Unmarshal([]byte(connectorConfig.VersionMinorKeys), &listConfigurationVersionMinorKeys)
+					}
+				}
 			}
-
-			listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
-			listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
-			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMajorKeys...)
-			listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMinorKeys...)
-
-			configurationConnector := w.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
-			configurationConnector.AddConnectorConfigurationKeys(listConfigurationKeys)
-			//configuration.WorkerKeyParse(listConfigurationKeys)
-			//err = configuration.IsConfigValid()
 
 			if err == nil {
+				listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
+				listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
+				listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMajorKeys...)
+				listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMinorKeys...)
+
+				configurationConnector := w.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
+				configurationConnector.AddConnectorConfigurationKeys(listConfigurationKeys)
 
 				var stdinargs string
 				stdinargs = configurationConnector.GetConfigurationKeys(listConfigurationKeys)

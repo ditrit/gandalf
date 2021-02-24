@@ -59,7 +59,9 @@ func HandleConnectorConfig(c *net.ShosetConn, message msg.Message) (err error) {
 				//connectorConfig := conf.GetContext()["connectorConfig"].(models.ConnectorConfig)
 				var connectorConfig *models.ConnectorConfig
 				err = json.Unmarshal([]byte(conf.GetPayload()), &connectorConfig)
-				cutils.SaveConnectorsConfiguration(connectorConfig, databaseClient)
+				if err == nil {
+					cutils.SaveConnectorsConfiguration(connectorConfig, databaseClient)
+				}
 			}
 		} else {
 			log.Println("Can't get database client by tenant")

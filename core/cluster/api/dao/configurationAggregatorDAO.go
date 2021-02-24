@@ -16,7 +16,7 @@ func ListConfigurationAggregator(database *gorm.DB) (configurationAggregators []
 }
 
 func CreateConfigurationAggregator(database *gorm.DB, configurationAggregator models.ConfigurationLogicalAggregator) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			err = database.Create(&configurationAggregator).Error
@@ -41,7 +41,7 @@ func UpdateConfigurationAggregator(database *gorm.DB, configurationAggregator mo
 }
 
 func DeleteConfigurationAggregator(database *gorm.DB, id int) (err error) {
-	admin, err := utils.GetStateGandalf(database)
+	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var configurationAggregator models.ConfigurationLogicalAggregator

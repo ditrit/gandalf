@@ -24,13 +24,13 @@ func NewConfiguration(target string, command string, payload string) *Configurat
 }
 
 // GetMsgType accessor
-func (s Configuration) GetMsgType() string { return "configuration" }
+func (c Configuration) GetMsgType() string { return "configuration" }
 
 // GetTarget :
-func (s Configuration) GetTarget() string { return s.Target }
+func (c Configuration) GetTarget() string { return c.Target }
 
 // GetCommand :
-func (s Configuration) GetCommand() string { return s.Command }
+func (c Configuration) GetCommand() string { return c.Command }
 
 // GetContext :
-func (s Configuration) GetContext() map[string]interface{} { return s.Context }
+func (c Configuration) GetContext() map[string]interface{} { return c.Context }

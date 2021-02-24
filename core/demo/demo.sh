@@ -8,23 +8,21 @@ go build -o gandalf
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
-./gandalf cluster -l Cluster --offset 1
-./gandalf cluster -l Cluster --offset 2 --db_nodename node2 --join 127.0.0.1:9099 --secret TUTU
-./gandalf cluster -l Cluster --offset 3 --db_nodename node3 --join 127.0.0.1:9099 --secret TITI
-
-./gandalf cluster -l Cluster 
-./gandalf cluster -l Cluster --join 127.0.0.1:9099 --secret TUTU
-./gandalf cluster -l Cluster --join 127.0.0.1:9099 --secret TITI
-
+./gandalf cluster --offset 1 -l Cluster
+./gandalf cluster --offset 2 -l Cluster --join 127.0.0.1:9100 --secret <secret>
+./gandalf cluster --offset 3 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 
 echo 'Aggregator' 
 echo 'Init AggregatorMember Agg1 and Agg2'
-./gandalf aggregator -l Aggregator1 -t tenant1 --port 10000 --cluster 127.0.0.1:9099 --secret hesQi342rysAuj4LwuLs54L7-G70lG31-RuN3ZeKVZ9Kbk-IlrTcfesboicD_8Xc77ZQxUxgvI2YskEaXCGR8Q==
+./gandalf aggregator --offset 4 -l Aggregator1 -t tenant1 --cluster 127.0.0.1:9100 --secret <secret>
 sleep 5
+
+
 
 echo 'Connector'
 echo 'ConnectorMember Con1 and Con2' 
-./gandalf connector -l Connector1 --port 10100 --aggregator 127.0.0.1:10000 --secret TOTO --class utils --product Custom
+./gandalf connector -offset 5 -l Connector1 --aggregator 127.0.0.1:9104 --secret <secret> --class utils --product Custom
+
 
 ./gandalf -g connector -l Connector1 -b 127.0.0.1:7000 -r /tmp/ -a 127.0.0.1:8000 -y Utils -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO
 ./gandalf -g connector -l Connector2 -b 127.0.0.1:7100 -r /tmp/ -a 127.0.0.1:8000 -y Workflow -p Docker -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO

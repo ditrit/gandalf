@@ -15,13 +15,13 @@
 # vendor/
 
 # custom
-gandalf-go
 
 /*
 !/core/
 !/connectors/
 !/libraries/
 !/cli/
+!/verdeter/
 
 !.gitignore
 !.golangci.yml

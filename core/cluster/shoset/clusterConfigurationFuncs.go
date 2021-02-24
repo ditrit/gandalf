@@ -168,7 +168,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 					configMarshal, err := json.Marshal(config)
 					if err == nil {
-						fmt.Println("MARSHALL")
 						target := configuration.GetTarget()
 						configurationReply := cmsg.NewConfiguration(target, "CONFIGURATION_REPLY", string(configMarshal))
 						configurationReply.Tenant = configuration.GetTenant()
@@ -223,65 +222,66 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 
 	configurationLogicalCluster := configurationCluster.ConfigurationToDatabase()
 	configMarshal, err := json.Marshal(configurationLogicalCluster)
+	if err == nil {
+		configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
+		//secretMsg.Tenant = "cluster"
+		configurationMsg.GetContext()["componentType"] = "cluster"
+		configurationMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()
+		configurationMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
+		//configurationMsg.GetContext()["configuration"] = configurationLogicalCluster
+		//conf.GetContext()["product"] = shoset.Context["product"]
 
-	configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
-	//secretMsg.Tenant = "cluster"
-	configurationMsg.GetContext()["componentType"] = "cluster"
-	configurationMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()
-	configurationMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
-	//configurationMsg.GetContext()["configuration"] = configurationLogicalCluster
-	//conf.GetContext()["product"] = shoset.Context["product"]
+		shosets := net.GetByType(shoset.ConnsJoin, "")
 
-	shosets := net.GetByType(shoset.ConnsJoin, "")
-
-	if len(shosets) != 0 {
-		if configurationMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
-			configurationMsg.Timeout = configurationCluster.GetMaxTimeout()
-		}
-
-		notSend := true
-		for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
-			index := getSecretSendIndex(shosets)
-			shosets[index].SendMessage(configurationMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["logicalConfiguration"] != nil {
-				notSend = false
-				break
+		if len(shosets) != 0 {
+			if configurationMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
+				configurationMsg.Timeout = configurationCluster.GetMaxTimeout()
 			}
-		}
 
-		if notSend {
-			return nil
-		}
-		/* 	notSend := true
-		for notSend {
+			notSend := true
+			for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(configurationMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
 
-			index := getConfigurationSendIndex(shosets)
-			shosets[index].SendMessage(configurationMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
 
-			timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
+				time.Sleep(timeoutSend * time.Millisecond)
 
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["logicalConfiguration"] != nil {
-				notSend = false
-				break
+				if shoset.Context["logicalConfiguration"] != nil {
+					notSend = false
+					break
+				}
 			}
+
+			if notSend {
+				return nil
+			}
+			/* 	notSend := true
+			for notSend {
+
+				index := getConfigurationSendIndex(shosets)
+				shosets[index].SendMessage(configurationMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+
+				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
+
+				time.Sleep(timeoutSend * time.Millisecond)
+
+				if shoset.Context["logicalConfiguration"] != nil {
+					notSend = false
+					break
+				}
+			}
+
+			if notSend {
+				return nil
+			} */
+
+		} else {
+			log.Println("can't find cluster to send")
+			err = errors.New("can't find cluster to send")
 		}
-
-		if notSend {
-			return nil
-		} */
-
-	} else {
-		log.Println("can't find cluster to send")
-		err = errors.New("can't find cluster to send")
 	}
 
 	return err
