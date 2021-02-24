@@ -112,6 +112,8 @@ func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client
 		for _, action := range connectorCommand.Actions {
 			var currentAction models.Action
 			client.Where("name = ?", action.Name).First(&currentAction)
+			fmt.Println("currentAction")
+			fmt.Println(currentAction)
 			listAction = append(listAction, currentAction)
 		}
 		connectorCommand.Actions = listAction
@@ -126,6 +128,8 @@ func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client
 		for _, action := range connectorEvent.Actions {
 			var currentAction models.Action
 			client.Where("name = ?", action.Name).First(&currentAction)
+			fmt.Println("currentAction")
+			fmt.Println(currentAction)
 			listAction = append(listAction, currentAction)
 		}
 		connectorEvent.Actions = listAction
@@ -140,6 +144,8 @@ func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client
 		for _, action := range resource.Actions {
 			var currentAction models.Action
 			client.Where("name = ?", action.Name).First(&currentAction)
+			fmt.Println("currentAction")
+			fmt.Println(currentAction)
 			listAction = append(listAction, currentAction)
 		}
 		resource.Actions = listAction

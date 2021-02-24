@@ -121,9 +121,29 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 				}
 			}
 		}
+
+		CreateAction(tenantDatabaseClient)
+		//CreateConnectorType(tenantDatabaseClient)
 	}
 
 	return
+}
+
+//DemoCreateConnectorType
+func CreateConnectorType(tenantDatabaseClient *gorm.DB) {
+	tenantDatabaseClient.Create(&models.ConnectorType{Name: "utils"})
+	tenantDatabaseClient.Create(&models.ConnectorType{Name: "workflow"})
+	tenantDatabaseClient.Create(&models.ConnectorType{Name: "demo"})
+}
+
+//DemoCreateConnectorType
+func CreateAction(tenantDatabaseClient *gorm.DB) {
+	tenantDatabaseClient.Create(&models.Action{Name: "all"})
+	tenantDatabaseClient.Create(&models.Action{Name: "execute"})
+	tenantDatabaseClient.Create(&models.Action{Name: "create"})
+	tenantDatabaseClient.Create(&models.Action{Name: "read"})
+	tenantDatabaseClient.Create(&models.Action{Name: "update"})
+	tenantDatabaseClient.Create(&models.Action{Name: "delete"})
 }
 
 func (dc DatabaseConnection) GetConfigurationCluster() *cmodels.ConfigurationCluster {
