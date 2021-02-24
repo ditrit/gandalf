@@ -74,10 +74,16 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 				utils.ChangeStateTenant(tenantDatabaseClient)
 
 				if err == nil {
+					var aggregator models.Aggregator
+					aggregator.LogicalName = tenant.Name
+					aggregator.Secret = utils.GenerateHash()
+
+					dao.CreateAggregator(tenantDatabaseClient, aggregator)
+
 					result["login"] = login
 					result["password"] = password
 					result["tenant"] = tenant
-					result["aggregator"] = ""
+					result["aggregator"] = aggregator
 
 				} else {
 					dao.DeleteTenant(tc.databaseConnection.GetGandalfDatabaseClient(), int(tenant.ID))
