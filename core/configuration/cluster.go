@@ -3,7 +3,7 @@ Copyright © 2020 DitRit community <contact@ditrit.io>
 This file is part of Gandalf
 */
 
-// Package cmd manages commands and configuration
+// Package configuration manages commands and configuration
 package configuration
 
 import (
@@ -44,16 +44,16 @@ var clusterCfg = verdeter.NewConfigCmd(
 	})
 
 func init() {
-	rootCfg.AddConfig(clusterCfg)
+	startCfg.AddConfig(clusterCfg)
 
 	//clusterCfg.SetRequired("lname")
-	clusterCfg.SetDefault("lname", "cluster")
+	//clusterCfg.SetDefault("lname", "cluster")
 
-	clusterCfg.Key("join", verdeter.IsStr, "j", "remote address (of an already existing member of cluster) to join")
+	clusterCfg.LKey("join", verdeter.IsStr, "j", "remote address (of an already existing member of cluster) to join")
 	clusterCfg.SetCheck("join", verdeter.CheckNotEmpty)
 	clusterCfg.SetNormalize("join", verdeter.TrimToLower)
 
-	clusterCfg.Key("api_port", verdeter.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
+	clusterCfg.LKey("api_port", verdeter.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
 	//clusterCfg.SetDefault("api_port", 9199+verdeter.GetOffset())
 	clusterCfg.SetCheck("api_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("api_port",
@@ -61,7 +61,7 @@ func init() {
 			return 9199 + verdeter.GetOffset()
 		})
 
-	clusterCfg.Key("db_path", verdeter.IsStr, "", "path for the gandalf database (absolute or relative to the configuration directory)")
+	clusterCfg.LKey("db_path", verdeter.IsStr, "", "path for the gandalf database (absolute or relative to the configuration directory)")
 	clusterCfg.SetCheck("db_path", func(val interface{}) bool {
 		valStr, ok := val.(string)
 		if ok {
@@ -85,7 +85,7 @@ func init() {
 		})
 	//clusterCfg.SetDefault("db_path", "/var/lib/cockroach/")
 
-	clusterCfg.Key("db_nodename", verdeter.IsStr, "", "name of the gandalf node")
+	clusterCfg.LKey("db_nodename", verdeter.IsStr, "", "name of the gandalf node")
 	clusterCfg.SetCheck("db_nodename", verdeter.CheckNotEmpty)
 	//clusterCfg.SetDefault("db_nodename", "node1")
 	clusterCfg.SetComputedValue("db_nodename",
@@ -93,7 +93,7 @@ func init() {
 			return fmt.Sprint("node", verdeter.GetOffset())
 		})
 
-	clusterCfg.Key("db_port", verdeter.IsInt, "", "Port to bind (default is 9299 + offset if defined)")
+	clusterCfg.LKey("db_port", verdeter.IsInt, "", "Port to bind (default is 9299 + offset if defined)")
 	//clusterCfg.SetDefault("db_port", 9299)
 	clusterCfg.SetCheck("db_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("db_port",
@@ -101,7 +101,7 @@ func init() {
 			return 9299 + verdeter.GetOffset()
 		})
 
-	clusterCfg.Key("db_http_port", verdeter.IsInt, "", "Port to bind (default is 9399 + offset if defined)")
+	clusterCfg.LKey("db_http_port", verdeter.IsInt, "", "Port to bind (default is 9399 + offset if defined)")
 	//clusterCfg.SetDefault("db_http_port", 9399+verdeter.GetOffset())
 	clusterCfg.SetCheck("db_http_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("db_http_port",

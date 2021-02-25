@@ -3,7 +3,7 @@ Copyright © 2020 DitRit community <contact@ditrit.io>
 This file is part of Gandalf
 */
 
-// Package cmd manages commands and configuration
+// Package configuration manages commands and configuration
 package configuration
 
 import (
@@ -33,26 +33,26 @@ var connectorCfg = verdeter.NewConfigCmd(
 	})
 
 func init() {
-	rootCfg.AddConfig(connectorCfg)
+	startCfg.AddConfig(connectorCfg)
 
-	connectorCfg.SetRequired("lname")
+	//	connectorCfg.SetRequired("lname")
 
-	connectorCfg.Key("aggregator", verdeter.IsStr, "a", "remote address of one of the cluster members to link")
+	connectorCfg.LKey("aggregator", verdeter.IsStr, "a", "remote address of one of the cluster members to link")
 	connectorCfg.SetCheck("aggregator", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("aggregator")
 	connectorCfg.SetNormalize("aggregator", verdeter.TrimToLower)
 
-	connectorCfg.Key("class", verdeter.IsStr, "c", "the type of connector (bus, csv, orchestrator, etc.)")
+	connectorCfg.LKey("class", verdeter.IsStr, "c", "the type of connector (bus, csv, orchestrator, etc.)")
 	connectorCfg.SetCheck("class", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("class")
 	connectorCfg.SetNormalize("product", verdeter.TrimToLower)
 
-	connectorCfg.Key("product", verdeter.IsStr, "p", "the type of connector (bus, csv, orchestrator, etc.)")
+	connectorCfg.LKey("product", verdeter.IsStr, "p", "the type of connector (bus, csv, orchestrator, etc.)")
 	connectorCfg.SetCheck("product", verdeter.CheckNotEmpty)
 	connectorCfg.SetRequired("product")
 	connectorCfg.SetNormalize("product", verdeter.TrimToLower)
 
-	//connectorCfg.Key("workers", verdeter.IsStr, "w", "path for the workers configuration (absolute or relative to the certificates directory)")
+	//connectorCfg.LKey("workers", verdeter.IsStr, "w", "path for the workers configuration (absolute or relative to the certificates directory)")
 	//connectorCfg.SetDefault("workers", "/tmp/")
 	/* 	connectorCfg.SetCheck("workers", func(val interface{}) bool {
 		valStr, ok := val.(string)
@@ -107,16 +107,14 @@ func init() {
 			if ok {
 				viper.Set("var_run_dir", "/var/run/gandalf/")
 				return "/var/run/gandalf/"
-			} else {
-				ok = verdeter.CreateWritableDirectory("/tmp/gandalf/run/")
-				if ok {
-					viper.Set("var_run_dir", "/tmp/gandalf/run/")
-					return "/tmp/gandalf/run/"
-				} else {
-					fmt.Println("Error: can't create gRPC run directory")
-					return nil
-				}
 			}
+			ok = verdeter.CreateWritableDirectory("/tmp/gandalf/run/")
+			if ok {
+				viper.Set("var_run_dir", "/tmp/gandalf/run/")
+				return "/tmp/gandalf/run/"
+			}
+			fmt.Println("Error: can't create gRPC run directory")
+			return nil
 		})
 
 	//connectorCfg.Key("grpc_bind", isStr, "", "GRPC address to bind (default is [grpc_dir]_[class]_[product]_[hash])")
@@ -125,19 +123,19 @@ func init() {
 			return viper.GetString("var_run_dir") + viper.GetString("lname") + "_" + viper.GetString("class") + "_" + viper.GetString("product") //+ "_" + utils.GenerateHash(viper.GetString("lname"))
 		})
 
-	connectorCfg.Key("workers_url", verdeter.IsStr, "u", "workers URL")
+	connectorCfg.LKey("workers_url", verdeter.IsStr, "u", "workers URL")
 	connectorCfg.SetDefault("workers_url", "https://github.com/ditrit/workers/raw/master")
 
-	connectorCfg.Key("versions", verdeter.IsStr, "v", "worker versions")
+	connectorCfg.LKey("versions", verdeter.IsStr, "v", "worker versions")
 
-	connectorCfg.Key("update_mode", verdeter.IsStr, "", "update mode (manual|auto|planed)")
+	connectorCfg.LKey("update_mode", verdeter.IsStr, "", "update mode (manual|auto|planed)")
 	connectorCfg.SetDefault("update_mode", "manual")
 	connectorCfg.SetCheck("update_mode", func(val interface{}) bool {
 		strVal := strings.ToLower(strings.TrimSpace(val.(string)))
 		return map[string]bool{"manual": true, "auto": true, "planed": true}[strVal]
 	})
 
-	connectorCfg.Key("update_time", verdeter.IsStr, "", "time for planed update mode")
+	connectorCfg.LKey("update_time", verdeter.IsStr, "", "time for planed update mode")
 
 	connectorCfg.SetRequired("secret")
 }

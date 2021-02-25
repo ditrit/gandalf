@@ -212,11 +212,11 @@ func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfiguration
 	for _, configurationKey := range listConfigurationKeys {
 		switch configurationKey.Type {
 		case "string":
-			cc.cfg.Key(configurationKey.Name, verdeter.IsStr, "", "")
+			cc.cfg.LKey(configurationKey.Name, verdeter.IsStr, "", "")
 		case "int":
-			cc.cfg.Key(configurationKey.Name, verdeter.IsInt, "", "")
+			cc.cfg.LKey(configurationKey.Name, verdeter.IsInt, "", "")
 		case "bool":
-			cc.cfg.Key(configurationKey.Name, verdeter.IsBool, "", "")
+			cc.cfg.LKey(configurationKey.Name, verdeter.IsBool, "", "")
 		}
 		cc.cfg.SetDefault(configurationKey.Name, configurationKey.DefaultValue)
 		if configurationKey.Mandatory {
