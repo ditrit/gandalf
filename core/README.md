@@ -1,5 +1,5 @@
 # Gandalf Core
-La solution Gandalf (Gandalf is A Natural Devops Application Life-cycle Framework) a pour unique objectif de faciliter l’adoption du DevOps sur tout le cycle de vie DevOps sans imposer de choix ou présupposés technologiques ou de produits.
+Gandalf (Gandalf is A Natural Devops Application Life-cycle Framework), a tool to allow progressive DevOps adoption.
 
 https://ditrit.io/gandalf/
 
@@ -20,21 +20,20 @@ https://ditrit.io/gandalf/
 ## Architecture
 
 ### Cluster
-Le cluster Gandalf trace et fait transiter les commandes et les événements.
+The Gandalf cluster traces and routes commands and events.
 ### Aggregator
-Les agrégateurs Gandalf cloisonnent et simplifient l’architecture réseau.
+Gandalf aggregators silo and simplify the network architecture.
 ### Connector
-Les connecteurs Gandalf assurent la communication avec les briques du SI.   
-
+Gandalf connectors ensure communication with the bricks of the IS.
 
 ## Installation
 
 ```
-# Cloner ce repository
+# Clone repository
 git clone https://github.com/ditrit/gandalf
 cd gandalf
 
-# Installer les dependences go
+# Installing go dependencies
 go get
 ```
 
@@ -51,69 +50,67 @@ go build -o gandalf
 
 ### Cluster : 
 
-**Initialisation Cluster**
+**Cluster initialisation**
 ```bash
 ./gandalf start cluster --offset 1 -l Cluster 
 ```
-**Authentification a la CLI**
+**CLI authentification**
 ```bash
 ./gandalf cli -e http://localhost:9200 login <login> <password>
 ```
-**Creation administrateur** 
+**Create administrator** 
 ```bash
 ./gandalf cli -e http://localhost:9200 create user <username> <email> <password> -t <token>
 ```
-**Declaration cluster 2**
+**Cluster 2 declaration**
 ```bash
 ./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
 ```
-**Demarage cluster 2** 
+**Cluster 2 start** 
 ```bash
 ./gandalf start cluster --offset 2 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 ```
-**Declaration cluster 3**
+**Cluster 3 declaration**
 ```bash
 ./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
 ```
-**Demarage cluster 3**
+**Cluster 3 start**
 ```bash
 ./gandalf start cluster --offset 3 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 ```
 
 ### Tenant : 
 
-**Creation tenant**
+**Create tenant**
 ```bash
 ./gandalf cli -e http://localhost:9200 create tenant <tenant> -t <token>
 ```
-BLALBLA TENANT
 
-
-### Aggregateur : 
-**Authentification a la CLI**
+### Aggregator : 
+**CLI authentification**
 ```bash
 ./gandalf cli -e http://localhost:9203 login <login> <password>
 ```
-**Declaration aggregateur** 
+**Aggregator declaration** 
 ```bash
 ./gandalf cli -e http://localhost:9203 declare aggregator member <tenant> <name> -t <token>
 ```
-**Demarage aggregateur** 
+**Aggregator start** 
 ```bash
 ./gandalf start aggregator --offset 4 -l <name> -t <tenant> --cluster 127.0.0.1:9100 --secret <secret>
 ```
 
-### Connecteur :
-**Creation connecteur** 
+### Connector :
+**Creation connector** 
 ```bash
 ./gandalf cli -e http://localhost:9203 declare connector name <tenant> <name> -t <token>
 ```
 
-**Declaration connecteur** 
+**Connector declaration** 
 ```bash
 ./gandalf cli -e http://localhost:9203 declare connector member <tenant> <name> -t <token>
 ```
-**Demarage connecteur** 
+**Connector start** 
 ```bash
 ./gandalf start connector --offset 5 -l <name> --aggregator 127.0.0.1:9103 --secret <secret> --class <class> --product <product>
 ```
