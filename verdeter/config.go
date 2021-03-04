@@ -265,36 +265,52 @@ func (c *ConfigCmd) GetComputedValue() map[string]func() interface{} {
 	return c.computedValue
 }
 
-// Key defines a flag in cobra bound to env and config file
-func (c *ConfigCmd) Key(name string, valType ConfigType, short string, usage string) error {
+// LKey defines a flag in cobra bound to env and config file
+func (c *ConfigCmd) LKey(name string, valType ConfigType, short string, usage string) error {
 	c.keyType[name] = valType
-	return Key(c.cmd, name, valType, short, usage)
+	return Key(c.cmd, name, valType, short, usage, false)
+}
+
+// GKey defines a flag in cobra bound to env and config file
+func (c *ConfigCmd) GKey(name string, valType ConfigType, short string, usage string) error {
+	c.keyType[name] = valType
+	return Key(c.cmd, name, valType, short, usage, true)
 }
 
 // Key defines a flag in cobra bound to env and files
-func Key(cmd *cobra.Command, name string, valType ConfigType, short string, usage string) error {
-	switch valType {
-	case IsStr:
-		if short != "" {
-			cmd.PersistentFlags().StringP(name, short, "", usage)
-		} else {
-			cmd.PersistentFlags().String(name, "", usage)
-		}
-	case IsInt:
-		if short != "" {
-			cmd.PersistentFlags().IntP(name, short, 0, usage)
-		} else {
-			cmd.PersistentFlags().Int(name, 0, usage)
-		}
-	case IsBool:
-		if short != "" {
-			cmd.PersistentFlags().BoolP(name, short, false, usage)
-		} else {
-			cmd.PersistentFlags().Bool(name, false, usage)
-		}
+func Key(cmd *cobra.Command, name string, valType ConfigType, short string, usage string, global bool) error {
+	switch {
+	case valType == IsStr && short != "" && !global:
+		cmd.Flags().StringP(name, short, "", usage)
+	case valType == IsStr && short != "" && global:
+		cmd.PersistentFlags().StringP(name, short, "", usage)
+	case valType == IsStr && short == "" && !global:
+		cmd.Flags().String(name, "", usage)
+	case valType == IsStr && short == "" && global:
+		cmd.PersistentFlags().String(name, "", usage)
+	case valType == IsInt && short != "" && !global:
+		cmd.Flags().IntP(name, short, 0, usage)
+	case valType == IsInt && short != "" && global:
+		cmd.PersistentFlags().IntP(name, short, 0, usage)
+	case valType == IsInt && short == "" && !global:
+		cmd.Flags().Int(name, 0, usage)
+	case valType == IsInt && short == "" && global:
+		cmd.PersistentFlags().Int(name, 0, usage)
+	case valType == IsBool && short != "" && !global:
+		cmd.Flags().BoolP(name, short, false, usage)
+	case valType == IsBool && short != "" && global:
+		cmd.PersistentFlags().BoolP(name, short, false, usage)
+	case valType == IsBool && short == "" && !global:
+		cmd.Flags().Bool(name, false, usage)
+	case valType == IsBool && short == "" && global:
+		cmd.PersistentFlags().Bool(name, false, usage)
 	}
 	//cmd.MarkFlagRequired(name)
-	viper.BindPFlag(name, cmd.PersistentFlags().Lookup(name))
+	if global {
+		viper.BindPFlag(name, cmd.PersistentFlags().Lookup(name))
+	} else {
+		viper.BindPFlag(name, cmd.Flags().Lookup(name))
+	}
 	viper.BindEnv(name)
 	return nil
 }

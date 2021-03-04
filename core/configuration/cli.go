@@ -3,7 +3,7 @@ Copyright © 2020 DitRit community <contact@ditrit.io>
 This file is part of Gandalf
 */
 
-// Package cmd manages commands and configuration
+// Package configuration manages commands and configuration
 package configuration
 
 import (
@@ -64,9 +64,9 @@ func init() {
 
 	rootCfg.AddConfig(cliCfg)
 
-	cliCfg.Key("endpoint", verdeter.IsStr, "e", "Gandalf endpoint")
+	cliCfg.GKey("endpoint", verdeter.IsStr, "e", "Gandalf endpoint")
 	cliCfg.SetRequired("endpoint")
-	cliCfg.Key("token", verdeter.IsStr, "t", "Gandalf auth token")
+	cliCfg.GKey("token", verdeter.IsStr, "t", "Gandalf auth token")
 	//cliCfg.SetRequired("token")
 
 	cliCfg.AddConfig(cliCreate)
@@ -114,27 +114,27 @@ func init() {
 	cliListUsers.SetNbArgs(0)
 	cliUpdateUser.SetNbArgs(1)
 	cliDeleteUser.SetNbArgs(1)
-	cliUpdateUser.Key("username", verdeter.IsStr, "u", "name of the user")
-	cliUpdateUser.Key("email", verdeter.IsStr, "m", "mail of the user")
-	cliUpdateUser.Key("password", verdeter.IsStr, "p", "password of the user")
+	cliUpdateUser.LKey("username", verdeter.IsStr, "u", "name of the user")
+	cliUpdateUser.LKey("email", verdeter.IsStr, "m", "mail of the user")
+	cliUpdateUser.LKey("password", verdeter.IsStr, "p", "password of the user")
 
 	cliCreateTenant.SetNbArgs(1)
 	cliListTenants.SetNbArgs(0)
 	cliUpdateTenant.SetNbArgs(1)
 	cliDeleteTenant.SetNbArgs(1)
-	cliUpdateTenant.Key("tenantname", verdeter.IsStr, "t", "name of the Tenant")
+	cliUpdateTenant.LKey("tenantname", verdeter.IsStr, "t", "name of the Tenant")
 
 	cliCreateRole.SetNbArgs(1)
 	cliListRoles.SetNbArgs(0)
 	cliUpdateRole.SetNbArgs(1)
 	cliDeleteRole.SetNbArgs(1)
-	cliUpdateRole.Key("rolename", verdeter.IsStr, "r", "name of the Role")
+	cliUpdateRole.LKey("rolename", verdeter.IsStr, "r", "name of the Role")
 
 	cliCreateDomain.SetNbArgs(1)
 	cliListDomains.SetNbArgs(0)
 	cliUpdateDomain.SetNbArgs(1)
 	cliDeleteDomain.SetNbArgs(1)
-	cliUpdateDomain.Key("domainname", verdeter.IsStr, "d", "name of the Domain")
+	cliUpdateDomain.LKey("domainname", verdeter.IsStr, "d", "name of the Domain")
 
 	cliDeclareClusterMember.SetNbArgs(0)
 	cliDeclareAggregatorName.SetNbArgs(1)

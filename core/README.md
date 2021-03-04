@@ -1,152 +1,116 @@
 # Gandalf Core
-La solution Gandalf (Gandalf is A Natural Devops Application Life-cycle Framework) a pour unique objectif de faciliter l’adoption du DevOps sur tout le cycle de vie DevOps sans imposer de choix ou présupposés technologiques ou de produits.
+Gandalf (Gandalf is A Natural Devops Application Life-cycle Framework), a tool to allow progressive DevOps adoption.
 
 https://ditrit.io/gandalf/
 
-## Schema :
+
+## Table of content
+- [Schema](#Schema)
+- [Architecture](#Architecture)
+- [Installation](#Installation)
+- [Build](#Build)
+- [Documentation](#Documentation)
+- [Getting started](#Getting-started)
+
+
+## Schema
 ![alt text](images/schemagandalf.png "gandalf schéma")
 
 
-## Architecture :
+## Architecture
 
-### Cluster :
-Le cluster Gandalf trace et fait transiter les commandes et les événements.
-### Aggregator :
-Les agrégateurs Gandalf cloisonnent et simplifient l’architecture réseau.
-### Connector : 
-Les connecteurs Gandalf assurent la communication avec les briques du SI.   
+### Cluster
+The Gandalf cluster traces and routes commands and events.
+### Aggregator
+Gandalf aggregators silo and simplify the network architecture.
+### Connector
+Gandalf connectors ensure communication with the bricks of the IS.
 
 ## Installation
 
 ```
-# Cloner ce repository
+# Clone repository
 git clone https://github.com/ditrit/gandalf
 cd gandalf
 
-# Installer les dependences go
+# Installing go dependencies
 go get
 ```
 
-## Build :
+## Build
 
 ```bash
 go build -o gandalf
 ```
 
 ## Documentation
+[Wiki](https://github.com/ditrit/gandalf/wiki).
 
-
-## CLI
-L'ensemble d'une solution gandalf est piloté par un unique binaire **'gandalf'**.
-
-gandalf mode command [options]
-mode : connector|aggregator|cluster|cli
-
-### Common options :
-
-
-### Cluster mode usage :
-usage:  
-
-
-**Fichier de configuration gandalf en mode cluster (by exemple) :**
-
-```bash
-```
-
-### Aggregator mode usage :
-usage:  
-
-**Fichier de configuration gandalf en mode aggregator (by exemple) :**
-
-```bash
-```
-
-### Connector mode usage :
-usage:  
-
-**Fichier de configuration gandalf en mode connector (by exemple) :**
-
-```bash
-```
-
-## Demo
+## Getting started
 
 ### Cluster : 
 
-**Initialisation Cluster :**
+**Cluster initialisation**
 ```bash
-./gandalf cluster -l Cluster --offset 1
+./gandalf start cluster --offset 1 -l Cluster 
 ```
-**Authentification a la CLI :**
+**CLI authentification**
 ```bash
 ./gandalf cli -e http://localhost:9200 login <login> <password>
 ```
-**Creation administrateur :** 
+**Create administrator** 
 ```bash
 ./gandalf cli -e http://localhost:9200 create user <username> <email> <password> -t <token>
 ```
-**Declaration cluster 2 :**
+**Cluster 2 declaration**
 ```bash
 ./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
 ```
-**Demarage cluster 2 :** 
+**Cluster 2 start** 
 ```bash
-./gandalf cluster -l Cluster --offset 2 --db_nodename node2 --join 127.0.0.1:9100 --secret <secret>
+./gandalf start cluster --offset 2 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 ```
-**Declaration cluster 3 :**
+**Cluster 3 declaration**
 ```bash
 ./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
 ```
-**Demarage cluster 3 :**
+**Cluster 3 start**
 ```bash
-./gandalf cluster -l Cluster --offset 3 --db_nodename node3 --join 127.0.0.1:9100 --secret <secret>
+./gandalf start cluster --offset 3 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 ```
 
 ### Tenant : 
 
-**Creation tenant :**
+**Create tenant**
 ```bash
 ./gandalf cli -e http://localhost:9200 create tenant <tenant> -t <token>
 ```
 
-**Creation administrateur tenant :**
+### Aggregator : 
+**CLI authentification**
 ```bash
-TODO
+./gandalf cli -e http://localhost:9203 login <login> <password>
+```
+**Aggregator declaration** 
+```bash
+./gandalf cli -e http://localhost:9203 declare aggregator member <tenant> <name> -t <token>
+```
+**Aggregator start** 
+```bash
+./gandalf start aggregator --offset 4 -l <name> -t <tenant> --cluster 127.0.0.1:9100 --secret <secret>
 ```
 
-### Aggregateur : 
-**Creation aggregateur :** 
+### Connector :
+**Creation connector** 
 ```bash
-./gandalf cli -e http://localhost:9200 declare aggregator name <tenant> <name> -t <token>
-```
-**Declaration aggregateur :** 
-```bash
-./gandalf cli -e http://localhost:9200 declare aggregator member <tenant> <name> -t <token>
-```
-**Demarage aggregateur :** 
-```bash
-./gandalf aggregator -l <name> -t <tenant> --port 10000 --cluster 127.0.0.1:9100 --secret <secret>
+./gandalf cli -e http://localhost:9203 declare connector name <tenant> <name> -t <token>
 ```
 
-### Connecteur :
-
-**Creation connecteur :** 
+**Connector declaration** 
 ```bash
-./gandalf cli -e http://localhost:9200 declare connector name <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9203 declare connector member <tenant> <name> -t <token>
 ```
-
-**Declaration connecteur :** 
+**Connector start** 
 ```bash
-./gandalf cli -e http://localhost:9200 declare connector member <tenant> <name> -t <token>
+./gandalf start connector --offset 5 -l <name> --aggregator 127.0.0.1:9103 --secret <secret> --class <class> --product <product>
 ```
-**Demarage connecteur :** 
-```bash
-./gandalf connector -l <name> --port 10100 --aggregator 127.0.0.1:10000 --secret <secret> --class utils --product Custom
-```
-
-
-
-## To Do
-
-Test !!
