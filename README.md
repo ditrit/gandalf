@@ -5,15 +5,15 @@ Gandalf (Gandalf is A Natural Devops Application Life-cycle Framework), a tool t
 https://ditrit.io/gandalf/
 
 ## Core 
-The Gandalf cluster, aggregator, connector infrastructure : [README](core/README.md)
+The Gandalf cluster, aggregator, connector infrastructure : [Readme](core/README.md)
 
 ## Connectors
-Interfaces between Gandalf's pivot languages and exisiting APIs : [README](connectors/README.md)
+Interfaces between Gandalf's pivot languages and exisiting APIs : [Readme](connectors/README.md)
 
 ## Libraries
-Tooling to help write connectors : [README](libraries/README.md)
+Tooling to help write connectors : [Readme](libraries/README.md)
 
 ## Verdeter
-Tooling to help write configuration : [README](verdeter/README.md)
+Tooling to help write configuration : [Readme](verdeter/README.md)
 
 
