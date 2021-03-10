@@ -13,9 +13,9 @@ The Gandalf cluster, aggregator, connector infrastructure: [Readme](core/README.
 Interfaces between Gandalf's pivot languages and exisiting APIs: [Readme](connectors/README.md)
 
 ## Libraries
-Tooling to help write connectors: [Readme](libraries/README.md)
+Tooling to write connectors: [Readme](libraries/README.md)
 
 ## Verdeter
-Tooling to help write configuration: [Readme](verdeter/README.md)
+Tooling to write configuration: [Readme](verdeter/README.md)
 
 
