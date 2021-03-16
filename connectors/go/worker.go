@@ -21,8 +21,9 @@ type Worker struct {
 	clientGandalf     *goclient.ClientGandalf
 	OngoingTreatments *gomodels.OngoingTreatments
 	WorkerState       *gomodels.WorkerState
-	CommandsFuncs     map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
-	EventsFuncs       map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
+	Context 		  map[string]interface{}
+	CommandsFuncs     map[string]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
+	EventsFuncs       map[gomodels.TopicEvent]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
 	//Start             func() *goclient.ClientGandalf
 	Stop         func(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState *gomodels.WorkerState)
 	SendCommands func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string) bool
@@ -34,6 +35,7 @@ func NewWorker(major, minor int64) *Worker {
 	worker := new(Worker)
 	worker.major = major
 	worker.minor = minor
+	worker.Context = make(map[string]interface{})
 	worker.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
 	worker.EventsFuncs = make(map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int)
 	worker.OngoingTreatments = gomodels.NewOngoingTreatments()

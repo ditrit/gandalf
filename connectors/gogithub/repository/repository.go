@@ -8,6 +8,12 @@ import (
 	"github.com/google/go-github/v33/github"
 )
 
+type CreateRepositoryPayload struct {
+	Name string
+	Description string
+	Private bool
+}
+
 func CreateRepository(client *github.Client, name, description string, private bool) *github.Repository {
 	ctx := context.Background()
 	r := &github.Repository{Name: name, Private: private, Description: description}
@@ -18,6 +24,16 @@ func CreateRepository(client *github.Client, name, description string, private b
 	fmt.Printf("Successfully created new repo: %v\n", repo.GetName())
 	return repo
 }
+
+type CreateRepositoryFromTemplatePayload struct {
+	TemplateOwner string
+	TemplateRepo string
+	Name string
+	Owner string
+	Description string
+	Private bool
+}
+
 
 func CreateRepositoryFromTemplate(client *github.Client, templateOwner, templateRepo, name, owner, description string, private bool) *github.Repository {
 	ctx := context.Background()
@@ -30,6 +46,11 @@ func CreateRepositoryFromTemplate(client *github.Client, templateOwner, template
 	return repo
 }
 
+type DeleteRepositoryPayload struct {
+	Owner string
+	Repository string
+}
+
 func DeleteRepository(client *github.Client, owner, repo string) {
 	ctx := context.Background()
 	_, err := client.Repositories.Delete(ctx, owner, repo)
@@ -39,6 +60,12 @@ func DeleteRepository(client *github.Client, owner, repo string) {
 	fmt.Printf("Successfully delete")
 }
 
+
+type ListCommitsRepositoryPayload struct {
+	Owner string
+	Repository string
+}
+
 func ListCommitsRepository(client *github.Client, owner, repo string) []*github.RepositoryCommit {
 	ctx := context.Background()
 	commits, _, err := client.ListCommits(ctx, owner, repo, nil)
@@ -46,6 +73,34 @@ func ListCommitsRepository(client *github.Client, owner, repo string) []*github.
 		log.Fatal(err)
 	}
 	return commits
+}
+
+type GetLastCommitsRepositoryPayload struct {
+	Owner string
+	Repository string
+}
+
+func GetLastCommitsRepository(client *github.Client, owner, repo string) *github.RepositoryCommit {
+	commits := ListCommitsRepository(client, owner, repo)
+	var lastCommit *github.RepositoryCommit
+	for commit := range commits {
+		if lastCommit == nil {
+			lastCommit == commit
+		} else {
+			if commit.Commit.Committer.Date > lastCommit.Commit.Committer.Date {
+				lastCommit = commit
+			}
+		}
+	}
+	return lastCommit
+}
+
+type CreateHookRepositoryPayload struct {
+	Owner string
+	Repository string
+	Config map[string]interface{}
+	Events []string
+	Active bool
 }
 
 func CreateHookRepository(client *github.Client, owner, repo string, config map[string]interface{}, events []string, active bool) {
