@@ -36,8 +36,8 @@ func NewWorker(major, minor int64) *Worker {
 	worker.major = major
 	worker.minor = minor
 	worker.Context = make(map[string]interface{})
-	worker.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
-	worker.EventsFuncs = make(map[gomodels.TopicEvent]func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int)
+	worker.CommandsFuncs = make(map[string]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
+	worker.EventsFuncs = make(map[gomodels.TopicEvent]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int)
 	worker.OngoingTreatments = gomodels.NewOngoingTreatments()
 	worker.WorkerState = gomodels.NewWorkerState()
 	//worker.Start = functions.Start
@@ -78,12 +78,12 @@ func (w Worker) GetConnections() []string {
 }
 
 //RegisterCommandsFuncs : RegisterCommandsFuncs
-func (w Worker) RegisterCommandsFuncs(command string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+func (w Worker) RegisterCommandsFuncs(command string, function func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	w.CommandsFuncs[command] = function
 }
 
 //RegisterEventsFuncs : RegisterEventsFuncs
-func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
+func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
 	w.EventsFuncs[topicevent] = function
 }
 
@@ -132,7 +132,7 @@ func (w Worker) Run() {
 	}
 }
 
-func (w Worker) waitCommands(id, commandName string, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+func (w Worker) waitCommands(id, commandName string, function func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 
 	for true {
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
@@ -149,9 +149,9 @@ func (w Worker) waitCommands(id, commandName string, function func(clientGandalf
 	}
 }
 
-func (w Worker) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
+func (w Worker) executeCommands(command msg.Command, function func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 	w.OngoingTreatments.IncrementOngoingTreatments()
-	result := function(w.clientGandalf, w.major, command)
+	result := function(w.Context, w.clientGandalf, w.major, command)
 	if result == 0 {
 		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), map[string]string{})
 	} else {
@@ -160,7 +160,7 @@ func (w Worker) executeCommands(command msg.Command, function func(clientGandalf
 	w.OngoingTreatments.DecrementOngoingTreatments()
 }
 
-func (w Worker) waitEvents(id string, topicEvent gomodels.TopicEvent, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
+func (w Worker) waitEvents(id string, topicEvent gomodels.TopicEvent, function func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
 	for true {
 		event := w.clientGandalf.WaitEvent(topicEvent.Topic, topicEvent.Event, id)
 		if w.WorkerState.GetState() == 0 {
@@ -175,9 +175,9 @@ func (w Worker) waitEvents(id string, topicEvent gomodels.TopicEvent, function f
 	}
 }
 
-func (w Worker) executeEvents(event msg.Event, function func(clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
+func (w Worker) executeEvents(event msg.Event, function func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int) {
 	w.OngoingTreatments.IncrementOngoingTreatments()
-	result := function(w.clientGandalf, w.major, event)
+	result := function(w.Context, w.clientGandalf, w.major, event)
 	if result == 0 {
 		w.clientGandalf.SendReply(event.GetEvent(), "SUCCES", event.GetUUID(), map[string]string{})
 	} else {
