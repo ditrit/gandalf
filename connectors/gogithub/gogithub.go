@@ -34,8 +34,9 @@ func main() {
 	worker.Context["client"] = clientGithub
 
 
-	worker.RegisterCommandsFuncs("CREATE_FORM", CreateForm)
-	worker.RegisterCommandsFuncs("SEND_AUTH_MAIL", SendAuthMail)
+	worker.RegisterCommandsFuncs("CREATE_REPOSITORY", CreateRepository)
+	worker.RegisterCommandsFuncs("CREATE_REPOSITORY_FROM_TEMPLATE", CreateRepositoryFromTemplate)
+	worker.RegisterCommandsFuncs("DELETE_REPOSITORY", DeleteRepository)
 
 	worker.Run()
 }
