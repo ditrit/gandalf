@@ -1,8 +1,8 @@
 package models
 
 type EventTypeToPoll struct {
-	ResourceID uint
-	Resource Resource
+	ResourceID  uint
+	Resource    Resource
 	EventTypeID uint
-	EventType EventType
+	EventType   EventType
 }

@@ -21,9 +21,10 @@ type Worker struct {
 	clientGandalf     *goclient.ClientGandalf
 	OngoingTreatments *gomodels.OngoingTreatments
 	WorkerState       *gomodels.WorkerState
-	Context 		  map[string]interface{}
+	Context           map[string]interface{}
 	CommandsFuncs     map[string]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
 	EventsFuncs       map[gomodels.TopicEvent]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int
+	ServicesFuncs     map[string]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf)
 	//Start             func() *goclient.ClientGandalf
 	Stop         func(clientGandalf *goclient.ClientGandalf, major, minor int64, workerState *gomodels.WorkerState)
 	SendCommands func(clientGandalf *goclient.ClientGandalf, major, minor int64, commandes []string) bool
@@ -38,6 +39,7 @@ func NewWorker(major, minor int64) *Worker {
 	worker.Context = make(map[string]interface{})
 	worker.CommandsFuncs = make(map[string]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
 	worker.EventsFuncs = make(map[gomodels.TopicEvent]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, event msg.Event) int)
+	worker.ServicesFuncs = make(map[string]func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf))
 	worker.OngoingTreatments = gomodels.NewOngoingTreatments()
 	worker.WorkerState = gomodels.NewWorkerState()
 	//worker.Start = functions.Start
@@ -87,6 +89,11 @@ func (w Worker) RegisterEventsFuncs(topicevent gomodels.TopicEvent, function fun
 	w.EventsFuncs[topicevent] = function
 }
 
+//RegisterServicesFuncs : RegisterServicesFuncs
+func (w Worker) RegisterServicesFuncs(service string, function func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf)) {
+	w.ServicesFuncs[service] = function
+}
+
 func (w *Worker) Start() {
 	flag.Parse()
 	args := flag.Args()
@@ -120,6 +127,10 @@ func (w Worker) Run() {
 			id := w.clientGandalf.CreateIteratorEvent()
 
 			go w.waitEvents(id, key, function)
+		}
+		for _, function := range w.ServicesFuncs {
+
+			go function(w.Context, w.clientGandalf)
 		}
 		//TODO REVOIR CONDITION SORTIE
 		for w.WorkerState.GetState() == 0 {

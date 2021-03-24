@@ -9,5 +9,9 @@ type ProductConnector struct {
 	Pivot Pivot
 	ProductID uint
 	Product Product
+	ResourceTypes []ResourceType
+	CommandTypes []CommandType
+	EventTypes []EventType
 	Keys []Key
+	Resources []Resource
 }
