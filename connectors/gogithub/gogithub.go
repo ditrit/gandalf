@@ -9,8 +9,11 @@ import (
 	"gandalf/connectors/gogithub/repository"
 	"gandalf/core/models"
 	"gandalf/libraries/goclient"
+
 	"os"
 	"shoset/msg"
+
+	"github.com/google/go-github/v33/github"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 )
@@ -34,19 +37,22 @@ func main() {
 	//GET VALUE FROM STDIN
 	var inputPayload InputPayload
 	err := json.Unmarshal([]byte(input.Text()), &inputPayload)
-	//CREATE AUTHENTIFICATION
-	clientGithub := client.BasicAuthentification(inputPayload.Username, inputPayload.Password)
-	worker.Context["client"] = clientGithub
-	worker.Context["EventTypeToPolls"] = inputPayload.EventTypeToPolls
 
-	worker.RegisterCommandsFuncs("CREATE_REPOSITORY", CreateRepository)
-	worker.RegisterCommandsFuncs("CREATE_REPOSITORY_FROM_TEMPLATE", CreateRepositoryFromTemplate)
-	worker.RegisterCommandsFuncs("DELETE_REPOSITORY", DeleteRepository)
+	if err == nil {
+		//CREATE AUTHENTIFICATION
+		clientGithub := client.BasicAuthentification(inputPayload.Username, inputPayload.Password)
+		worker.Context["client"] = clientGithub
+		worker.Context["EventTypeToPolls"] = inputPayload.EventTypeToPolls
 
-	scanService := new(poll.ScanService)
-	worker.RegisterServicesFuncs("ScanService", scanService.Start)
+		worker.RegisterCommandsFuncs("CREATE_REPOSITORY", CreateRepository)
+		worker.RegisterCommandsFuncs("CREATE_REPOSITORY_FROM_TEMPLATE", CreateRepositoryFromTemplate)
+		worker.RegisterCommandsFuncs("DELETE_REPOSITORY", DeleteRepository)
 
-	worker.Run()
+		scanService := new(poll.ScanService)
+		worker.RegisterServicesFuncs("ScanService", scanService.Start)
+
+		worker.Run()
+	}
 }
 
 type InputPayload struct {
@@ -85,7 +91,7 @@ func DeleteRepository(context map[string]interface{}, clientGandalf *goclient.Cl
 	if err == nil {
 		clientGithub, ok := context["client"].(*github.Client)
 		if ok {
-			repository.CreateRepositoryFromTemplate(clientGithub, deleteRepositoryPayload.Owner, deleteRepositoryPayload.Repository)
+			repository.DeleteRepository(clientGithub, deleteRepositoryPayload.Owner, deleteRepositoryPayload.Repository)
 		}
 	}
 }
