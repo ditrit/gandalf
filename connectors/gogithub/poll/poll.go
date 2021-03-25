@@ -30,7 +30,7 @@ func (ss ScanService) Start(context map[string]interface{}, clientGandalf *gocli
 						if commit.Commit.Committer.Date.After(ss.LastCommit) {
 							ss.LastCommit = commit.Commit.Committer.Date
 							//EVENT
-							clientGandalf.SendEvent(topic, event)
+							clientGandalf.SendEvent(eventTypeToPoll.Resource.Name, eventTypeToPoll.EventType.Name, nil)
 						}
 					} else if eventTypeToPoll.EventType.Name == "pull" {
 						resourceSplit := strings.Split(eventTypeToPoll.Resource.Name, "/")
@@ -38,7 +38,7 @@ func (ss ScanService) Start(context map[string]interface{}, clientGandalf *gocli
 						if pull.MergedAt.After(ss.LastPull) {
 							ss.LastPull = pull.MergedAt
 							//EVENT
-							clientGandalf.SendEvent(topic, event)
+							clientGandalf.SendEvent(eventTypeToPoll.Resource.Name, eventTypeToPoll.EventType.Name, nil)
 						}
 					}
 				}

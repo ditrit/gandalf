@@ -9,60 +9,59 @@ import (
 )
 
 type CreateRepositoryPayload struct {
-	Name string
+	Username    string
+	Password    string
+	Token       string
+	Name        string
 	Description string
-	Private bool
+	Private     bool
 }
 
-func CreateRepository(client *github.Client, name, description string, private bool) *github.Repository {
+func CreateRepository(client *github.Client, name, description string, private bool) (err error) {
 	ctx := context.Background()
 	r := &github.Repository{Name: name, Private: private, Description: description}
-	repo, _, err := client.Repositories.Create(ctx, "", r)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Successfully created new repo: %v\n", repo.GetName())
-	return repo
+	_, _, err = client.Repositories.Create(ctx, "", r)
+
+	return
 }
 
 type CreateRepositoryFromTemplatePayload struct {
+	Username      string
+	Password      string
+	Token         string
 	TemplateOwner string
-	TemplateRepo string
-	Name string
-	Owner string
-	Description string
-	Private bool
+	TemplateRepo  string
+	Name          string
+	Owner         string
+	Description   string
+	Private       bool
 }
 
-
-func CreateRepositoryFromTemplate(client *github.Client, templateOwner, templateRepo, name, owner, description string, private bool) *github.Repository {
+func CreateRepositoryFromTemplate(client *github.Client, templateOwner, templateRepo, name, owner, description string, private bool) (err error) {
 	ctx := context.Background()
 	r := &github.TemplateRepoRequest{Name: name, Owner: owner, Private: private, Description: description}
-	repo, _, err := client.Repositories.CreateFromTemplate(ctx, templateOwner, templateRepo, r)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Successfully created")
-	return repo
+	_, _, err = client.Repositories.CreateFromTemplate(ctx, templateOwner, templateRepo, r)
+
+	return
 }
 
 type DeleteRepositoryPayload struct {
-	Owner string
+	Username   string
+	Password   string
+	Token      string
+	Owner      string
 	Repository string
 }
 
-func DeleteRepository(client *github.Client, owner, repo string) {
+func DeleteRepository(client *github.Client, owner, repo string) (err error) {
 	ctx := context.Background()
-	_, err := client.Repositories.Delete(ctx, owner, repo)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Successfully delete")
+	_, err = client.Repositories.Delete(ctx, owner, repo)
+
+	return
 }
 
-
 type ListCommitsRepositoryPayload struct {
-	Owner string
+	Owner      string
 	Repository string
 }
 
@@ -76,7 +75,7 @@ func ListCommitsRepository(client *github.Client, owner, repo string) []*github.
 }
 
 type GetLastCommitsRepositoryPayload struct {
-	Owner string
+	Owner      string
 	Repository string
 }
 
@@ -96,11 +95,11 @@ func GetLastCommitsRepository(client *github.Client, owner, repo string) *github
 }
 
 type CreateHookRepositoryPayload struct {
-	Owner string
+	Owner      string
 	Repository string
-	Config map[string]interface{}
-	Events []string
-	Active bool
+	Config     map[string]interface{}
+	Events     []string
+	Active     bool
 }
 
 func CreateHookRepository(client *github.Client, owner, repo string, config map[string]interface{}, events []string, active bool) {
