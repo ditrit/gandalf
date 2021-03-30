@@ -4,7 +4,7 @@ import "github.com/jinzhu/gorm"
 
 type Resource struct {
 	gorm.Model
-	Name               string
+	Name               string `gorm:"unique;not null"`
 	ProductConnectorID uint
 	ProductConnector   ProductConnector
 	DomainID           uint

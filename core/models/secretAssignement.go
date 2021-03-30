@@ -1,6 +1,6 @@
 package models
 
 type SecretAssignement struct {
-	Secret    string
+	Secret    string `gorm:"primaryKey"`
 	AddressIP string
 }

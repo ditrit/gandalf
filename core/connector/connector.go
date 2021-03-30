@@ -21,13 +21,15 @@ import (
 // ConnectorMember : Connector struct.
 type ConnectorMember struct {
 	//logicalName                 string
-	chaussette                  *net.Shoset
-	connectorGrpc               grpc.ConnectorGrpc
-	connectorType               string
-	versions                    []models.Version
-	timeoutMax                  int64
-	mapActiveWorkers            map[models.Version]bool
-	mapConnectorsConfig         map[string][]*models.ConnectorConfig
+	chaussette       *net.Shoset
+	connectorGrpc    grpc.ConnectorGrpc
+	connectorType    string
+	versions         []models.Version
+	timeoutMax       int64
+	mapActiveWorkers map[models.Version]bool
+	//mapConnectorsConfig         map[string][]*models.ConnectorConfig
+	mapPivots                   map[string][]*models.Pivot
+	mapProductConnectors        map[string][]*models.ProductConnector
 	mapVersionConnectorCommands map[int8][]string
 }
 
@@ -50,7 +52,9 @@ func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) 
 	//member.connectorType = connectorType
 	member.chaussette = net.NewShoset(configurationConnector.GetLogicalName(), "c")
 	//member.versions = versions
-	member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
+	member.mapPivots = make(map[string][]*models.Pivot)
+	member.mapProductConnectors = make(map[string][]*models.ProductConnector)
+	//member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
 	member.mapVersionConnectorCommands = make(map[int8][]string)
 	member.mapActiveWorkers = make(map[models.Version]bool)
 	//member.chaussette.Context["tenant"] = tenant
@@ -59,16 +63,21 @@ func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) 
 	member.chaussette.Context["configuration"] = configurationConnector
 
 	member.chaussette.Context["mapActiveWorkers"] = member.mapActiveWorkers
-	member.chaussette.Context["mapConnectorsConfig"] = member.mapConnectorsConfig
+	//member.chaussette.Context["mapConnectorsConfig"] = member.mapConnectorsConfig
+	member.chaussette.Context["mapPivots"] = member.mapPivots
+	member.chaussette.Context["mapProductConnectors"] = member.mapProductConnectors
 	member.chaussette.Context["mapVersionConnectorCommands"] = member.mapVersionConnectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["models"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
-	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
 	member.chaussette.Queue["secret"] = msg.NewQueue()
 	member.chaussette.Get["secret"] = shoset.GetSecret
 	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
+	member.chaussette.Queue["logicalConfiguration"] = msg.NewQueue()
+	member.chaussette.Get["logicalConfiguration"] = shoset.GetLogicalConfiguration
+	member.chaussette.Wait["logicalConfiguration"] = shoset.WaitLogicalConfiguration
+	member.chaussette.Handle["logicalConfiguration"] = shoset.HandleLogicalConfiguration
 	member.chaussette.Queue["configuration"] = msg.NewQueue()
 	member.chaussette.Get["configuration"] = shoset.GetConfiguration
 	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration

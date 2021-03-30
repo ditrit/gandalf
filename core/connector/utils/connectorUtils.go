@@ -54,7 +54,7 @@ func GetMaxVersion(versions []models.Version) (maxversion models.Version) {
 	return
 }
 
-// GetConnectorType : GetConnectorType
+/* // GetConnectorType : GetConnectorType
 func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
 	for _, connectorType := range list {
 		if connectorType.Name == connectorTypeName {
@@ -97,6 +97,30 @@ func GetConnectorEvent(eventName string, list []models.Object) (result models.Ob
 		}
 	}
 	return result
+} */
+
+// GetPivotByVersion : GetPivotByVersion
+func GetPivotByVersion(major, minor int8, pivots []*models.Pivot) (result *models.Pivot) {
+	for _, pivot := range pivots {
+		if pivot.Major == major && pivot.Minor == minor {
+			result = pivot
+			break
+		}
+	}
+
+	return
+}
+
+// GetPivotByVersion : GetPivotByVersion
+func GetConnectorProductByVersion(major, minor int8, productConnectors []*models.ProductConnector) (result *models.ProductConnector) {
+	for _, productConnector := range productConnectors {
+		if productConnector.Major == major && productConnector.Minor == minor {
+			result = productConnector
+			break
+		}
+	}
+
+	return
 }
 
 // ValidatePayload : Validate payload
@@ -116,6 +140,62 @@ func ValidatePayload(payload, payloadSchema string) (result bool) {
 	}
 	return result
 
+}
+
+// DownloadPivot : Download pivot from url
+func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &pivot)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
+}
+
+// DownloadConnectorProduct : Download connector product from url
+func DownloadProductConnector(url, ressource string) (productConnector *models.ProductConnector, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &productConnector)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
 }
 
 // DownloadConfiguration : Download configuration from url

@@ -6,7 +6,7 @@ import (
 
 type Domain struct {
 	gorm.Model
-	Name string
+	Name string `gorm:"unique;not null"`
 }
 
 func GetDomainDescendants(database *gorm.DB, id uint) (domains []Domain, err error) {

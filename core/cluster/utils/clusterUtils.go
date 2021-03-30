@@ -96,6 +96,20 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 	return
 }
 
+func GetPivots(client *gorm.DB) (pivots []models.Pivots) {
+
+}
+
+func GetProductConnectors(client *gorm.DB) (productConnector []models.ProductConnector) {
+
+}
+
+func SavePivot(pivot *models.Pivot, client *gorm.DB) {
+}
+
+func SaveProductConnector(productConnector *models.ProductConnector, client *gorm.DB) {
+}
+
 // GetConnectorConfiguration : Cluster application context getter.
 func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client *gorm.DB) {
 	//fmt.Println(connectorConfig.ConnectorEvents)

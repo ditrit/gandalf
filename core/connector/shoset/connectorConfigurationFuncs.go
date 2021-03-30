@@ -8,8 +8,8 @@ import (
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
-
 	cmsg "github.com/ditrit/gandalf/core/msg"
+
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
 
@@ -19,9 +19,9 @@ import (
 var configurationSendIndex = 0
 
 func GetConfiguration(c *net.ShosetConn) (msg.Message, error) {
-	var conf cmsg.Configuration
-	err := c.ReadMessage(&conf)
-	return conf, err
+	var configuration cmsg.Configuration
+	err := c.ReadMessage(&configuration)
+	return configuration, err
 }
 
 // WaitConfig :
@@ -63,83 +63,213 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle configuration")
 	log.Println(configuration)
 
-	if configuration.GetCommand() == "CONFIGURATION_REPLY" {
-		var configurationConnector *models.ConfigurationLogicalConnector
-		err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationConnector)
+	if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
+		var connectorsConfig []*models.ConnectorConfig
+		err = json.Unmarshal([]byte(configuration.GetPayload()), &connectorsConfig)
 		if err == nil {
-			ch.Context["logicalConfiguration"] = configurationConnector
+			var mapConnectorsConfig map[string][]*models.ConnectorConfig
+			mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
+			for _, config := range connectorsConfig {
+				mapConnectorsConfig[config.ConnectorType.Name] = append(mapConnectorsConfig[config.ConnectorType.Name], config)
+			}
+			ch.Context["mapConnectorsConfig"] = mapConnectorsConfig
+		}
+	} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION_REPLY" {
+		var productConnectors []*models.ProductConnector
+		err = json.Unmarshal([]byte(configuration.GetPayload()), &productConnectors)
+		if err == nil {
+			var mapProductConnectors map[string][]*models.ProductConnector
+			mapProductConnectors = make(map[string][]*models.ProductConnector)
+			for _, productConnector := range productConnectors {
+				mapProductConnectors[productConnector.Product.Name] = append(mapProductConnectors[productConnector.Product.Name], productConnector)
+			}
+			ch.Context["mapProductConnectors"] = mapProductConnectors
 		}
 	}
 
 	return err
 }
 
-//SendSecret :
-func SendConfiguration(shoset *net.Shoset) (err error) {
+//SendPivotConfiguration :
+func SendPivotConfiguration(shoset *net.Shoset) (err error) {
+	conf := msg.NewConfig("", "PIVOT_CONFIGURATION", "")
 	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-	configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
-	configMarshal, err := json.Marshal(configurationLogicalConnector)
+	conf.Tenant = configurationConnector.GetTenant()
+	conf.GetContext()["connectorType"] = configurationConnector.GetConnectorType()
+	//conf.GetContext()["product"] = shoset.Context["product"]
+
+	shosets := net.GetByType(shoset.ConnsByAddr, "a")
+
+	if len(shosets) != 0 {
+		if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
+			conf.Timeout = configurationConnector.GetMaxTimeout()
+		}
+
+		notSend := true
+		for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
+			index := getConfigurationSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["mapConnectorsConfig"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		}
+		/* 	notSend := true
+		for notSend {
+			index := getConnectorConfigSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["mapConnectorsConfig"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		} */
+
+	} else {
+		log.Println("can't find aggregators to send")
+		err = errors.New("can't find aggregators to send")
+	}
+
+	return err
+}
+
+//SendConnectorConfig : Connector send connector config function.
+func SendProductConnectorConfiguration(shoset *net.Shoset) (err error) {
+	conf := msg.NewConfig("", "CONNECTOR_PRODUCT_CONFIGURATION", "")
+	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	conf.Tenant = configurationConnector.GetTenant()
+	conf.GetContext()["connectorType"] = configurationConnector.GetConnectorType()
+	//conf.GetContext()["product"] = shoset.Context["product"]
+
+	shosets := net.GetByType(shoset.ConnsByAddr, "a")
+
+	if len(shosets) != 0 {
+		if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
+			conf.Timeout = configurationConnector.GetMaxTimeout()
+		}
+
+		notSend := true
+		for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
+			index := getConfigurationSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["mapConnectorsConfig"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		}
+		/* 	notSend := true
+		for notSend {
+			index := getConnectorConfigSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["mapConnectorsConfig"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		} */
+
+	} else {
+		log.Println("can't find aggregators to send")
+		err = errors.New("can't find aggregators to send")
+	}
+
+	return err
+}
+
+//TODO REVOIR SEND
+//SendConnectorConfig : Connector send connector config function.
+func SendSavePivotConfiguration(shoset *net.Shoset, pivot *models.Pivot) (err error) {
+	jsonData, err := json.Marshal(pivot)
 	if err == nil {
-		configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
-		//configurationMsg.Tenant = shoset.Context["tenant"].(string)
-		configurationMsg.GetContext()["componentType"] = "connector"
-		configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
-		configurationMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
-		//configurationMsg.GetContext()["configuration"] = configurationLogicalConnector
+		conf := msg.NewConfig("", "SAVE_PIVOT_CONFIGURATION", string(jsonData))
+		configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+		conf.Tenant = configurationConnector.GetTenant()
+
 		//conf.GetContext()["product"] = shoset.Context["product"]
 
 		shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
 		if len(shosets) != 0 {
-			if configurationMsg.GetTimeout() > configurationConnector.GetMaxTimeout() {
-				configurationMsg.Timeout = configurationConnector.GetMaxTimeout()
+			if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
+				conf.Timeout = configurationConnector.GetMaxTimeout()
 			}
 
-			notSend := true
-			for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
-				index := getSecretSendIndex(shosets)
-				shosets[index].SendMessage(configurationMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
-
-				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-				time.Sleep(timeoutSend * time.Millisecond)
-
-				if shoset.Context["logicalConfiguration"] != nil {
-					notSend = false
-					break
-				}
-			}
-
-			if notSend {
-				return nil
-			}
-			/* 	notSend := true
-			for notSend {
-
-				fmt.Println("SEND")
-
-				index := getSecretSendIndex(shosets)
-				shosets[index].SendMessage(configurationMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
-
-				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-				time.Sleep(timeoutSend * time.Millisecond)
-
-				if shoset.Context["logicalConfiguration"] != nil {
-					notSend = false
-					break
-				}
-			}
-
-			if notSend {
-				return nil
-			} */
+			index := getConfigurationSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
 
 		} else {
-			log.Println("can't find aggregator to send")
-			err = errors.New("can't find aggregator to send")
+			log.Println("can't find aggregators to send")
+			err = errors.New("can't find aggregators to send")
+		}
+	}
+
+	return err
+}
+
+//TODO REVOIR SEND
+//SendConnectorConfig : Connector send connector config function.
+func SendSaveProductConnectorConfiguration(shoset *net.Shoset, productConnector *models.ProductConnector) (err error) {
+	jsonData, err := json.Marshal(productConnector)
+	if err == nil {
+		conf := msg.NewConfig("", "SAVE_PRODUCT_CONNECTOR_CONFIGURATION", string(jsonData))
+		configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+		conf.Tenant = configurationConnector.GetTenant()
+
+		//conf.GetContext()["product"] = shoset.Context["product"]
+
+		shosets := net.GetByType(shoset.ConnsByAddr, "a")
+
+		if len(shosets) != 0 {
+			if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
+				conf.Timeout = configurationConnector.GetMaxTimeout()
+			}
+
+			index := getConfigurationSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+
+		} else {
+			log.Println("can't find aggregators to send")
+			err = errors.New("can't find aggregators to send")
 		}
 	}
 

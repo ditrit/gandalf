@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -41,6 +40,7 @@ type WorkerAdmin struct {
 	clientGandalf    *goclient.ClientGandalf
 
 	major int64
+	minor int64
 
 	CommandsFuncs map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
 	//mapVersionConfigurationKeys map[models.Version][]models.ConfigurationKeys
@@ -75,7 +75,8 @@ func NewWorkerAdmin(chaussette *net.Shoset) *WorkerAdmin {
 			workerAdmin.autoUpdateMinute = autoUpdateTimeMinute
 		}
 	}
-	workerAdmin.major = 0
+	workerAdmin.major = 1
+	workerAdmin.minor = 0
 	workerAdmin.clientGandalf = goclient.NewClientGandalf(workerAdmin.logicalName, strconv.FormatInt(workerAdmin.timeoutMax, 10), strings.Split(workerAdmin.grpcBindAddress, ","))
 	workerAdmin.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
 
@@ -298,35 +299,20 @@ func (w WorkerAdmin) stopWorker(version models.Version) (err error) {
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getConfiguration() (err error) {
 
-	shoset.SendConnectorConfig(w.chaussette)
+	shoset.SendPivotConfiguration(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
-	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	mapPivots := w.chaussette.Context["mapPivots"].(map[string][]*models.Pivot)
 
-	if config != nil {
-		connectorConfig := utils.GetConnectorTypeConfigByVersion(int8(w.major), config["Admin"])
-		if connectorConfig == nil {
-
-			dir, err := os.Getwd()
-
-			dat, err := ioutil.ReadFile(dir + "/connector/admin/configuration.yaml")
-
-			fmt.Print("string(dat)")
-			fmt.Print(string(dat))
-
-			err = yaml.Unmarshal(dat, &connectorConfig)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			connectorConfig.ConnectorType.Name = "Admin"
-			connectorConfig.Major = int8(w.major)
-
-			shoset.SendSaveConnectorConfig(w.chaussette, connectorConfig)
+	if mapPivots != nil {
+		pivot := utils.GetPivotByVersion(int8(w.major), int8(w.minor), mapPivots["Admin"])
+		if pivot == nil {
+			pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+"WorkerAdmin"+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+			shoset.SendSavePivotConfiguration(w.chaussette, pivot)
 		}
 
-		config[w.connectorType] = append(config[w.connectorType], connectorConfig)
-		w.chaussette.Context["mapConnectorsConfig"] = config
+		mapPivots[w.connectorType] = append(mapPivots[w.connectorType], pivot)
+		w.chaussette.Context["mapPivots"] = mapPivots
 	}
 
 	return
@@ -336,38 +322,38 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) {
 
-	shoset.SendConnectorConfig(w.chaussette)
+	shoset.SendPivotConfiguration(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
-	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	pivots := w.chaussette.Context["mapPivots"].(map[string][]*models.Pivot)
 
-	if config != nil {
+	if pivots != nil {
+		pivot := utils.GetPivotByVersion(version.Major, version.Minor, pivots[w.connectorType])
+		if pivot == nil {
 
-		configConnectorTypeKeys, _ := utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/keys.yaml")
-		configProductKeys, _ := utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/keys.yaml")
-
-		connectorConfig := utils.GetConnectorTypeConfigByVersion(version.Major, config[w.connectorType])
-		if connectorConfig == nil {
-
-			connectorConfig, _ = utils.DownloadConfiguration(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_configuration.yaml")
-
-			connectorConfig.ConnectorType.Name = w.connectorType
-			connectorConfig.Major = version.Major
-
-			connectorConfig.ConnectorTypeKeys = configConnectorTypeKeys
-			connectorConfig.ProductKeys = configProductKeys
-
-			connectorConfig.VersionMajorKeys, _ = utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_keys.yaml")
-			connectorConfig.VersionMinorKeys, _ = utils.DownloadConfigurationsKeys(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_keys.yaml")
-
-			//ADD COMMMANDS ADMIN
-			//addCommandsAdmin(connectorConfig)
-
-			shoset.SendSaveConnectorConfig(w.chaussette, connectorConfig)
+			pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+strings.ToLower(w.connectorType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+			shoset.SendSavePivotConfiguration(w.chaussette, pivot)
 		}
 
-		config[w.connectorType] = append(config[w.connectorType], connectorConfig)
-		w.chaussette.Context["mapConnectorsConfig"] = config
+		pivots[w.connectorType] = append(pivots[w.connectorType], pivot)
+		w.chaussette.Context["mapPivots"] = pivots
+	}
+
+	shoset.SendProductConnectorConfiguration(w.chaussette)
+	time.Sleep(time.Second * time.Duration(5))
+
+	productConnectors := w.chaussette.Context["mapProductConnectors"].(map[string][]*models.ProductConnector)
+
+	if productConnectors != nil {
+		productConnector := utils.GetConnectorProductByVersion(version.Major, version.Minor, productConnectors[w.connectorType])
+		if productConnector == nil {
+
+			productConnector, _ = utils.DownloadProductConnector(w.baseurl, "/configuration/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_connector_product.yaml")
+			shoset.SendSaveProductConnectorConfiguration(w.chaussette, productConnector)
+		}
+
+		productConnectors[w.product] = append(productConnectors[w.product], productConnector)
+		w.chaussette.Context["mapProductConnectors"] = productConnectors
 	}
 
 	return

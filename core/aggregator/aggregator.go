@@ -40,11 +40,14 @@ func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregato
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["models"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
-	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
 	member.chaussette.Queue["secret"] = msg.NewQueue()
 	member.chaussette.Get["secret"] = shoset.GetSecret
 	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
+	member.chaussette.Queue["logicalConfiguration"] = msg.NewQueue()
+	member.chaussette.Get["logicalConfiguration"] = shoset.GetLogicalConfiguration
+	member.chaussette.Wait["logicalConfiguration"] = shoset.WaitLogicalConfiguration
+	member.chaussette.Handle["logicalConfiguration"] = shoset.HandleLogicalConfiguration
 	member.chaussette.Queue["configuration"] = msg.NewQueue()
 	member.chaussette.Get["configuration"] = shoset.GetConfiguration
 	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration
