@@ -307,7 +307,7 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 	if mapPivots != nil {
 		pivot := utils.GetPivotByVersion(int8(w.major), int8(w.minor), mapPivots["Admin"])
 		if pivot == nil {
-			pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+"WorkerAdmin"+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+			pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+"WorkerAdmin"+"/"+strconv.Itoa(int(w.major))+"_"+strconv.Itoa(int(w.minor))+"_pivot.yaml")
 			shoset.SendSavePivotConfiguration(w.chaussette, pivot)
 		}
 

@@ -64,15 +64,15 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println(configuration)
 
 	if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
-		var connectorsConfig []*models.ConnectorConfig
-		err = json.Unmarshal([]byte(configuration.GetPayload()), &connectorsConfig)
+		var pivots []*models.Pivot
+		err = json.Unmarshal([]byte(configuration.GetPayload()), &pivots)
 		if err == nil {
-			var mapConnectorsConfig map[string][]*models.ConnectorConfig
-			mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
-			for _, config := range connectorsConfig {
-				mapConnectorsConfig[config.ConnectorType.Name] = append(mapConnectorsConfig[config.ConnectorType.Name], config)
+			var mapPivots map[string][]*models.Pivot
+			mapPivots = make(map[string][]*models.Pivot)
+			for _, pivot := range pivots {
+				mapPivots[pivot.Type.Name] = append(mapPivots[pivot.Type.Name], pivot)
 			}
-			ch.Context["mapConnectorsConfig"] = mapConnectorsConfig
+			ch.Context["mapPivots"] = mapPivots
 		}
 	} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION_REPLY" {
 		var productConnectors []*models.ProductConnector
@@ -124,25 +124,6 @@ func SendPivotConfiguration(shoset *net.Shoset) (err error) {
 		if notSend {
 			return nil
 		}
-		/* 	notSend := true
-		for notSend {
-			index := getConnectorConfigSendIndex(shosets)
-			shosets[index].SendMessage(conf)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["mapConnectorsConfig"] != nil {
-				notSend = false
-				break
-			}
-		}
-
-		if notSend {
-			return nil
-		} */
 
 	} else {
 		log.Println("can't find aggregators to send")
@@ -152,7 +133,7 @@ func SendPivotConfiguration(shoset *net.Shoset) (err error) {
 	return err
 }
 
-//SendConnectorConfig : Connector send connector config function.
+//SendProductConnectorConfiguration : Connector send connector config function.
 func SendProductConnectorConfiguration(shoset *net.Shoset) (err error) {
 	conf := msg.NewConfig("", "CONNECTOR_PRODUCT_CONFIGURATION", "")
 	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
@@ -186,25 +167,6 @@ func SendProductConnectorConfiguration(shoset *net.Shoset) (err error) {
 		if notSend {
 			return nil
 		}
-		/* 	notSend := true
-		for notSend {
-			index := getConnectorConfigSendIndex(shosets)
-			shosets[index].SendMessage(conf)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["mapConnectorsConfig"] != nil {
-				notSend = false
-				break
-			}
-		}
-
-		if notSend {
-			return nil
-		} */
 
 	} else {
 		log.Println("can't find aggregators to send")
@@ -214,8 +176,7 @@ func SendProductConnectorConfiguration(shoset *net.Shoset) (err error) {
 	return err
 }
 
-//TODO REVOIR SEND
-//SendConnectorConfig : Connector send connector config function.
+//SendSavePivotConfiguration : Connector send connector config function.
 func SendSavePivotConfiguration(shoset *net.Shoset, pivot *models.Pivot) (err error) {
 	jsonData, err := json.Marshal(pivot)
 	if err == nil {
@@ -245,8 +206,7 @@ func SendSavePivotConfiguration(shoset *net.Shoset, pivot *models.Pivot) (err er
 	return err
 }
 
-//TODO REVOIR SEND
-//SendConnectorConfig : Connector send connector config function.
+//SendSaveProductConnectorConfiguration : Connector send connector config function.
 func SendSaveProductConnectorConfiguration(shoset *net.Shoset, productConnector *models.ProductConnector) (err error) {
 	jsonData, err := json.Marshal(productConnector)
 	if err == nil {

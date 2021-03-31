@@ -2,7 +2,6 @@
 package utils
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -89,28 +88,46 @@ func SaveConfigurationConnector(configurationConnector models.ConfigurationLogic
 	return
 }
 
-// GetConnectorConfiguration : Cluster application context getter.
+/* // GetConnectorConfiguration : Cluster application context getter.
 func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []models.ConnectorConfig) {
 	client.Order("connector_type_id, connector_product_id, major desc").Preload("ConnectorType").Preload("ConnectorProduct").Preload("ConnectorCommands").Preload("ConnectorEvents").Find(&connectorsConfiguration)
 
 	return
+} */
+
+func GetPivots(client *gorm.DB) (pivots []models.Pivot) {
+	client.Order("type_id, major desc").Preload("Type").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Find(&pivots)
+
+	return
 }
 
-func GetPivots(client *gorm.DB) (pivots []models.Pivots) {
+func GetProductConnectors(client *gorm.DB) (productConnectors []models.ProductConnector) {
+	client.Order("product_id, major desc").Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Find(&productConnectors)
 
-}
-
-func GetProductConnectors(client *gorm.DB) (productConnector []models.ProductConnector) {
-
+	return
 }
 
 func SavePivot(pivot *models.Pivot, client *gorm.DB) {
+	var pivotType models.Type
+	client.Where("name = ?", pivot.Type.Name).First(&pivotType)
+	if (pivotType != models.Type{}) {
+		pivot.Type = pivotType
+	}
+
+	client.Save(pivot)
 }
 
 func SaveProductConnector(productConnector *models.ProductConnector, client *gorm.DB) {
+	var product models.Product
+	client.Where("name = ?", productConnector.Product.Name).First(&product)
+	if (product != models.Product{}) {
+		productConnector.Product = product
+	}
+
+	client.Save(productConnector)
 }
 
-// GetConnectorConfiguration : Cluster application context getter.
+/* // GetConnectorConfiguration : Cluster application context getter.
 func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client *gorm.DB) {
 	//fmt.Println(connectorConfig.ConnectorEvents)
 	//fmt.Println(connectorConfig.Resources)
@@ -181,13 +198,9 @@ func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client
 	var connectorConfig3 models.ConnectorConfig
 	client.Where("name = ?", "ConnectorConfig6").Preload("ConnectorType").Preload("ConnectorCommands").Preload("ConnectorEvents").Preload("Resources").First(&connectorConfig3)
 	fmt.Println(connectorConfig3)
-	/* 	var actions []models.Action
-	   	client.Find(&actions)
-	   	fmt.Println("actions")
-	   	fmt.Println(actions) */
 
 	return
-}
+} */
 
 // CaptureMessage : Cluster capture message function.
 func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {

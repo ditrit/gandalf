@@ -99,6 +99,28 @@ func GetConnectorEvent(eventName string, list []models.Object) (result models.Ob
 	return result
 } */
 
+// GetConnectorCommand : GetConnectorCommand
+func GetConnectorCommandType(commandName string, list []models.CommandType) (result models.CommandType) {
+	for _, command := range list {
+		if command.Name == commandName {
+			result = command
+			break
+		}
+	}
+	return result
+}
+
+// GetConnectorEvent : GetConnectorEvent
+func GetConnectorEventType(eventName string, list []models.EventType) (result models.EventType) {
+	for _, event := range list {
+		if event.Name == eventName {
+			result = event
+			break
+		}
+	}
+	return result
+}
+
 // GetPivotByVersion : GetPivotByVersion
 func GetPivotByVersion(major, minor int8, pivots []*models.Pivot) (result *models.Pivot) {
 	for _, pivot := range pivots {

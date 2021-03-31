@@ -64,9 +64,6 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 	log.Println("Handle configuration")
 	log.Println(logicalConfiguration)
 
-	//if configuration.GetTenant() == ch.Context["tenant"] {
-	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
-	//if ok {
 	if dir == "in" {
 		fmt.Println("IN")
 		if c.GetShosetType() == "c" {
@@ -108,14 +105,6 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 			err = errors.New("wrong Shoset type")
 		}
 	}
-	/* } else {
-		log.Println("can't push to queue")
-		err = errors.New("can't push to queue")
-	} */
-	/*} else {
-		log.Println("wrong tenant")
-		err = errors.New("wrong tenant")
-	}*/
 
 	return err
 }
@@ -160,28 +149,6 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 			if notSend {
 				return nil
 			}
-
-			/* notSend := true
-			for notSend {
-
-				index := getSecretSendIndex(shosets)
-				shosets[index].SendMessage(configurationMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
-
-				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-				time.Sleep(timeoutSend * time.Millisecond)
-
-				if shoset.Context["logicalConfiguration"] != nil {
-					notSend = false
-					break
-				}
-			}
-
-			if notSend {
-				return nil
-			} */
-
 		} else {
 			log.Println("can't find cluster to send")
 			err = errors.New("can't find cluster to send")

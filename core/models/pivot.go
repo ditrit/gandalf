@@ -7,6 +7,8 @@ type Pivot struct {
 	Name          string `gorm:"unique;not null"`
 	Major         int8
 	Minor         int8
+	TypeID        uint
+	Type          Type
 	ResourceTypes []ResourceType
 	CommandTypes  []CommandType
 	EventTypes    []EventType

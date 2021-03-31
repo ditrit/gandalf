@@ -13,6 +13,7 @@ import (
 
 	"github.com/ditrit/gandalf/core/connector/utils"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -85,24 +86,31 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 	   		mapVersionConnectorCommands[int8(in.GetMajor())] = append(mapVersionConnectorCommands[int8(in.GetMajor())], in.GetCommands()...)
 	   	} */
 
-	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	mapPivots := r.Shoset.Context["mapPivots"].(map[string][]*models.Pivot)
+	mapProductConnector := r.Shoset.Context["mapProductConnector"].(map[string][]*models.ProductConnector)
 
-	if config != nil {
-		connectorType := r.Shoset.Context["connectorType"].(string)
-		connectorConfig := utils.GetConnectorTypeConfigByVersion(int8(in.GetMajor()), config[connectorType])
-		if connectorConfig != nil {
+	if mapPivots != nil && mapProductConnector != nil {
+		configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+		connectorType := configurationConnector.GetConnectorType()
+		product := configurationConnector.GetProduct()
+		pivot := utils.GetPivotByVersion(int8(in.GetMajor()), int8(in.GetMinor()), mapPivots[connectorType])
+		productConnector := utils.GetConnectorProductByVersion(int8(in.GetMajor()), int8(in.GetMinor()), mapProductConnector[product])
+		if pivot != nil && productConnector != nil {
 			var configCommands []string
-			for _, command := range connectorConfig.ConnectorCommands {
-				configCommands = append(configCommands, command.Name)
+			for _, pivotCommand := range pivot.CommandTypes {
+				configCommands = append(configCommands, pivotCommand.Name)
+			}
+			for _, productConnectorCommand := range productConnector.CommandTypes {
+				configCommands = append(configCommands, productConnectorCommand.Name)
 			}
 
 			result := true
-			for _, ccommand := range configCommands {
+			for _, command := range configCommands {
 				r, _ := regexp.Compile("ADMIN_*")
-				if !r.MatchString(ccommand) {
+				if !r.MatchString(command) {
 					currentResult := false
 					for _, icommand := range in.GetCommands() {
-						if ccommand == icommand {
+						if command == icommand {
 							currentResult = true
 						}
 					}
@@ -147,75 +155,114 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	//connectorType := r.Shoset.Context["connectorType"].(string)
 
 	validate := false
-	config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-	if config != nil {
+	mapPivots := r.Shoset.Context["mapPivots"].(map[string][]*models.Pivot)
+	if mapPivots != nil {
 
-		if in.GetAdmin() {
+		if cmd.GetContext()["isAdmin"].(bool) {
 			connectorType := "Admin"
 			if connectorType != "" {
-				var connectorTypeConfig *models.ConnectorConfig
-				if listConnectorTypeConfig, ok := config[connectorType]; ok {
-					connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(0, listConnectorTypeConfig)
+				var pivot *models.Pivot
+				if listPivot, ok := mapPivots[connectorType]; ok {
+
+					pivot = utils.GetPivotByVersion(1, 0, listPivot)
 
 					//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-					if connectorTypeConfig != nil {
-						connectorCommand := utils.GetConnectorCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorCommands)
-						if connectorCommand.Name != "" {
-							validate = utils.ValidatePayload(cmd.GetPayload(), connectorCommand.Schema)
+					if pivot != nil {
+						commandType := utils.GetConnectorCommandType(cmd.GetCommand(), pivot.CommandTypes)
+						if commandType.Name != "" {
+							validate = utils.ValidatePayload(cmd.GetPayload(), commandType.Schema)
 						} else {
-							log.Println("Connector type commands not found")
+							log.Println("Connector pivot command type not found")
 						}
 					} else {
-						log.Println("Connector type configuration by version not found")
+						log.Println("Connector pivot by version not found")
 					}
 				} else {
-					log.Printf("Connector configuration by type %s not found \n", connectorType)
+					log.Printf("Connector pivot by type %s not found \n", connectorType)
 				}
 			} else {
-				log.Println("connectorType empty")
+				log.Println("Connector type not found")
 			}
 		} else {
-			connectorType := cmd.GetContext()["connectorType"].(string)
+			configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+			connectorType := configurationConnector.GetConnectorType()
 			if connectorType != "" {
-				var connectorTypeConfig *models.ConnectorConfig
-				if listConnectorTypeConfig, ok := config[connectorType]; ok {
+				var pivot *models.Pivot
+				if listPivot, ok := mapPivots[connectorType]; ok {
 					if cmd.Major == 0 {
 						versions := r.Shoset.Context["versions"].([]models.Version)
 						if versions != nil {
 							maxVersion := utils.GetMaxVersion(versions)
 							cmd.Major = maxVersion.Major
-
 							//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-							connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion.Major, listConnectorTypeConfig)
+							pivot = utils.GetPivotByVersion(maxVersion.Major, maxVersion.Minor, listPivot)
 
 						} else {
 							log.Println("Versions not found")
 						}
 					} else {
-						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(cmd.Major, listConnectorTypeConfig)
+						pivot = utils.GetPivotByVersion(cmd.Major, cmd.Minor, listPivot)
 					}
 
 					//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-					if connectorTypeConfig != nil {
-						connectorCommand := utils.GetConnectorCommand(cmd.GetCommand(), connectorTypeConfig.ConnectorCommands)
-						if connectorCommand.Name != "" {
-							validate = utils.ValidatePayload(cmd.GetPayload(), connectorCommand.Schema)
+					if pivot != nil {
+						commandType := utils.GetConnectorCommandType(cmd.GetCommand(), pivot.CommandTypes)
+						if commandType.Name != "" {
+							validate = utils.ValidatePayload(cmd.GetPayload(), commandType.Schema)
 						} else {
-							log.Println("Connector type commands not found")
+							mapProductConnector := r.Shoset.Context["mapProductConnector"].(map[string][]*models.ProductConnector)
+							if mapProductConnector != nil {
+								product := configurationConnector.GetProduct()
+								if product != "" {
+									var productConnector *models.ProductConnector
+									if listProductConnector, ok := mapProductConnector[product]; ok {
+										if cmd.Major == 0 {
+											versions := r.Shoset.Context["versions"].([]models.Version)
+											if versions != nil {
+												maxVersion := utils.GetMaxVersion(versions)
+												cmd.Major = maxVersion.Major
+												//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+												productConnector = utils.GetConnectorProductByVersion(maxVersion.Major, maxVersion.Minor, listProductConnector)
+
+											} else {
+												log.Println("Versions not found")
+											}
+										} else {
+											productConnector = utils.GetConnectorProductByVersion(cmd.Major, cmd.Minor, listProductConnector)
+										}
+										if productConnector != nil {
+											commandType := utils.GetConnectorCommandType(cmd.GetCommand(), productConnector.CommandTypes)
+											if commandType.Name != "" {
+												validate = utils.ValidatePayload(cmd.GetPayload(), commandType.Schema)
+											} else {
+												log.Println("Command type not found")
+											}
+										} else {
+											log.Println("Product Connector by version not found")
+										}
+									} else {
+										log.Printf("Product connector by product %s not found \n", product)
+									}
+								} else {
+									log.Println("Product not found")
+								}
+							} else {
+								log.Println("Map product connector not found")
+							}
 						}
 					} else {
-						log.Println("Connector type configuration by version not found")
+						log.Println("Pivot by version not found")
 					}
 				} else {
-					log.Printf("Connector configuration by type %s not found \n", connectorType)
+					log.Printf("Pivot by type %s not found \n", connectorType)
 				}
 			} else {
-				log.Println("connectorType empty")
+				log.Println("Connector type not found")
 			}
 		}
-
 	} else {
-		log.Println("Connectors configuration not found")
+		log.Println("Map pivot not found")
+
 	}
 
 	if validate {
@@ -285,56 +332,93 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 //SendEventMessage : Connector send event function.
 func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (empty *pb.Empty, err error) {
 	log.Println("Handle send event")
-	validate := true
 	evt := pb.EventFromGrpc(in)
 	evt.Tenant = r.Shoset.Context["tenant"].(string)
 	thisOne := r.Shoset.GetBindAddr()
+	validate := false
 
 	if evt.GetReferenceUUID() == "" {
-		config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-		if config != nil {
+		mapPivots := r.Shoset.Context["mapPivots"].(map[string][]*models.Pivot)
+		if mapPivots != nil {
 
-			connectorType := r.Shoset.Context["connectorType"].(string)
-
+			configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+			connectorType := configurationConnector.GetConnectorType()
 			if connectorType != "" {
-				var connectorTypeConfig *models.ConnectorConfig
-				if listConnectorTypeConfig, ok := config[connectorType]; ok {
+				var pivot *models.Pivot
+				if listPivot, ok := mapPivots[connectorType]; ok {
 					if evt.Major == 0 {
 						versions := r.Shoset.Context["versions"].([]models.Version)
 						if versions != nil {
 							maxVersion := utils.GetMaxVersion(versions)
 							evt.Major = maxVersion.Major
-
-							connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(maxVersion.Major, listConnectorTypeConfig)
+							//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+							pivot = utils.GetPivotByVersion(maxVersion.Major, maxVersion.Minor, listPivot)
 
 						} else {
 							log.Println("Versions not found")
 						}
 					} else {
-						connectorTypeConfig = utils.GetConnectorTypeConfigByVersion(evt.Major, listConnectorTypeConfig)
+						pivot = utils.GetPivotByVersion(evt.Major, evt.Minor, listPivot)
 					}
 
-					if connectorTypeConfig != nil {
-						//config := r.Shoset.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
-						connectorEvent := utils.GetConnectorEvent(evt.GetEvent(), connectorTypeConfig.ConnectorEvents)
-						if connectorEvent.Name != "" {
-							validate = utils.ValidatePayload(evt.GetPayload(), connectorEvent.Schema)
+					//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+					if pivot != nil {
+						commandType := utils.GetConnectorEventType(evt.GetEvent(), pivot.EventTypes)
+						if commandType.Name != "" {
+							validate = utils.ValidatePayload(evt.GetPayload(), commandType.Schema)
 						} else {
-							log.Println("Connector type events not found")
+							mapProductConnector := r.Shoset.Context["mapProductConnector"].(map[string][]*models.ProductConnector)
+							if mapProductConnector != nil {
+								product := configurationConnector.GetProduct()
+								if product != "" {
+									var productConnector *models.ProductConnector
+									if listProductConnector, ok := mapProductConnector[product]; ok {
+										if evt.Major == 0 {
+											versions := r.Shoset.Context["versions"].([]models.Version)
+											if versions != nil {
+												maxVersion := utils.GetMaxVersion(versions)
+												evt.Major = maxVersion.Major
+												//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
+												productConnector = utils.GetConnectorProductByVersion(maxVersion.Major, maxVersion.Minor, listProductConnector)
+
+											} else {
+												log.Println("Versions not found")
+											}
+										} else {
+											productConnector = utils.GetConnectorProductByVersion(evt.Major, evt.Minor, listProductConnector)
+										}
+										if productConnector != nil {
+											commandType := utils.GetConnectorEventType(evt.GetEvent(), productConnector.EventTypes)
+											if commandType.Name != "" {
+												validate = utils.ValidatePayload(evt.GetPayload(), commandType.Schema)
+											} else {
+												log.Println("Event type not found")
+											}
+										} else {
+											log.Println("Product Connector by version not found")
+										}
+									} else {
+										log.Printf("Product connector by product %s not found \n", product)
+									}
+								} else {
+									log.Println("Product not found")
+								}
+							} else {
+								log.Println("Map product connector not found")
+							}
 						}
 					} else {
-						validate = false
-						log.Println("Connector type configuration by version not found")
+						log.Println("Pivot by version not found")
 					}
 				} else {
-					log.Printf("Connector configuration by type %s not found \n", connectorType)
+					log.Printf("Pivot by type %s not found \n", connectorType)
 				}
-
 			} else {
-				log.Println("connectorType empty")
+				log.Println("Connector type not found")
 			}
 		} else {
-			log.Println("Connectors configuration not found")
+			log.Println("Map pivot not found")
+
 		}
 	}
 
