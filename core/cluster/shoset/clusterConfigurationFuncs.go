@@ -79,12 +79,16 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 				err = errors.New("Fail capture command" + configuration.GetCommand() + " on tenant" + configuration.GetTenant())
 			}
 			if configuration.GetCommand() == "PIVOT_CONFIGURATION" {
-				pivots := cutils.GetPivots(databaseClient)
+				connectorType := configuration.Context["connectorType"].(string)
+				version := configuration.Context["version"].(models.Version)
+				pivots := cutils.GetPivots(databaseClient, connectorType, version)
 				jsonData, err := json.Marshal(pivots)
 
 				if err == nil {
 					cmdReply := msg.NewConfig(configuration.GetTarget(), "PIVOT_CONFIGURATION_REPLY", string(jsonData))
 					cmdReply.Tenant = configuration.GetTenant()
+					cmdReply.Context["connectorType"] = connectorType
+
 					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
 					shoset.SendMessage(cmdReply)
@@ -93,7 +97,9 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 					err = errors.New("Can't unmarshall configuration")
 				}
 			} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION" {
-				productConnectors := cutils.GetProductConnectors(databaseClient)
+				product := configuration.Context["product"].(string)
+				version := configuration.Context["version"].(models.Version)
+				productConnectors := cutils.GetProductConnectors(databaseClient, product, version)
 				jsonData, err := json.Marshal(productConnectors)
 
 				if err == nil {

@@ -95,24 +95,19 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 	return
 } */
 
-func GetPivots(client *gorm.DB) (pivots []models.Pivot) {
-	client.Order("type_id, major desc").Preload("Type").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Find(&pivots)
+func GetPivots(client *gorm.DB, connectorType string, version models.Version) (pivot models.Pivot) {
+	client.Where("name = ? and major = ? and minor = ?", connectorType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot)
 
 	return
 }
 
-func GetProductConnectors(client *gorm.DB) (productConnectors []models.ProductConnector) {
-	client.Order("product_id, major desc").Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Find(&productConnectors)
+func GetProductConnectors(client *gorm.DB, product string, version models.Version) (productConnector models.ProductConnector) {
+	client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector)
 
 	return
 }
 
 func SavePivot(pivot *models.Pivot, client *gorm.DB) {
-	var pivotType models.Type
-	client.Where("name = ?", pivot.Type.Name).First(&pivotType)
-	if (pivotType != models.Type{}) {
-		pivot.Type = pivotType
-	}
 
 	client.Save(pivot)
 }

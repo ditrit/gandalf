@@ -208,7 +208,7 @@ func (cc ConfigurationConnector) DatabaseToConfiguration(configurationLogicalCon
 	cc.SetVersionsString(configurationLogicalConnector.Versions)
 }
 
-func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfigurationKeys []models.ConfigurationKeys) bool {
+func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfigurationKeys []models.Key) bool {
 	for _, configurationKey := range listConfigurationKeys {
 		switch configurationKey.Type {
 		case "string":
@@ -226,7 +226,7 @@ func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfiguration
 	return cc.cfg.ValidOK()
 }
 
-func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []models.ConfigurationKeys) (stindargs string) {
+func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []models.Key) (stindargs string) {
 	var value string
 	for i, configurationKey := range listConfigurationKeys {
 		switch configurationKey.Type {

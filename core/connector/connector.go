@@ -28,8 +28,9 @@ type ConnectorMember struct {
 	timeoutMax       int64
 	mapActiveWorkers map[models.Version]bool
 	//mapConnectorsConfig         map[string][]*models.ConnectorConfig
-	mapPivots                   map[string][]*models.Pivot
-	mapProductConnectors        map[string][]*models.ProductConnector
+	//pivot                       *models.Pivot
+	//workerAdminPivot            *models.Pivot
+	//productConnector            *models.ProductConnector
 	mapVersionConnectorCommands map[int8][]string
 }
 
@@ -52,8 +53,6 @@ func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) 
 	//member.connectorType = connectorType
 	member.chaussette = net.NewShoset(configurationConnector.GetLogicalName(), "c")
 	//member.versions = versions
-	member.mapPivots = make(map[string][]*models.Pivot)
-	member.mapProductConnectors = make(map[string][]*models.ProductConnector)
 	//member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
 	member.mapVersionConnectorCommands = make(map[int8][]string)
 	member.mapActiveWorkers = make(map[models.Version]bool)
@@ -64,8 +63,9 @@ func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) 
 
 	member.chaussette.Context["mapActiveWorkers"] = member.mapActiveWorkers
 	//member.chaussette.Context["mapConnectorsConfig"] = member.mapConnectorsConfig
-	member.chaussette.Context["mapPivots"] = member.mapPivots
-	member.chaussette.Context["mapProductConnectors"] = member.mapProductConnectors
+	//member.chaussette.Context["pivot"] = member.pivot
+	//member.chaussette.Context["workerAdminPivot"] = member.workerAdminPivot
+	//member.chaussette.Context["productConnector"] = member.productConnector
 	member.chaussette.Context["mapVersionConnectorCommands"] = member.mapVersionConnectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["models"] = shoset.HandleCommand

@@ -21,7 +21,6 @@ import (
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 	net "github.com/ditrit/shoset"
-	"gopkg.in/yaml.v2"
 )
 
 type WorkerAdmin struct {
@@ -299,20 +298,15 @@ func (w WorkerAdmin) stopWorker(version models.Version) (err error) {
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getConfiguration() (err error) {
 
-	shoset.SendPivotConfiguration(w.chaussette)
+	shoset.SendWorkerAdminPivotConfiguration(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
-	mapPivots := w.chaussette.Context["mapPivots"].(map[string][]*models.Pivot)
+	pivot := w.chaussette.Context["pivotWorkerAdmin"].(*models.Pivot)
 
-	if mapPivots != nil {
-		pivot := utils.GetPivotByVersion(int8(w.major), int8(w.minor), mapPivots["Admin"])
-		if pivot == nil {
-			pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+"WorkerAdmin"+"/"+strconv.Itoa(int(w.major))+"_"+strconv.Itoa(int(w.minor))+"_pivot.yaml")
-			shoset.SendSavePivotConfiguration(w.chaussette, pivot)
-		}
-
-		mapPivots[w.connectorType] = append(mapPivots[w.connectorType], pivot)
-		w.chaussette.Context["mapPivots"] = mapPivots
+	if pivot == nil {
+		pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+"WorkerAdmin"+"/"+strconv.Itoa(int(w.major))+"_"+strconv.Itoa(int(w.minor))+"_pivot.yaml")
+		shoset.SendSavePivotConfiguration(w.chaussette, pivot)
+		w.chaussette.Context["pivotWorkerAdmin"] = pivot
 	}
 
 	return
@@ -325,35 +319,23 @@ func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) 
 	shoset.SendPivotConfiguration(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
-	pivots := w.chaussette.Context["mapPivots"].(map[string][]*models.Pivot)
+	pivot := w.chaussette.Context["pivot"].(*models.Pivot)
 
-	if pivots != nil {
-		pivot := utils.GetPivotByVersion(version.Major, version.Minor, pivots[w.connectorType])
-		if pivot == nil {
-
-			pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+strings.ToLower(w.connectorType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
-			shoset.SendSavePivotConfiguration(w.chaussette, pivot)
-		}
-
-		pivots[w.connectorType] = append(pivots[w.connectorType], pivot)
-		w.chaussette.Context["mapPivots"] = pivots
+	if pivot == nil {
+		pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+strings.ToLower(w.connectorType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+		shoset.SendSavePivotConfiguration(w.chaussette, pivot)
+		w.chaussette.Context["pivot"] = pivot
 	}
 
 	shoset.SendProductConnectorConfiguration(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
-	productConnectors := w.chaussette.Context["mapProductConnectors"].(map[string][]*models.ProductConnector)
+	productConnector := w.chaussette.Context["productConnector"].(*models.ProductConnector)
 
-	if productConnectors != nil {
-		productConnector := utils.GetConnectorProductByVersion(version.Major, version.Minor, productConnectors[w.connectorType])
-		if productConnector == nil {
-
-			productConnector, _ = utils.DownloadProductConnector(w.baseurl, "/configuration/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_connector_product.yaml")
-			shoset.SendSaveProductConnectorConfiguration(w.chaussette, productConnector)
-		}
-
-		productConnectors[w.product] = append(productConnectors[w.product], productConnector)
-		w.chaussette.Context["mapProductConnectors"] = productConnectors
+	if productConnector == nil {
+		productConnector, _ = utils.DownloadProductConnector(w.baseurl, "/configuration/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_connector_product.yaml")
+		shoset.SendSaveProductConnectorConfiguration(w.chaussette, productConnector)
+		w.chaussette.Context["productConnectors"] = productConnector
 	}
 
 	return
@@ -395,71 +377,48 @@ func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 //startWorker()
 func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
-	config := w.chaussette.Context["mapConnectorsConfig"].(map[string][]*models.ConnectorConfig)
+	pivot := w.chaussette.Context["pivot"].(*models.Pivot)
+	productConnector := w.chaussette.Context["productConnector"].(*models.ProductConnector)
 
-	if config != nil {
-		connectorConfig := utils.GetConnectorTypeConfigByVersion(version.Major, config[w.connectorType])
+	if pivot != nil && productConnector != nil {
 
-		if connectorConfig != nil {
+		var listConfigurationKeys []models.Key
 
-			var listConfigurationKeys []models.ConfigurationKeys
+		listConfigurationKeys = append(listConfigurationKeys, pivot.Keys...)
+		listConfigurationKeys = append(listConfigurationKeys, productConnector.Keys...)
 
-			var listConfigurationConnectorTypeKeys []models.ConfigurationKeys
-			var listConfigurationProductKeys []models.ConfigurationKeys
-			var listConfigurationVersionMajorKeys []models.ConfigurationKeys
-			var listConfigurationVersionMinorKeys []models.ConfigurationKeys
+		configurationConnector := w.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
+		configurationConnector.AddConnectorConfigurationKeys(listConfigurationKeys)
 
-			err = yaml.Unmarshal([]byte(connectorConfig.ConnectorTypeKeys), &listConfigurationConnectorTypeKeys)
-			if err == nil {
-				err = yaml.Unmarshal([]byte(connectorConfig.ProductKeys), &listConfigurationProductKeys)
-				if err == nil {
-					err = yaml.Unmarshal([]byte(connectorConfig.VersionMajorKeys), &listConfigurationVersionMajorKeys)
-					if err == nil {
-						err = yaml.Unmarshal([]byte(connectorConfig.VersionMinorKeys), &listConfigurationVersionMinorKeys)
-					}
-				}
+		var stdinargs string
+		stdinargs = configurationConnector.GetConfigurationKeys(listConfigurationKeys)
+
+		workersPathVersion := w.workerPath + "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
+		fileWorkersPathVersion := workersPathVersion + "/worker"
+
+		if utils.CheckFileExistAndIsExecAll(fileWorkersPathVersion) {
+			args := []string{w.logicalName, strconv.FormatInt(w.timeoutMax, 10), w.grpcBindAddress}
+
+			cmd := exec.Command("./worker", args...)
+			cmd.Dir = workersPathVersion
+			cmd.Stdout = os.Stdout
+
+			stdin, err := cmd.StdinPipe()
+			if err != nil {
+				fmt.Println(err)
 			}
-
-			if err == nil {
-				listConfigurationKeys = append(listConfigurationKeys, listConfigurationConnectorTypeKeys...)
-				listConfigurationKeys = append(listConfigurationKeys, listConfigurationProductKeys...)
-				listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMajorKeys...)
-				listConfigurationKeys = append(listConfigurationKeys, listConfigurationVersionMinorKeys...)
-
-				configurationConnector := w.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
-				configurationConnector.AddConnectorConfigurationKeys(listConfigurationKeys)
-
-				var stdinargs string
-				stdinargs = configurationConnector.GetConfigurationKeys(listConfigurationKeys)
-
-				workersPathVersion := w.workerPath + "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
-				fileWorkersPathVersion := workersPathVersion + "/worker"
-
-				if utils.CheckFileExistAndIsExecAll(fileWorkersPathVersion) {
-					args := []string{w.logicalName, strconv.FormatInt(w.timeoutMax, 10), w.grpcBindAddress}
-
-					cmd := exec.Command("./worker", args...)
-					cmd.Dir = workersPathVersion
-					cmd.Stdout = os.Stdout
-
-					stdin, err := cmd.StdinPipe()
-					if err != nil {
-						fmt.Println(err)
-					}
-					err = cmd.Start()
-					if err != nil {
-						log.Printf("Can't start worker %s", fileWorkersPathVersion)
-					}
-					time.Sleep(time.Second * time.Duration(5))
-
-					go func() {
-						defer stdin.Close()
-						io.WriteString(stdin, stdinargs)
-					}()
-				}
+			err = cmd.Start()
+			if err != nil {
+				log.Printf("Can't start worker %s", fileWorkersPathVersion)
 			}
+			time.Sleep(time.Second * time.Duration(5))
 
+			go func() {
+				defer stdin.Close()
+				io.WriteString(stdin, stdinargs)
+			}()
 		}
+
 	}
 
 	return
