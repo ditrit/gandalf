@@ -3,10 +3,11 @@ package poll
 import (
 	"gandalf/connectors/gogithub/pull"
 	"gandalf/connectors/gogithub/repository"
-	"gandalf/core/models"
 	"gandalf/libraries/goclient"
 	"strings"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/google/go-github/v33/github"
 )

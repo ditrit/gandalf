@@ -66,7 +66,10 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 
 // InitTenantDatabase : Tenant database init.
 func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login []string, password []string, err error) {
-	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{}, &models.Command{}, &models.Config{}, &models.ConnectorConfig{}, &models.ConnectorType{}, &models.Object{}, &models.ObjectClosure{}, &models.ConnectorProduct{}, &models.Action{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{}, &models.Permission{}, &models.ConfigurationLogicalAggregator{}, &models.ConfigurationLogicalConnector{})
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{},
+		&models.Command{}, &models.Config{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{},
+		&models.ConfigurationLogicalAggregator{}, &models.ConfigurationLogicalConnector{}, &models.Pivot{}, &models.ProductConnector{}, &models.Product{},
+		&models.Key{}, &models.CommandType{}, &models.EventType{}, &models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{})
 
 	//Init State
 	state := models.State{Admin: false}

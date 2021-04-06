@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 	cmsg "github.com/ditrit/gandalf/core/msg"
 
@@ -16,6 +17,8 @@ import (
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
 )
+
+var configurationSendIndex = 0
 
 func GetConfiguration(c *net.ShosetConn) (msg.Message, error) {
 	var configuration cmsg.Configuration
@@ -71,27 +74,56 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	if databaseConnection != nil {
 		databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
 		if databaseClient != nil {
-			ok := cutils.CaptureMessage(message, "config", databaseClient)
-			if ok {
-				log.Printf("Succes capture config %s on tenant %s \n", configuration.GetCommand(), configuration.GetTenant())
-			} else {
-				log.Printf("Fail capture config %s on tenant %s \n", configuration.GetCommand(), configuration.GetTenant())
-				err = errors.New("Fail capture command" + configuration.GetCommand() + " on tenant" + configuration.GetTenant())
-			}
 			if configuration.GetCommand() == "PIVOT_CONFIGURATION" {
-				connectorType := configuration.Context["connectorType"].(string)
+				componentType := configuration.Context["componentType"].(string)
 				version := configuration.Context["version"].(models.Version)
-				pivots := cutils.GetPivots(databaseClient, connectorType, version)
+				pivots := cutils.GetPivots(databaseClient, componentType, version)
 				jsonData, err := json.Marshal(pivots)
 
 				if err == nil {
-					cmdReply := msg.NewConfig(configuration.GetTarget(), "PIVOT_CONFIGURATION_REPLY", string(jsonData))
-					cmdReply.Tenant = configuration.GetTenant()
-					cmdReply.Context["connectorType"] = connectorType
+					switch componentType {
+					case "cluster":
+						cmdReply := msg.NewConfig("", "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+						cmdReply.Tenant = configuration.GetTenant()
+						shoset := ch.ConnsJoin.Get(configuration.Context["bindAddress"].(string))
 
-					shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+						shoset.SendMessage(cmdReply)
+						break
+					case "aggregator":
+						cmdReply := msg.NewConfig("", "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+						cmdReply.Tenant = configuration.GetTenant()
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
-					shoset.SendMessage(cmdReply)
+						shoset.SendMessage(cmdReply)
+						break
+					case "connector":
+						cmdReply := msg.NewConfig(configuration.GetTarget(), "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+						cmdReply.Tenant = configuration.GetTenant()
+						cmdReply.GetContext()["componentType"] = "connector"
+
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+
+						shoset.SendMessage(cmdReply)
+						break
+					case "admin":
+						cmdReply := msg.NewConfig(configuration.GetTarget(), "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+						cmdReply.Tenant = configuration.GetTenant()
+						cmdReply.GetContext()["componentType"] = "admin"
+
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+
+						shoset.SendMessage(cmdReply)
+					default:
+						cmdReply := msg.NewConfig(configuration.GetTarget(), "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+						cmdReply.Tenant = configuration.GetTenant()
+						cmdReply.GetContext()["componentType"] = "worker"
+
+						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+
+						shoset.SendMessage(cmdReply)
+						break
+					}
+
 				} else {
 					log.Println("Can't unmarshall configuration")
 					err = errors.New("Can't unmarshall configuration")
@@ -111,6 +143,12 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 				} else {
 					log.Println("Can't unmarshall configuration")
 					err = errors.New("Can't unmarshall configuration")
+				}
+			} else if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
+				var pivot *models.Pivot
+				err = json.Unmarshal([]byte(configuration.GetPayload()), &pivot)
+				if err == nil {
+					ch.Context["pivot"] = pivot
 				}
 			} else if configuration.GetCommand() == "SAVE_PIVOT_CONFIGURATION" {
 				//connectorConfig := conf.GetContext()["connectorConfig"].(models.ConnectorConfig)
@@ -145,4 +183,62 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	   	} */
 
 	return err
+}
+
+//SendPivotConfiguration :
+func SendClusterPivotConfiguration(shoset *net.Shoset) (err error) {
+	conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
+	configurationCluster := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
+	conf.Tenant = configurationCluster.GetTenant()
+	conf.GetContext()["componentType"] = "cluster"
+	conf.GetContext()["version"] = configurationCluster.GetVersions()
+	conf.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
+
+	//conf.GetContext()["product"] = shoset.Context["product"]
+
+	shosets := net.GetByType(shoset.ConnsJoin, "")
+
+	if len(shosets) != 0 {
+		if conf.GetTimeout() > configurationCluster.GetMaxTimeout() {
+			conf.Timeout = configurationCluster.GetMaxTimeout()
+		}
+
+		notSend := true
+		for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
+			index := getConfigurationSendIndex(shosets)
+			shosets[index].SendMessage(conf)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["mapConnectorsConfig"] != nil {
+				notSend = false
+				break
+			}
+		}
+
+		if notSend {
+			return nil
+		}
+
+	} else {
+		log.Println("can't find aggregators to send")
+		err = errors.New("can't find aggregators to send")
+	}
+
+	return err
+}
+
+// getCommandSendIndex : Aggregator getSendIndex function.
+func getConfigurationSendIndex(conns []*net.ShosetConn) int {
+	aux := configurationSendIndex
+	configurationSendIndex++
+
+	if configurationSendIndex >= len(conns) {
+		configurationSendIndex = 0
+	}
+
+	return aux
 }

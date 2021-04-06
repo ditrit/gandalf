@@ -24,7 +24,7 @@ type ConnectorMember struct {
 	chaussette       *net.Shoset
 	connectorGrpc    grpc.ConnectorGrpc
 	connectorType    string
-	versions         []models.Version
+	version          models.Version
 	timeoutMax       int64
 	mapActiveWorkers map[models.Version]bool
 	//mapConnectorsConfig         map[string][]*models.ConnectorConfig
@@ -167,7 +167,7 @@ func (m *ConnectorMember) StartWorkerAdmin(chaussette *net.Shoset) (err error) {
 }
 
 func (m *ConnectorMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalConnector, error) {
-	shoset.SendConfiguration(nshoset)
+	shoset.SendLogicalConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
 	configurationConnector, ok := m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalConnector)

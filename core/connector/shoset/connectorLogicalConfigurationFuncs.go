@@ -63,11 +63,11 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 	log.Println("Handle logical configuration")
 	log.Println(logicalConfiguration)
 
-	if logicalConfiguration.GetCommand() == "CONFIGURATION_REPLY" {
-		var configurationConnector *models.ConfigurationLogicalConnector
-		err = json.Unmarshal([]byte(logicalConfiguration.GetPayload()), &configurationConnector)
+	if logicalConfiguration.GetCommand() == "LOGICAL_CONFIGURATION_REPLY" {
+		var logicalComponent *models.LogicalComponent
+		err = json.Unmarshal([]byte(logicalConfiguration.GetPayload()), &logicalComponent)
 		if err == nil {
-			ch.Context["logicalConfiguration"] = configurationConnector
+			ch.Context["logicalConfiguration"] = logicalComponent
 		}
 	}
 
@@ -80,7 +80,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
 	configMarshal, err := json.Marshal(configurationLogicalConnector)
 	if err == nil {
-		configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
+		configurationMsg := cmsg.NewConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
 		//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 		configurationMsg.GetContext()["componentType"] = "connector"
 		configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()

@@ -22,6 +22,7 @@ import (
 // AggregatorMember : Aggregator struct.
 type AggregatorMember struct {
 	chaussette *net.Shoset
+	version    models.Version
 }
 
 /*func InitAggregatorKeys(){
@@ -120,7 +121,7 @@ func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 
 func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalAggregator, error) {
 	fmt.Println("SEND")
-	shoset.SendConfiguration(nshoset)
+	shoset.SendLogicalConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
 	configurationAggregator, ok := m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalAggregator)

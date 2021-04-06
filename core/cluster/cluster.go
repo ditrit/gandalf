@@ -26,6 +26,7 @@ type ClusterMember struct {
 	chaussette         *net.Shoset
 	Store              *[]string
 	DatabaseConnection *database.DatabaseConnection
+	version            models.Version
 	//GandalfDatabaseClient    *gorm.DB
 	//MapTenantDatabaseClients map[string]*gorm.DB
 }
@@ -309,7 +310,7 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 }
 
 func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalCluster, error) {
-	shoset.SendConfiguration(nshoset)
+	shoset.SendLogicalConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
 	configurationCluster, ok := m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalCluster)

@@ -94,9 +94,14 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 
 	return
 } */
+func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponenets models.LogicalComponent) {
+	client.Where("logical_name = ?", logicalName).Preload("KeyValues").First(&logicalComponenets)
 
-func GetPivots(client *gorm.DB, connectorType string, version models.Version) (pivot models.Pivot) {
-	client.Where("name = ? and major = ? and minor = ?", connectorType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot)
+	return
+}
+
+func GetPivots(client *gorm.DB, componentType string, version models.Version) (pivot models.Pivot) {
+	client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot)
 
 	return
 }

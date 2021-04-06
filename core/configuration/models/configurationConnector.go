@@ -244,6 +244,8 @@ func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []mo
 		}
 
 	}
+
 	stindargs = stindargs + "}"
+
 	return
 }

@@ -304,7 +304,7 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 	pivot := w.chaussette.Context["pivotWorkerAdmin"].(*models.Pivot)
 
 	if pivot == nil {
-		pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+"WorkerAdmin"+"/"+strconv.Itoa(int(w.major))+"_"+strconv.Itoa(int(w.minor))+"_pivot.yaml")
+		pivot, _ = utils.DownloadPivot(w.baseurl, "/configurations/"+"WorkerAdmin"+"/"+strconv.Itoa(int(w.major))+"_"+strconv.Itoa(int(w.minor))+"_pivot.yaml")
 		shoset.SendSavePivotConfiguration(w.chaussette, pivot)
 		w.chaussette.Context["pivotWorkerAdmin"] = pivot
 	}
@@ -316,15 +316,15 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 // GetKeys : Get keys from baseurl/connectorType/ and baseurl/connectorType/product/
 func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) {
 
-	shoset.SendPivotConfiguration(w.chaussette)
+	shoset.SendWorkerPivotConfiguration(w.chaussette)
 	time.Sleep(time.Second * time.Duration(5))
 
-	pivot := w.chaussette.Context["pivot"].(*models.Pivot)
+	pivot := w.chaussette.Context["pivotWorker"].(*models.Pivot)
 
 	if pivot == nil {
-		pivot, _ = utils.DownloadPivot(w.baseurl, "/configuration/"+strings.ToLower(w.connectorType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+		pivot, _ = utils.DownloadPivot(w.baseurl, "/configurations/"+strings.ToLower(w.connectorType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
 		shoset.SendSavePivotConfiguration(w.chaussette, pivot)
-		w.chaussette.Context["pivot"] = pivot
+		w.chaussette.Context["pivotWorker"] = pivot
 	}
 
 	shoset.SendProductConnectorConfiguration(w.chaussette)
@@ -333,7 +333,7 @@ func (w WorkerAdmin) getWorkerConfiguration(version models.Version) (err error) 
 	productConnector := w.chaussette.Context["productConnector"].(*models.ProductConnector)
 
 	if productConnector == nil {
-		productConnector, _ = utils.DownloadProductConnector(w.baseurl, "/configuration/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_connector_product.yaml")
+		productConnector, _ = utils.DownloadProductConnector(w.baseurl, "/configurations/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_connector_product.yaml")
 		shoset.SendSaveProductConnectorConfiguration(w.chaussette, productConnector)
 		w.chaussette.Context["productConnectors"] = productConnector
 	}
@@ -348,7 +348,7 @@ func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 	fileWorkersPathVersion := w.workerPath + ressourceDir + "worker"
 
 	if !utils.CheckFileExistAndIsExecAll(fileWorkersPathVersion) {
-		ressourceURL := "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "_" + strconv.Itoa(int(version.Minor)) + "_"
+		ressourceURL := "/workers/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor)) + "/"
 
 		url := w.baseurl + ressourceURL + "worker.zip"
 
@@ -425,7 +425,7 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 }
 
 func (w WorkerAdmin) getLastVersion() (lastVersion models.Version, err error) {
-	versions, _ := utils.DownloadVersions(w.baseurl, "/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/versions.yaml")
+	versions, _ := utils.DownloadVersions(w.baseurl, "/workers/"+strings.ToLower(w.connectorType)+"/"+strings.ToLower(w.product)+"/versions.yaml")
 	fmt.Println("versions")
 	fmt.Println(versions)
 

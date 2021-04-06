@@ -89,11 +89,11 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 		fmt.Println("OUT")
 		if c.GetShosetType() == "cl" {
 			if logicalConfiguration.GetTarget() == "" {
-				if logicalConfiguration.GetCommand() == "CONFIGURATION_REPLY" {
-					var configurationAggregator *models.ConfigurationLogicalAggregator
-					err = json.Unmarshal([]byte(logicalConfiguration.GetPayload()), &configurationAggregator)
+				if logicalConfiguration.GetCommand() == "LOGICAL_CONFIGURATION_REPLY" {
+					var logicalComponent *models.LogicalComponent
+					err = json.Unmarshal([]byte(logicalConfiguration.GetPayload()), &logicalComponent)
 					if err == nil {
-						ch.Context["logicalConfiguration"] = configurationAggregator
+						ch.Context["logicalConfiguration"] = logicalComponent
 					}
 				}
 			} else {
@@ -115,7 +115,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
 	configMarshal, err := json.Marshal(configurationLogicalAggregator)
 	if err == nil {
-		configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
+		configurationMsg := cmsg.NewConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
 		configurationMsg.Tenant = configurationAggregator.GetTenant()
 		configurationMsg.GetContext()["componentType"] = "aggregator"
 		configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()

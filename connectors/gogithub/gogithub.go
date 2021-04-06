@@ -7,8 +7,9 @@ import (
 	"gandalf/connectors/gogithub/client"
 	"gandalf/connectors/gogithub/poll"
 	"gandalf/connectors/gogithub/repository"
-	"gandalf/core/models"
 	"gandalf/libraries/goclient"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	"os"
 	"shoset/msg"
