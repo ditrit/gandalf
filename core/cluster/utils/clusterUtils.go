@@ -225,58 +225,22 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 	return ok
 }
 
-func ValidateSecret(databaseClient *gorm.DB, componentType, logicalName, secret, bindAddress string) (result bool, err error) {
+func ValidateSecret(databaseClient *gorm.DB, secret, bindAddress string) (result bool, err error) {
 
 	result = false
 
-	switch componentType {
-	case "cluster":
-		var cluster models.Cluster
-		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&cluster).Error
-		if err == nil {
-			if cluster != (models.Cluster{}) {
-				if cluster.BindAddress == "" {
-					cluster.BindAddress = bindAddress
-					databaseClient.Save(cluster)
-					result = true
-				} else if cluster.BindAddress == bindAddress {
-					result = true
-				}
+	var secretAssignement models.SecretAssignement
+	err = databaseClient.Where("secret = ?", secret).First(&secretAssignement).Error
+	if err == nil {
+		if secretAssignement != (models.SecretAssignement{}) {
+			if secretAssignement.BindAddress == "" {
+				secretAssignement.BindAddress = bindAddress
+				databaseClient.Save(secretAssignement)
+				result = true
+			} else if secretAssignement.BindAddress == bindAddress {
+				result = true
 			}
 		}
-		break
-	case "aggregator":
-		var aggregator models.Aggregator
-		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&aggregator).Error
-		if err == nil {
-			if aggregator != (models.Aggregator{}) {
-				if aggregator.BindAddress == "" {
-					aggregator.BindAddress = bindAddress
-					databaseClient.Save(aggregator)
-					result = true
-				} else if aggregator.BindAddress == bindAddress {
-					result = true
-				}
-			}
-		}
-
-		break
-	case "connector":
-		var connector models.Connector
-		err = databaseClient.Where("logical_name = ? and secret = ?", logicalName, secret).First(&connector).Error
-		if err == nil {
-			if connector != (models.Connector{}) {
-				if connector.BindAddress == "" {
-					connector.BindAddress = bindAddress
-					databaseClient.Save(connector)
-					result = true
-				} else if connector.BindAddress == bindAddress {
-					result = true
-				}
-			}
-		}
-
-		break
 	}
 
 	return

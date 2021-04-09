@@ -118,7 +118,6 @@ func SendSecret(shoset *net.Shoset) (err error) {
 	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	secretMsg.Tenant = configurationAggregator.GetTenant()
 	secretMsg.GetContext()["componentType"] = "aggregator"
-	secretMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
 	secretMsg.GetContext()["secret"] = configurationAggregator.GetSecret()
 	secretMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]

@@ -11,6 +11,7 @@ import (
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 	cmsg "github.com/ditrit/gandalf/core/msg"
+	"github.com/jinzhu/gorm"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
@@ -66,16 +67,23 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle configuration")
 	log.Println(configuration)
 
+	componentType := configuration.Context["componentType"].(string)
 	databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 	//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
 	//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 	if databaseConnection != nil {
-		databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
+		//databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
+		var databaseClient *gorm.DB
+		if componentType == "cluster" {
+			databaseClient = databaseConnection.GetGandalfDatabaseClient()
+		} else {
+			databaseClient = databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
+		}
 		if databaseClient != nil {
 			if configuration.GetCommand() == "PIVOT_CONFIGURATION" {
-				componentType := configuration.Context["componentType"].(string)
+				//componentType := configuration.Context["componentType"].(string)
 				version := configuration.Context["version"].(models.Version)
 				pivots := cutils.GetPivots(databaseClient, componentType, version)
 				jsonData, err := json.Marshal(pivots)
@@ -189,9 +197,9 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 func SendClusterPivotConfiguration(shoset *net.Shoset) (err error) {
 	conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
 	configurationCluster := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
-	conf.Tenant = configurationCluster.GetTenant()
+	version := shoset.Context["version"].(*models.Version)
 	conf.GetContext()["componentType"] = "cluster"
-	conf.GetContext()["version"] = configurationCluster.GetVersions()
+	conf.GetContext()["version"] = version
 	conf.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
 
 	//conf.GetContext()["product"] = shoset.Context["product"]

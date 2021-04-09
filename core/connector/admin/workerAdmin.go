@@ -38,8 +38,7 @@ type WorkerAdmin struct {
 	versions         []models.Version
 	clientGandalf    *goclient.ClientGandalf
 
-	major int64
-	minor int64
+	version *models.Version
 
 	CommandsFuncs map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int
 	//mapVersionConfigurationKeys map[models.Version][]models.ConfigurationKeys
@@ -51,6 +50,7 @@ func NewWorkerAdmin(chaussette *net.Shoset) *WorkerAdmin {
 	workerAdmin.chaussette = chaussette
 
 	configurationConnector := workerAdmin.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
+	version := workerAdmin.chaussette.Context["version"].(*models.Version)
 
 	workerAdmin.logicalName = configurationConnector.GetLogicalName()
 	workerAdmin.connectorType = configurationConnector.GetConnectorType()
@@ -74,8 +74,7 @@ func NewWorkerAdmin(chaussette *net.Shoset) *WorkerAdmin {
 			workerAdmin.autoUpdateMinute = autoUpdateTimeMinute
 		}
 	}
-	workerAdmin.major = 1
-	workerAdmin.minor = 0
+	workerAdmin.version = version
 	workerAdmin.clientGandalf = goclient.NewClientGandalf(workerAdmin.logicalName, strconv.FormatInt(workerAdmin.timeoutMax, 10), strings.Split(workerAdmin.grpcBindAddress, ","))
 	workerAdmin.CommandsFuncs = make(map[string]func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int)
 
@@ -164,7 +163,7 @@ func (w WorkerAdmin) waitCommands(id, commandName string, function func(clientGa
 
 	for true {
 
-		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
+		command := w.clientGandalf.WaitCommand(commandName, id, int64(w.version.Major))
 
 		go w.executeCommands(command, function)
 
@@ -172,7 +171,7 @@ func (w WorkerAdmin) waitCommands(id, commandName string, function func(clientGa
 }
 
 func (w WorkerAdmin) executeCommands(command msg.Command, function func(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
-	result := function(w.clientGandalf, w.major, command)
+	result := function(w.clientGandalf, int64(w.version.Major), command)
 	if result == 0 {
 		w.clientGandalf.SendReply(command.GetCommand(), "SUCCES", command.GetUUID(), map[string]string{})
 	} else {
@@ -304,7 +303,7 @@ func (w WorkerAdmin) getConfiguration() (err error) {
 	pivot := w.chaussette.Context["pivotWorkerAdmin"].(*models.Pivot)
 
 	if pivot == nil {
-		pivot, _ = utils.DownloadPivot(w.baseurl, "/configurations/"+"WorkerAdmin"+"/"+strconv.Itoa(int(w.major))+"_"+strconv.Itoa(int(w.minor))+"_pivot.yaml")
+		pivot, _ = utils.DownloadPivot(w.baseurl, "/configurations/"+"WorkerAdmin"+"/"+strconv.Itoa(int(w.version.Major))+"_"+strconv.Itoa(int(w.version.Minor))+"_pivot.yaml")
 		shoset.SendSavePivotConfiguration(w.chaussette, pivot)
 		w.chaussette.Context["pivotWorkerAdmin"] = pivot
 	}

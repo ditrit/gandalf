@@ -94,7 +94,7 @@ func SendWorkerAdminPivotConfiguration(shoset *net.Shoset) (err error) {
 	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 	conf.Tenant = configurationConnector.GetTenant()
 	conf.GetContext()["connectorType"] = "admin"
-	conf.GetContext()["version"] = configurationConnector.GetVersions()
+	conf.GetContext()["version"] = configurationConnector.GetVersion()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
@@ -182,7 +182,7 @@ func SendConnectorPivotConfiguration(shoset *net.Shoset) (err error) {
 	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 	conf.Tenant = configurationConnector.GetTenant()
 	conf.GetContext()["componentType"] = "connector"
-	conf.GetContext()["version"] = configurationConnector.GetVersions()
+	conf.GetContext()["version"] = configurationConnector.GetVersion()
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")
@@ -224,9 +224,11 @@ func SendConnectorPivotConfiguration(shoset *net.Shoset) (err error) {
 func SendProductConnectorConfiguration(shoset *net.Shoset) (err error) {
 	conf := cmsg.NewConfiguration("", "CONNECTOR_PRODUCT_CONFIGURATION", "")
 	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	version := shoset.Context["version"].(*models.Version)
+
 	conf.Tenant = configurationConnector.GetTenant()
 	conf.GetContext()["product"] = configurationConnector.GetProduct()
-	conf.GetContext()["version"] = configurationConnector.GetVersions()
+	conf.GetContext()["version"] = version
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "a")

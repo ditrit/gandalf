@@ -19,10 +19,15 @@ import (
 	net "github.com/ditrit/shoset"
 )
 
+const major = int8(1)
+const minor = int8(0)
+
 // AggregatorMember : Aggregator struct.
 type AggregatorMember struct {
-	chaussette *net.Shoset
-	version    models.Version
+	chaussette           *net.Shoset
+	version              models.Version
+	pivot                *models.Pivot
+	logicalConfiguration *models.LogicalComponent
 }
 
 /*func InitAggregatorKeys(){
@@ -35,6 +40,9 @@ type AggregatorMember struct {
 func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(configurationAggregator.GetLogicalName(), "a")
+
+	member.version = models.Version{Major: major, Minor: minor}
+	member.chaussette.Context["version"] = member.version
 
 	member.chaussette.Context["configuration"] = configurationAggregator
 	//member.chaussette.Context["tenant"] = tenant
@@ -119,14 +127,26 @@ func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 	return false, fmt.Errorf("Validation nil")
 }
 
-func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalAggregator, error) {
+func (m *AggregatorMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {
+	fmt.Println("SEND")
+	shoset.SendAggregatorPivotConfiguration(nshoset)
+	time.Sleep(time.Second * time.Duration(5))
+
+	pivot, ok := m.chaussette.Context["pivot"].(*models.Pivot)
+	if ok {
+		return pivot, nil
+	}
+	return nil, fmt.Errorf("Configuration nil")
+}
+
+func (m *AggregatorMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.LogicalComponent, error) {
 	fmt.Println("SEND")
 	shoset.SendLogicalConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationAggregator, ok := m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalAggregator)
+	logicalConfiguration, ok := m.chaussette.Context["logicalConfiguration"].(*models.LogicalComponent)
 	if ok {
-		return configurationAggregator, nil
+		return logicalConfiguration, nil
 	}
 	return nil, fmt.Errorf("Configuration nil")
 }
@@ -163,25 +183,33 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 			validateSecret, err = member.ValidateSecret(member.GetChaussette())
 			if err == nil {
 				if validateSecret {
-					configurationLogicalAggregator, err := member.GetConfiguration(member.GetChaussette())
+					pivot, err := member.GetPivot(member.GetChaussette())
 					if err == nil {
-						fmt.Println(configurationLogicalAggregator)
-						configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
-
-						//TODO ADD CONFIGURATION DATABASE
-						configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
+						fmt.Println(pivot)
+						member.pivot = pivot
+						logicalConfiguration, err := member.GetLogicalConfiguration(member.GetChaussette())
 						if err == nil {
-							//TODO START API
-							databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator)
-							err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection)
-							if err != nil {
-								log.Fatalf("Can't create API server")
+							fmt.Println(logicalConfiguration)
+							member.logicalConfiguration = logicalConfiguration
+							//configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
+
+							//TODO ADD CONFIGURATION DATABASE
+							configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
+							if err == nil {
+								//TODO START API
+								databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator)
+								err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection)
+								if err != nil {
+									log.Fatalf("Can't create API server")
+								}
+							} else {
+								log.Fatalf("Can't get configuration database")
 							}
 						} else {
-							log.Fatalf("Can't get configuration database")
+							log.Fatalf("Can't get logical configuration")
 						}
 					} else {
-						log.Fatalf("Can't get configuration")
+						log.Fatalf("Can't get pivot")
 					}
 				} else {
 					log.Fatalf("Invalid secret")

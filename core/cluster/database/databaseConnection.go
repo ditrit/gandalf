@@ -45,7 +45,8 @@ func (dc DatabaseConnection) newDatabaseClient(name, password string) (gandalfDa
 
 // InitGandalfDatabase : Gandalf database init.
 func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login string, password string, secret string, err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.ConfigurationLogicalCluster{})
+	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.Pivot{}, &models.Key{},
+		&models.CommandType{}, &models.EventType{}, &models.ResourceType{}, &models.KeyValue{}, &models.LogicalComponent{})
 
 	//Init Cluster
 	secret = GenerateRandomHash()
@@ -68,8 +69,8 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login []string, password []string, err error) {
 	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Aggregator{}, &models.Connector{}, &models.Application{}, &models.Event{},
 		&models.Command{}, &models.Config{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{},
-		&models.ConfigurationLogicalAggregator{}, &models.ConfigurationLogicalConnector{}, &models.Pivot{}, &models.ProductConnector{}, &models.Product{},
-		&models.Key{}, &models.CommandType{}, &models.EventType{}, &models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{})
+		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
+		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{})
 
 	//Init State
 	state := models.State{Admin: false}

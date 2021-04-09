@@ -119,17 +119,18 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 //SendPivotConfiguration :
 func SendAggregatorPivotConfiguration(shoset *net.Shoset) (err error) {
 	conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
-	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
-	conf.Tenant = configurationConnector.GetTenant()
+	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	version := shoset.Context["version"].(*models.Version)
+	conf.Tenant = configurationAggregator.GetTenant()
 	conf.GetContext()["componentType"] = "aggregator"
-	conf.GetContext()["version"] = configurationConnector.GetVersions()
+	conf.GetContext()["version"] = version
 	//conf.GetContext()["product"] = shoset.Context["product"]
 
 	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
 	if len(shosets) != 0 {
-		if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
-			conf.Timeout = configurationConnector.GetMaxTimeout()
+		if conf.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+			conf.Timeout = configurationAggregator.GetMaxTimeout()
 		}
 
 		notSend := true

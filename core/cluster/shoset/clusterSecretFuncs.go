@@ -96,20 +96,20 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			if databaseClient != nil {
 
 				bindAddr := secret.GetContext()["bindAddress"].(string)
-
+				componentType := secret.GetContext()["componentType"].(string)
 				var result bool
-				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["componentType"].(string), secret.GetContext()["logicalName"].(string), secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
+				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
 
 				if err == nil {
 					target := secret.GetTarget()
-					if secret.GetContext()["componentType"] == "aggregator" || secret.GetContext()["componentType"] == "cluster" {
+					if componentType == "aggregator" || componentType == "cluster" {
 						target = ""
 					}
 					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
 					secretReply.Tenant = secret.GetTenant()
 
 					var shoset *net.ShosetConn
-					if secret.GetContext()["componentType"].(string) == "cluster" {
+					if componentType == "cluster" {
 
 						shoset = ch.ConnsJoin.Get(bindAddr)
 					} else {
@@ -166,7 +166,6 @@ func SendSecret(shoset *net.Shoset) (err error) {
 	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
 	//secretMsg.Tenant = "cluster"
 	secretMsg.GetContext()["componentType"] = "cluster"
-	secretMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()
 	secretMsg.GetContext()["secret"] = configurationCluster.GetSecret()
 	secretMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
 	//conf.GetContext()["product"] = shoset.Context["product"]
