@@ -389,6 +389,8 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 		configurationConnector := w.chaussette.Context["configuration"].(*cmodels.ConfigurationConnector)
 		configurationConnector.AddConnectorConfigurationKeys(listConfigurationKeys)
 
+		//EVENT TYPE TO POLL
+
 		var stdinargs string
 		stdinargs = configurationConnector.GetConfigurationKeys(listConfigurationKeys)
 

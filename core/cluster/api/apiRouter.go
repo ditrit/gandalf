@@ -28,13 +28,9 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.Use(GandalfJwtVerify)
 
 	//GANDALF
-	//CLUSTER
-	subg.HandleFunc(urls.CLUSTER_PATH_LIST, controllers.ClusterController.List).Methods("GET")
-	subg.HandleFunc(urls.CLUSTER_PATH_CREATE, controllers.ClusterController.Create).Methods("POST")
-	subg.HandleFunc(urls.CLUSTER_PATH_DECLARE_MEMBER, controllers.ClusterController.DeclareMember).Methods("GET")
-	subg.HandleFunc(urls.CLUSTER_PATH_READ, controllers.ClusterController.Read).Methods("GET")
-	subg.HandleFunc(urls.CLUSTER_PATH_UPDATE, controllers.ClusterController.Update).Methods("PUT")
-	subg.HandleFunc(urls.CLUSTER_PATH_DELETE, controllers.ClusterController.Delete).Methods("DELETE")
+	//SECRET
+	subg.HandleFunc(urls.SECRET_PATH_LIST, controllers.SecretAssignementController.List).Methods("GET")
+	subg.HandleFunc(urls.SECRET_PATH_CREATE, controllers.SecretAssignementController.Create).Methods("POST")
 
 	//TENANT
 	subg.HandleFunc(urls.TENANT_PATH_LIST, controllers.TenantController.List).Methods("GET")
@@ -51,6 +47,14 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.HandleFunc(urls.USER_PATH_UPDATE, controllers.UserController.Update).Methods("PUT")
 	subg.HandleFunc(urls.USER_PATH_DELETE, controllers.UserController.Delete).Methods("DELETE")
 
+	/*//CLUSTER
+	subg.HandleFunc(urls.CLUSTER_PATH_LIST, controllers.ClusterController.List).Methods("GET")
+	subg.HandleFunc(urls.CLUSTER_PATH_CREATE, controllers.ClusterController.Create).Methods("POST")
+	subg.HandleFunc(urls.CLUSTER_PATH_DECLARE_MEMBER, controllers.ClusterController.DeclareMember).Methods("GET")
+	subg.HandleFunc(urls.CLUSTER_PATH_READ, controllers.ClusterController.Read).Methods("GET")
+	subg.HandleFunc(urls.CLUSTER_PATH_UPDATE, controllers.ClusterController.Update).Methods("PUT")
+	subg.HandleFunc(urls.CLUSTER_PATH_DELETE, controllers.ClusterController.Delete).Methods("DELETE")
+
 	//CONFIGURATION
 	subg.HandleFunc(urls.CONFIGURATION_PATH_LIST, controllers.ConfigurationController.List).Methods("GET")
 	subg.HandleFunc(urls.CONFIGURATION_PATH_CREATE, controllers.ConfigurationController.Create).Methods("POST")
@@ -59,7 +63,7 @@ func GetRouter(databaseConnection *database.DatabaseConnection) *mux.Router {
 	subg.HandleFunc(urls.CONFIGURATION_PATH_DELETE, controllers.ConfigurationController.Delete).Methods("DELETE")
 	subg.HandleFunc(urls.CONFIGURATION_PATH_UPLOAD, controllers.ConfigurationController.Upload).Methods("POST")
 
-	/* //TENANTS
+	 //TENANTS
 	//AGGREGATOR
 	subg.HandleFunc(urls.AGGREGATOR_PATH_LIST, controllers.AggregatorController.List).Methods("GET")
 	subg.HandleFunc(urls.AGGREGATOR_PATH_CREATE, controllers.AggregatorController.Create).Methods("POST")

@@ -107,7 +107,7 @@ func GetPivots(client *gorm.DB, componentType string, version models.Version) (p
 }
 
 func GetProductConnectors(client *gorm.DB, product string, version models.Version) (productConnector models.ProductConnector) {
-	client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector)
+	client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Ressources").Preload("EventTypeToPolls").First(&productConnector)
 
 	return
 }
@@ -233,11 +233,11 @@ func ValidateSecret(databaseClient *gorm.DB, secret, bindAddress string) (result
 	err = databaseClient.Where("secret = ?", secret).First(&secretAssignement).Error
 	if err == nil {
 		if secretAssignement != (models.SecretAssignement{}) {
-			if secretAssignement.BindAddress == "" {
-				secretAssignement.BindAddress = bindAddress
+			if secretAssignement.AddressIP == "" {
+				secretAssignement.AddressIP = bindAddress
 				databaseClient.Save(secretAssignement)
 				result = true
-			} else if secretAssignement.BindAddress == bindAddress {
+			} else if secretAssignement.AddressIP == bindAddress {
 				result = true
 			}
 		}

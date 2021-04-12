@@ -8,14 +8,15 @@ import (
 
 // Controllers :
 type Controllers struct {
-	AuthenticationController          *controllers.AuthenticationController
-	CliController                     *controllers.CliController
-	AggregatorController              *controllers.AggregatorController
-	ConnectorController               *controllers.ConnectorController
-	RoleController                    *controllers.RoleController
-	UserController                    *controllers.UserController
-	ConfigurationAggregatorController *controllers.ConfigurationAggregatorController
-	ConfigurationConnectorController  *controllers.ConfigurationConnectorController
+	AuthenticationController *controllers.AuthenticationController
+	CliController            *controllers.CliController
+	//AggregatorController              *controllers.AggregatorController
+	//ConnectorController               *controllers.ConnectorController
+	RoleController *controllers.RoleController
+	UserController *controllers.UserController
+	//ConfigurationAggregatorController *controllers.ConfigurationAggregatorController
+	//ConfigurationConnectorController  *controllers.ConfigurationConnectorController
+	LogicalComponentController *controllers.LogicalComponentController
 }
 
 // ReturnControllers :
@@ -25,12 +26,14 @@ func ReturnControllers(databaseConnection *database.DatabaseConnection) *Control
 
 	aggregatorControllers.AuthenticationController = controllers.NewAuthenticationController(databaseConnection)
 	aggregatorControllers.CliController = controllers.NewCliController()
-	aggregatorControllers.ConnectorController = controllers.NewConnectorController(databaseConnection)
-	aggregatorControllers.AggregatorController = controllers.NewAggregatorController(databaseConnection)
+	aggregatorControllers.LogicalComponentController = controllers.NewLogicalComponentController(databaseConnection)
+
+	//aggregatorControllers.ConnectorController = controllers.NewConnectorController(databaseConnection)
+	//aggregatorControllers.AggregatorController = controllers.NewAggregatorController(databaseConnection)
 	aggregatorControllers.UserController = controllers.NewUserController(databaseConnection)
 	aggregatorControllers.RoleController = controllers.NewRoleController(databaseConnection)
-	aggregatorControllers.ConfigurationAggregatorController = controllers.NewConfigurationAggregatorController(databaseConnection)
-	aggregatorControllers.ConfigurationConnectorController = controllers.NewConfigurationConnectorController(databaseConnection)
+	//aggregatorControllers.ConfigurationAggregatorController = controllers.NewConfigurationAggregatorController(databaseConnection)
+	//aggregatorControllers.ConfigurationConnectorController = controllers.NewConfigurationConnectorController(databaseConnection)
 
 	return aggregatorControllers
 }

@@ -8,6 +8,8 @@ type Urls struct {
 
 	LOGIN_PATH                           string
 	CLI_PATH                             string
+	LOGICAL_COMPONENT_PATH               string
+	LOGICAL_COMPONENT_PAHT_UPLOAD        string
 	CONNECTOR_PATH                       string
 	CONNECTOR_PATH_LIST                  string
 	CONNECTOR_PATH_CREATE                string
@@ -62,20 +64,7 @@ func ReturnURLS() *Urls {
 	//TENANTS
 	apiurls.LOGIN_PATH = apiurls.PATH + "/login/"
 	apiurls.CLI_PATH = apiurls.PATH + "/cli/"
-	apiurls.CONNECTOR_PATH = apiurls.PATH + "/connectors"
-	apiurls.CONNECTOR_PATH_LIST = apiurls.CONNECTOR_PATH + "/"
-	apiurls.CONNECTOR_PATH_CREATE = apiurls.CONNECTOR_PATH + "/"
-	apiurls.CONNECTOR_PATH_DECLARE_MEMBER = apiurls.CONNECTOR_PATH + "/declare/{name}"
-	apiurls.CONNECTOR_PATH_READ = apiurls.CONNECTOR_PATH + "/{id:[0-9]+}"
-	apiurls.CONNECTOR_PATH_UPDATE = apiurls.CONNECTOR_PATH + "/{id:[0-9]+}"
-	apiurls.CONNECTOR_PATH_DELETE = apiurls.CONNECTOR_PATH + "/{id:[0-9]+}"
-	apiurls.AGGREGATOR_PATH = apiurls.PATH + "/aggregators"
-	apiurls.AGGREGATOR_PATH_LIST = apiurls.AGGREGATOR_PATH + "/"
-	apiurls.AGGREGATOR_PATH_CREATE = apiurls.AGGREGATOR_PATH + "/"
-	apiurls.AGGREGATOR_PATH_DECLARE_MEMBER = apiurls.AGGREGATOR_PATH + "/declare/{name}"
-	apiurls.AGGREGATOR_PATH_READ = apiurls.AGGREGATOR_PATH + "/{id:[0-9]+}"
-	apiurls.AGGREGATOR_PATH_UPDATE = apiurls.AGGREGATOR_PATH + "/{id:[0-9]+}"
-	apiurls.AGGREGATOR_PATH_DELETE = apiurls.AGGREGATOR_PATH + "/{id:[0-9]+}"
+
 	apiurls.ROLE_PATH = apiurls.PATH + "/roles"
 	apiurls.ROLE_PATH_LIST = apiurls.ROLE_PATH + "/"
 	apiurls.ROLE_PATH_CREATE = apiurls.ROLE_PATH + "/"
@@ -88,21 +77,39 @@ func ReturnURLS() *Urls {
 	apiurls.USER_PATH_READ = apiurls.USER_PATH + "/{id:[0-9]+}"
 	apiurls.USER_PATH_UPDATE = apiurls.USER_PATH + "/{id:[0-9]+}"
 	apiurls.USER_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
-	apiurls.CONFIGURATION_PATH = apiurls.PATH + "/configurations"
-	apiurls.CONFIGURATION_AGGREGATOR_PATH = apiurls.CONFIGURATION_PATH + "/aggregator"
-	apiurls.CONFIGURATION_CONNECTOR_PATH = apiurls.CONFIGURATION_PATH + "/connector"
-	apiurls.CONFIGURATION_AGGREGATOR_PATH_LIST = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/"
-	apiurls.CONFIGURATION_AGGREGATOR_PATH_CREATE = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/"
-	apiurls.CONFIGURATION_AGGREGATOR_PATH_READ = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/{id:[0-9]+}"
-	apiurls.CONFIGURATION_AGGREGATOR_PATH_UPDATE = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/{id:[0-9]+}"
-	apiurls.CONFIGURATION_AGGREGATOR_PATH_DELETE = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/{id:[0-9]+}"
-	apiurls.CONFIGURATION_AGGREGATOR_PATH_UPLOAD = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/upload"
-	apiurls.CONFIGURATION_CONNECTOR_PATH_LIST = apiurls.CONFIGURATION_CONNECTOR_PATH + "/"
-	apiurls.CONFIGURATION_CONNECTOR_PATH_CREATE = apiurls.CONFIGURATION_CONNECTOR_PATH + "/"
-	apiurls.CONFIGURATION_CONNECTOR_PATH_READ = apiurls.CONFIGURATION_CONNECTOR_PATH + "/{id:[0-9]+}"
-	apiurls.CONFIGURATION_CONNECTOR_PATH_UPDATE = apiurls.CONFIGURATION_CONNECTOR_PATH + "/{id:[0-9]+}"
-	apiurls.CONFIGURATION_CONNECTOR_PATH_DELETE = apiurls.CONFIGURATION_CONNECTOR_PATH + "/{id:[0-9]+}"
-	apiurls.CONFIGURATION_CONNECTOR_PATH_UPLOAD = apiurls.CONFIGURATION_CONNECTOR_PATH + "/upload"
 
+	apiurls.LOGICAL_COMPONENT_PATH = apiurls.PATH + "/logicalcomponent"
+	apiurls.LOGICAL_COMPONENT_PAHT_UPLOAD = apiurls.LOGICAL_COMPONENT_PATH + "/upload/"
+	/*
+		apiurls.CONNECTOR_PATH = apiurls.PATH + "/connectors"
+		apiurls.CONNECTOR_PATH_LIST = apiurls.CONNECTOR_PATH + "/"
+		apiurls.CONNECTOR_PATH_CREATE = apiurls.CONNECTOR_PATH + "/"
+		apiurls.CONNECTOR_PATH_DECLARE_MEMBER = apiurls.CONNECTOR_PATH + "/declare/{name}"
+		apiurls.CONNECTOR_PATH_READ = apiurls.CONNECTOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONNECTOR_PATH_UPDATE = apiurls.CONNECTOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONNECTOR_PATH_DELETE = apiurls.CONNECTOR_PATH + "/{id:[0-9]+}"
+		apiurls.AGGREGATOR_PATH = apiurls.PATH + "/aggregators"
+		apiurls.AGGREGATOR_PATH_LIST = apiurls.AGGREGATOR_PATH + "/"
+		apiurls.AGGREGATOR_PATH_CREATE = apiurls.AGGREGATOR_PATH + "/"
+		apiurls.AGGREGATOR_PATH_DECLARE_MEMBER = apiurls.AGGREGATOR_PATH + "/declare/{name}"
+		apiurls.AGGREGATOR_PATH_READ = apiurls.AGGREGATOR_PATH + "/{id:[0-9]+}"
+		apiurls.AGGREGATOR_PATH_UPDATE = apiurls.AGGREGATOR_PATH + "/{id:[0-9]+}"
+		apiurls.AGGREGATOR_PATH_DELETE = apiurls.AGGREGATOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONFIGURATION_PATH = apiurls.PATH + "/configurations"
+		apiurls.CONFIGURATION_AGGREGATOR_PATH = apiurls.CONFIGURATION_PATH + "/aggregator"
+		apiurls.CONFIGURATION_CONNECTOR_PATH = apiurls.CONFIGURATION_PATH + "/connector"
+		apiurls.CONFIGURATION_AGGREGATOR_PATH_LIST = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/"
+		apiurls.CONFIGURATION_AGGREGATOR_PATH_CREATE = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/"
+		apiurls.CONFIGURATION_AGGREGATOR_PATH_READ = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONFIGURATION_AGGREGATOR_PATH_UPDATE = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONFIGURATION_AGGREGATOR_PATH_DELETE = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONFIGURATION_AGGREGATOR_PATH_UPLOAD = apiurls.CONFIGURATION_AGGREGATOR_PATH + "/upload"
+		apiurls.CONFIGURATION_CONNECTOR_PATH_LIST = apiurls.CONFIGURATION_CONNECTOR_PATH + "/"
+		apiurls.CONFIGURATION_CONNECTOR_PATH_CREATE = apiurls.CONFIGURATION_CONNECTOR_PATH + "/"
+		apiurls.CONFIGURATION_CONNECTOR_PATH_READ = apiurls.CONFIGURATION_CONNECTOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONFIGURATION_CONNECTOR_PATH_UPDATE = apiurls.CONFIGURATION_CONNECTOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONFIGURATION_CONNECTOR_PATH_DELETE = apiurls.CONFIGURATION_CONNECTOR_PATH + "/{id:[0-9]+}"
+		apiurls.CONFIGURATION_CONNECTOR_PATH_UPLOAD = apiurls.CONFIGURATION_CONNECTOR_PATH + "/upload"
+	*/
 	return apiurls
 }

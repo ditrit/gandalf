@@ -14,17 +14,18 @@ import (
 
 // Client :
 type Client struct {
-	BaseURL               *url.URL
-	UserAgent             string
-	HTTPClient            *http.Client
-	AuthenticationService *AuthenticationService
-	CliService            *CliService
-	ClusterService        *ClusterService
-	RoleService           *RoleService
-	TenantService         *TenantService
-	UserService           *UserService
-	AggregatorService     *AggregatorService
-	ConnectorService      *ConnectorService
+	BaseURL                  *url.URL
+	UserAgent                string
+	HTTPClient               *http.Client
+	AuthenticationService    *AuthenticationService
+	CliService               *CliService
+	ClusterService           *ClusterService
+	RoleService              *RoleService
+	TenantService            *TenantService
+	UserService              *UserService
+	AggregatorService        *AggregatorService
+	ConnectorService         *ConnectorService
+	SecretAssignementService *SecretAssignementService
 }
 
 // NewClient :
@@ -53,6 +54,7 @@ func NewClient(bindAddress string) (client *Client) {
 	client.UserService = &UserService{client: client}
 	client.AggregatorService = &AggregatorService{client: client}
 	client.ConnectorService = &ConnectorService{client: client}
+	client.SecretAssignementService = &SecretAssignementService{client: client}
 
 	return
 
