@@ -113,6 +113,9 @@ func init() {
 		return 9299 + GetOffset()
 	}) */
 
+	clusterCfg.LKey("repository_url", verdeter.IsStr, "u", "repository URL")
+	clusterCfg.SetDefault("repository_url", "https://github.com/ditrit/gandalf-workers/raw/master")
+
 	clusterCfg.SetConstraint("a secret can not be set for cluster initialization (no join provided)",
 		func() bool {
 			return viper.IsSet("join") || !viper.IsSet("secret")

@@ -4,7 +4,7 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 )
 
-// RoleService :
+// SecretAssignementService :
 type SecretAssignementService struct {
 	client *Client
 }

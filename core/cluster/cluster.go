@@ -8,8 +8,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
+
+	"github.com/ditrit/gandalf/core/cluster/utils"
+
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/jinzhu/gorm"
 
 	"github.com/ditrit/gandalf/core/cluster/api"
 
@@ -175,9 +180,26 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
 								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
-								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
-								if err != nil {
-									log.Fatalf("Can't create API server")
+								//GET PIVOT
+								var pivot *models.Pivot
+								pivot, err = member.DownloadPivot(member.chaussette, gandalfDatabaseClient, configurationCluster.GetRepositoryUrl(), "cluster", member.version)
+								if err == nil {
+									member.pivot = pivot
+
+									//SAVE LOGICALCOMPONENT
+									var logicalComponent *models.LogicalComponent
+									logicalComponent, err = member.SaveLogicalComponent(gandalfDatabaseClient, configurationCluster)
+									if err == nil {
+										member.logicalConfiguration = logicalComponent
+										err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
+										if err != nil {
+											log.Fatalf("Can't create API server")
+										}
+									} else {
+										log.Fatalf("Can't save logical component")
+									}
+								} else {
+									log.Fatalf("Can't get pivot")
 								}
 							} else {
 								log.Fatalf("Can't initialize database")
@@ -200,17 +222,30 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
 			if err == nil {
 
-				member.DatabaseConnection.GetGandalfDatabaseClient()
+				gandalfDatabaseClient := member.DatabaseConnection.GetGandalfDatabaseClient()
 				//var gandalfDatabaseClient *gorm.DB
 				//gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
 				//member.GandalfDatabaseClient = gandalfDatabaseClient
 				//member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 				if err == nil {
 					log.Printf("New gandalf database client")
-
-					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
-					if err != nil {
-						log.Fatalf("Can't create API server")
+					var pivot *models.Pivot
+					pivot, err = member.GetInitPivot(gandalfDatabaseClient, "cluster", member.version)
+					if err == nil {
+						member.pivot = pivot
+						var logicalComponent *models.LogicalComponent
+						logicalComponent, err = member.GetInitLogicalConfiguration(gandalfDatabaseClient, configurationCluster.GetLogicalName())
+						if err == nil {
+							member.logicalConfiguration = logicalComponent
+							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
+							if err != nil {
+								log.Fatalf("Can't create API server")
+							}
+						} else {
+							log.Fatalf("Can't get logical component")
+						}
+					} else {
+						log.Fatalf("Can't get pivot")
 					}
 				} else {
 					log.Fatalf("Can't create database client")
@@ -321,6 +356,55 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 		return false, fmt.Errorf("Validation empty")
 	}
 	return false, fmt.Errorf("Validation nil")
+}
+
+//TODO REVOIR ERROR
+func (m *ClusterMember) DownloadPivot(nshoset *net.Shoset, client *gorm.DB, baseurl, componentType string, version models.Version) (*models.Pivot, error) {
+	pivot := utils.GetPivots(client, componentType, version)
+	if pivot.Name == "" {
+		pivot, _ := utils.DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+		m.chaussette.Context["pivot"] = pivot
+		client.Save(pivot)
+	}
+
+	return pivot, nil
+}
+
+func (m *ClusterMember) SaveLogicalComponent(client *gorm.DB, configurationCluster *cmodels.ConfigurationCluster) (*models.LogicalComponent, error) {
+	logicalComponent := new(models.LogicalComponent)
+	logicalComponent.LogicalName = configurationCluster.GetLogicalName()
+	logicalComponent.Type = "cluster"
+	logicalComponent.Pivot = *m.pivot
+	var keyValues []models.KeyValue
+	for _, key := range m.pivot.Keys {
+		keyValue := new(models.KeyValue)
+		switch key.Type {
+		case "string":
+			keyValue.Value = viper.GetString(key.Name)
+		case "int":
+			keyValue.Value = viper.GetInt64(key.Name)
+		}
+		keyValue.Key = key
+		keyValues = append(keyValues, *keyValue)
+	}
+	logicalComponent.KeyValues = keyValues
+
+	client.Save(logicalComponent)
+
+	return logicalComponent, nil
+}
+
+//TODO REVOIR ERROR
+func (m *ClusterMember) GetInitPivot(client *gorm.DB, componentType string, version models.Version) (*models.Pivot, error) {
+	pivot := utils.GetPivots(client, componentType, version)
+
+	return pivot, nil
+}
+
+func (m *ClusterMember) GetInitLogicalConfiguration(client *gorm.DB, logicalName string) (*models.LogicalComponent, error) {
+	logicalComponent := utils.GetLogicalComponents(client, logicalName)
+
+	return logicalComponent, nil
 }
 
 func (m *ClusterMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {

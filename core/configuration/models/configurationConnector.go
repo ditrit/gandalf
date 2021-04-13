@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"strconv"
 	"strings"
 
@@ -226,7 +227,7 @@ func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfiguration
 	return cc.cfg.ValidOK()
 }
 
-func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []models.Key) (stindargs string) {
+func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []models.Key, listEventTypeToPolls []models.EventTypeToPoll) (stindargs string) {
 	var value string
 	for i, configurationKey := range listConfigurationKeys {
 		switch configurationKey.Type {
@@ -244,8 +245,9 @@ func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []mo
 		}
 
 	}
+	jsonData, _ := json.Marshal(listEventTypeToPolls)
 
-	stindargs = stindargs + "}"
+	stindargs = stindargs + string(jsonData) + "}"
 
 	return
 }

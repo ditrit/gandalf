@@ -2,9 +2,13 @@
 package utils
 
 import (
+	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 
 	"github.com/ditrit/gandalf/core/models"
+	"gopkg.in/yaml.v2"
 
 	"github.com/ditrit/shoset/msg"
 
@@ -94,13 +98,13 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 
 	return
 } */
-func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponenets models.LogicalComponent) {
+func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponenets *models.LogicalComponent) {
 	client.Where("logical_name = ?", logicalName).Preload("KeyValues").First(&logicalComponenets)
 
 	return
 }
 
-func GetPivots(client *gorm.DB, componentType string, version models.Version) (pivot models.Pivot) {
+func GetPivots(client *gorm.DB, componentType string, version models.Version) (pivot *models.Pivot) {
 	client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot)
 
 	return
@@ -127,80 +131,33 @@ func SaveProductConnector(productConnector *models.ProductConnector, client *gor
 	client.Save(productConnector)
 }
 
-/* // GetConnectorConfiguration : Cluster application context getter.
-func SaveConnectorsConfiguration(connectorConfig *models.ConnectorConfig, client *gorm.DB) {
-	//fmt.Println(connectorConfig.ConnectorEvents)
-	//fmt.Println(connectorConfig.Resources)
+// DownloadPivot : Download pivot from url
+func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
 
-	var connectorType models.ConnectorType
-	client.Where("name = ?", connectorConfig.ConnectorType.Name).First(&connectorType)
-	connectorConfig.ConnectorType = connectorType
-
-	//ConnectorCommands
-	var connectorCommands []models.Object
-	for _, connectorCommand := range connectorConfig.ConnectorCommands {
-		var listAction []models.Action
-		for _, action := range connectorCommand.Actions {
-			var currentAction models.Action
-			client.Where("name = ?", action.Name).First(&currentAction)
-			fmt.Println("currentAction")
-			fmt.Println(currentAction)
-			listAction = append(listAction, currentAction)
-		}
-		connectorCommand.Actions = listAction
-		connectorCommands = append(connectorCommands, connectorCommand)
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
 	}
-	connectorConfig.ConnectorCommands = connectorCommands
 
-	//ConnectorEvents
-	var connectorEvents []models.Object
-	for _, connectorEvent := range connectorConfig.ConnectorEvents {
-		var listAction []models.Action
-		for _, action := range connectorEvent.Actions {
-			var currentAction models.Action
-			client.Where("name = ?", action.Name).First(&currentAction)
-			fmt.Println("currentAction")
-			fmt.Println(currentAction)
-			listAction = append(listAction, currentAction)
-		}
-		connectorEvent.Actions = listAction
-		connectorEvents = append(connectorEvents, connectorEvent)
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
 	}
-	connectorConfig.ConnectorEvents = connectorEvents
 
-	//Resources
-	var resources []models.Object
-	for _, resource := range connectorConfig.Resources {
-		var listAction []models.Action
-		for _, action := range resource.Actions {
-			var currentAction models.Action
-			client.Where("name = ?", action.Name).First(&currentAction)
-			fmt.Println("currentAction")
-			fmt.Println(currentAction)
-			listAction = append(listAction, currentAction)
-		}
-		resource.Actions = listAction
-		resources = append(resources, resource)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
 	}
-	connectorConfig.Resources = resources
 
-	client.Save(connectorConfig)
-
-	var connectorTypes []models.ConnectorType
-	client.Find(&connectorTypes)
-	fmt.Println("connectorTypes")
-	fmt.Println(connectorTypes)
-
-	var connectorConfig2 models.ConnectorConfig
-	client.Where("name = ?", "ConnectorConfig7").Preload("ConnectorType").Preload("Resources.Actions").First(&connectorConfig2)
-	fmt.Println(connectorConfig2)
-
-	var connectorConfig3 models.ConnectorConfig
-	client.Where("name = ?", "ConnectorConfig6").Preload("ConnectorType").Preload("ConnectorCommands").Preload("ConnectorEvents").Preload("Resources").First(&connectorConfig3)
-	fmt.Println(connectorConfig3)
+	err = yaml.Unmarshal(bodyBytes, &pivot)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
 
 	return
-} */
+}
 
 // CaptureMessage : Cluster capture message function.
 func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {

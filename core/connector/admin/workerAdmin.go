@@ -390,9 +390,13 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 		configurationConnector.AddConnectorConfigurationKeys(listConfigurationKeys)
 
 		//EVENT TYPE TO POLL
+		var listEventTypeToPolls []models.EventTypeToPoll
+		for _, resource := range productConnector.Resources {
+			listEventTypeToPolls = append(listEventTypeToPolls, resource.EventTypeToPolls...)
+		}
 
 		var stdinargs string
-		stdinargs = configurationConnector.GetConfigurationKeys(listConfigurationKeys)
+		stdinargs = configurationConnector.GetConfigurationKeys(listConfigurationKeys, listEventTypeToPolls)
 
 		workersPathVersion := w.workerPath + "/" + strings.ToLower(w.connectorType) + "/" + strings.ToLower(w.product) + "/" + strconv.Itoa(int(version.Major)) + "/" + strconv.Itoa(int(version.Minor))
 		fileWorkersPathVersion := workersPathVersion + "/worker"

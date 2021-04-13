@@ -138,6 +138,14 @@ func (cc ConfigurationCluster) SetCertsPath(maxTimeout string) {
 	viper.Set("cert_dir", maxTimeout)
 }
 
+func (cc ConfigurationCluster) GetRepositoryUrl() string {
+	return viper.GetString("repository_url")
+}
+
+func (cc ConfigurationCluster) SetRepositoryUrl(workersUrl string) {
+	viper.Set("repository_url", workersUrl)
+}
+
 func (cc ConfigurationCluster) ConfigurationToDatabase() *models.ConfigurationLogicalCluster {
 	configurationLogicalCluster := new(models.ConfigurationLogicalCluster)
 	configurationLogicalCluster.LogicalName = cc.GetLogicalName()

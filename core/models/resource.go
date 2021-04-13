@@ -11,4 +11,5 @@ type Resource struct {
 	Domain             Domain
 	ResourceTypeID     uint
 	ResourceType       ResourceType
+	EventTypeToPolls   []EventTypeToPoll
 }
