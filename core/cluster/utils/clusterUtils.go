@@ -98,15 +98,20 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 
 	return
 } */
-func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponenets *models.LogicalComponent) {
-	client.Where("logical_name = ?", logicalName).Preload("KeyValues").First(&logicalComponenets)
+func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponent models.LogicalComponent) {
+	client.Where("logical_name = ?", logicalName).Preload("KeyValues").First(&logicalComponent)
 
 	return
 }
 
-func GetPivots(client *gorm.DB, componentType string, version models.Version) (pivot *models.Pivot) {
-	client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot)
-
+func GetPivots(client *gorm.DB, componentType string, version models.Version) (pivot models.Pivot) {
+	fmt.Println("GET PIVOT")
+	fmt.Println(componentType)
+	fmt.Println(version.Major)
+	fmt.Println(version.Minor)
+	err := client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error
+	fmt.Println(err)
+	fmt.Println(pivot)
 	return
 }
 

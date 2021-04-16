@@ -114,7 +114,7 @@ func init() {
 	}) */
 
 	clusterCfg.LKey("repository_url", verdeter.IsStr, "u", "repository URL")
-	clusterCfg.SetDefault("repository_url", "https://github.com/ditrit/gandalf-workers/raw/master")
+	clusterCfg.SetDefault("repository_url", "https://raw.githubusercontent.com/ditrit/gandalf-workers/master")
 
 	clusterCfg.SetConstraint("a secret can not be set for cluster initialization (no join provided)",
 		func() bool {

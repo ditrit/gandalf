@@ -4,9 +4,9 @@ import "github.com/jinzhu/gorm"
 
 type KeyValue struct {
 	gorm.Model
-	Value              interface{}
+	Value              string
 	KeyID              uint
 	Key                Key
 	LogicalConnectorID uint
-	LogicalConnector   LogicalConnector
+	//LogicalConnector   LogicalConnector
 }

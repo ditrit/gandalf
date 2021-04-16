@@ -4,6 +4,7 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -41,7 +42,7 @@ func WaitLogicalConfiguration(c *net.Shoset, replies *msg.Iterator, args map[str
 		for cont {
 			message := replies.Get().GetMessage()
 			if message != nil {
-				config := message.(cmsg.Secret)
+				config := message.(cmsg.LogicalConfiguration)
 				if config.GetCommand() == commandName {
 					term <- &message
 				}
@@ -69,6 +70,9 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 
 	log.Println("Handle logical configuration")
 	log.Println(logicalConfiguration)
+
+	fmt.Println("handle logical configuration")
+	fmt.Println(logicalConfiguration)
 
 	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
 	//if ok {
@@ -100,20 +104,20 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 				if err == nil {
 					switch componentType {
 					case "cluster":
-						configurationReply := cmsg.NewConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
+						configurationReply := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 						configurationReply.Tenant = logicalConfiguration.GetTenant()
 						shoset := ch.ConnsJoin.Get(logicalConfiguration.GetContext()["bindAddress"].(string))
 						shoset.SendMessage(configurationReply)
 						break
 					case "aggregator":
-						configurationReply := cmsg.NewConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
+						configurationReply := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 						configurationReply.Tenant = logicalConfiguration.GetTenant()
 						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 
 						shoset.SendMessage(configurationReply)
 						break
 					case "connector":
-						configurationReply := cmsg.NewConfiguration(logicalConfiguration.GetTarget(), "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
+						configurationReply := cmsg.NewLogicalConfiguration(logicalConfiguration.GetTarget(), "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 						configurationReply.Tenant = logicalConfiguration.GetTenant()
 						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
 						shoset.SendMessage(configurationReply)
@@ -129,7 +133,7 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 			log.Println("Database connection is empty")
 			err = errors.New("Database connection is empty")
 		}
-	} else if logicalConfiguration.GetCommand() == "CONFIGURATION_REPLY" {
+	} else if logicalConfiguration.GetCommand() == "LOGICAL_CONFIGURATION_REPLY" {
 		var logicalComponents *models.LogicalComponent
 		err = json.Unmarshal([]byte(logicalConfiguration.GetPayload()), &logicalComponents)
 		if err == nil {
@@ -147,7 +151,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	configurationLogicalCluster := configurationCluster.ConfigurationToDatabase()
 	configMarshal, err := json.Marshal(configurationLogicalCluster)
 	if err == nil {
-		configurationMsg := cmsg.NewConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
+		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
 		//secretMsg.Tenant = "cluster"
 		configurationMsg.GetContext()["componentType"] = "cluster"
 		configurationMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()

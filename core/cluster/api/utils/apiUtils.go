@@ -5,12 +5,17 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"gandalf/core/cluster/utils"
+	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/ditrit/gandalf/core/models"
+	"gopkg.in/yaml.v2"
 
 	"github.com/jinzhu/gorm"
 )
@@ -122,19 +127,66 @@ func GenerateHash() string {
 	return hash
 }
 
-//TODO REVOIR UTILE ???
-/* func ChangeStateTenant(client *gorm.DB) {
-	var state models.State
-	client.First(&state)
-
-	if !state.Admin {
-		var roleadmin models.Role
-		client.Where("name = ?", "Administrator").First(&roleadmin)
-		var users []models.User
-		result := client.Where("role_id = ?", roleadmin.ID).Find(&users)
-		if result.RowsAffected >= 2 {
-			state.Admin = true
-			client.Update(&state)
-		}
+func GetPivot(client *gorm.DB, baseurl, componentType string, version models.Version) (*models.Pivot, error) {
+	var pivot *models.Pivot
+	err := client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error
+	if err != nil {
+		pivot, _ = utils.DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
 	}
-} */
+
+	client.Create(&pivot)
+
+	return pivot, nil
+}
+
+// DownloadPivot : Download pivot from url
+func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &pivot)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
+}
+
+func SaveLogicalComponent(client *gorm.DB, logicalName, repositoryURL string, pivot *models.Pivot) (*models.LogicalComponent, error) {
+	logicalComponent := new(models.LogicalComponent)
+	logicalComponent.LogicalName = logicalName
+	logicalComponent.Type = "aggregator"
+	logicalComponent.Pivot = pivot
+	var keyValues []models.KeyValue
+	for _, key := range pivot.Keys {
+		keyValue := new(models.KeyValue)
+		switch key.Name {
+		case "repository_url":
+			keyValue.Value = repositoryURL
+			keyValue.Key = key
+			keyValues = append(keyValues, *keyValue)
+		}
+
+	}
+
+	logicalComponent.KeyValues = keyValues
+
+	client.Create(&logicalComponent)
+
+	return logicalComponent, nil
+}

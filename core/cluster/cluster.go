@@ -174,23 +174,28 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 							log.Printf("populating database")
 
-							var login, password, secret string
-							login, password, secret, err = member.DatabaseConnection.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
+							var login, password string
+							login, password, err = member.DatabaseConnection.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
 							if err == nil {
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
-								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
 								//GET PIVOT
 								var pivot *models.Pivot
 								pivot, err = member.DownloadPivot(member.chaussette, gandalfDatabaseClient, configurationCluster.GetRepositoryUrl(), "cluster", member.version)
 								if err == nil {
 									member.pivot = pivot
-
+									member.DatabaseConnection.SetPivot(pivot)
+									fmt.Println("pivot")
+									fmt.Println(pivot)
 									//SAVE LOGICALCOMPONENT
 									var logicalComponent *models.LogicalComponent
 									logicalComponent, err = member.SaveLogicalComponent(gandalfDatabaseClient, configurationCluster)
 									if err == nil {
 										member.logicalConfiguration = logicalComponent
+										member.DatabaseConnection.SetLogicalConfiguration(logicalComponent)
+
+										fmt.Println("logicalComponent")
+										fmt.Println(logicalComponent)
 										err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
 										if err != nil {
 											log.Fatalf("Can't create API server")
@@ -276,10 +281,13 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", configurationCluster.GetLogicalName(), "join", configurationCluster.GetBindAddress(), configurationCluster.GetJoinAddress())
 
 			validateSecret, err := member.ValidateSecret(member.GetChaussette())
+			fmt.Println("validateSecret")
+			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
 					pivot, err := member.GetPivot(member.GetChaussette())
 					if err == nil {
+						fmt.Println("pivot")
 						fmt.Println(pivot)
 						member.pivot = pivot
 						logicalConfiguration, err := member.GetLogicalConfiguration(member.GetChaussette())
@@ -360,12 +368,12 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 
 //TODO REVOIR ERROR
 func (m *ClusterMember) DownloadPivot(nshoset *net.Shoset, client *gorm.DB, baseurl, componentType string, version models.Version) (*models.Pivot, error) {
-	pivot := utils.GetPivots(client, componentType, version)
-	if pivot.Name == "" {
-		pivot, _ := utils.DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
-		m.chaussette.Context["pivot"] = pivot
-		client.Save(pivot)
-	}
+
+	pivot, _ := utils.DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+
+	err := client.Create(&pivot).Error
+	fmt.Println(err)
+	m.chaussette.Context["pivot"] = pivot
 
 	return pivot, nil
 }
@@ -378,18 +386,14 @@ func (m *ClusterMember) SaveLogicalComponent(client *gorm.DB, configurationClust
 	var keyValues []models.KeyValue
 	for _, key := range m.pivot.Keys {
 		keyValue := new(models.KeyValue)
-		switch key.Type {
-		case "string":
-			keyValue.Value = viper.GetString(key.Name)
-		case "int":
-			keyValue.Value = viper.GetInt64(key.Name)
-		}
+		keyValue.Value = viper.GetString(key.Name)
 		keyValue.Key = key
 		keyValues = append(keyValues, *keyValue)
 	}
+
 	logicalComponent.KeyValues = keyValues
 
-	client.Save(logicalComponent)
+	client.Create(&logicalComponent)
 
 	return logicalComponent, nil
 }
@@ -398,20 +402,25 @@ func (m *ClusterMember) SaveLogicalComponent(client *gorm.DB, configurationClust
 func (m *ClusterMember) GetInitPivot(client *gorm.DB, componentType string, version models.Version) (*models.Pivot, error) {
 	pivot := utils.GetPivots(client, componentType, version)
 
-	return pivot, nil
+	return &pivot, nil
 }
 
 func (m *ClusterMember) GetInitLogicalConfiguration(client *gorm.DB, logicalName string) (*models.LogicalComponent, error) {
 	logicalComponent := utils.GetLogicalComponents(client, logicalName)
 
-	return logicalComponent, nil
+	return &logicalComponent, nil
 }
 
 func (m *ClusterMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {
 	shoset.SendClusterPivotConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
+	fmt.Println("m.chaussette.Context[]")
+	fmt.Println(m.chaussette.Context["pivot"])
+
 	pivot, ok := m.chaussette.Context["pivot"].(*models.Pivot)
+	fmt.Println("pivot")
+	fmt.Println(pivot)
 	if ok {
 		return pivot, nil
 	}

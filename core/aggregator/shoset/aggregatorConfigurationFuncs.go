@@ -118,44 +118,47 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendPivotConfiguration :
 func SendAggregatorPivotConfiguration(shoset *net.Shoset) (err error) {
-	conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
-	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
-	version := shoset.Context["version"].(*models.Version)
-	conf.Tenant = configurationAggregator.GetTenant()
-	conf.GetContext()["componentType"] = "aggregator"
-	conf.GetContext()["version"] = version
-	//conf.GetContext()["product"] = shoset.Context["product"]
+	version := shoset.Context["version"].(models.Version)
+	jsonVersion, err := json.Marshal(version)
+	if err == nil {
+		conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
+		configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+		conf.Tenant = configurationAggregator.GetTenant()
+		conf.GetContext()["componentType"] = "aggregator"
+		conf.GetContext()["version"] = jsonVersion
+		//conf.GetContext()["product"] = shoset.Context["product"]
 
-	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+		shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
-	if len(shosets) != 0 {
-		if conf.GetTimeout() > configurationAggregator.GetMaxTimeout() {
-			conf.Timeout = configurationAggregator.GetMaxTimeout()
-		}
-
-		notSend := true
-		for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
-			index := getConfigurationSendIndex(shosets)
-			shosets[index].SendMessage(conf)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["mapConnectorsConfig"] != nil {
-				notSend = false
-				break
+		if len(shosets) != 0 {
+			if conf.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+				conf.Timeout = configurationAggregator.GetMaxTimeout()
 			}
-		}
 
-		if notSend {
-			return nil
-		}
+			notSend := true
+			for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
+				index := getConfigurationSendIndex(shosets)
+				shosets[index].SendMessage(conf)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
 
-	} else {
-		log.Println("can't find aggregators to send")
-		err = errors.New("can't find aggregators to send")
+				timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
+
+				time.Sleep(timeoutSend * time.Millisecond)
+
+				if shoset.Context["mapConnectorsConfig"] != nil {
+					notSend = false
+					break
+				}
+			}
+
+			if notSend {
+				return nil
+			}
+
+		} else {
+			log.Println("can't find aggregators to send")
+			err = errors.New("can't find aggregators to send")
+		}
 	}
 
 	return err

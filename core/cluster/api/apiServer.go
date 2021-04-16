@@ -1,6 +1,7 @@
 package api
 
 import (
+	"gandalf/core/models"
 	"log"
 	"net/http"
 
@@ -19,7 +20,7 @@ type ServerAPI struct {
 }
 
 // NewServerAPI :
-func NewServerAPI(bindAddress string, databaseConnection *database.DatabaseConnection) *ServerAPI {
+func NewServerAPI(bindAddress string, databaseConnection *database.DatabaseConnection, logicalComponent *models.LogicalComponent) *ServerAPI {
 	serverAPI := new(ServerAPI)
 	serverAPI.bindAddress = bindAddress
 	serverAPI.databaseConnection = databaseConnection

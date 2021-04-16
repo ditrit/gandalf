@@ -74,6 +74,23 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 				utils.ChangeStateTenant(tenantDatabaseClient)
 
 				if err == nil {
+
+					//CREATE SECRET
+					var secretAssignement models.SecretAssignement
+					secretAssignement.Secret = utils.GenerateHash()
+					err := dao.CreateSecretAssignement(database, secretAssignement)
+					if err == nil {
+						//GET PIVOT AGGREGATOR
+						version := models.Version{Major: tc.databaseConnection.GetPivot.Major, Minor: tc.databaseConnection.GetPivot.Minor}
+						pivot := utils.GetPivot(tenantDatabaseClient, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url"), "aggregator", version)
+						//CREATE AGGREGATOR LOGICAL COMPONENT
+						logicalComponent := utils.SaveLogicalComponent(tenantDatabaseClient, tenant.Name, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url"), pivot)
+					} else {
+						dao.DeleteTenant(tc.databaseConnection.GetGandalfDatabaseClient(), int(tenant.ID))
+						utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+						return
+					}
+
 					var aggregator models.Aggregator
 					aggregator.LogicalName = tenant.Name
 					aggregator.Secret = utils.GenerateHash()

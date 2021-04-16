@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
@@ -27,15 +28,15 @@ func NewSecretAssignementController(databaseConnection *database.DatabaseConnect
 func (sac SecretAssignementController) List(w http.ResponseWriter, r *http.Request) {
 	database := sac.databaseConnection.GetGandalfDatabaseClient()
 	if database != nil {
-		roles, err := dao.ListSecretAssignement(database)
+		secrets, err := dao.ListSecretAssignement(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, roles)
+		utils.RespondWithJSON(w, http.StatusOK, secrets)
 	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		utils.RespondWithError(w, http.StatusInternalServerError, "database not found")
 		return
 	}
 }
@@ -46,15 +47,17 @@ func (sac SecretAssignementController) Create(w http.ResponseWriter, r *http.Req
 	if database != nil {
 		var secretAssignement models.SecretAssignement
 		secretAssignement.Secret = utils.GenerateHash()
-
+		fmt.Println("SECRET")
+		fmt.Println(secretAssignement)
 		if err := dao.CreateSecretAssignement(database, secretAssignement); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-
+		fmt.Println("SECRET2")
+		fmt.Println(secretAssignement)
 		utils.RespondWithJSON(w, http.StatusCreated, secretAssignement)
 	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		utils.RespondWithError(w, http.StatusInternalServerError, "database not found")
 		return
 	}
 }

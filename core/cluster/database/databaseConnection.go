@@ -14,6 +14,8 @@ import (
 
 type DatabaseConnection struct {
 	configurationCluster     *cmodels.ConfigurationCluster
+	pivot                    *models.Pivot
+	logicalComponent         *models.LogicalComponent
 	gandalfDatabaseClient    *gorm.DB
 	mapTenantDatabaseClients map[string]*gorm.DB
 }
@@ -24,6 +26,26 @@ func NewDatabaseConnection(configurationCluster *cmodels.ConfigurationCluster) *
 	databaseConnection.mapTenantDatabaseClients = make(map[string]*gorm.DB)
 
 	return databaseConnection
+}
+
+func (dc DatabaseConnection) GetConfigurationCluster() *cmodels.ConfigurationCluster {
+	return dc.configurationCluster
+}
+
+func (dc DatabaseConnection) GetPivot() *models.Pivot {
+	return dc.pivot
+}
+
+func (dc DatabaseConnection) SetPivot(pivot *models.Pivot) {
+	dc.pivot = pivot
+}
+
+func (dc DatabaseConnection) GetLogicalComponent() *models.LogicalComponent {
+	return dc.logicalComponent
+}
+
+func (dc DatabaseConnection) SetLogicalComponent(logicalComponent *models.LogicalComponent) {
+	dc.logicalComponent = logicalComponent
 }
 
 // NewDatabase :
@@ -44,14 +66,9 @@ func (dc DatabaseConnection) newDatabaseClient(name, password string) (gandalfDa
 }
 
 // InitGandalfDatabase : Gandalf database init.
-func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login string, password string, secret string, err error) {
+func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login string, password string, err error) {
 	gandalfDatabaseClient.AutoMigrate(&models.Cluster{}, &models.User{}, &models.Tenant{}, &models.State{}, &models.Pivot{}, &models.Key{},
-		&models.CommandType{}, &models.EventType{}, &models.ResourceType{}, &models.KeyValue{}, &models.LogicalComponent{})
-
-	//Init Cluster
-	secret = GenerateRandomHash()
-	cluster := models.Cluster{LogicalName: logicalName, BindAddress: bindAddress, Secret: secret}
-	err = gandalfDatabaseClient.Create(&cluster).Error
+		&models.CommandType{}, &models.EventType{}, &models.ResourceType{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.SecretAssignement{})
 
 	//Init State
 	state := models.State{Admin: false}
@@ -148,10 +165,6 @@ func CreateAction(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Action{Name: "read"})
 	tenantDatabaseClient.Create(&models.Action{Name: "update"})
 	tenantDatabaseClient.Create(&models.Action{Name: "delete"})
-}
-
-func (dc DatabaseConnection) GetConfigurationCluster() *cmodels.ConfigurationCluster {
-	return dc.configurationCluster
 }
 
 //TODO REVOIR

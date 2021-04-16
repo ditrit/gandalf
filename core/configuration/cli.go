@@ -60,6 +60,9 @@ var cliDeclareAggregatorMember = verdeter.NewConfigCmd("member", "declare aggreg
 var cliDeclareConnectorName = verdeter.NewConfigCmd("name", "declare  name <name>", "declare  name command allows to declare the name of a new connector.", runDeclareConnectorName)
 var cliDeclareConnectorMember = verdeter.NewConfigCmd("member", "declare  member <name>", "declare  member command allows to declare a new member for an existing connector.", runDeclareAggregatorName)
 
+var cliCreateSecret = verdeter.NewConfigCmd("secret", "create secret", "declare  name command allows to declare the name of a new connector.", runCreateSecret)
+var cliListSecret = verdeter.NewConfigCmd("secret", "list secret", "declare  member command allows to declare a new member for an existing connector.", runListSecret)
+
 func init() {
 
 	rootCfg.AddConfig(cliCfg)
@@ -75,6 +78,9 @@ func init() {
 	cliCfg.AddConfig(cliDelete)
 	cliCfg.AddConfig(cliDeclare)
 	cliCfg.AddConfig(cliLogin)
+
+	cliCreate.AddConfig(cliCreateSecret)
+	cliList.AddConfig(cliListSecret)
 
 	cliCreate.AddConfig(cliCreateUser)
 	cliList.AddConfig(cliListUsers)
@@ -109,6 +115,9 @@ func init() {
 	cliDeclareConnector.AddConfig(cliDeclareConnectorMember)
 
 	cliLogin.SetNbArgs(2)
+
+	cliCreateSecret.SetNbArgs(0)
+	cliListSecret.SetNbArgs(0)
 
 	cliCreateUser.SetNbArgs(3)
 	cliListUsers.SetNbArgs(0)
@@ -160,6 +169,37 @@ func runLogin(cfg *verdeter.ConfigCmd, args []string) {
 	token, err := cliClient.AuthenticationService.Login(user)
 	if err == nil {
 		fmt.Println("Token: " + token)
+	} else {
+		fmt.Println(err)
+	}
+}
+
+func runCreateSecret(cfg *verdeter.ConfigCmd, args []string) {
+
+	fmt.Printf("gandalf cli create secret called \n")
+	configurationCli := cmodels.NewConfigurationCli()
+	fmt.Println(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	secret, err := cliClient.SecretAssignementService.Create(configurationCli.GetToken())
+	if err == nil {
+		fmt.Println(secret)
+	} else {
+		fmt.Println(err)
+	}
+}
+
+func runListSecret(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list secret called \n")
+	configurationCli := cmodels.NewConfigurationCli()
+	fmt.Println(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	secrets, err := cliClient.SecretAssignementService.List(configurationCli.GetToken())
+	if err == nil {
+		for _, secret := range secrets {
+			fmt.Println(secret)
+		}
 	} else {
 		fmt.Println(err)
 	}

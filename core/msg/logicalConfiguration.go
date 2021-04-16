@@ -12,8 +12,8 @@ type LogicalConfiguration struct {
 
 // NewConfiguration : Configuration constructor
 // todo : passer une map pour gerer les valeurs optionnelles ?
-func NewLogicalConfiguration(target string, command string, payload string) *Configuration {
-	s := new(Configuration)
+func NewLogicalConfiguration(target string, command string, payload string) *LogicalConfiguration {
+	s := new(LogicalConfiguration)
 	s.InitMessageBase()
 
 	s.Target = target

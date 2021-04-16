@@ -104,7 +104,8 @@ func (c *Client) do(req *http.Request, v interface{}) error {
 
 		return fmt.Errorf("unknown error, status code: %d", resp.StatusCode)
 	}
-
+	fmt.Println("resp.Body")
+	fmt.Println(resp.Body)
 	if err = json.NewDecoder(resp.Body).Decode(&v); err != nil {
 		return err
 	}

@@ -8,8 +8,8 @@ go build -o gandalf
 sleep 5
 echo 'Cluster' 
 echo 'Init ClusterMember' 
-./gandalf cluster --offset 1 -l Cluster
-./gandalf cluster --offset 2 -l Cluster --join 127.0.0.1:9100 --secret <secret>
+./gandalf start cluster --offset 1 -l Cluster
+./gandalf start cluster --offset 2 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 ./gandalf cluster --offset 3 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 
 echo 'Aggregator' 

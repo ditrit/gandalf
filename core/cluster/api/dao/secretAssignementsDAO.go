@@ -27,3 +27,17 @@ func CreateSecretAssignement(database *gorm.DB, secretAssignement models.SecretA
 
 	return
 }
+
+func DeleteSecretAssignement(database *gorm.DB, secret string) (err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			var secret models.SecretAssignement
+			err = database.Delete(&secret, secret).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
