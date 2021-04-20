@@ -1,9 +1,10 @@
 package api
 
 import (
-	"gandalf/core/models"
 	"log"
 	"net/http"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
 

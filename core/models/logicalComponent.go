@@ -13,10 +13,10 @@ type LogicalComponent struct {
 	KeyValues          []KeyValue `gorm:"foreignkey:LogicalConnectorID"`
 }
 
-func (lc LogicalComponent) GetKeyValueByKey(key string) *models.KeyValue {
+func (lc LogicalComponent) GetKeyValueByKey(key string) *KeyValue {
 	for _, keyvalue := range lc.KeyValues {
 		if keyvalue.Key.Name == key {
-			return keyvalue
+			return &keyvalue
 		}
 	}
 	return nil

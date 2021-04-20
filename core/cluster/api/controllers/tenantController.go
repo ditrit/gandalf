@@ -78,13 +78,14 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 					//CREATE SECRET
 					var secretAssignement models.SecretAssignement
 					secretAssignement.Secret = utils.GenerateHash()
-					err := dao.CreateSecretAssignement(database, secretAssignement)
+					err := dao.CreateSecretAssignement(tc.databaseConnection.GetGandalfDatabaseClient(), secretAssignement)
 					if err == nil {
 						//GET PIVOT AGGREGATOR
-						version := models.Version{Major: tc.databaseConnection.GetPivot.Major, Minor: tc.databaseConnection.GetPivot.Minor}
-						pivot := utils.GetPivot(tenantDatabaseClient, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url"), "aggregator", version)
+						version := models.Version{Major: tc.databaseConnection.GetPivot().Major, Minor: tc.databaseConnection.GetPivot().Minor}
+						pivot, _ := utils.GetPivot(tenantDatabaseClient, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, "aggregator", version)
 						//CREATE AGGREGATOR LOGICAL COMPONENT
-						logicalComponent := utils.SaveLogicalComponent(tenantDatabaseClient, tenant.Name, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url"), pivot)
+						logicalComponent, _ := utils.SaveLogicalComponent(tenantDatabaseClient, tenant.Name, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, pivot)
+						fmt.Println(logicalComponent)
 					} else {
 						dao.DeleteTenant(tc.databaseConnection.GetGandalfDatabaseClient(), int(tenant.ID))
 						utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

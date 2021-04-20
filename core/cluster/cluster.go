@@ -192,11 +192,36 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 									logicalComponent, err = member.SaveLogicalComponent(gandalfDatabaseClient, configurationCluster)
 									if err == nil {
 										member.logicalConfiguration = logicalComponent
-										member.DatabaseConnection.SetLogicalConfiguration(logicalComponent)
+										member.DatabaseConnection.SetLogicalComponent(logicalComponent)
 
 										fmt.Println("logicalComponent")
 										fmt.Println(logicalComponent)
-										err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
+
+										//TODO TRANSACTION
+										//CREATE SECRET
+										var secretAssignement models.SecretAssignement
+										secretAssignement.Secret = utils.GenerateHash()
+										err := gandalfDatabaseClient.Create(secretAssignement).Error
+										if err == nil {
+											//GET PIVOT AGGREGATOR
+											fmt.Println("GET PIVOT AGG")
+											pivot, _ := utils.GetAggregatorPivot(member.logicalConfiguration.GetKeyValueByKey("repository_url").Value, "aggregator", member.version)
+											err := gandalfDatabaseClient.Create(pivot).Error
+											if err == nil {
+												//CREATE AGGREGATOR LOGICAL COMPONENT
+												logicalComponent := utils.CreateAggregatorLogicalComponent("gandalf", member.logicalConfiguration.GetKeyValueByKey("repository_url").Value, pivot)
+												err := gandalfDatabaseClient.Create(logicalComponent).Error
+												if err == nil {
+													fmt.Printf("New Aggregator : %s %s", logicalComponent.LogicalName, secretAssignement.Secret)
+												}
+											} else {
+
+											}
+										} else {
+
+										}
+
+										err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
 										if err != nil {
 											log.Fatalf("Can't create API server")
 										}
@@ -242,7 +267,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						logicalComponent, err = member.GetInitLogicalConfiguration(gandalfDatabaseClient, configurationCluster.GetLogicalName())
 						if err == nil {
 							member.logicalConfiguration = logicalComponent
-							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
+							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
 							if err != nil {
 								log.Fatalf("Can't create API server")
 							}
@@ -317,7 +342,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								if err == nil {
 									log.Printf("New gandalf database client")
 
-									err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
+									err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
 									if err != nil {
 										log.Fatalf("Can't create API server")
 									}
@@ -439,8 +464,8 @@ func (m *ClusterMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.Lo
 }
 
 // ConfigurationValidation : Validation configuration
-func (m *ClusterMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection) (err error) {
-	server := api.NewServerAPI(bindAdress, databaseConnection)
+func (m *ClusterMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection, logicalConfiguration *models.LogicalComponent) (err error) {
+	server := api.NewServerAPI(bindAdress, databaseConnection, logicalConfiguration)
 	server.Run()
 
 	return

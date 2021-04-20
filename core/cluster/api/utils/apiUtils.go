@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"gandalf/core/cluster/utils"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -131,7 +130,7 @@ func GetPivot(client *gorm.DB, baseurl, componentType string, version models.Ver
 	var pivot *models.Pivot
 	err := client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error
 	if err != nil {
-		pivot, _ = utils.DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+		pivot, _ = DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
 	}
 
 	client.Create(&pivot)
@@ -171,7 +170,7 @@ func SaveLogicalComponent(client *gorm.DB, logicalName, repositoryURL string, pi
 	logicalComponent := new(models.LogicalComponent)
 	logicalComponent.LogicalName = logicalName
 	logicalComponent.Type = "aggregator"
-	logicalComponent.Pivot = pivot
+	logicalComponent.Pivot = *pivot
 	var keyValues []models.KeyValue
 	for _, key := range pivot.Keys {
 		keyValue := new(models.KeyValue)

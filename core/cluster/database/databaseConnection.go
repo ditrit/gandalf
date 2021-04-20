@@ -79,6 +79,10 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 	user := models.NewUser(login, login, password)
 	err = gandalfDatabaseClient.Create(&user).Error
 
+	//Init Tenant
+	tenant := models.Tenant{Name: "gandalf", Password: "gandalf"}
+	err = gandalfDatabaseClient.Create(&tenant).Error
+
 	return
 }
 

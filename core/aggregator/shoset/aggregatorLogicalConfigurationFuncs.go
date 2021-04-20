@@ -115,7 +115,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
 	configMarshal, err := json.Marshal(configurationLogicalAggregator)
 	if err == nil {
-		configurationMsg := cmsg.NewConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
+		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
 		configurationMsg.Tenant = configurationAggregator.GetTenant()
 		configurationMsg.GetContext()["componentType"] = "aggregator"
 		configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()

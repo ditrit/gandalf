@@ -2,10 +2,16 @@
 package utils
 
 import (
+	"crypto/sha512"
+	"encoding/base64"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/ditrit/gandalf/core/models"
 	"gopkg.in/yaml.v2"
@@ -136,6 +142,35 @@ func SaveProductConnector(productConnector *models.ProductConnector, client *gor
 	client.Save(productConnector)
 }
 
+func CreateAggregatorLogicalComponent(logicalName, repositoryURL string, pivot *models.Pivot) *models.LogicalComponent {
+	logicalComponent := new(models.LogicalComponent)
+	logicalComponent.LogicalName = logicalName
+	logicalComponent.Type = "aggregator"
+	logicalComponent.Pivot = *pivot
+	var keyValues []models.KeyValue
+	for _, key := range pivot.Keys {
+		keyValue := new(models.KeyValue)
+		switch key.Name {
+		case "repository_url":
+			keyValue.Value = repositoryURL
+			keyValue.Key = key
+			keyValues = append(keyValues, *keyValue)
+		}
+
+	}
+
+	logicalComponent.KeyValues = keyValues
+
+	return logicalComponent
+}
+
+func GetAggregatorPivot(baseurl, componentType string, version models.Version) (*models.Pivot, error) {
+
+	pivot, _ := DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+
+	return pivot, nil
+}
+
 // DownloadPivot : Download pivot from url
 func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
 
@@ -206,4 +241,15 @@ func ValidateSecret(databaseClient *gorm.DB, secret, bindAddress string) (result
 	}
 
 	return
+}
+
+func GenerateHash() string {
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+
+	concatenated := fmt.Sprint(random.Intn(100))
+	sha512 := sha512.New()
+	sha512.Write([]byte(concatenated))
+	hash := base64.URLEncoding.EncodeToString(sha512.Sum(nil))
+	return hash
 }
