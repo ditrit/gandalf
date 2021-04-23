@@ -4,8 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ditrit/gandalf/core/models"
-
 	"github.com/ditrit/gandalf/core/cluster/database"
 
 	"github.com/gorilla/mux"
@@ -21,7 +19,7 @@ type ServerAPI struct {
 }
 
 // NewServerAPI :
-func NewServerAPI(bindAddress string, databaseConnection *database.DatabaseConnection, logicalComponent *models.LogicalComponent) *ServerAPI {
+func NewServerAPI(bindAddress string, databaseConnection *database.DatabaseConnection) *ServerAPI {
 	serverAPI := new(ServerAPI)
 	serverAPI.bindAddress = bindAddress
 	serverAPI.databaseConnection = databaseConnection

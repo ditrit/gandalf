@@ -174,7 +174,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 							log.Printf("populating database")
 
-							var login, password string
+							var login, password []string
 							login, password, err = member.DatabaseConnection.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
 							if err == nil {
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
@@ -221,10 +221,10 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 										}
 
-										err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
+										/* err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
 										if err != nil {
 											log.Fatalf("Can't create API server")
-										}
+										} */
 									} else {
 										log.Fatalf("Can't save logical component")
 									}
@@ -267,10 +267,10 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						logicalComponent, err = member.GetInitLogicalConfiguration(gandalfDatabaseClient, configurationCluster.GetLogicalName())
 						if err == nil {
 							member.logicalConfiguration = logicalComponent
-							err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
+							/* 	err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
 							if err != nil {
 								log.Fatalf("Can't create API server")
-							}
+							} */
 						} else {
 							log.Fatalf("Can't get logical component")
 						}
@@ -342,10 +342,10 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								if err == nil {
 									log.Printf("New gandalf database client")
 
-									err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
+									/* 	err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
 									if err != nil {
 										log.Fatalf("Can't create API server")
-									}
+									} */
 								} else {
 									log.Fatalf("Can't create database client")
 								}
@@ -464,8 +464,8 @@ func (m *ClusterMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.Lo
 }
 
 // ConfigurationValidation : Validation configuration
-func (m *ClusterMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection, logicalConfiguration *models.LogicalComponent) (err error) {
-	server := api.NewServerAPI(bindAdress, databaseConnection, logicalConfiguration)
+func (m *ClusterMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection) (err error) {
+	server := api.NewServerAPI(bindAdress, databaseConnection)
 	server.Run()
 
 	return

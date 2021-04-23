@@ -6,51 +6,31 @@ type Urls struct {
 	ROOT_PATH   string
 	PATH        string
 
-	LOGIN_PATH                           string
-	CLI_PATH                             string
-	LOGICAL_COMPONENT_PATH               string
-	LOGICAL_COMPONENT_PAHT_UPLOAD        string
-	CONNECTOR_PATH                       string
-	CONNECTOR_PATH_LIST                  string
-	CONNECTOR_PATH_CREATE                string
-	CONNECTOR_PATH_DECLARE_MEMBER        string
-	CONNECTOR_PATH_READ                  string
-	CONNECTOR_PATH_UPDATE                string
-	CONNECTOR_PATH_DELETE                string
-	AGGREGATOR_PATH                      string
-	AGGREGATOR_PATH_LIST                 string
-	AGGREGATOR_PATH_CREATE               string
-	AGGREGATOR_PATH_DECLARE_MEMBER       string
-	AGGREGATOR_PATH_READ                 string
-	AGGREGATOR_PATH_UPDATE               string
-	AGGREGATOR_PATH_DELETE               string
-	ROLE_PATH                            string
-	ROLE_PATH_LIST                       string
-	ROLE_PATH_CREATE                     string
-	ROLE_PATH_READ                       string
-	ROLE_PATH_UPDATE                     string
-	ROLE_PATH_DELETE                     string
-	USER_PATH                            string
-	USER_PATH_LIST                       string
-	USER_PATH_CREATE                     string
-	USER_PATH_READ                       string
-	USER_PATH_UPDATE                     string
-	USER_PATH_DELETE                     string
-	CONFIGURATION_PATH                   string
-	CONFIGURATION_AGGREGATOR_PATH        string
-	CONFIGURATION_CONNECTOR_PATH         string
-	CONFIGURATION_AGGREGATOR_PATH_LIST   string
-	CONFIGURATION_AGGREGATOR_PATH_CREATE string
-	CONFIGURATION_AGGREGATOR_PATH_READ   string
-	CONFIGURATION_AGGREGATOR_PATH_UPDATE string
-	CONFIGURATION_AGGREGATOR_PATH_DELETE string
-	CONFIGURATION_AGGREGATOR_PATH_UPLOAD string
-	CONFIGURATION_CONNECTOR_PATH_LIST    string
-	CONFIGURATION_CONNECTOR_PATH_CREATE  string
-	CONFIGURATION_CONNECTOR_PATH_READ    string
-	CONFIGURATION_CONNECTOR_PATH_UPDATE  string
-	CONFIGURATION_CONNECTOR_PATH_DELETE  string
-	CONFIGURATION_CONNECTOR_PATH_UPLOAD  string
+	LOGIN_PATH                    string
+	CLI_PATH                      string
+	LOGICAL_COMPONENT_PATH        string
+	LOGICAL_COMPONENT_PAHT_UPLOAD string
+	ROLE_PATH                     string
+	ROLE_PATH_LIST                string
+	ROLE_PATH_CREATE              string
+	ROLE_PATH_READ                string
+	ROLE_PATH_UPDATE              string
+	ROLE_PATH_DELETE              string
+	USER_PATH                     string
+	USER_PATH_LIST                string
+	USER_PATH_CREATE              string
+	USER_PATH_READ                string
+	USER_PATH_UPDATE              string
+	USER_PATH_DELETE              string
+	TENANT_PATH                   string
+	TENANT_PATH_LIST              string
+	TENANT_PATH_CREATE            string
+	TENANT_PATH_READ              string
+	TENANT_PATH_UPDATE            string
+	TENANT_PATH_DELETE            string
+	SECRET_PATH                   string
+	SECRET_PATH_LIST              string
+	SECRET_PATH_CREATE            string
 }
 
 // ReturnURLS :
@@ -79,7 +59,18 @@ func ReturnURLS() *Urls {
 	apiurls.USER_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
 
 	apiurls.LOGICAL_COMPONENT_PATH = apiurls.PATH + "/logicalcomponent"
-	apiurls.LOGICAL_COMPONENT_PAHT_UPLOAD = apiurls.LOGICAL_COMPONENT_PATH + "/upload/"
+	apiurls.LOGICAL_COMPONENT_PAHT_UPLOAD = apiurls.LOGICAL_COMPONENT_PATH + "/upload/{type}/{major:[0-9]+}/{minor:[0-9]+}"
+
+	apiurls.SECRET_PATH = apiurls.PATH + "/secret"
+	apiurls.SECRET_PATH_LIST = apiurls.SECRET_PATH + "/"
+	apiurls.SECRET_PATH_CREATE = apiurls.SECRET_PATH + "/"
+
+	apiurls.TENANT_PATH = apiurls.PATH + "/tenants"
+	apiurls.TENANT_PATH_LIST = apiurls.TENANT_PATH + "/"
+	apiurls.TENANT_PATH_CREATE = apiurls.TENANT_PATH + "/"
+	apiurls.TENANT_PATH_READ = apiurls.TENANT_PATH + "/{id:[0-9]+}"
+	apiurls.TENANT_PATH_UPDATE = apiurls.TENANT_PATH + "/{id:[0-9]+}"
+	apiurls.TENANT_PATH_DELETE = apiurls.TENANT_PATH + "/{id:[0-9]+}"
 	/*
 		apiurls.CONNECTOR_PATH = apiurls.PATH + "/connectors"
 		apiurls.CONNECTOR_PATH_LIST = apiurls.CONNECTOR_PATH + "/"

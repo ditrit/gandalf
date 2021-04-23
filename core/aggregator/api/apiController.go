@@ -2,25 +2,24 @@ package api
 
 import (
 	"github.com/ditrit/gandalf/core/aggregator/database"
+	net "github.com/ditrit/shoset"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/controllers"
 )
 
 // Controllers :
 type Controllers struct {
-	AuthenticationController *controllers.AuthenticationController
-	CliController            *controllers.CliController
-	//AggregatorController              *controllers.AggregatorController
-	//ConnectorController               *controllers.ConnectorController
-	RoleController *controllers.RoleController
-	UserController *controllers.UserController
-	//ConfigurationAggregatorController *controllers.ConfigurationAggregatorController
-	//ConfigurationConnectorController  *controllers.ConfigurationConnectorController
-	LogicalComponentController *controllers.LogicalComponentController
+	AuthenticationController    *controllers.AuthenticationController
+	CliController               *controllers.CliController
+	RoleController              *controllers.RoleController
+	UserController              *controllers.UserController
+	TenantController            *controllers.TenantController
+	SecretAssignementController *controllers.SecretAssignementController
+	LogicalComponentController  *controllers.LogicalComponentController
 }
 
 // ReturnControllers :
-func ReturnControllers(databaseConnection *database.DatabaseConnection) *Controllers {
+func ReturnControllers(databaseConnection *database.DatabaseConnection, shoset *net.Shoset) *Controllers {
 
 	aggregatorControllers := new(Controllers)
 
@@ -28,12 +27,10 @@ func ReturnControllers(databaseConnection *database.DatabaseConnection) *Control
 	aggregatorControllers.CliController = controllers.NewCliController()
 	aggregatorControllers.LogicalComponentController = controllers.NewLogicalComponentController(databaseConnection)
 
-	//aggregatorControllers.ConnectorController = controllers.NewConnectorController(databaseConnection)
-	//aggregatorControllers.AggregatorController = controllers.NewAggregatorController(databaseConnection)
 	aggregatorControllers.UserController = controllers.NewUserController(databaseConnection)
 	aggregatorControllers.RoleController = controllers.NewRoleController(databaseConnection)
-	//aggregatorControllers.ConfigurationAggregatorController = controllers.NewConfigurationAggregatorController(databaseConnection)
-	//aggregatorControllers.ConfigurationConnectorController = controllers.NewConfigurationConnectorController(databaseConnection)
+	aggregatorControllers.TenantController = controllers.NewTenantController(databaseConnection, shoset)
+	aggregatorControllers.SecretAssignementController = controllers.NewSecretAssignementController(databaseConnection)
 
 	return aggregatorControllers
 }

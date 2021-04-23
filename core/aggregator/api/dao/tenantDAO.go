@@ -3,7 +3,7 @@ package dao
 import (
 	"errors"
 
-	"github.com/ditrit/gandalf/core/cluster/api/utils"
+	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
