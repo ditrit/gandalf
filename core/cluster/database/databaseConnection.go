@@ -73,7 +73,7 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{})
 
 	//Init State
-	state := models.State{Admin: false}
+	state := models.State{Admin: true}
 	err = gandalfDatabaseClient.Create(&state).Error
 
 	//Init Root Domain
@@ -145,7 +145,7 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{})
 
 	//Init State
-	state := models.State{Admin: false}
+	state := models.State{Admin: true}
 	err = tenantDatabaseClient.Create(&state).Error
 
 	//Init Root Domain

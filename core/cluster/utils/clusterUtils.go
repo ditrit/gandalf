@@ -105,8 +105,9 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 	return
 } */
 func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponent models.LogicalComponent) {
-	client.Where("logical_name = ?", logicalName).Preload("KeyValues").First(&logicalComponent)
-
+	client.Where("logical_name = ?", logicalName).Preload("KeyValues.Key").First(&logicalComponent)
+	fmt.Println("logicalComponent")
+	fmt.Println(logicalComponent)
 	return
 }
 
@@ -226,8 +227,15 @@ func ValidateSecret(databaseClient *gorm.DB, secret, bindAddress string) (result
 
 	result = false
 
+	var secretAssignements []models.SecretAssignement
+	err = databaseClient.Find(&secretAssignements).Error
+	fmt.Println(err)
+	fmt.Println("secretAssignments")
+	fmt.Println(secretAssignements)
 	var secretAssignement models.SecretAssignement
 	err = databaseClient.Where("secret = ?", secret).First(&secretAssignement).Error
+	fmt.Println("err")
+	fmt.Println(err)
 	if err == nil {
 		if secretAssignement != (models.SecretAssignement{}) {
 			if secretAssignement.AddressIP == "" {

@@ -102,27 +102,34 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 			err = errors.New("Database connection is empty")
 		}
 	} else if configurationDb.GetCommand() == "CREATE_DATABASE" {
+		fmt.Println("CREATE")
 
 		var databaseClient *gorm.DB
 		databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if databaseConnection != nil {
+			fmt.Println("CREATE1")
 			//databasePath := ch.Context["databasePath"].(string)
 			databaseClient = databaseConnection.GetGandalfDatabaseClient()
 			if databaseClient != nil {
+				fmt.Println("CREATE2")
 				tenant, err := cutils.GetTenant(configurationDb.GetPayload(), databaseClient)
+				fmt.Println(err)
 				if err == nil {
+					fmt.Println("CREATE3")
 					err = databaseConnection.NewDatabase(tenant.Name, tenant.Password)
 					fmt.Println(err)
 					if err == nil {
-
+						fmt.Println("CREATE4")
 						//var tenantDatabaseClient *gorm.DB
 						tenantDatabaseClient := databaseConnection.GetDatabaseClientByTenant(tenant.Name)
 						//tc.mapTenantDatabase[tenant.Name] = tenantDatabaseClient
 
 						if tenantDatabaseClient != nil {
+							fmt.Println("CREATE5")
 							var login, password []string
 							login, password, err = databaseConnection.InitTenantDatabase(tenantDatabaseClient)
 							if err == nil {
+								fmt.Println("CREATE6")
 								createDatabase := models.NewCreateDatabase(login, password)
 								configMarshal, err := json.Marshal(createDatabase)
 								if err == nil {
@@ -130,6 +137,7 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 									creationReply := cmsg.NewConfigurationDatabase(target, "CREATE_DATABASE_REPLY", string(configMarshal))
 									creationReply.Tenant = configurationDb.GetTenant()
 									shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+									fmt.Println("SEND")
 									shoset.SendMessage(creationReply)
 								}
 							} else {

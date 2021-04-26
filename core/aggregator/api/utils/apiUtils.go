@@ -126,20 +126,20 @@ func GenerateHash() string {
 	return hash
 }
 
-func GetPivot(client *gorm.DB, baseurl, componentType string, version models.Version) (*models.Pivot, error) {
-	var pivot *models.Pivot
+func GetPivot(client *gorm.DB, baseurl, componentType string, version models.Version) (models.Pivot, error) {
+	var pivot models.Pivot
 	err := client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error
+	fmt.Println(err)
 	if err != nil {
 		pivot, _ = DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+		client.Create(&pivot)
 	}
-
-	client.Create(&pivot)
 
 	return pivot, nil
 }
 
 // DownloadPivot : Download pivot from url
-func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
+func DownloadPivot(url, ressource string) (pivot models.Pivot, err error) {
 
 	resp, err := http.Get(url + ressource)
 	if err != nil {
@@ -166,11 +166,11 @@ func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
 	return
 }
 
-func SaveLogicalComponent(client *gorm.DB, logicalName, repositoryURL string, pivot *models.Pivot) (*models.LogicalComponent, error) {
+func SaveLogicalComponent(client *gorm.DB, logicalName, repositoryURL string, pivot models.Pivot) (*models.LogicalComponent, error) {
 	logicalComponent := new(models.LogicalComponent)
 	logicalComponent.LogicalName = logicalName
 	logicalComponent.Type = "aggregator"
-	logicalComponent.Pivot = *pivot
+	logicalComponent.Pivot = pivot
 	var keyValues []models.KeyValue
 	for _, key := range pivot.Keys {
 		keyValue := new(models.KeyValue)

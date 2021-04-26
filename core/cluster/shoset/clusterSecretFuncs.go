@@ -3,6 +3,7 @@ package shoset
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -68,6 +69,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle secret")
 	log.Println(secret)
 
+	fmt.Println("Handle secret")
+	fmt.Println(secret)
 	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
 	//if ok {
 	if secret.GetCommand() == "VALIDATION" {
@@ -76,12 +79,14 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 		databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if databaseConnection != nil {
 			//databasePath := ch.Context["databasePath"].(string)
-			if secret.GetContext()["componentType"].(string) == "cluster" {
+			databaseClient = databaseConnection.GetGandalfDatabaseClient()
+
+			/*if secret.GetContext()["componentType"].(string) == "cluster" {
 				databaseClient = databaseConnection.GetGandalfDatabaseClient()
 			} else {
 				databaseClient = databaseConnection.GetDatabaseClientByTenant(secret.GetTenant())
 
-				/* 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+				 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 				//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
 				configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
@@ -90,8 +95,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 				} else {
 					log.Println("Database client map is empty")
 					err = errors.New("Database client map is empty")
-				} */
-			}
+				}
+			}*/
 
 			if databaseClient != nil {
 
@@ -99,7 +104,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 				componentType := secret.GetContext()["componentType"].(string)
 				var result bool
 				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
-
+				fmt.Println("result")
+				fmt.Println(result)
 				if err == nil {
 					target := secret.GetTarget()
 					if componentType == "aggregator" || componentType == "cluster" {

@@ -63,17 +63,23 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	tenant.Password = utils.GenerateHash()
 
 	err := dao.CreateTenant(tc.databaseConnection.GetTenantDatabaseClient(), tenant)
+	fmt.Println("tenant.Password")
 	fmt.Println(tenant.Password)
+	fmt.Println(err)
 	var createDatabase *models.CreateDatabase
 	createDatabase, err = tc.CreateDatabase(tenant.Name)
+	fmt.Println("createDatabase0")
+	fmt.Println(createDatabase)
+	fmt.Println(err)
 	if err == nil {
+		fmt.Println("CREATE 0")
 
 		tenantDatabaseClient := tc.databaseConnection.GetDatabaseClientByTenant(tenant.Name)
 		//tc.mapTenantDatabase[tenant.Name] = tenantDatabaseClient
-
+		fmt.Println("CREATE 1")
 		if tenantDatabaseClient != nil {
 
-			utils.ChangeStateTenant(tenantDatabaseClient)
+			//utils.ChangeStateTenant(tenantDatabaseClient)
 
 			if err == nil {
 
@@ -81,18 +87,26 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 				var secretAssignement models.SecretAssignement
 				secretAssignement.Secret = utils.GenerateHash()
 				err := dao.CreateSecretAssignement(tc.databaseConnection.GetTenantDatabaseClient(), secretAssignement)
+				fmt.Println("CREATE 2")
 				if err == nil {
 					//GET PIVOT AGGREGATOR
 					version := models.Version{Major: tc.databaseConnection.GetPivot().Major, Minor: tc.databaseConnection.GetPivot().Minor}
+					fmt.Println("test")
+					fmt.Println(tc.databaseConnection.GetLogicalComponent())
+					fmt.Println(tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value)
+					fmt.Println(version)
 					pivot, _ := utils.GetPivot(tenantDatabaseClient, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, "aggregator", version)
+					fmt.Println("CREATE 3")
 					//CREATE AGGREGATOR LOGICAL COMPONENT
 					logicalComponent, _ := utils.SaveLogicalComponent(tenantDatabaseClient, tenant.Name, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, pivot)
 					fmt.Println(logicalComponent)
+					fmt.Println("CREATE 4")
 				} else {
 					dao.DeleteTenant(tc.databaseConnection.GetTenantDatabaseClient(), int(tenant.ID))
 					utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 					return
 				}
+				fmt.Println("CREATE 5")
 
 				result["login"] = createDatabase.Login
 				result["password"] = createDatabase.Password

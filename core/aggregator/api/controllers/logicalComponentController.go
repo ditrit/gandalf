@@ -32,6 +32,7 @@ func NewLogicalComponentController(databaseConnection *database.DatabaseConnecti
 func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	typeComponent := vars["type"]
+	tenant := vars["tenant"]
 	major, err := strconv.Atoi(vars["major"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid major ")
@@ -43,7 +44,7 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	version := models.Version{Major: int8(major), Minor: int8(minor)}
-	database := lc.databaseConnection.GetTenantDatabaseClient()
+	database := lc.databaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 
 		pivot, err := utils.GetPivot(database, lc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, typeComponent, version)
@@ -88,8 +89,10 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func SaveLogicalComponent(client *gorm.DB, logicalComponent *models.LogicalComponent, pivot *models.Pivot) error {
-	logicalComponent.Pivot = *pivot
+func SaveLogicalComponent(client *gorm.DB, logicalComponent *models.LogicalComponent, pivot models.Pivot) error {
+	fmt.Println("test")
+	fmt.Println(logicalComponent.KeyValues)
+	logicalComponent.Pivot = pivot
 	for _, keyValue := range logicalComponent.KeyValues {
 		for _, key := range pivot.Keys {
 			if keyValue.Key.Name == key.Name {
@@ -98,8 +101,9 @@ func SaveLogicalComponent(client *gorm.DB, logicalComponent *models.LogicalCompo
 			}
 		}
 	}
-
-	client.Create(&logicalComponent)
-
+	fmt.Println("logicalComponent")
+	fmt.Println(logicalComponent)
+	err := client.Create(&logicalComponent).Error
+	fmt.Println(err)
 	return nil
 }

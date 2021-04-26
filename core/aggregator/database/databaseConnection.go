@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -19,6 +20,13 @@ type DatabaseConnection struct {
 func NewDatabaseConnection(configurationDatabaseAggregator *models.ConfigurationDatabaseAggregator, pivot *models.Pivot, logicalComponent *models.LogicalComponent) *DatabaseConnection {
 	databaseConnection := new(DatabaseConnection)
 	databaseConnection.configurationDatabaseAggregator = configurationDatabaseAggregator
+	databaseConnection.mapTenantDatabaseClients = make(map[string]*gorm.DB)
+	fmt.Println("Databaseconnection pivot")
+	fmt.Println(pivot)
+	databaseConnection.pivot = pivot
+	fmt.Println("Databaseconnection logical")
+	fmt.Println(logicalComponent)
+	databaseConnection.logicalComponent = logicalComponent
 
 	return databaseConnection
 }

@@ -4,6 +4,7 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -63,6 +64,8 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	log.Println("Handle configuration database")
 	log.Println(configurationDb)
 
+	fmt.Println("Handle configuration database")
+	fmt.Println(configurationDb)
 	//if configuration.GetTenant() == ch.Context["tenant"] {
 	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
 	//if ok {

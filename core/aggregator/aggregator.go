@@ -185,10 +185,12 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 				if validateSecret {
 					pivot, err := member.GetPivot(member.GetChaussette())
 					if err == nil {
+						fmt.Println("pivot")
 						fmt.Println(pivot)
 						member.pivot = pivot
 						logicalConfiguration, err := member.GetLogicalConfiguration(member.GetChaussette())
 						if err == nil {
+							fmt.Println("logicalConfiguration")
 							fmt.Println(logicalConfiguration)
 							member.logicalConfiguration = logicalConfiguration
 							//configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
