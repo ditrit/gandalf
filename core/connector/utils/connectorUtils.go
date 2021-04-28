@@ -304,23 +304,37 @@ func DownloadWorkers(url, filePath string) (err error) {
 
 // DownloadVersions : Download versions from url
 func DownloadVersions(url, ressource string) (versions []string, err error) {
-
+	fmt.Println("url")
+	fmt.Println(url)
+	fmt.Println(ressource)
+	fmt.Println(url + ressource)
+	fmt.Println("url1")
 	resp, err := http.Get(url + ressource)
 	if err != nil {
 		log.Printf("err: %s", err)
+		fmt.Printf("err: %s", err)
 		return
 	}
-
+	fmt.Println("url2")
+	fmt.Println(resp)
+	fmt.Println(resp.Body)
+	fmt.Println(resp.StatusCode)
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
+		fmt.Println("url200")
 		return
 	}
+	fmt.Println("url3")
 
+	fmt.Println("resp.Body")
+	fmt.Println(resp.Body)
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	fmt.Println("string(bodyBytes)")
+	fmt.Println(string(bodyBytes))
 	err = yaml.Unmarshal(bodyBytes, &versions)
 	if err != nil {
 		fmt.Println(err)

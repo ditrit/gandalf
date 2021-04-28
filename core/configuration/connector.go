@@ -124,7 +124,7 @@ func init() {
 		})
 
 	connectorCfg.LKey("workers_url", verdeter.IsStr, "u", "workers URL")
-	connectorCfg.SetDefault("workers_url", "https://github.com/ditrit/workers/raw/master")
+	connectorCfg.SetDefault("workers_url", "https://raw.githubusercontent.com/ditrit/gandalf-workers/master")
 
 	connectorCfg.LKey("versions", verdeter.IsStr, "v", "worker versions")
 

@@ -113,7 +113,6 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 						configurationReply := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 						configurationReply.Tenant = logicalConfiguration.GetTenant()
 						shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
-
 						shoset.SendMessage(configurationReply)
 						break
 					case "connector":

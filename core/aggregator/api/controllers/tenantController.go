@@ -4,11 +4,16 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/ditrit/gandalf/core/aggregator/shoset"
+	"github.com/jinzhu/gorm"
+	"gopkg.in/yaml.v2"
 
 	"github.com/ditrit/gandalf/core/aggregator/database"
 
@@ -95,10 +100,10 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(tc.databaseConnection.GetLogicalComponent())
 					fmt.Println(tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value)
 					fmt.Println(version)
-					pivot, _ := utils.GetPivot(tenantDatabaseClient, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, "aggregator", version)
+					pivot, _ := tc.GetPivot(tenantDatabaseClient, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, "aggregator", version)
 					fmt.Println("CREATE 3")
 					//CREATE AGGREGATOR LOGICAL COMPONENT
-					logicalComponent, _ := utils.SaveLogicalComponent(tenantDatabaseClient, tenant.Name, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, pivot)
+					logicalComponent, _ := tc.SaveLogicalComponent(tenantDatabaseClient, tenant.Name, tc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, pivot)
 					fmt.Println(logicalComponent)
 					fmt.Println("CREATE 4")
 				} else {
@@ -126,6 +131,70 @@ func (tc TenantController) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, http.StatusCreated, result)
+}
+
+func (tc TenantController) GetPivot(client *gorm.DB, baseurl, componentType string, version models.Version) (models.Pivot, error) {
+	var pivot models.Pivot
+	err := client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error
+	fmt.Println(err)
+	if err != nil {
+		pivot, _ = tc.DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+		client.Create(&pivot)
+	}
+
+	return pivot, nil
+}
+
+// DownloadPivot : Download pivot from url
+func (tc TenantController) DownloadPivot(url, ressource string) (pivot models.Pivot, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("err: %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &pivot)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
+}
+
+func (tc TenantController) SaveLogicalComponent(client *gorm.DB, logicalName, repositoryURL string, pivot models.Pivot) (*models.LogicalComponent, error) {
+	logicalComponent := new(models.LogicalComponent)
+	logicalComponent.LogicalName = logicalName
+	logicalComponent.Type = "aggregator"
+	logicalComponent.Pivot = pivot
+	var keyValues []models.KeyValue
+	for _, key := range pivot.Keys {
+		keyValue := new(models.KeyValue)
+		switch key.Name {
+		case "repository_url":
+			keyValue.Value = repositoryURL
+			keyValue.Key = key
+			keyValues = append(keyValues, *keyValue)
+		}
+
+	}
+
+	logicalComponent.KeyValues = keyValues
+
+	client.Create(&logicalComponent)
+
+	return logicalComponent, nil
 }
 
 func (tc TenantController) CreateDatabase(tenant string) (*models.CreateDatabase, error) {

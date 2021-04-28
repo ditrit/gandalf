@@ -123,14 +123,20 @@ func GetPivots(client *gorm.DB, componentType string, version models.Version) (p
 }
 
 func GetProductConnectors(client *gorm.DB, product string, version models.Version) (productConnector models.ProductConnector) {
-	client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Ressources").Preload("EventTypeToPolls").First(&productConnector)
+	var productdb models.Product
+	client.Where("name = ?", product).First(&productdb)
+	fmt.Println("productdb")
+	fmt.Println(productdb)
+	client.Where("product_id = ? and major = ? and minor = ?", productdb.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Resources").First(&productConnector)
+	fmt.Println("productConnector")
+	fmt.Println(productConnector)
+	//client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Ressources").Preload("EventTypeToPolls").First(&productConnector)
 
 	return
 }
 
-func SavePivot(pivot *models.Pivot, client *gorm.DB) {
-
-	client.Save(pivot)
+func SavePivot(pivot models.Pivot, client *gorm.DB) {
+	client.Save(&pivot)
 }
 
 func SaveProductConnector(productConnector *models.ProductConnector, client *gorm.DB) {
@@ -236,11 +242,17 @@ func ValidateSecret(databaseClient *gorm.DB, secret, bindAddress string) (result
 	err = databaseClient.Where("secret = ?", secret).First(&secretAssignement).Error
 	fmt.Println("err")
 	fmt.Println(err)
+	fmt.Println(secretAssignement)
 	if err == nil {
 		if secretAssignement != (models.SecretAssignement{}) {
 			if secretAssignement.AddressIP == "" {
-				secretAssignement.AddressIP = bindAddress
-				databaseClient.Save(secretAssignement)
+				//secretAssignement.AddressIP = bindAddress
+				//databaseClient.Save(secretAssignement)
+				databaseClient.Model(&models.SecretAssignement{}).Where("secret = ?", secretAssignement.Secret).Update("address_ip", bindAddress)
+				err = databaseClient.Where("secret = ?", secret).First(&secretAssignement).Error
+				fmt.Println("err2")
+				fmt.Println(err)
+				fmt.Println(secretAssignement)
 				result = true
 			} else if secretAssignement.AddressIP == bindAddress {
 				result = true

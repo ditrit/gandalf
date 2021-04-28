@@ -4,6 +4,7 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -62,6 +63,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle configuration")
 	log.Println(configuration)
+	fmt.Println("Handle configuration")
+	fmt.Println(configuration)
 
 	if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
 		var pivot *models.Pivot
@@ -97,7 +100,7 @@ func SendWorkerAdminPivotConfiguration(shoset *net.Shoset) (err error) {
 		conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
 		configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 		conf.Tenant = configurationConnector.GetTenant()
-		conf.GetContext()["connectorType"] = "admin"
+		conf.GetContext()["componentType"] = "admin"
 		conf.GetContext()["version"] = jsonVersion
 		//conf.GetContext()["product"] = shoset.Context["product"]
 
@@ -118,7 +121,7 @@ func SendWorkerAdminPivotConfiguration(shoset *net.Shoset) (err error) {
 
 				time.Sleep(timeoutSend * time.Millisecond)
 
-				if shoset.Context["mapConnectorsConfig"] != nil {
+				if shoset.Context["pivotWorkerAdmin"] != nil {
 					notSend = false
 					break
 				}
@@ -138,47 +141,49 @@ func SendWorkerAdminPivotConfiguration(shoset *net.Shoset) (err error) {
 }
 
 //SendPivotConfiguration :
-func SendWorkerPivotConfiguration(shoset *net.Shoset) (err error) {
+func SendWorkerPivotConfiguration(shoset *net.Shoset, version models.Version) (err error) {
 
-	conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
-	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-	conf.Tenant = configurationConnector.GetTenant()
-	conf.GetContext()["componentType"] = configurationConnector.GetConnectorType()
-	conf.GetContext()["version"] = configurationConnector.GetVersions()
-	//conf.GetContext()["product"] = shoset.Context["product"]
+	jsonVersion, err := json.Marshal(version)
+	if err == nil {
+		conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
+		configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+		conf.Tenant = configurationConnector.GetTenant()
+		conf.GetContext()["componentType"] = configurationConnector.GetConnectorType()
+		conf.GetContext()["version"] = jsonVersion
+		//conf.GetContext()["product"] = shoset.Context["product"]
 
-	shosets := net.GetByType(shoset.ConnsByAddr, "a")
+		shosets := net.GetByType(shoset.ConnsByAddr, "a")
 
-	if len(shosets) != 0 {
-		if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
-			conf.Timeout = configurationConnector.GetMaxTimeout()
-		}
-
-		notSend := true
-		for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
-			index := getConfigurationSendIndex(shosets)
-			shosets[index].SendMessage(conf)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["mapConnectorsConfig"] != nil {
-				notSend = false
-				break
+		if len(shosets) != 0 {
+			if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
+				conf.Timeout = configurationConnector.GetMaxTimeout()
 			}
-		}
 
-		if notSend {
-			return nil
-		}
+			notSend := true
+			for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
+				index := getConfigurationSendIndex(shosets)
+				shosets[index].SendMessage(conf)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
 
-	} else {
-		log.Println("can't find aggregators to send")
-		err = errors.New("can't find aggregators to send")
+				timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
+
+				time.Sleep(timeoutSend * time.Millisecond)
+
+				if shoset.Context["pivotWorker"] != nil {
+					notSend = false
+					break
+				}
+			}
+
+			if notSend {
+				return nil
+			}
+
+		} else {
+			log.Println("can't find aggregators to send")
+			err = errors.New("can't find aggregators to send")
+		}
 	}
-
 	return err
 }
 
@@ -212,7 +217,7 @@ func SendConnectorPivotConfiguration(shoset *net.Shoset) (err error) {
 
 				time.Sleep(timeoutSend * time.Millisecond)
 
-				if shoset.Context["mapConnectorsConfig"] != nil {
+				if shoset.Context["pivot"] != nil {
 					notSend = false
 					break
 				}
@@ -232,13 +237,11 @@ func SendConnectorPivotConfiguration(shoset *net.Shoset) (err error) {
 }
 
 //SendProductConnectorConfiguration : Connector send connector config function.
-func SendProductConnectorConfiguration(shoset *net.Shoset) (err error) {
-	version := shoset.Context["version"].(models.Version)
+func SendProductConnectorConfiguration(shoset *net.Shoset, version models.Version) (err error) {
 	jsonVersion, err := json.Marshal(version)
 	if err == nil {
 		conf := cmsg.NewConfiguration("", "CONNECTOR_PRODUCT_CONFIGURATION", "")
 		configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-
 		conf.Tenant = configurationConnector.GetTenant()
 		conf.GetContext()["product"] = configurationConnector.GetProduct()
 		conf.GetContext()["version"] = jsonVersion
@@ -261,7 +264,7 @@ func SendProductConnectorConfiguration(shoset *net.Shoset) (err error) {
 
 				time.Sleep(timeoutSend * time.Millisecond)
 
-				if shoset.Context["mapConnectorsConfig"] != nil {
+				if shoset.Context["productConnector"] != nil {
 					notSend = false
 					break
 				}

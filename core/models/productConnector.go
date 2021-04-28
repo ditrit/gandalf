@@ -11,9 +11,9 @@ type ProductConnector struct {
 	Pivot         Pivot
 	ProductID     uint
 	Product       Product
-	ResourceTypes []ResourceType
-	CommandTypes  []CommandType
-	EventTypes    []EventType
-	Keys          []Key
+	ResourceTypes []ResourceType `gorm:"ForeignKey:ConnectorProductID"`
+	CommandTypes  []CommandType  `gorm:"ForeignKey:ConnectorProductID"`
+	EventTypes    []EventType    `gorm:"ForeignKey:ConnectorProductID"`
+	Keys          []Key          `gorm:"ForeignKey:ConnectorProductID"`
 	Resources     []Resource
 }

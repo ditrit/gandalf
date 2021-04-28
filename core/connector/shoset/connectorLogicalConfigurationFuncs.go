@@ -4,6 +4,7 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -62,6 +63,8 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 
 	log.Println("Handle logical configuration")
 	log.Println(logicalConfiguration)
+	fmt.Println("Handle logical configuration")
+	fmt.Println(logicalConfiguration)
 
 	if logicalConfiguration.GetCommand() == "LOGICAL_CONFIGURATION_REPLY" {
 		var logicalComponent *models.LogicalComponent
@@ -80,7 +83,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
 	configMarshal, err := json.Marshal(configurationLogicalConnector)
 	if err == nil {
-		configurationMsg := cmsg.NewConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
+		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
 		//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 		configurationMsg.GetContext()["componentType"] = "connector"
 		configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()

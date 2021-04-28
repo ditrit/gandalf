@@ -61,9 +61,10 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 	dir := c.GetDir()
 	err = nil
 	thisOne := ch.GetBindAddr()
-	log.Println("Handle configuration")
+	log.Println("Handle logical configuration")
 	log.Println(logicalConfiguration)
-
+	fmt.Println("Handle logical configuration")
+	fmt.Println(logicalConfiguration)
 	if dir == "in" {
 		fmt.Println("IN")
 		if c.GetShosetType() == "c" {

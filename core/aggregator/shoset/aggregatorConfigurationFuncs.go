@@ -4,6 +4,7 @@ package shoset
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -64,6 +65,9 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle configuration")
 	log.Println(configuration)
+
+	fmt.Println("Handle configuration")
+	fmt.Println(configuration)
 	configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	if configuration.GetTenant() == configurationAggregator.GetTenant() {
 		//ok := ch.Queue["config"].Push(conf, c.ShosetType, c.GetBindAddr())
@@ -89,14 +93,22 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 		if dir == "out" {
 			if c.GetShosetType() == "cl" {
-				if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" && configuration.GetTarget() == "" {
-					var pivot *models.Pivot
-					err = json.Unmarshal([]byte(configuration.GetPayload()), &pivot)
-					if err == nil {
-						ch.Context["pivot"] = pivot
+				if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
+					if configuration.GetTarget() == "" {
+						var pivot *models.Pivot
+						err = json.Unmarshal([]byte(configuration.GetPayload()), &pivot)
+						if err == nil {
+							ch.Context["pivot"] = pivot
+						}
+					} else {
+						shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
+						shoset.SendMessage(configuration)
 					}
-				} else {
+				} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION_REPLY" {
 					shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
+					fmt.Println("CONNECTOR_PRODUCT_CONFIGURATION_REPLY")
+					fmt.Println("shoset")
+					fmt.Println(shoset)
 					shoset.SendMessage(configuration)
 				}
 			} else {
@@ -145,7 +157,7 @@ func SendAggregatorPivotConfiguration(shoset *net.Shoset) (err error) {
 
 				time.Sleep(timeoutSend * time.Millisecond)
 
-				if shoset.Context["mapConnectorsConfig"] != nil {
+				if shoset.Context["pivot"] != nil {
 					notSend = false
 					break
 				}

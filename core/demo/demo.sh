@@ -21,7 +21,7 @@ sleep 5
 
 echo 'Connector'
 echo 'ConnectorMember Con1 and Con2' 
-./gandalf connector -offset 5 -l Connector1 --aggregator 127.0.0.1:9104 --secret <secret> --class utils --product Custom
+./gandalf start connector --offset 5 -l connector1 --aggregator 127.0.0.1:9104 --secret <secret> --class utils --product custom
 
 
 ./gandalf -g connector -l Connector1 -b 127.0.0.1:7000 -r /tmp/ -a 127.0.0.1:8000 -y Utils -p Custom -v 1.0 -w $HOME/gandalf/workers -z https://github.com/ditrit/workers/raw/master -s TOTO

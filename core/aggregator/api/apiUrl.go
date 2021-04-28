@@ -59,7 +59,7 @@ func ReturnURLS() *Urls {
 	apiurls.USER_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
 
 	apiurls.LOGICAL_COMPONENT_PATH = apiurls.PATH + "/logicalcomponent"
-	apiurls.LOGICAL_COMPONENT_PAHT_UPLOAD = apiurls.LOGICAL_COMPONENT_PATH + "/upload/{tenant}/{type}/{major:[0-9]+}/{minor:[0-9]+}"
+	apiurls.LOGICAL_COMPONENT_PAHT_UPLOAD = apiurls.LOGICAL_COMPONENT_PATH + "/upload/{tenant}/{type}"
 
 	apiurls.SECRET_PATH = apiurls.PATH + "/secret"
 	apiurls.SECRET_PATH_LIST = apiurls.SECRET_PATH + "/"
