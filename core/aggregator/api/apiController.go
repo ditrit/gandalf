@@ -16,6 +16,8 @@ type Controllers struct {
 	TenantController            *controllers.TenantController
 	SecretAssignementController *controllers.SecretAssignementController
 	LogicalComponentController  *controllers.LogicalComponentController
+	ResourceController          *controllers.ResourceController
+	DomainController            *controllers.DomainController
 }
 
 // ReturnControllers :
@@ -31,6 +33,8 @@ func ReturnControllers(databaseConnection *database.DatabaseConnection, shoset *
 	aggregatorControllers.RoleController = controllers.NewRoleController(databaseConnection)
 	aggregatorControllers.TenantController = controllers.NewTenantController(databaseConnection, shoset)
 	aggregatorControllers.SecretAssignementController = controllers.NewSecretAssignementController(databaseConnection)
+	aggregatorControllers.ResourceController = controllers.NewResourceController(databaseConnection)
+	aggregatorControllers.DomainController = controllers.NewDomainController(databaseConnection)
 
 	return aggregatorControllers
 }

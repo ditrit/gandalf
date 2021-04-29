@@ -56,5 +56,19 @@ func GetRouter(databaseConnection *database.DatabaseConnection, shoset *net.Shos
 	subt.HandleFunc(urls.TENANT_PATH_UPDATE, controllers.TenantController.Update).Methods("PUT")
 	subt.HandleFunc(urls.TENANT_PATH_DELETE, controllers.TenantController.Delete).Methods("DELETE")
 
+	//RESOURCE
+	subt.HandleFunc(urls.RESOURCE_PATH_LIST, controllers.ResourceController.List).Methods("GET")
+	subt.HandleFunc(urls.RESOURCE_PATH_CREATE, controllers.ResourceController.Create).Methods("POST")
+	subt.HandleFunc(urls.RESOURCE_PATH_READ, controllers.ResourceController.Read).Methods("GET")
+	subt.HandleFunc(urls.RESOURCE_PATH_UPDATE, controllers.ResourceController.Update).Methods("PUT")
+	subt.HandleFunc(urls.RESOURCE_PATH_DELETE, controllers.ResourceController.Delete).Methods("DELETE")
+
+	//DOMAIN
+	subt.HandleFunc(urls.DOMAIN_PATH_LIST, controllers.DomainController.List).Methods("GET")
+	subt.HandleFunc(urls.DOMAIN_PATH_CREATE, controllers.DomainController.Create).Methods("POST")
+	subt.HandleFunc(urls.DOMAIN_PATH_READ, controllers.DomainController.Read).Methods("GET")
+	subt.HandleFunc(urls.DOMAIN_PATH_UPDATE, controllers.DomainController.Update).Methods("PUT")
+	subt.HandleFunc(urls.DOMAIN_PATH_DELETE, controllers.DomainController.Delete).Methods("DELETE")
+
 	return mux
 }

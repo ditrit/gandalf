@@ -31,6 +31,18 @@ type Urls struct {
 	SECRET_PATH                   string
 	SECRET_PATH_LIST              string
 	SECRET_PATH_CREATE            string
+	RESOURCE_PATH                 string
+	RESOURCE_PATH_LIST            string
+	RESOURCE_PATH_CREATE          string
+	RESOURCE_PATH_READ            string
+	RESOURCE_PATH_UPDATE          string
+	RESOURCE_PATH_DELETE          string
+	DOMAIN_PATH                   string
+	DOMAIN_PATH_LIST              string
+	DOMAIN_PATH_CREATE            string
+	DOMAIN_PATH_READ              string
+	DOMAIN_PATH_UPDATE            string
+	DOMAIN_PATH_DELETE            string
 }
 
 // ReturnURLS :
@@ -51,6 +63,7 @@ func ReturnURLS() *Urls {
 	apiurls.ROLE_PATH_READ = apiurls.ROLE_PATH + "/{id:[0-9]+}"
 	apiurls.ROLE_PATH_UPDATE = apiurls.ROLE_PATH + "/{id:[0-9]+}"
 	apiurls.ROLE_PATH_DELETE = apiurls.ROLE_PATH + "/{id:[0-9]+}"
+
 	apiurls.USER_PATH = apiurls.PATH + "/users"
 	apiurls.USER_PATH_LIST = apiurls.USER_PATH + "/"
 	apiurls.USER_PATH_CREATE = apiurls.USER_PATH + "/"
@@ -71,6 +84,20 @@ func ReturnURLS() *Urls {
 	apiurls.TENANT_PATH_READ = apiurls.TENANT_PATH + "/{id:[0-9]+}"
 	apiurls.TENANT_PATH_UPDATE = apiurls.TENANT_PATH + "/{id:[0-9]+}"
 	apiurls.TENANT_PATH_DELETE = apiurls.TENANT_PATH + "/{id:[0-9]+}"
+
+	apiurls.RESOURCE_PATH = apiurls.PATH + "/resources"
+	apiurls.RESOURCE_PATH_LIST = apiurls.USER_PATH + "/"
+	apiurls.RESOURCE_PATH_CREATE = apiurls.USER_PATH + "/"
+	apiurls.RESOURCE_PATH_READ = apiurls.USER_PATH + "/{id:[0-9]+}"
+	apiurls.RESOURCE_PATH_UPDATE = apiurls.USER_PATH + "/{id:[0-9]+}"
+	apiurls.RESOURCE_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
+
+	apiurls.DOMAIN_PATH = apiurls.PATH + "/domains"
+	apiurls.DOMAIN_PATH_LIST = apiurls.USER_PATH + "/"
+	apiurls.DOMAIN_PATH_CREATE = apiurls.USER_PATH + "/{name}"
+	apiurls.DOMAIN_PATH_READ = apiurls.USER_PATH + "/{id:[0-9]+}"
+	apiurls.DOMAIN_PATH_UPDATE = apiurls.USER_PATH + "/{id:[0-9]+}"
+	apiurls.DOMAIN_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
 	/*
 		apiurls.CONNECTOR_PATH = apiurls.PATH + "/connectors"
 		apiurls.CONNECTOR_PATH_LIST = apiurls.CONNECTOR_PATH + "/"

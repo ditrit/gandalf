@@ -22,10 +22,10 @@ func GetDomainAncestors(database *gorm.DB, id uint) (domains []Domain, err error
 	return
 }
 
-func InsertDomainRoot(database *gorm.DB, domain *Domain) (err error) {
+func InsertDomainRoot(database *gorm.DB, domain Domain) (err error) {
 	err = database.Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Save(domain).Error; err != nil {
+		if err := tx.Save(&domain).Error; err != nil {
 			// return any error will rollback
 			return err
 		}
@@ -43,11 +43,11 @@ func InsertDomainRoot(database *gorm.DB, domain *Domain) (err error) {
 	return
 }
 
-func InsertDomainNewChild(database *gorm.DB, domain *Domain, id uint) (err error) {
+func InsertDomainNewChild(database *gorm.DB, domain Domain, id uint) (err error) {
 
 	err = database.Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Save(domain).Error; err != nil {
+		if err := tx.Save(&domain).Error; err != nil {
 			// return any error will rollback
 			return err
 		}
@@ -65,11 +65,11 @@ func InsertDomainNewChild(database *gorm.DB, domain *Domain, id uint) (err error
 	return
 }
 
-func DeleteDomainChild(database *gorm.DB, domain *Domain) (err error) {
+func DeleteDomainChild(database *gorm.DB, domain Domain) (err error) {
 
 	err = database.Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Delete(domain).Error; err != nil {
+		if err := tx.Delete(&domain).Error; err != nil {
 			// return any error will rollback
 			return err
 		}
@@ -101,7 +101,7 @@ func DeleteDomainSubtree(database *gorm.DB, id uint) (err error) {
 	return
 }
 
-func UpdateDomainChild(database *gorm.DB, domain *Domain, newAncestor uint) (err error) {
+func UpdateDomainChild(database *gorm.DB, domain Domain, newAncestor uint) (err error) {
 
 	err = database.Transaction(func(tx *gorm.DB) error {
 
