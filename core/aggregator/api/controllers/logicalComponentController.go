@@ -164,7 +164,7 @@ func (lc LogicalComponentController) GetProductConnector(client *gorm.DB, baseur
 		}
 		//client.Joins("Product").Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector).Error
 
-		err = client.Where("product_id = ? and major = ? and minor = ?", productDB.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Resources").First(&productConnector).Error
+		err = client.Where("product_id = ? and major = ? and minor = ?", productDB.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector).Error
 		fmt.Println("err product connector")
 		fmt.Println(err)
 		fmt.Println("productConnectorDB")
@@ -194,7 +194,6 @@ func (lc LogicalComponentController) GetProductConnector(client *gorm.DB, baseur
 		fmt.Println(productConnector.Keys)
 		fmt.Println(productConnector.CommandTypes)
 		fmt.Println(productConnector.EventTypes)
-		fmt.Println(productConnector.Resources)
 		client.Create(&productConnector)
 
 	}

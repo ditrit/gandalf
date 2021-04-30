@@ -15,5 +15,4 @@ type ProductConnector struct {
 	CommandTypes  []CommandType  `gorm:"ForeignKey:ConnectorProductID"`
 	EventTypes    []EventType    `gorm:"ForeignKey:ConnectorProductID"`
 	Keys          []Key          `gorm:"ForeignKey:ConnectorProductID"`
-	Resources     []Resource
 }

@@ -399,7 +399,9 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
 		//EVENT TYPE TO POLL
 		var listEventTypeToPolls []models.EventTypeToPoll
-		for _, resource := range productConnector.Resources {
+		fmt.Println("logicalComponent.Resources")
+		fmt.Println(logicalComponent.Resources)
+		for _, resource := range logicalComponent.Resources {
 			listEventTypeToPolls = append(listEventTypeToPolls, resource.EventTypeToPolls...)
 		}
 

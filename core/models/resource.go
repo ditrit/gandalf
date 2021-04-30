@@ -5,8 +5,8 @@ import "github.com/jinzhu/gorm"
 type Resource struct {
 	gorm.Model
 	Name               string `gorm:"unique;not null"`
-	ProductConnectorID uint
-	ProductConnector   ProductConnector
+	LogicalComponentID uint
+	LogicalComponent   LogicalComponent
 	DomainID           uint
 	Domain             Domain
 	ResourceTypeID     uint

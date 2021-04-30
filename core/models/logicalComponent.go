@@ -10,7 +10,8 @@ type LogicalComponent struct {
 	Pivot              Pivot
 	ProductConnectorID uint `gorm:"check:(pivot_id IS NULL AND  product_connector_id IS NOT NULL AND type == 'connector'"`
 	ProductConnector   ProductConnector
-	KeyValues          []KeyValue `gorm:"foreignkey:LogicalConnectorID"`
+	KeyValues          []KeyValue `gorm:"foreignkey:LogicalComponentID"`
+	Resources          []Resource `gorm:"foreignkey:LogicalComponentID"`
 }
 
 func (lc LogicalComponent) GetKeyValueByKey(key string) *KeyValue {

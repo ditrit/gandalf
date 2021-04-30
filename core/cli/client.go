@@ -26,6 +26,8 @@ type Client struct {
 	AggregatorService        *AggregatorService
 	ConnectorService         *ConnectorService
 	SecretAssignementService *SecretAssignementService
+	ResourceService          *ResourceService
+	DomainService            *DomainService
 }
 
 // NewClient :
@@ -55,6 +57,8 @@ func NewClient(bindAddress string) (client *Client) {
 	client.AggregatorService = &AggregatorService{client: client}
 	client.ConnectorService = &ConnectorService{client: client}
 	client.SecretAssignementService = &SecretAssignementService{client: client}
+	client.ResourceService = &ResourceService{client: client}
+	client.DomainService = &DomainService{client: client}
 
 	return
 
