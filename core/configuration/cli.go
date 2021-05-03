@@ -21,10 +21,10 @@ import (
 // cliCmd represents the cli command
 var cliCfg = verdeter.NewConfigCmd("cli", "Launch gandalf in 'cli' mode.", `Gandalf is launched as CLI (Command Line Interface) to interact with a Gandalf system.`, nil)
 
-var cliCreate = verdeter.NewConfigCmd("create", "create user|tenant|role|domain|resource", "create command allows the creation of Gandalf objects (users, tenants, roles and domains).", nil)
-var cliList = verdeter.NewConfigCmd("list", "list users|tenants|roles|domain|resource", "list command allows to list Gandalf objects (users, tenants, roles and domains).", nil)
-var cliUpdate = verdeter.NewConfigCmd("update", "update user|tenant|role|domain|resource", "update command allows update of Gandalf objects (users, tenants, roles and domains).", nil)
-var cliDelete = verdeter.NewConfigCmd("delete", "delete user|tenant|role|domain|resource", "update command allows deleting of Gandalf objects (users, tenants, roles and domains).", nil)
+var cliCreate = verdeter.NewConfigCmd("create", "create user|tenant|role|domain|resource|eventTypeToPoll", "create command allows the creation of Gandalf objects (users, tenants, roles and domains).", nil)
+var cliList = verdeter.NewConfigCmd("list", "list users|tenants|roles|domain|resource|eventTypeToPoll", "list command allows to list Gandalf objects (users, tenants, roles and domains).", nil)
+var cliUpdate = verdeter.NewConfigCmd("update", "update user|tenant|role|domain|resource|eventTypeToPoll", "update command allows update of Gandalf objects (users, tenants, roles and domains).", nil)
+var cliDelete = verdeter.NewConfigCmd("delete", "delete user|tenant|role|domain|resource|eventTypeToPoll", "update command allows deleting of Gandalf objects (users, tenants, roles and domains).", nil)
 var cliLogin = verdeter.NewConfigCmd("login", "log in as a user into Gandalf", "login command allows user to authenticate using its credentials.", runLogin)
 
 var cliCreateUser = verdeter.NewConfigCmd("user", "create user <username> <email> <password>", "create user command allows the creation of a new user", runCreateUser)
@@ -47,10 +47,15 @@ var cliListDomains = verdeter.NewConfigCmd("domain", "list domains ", "list doma
 var cliUpdateDomain = verdeter.NewConfigCmd("domain", "update domain <domainname> [options]", "update domain command allows to update a Gandalf domain.", runUpdateDomain)
 var cliDeleteDomain = verdeter.NewConfigCmd("domain", "delete domain <domainname>", "delete domain command allows to delete a Gandalf domain.", runDeleteDomain)
 
-//var cliCreateResource = verdeter.NewConfigCmd("resource", "create domain <domainname>", "create resource command allows the creation of a new resource (in the form <[name.]*name>)", runCreateResource)
-//var cliListResources = verdeter.NewConfigCmd("resource", "list domains ", "list resource command allows to list Gandalf resources.", runListResources)
-//var cliUpdateResource = verdeter.NewConfigCmd("resource", "update domain <domainname> [options]", "update resource command allows to update a Gandalf resource.", runUpdateResource)
-//var cliDeleteResource = verdeter.NewConfigCmd("resource", "delete domain <domainname>", "delete resource command allows to delete a Gandalf resource.", runDeleteResource)
+var cliCreateResource = verdeter.NewConfigCmd("resource", "create resource <resourcename>", "create resource command allows the creation of a new resource (in the form <[name.]*name>)", runCreateResource)
+var cliListResources = verdeter.NewConfigCmd("resource", "list resources ", "list resource command allows to list Gandalf resources.", runListResources)
+var cliUpdateResource = verdeter.NewConfigCmd("resource", "update resource <resourcename> [options]", "update resource command allows to update a Gandalf resource.", runUpdateResource)
+var cliDeleteResource = verdeter.NewConfigCmd("resource", "delete resource <resourcename>", "delete resource command allows to delete a Gandalf resource.", runDeleteResource)
+
+var cliCreateEventTypeToPoll = verdeter.NewConfigCmd("eventtypetopoll", "create eventtypetopoll <eventtypetopollname>", "create eventtypetopoll command allows the creation of a new resource (in the form <[name.]*name>)", runCreateEventTypeToPoll)
+var cliListEventTypeToPolls = verdeter.NewConfigCmd("eventtypetopoll", "list eventtypetopolls ", "list eventtypetopolls command allows to list Gandalf eventtypetopoll.", runListEventTypeToPolls)
+var cliUpdateEventTypeToPoll = verdeter.NewConfigCmd("eventtypetopoll", "update eventtypetopoll <eventtypetopollname> [options]", "update resource command allows to update a Gandalf eventtypetopoll.", runUpdateEventTypeToPoll)
+var cliDeleteEventTypeToPoll = verdeter.NewConfigCmd("eventtypetopoll", "delete eventtypetopoll <eventtypetopollname>", "delete eventtypetopoll command allows to delete a Gandalf eventtypetopoll.", runDeleteEventTypeToPoll)
 
 var cliCreateSecret = verdeter.NewConfigCmd("secret", "create secret", "declare  name command allows to declare the name of a new connector.", runCreateSecret)
 var cliListSecret = verdeter.NewConfigCmd("secret", "list secret", "declare  member command allows to declare a new member for an existing connector.", runListSecret)
@@ -93,10 +98,15 @@ func init() {
 	cliUpdate.AddConfig(cliUpdateDomain)
 	cliDelete.AddConfig(cliDeleteDomain)
 
-	//cliCreate.AddConfig(cliCreateResource)
-	//cliList.AddConfig(cliListResources)
-	//cliUpdate.AddConfig(cliUpdateResource)
-	//cliDelete.AddConfig(cliDeleteResource)
+	cliCreate.AddConfig(cliCreateResource)
+	cliList.AddConfig(cliListResources)
+	cliUpdate.AddConfig(cliUpdateResource)
+	cliDelete.AddConfig(cliDeleteResource)
+
+	cliCreate.AddConfig(cliCreateEventTypeToPoll)
+	cliList.AddConfig(cliListEventTypeToPolls)
+	cliUpdate.AddConfig(cliUpdateEventTypeToPoll)
+	cliDelete.AddConfig(cliDeleteEventTypeToPoll)
 
 	cliLogin.SetNbArgs(2)
 
@@ -129,11 +139,17 @@ func init() {
 	cliDeleteDomain.SetNbArgs(1)
 	cliUpdateDomain.LKey("domainname", verdeter.IsStr, "d", "name of the Domain")
 
-	//cliCreateResource.SetNbArgs(1)
-	//cliListResources.SetNbArgs(0)
-	//cliUpdateResource.SetNbArgs(1)
-	//cliDeleteResource.SetNbArgs(1)
-	//cliUpdateResource.LKey("resourcename", verdeter.IsStr, "r", "name of the Resource")
+	cliCreateResource.SetNbArgs(4)
+	cliListResources.SetNbArgs(0)
+	cliUpdateResource.SetNbArgs(1)
+	cliDeleteResource.SetNbArgs(1)
+	cliUpdateResource.LKey("resourcename", verdeter.IsStr, "r", "name of the Resource")
+
+	cliCreateEventTypeToPoll.SetNbArgs(2)
+	cliListEventTypeToPolls.SetNbArgs(0)
+	cliUpdateEventTypeToPoll.SetNbArgs(1)
+	cliDeleteEventTypeToPoll.SetNbArgs(1)
+	cliUpdateEventTypeToPoll.LKey("resourcename", verdeter.IsStr, "r", "name of the Resource")
 }
 
 func runLogin(cfg *verdeter.ConfigCmd, args []string) {
@@ -380,6 +396,94 @@ func runUpdateDomain(cfg *verdeter.ConfigCmd, args []string) {
 func runDeleteDomain(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
 	fmt.Printf("gandalf cli delete domain called with domain=%s\n", name)
+}
+
+func runCreateResource(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	logicalComponentID := args[1]
+	domainID := args[2]
+	eventTypeID := args[3]
+	fmt.Printf("gandalf cli create resource called with resource=%s", name)
+
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+	resource := models.Resource{Name: name, logicalComponentID: logicalComponentID, DomainID: domainID, EventTypeID: eventTypeID}
+	err := cliClient.ResourceService.Create(configurationCli.GetToken(), resource)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+}
+
+func runListResources(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list resources\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	resources, err := cliClient.ResourceService.List(configurationCli.GetToken())
+	if err == nil {
+		for _, resource := range resources {
+			fmt.Println(resources)
+		}
+	} else {
+		fmt.Println(err)
+	}
+
+}
+
+func runUpdateResource(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	newName := viper.GetString("name")
+	parent := viper.GetString("parent")
+	fmt.Printf("gandalf cli update resource called with resource=%s, newName=%s, parent=%s\n", name, newName, parent)
+}
+
+func runDeleteResource(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	fmt.Printf("gandalf cli delete resource called with resource=%s\n", name)
+}
+
+func runCreateEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
+	resourceID := args[0]
+	eventTypeID := args[1]
+	fmt.Printf("gandalf cli create eventtypetopoll called with eventtypetopoll=%s", resourceID)
+
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+	eventTypeToPoll := models.EventTypeToPoll{ResourceID: resourceID, EventTypeID: eventTypeID}
+	err := cliClient.EventTypeToPollService.Create(configurationCli.GetToken(), eventTypeToPoll)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+}
+
+func runListEventTypeToPolls(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list resources\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	eventTypeToPolls, err := cliClient.EventTypeToPollService.List(configurationCli.GetToken())
+	if err == nil {
+		for _, eventTypeToPoll := range eventTypeToPolls {
+			fmt.Println(eventTypeToPoll)
+		}
+	} else {
+		fmt.Println(err)
+	}
+
+}
+
+func runUpdateEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	newName := viper.GetString("name")
+	parent := viper.GetString("parent")
+	fmt.Printf("gandalf cli update eventtypetopoll called with eventtypetopoll=%s, newName=%s, parent=%s\n", name, newName, parent)
+}
+
+func runDeleteEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	fmt.Printf("gandalf cli delete eventtypetopoll called with eventtypetopoll=%s\n", name)
 }
 
 /*

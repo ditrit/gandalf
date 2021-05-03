@@ -6,43 +6,49 @@ type Urls struct {
 	ROOT_PATH   string
 	PATH        string
 
-	LOGIN_PATH                    string
-	CLI_PATH                      string
-	LOGICAL_COMPONENT_PATH        string
-	LOGICAL_COMPONENT_PAHT_UPLOAD string
-	ROLE_PATH                     string
-	ROLE_PATH_LIST                string
-	ROLE_PATH_CREATE              string
-	ROLE_PATH_READ                string
-	ROLE_PATH_UPDATE              string
-	ROLE_PATH_DELETE              string
-	USER_PATH                     string
-	USER_PATH_LIST                string
-	USER_PATH_CREATE              string
-	USER_PATH_READ                string
-	USER_PATH_UPDATE              string
-	USER_PATH_DELETE              string
-	TENANT_PATH                   string
-	TENANT_PATH_LIST              string
-	TENANT_PATH_CREATE            string
-	TENANT_PATH_READ              string
-	TENANT_PATH_UPDATE            string
-	TENANT_PATH_DELETE            string
-	SECRET_PATH                   string
-	SECRET_PATH_LIST              string
-	SECRET_PATH_CREATE            string
-	RESOURCE_PATH                 string
-	RESOURCE_PATH_LIST            string
-	RESOURCE_PATH_CREATE          string
-	RESOURCE_PATH_READ            string
-	RESOURCE_PATH_UPDATE          string
-	RESOURCE_PATH_DELETE          string
-	DOMAIN_PATH                   string
-	DOMAIN_PATH_LIST              string
-	DOMAIN_PATH_CREATE            string
-	DOMAIN_PATH_READ              string
-	DOMAIN_PATH_UPDATE            string
-	DOMAIN_PATH_DELETE            string
+	LOGIN_PATH                     string
+	CLI_PATH                       string
+	LOGICAL_COMPONENT_PATH         string
+	LOGICAL_COMPONENT_PAHT_UPLOAD  string
+	ROLE_PATH                      string
+	ROLE_PATH_LIST                 string
+	ROLE_PATH_CREATE               string
+	ROLE_PATH_READ                 string
+	ROLE_PATH_UPDATE               string
+	ROLE_PATH_DELETE               string
+	USER_PATH                      string
+	USER_PATH_LIST                 string
+	USER_PATH_CREATE               string
+	USER_PATH_READ                 string
+	USER_PATH_UPDATE               string
+	USER_PATH_DELETE               string
+	TENANT_PATH                    string
+	TENANT_PATH_LIST               string
+	TENANT_PATH_CREATE             string
+	TENANT_PATH_READ               string
+	TENANT_PATH_UPDATE             string
+	TENANT_PATH_DELETE             string
+	SECRET_PATH                    string
+	SECRET_PATH_LIST               string
+	SECRET_PATH_CREATE             string
+	RESOURCE_PATH                  string
+	RESOURCE_PATH_LIST             string
+	RESOURCE_PATH_CREATE           string
+	RESOURCE_PATH_READ             string
+	RESOURCE_PATH_UPDATE           string
+	RESOURCE_PATH_DELETE           string
+	DOMAIN_PATH                    string
+	DOMAIN_PATH_LIST               string
+	DOMAIN_PATH_CREATE             string
+	DOMAIN_PATH_READ               string
+	DOMAIN_PATH_UPDATE             string
+	DOMAIN_PATH_DELETE             string
+	EVENT_TYPE_TO_POLL_PATH        string
+	EVENT_TYPE_TO_POLL_PATH_LIST   string
+	EVENT_TYPE_TO_POLL_PATH_CREATE string
+	EVENT_TYPE_TO_POLL_PATH_READ   string
+	EVENT_TYPE_TO_POLL_PATH_UPDATE string
+	EVENT_TYPE_TO_POLL_PATH_DELETE string
 }
 
 // ReturnURLS :
@@ -98,6 +104,13 @@ func ReturnURLS() *Urls {
 	apiurls.DOMAIN_PATH_READ = apiurls.USER_PATH + "/{id:[0-9]+}"
 	apiurls.DOMAIN_PATH_UPDATE = apiurls.USER_PATH + "/{id:[0-9]+}"
 	apiurls.DOMAIN_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
+
+	apiurls.EVENT_TYPE_TO_POLL_PATH = apiurls.PATH + "/eventtypetopolls"
+	apiurls.EVENT_TYPE_TO_POLL_PATH_LIST = apiurls.USER_PATH + "/"
+	apiurls.EVENT_TYPE_TO_POLL_PATH_CREATE = apiurls.USER_PATH + "/"
+	apiurls.EVENT_TYPE_TO_POLL_PATH_READ = apiurls.USER_PATH + "/{id:[0-9]+}"
+	apiurls.EVENT_TYPE_TO_POLL_PATH_UPDATE = apiurls.USER_PATH + "/{id:[0-9]+}"
+	apiurls.EVENT_TYPE_TO_POLL_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
 	/*
 		apiurls.CONNECTOR_PATH = apiurls.PATH + "/connectors"
 		apiurls.CONNECTOR_PATH_LIST = apiurls.CONNECTOR_PATH + "/"

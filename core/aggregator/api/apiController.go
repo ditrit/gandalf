@@ -18,6 +18,7 @@ type Controllers struct {
 	LogicalComponentController  *controllers.LogicalComponentController
 	ResourceController          *controllers.ResourceController
 	DomainController            *controllers.DomainController
+	EventTypeToPollController   *controllers.EventTypeToPollController
 }
 
 // ReturnControllers :
@@ -35,6 +36,7 @@ func ReturnControllers(databaseConnection *database.DatabaseConnection, shoset *
 	aggregatorControllers.SecretAssignementController = controllers.NewSecretAssignementController(databaseConnection)
 	aggregatorControllers.ResourceController = controllers.NewResourceController(databaseConnection)
 	aggregatorControllers.DomainController = controllers.NewDomainController(databaseConnection)
+	aggregatorControllers.EventTypeToPollController = controllers.NewEventTypeToPollController(databaseConnection)
 
 	return aggregatorControllers
 }

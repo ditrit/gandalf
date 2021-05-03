@@ -70,5 +70,12 @@ func GetRouter(databaseConnection *database.DatabaseConnection, shoset *net.Shos
 	subt.HandleFunc(urls.DOMAIN_PATH_UPDATE, controllers.DomainController.Update).Methods("PUT")
 	subt.HandleFunc(urls.DOMAIN_PATH_DELETE, controllers.DomainController.Delete).Methods("DELETE")
 
+	//EVENTTYPETOPOLL
+	subt.HandleFunc(urls.EVENT_TYPE_TO_POLL_PATH_LIST, controllers.EventTypeToPollController.List).Methods("GET")
+	subt.HandleFunc(urls.EVENT_TYPE_TO_POLL_PATH_CREATE, controllers.EventTypeToPollController.Create).Methods("POST")
+	subt.HandleFunc(urls.EVENT_TYPE_TO_POLL_PATH_READ, controllers.EventTypeToPollController.Read).Methods("GET")
+	subt.HandleFunc(urls.EVENT_TYPE_TO_POLL_PATH_UPDATE, controllers.EventTypeToPollController.Update).Methods("PUT")
+	subt.HandleFunc(urls.EVENT_TYPE_TO_POLL_PATH_DELETE, controllers.EventTypeToPollController.Delete).Methods("DELETE")
+
 	return mux
 }

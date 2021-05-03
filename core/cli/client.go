@@ -28,6 +28,7 @@ type Client struct {
 	SecretAssignementService *SecretAssignementService
 	ResourceService          *ResourceService
 	DomainService            *DomainService
+	EventTypeToPollService   *EventTypeToPollService
 }
 
 // NewClient :
@@ -59,6 +60,7 @@ func NewClient(bindAddress string) (client *Client) {
 	client.SecretAssignementService = &SecretAssignementService{client: client}
 	client.ResourceService = &ResourceService{client: client}
 	client.DomainService = &DomainService{client: client}
+	client.EventTypeToPollService = &EventTypeToPollService{client: client}
 
 	return
 
