@@ -8,6 +8,7 @@ package configuration
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ditrit/gandalf/verdeter"
 
@@ -400,15 +401,15 @@ func runDeleteDomain(cfg *verdeter.ConfigCmd, args []string) {
 
 func runCreateResource(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
-	logicalComponentID := args[1]
-	domainID := args[2]
-	eventTypeID := args[3]
+	logicalComponentID, err := strconv.Atoi(args[1])
+	domainID, err := strconv.Atoi(args[2])
+	resourceTypeID, err := strconv.Atoi(args[3])
 	fmt.Printf("gandalf cli create resource called with resource=%s", name)
 
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-	resource := models.Resource{Name: name, logicalComponentID: logicalComponentID, DomainID: domainID, EventTypeID: eventTypeID}
-	err := cliClient.ResourceService.Create(configurationCli.GetToken(), resource)
+	resource := models.Resource{Name: name, LogicalComponentID: uint(logicalComponentID), DomainID: uint(domainID), ResourceTypeID: uint(resourceTypeID)}
+	err = cliClient.ResourceService.Create(configurationCli.GetToken(), resource)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -423,7 +424,7 @@ func runListResources(cfg *verdeter.ConfigCmd, args []string) {
 	resources, err := cliClient.ResourceService.List(configurationCli.GetToken())
 	if err == nil {
 		for _, resource := range resources {
-			fmt.Println(resources)
+			fmt.Println(resource)
 		}
 	} else {
 		fmt.Println(err)
@@ -444,14 +445,14 @@ func runDeleteResource(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runCreateEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
-	resourceID := args[0]
-	eventTypeID := args[1]
+	resourceID, err := strconv.Atoi(args[0])
+	eventTypeID, err := strconv.Atoi(args[1])
 	fmt.Printf("gandalf cli create eventtypetopoll called with eventtypetopoll=%s", resourceID)
 
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-	eventTypeToPoll := models.EventTypeToPoll{ResourceID: resourceID, EventTypeID: eventTypeID}
-	err := cliClient.EventTypeToPollService.Create(configurationCli.GetToken(), eventTypeToPoll)
+	eventTypeToPoll := models.EventTypeToPoll{ResourceID: uint(resourceID), EventTypeID: uint(eventTypeID)}
+	err = cliClient.EventTypeToPollService.Create(configurationCli.GetToken(), eventTypeToPoll)
 	if err != nil {
 		fmt.Println(err)
 	}
