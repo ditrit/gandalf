@@ -19,6 +19,8 @@ type Controllers struct {
 	ResourceController          *controllers.ResourceController
 	DomainController            *controllers.DomainController
 	EventTypeToPollController   *controllers.EventTypeToPollController
+	ResourceTypeController      *controllers.ResourceTypeController
+	EventTypeController         *controllers.EventTypeController
 }
 
 // ReturnControllers :
@@ -37,6 +39,8 @@ func ReturnControllers(databaseConnection *database.DatabaseConnection, shoset *
 	aggregatorControllers.ResourceController = controllers.NewResourceController(databaseConnection)
 	aggregatorControllers.DomainController = controllers.NewDomainController(databaseConnection)
 	aggregatorControllers.EventTypeToPollController = controllers.NewEventTypeToPollController(databaseConnection)
+	aggregatorControllers.ResourceTypeController = controllers.NewResourceTypeController(databaseConnection)
+	aggregatorControllers.EventTypeController = controllers.NewEventTypeController(databaseConnection)
 
 	return aggregatorControllers
 }

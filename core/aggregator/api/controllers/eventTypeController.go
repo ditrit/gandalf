@@ -15,30 +15,30 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ResourceController :
-type ResourceController struct {
+// EventTypeController :
+type EventTypeController struct {
 	databaseConnection *database.DatabaseConnection
 }
 
-// NewResourceController :
-func NewResourceController(databaseConnection *database.DatabaseConnection) (resourceController *ResourceController) {
-	resourceController = new(ResourceController)
-	resourceController.databaseConnection = databaseConnection
+// NewEventTypeController :
+func NewEventTypeController(databaseConnection *database.DatabaseConnection) (eventTypeController *EventTypeController) {
+	eventTypeController = new(EventTypeController)
+	eventTypeController.databaseConnection = databaseConnection
 
 	return
 }
 
 // List :
-func (rc ResourceController) List(w http.ResponseWriter, r *http.Request) {
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+func (ec EventTypeController) List(w http.ResponseWriter, r *http.Request) {
+	database := ec.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		resources, err := dao.ListResource(database)
+		eventTypes, err := dao.ListEventType(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, resources)
+		utils.RespondWithJSON(w, http.StatusOK, eventTypes)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -46,23 +46,23 @@ func (rc ResourceController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // Create :
-func (rc ResourceController) Create(w http.ResponseWriter, r *http.Request) {
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+func (ec EventTypeController) Create(w http.ResponseWriter, r *http.Request) {
+	database := ec.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var resource models.Resource
+		var eventType models.EventType
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&resource); err != nil {
+		if err := decoder.Decode(&eventType); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateResource(database, resource); err != nil {
+		if err := dao.CreateEventType(database, eventType); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, resource)
+		utils.RespondWithJSON(w, http.StatusCreated, eventType)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -70,9 +70,9 @@ func (rc ResourceController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // Read :
-func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
+func (ec EventTypeController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+	database := ec.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -80,8 +80,8 @@ func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var resource models.Resource
-		if resource, err = dao.ReadResource(database, id); err != nil {
+		var eventType models.EventType
+		if eventType, err = dao.ReadEventType(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
 				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -91,7 +91,7 @@ func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, resource)
+		utils.RespondWithJSON(w, http.StatusOK, eventType)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -99,13 +99,13 @@ func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
 }
 
 // ReadByName :
-func (rc ResourceController) ReadByName(w http.ResponseWriter, r *http.Request) {
+func (ec EventTypeController) ReadByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
 
-	var resource models.Resource
+	var eventType models.EventType
 	var err error
-	if resource, err = dao.ReadResourceByName(rc.databaseConnection.GetTenantDatabaseClient(), name); err != nil {
+	if eventType, err = dao.ReadEventTypeByName(ec.databaseConnection.GetTenantDatabaseClient(), name); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -115,13 +115,13 @@ func (rc ResourceController) ReadByName(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, resource)
+	utils.RespondWithJSON(w, http.StatusOK, eventType)
 }
 
 // Update :
-func (rc ResourceController) Update(w http.ResponseWriter, r *http.Request) {
+func (ec EventTypeController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+	database := ec.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -129,21 +129,21 @@ func (rc ResourceController) Update(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var resource models.Resource
+		var eventType models.EventType
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&resource); err != nil {
+		if err := decoder.Decode(&eventType); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 			return
 		}
 		defer r.Body.Close()
-		resource.ID = uint(id)
+		eventType.ID = uint(id)
 
-		if err := dao.UpdateResource(database, resource); err != nil {
+		if err := dao.UpdateEventType(database, eventType); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, resource)
+		utils.RespondWithJSON(w, http.StatusOK, eventType)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -151,9 +151,9 @@ func (rc ResourceController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete :
-func (rc ResourceController) Delete(w http.ResponseWriter, r *http.Request) {
+func (ec EventTypeController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+	database := ec.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -161,7 +161,7 @@ func (rc ResourceController) Delete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := dao.DeleteResource(database, id); err != nil {
+		if err := dao.DeleteEventType(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

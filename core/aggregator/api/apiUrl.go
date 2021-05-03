@@ -6,49 +6,67 @@ type Urls struct {
 	ROOT_PATH   string
 	PATH        string
 
-	LOGIN_PATH                     string
-	CLI_PATH                       string
-	LOGICAL_COMPONENT_PATH         string
-	LOGICAL_COMPONENT_PAHT_UPLOAD  string
-	ROLE_PATH                      string
-	ROLE_PATH_LIST                 string
-	ROLE_PATH_CREATE               string
-	ROLE_PATH_READ                 string
-	ROLE_PATH_UPDATE               string
-	ROLE_PATH_DELETE               string
-	USER_PATH                      string
-	USER_PATH_LIST                 string
-	USER_PATH_CREATE               string
-	USER_PATH_READ                 string
-	USER_PATH_UPDATE               string
-	USER_PATH_DELETE               string
-	TENANT_PATH                    string
-	TENANT_PATH_LIST               string
-	TENANT_PATH_CREATE             string
-	TENANT_PATH_READ               string
-	TENANT_PATH_UPDATE             string
-	TENANT_PATH_DELETE             string
-	SECRET_PATH                    string
-	SECRET_PATH_LIST               string
-	SECRET_PATH_CREATE             string
-	RESOURCE_PATH                  string
-	RESOURCE_PATH_LIST             string
-	RESOURCE_PATH_CREATE           string
-	RESOURCE_PATH_READ             string
-	RESOURCE_PATH_UPDATE           string
-	RESOURCE_PATH_DELETE           string
-	DOMAIN_PATH                    string
-	DOMAIN_PATH_LIST               string
-	DOMAIN_PATH_CREATE             string
-	DOMAIN_PATH_READ               string
-	DOMAIN_PATH_UPDATE             string
-	DOMAIN_PATH_DELETE             string
-	EVENT_TYPE_TO_POLL_PATH        string
-	EVENT_TYPE_TO_POLL_PATH_LIST   string
-	EVENT_TYPE_TO_POLL_PATH_CREATE string
-	EVENT_TYPE_TO_POLL_PATH_READ   string
-	EVENT_TYPE_TO_POLL_PATH_UPDATE string
-	EVENT_TYPE_TO_POLL_PATH_DELETE string
+	LOGIN_PATH                          string
+	CLI_PATH                            string
+	LOGICAL_COMPONENT_PATH              string
+	LOGICAL_COMPONENT_PATH_UPLOAD       string
+	LOGICAL_COMPONENT_PATH_READ_BY_NAME string
+	ROLE_PATH                           string
+	ROLE_PATH_LIST                      string
+	ROLE_PATH_CREATE                    string
+	ROLE_PATH_READ                      string
+	ROLE_PATH_UPDATE                    string
+	ROLE_PATH_DELETE                    string
+	USER_PATH                           string
+	USER_PATH_LIST                      string
+	USER_PATH_CREATE                    string
+	USER_PATH_READ                      string
+	USER_PATH_READ_BY_NAME              string
+	USER_PATH_UPDATE                    string
+	USER_PATH_DELETE                    string
+	TENANT_PATH                         string
+	TENANT_PATH_LIST                    string
+	TENANT_PATH_CREATE                  string
+	TENANT_PATH_READ                    string
+	TENANT_PATH_UPDATE                  string
+	TENANT_PATH_DELETE                  string
+	SECRET_PATH                         string
+	SECRET_PATH_LIST                    string
+	SECRET_PATH_CREATE                  string
+	RESOURCE_PATH                       string
+	RESOURCE_PATH_LIST                  string
+	RESOURCE_PATH_CREATE                string
+	RESOURCE_PATH_READ                  string
+	RESOURCE_PATH_READ_BY_NAME          string
+	RESOURCE_PATH_UPDATE                string
+	RESOURCE_PATH_DELETE                string
+	DOMAIN_PATH                         string
+	DOMAIN_PATH_LIST                    string
+	DOMAIN_PATH_CREATE                  string
+	DOMAIN_PATH_READ                    string
+	DOMAIN_PATH_READ_BY_NAME            string
+	DOMAIN_PATH_UPDATE                  string
+	DOMAIN_PATH_DELETE                  string
+	EVENT_TYPE_TO_POLL_PATH             string
+	EVENT_TYPE_TO_POLL_PATH_LIST        string
+	EVENT_TYPE_TO_POLL_PATH_CREATE      string
+	EVENT_TYPE_TO_POLL_PATH_READ        string
+	EVENT_TYPE_TO_POLL_PATH_UPDATE      string
+	EVENT_TYPE_TO_POLL_PATH_DELETE      string
+	RESOURCE_TYPE_PATH                  string
+	RESOURCE_TYPE_PATH_LIST             string
+	RESOURCE_TYPE_PATH_CREATE           string
+	RESOURCE_TYPE_PATH_READ             string
+	RESOURCE_TYPE_PATH_READ_BY_NAME     string
+	RESOURCE_TYPE_PATH_UPDATE           string
+	RESOURCE_TYPE_PATH_DELETE           string
+	EVENT_TYPE_PATH                     string
+	EVENT_TYPE_PATH_LIST                string
+	EVENT_TYPE_PATH_CREATE              string
+	EVENT_TYPE_PATH_READ                string
+	EVENT_TYPE_PATH_READ_BY_NAME        string
+	EVENT_TYPE_PATH_UPDATE              string
+	EVENT_TYPE_PATH_DELETE              string
 }
 
 // ReturnURLS :
@@ -74,11 +92,13 @@ func ReturnURLS() *Urls {
 	apiurls.USER_PATH_LIST = apiurls.USER_PATH + "/"
 	apiurls.USER_PATH_CREATE = apiurls.USER_PATH + "/"
 	apiurls.USER_PATH_READ = apiurls.USER_PATH + "/{id:[0-9]+}"
+	apiurls.USER_PATH_READ_BY_NAME = apiurls.USER_PATH + "/{name}"
 	apiurls.USER_PATH_UPDATE = apiurls.USER_PATH + "/{id:[0-9]+}"
 	apiurls.USER_PATH_DELETE = apiurls.USER_PATH + "/{id:[0-9]+}"
 
 	apiurls.LOGICAL_COMPONENT_PATH = apiurls.PATH + "/logicalcomponent"
-	apiurls.LOGICAL_COMPONENT_PAHT_UPLOAD = apiurls.LOGICAL_COMPONENT_PATH + "/upload/{tenant}/{type}"
+	apiurls.LOGICAL_COMPONENT_PATH_UPLOAD = apiurls.LOGICAL_COMPONENT_PATH + "/upload/{tenant}/{type}"
+	apiurls.LOGICAL_COMPONENT_PATH_READ_BY_NAME = apiurls.LOGICAL_COMPONENT_PATH + "/{name}"
 
 	apiurls.SECRET_PATH = apiurls.PATH + "/secret"
 	apiurls.SECRET_PATH_LIST = apiurls.SECRET_PATH + "/"
@@ -95,6 +115,7 @@ func ReturnURLS() *Urls {
 	apiurls.RESOURCE_PATH_LIST = apiurls.RESOURCE_PATH + "/"
 	apiurls.RESOURCE_PATH_CREATE = apiurls.RESOURCE_PATH + "/"
 	apiurls.RESOURCE_PATH_READ = apiurls.RESOURCE_PATH + "/{id:[0-9]+}"
+	apiurls.RESOURCE_PATH_READ_BY_NAME = apiurls.RESOURCE_PATH + "/{name}"
 	apiurls.RESOURCE_PATH_UPDATE = apiurls.RESOURCE_PATH + "/{id:[0-9]+}"
 	apiurls.RESOURCE_PATH_DELETE = apiurls.RESOURCE_PATH + "/{id:[0-9]+}"
 
@@ -102,6 +123,7 @@ func ReturnURLS() *Urls {
 	apiurls.DOMAIN_PATH_LIST = apiurls.DOMAIN_PATH + "/"
 	apiurls.DOMAIN_PATH_CREATE = apiurls.DOMAIN_PATH + "/{name}"
 	apiurls.DOMAIN_PATH_READ = apiurls.DOMAIN_PATH + "/{id:[0-9]+}"
+	apiurls.DOMAIN_PATH_READ_BY_NAME = apiurls.DOMAIN_PATH + "/{name}"
 	apiurls.DOMAIN_PATH_UPDATE = apiurls.DOMAIN_PATH + "/{id:[0-9]+}"
 	apiurls.DOMAIN_PATH_DELETE = apiurls.DOMAIN_PATH + "/{id:[0-9]+}"
 
@@ -111,6 +133,23 @@ func ReturnURLS() *Urls {
 	apiurls.EVENT_TYPE_TO_POLL_PATH_READ = apiurls.EVENT_TYPE_TO_POLL_PATH + "/{id:[0-9]+}"
 	apiurls.EVENT_TYPE_TO_POLL_PATH_UPDATE = apiurls.EVENT_TYPE_TO_POLL_PATH + "/{id:[0-9]+}"
 	apiurls.EVENT_TYPE_TO_POLL_PATH_DELETE = apiurls.EVENT_TYPE_TO_POLL_PATH + "/{id:[0-9]+}"
+
+	apiurls.RESOURCE_TYPE_PATH = apiurls.PATH + "/resourcetypes"
+	apiurls.RESOURCE_TYPE_PATH_LIST = apiurls.RESOURCE_TYPE_PATH + "/"
+	apiurls.RESOURCE_TYPE_PATH_CREATE = apiurls.RESOURCE_TYPE_PATH + "/{name}"
+	apiurls.RESOURCE_TYPE_PATH_READ = apiurls.RESOURCE_TYPE_PATH + "/{id:[0-9]+}"
+	apiurls.RESOURCE_TYPE_PATH_READ_BY_NAME = apiurls.RESOURCE_TYPE_PATH + "/{name}"
+	apiurls.RESOURCE_TYPE_PATH_UPDATE = apiurls.RESOURCE_TYPE_PATH + "/{id:[0-9]+}"
+	apiurls.RESOURCE_TYPE_PATH_DELETE = apiurls.RESOURCE_TYPE_PATH + "/{id:[0-9]+}"
+
+	apiurls.EVENT_TYPE_PATH = apiurls.PATH + "/eventtypes"
+	apiurls.EVENT_TYPE_PATH_LIST = apiurls.EVENT_TYPE_PATH + "/"
+	apiurls.EVENT_TYPE_PATH_CREATE = apiurls.EVENT_TYPE_PATH + "/{name}"
+	apiurls.EVENT_TYPE_PATH_READ = apiurls.EVENT_TYPE_PATH + "/{id:[0-9]+}"
+	apiurls.EVENT_TYPE_PATH_READ_BY_NAME = apiurls.EVENT_TYPE_PATH + "/{name}"
+	apiurls.EVENT_TYPE_PATH_UPDATE = apiurls.EVENT_TYPE_PATH + "/{id:[0-9]+}"
+	apiurls.EVENT_TYPE_PATH_DELETE = apiurls.EVENT_TYPE_PATH + "/{id:[0-9]+}"
+
 	/*
 		apiurls.CONNECTOR_PATH = apiurls.PATH + "/connectors"
 		apiurls.CONNECTOR_PATH_LIST = apiurls.CONNECTOR_PATH + "/"

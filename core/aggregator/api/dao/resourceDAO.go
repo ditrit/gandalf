@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 
@@ -31,6 +32,14 @@ func CreateResource(database *gorm.DB, resource models.Resource) (err error) {
 func ReadResource(database *gorm.DB, id int) (resource models.Resource, err error) {
 	err = database.First(&resource, id).Error
 
+	return
+}
+
+func ReadResourceByName(database *gorm.DB, name string) (resource models.Resource, err error) {
+	fmt.Println("DAO")
+	err = database.Where("name = ?", name).First(&resource).Error
+	fmt.Println(err)
+	fmt.Println(resource)
 	return
 }
 

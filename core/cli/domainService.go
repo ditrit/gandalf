@@ -41,6 +41,17 @@ func (as *DomainService) Read(token string, id int) (*models.Domain, error) {
 	return &domain, err
 }
 
+// Read :
+func (as *DomainService) ReadByName(token string, name string) (*models.Domain, error) {
+	req, err := as.client.newRequest("GET", "/auth/gandalf/domains/"+name, token, nil)
+	if err != nil {
+		return nil, err
+	}
+	var domain models.Domain
+	err = as.client.do(req, &domain)
+	return &domain, err
+}
+
 // Update :
 func (as *DomainService) Update(token string, id int, domain models.Domain) error {
 	req, err := as.client.newRequest("PUT", "/auth/gandalf/domains/"+string(id), token, domain)

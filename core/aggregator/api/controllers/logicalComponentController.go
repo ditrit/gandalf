@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 
+	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/ditrit/gandalf/core/models"
 
@@ -29,6 +31,26 @@ func NewLogicalComponentController(databaseConnection *database.DatabaseConnecti
 	logicalComponentController.databaseConnection = databaseConnection
 
 	return
+}
+
+// ReadByName :
+func (lc LogicalComponentController) ReadByName(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["name"]
+
+	var logicalComponent models.LogicalComponent
+	var err error
+	if logicalComponent, err = dao.ReadLogicalComponentByName(lc.databaseConnection.GetTenantDatabaseClient(), name); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+		default:
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, logicalComponent)
 }
 
 func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Request) {

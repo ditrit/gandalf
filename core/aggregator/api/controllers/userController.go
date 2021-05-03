@@ -97,6 +97,26 @@ func (uc UserController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ReadByName :
+func (uc UserController) ReadByName(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	name := vars["name"]
+
+	var user models.User
+	var err error
+	if user, err = dao.ReadUserByName(uc.databaseConnection.GetTenantDatabaseClient(), name); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+		default:
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, user)
+}
+
 // Update :
 func (uc UserController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)

@@ -15,30 +15,30 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// ResourceController :
-type ResourceController struct {
+// ResourceTypeController :
+type ResourceTypeController struct {
 	databaseConnection *database.DatabaseConnection
 }
 
-// NewResourceController :
-func NewResourceController(databaseConnection *database.DatabaseConnection) (resourceController *ResourceController) {
-	resourceController = new(ResourceController)
-	resourceController.databaseConnection = databaseConnection
+// NewResourceTypeController :
+func NewResourceTypeController(databaseConnection *database.DatabaseConnection) (resourceTypeController *ResourceTypeController) {
+	resourceTypeController = new(ResourceTypeController)
+	resourceTypeController.databaseConnection = databaseConnection
 
 	return
 }
 
 // List :
-func (rc ResourceController) List(w http.ResponseWriter, r *http.Request) {
+func (rc ResourceTypeController) List(w http.ResponseWriter, r *http.Request) {
 	database := rc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		resources, err := dao.ListResource(database)
+		resourceTypes, err := dao.ListResourceType(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, resources)
+		utils.RespondWithJSON(w, http.StatusOK, resourceTypes)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -46,23 +46,23 @@ func (rc ResourceController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // Create :
-func (rc ResourceController) Create(w http.ResponseWriter, r *http.Request) {
+func (rc ResourceTypeController) Create(w http.ResponseWriter, r *http.Request) {
 	database := rc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var resource models.Resource
+		var resourceType models.ResourceType
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&resource); err != nil {
+		if err := decoder.Decode(&resourceType); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateResource(database, resource); err != nil {
+		if err := dao.CreateResourceType(database, resourceType); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, resource)
+		utils.RespondWithJSON(w, http.StatusCreated, resourceType)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -70,7 +70,7 @@ func (rc ResourceController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // Read :
-func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
+func (rc ResourceTypeController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := rc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
@@ -80,8 +80,8 @@ func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var resource models.Resource
-		if resource, err = dao.ReadResource(database, id); err != nil {
+		var resourceType models.ResourceType
+		if resourceType, err = dao.ReadResourceType(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
 				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -91,7 +91,7 @@ func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, resource)
+		utils.RespondWithJSON(w, http.StatusOK, resourceType)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -99,13 +99,13 @@ func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
 }
 
 // ReadByName :
-func (rc ResourceController) ReadByName(w http.ResponseWriter, r *http.Request) {
+func (rc ResourceTypeController) ReadByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	name := vars["name"]
 
-	var resource models.Resource
+	var resourceType models.ResourceType
 	var err error
-	if resource, err = dao.ReadResourceByName(rc.databaseConnection.GetTenantDatabaseClient(), name); err != nil {
+	if resourceType, err = dao.ReadResourceTypeByName(rc.databaseConnection.GetTenantDatabaseClient(), name); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
@@ -115,11 +115,11 @@ func (rc ResourceController) ReadByName(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	utils.RespondWithJSON(w, http.StatusOK, resource)
+	utils.RespondWithJSON(w, http.StatusOK, resourceType)
 }
 
 // Update :
-func (rc ResourceController) Update(w http.ResponseWriter, r *http.Request) {
+func (rc ResourceTypeController) Update(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := rc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
@@ -129,21 +129,21 @@ func (rc ResourceController) Update(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var resource models.Resource
+		var resourceType models.ResourceType
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&resource); err != nil {
+		if err := decoder.Decode(&resourceType); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 			return
 		}
 		defer r.Body.Close()
-		resource.ID = uint(id)
+		resourceType.ID = uint(id)
 
-		if err := dao.UpdateResource(database, resource); err != nil {
+		if err := dao.UpdateResourceType(database, resourceType); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, resource)
+		utils.RespondWithJSON(w, http.StatusOK, resourceType)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -151,7 +151,7 @@ func (rc ResourceController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete :
-func (rc ResourceController) Delete(w http.ResponseWriter, r *http.Request) {
+func (rc ResourceTypeController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := rc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
@@ -161,7 +161,7 @@ func (rc ResourceController) Delete(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := dao.DeleteResource(database, id); err != nil {
+		if err := dao.DeleteResourceType(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

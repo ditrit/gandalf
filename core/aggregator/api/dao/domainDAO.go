@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 
@@ -10,11 +11,12 @@ import (
 )
 
 func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
-	var root models.Domain
-	err = database.Where("name = ?", "root").First(&root).Error
-	if err == nil {
-		domains, err = models.GetDomainDescendants(database, root.ID)
-	}
+	/* 	var root models.Domain
+	   	err = database.Where("name = ?", "root").First(&root).Error
+	   	if err == nil {
+	   		domains, err = models.GetDomainDescendants(database, root.ID)
+	   	} */
+	err = database.Find(&domains).Error
 
 	return
 }
@@ -43,6 +45,14 @@ func CreateDomain(database *gorm.DB, domain models.Domain, parentDomainName stri
 func ReadDomain(database *gorm.DB, id int) (domain models.Domain, err error) {
 	err = database.First(&domain, id).Error
 
+	return
+}
+
+func ReadDomainByName(database *gorm.DB, name string) (domain models.Domain, err error) {
+	fmt.Println("DAO")
+	err = database.Where("name = ?", name).First(&domain).Error
+	fmt.Println(err)
+	fmt.Println(domain)
 	return
 }
 

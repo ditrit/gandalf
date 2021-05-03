@@ -29,8 +29,8 @@ func NewDomainController(databaseConnection *database.DatabaseConnection) (domai
 }
 
 // List :
-func (rc DomainController) List(w http.ResponseWriter, r *http.Request) {
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+func (dc DomainController) List(w http.ResponseWriter, r *http.Request) {
+	database := dc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		domains, err := dao.ListDomain(database)
 		if err != nil {
@@ -46,9 +46,9 @@ func (rc DomainController) List(w http.ResponseWriter, r *http.Request) {
 }
 
 // Create :
-func (rc DomainController) Create(w http.ResponseWriter, r *http.Request) {
+func (dc DomainController) Create(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+	database := dc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		parentDomainName := vars["name"]
 		var domain models.Domain
@@ -72,9 +72,9 @@ func (rc DomainController) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 // Read :
-func (rc DomainController) Read(w http.ResponseWriter, r *http.Request) {
+func (dc DomainController) Read(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+	database := dc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -100,10 +100,30 @@ func (rc DomainController) Read(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Update :
-func (rc DomainController) Update(w http.ResponseWriter, r *http.Request) {
+// ReadByName :
+func (dc DomainController) ReadByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+	name := vars["name"]
+
+	var domain models.Domain
+	var err error
+	if domain, err = dao.ReadDomainByName(dc.databaseConnection.GetTenantDatabaseClient(), name); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+		default:
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, domain)
+}
+
+// Update :
+func (dc DomainController) Update(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	database := dc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
@@ -133,9 +153,9 @@ func (rc DomainController) Update(w http.ResponseWriter, r *http.Request) {
 }
 
 // Delete :
-func (rc DomainController) Delete(w http.ResponseWriter, r *http.Request) {
+func (dc DomainController) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	database := rc.databaseConnection.GetTenantDatabaseClient()
+	database := dc.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {

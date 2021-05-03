@@ -62,7 +62,7 @@ func ReadAdminByName(database *gorm.DB, name string) (user models.User, err erro
 
 func ReadUserByName(database *gorm.DB, name string) (user models.User, err error) {
 	fmt.Println("DAO")
-	err = database.Where("Name = ?", name).First(&user).Error
+	err = database.Where("name = ?", name).First(&user).Error
 	fmt.Println(err)
 	fmt.Println(user)
 	return
@@ -70,7 +70,7 @@ func ReadUserByName(database *gorm.DB, name string) (user models.User, err error
 
 func ReadUserByEmail(database *gorm.DB, email string) (user models.User, err error) {
 	fmt.Println("DAO")
-	err = database.Where("Email = ?", email).First(&user).Error
+	err = database.Where("email = ?", email).First(&user).Error
 	fmt.Println(err)
 	fmt.Println(user)
 	return

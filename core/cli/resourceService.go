@@ -41,6 +41,17 @@ func (as *ResourceService) Read(token string, id int) (*models.Resource, error) 
 	return &resource, err
 }
 
+// Read :
+func (as *ResourceService) ReadByName(token string, name string) (*models.Resource, error) {
+	req, err := as.client.newRequest("GET", "/auth/gandalf/resources/"+name, token, nil)
+	if err != nil {
+		return nil, err
+	}
+	var resource models.Resource
+	err = as.client.do(req, &resource)
+	return &resource, err
+}
+
 // Update :
 func (as *ResourceService) Update(token string, id int, resource models.Resource) error {
 	req, err := as.client.newRequest("PUT", "/auth/gandalf/resources/"+string(id), token, resource)
