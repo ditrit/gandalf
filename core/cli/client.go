@@ -19,12 +19,9 @@ type Client struct {
 	HTTPClient               *http.Client
 	AuthenticationService    *AuthenticationService
 	CliService               *CliService
-	ClusterService           *ClusterService
 	RoleService              *RoleService
 	TenantService            *TenantService
 	UserService              *UserService
-	AggregatorService        *AggregatorService
-	ConnectorService         *ConnectorService
 	SecretAssignementService *SecretAssignementService
 	ResourceService          *ResourceService
 	DomainService            *DomainService
@@ -53,12 +50,9 @@ func NewClient(bindAddress string) (client *Client) {
 
 	client.AuthenticationService = &AuthenticationService{client: client}
 	client.CliService = &CliService{client: client}
-	client.ClusterService = &ClusterService{client: client}
 	client.RoleService = &RoleService{client: client}
 	client.TenantService = &TenantService{client: client}
 	client.UserService = &UserService{client: client}
-	client.AggregatorService = &AggregatorService{client: client}
-	client.ConnectorService = &ConnectorService{client: client}
 	client.SecretAssignementService = &SecretAssignementService{client: client}
 	client.ResourceService = &ResourceService{client: client}
 	client.DomainService = &DomainService{client: client}
