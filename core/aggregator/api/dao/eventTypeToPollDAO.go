@@ -10,7 +10,7 @@ import (
 )
 
 func ListEventTypeToPoll(database *gorm.DB) (eventTypeToPolls []models.EventTypeToPoll, err error) {
-	err = database.Find(&eventTypeToPolls).Error
+	err = database.Preload("Resource").Preload("EventType").Find(&eventTypeToPolls).Error
 
 	return
 }

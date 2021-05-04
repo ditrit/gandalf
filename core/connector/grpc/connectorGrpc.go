@@ -13,7 +13,6 @@ import (
 
 	"github.com/ditrit/gandalf/core/connector/utils"
 
-	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	pb "github.com/ditrit/gandalf/libraries/gogrpc"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -86,15 +85,15 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 	   		mapVersionConnectorCommands[int8(in.GetMajor())] = append(mapVersionConnectorCommands[int8(in.GetMajor())], in.GetCommands()...)
 	   	} */
 
-	mapPivots := r.Shoset.Context["mapPivots"].(map[string][]*models.Pivot)
-	mapProductConnector := r.Shoset.Context["mapProductConnector"].(map[string][]*models.ProductConnector)
+	Pivots := r.Shoset.Context["Pivots"].([]*models.Pivot)
+	ProductConnector := r.Shoset.Context["ProductConnectors"].([]*models.ProductConnector)
 
-	if mapPivots != nil && mapProductConnector != nil {
-		configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-		connectorType := configurationConnector.GetConnectorType()
-		product := configurationConnector.GetProduct()
-		pivot := utils.GetPivotByVersion(int8(in.GetMajor()), int8(in.GetMinor()), mapPivots[connectorType])
-		productConnector := utils.GetConnectorProductByVersion(int8(in.GetMajor()), int8(in.GetMinor()), mapProductConnector[product])
+	if Pivots != nil && ProductConnector != nil {
+		//configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+		//connectorType := configurationConnector.GetConnectorType()
+		//product := configurationConnector.GetProduct()
+		pivot := utils.GetPivotByVersion(int8(in.GetMajor()), int8(in.GetMinor()), Pivots)
+		productConnector := utils.GetConnectorProductByVersion(int8(in.GetMajor()), int8(in.GetMinor()), ProductConnector)
 		if pivot != nil && productConnector != nil {
 			var configCommands []string
 			for _, pivotCommand := range pivot.CommandTypes {
@@ -121,7 +120,7 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 			validation = result
 
 		} else {
-			log.Printf("Can't get connector configuration with connector type %s, and version %s", connectorType, int8(in.GetMajor()))
+			log.Printf("Can't get connector configuration version %s", int8(in.GetMajor()))
 		}
 
 	} else {

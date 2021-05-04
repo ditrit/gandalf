@@ -382,13 +382,19 @@ func (w WorkerAdmin) getWorker(version models.Version) (err error) {
 //startWorker()
 func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 
-	pivot := w.chaussette.Context["pivotWorker"].(*models.Pivot)
-	productConnector := w.chaussette.Context["productConnector"].(*models.ProductConnector)
+	//Pivots := w.chaussette.Context["Pivots"].([]*models.Pivot)
+	//ProductConnector := w.chaussette.Context["ProductConnectors"].([]*models.ProductConnector)
+
+	//pivot := w.chaussette.Context["pivotWorker"].(*models.Pivot)
+	//productConnector := w.chaussette.Context["productConnector"].(*models.ProductConnector)
 	logicalComponent := w.chaussette.Context["logicalConfiguration"].(*models.LogicalComponent)
 	fmt.Println("logicalComponent")
 	fmt.Println(logicalComponent)
-	if pivot != nil && productConnector != nil && logicalComponent != nil {
+	//if pivot != nil && productConnector != nil && logicalComponent != nil {
+	if logicalComponent != nil {
 
+		//pivot := utils.GetPivotByVersion(int8(version.GetMajor()), int8(version.GetMinor()), Pivots)
+		//productConnector := utils.GetConnectorProductByVersion(int8(version.GetMajor()), int8(version.GetMinor()), ProductConnector)
 		//var listConfigurationKeys []models.Key
 
 		//listConfigurationKeys = append(listConfigurationKeys, pivot.Keys...)
@@ -404,6 +410,8 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 		for _, resource := range logicalComponent.Resources {
 			listEventTypeToPolls = append(listEventTypeToPolls, resource.EventTypeToPolls...)
 		}
+		fmt.Println("eventTypeToPolls")
+		fmt.Println(listEventTypeToPolls)
 
 		var stdinargs string
 		stdinargs = w.getConfigurationKeys(logicalComponent, listEventTypeToPolls)
@@ -452,9 +460,12 @@ func (w WorkerAdmin) getConfigurationKeys(logicalComponent *models.LogicalCompon
 		}
 
 	}
-	//jsonData, _ := json.Marshal(listEventTypeToPolls)
-
-	stindargs = stindargs /*+ string(jsonData)*/ + "}"
+	if len(listEventTypeToPolls) > 0 {
+		jsonData, _ := json.Marshal(listEventTypeToPolls)
+		stindargs = stindargs + ", \"EventTypeToPolls\":" + string(jsonData) + "}"
+	} else {
+		stindargs = stindargs + "}"
+	}
 
 	return
 }

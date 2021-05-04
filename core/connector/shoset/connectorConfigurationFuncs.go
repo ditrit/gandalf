@@ -78,6 +78,10 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 				ch.Context["pivot"] = pivot
 			case "worker":
 				ch.Context["pivotWorker"] = pivot
+				pivots := ch.Context["Pivots"].([]*models.Pivot)
+				pivots = append(pivots, pivot)
+				ch.Context["Pivots"] = pivots
+
 			}
 		}
 	} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION_REPLY" {
@@ -85,6 +89,9 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &productConnector)
 		if err == nil {
 			ch.Context["productConnector"] = productConnector
+			productConnectors := ch.Context["ProductConnectors"].([]*models.ProductConnector)
+			productConnectors = append(productConnectors, productConnector)
+			ch.Context["ProductConnectors"] = productConnectors
 		}
 	}
 
@@ -171,6 +178,7 @@ func SendWorkerPivotConfiguration(shoset *net.Shoset, version models.Version) (e
 
 				if shoset.Context["pivotWorker"] != nil {
 					notSend = false
+					shoset.Context["pivotWorker"] = nil
 					break
 				}
 			}
@@ -266,6 +274,7 @@ func SendProductConnectorConfiguration(shoset *net.Shoset, version models.Versio
 
 				if shoset.Context["productConnector"] != nil {
 					notSend = false
+					shoset.Context["productConnector"] = nil
 					break
 				}
 			}
