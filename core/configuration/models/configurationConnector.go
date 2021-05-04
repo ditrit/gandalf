@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"strconv"
 	"strings"
 
@@ -207,47 +206,4 @@ func (cc ConfigurationConnector) DatabaseToConfiguration(configurationLogicalCon
 	cc.SetAutoUpdateTime(configurationLogicalConnector.AutoUpdateTime)
 	cc.SetMaxTimeout(configurationLogicalConnector.MaxTimeout)
 	cc.SetVersionsString(configurationLogicalConnector.Versions)
-}
-
-func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfigurationKeys []models.Key) bool {
-	for _, configurationKey := range listConfigurationKeys {
-		switch configurationKey.Type {
-		case "string":
-			cc.cfg.LKey(configurationKey.Name, verdeter.IsStr, "", "")
-		case "int":
-			cc.cfg.LKey(configurationKey.Name, verdeter.IsInt, "", "")
-		case "bool":
-			cc.cfg.LKey(configurationKey.Name, verdeter.IsBool, "", "")
-		}
-		cc.cfg.SetDefault(configurationKey.Name, configurationKey.DefaultValue)
-		if configurationKey.Mandatory {
-			cc.cfg.SetRequired(configurationKey.Name)
-		}
-	}
-	return cc.cfg.ValidOK()
-}
-
-func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []models.Key, listEventTypeToPolls []models.EventTypeToPoll) (stindargs string) {
-	var value string
-	for i, configurationKey := range listConfigurationKeys {
-		switch configurationKey.Type {
-		case "string":
-			value = viper.GetString(configurationKey.Name)
-		case "int":
-			value = string(viper.GetInt(configurationKey.Name))
-		case "bool":
-			value = strconv.FormatBool(viper.GetBool(configurationKey.Name))
-		}
-		if i == 0 {
-			stindargs = "{\"" + configurationKey.Name + "\":" + "\"" + value + "\""
-		} else {
-			stindargs = stindargs + ", \"" + configurationKey.Name + "\":" + "\"" + value + "\""
-		}
-
-	}
-	jsonData, _ := json.Marshal(listEventTypeToPolls)
-
-	stindargs = stindargs + string(jsonData) + "}"
-
-	return
 }
