@@ -105,7 +105,7 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 	return
 } */
 func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponent models.LogicalComponent) {
-	client.Where("logical_name = ?", logicalName).Preload("KeyValues.Key").Preload("Resources.EventTypeToPolls").First(&logicalComponent)
+	client.Where("logical_name = ?", logicalName).Preload("KeyValues.Key").Preload("Resources.EventTypeToPolls.Resource").Preload("Resources.EventTypeToPolls.EventType").First(&logicalComponent)
 	fmt.Println("logicalComponent")
 	fmt.Println(logicalComponent)
 	return

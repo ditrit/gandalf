@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"time"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/connector/utils"
 
 	pb "github.com/ditrit/gandalf/libraries/gogrpc"
@@ -153,7 +154,9 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	cmd := pb.CommandFromGrpc(in)
 	//connectorType := r.Shoset.Context["connectorType"].(string)
 
-	cmd.Tenant = r.Shoset.Context["tenant"].(string)
+	configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+
+	cmd.Tenant = configurationConnector.GetTenant()
 	shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
 
 	if len(shosets) != 0 {
@@ -216,7 +219,12 @@ func (r ConnectorGrpc) WaitCommandMessage(ctx context.Context, in *pb.CommandMes
 func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage) (empty *pb.Empty, err error) {
 	log.Println("Handle send event")
 	evt := pb.EventFromGrpc(in)
-	evt.Tenant = r.Shoset.Context["tenant"].(string)
+
+	fmt.Println("Handle send event")
+	fmt.Println(evt)
+
+	configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	evt.Tenant = configurationConnector.GetTenant()
 	thisOne := r.Shoset.GetBindAddr()
 
 	if evt.GetReferenceUUID() == "" {

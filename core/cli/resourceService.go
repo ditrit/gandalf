@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"fmt"
+
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -44,11 +46,15 @@ func (as *ResourceService) Read(token string, id int) (*models.Resource, error) 
 // Read :
 func (as *ResourceService) ReadByName(token string, name string) (*models.Resource, error) {
 	req, err := as.client.newRequest("GET", "/auth/gandalf/resources/"+name, token, nil)
+	fmt.Println("err service")
+	fmt.Println(err)
 	if err != nil {
 		return nil, err
 	}
 	var resource models.Resource
 	err = as.client.do(req, &resource)
+	fmt.Println("err service 2")
+	fmt.Println(err)
 	return &resource, err
 }
 

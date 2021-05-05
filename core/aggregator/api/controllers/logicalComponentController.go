@@ -101,13 +101,15 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 
 		} else if typeComponent == "connector" {
 			version := models.Version{Major: int8(logicalComponent.ProductConnector.Major), Minor: int8(logicalComponent.ProductConnector.Minor)}
-
+			fmt.Println("GET PIVOT")
 			pivot, err := lc.GetPivot(database, lc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, logicalComponent.ProductConnector.Name, version)
 			if err == nil {
 				var productConnector models.ProductConnector
+				fmt.Println("GET PRODUCT CONNECTOR")
 				productConnector, err = lc.GetProductConnector(database, lc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, logicalComponent.ProductConnector.Name, logicalComponent.ProductConnector.Product.Name, version, pivot)
 				if err == nil {
 					//TODO ADD VALIDATION
+					fmt.Println("SAVE")
 					lc.SaveConnectorLogicalComponent(database, logicalComponent, productConnector)
 
 				} else {

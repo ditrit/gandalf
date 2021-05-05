@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/google/go-github/v33/github"
@@ -80,6 +81,8 @@ type GetLastCommitsRepositoryPayload struct {
 
 func GetLastCommitsRepository(client *github.Client, owner, repo string) *github.RepositoryCommit {
 	commits := ListCommitsRepository(client, owner, repo)
+	fmt.Println("commits")
+	fmt.Println(commits)
 	var lastCommit *github.RepositoryCommit
 	for _, commit := range commits {
 		if lastCommit == nil {

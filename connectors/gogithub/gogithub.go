@@ -39,12 +39,18 @@ func main() {
 
 	var inputPayload InputPayload
 	err := json.Unmarshal([]byte(input.Text()), &inputPayload)
-
+	fmt.Println("err")
+	fmt.Println(err)
+	fmt.Println("InputPayload")
+	fmt.Println(inputPayload)
+	fmt.Println(inputPayload.EventTypeToPolls)
 	if err == nil {
 		if inputPayload.Token != "" {
+			fmt.Println("Oauth2Token")
 			clientGithub := client.Oauth2Authentification(inputPayload.Token)
 			worker.Context["client"] = clientGithub
 		} else if inputPayload.Username != "" && inputPayload.Password != "" {
+			fmt.Println("BasicAuthentification")
 			clientGithub := client.BasicAuthentification(inputPayload.Username, inputPayload.Password)
 			worker.Context["client"] = clientGithub
 		}

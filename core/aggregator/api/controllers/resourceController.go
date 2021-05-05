@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -100,6 +101,7 @@ func (rc ResourceController) Read(w http.ResponseWriter, r *http.Request) {
 
 // ReadByName :
 func (rc ResourceController) ReadByName(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("READ_BY_NAME")
 	vars := mux.Vars(r)
 	name := vars["name"]
 

@@ -470,16 +470,18 @@ func runDeleteResource(cfg *verdeter.ConfigCmd, args []string) {
 func runCreateEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
 	resourceName := args[0]
 	eventTypeName := args[1]
-	fmt.Printf("gandalf cli create eventtypetopoll called with resource=%s and eventtype=%s", resourceName, eventTypeName)
+	fmt.Printf("gandalf cli create eventtypetopoll called with resource=%s and eventtype=%s \n", resourceName, eventTypeName)
 
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 	resource, err := cliClient.ResourceService.ReadByName(configurationCli.GetToken(), resourceName)
 	fmt.Println("cli resource")
 	fmt.Println(resource)
+	fmt.Println(err)
 	eventType, err := cliClient.EventTypeService.ReadByName(configurationCli.GetToken(), eventTypeName)
 	fmt.Println("cli eventType")
 	fmt.Println(eventType)
+	fmt.Println(err)
 
 	if err == nil {
 		eventTypeToPoll := models.EventTypeToPoll{Resource: *resource, EventType: *eventType}
