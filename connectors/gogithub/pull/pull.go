@@ -8,13 +8,13 @@ import (
 )
 
 type ListPullRequestPayload struct {
-	Owner string
+	Owner      string
 	Repository string
 }
 
 func ListPullRequest(client *github.Client, owner, repo string) []*github.PullRequest {
 	ctx := context.Background()
-	pulls, _, err := client.Pulls.List(ctx, owner, repo, nil)
+	pulls, _, err := client.PullRequests.List(ctx, owner, repo, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -23,18 +23,19 @@ func ListPullRequest(client *github.Client, owner, repo string) []*github.PullRe
 }
 
 type GetLastPullRequestPayload struct {
-	Owner string
+	Owner      string
 	Repository string
 }
 
 func GetLastPullRequest(client *github.Client, owner, repo string) *github.PullRequest {
 	pulls := ListPullRequest(client, owner, repo)
 	var lastPull *github.PullRequest
-	for pull := range pulls {
+	for _, pull := range pulls {
 		if lastPull == nil {
-			lastPull == pull
+			lastPull = pull
 		} else {
-			if pull.MergedAt > lastPull.MergedAt {
+			//if pull.MergedAt > lastPull.MergedAt {
+			if pull.MergedAt.After(*lastPull.MergedAt) {
 				lastPull = pull
 			}
 		}

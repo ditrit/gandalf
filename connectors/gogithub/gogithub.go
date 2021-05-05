@@ -4,15 +4,17 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"gandalf/connectors/gogithub/client"
-	"gandalf/connectors/gogithub/poll"
-	"gandalf/connectors/gogithub/repository"
-	"gandalf/libraries/goclient"
+
+	"github.com/ditrit/gandalf/connectors/gogithub/client"
+	"github.com/ditrit/gandalf/connectors/gogithub/poll"
+	"github.com/ditrit/gandalf/connectors/gogithub/repository"
+	"github.com/ditrit/gandalf/libraries/goclient"
 
 	"github.com/ditrit/gandalf/core/models"
 
 	"os"
-	"shoset/msg"
+
+	"github.com/ditrit/shoset/msg"
 
 	"github.com/google/go-github/v33/github"
 
