@@ -77,6 +77,8 @@ func (c *Client) newRequest(method, path, token string, body interface{}) (*http
 	}
 	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
+		fmt.Println("error req")
+		fmt.Println(err)
 		return nil, err
 	}
 	if body != nil {
@@ -94,6 +96,8 @@ func (c *Client) newRequest(method, path, token string, body interface{}) (*http
 }
 
 func (c *Client) do(req *http.Request, v interface{}) error {
+	fmt.Println("req")
+	fmt.Println(req)
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return err

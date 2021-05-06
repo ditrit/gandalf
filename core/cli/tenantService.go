@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -38,7 +40,7 @@ func (as *TenantService) Create(token string, tenant models.Tenant) (string, str
 
 // Read :
 func (as *TenantService) Read(token string, id int) (*models.Tenant, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/tenants/"+string(id), token, nil)
+	req, err := as.client.newRequest("GET", "/auth/gandalf/tenants/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +51,7 @@ func (as *TenantService) Read(token string, id int) (*models.Tenant, error) {
 
 // Update :
 func (as *TenantService) Update(token string, id int, tenant models.Tenant) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/tenants/"+string(id), token, tenant)
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/tenants/"+strconv.Itoa(id), token, tenant)
 	if err != nil {
 		return err
 	}
@@ -59,7 +61,7 @@ func (as *TenantService) Update(token string, id int, tenant models.Tenant) erro
 
 // Delete :
 func (as *TenantService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/tenants/"+string(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/auth/gandalf/tenants/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}

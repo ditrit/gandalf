@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -43,7 +45,7 @@ func (as *EventTypeToPollService) DeclareMember(token string) (*models.EventType
 
 // Read :
 func (as *EventTypeToPollService) Read(token string, id int) (*models.EventTypeToPoll, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/eventtypetopolls/"+string(id), token, nil)
+	req, err := as.client.newRequest("GET", "/auth/gandalf/eventtypetopolls/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +56,7 @@ func (as *EventTypeToPollService) Read(token string, id int) (*models.EventTypeT
 
 // Update :
 func (as *EventTypeToPollService) Update(token string, id int, eventTypeToPoll models.EventTypeToPoll) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/eventtypetopolls/"+string(id), token, eventTypeToPoll)
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/eventtypetopolls/"+strconv.Itoa(id), token, eventTypeToPoll)
 	if err != nil {
 		return err
 	}
@@ -64,7 +66,7 @@ func (as *EventTypeToPollService) Update(token string, id int, eventTypeToPoll m
 
 // Delete :
 func (as *EventTypeToPollService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/eventtypetopolls/"+string(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/auth/gandalf/eventtypetopolls/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}

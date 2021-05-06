@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -32,7 +34,7 @@ func (as *EventTypeService) Create(token string, resource models.EventType) erro
 
 // Read :
 func (as *EventTypeService) Read(token string, id int) (*models.EventType, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/eventtypes/"+string(id), token, nil)
+	req, err := as.client.newRequest("GET", "/auth/gandalf/eventtypes/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +56,7 @@ func (as *EventTypeService) ReadByName(token string, name string) (*models.Event
 
 // Update :
 func (as *EventTypeService) Update(token string, id int, resource models.EventType) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/eventtypes/"+string(id), token, resource)
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/eventtypes/"+strconv.Itoa(id), token, resource)
 	if err != nil {
 		return err
 	}
@@ -64,7 +66,7 @@ func (as *EventTypeService) Update(token string, id int, resource models.EventTy
 
 // Delete :
 func (as *EventTypeService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/eventtypes/"+string(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/auth/gandalf/eventtypes/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}

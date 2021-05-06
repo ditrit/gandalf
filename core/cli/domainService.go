@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -32,7 +34,7 @@ func (as *DomainService) Create(token string, domain models.Domain, parentDomain
 
 // Read :
 func (as *DomainService) Read(token string, id int) (*models.Domain, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/domains/"+string(id), token, nil)
+	req, err := as.client.newRequest("GET", "/auth/gandalf/domains/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +56,7 @@ func (as *DomainService) ReadByName(token string, name string) (*models.Domain, 
 
 // Update :
 func (as *DomainService) Update(token string, id int, domain models.Domain) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/domains/"+string(id), token, domain)
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/domains/"+strconv.Itoa(id), token, domain)
 	if err != nil {
 		return err
 	}
@@ -64,7 +66,7 @@ func (as *DomainService) Update(token string, id int, domain models.Domain) erro
 
 // Delete :
 func (as *DomainService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/domains/"+string(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/auth/gandalf/domains/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}
