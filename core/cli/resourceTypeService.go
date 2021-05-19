@@ -23,8 +23,8 @@ func (as *ResourceTypeService) List(token string) ([]models.ResourceType, error)
 }
 
 // Create :
-func (as *ResourceTypeService) Create(token string, resource models.ResourceType) error {
-	req, err := as.client.newRequest("POST", "/auth/gandalf/resourcetypes/", token, resource)
+func (as *ResourceTypeService) Create(token string, resourceType models.ResourceType) error {
+	req, err := as.client.newRequest("POST", "/auth/gandalf/resourcetypes/", token, resourceType)
 	if err != nil {
 		return err
 	}
@@ -38,9 +38,9 @@ func (as *ResourceTypeService) Read(token string, id int) (*models.ResourceType,
 	if err != nil {
 		return nil, err
 	}
-	var resource models.ResourceType
-	err = as.client.do(req, &resource)
-	return &resource, err
+	var resourceType models.ResourceType
+	err = as.client.do(req, &resourceType)
+	return &resourceType, err
 }
 
 // Read :
@@ -49,14 +49,14 @@ func (as *ResourceTypeService) ReadByName(token string, name string) (*models.Re
 	if err != nil {
 		return nil, err
 	}
-	var resource models.ResourceType
-	err = as.client.do(req, &resource)
-	return &resource, err
+	var resourceType models.ResourceType
+	err = as.client.do(req, &resourceType)
+	return &resourceType, err
 }
 
 // Update :
-func (as *ResourceTypeService) Update(token string, id int, resource models.ResourceType) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/resourcetypes/"+strconv.Itoa(id), token, resource)
+func (as *ResourceTypeService) Update(token string, id int, resourceType models.ResourceType) error {
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/resourcetypes/"+strconv.Itoa(id), token, resourceType)
 	if err != nil {
 		return err
 	}

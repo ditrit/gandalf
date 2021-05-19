@@ -3,10 +3,11 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"gandalf/connectors/goworkflowcustom/server"
-	"gandalf/libraries/goclient"
 	"os"
 	"time"
+
+	"github.com/ditrit/gandalf/connectors/goworkflowcustom/server"
+	"github.com/ditrit/gandalf/libraries/goclient"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 )
@@ -36,6 +37,7 @@ func main() {
 	fmt.Println(clientGandalf)
 	fmt.Println("Start 3")
 
+	testGithub(clientGandalf)
 	//testUtils(clientGandalf)
 
 	//toto := server.NewWorkflowServer(clientGandalf)
@@ -88,6 +90,17 @@ func testUtils(clientGandalf *goclient.ClientGandalf) {
 	fmt.Println("SEND COMMMAND CREATE_FORM")
 	payload = `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
 	commandMessageUUID = clientGandalf.SendCommand("Utils.CREATE_FORM", map[string]string{"payload": payload})
+	fmt.Println(commandMessageUUID)
+
+}
+
+func testGithub(clientGandalf *goclient.ClientGandalf) {
+
+	fmt.Println("Start 4")
+
+	fmt.Println("SEND COMMMAND CREATE_REPOSITORY")
+	payload := `{"Username":"","Password":"","Token":"","Name":"Test","Description":"Test","Private":true}`
+	commandMessageUUID := clientGandalf.SendCommand("vcs.CREATE_REPOSITORY", map[string]string{"payload": payload})
 	fmt.Println(commandMessageUUID)
 
 }

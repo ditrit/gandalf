@@ -10,9 +10,9 @@ type Application struct {
 	gorm.Model
 	Name            string `gorm:"unique"`
 	AggregatorID    uint
-	Aggregator      Aggregator
+	Aggregator      LogicalComponent
 	ConnectorID     uint
-	Connector       Connector
+	Connector       LogicalComponent
 	ConnectorTypeID uint
 	ConnectorType   ConnectorType
 }

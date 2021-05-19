@@ -67,6 +67,13 @@ type Urls struct {
 	EVENT_TYPE_PATH_READ_BY_NAME        string
 	EVENT_TYPE_PATH_UPDATE              string
 	EVENT_TYPE_PATH_DELETE              string
+	APPLICATION_TYPE_PATH               string
+	APPLICATION_TYPE_PATH_LIST          string
+	APPLICATION_TYPE_PATH_CREATE        string
+	APPLICATION_TYPE_PATH_READ          string
+	APPLICATION_TYPE_PATH_READ_BY_NAME  string
+	APPLICATION_TYPE_PATH_UPDATE        string
+	APPLICATION_TYPE_PATH_DELETE        string
 }
 
 // ReturnURLS :
@@ -136,7 +143,7 @@ func ReturnURLS() *Urls {
 
 	apiurls.RESOURCE_TYPE_PATH = apiurls.PATH + "/resourcetypes"
 	apiurls.RESOURCE_TYPE_PATH_LIST = apiurls.RESOURCE_TYPE_PATH + "/"
-	apiurls.RESOURCE_TYPE_PATH_CREATE = apiurls.RESOURCE_TYPE_PATH + "/{name}"
+	apiurls.RESOURCE_TYPE_PATH_CREATE = apiurls.RESOURCE_TYPE_PATH + "/"
 	apiurls.RESOURCE_TYPE_PATH_READ = apiurls.RESOURCE_TYPE_PATH + "/{id:[0-9]+}"
 	apiurls.RESOURCE_TYPE_PATH_READ_BY_NAME = apiurls.RESOURCE_TYPE_PATH + "/{name}"
 	apiurls.RESOURCE_TYPE_PATH_UPDATE = apiurls.RESOURCE_TYPE_PATH + "/{id:[0-9]+}"
@@ -144,11 +151,19 @@ func ReturnURLS() *Urls {
 
 	apiurls.EVENT_TYPE_PATH = apiurls.PATH + "/eventtypes"
 	apiurls.EVENT_TYPE_PATH_LIST = apiurls.EVENT_TYPE_PATH + "/"
-	apiurls.EVENT_TYPE_PATH_CREATE = apiurls.EVENT_TYPE_PATH + "/{name}"
+	apiurls.EVENT_TYPE_PATH_CREATE = apiurls.EVENT_TYPE_PATH + "/"
 	apiurls.EVENT_TYPE_PATH_READ = apiurls.EVENT_TYPE_PATH + "/{id:[0-9]+}"
 	apiurls.EVENT_TYPE_PATH_READ_BY_NAME = apiurls.EVENT_TYPE_PATH + "/{name}"
 	apiurls.EVENT_TYPE_PATH_UPDATE = apiurls.EVENT_TYPE_PATH + "/{id:[0-9]+}"
 	apiurls.EVENT_TYPE_PATH_DELETE = apiurls.EVENT_TYPE_PATH + "/{id:[0-9]+}"
+
+	apiurls.APPLICATION_TYPE_PATH = apiurls.PATH + "/applications"
+	apiurls.APPLICATION_TYPE_PATH_LIST = apiurls.APPLICATION_TYPE_PATH + "/"
+	apiurls.APPLICATION_TYPE_PATH_CREATE = apiurls.APPLICATION_TYPE_PATH + "/"
+	apiurls.APPLICATION_TYPE_PATH_READ = apiurls.APPLICATION_TYPE_PATH + "/{id:[0-9]+}"
+	apiurls.APPLICATION_TYPE_PATH_READ_BY_NAME = apiurls.APPLICATION_TYPE_PATH + "/{name}"
+	apiurls.APPLICATION_TYPE_PATH_UPDATE = apiurls.APPLICATION_TYPE_PATH + "/{id:[0-9]+}"
+	apiurls.APPLICATION_TYPE_PATH_DELETE = apiurls.APPLICATION_TYPE_PATH + "/{id:[0-9]+}"
 
 	/*
 		apiurls.CONNECTOR_PATH = apiurls.PATH + "/connectors"

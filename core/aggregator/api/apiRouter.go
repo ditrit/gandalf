@@ -97,5 +97,13 @@ func GetRouter(databaseConnection *database.DatabaseConnection, shoset *net.Shos
 	subt.HandleFunc(urls.EVENT_TYPE_PATH_UPDATE, controllers.EventTypeController.Update).Methods("PUT")
 	subt.HandleFunc(urls.EVENT_TYPE_PATH_DELETE, controllers.EventTypeController.Delete).Methods("DELETE")
 
+	//APPLICATION
+	subt.HandleFunc(urls.APPLICATION_TYPE_PATH_LIST, controllers.ApplicationController.List).Methods("GET")
+	subt.HandleFunc(urls.APPLICATION_TYPE_PATH_CREATE, controllers.ApplicationController.Create).Methods("POST")
+	subt.HandleFunc(urls.APPLICATION_TYPE_PATH_READ, controllers.ApplicationController.Read).Methods("GET")
+	subt.HandleFunc(urls.APPLICATION_TYPE_PATH_READ_BY_NAME, controllers.ApplicationController.ReadByName).Methods("GET")
+	subt.HandleFunc(urls.APPLICATION_TYPE_PATH_UPDATE, controllers.ApplicationController.Update).Methods("PUT")
+	subt.HandleFunc(urls.APPLICATION_TYPE_PATH_DELETE, controllers.ApplicationController.Delete).Methods("DELETE")
+
 	return mux
 }

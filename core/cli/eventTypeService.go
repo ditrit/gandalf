@@ -23,8 +23,8 @@ func (as *EventTypeService) List(token string) ([]models.EventType, error) {
 }
 
 // Create :
-func (as *EventTypeService) Create(token string, resource models.EventType) error {
-	req, err := as.client.newRequest("POST", "/auth/gandalf/eventtypes/", token, resource)
+func (as *EventTypeService) Create(token string, eventType models.EventType) error {
+	req, err := as.client.newRequest("POST", "/auth/gandalf/eventtypes/", token, eventType)
 	if err != nil {
 		return err
 	}
@@ -38,9 +38,9 @@ func (as *EventTypeService) Read(token string, id int) (*models.EventType, error
 	if err != nil {
 		return nil, err
 	}
-	var resource models.EventType
-	err = as.client.do(req, &resource)
-	return &resource, err
+	var eventType models.EventType
+	err = as.client.do(req, &eventType)
+	return &eventType, err
 }
 
 // Read :
@@ -49,14 +49,14 @@ func (as *EventTypeService) ReadByName(token string, name string) (*models.Event
 	if err != nil {
 		return nil, err
 	}
-	var resource models.EventType
-	err = as.client.do(req, &resource)
-	return &resource, err
+	var eventType models.EventType
+	err = as.client.do(req, &eventType)
+	return &eventType, err
 }
 
 // Update :
-func (as *EventTypeService) Update(token string, id int, resource models.EventType) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/eventtypes/"+strconv.Itoa(id), token, resource)
+func (as *EventTypeService) Update(token string, id int, eventType models.EventType) error {
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/eventtypes/"+strconv.Itoa(id), token, eventType)
 	if err != nil {
 		return err
 	}
