@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/ditrit/gandalf/connectors/gogithub/issue"
+
 	"github.com/ditrit/gandalf/connectors/gogithub/client"
 	"github.com/ditrit/gandalf/connectors/gogithub/poll"
 	"github.com/ditrit/gandalf/connectors/gogithub/repository"
@@ -60,6 +62,7 @@ func main() {
 		worker.RegisterCommandsFuncs("CREATE_REPOSITORY", CreateRepository)
 		worker.RegisterCommandsFuncs("CREATE_REPOSITORY_FROM_TEMPLATE", CreateRepositoryFromTemplate)
 		worker.RegisterCommandsFuncs("DELETE_REPOSITORY", DeleteRepository)
+		worker.RegisterCommandsFuncs("CREATE_ISSUE", CreateIssue)
 
 		scanService := new(poll.ScanService)
 		worker.RegisterServicesFuncs("ScanService", scanService.Start)
@@ -77,6 +80,7 @@ type InputPayload struct {
 }
 
 func CreateRepository(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	fmt.Println("CREATE REPOSITORY")
 	var createRepositoryPayload repository.CreateRepositoryPayload
 	err := json.Unmarshal([]byte(command.GetPayload()), &createRepositoryPayload)
 	if err == nil {
@@ -86,13 +90,21 @@ func CreateRepository(context map[string]interface{}, clientGandalf *goclient.Cl
 		} else if createRepositoryPayload.Username != "" && createRepositoryPayload.Password != "" {
 			clientGithub = client.BasicAuthentification(createRepositoryPayload.Username, createRepositoryPayload.Password)
 		} else {
-			clientGithub, _ = context["client"].(*github.Client)
+			clientGithub = context["client"].(*github.Client)
 		}
+		fmt.Println("clientGithub")
+		fmt.Println(clientGithub)
+		fmt.Println("CREATE REPOSITORY 2")
 
 		err = repository.CreateRepository(clientGithub, createRepositoryPayload.Name, createRepositoryPayload.Description, createRepositoryPayload.Private)
+		fmt.Println("err")
+		fmt.Println(err)
+
 		if err == nil {
+
 			return 0
 		}
+
 	}
 	return 1
 }
@@ -134,6 +146,32 @@ func DeleteRepository(context map[string]interface{}, clientGandalf *goclient.Cl
 		if err == nil {
 			return 0
 		}
+	}
+	return 1
+}
+
+func CreateIssue(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	var createIssuePayload issue.CreateIssuePayload
+	err := json.Unmarshal([]byte(command.GetPayload()), &createIssuePayload)
+	if err == nil {
+		var clientGithub *github.Client
+		if createIssuePayload.Token != "" {
+			clientGithub = client.Oauth2Authentification(createIssuePayload.Token)
+		} else if createIssuePayload.Username != "" && createIssuePayload.Password != "" {
+			clientGithub = client.BasicAuthentification(createIssuePayload.Username, createIssuePayload.Password)
+		} else {
+			clientGithub = context["client"].(*github.Client)
+		}
+
+		err = issue.CreateIssue(clientGithub, createIssuePayload.Owner, createIssuePayload.Repository, createIssuePayload.Title, createIssuePayload.Body)
+		fmt.Println("err")
+		fmt.Println(err)
+
+		if err == nil {
+
+			return 0
+		}
+
 	}
 	return 1
 }
