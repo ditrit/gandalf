@@ -39,12 +39,31 @@ func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string
 	return mapDatabaseClient[tenant]
 } */
 
-// GetApplicationContext : Cluster application context getter.
+/* // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
 	var connectorType models.ConnectorType
 	client.Where("name = ?", cmd.GetContext()["connectorType"].(string)).First(&connectorType)
 
 	client.Where("connector_type_id = ?", connectorType.ID).Preload("Aggregator").Preload("Connector").Preload("ConnectorType").First(&applicationContext)
+
+	return
+} */
+
+// GetApplicationContext : Cluster application context getter.
+func GetApplicationContext(cmd msg.Command, client *gorm.DB) (connector models.LogicalComponent) {
+	connectorType := cmd.GetContext()["connectorType"].(string)
+	var connectors []models.LogicalComponent
+	client.Where("type = ?", "connector").Preload("ProductConnector.Pivot").Find(&connectors)
+	fmt.Println("connectors")
+	fmt.Println(connectors)
+
+	for _, currentConnector := range connectors {
+		if currentConnector.ProductConnector.Pivot.Name == connectorType {
+			connector = currentConnector
+			fmt.Println("FIND")
+			return
+		}
+	}
 
 	return
 }

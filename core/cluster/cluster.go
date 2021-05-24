@@ -65,7 +65,7 @@ func NewClusterMember(configurationCluster *cmodels.ConfigurationCluster) *Clust
 	//member.chaussette.Context["gandalfDatabase"] = member.GandalfDatabaseClient
 	//member.chaussette.Context["tenantDatabases"] = member.MapTenantDatabaseClients
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
-	member.chaussette.Handle["models"] = shoset.HandleCommand
+	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	member.chaussette.Queue["secret"] = msg.NewQueue()
 	member.chaussette.Get["secret"] = shoset.GetSecret

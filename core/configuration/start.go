@@ -56,7 +56,7 @@ func init() {
 	startCfg.SetCheck("secret", verdeter.CheckNotEmpty)
 
 	startCfg.GKey("max_timeout", verdeter.IsInt, "", "maximum timeout of the connector")
-	startCfg.SetDefault("max_timeout", 100)
+	startCfg.SetDefault("max_timeout", 1000)
 
 	startCfg.GKey("bind", verdeter.IsStr, "", "Address to bind (default is 127.0.0.1)")
 	startCfg.SetDefault("bind", "127.0.0.1")

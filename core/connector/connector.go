@@ -48,6 +48,7 @@ func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) 
 	//member.versions = versions
 	member.version = models.Version{Major: major, Minor: minor}
 	member.chaussette.Context["version"] = member.version
+	member.timeoutMax = configurationConnector.GetMaxTimeout()
 	//member.mapConnectorsConfig = make(map[string][]*models.ConnectorConfig)
 	member.mapVersionConnectorCommands = make(map[int8][]string)
 	member.mapActiveWorkers = make(map[models.Version]bool)
@@ -64,7 +65,7 @@ func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) 
 	//member.chaussette.Context["productConnector"] = member.productConnector
 	member.chaussette.Context["mapVersionConnectorCommands"] = member.mapVersionConnectorCommands
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
-	member.chaussette.Handle["models"] = shoset.HandleCommand
+	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	member.chaussette.Queue["secret"] = msg.NewQueue()
 	member.chaussette.Get["secret"] = shoset.GetSecret

@@ -98,7 +98,7 @@ func (w WorkerAdmin) Run() {
 
 	if len(w.versions) == 0 {
 		lastVersion, err := w.getLastVersion()
-		w.versions = append(w.versions, lastVersion)
+		w.updateVersions(lastVersion)
 		if err == nil {
 			err = w.getWorkerConfiguration(lastVersion)
 			if err == nil {
@@ -486,6 +486,19 @@ func (w WorkerAdmin) getLastVersion() (lastVersion models.Version, err error) {
 	lastVersion.Minor = int8(minor8)
 
 	return
+}
+
+func (w WorkerAdmin) updateVersions(lastVersion models.Version) {
+	notExist := true
+	for _, version := range w.versions {
+		if version == lastVersion {
+			notExist = false
+		}
+	}
+	if notExist {
+		w.versions = append(w.versions, lastVersion)
+		w.chaussette.Context["versions"] = w.versions
+	}
 }
 
 func (w WorkerAdmin) isLastVersion(lastVersion models.Version) (result bool) {

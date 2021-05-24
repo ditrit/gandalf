@@ -150,6 +150,7 @@ func (r ConnectorGrpc) SendStop(ctx context.Context, in *pb.Stop) (validate *pb.
 //SendCommandMessage : Connector send command function.
 func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMessage) (commandMessageUUID *pb.CommandMessageUUID, err error) {
 	log.Println("Handle send command")
+	fmt.Println("Handle send command")
 
 	cmd := pb.CommandFromGrpc(in)
 	//connectorType := r.Shoset.Context["connectorType"].(string)

@@ -3,11 +3,10 @@ package shoset
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
-
-	"github.com/ditrit/gandalf/core/models"
 
 	cutils "github.com/ditrit/gandalf/core/cluster/utils"
 
@@ -25,6 +24,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle command")
 	log.Println(cmd)
+
+	fmt.Println("Handle command")
+	fmt.Println(cmd)
 	//ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 
 	//if ok {
@@ -45,11 +47,11 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 			app := cutils.GetApplicationContext(cmd, databaseClient)
 
-			if app != (models.Application{}) {
-				mapConn := ch.ConnsByName.Get(app.Aggregator.LogicalName)
+			if app.LogicalName != "" {
+				mapConn := ch.ConnsByName.Get(app.Aggregator)
 				if mapConn != nil {
-					cmd.Target = app.Connector.LogicalName
-					shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator.LogicalName), "a")
+					cmd.Target = app.LogicalName
+					shosets := net.GetByType(ch.ConnsByName.Get(app.Aggregator), "a")
 
 					if len(shosets) != 0 {
 						index := getSendIndex(shosets)
@@ -59,8 +61,8 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 						err = errors.New("Can't find aggregators to send")
 					}
 				} else {
-					log.Printf("Can't find connection with name %s \n", app.Aggregator.LogicalName)
-					err = errors.New("Can't find connection with name " + app.Aggregator.LogicalName)
+					log.Printf("Can't find connection with name %s \n", app.Aggregator)
+					err = errors.New("Can't find connection with name " + app.Aggregator)
 				}
 			} else {
 				log.Println("Can't find application context")

@@ -9,8 +9,6 @@ import (
 type Application struct {
 	gorm.Model
 	Name            string `gorm:"unique"`
-	AggregatorID    uint
-	Aggregator      LogicalComponent
 	ConnectorID     uint
 	Connector       LogicalComponent
 	ConnectorTypeID uint

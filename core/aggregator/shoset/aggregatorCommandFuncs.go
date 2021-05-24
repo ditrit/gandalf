@@ -3,6 +3,7 @@ package shoset
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -23,6 +24,10 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	log.Println("Handle command")
 	log.Println(cmd)
+
+	fmt.Println("Handle command")
+	fmt.Println(cmd)
+
 	configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 
 	if cmd.GetTenant() == configurationAggregator.GetTenant() {
@@ -48,7 +53,11 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 		if dir == "out" {
 			if c.GetShosetType() == "cl" {
+				fmt.Println("cmd.GetTarget()")
+				fmt.Println(cmd.GetTarget())
 				shosets := net.GetByType(ch.ConnsByName.Get(cmd.GetTarget()), "c")
+				fmt.Println("shosets")
+				fmt.Println(shosets)
 				if len(shosets) != 0 {
 					index := getCommandSendIndex(shosets)
 					shosets[index].SendMessage(cmd)
