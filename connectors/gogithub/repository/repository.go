@@ -9,8 +9,6 @@ import (
 )
 
 type CreateRepositoryPayload struct {
-	Username    string
-	Password    string
 	Token       string
 	Name        string
 	Description string
@@ -26,8 +24,6 @@ func CreateRepository(client *github.Client, name, description string, private b
 }
 
 type CreateRepositoryFromTemplatePayload struct {
-	Username      string
-	Password      string
 	Token         string
 	TemplateOwner string
 	TemplateRepo  string
@@ -46,8 +42,6 @@ func CreateRepositoryFromTemplate(client *github.Client, templateOwner, template
 }
 
 type DeleteRepositoryPayload struct {
-	Username   string
-	Password   string
 	Token      string
 	Owner      string
 	Repository string

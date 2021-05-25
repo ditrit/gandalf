@@ -7,8 +7,6 @@ import (
 )
 
 type CreateIssuePayload struct {
-	Username   string
-	Password   string
 	Token      string
 	Owner      string
 	Repository string

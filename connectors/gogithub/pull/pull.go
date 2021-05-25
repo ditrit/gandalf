@@ -42,3 +42,21 @@ func GetLastPullRequest(client *github.Client, owner, repo string) *github.PullR
 	}
 	return lastPull
 }
+
+type CreatePullPayload struct {
+	Token      string
+	Owner      string
+	Repository string
+	Title      string
+	Body       string
+	Head       string
+	Base       string
+}
+
+func CreatePull(client *github.Client, owner, repository, title, body, head, base string) (err error) {
+	ctx := context.Background()
+	r := &github.NewPullRequest{Title: &title, Body: &body, Head: &head, Base: &base}
+	_, _, err = client.PullRequests.Create(ctx, owner, repository, r)
+
+	return
+}

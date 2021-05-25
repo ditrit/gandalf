@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/ditrit/gandalf/connectors/gogithub/pull"
+
 	"github.com/ditrit/gandalf/connectors/gogithub/issue"
 
 	"github.com/ditrit/gandalf/connectors/gogithub/client"
@@ -63,6 +65,7 @@ func main() {
 		worker.RegisterCommandsFuncs("CREATE_REPOSITORY_FROM_TEMPLATE", CreateRepositoryFromTemplate)
 		worker.RegisterCommandsFuncs("DELETE_REPOSITORY", DeleteRepository)
 		worker.RegisterCommandsFuncs("CREATE_ISSUE", CreateIssue)
+		worker.RegisterCommandsFuncs("CREATE_PULL", CreatePull)
 
 		scanService := new(poll.ScanService)
 		worker.RegisterServicesFuncs("ScanService", scanService.Start)
@@ -87,8 +90,6 @@ func CreateRepository(context map[string]interface{}, clientGandalf *goclient.Cl
 		var clientGithub *github.Client
 		if createRepositoryPayload.Token != "" {
 			clientGithub = client.Oauth2Authentification(createRepositoryPayload.Token)
-		} else if createRepositoryPayload.Username != "" && createRepositoryPayload.Password != "" {
-			clientGithub = client.BasicAuthentification(createRepositoryPayload.Username, createRepositoryPayload.Password)
 		} else {
 			clientGithub = context["client"].(*github.Client)
 		}
@@ -116,8 +117,6 @@ func CreateRepositoryFromTemplate(context map[string]interface{}, clientGandalf 
 		var clientGithub *github.Client
 		if createRepositoryFromTemplatePayload.Token != "" {
 			clientGithub = client.Oauth2Authentification(createRepositoryFromTemplatePayload.Token)
-		} else if createRepositoryFromTemplatePayload.Username != "" && createRepositoryFromTemplatePayload.Password != "" {
-			clientGithub = client.BasicAuthentification(createRepositoryFromTemplatePayload.Username, createRepositoryFromTemplatePayload.Password)
 		} else {
 			clientGithub, _ = context["client"].(*github.Client)
 		}
@@ -136,8 +135,6 @@ func DeleteRepository(context map[string]interface{}, clientGandalf *goclient.Cl
 		var clientGithub *github.Client
 		if deleteRepositoryPayload.Token != "" {
 			clientGithub = client.Oauth2Authentification(deleteRepositoryPayload.Token)
-		} else if deleteRepositoryPayload.Username != "" && deleteRepositoryPayload.Password != "" {
-			clientGithub = client.BasicAuthentification(deleteRepositoryPayload.Username, deleteRepositoryPayload.Password)
 		} else {
 			clientGithub, _ = context["client"].(*github.Client)
 		}
@@ -157,13 +154,35 @@ func CreateIssue(context map[string]interface{}, clientGandalf *goclient.ClientG
 		var clientGithub *github.Client
 		if createIssuePayload.Token != "" {
 			clientGithub = client.Oauth2Authentification(createIssuePayload.Token)
-		} else if createIssuePayload.Username != "" && createIssuePayload.Password != "" {
-			clientGithub = client.BasicAuthentification(createIssuePayload.Username, createIssuePayload.Password)
 		} else {
 			clientGithub = context["client"].(*github.Client)
 		}
 
 		err = issue.CreateIssue(clientGithub, createIssuePayload.Owner, createIssuePayload.Repository, createIssuePayload.Title, createIssuePayload.Body)
+		fmt.Println("err")
+		fmt.Println(err)
+
+		if err == nil {
+
+			return 0
+		}
+
+	}
+	return 1
+}
+
+func CreatePull(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	var createPullPayload pull.CreatePullPayload
+	err := json.Unmarshal([]byte(command.GetPayload()), &createPullPayload)
+	if err == nil {
+		var clientGithub *github.Client
+		if createPullPayload.Token != "" {
+			clientGithub = client.Oauth2Authentification(createPullPayload.Token)
+		} else {
+			clientGithub = context["client"].(*github.Client)
+		}
+
+		err = pull.CreatePull(clientGithub, createPullPayload.Owner, createPullPayload.Repository, createPullPayload.Title, createPullPayload.Body, createPullPayload.Head, createPullPayload.Base)
 		fmt.Println("err")
 		fmt.Println(err)
 
