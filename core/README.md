@@ -1,7 +1,7 @@
 # Gandalf Core
 Gandalf (Gandalf is A Natural Devops Application Life-cycle Framework), a tool to allow progressive DevOps adoption.
 
-https://ditrit.io/gandalf/
+https://ditrit.io
 
 
 ## Table of content

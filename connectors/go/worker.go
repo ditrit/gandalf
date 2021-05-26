@@ -2,6 +2,7 @@ package worker
 
 import (
 	"flag"
+	"fmt"
 	"strings"
 	"time"
 
@@ -146,6 +147,7 @@ func (w Worker) Run() {
 func (w Worker) waitCommands(id, commandName string, function func(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int) {
 
 	for true {
+		fmt.Println("Wait")
 		command := w.clientGandalf.WaitCommand(commandName, id, w.major)
 
 		if w.WorkerState.GetState() == 0 {
