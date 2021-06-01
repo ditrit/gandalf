@@ -28,11 +28,9 @@ func CoackroachStart(dataDir, certsDir, node, bindAddress, httpAddress, members 
 	path, err := os.Getwd()
 	cmd := exec.Command("/bin/sh", "./cockroachStart.sh", dataDir, certsDir, node, bindAddress, httpAddress, members)
 	cmd.Dir = path + "/cluster/database/"
-	cmd.Stderr = os.Stdout
-	cmd.Stdout = os.Stdout
+
 	cmd.Start()
 	err = cmd.Wait()
-
 	return err
 }
 
