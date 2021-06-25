@@ -4,6 +4,11 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+
+	"github.com/ditrit/gandalf/connectors/goworkflowdocker/docker"
+	"github.com/ditrit/gandalf/connectors/goworkflowdocker/upload"
+	"github.com/ditrit/gandalf/connectors/goworkflowdocker/utils"
+
 	"log"
 	"os"
 	"os/exec"
@@ -11,6 +16,7 @@ import (
 	"path/filepath"
 
 	"github.com/ditrit/shoset/msg"
+	"github.com/docker/docker/client"
 
 	payload "github.com/ditrit/gandalf/connectors/goworkflowdocker/payload"
 	"github.com/ditrit/gandalf/libraries/goclient"
@@ -34,13 +40,26 @@ func main() {
 
 	worker := worker.NewWorker(major, minor)
 
-	worker.RegisterCommandsFuncs("REGISTER", Register)
-	worker.RegisterCommandsFuncs("EXECUTE", Execute)
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		log.Fatalln("Unable to create docker client")
+	}
+
+	worker.Context["client"] = cli
+	worker.Context["identity"] = worker.GetIdentity()
+	worker.Context["timeout"] = worker.GetTimeout()
+	worker.Context["connections"] = worker.GetConnections()
+
+	//worker.RegisterCommandsFuncs("REGISTER", Register)
+	//worker.RegisterCommandsFuncs("EXECUTE", Execute)
+
+	serverupload := upload.NewServerUpload(cli, worker.GetIdentity(), worker.GetTimeout(), worker.GetConnections())
+	worker.RegisterServicesFuncs("UploadService", serverupload.Run)
 
 	worker.Run()
 }
 
-func Register(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+func Register(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
 	var registerPayload payload.RegisterPayload
 	err := json.Unmarshal([]byte(command.GetPayload()), &registerPayload)
 	if err == nil {
@@ -51,12 +70,20 @@ func Register(clientGandalf *goclient.ClientGandalf, major int64, command msg.Co
 	return 1
 }
 
-func Execute(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+func Execute(context map[string]interface{}, clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {
+	cli := context["client"].(*client.Client)
+	identity := context["identity"].(string)
+	timeout := context["timeout"].(string)
+	connections := context["connections"].([]string)
+	path := utils.GetPathFromConnections(connections)
+	addresses := utils.TransformConnectionsSliceToString(connections)
 	var executePayload payload.ExecutePayload
 	err := json.Unmarshal([]byte(command.GetPayload()), &executePayload)
 	if err == nil {
-		execute(executePayload.GetName())
-		return 0
+		err = execute(cli, identity, timeout, addresses, executePayload.GetName(), path)
+		if err == nil {
+			return 0
+		}
 	}
 
 	return 1
@@ -138,12 +165,13 @@ func register(name, content string) {
 
 }
 
-func execute(name string) {
-	go func() {
-		cmd := exec.Command("docker", "run", "-d", "-it", "--name", name, "--mount", "type=bind,source=/var/run/gandalf,target=/var/Run/gandalf")
-		err := cmd.Run()
-		if err != nil {
-			log.Fatalf("Docker exec failed with %s\n", err)
-		}
-	}()
+func execute(cli *client.Client, identity, timeout, connections, name, path string) error {
+	inputEnv := []string{fmt.Sprintf("env_identity=%s", identity), fmt.Sprintf("env_timeout=%s", timeout), fmt.Sprintf("env_adresses=%s", connections)}
+	_, err := docker.RunContainer(cli, name, path, inputEnv)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
