@@ -47,6 +47,13 @@ func NewWorker(major, minor int64) *Worker {
 	worker.Stop = functions.Stop
 	worker.SendCommands = functions.SendCommands
 
+	fmt.Println("test flag")
+	flag.Parse()
+	args := flag.Args()
+	worker.identity = args[0]
+	worker.timeout = args[1]
+	worker.connections = strings.Split(args[2], ",")
+
 	return worker
 }
 
@@ -96,11 +103,11 @@ func (w Worker) RegisterServicesFuncs(service string, function func(context map[
 }
 
 func (w *Worker) Start() {
-	flag.Parse()
-	args := flag.Args()
-	w.identity = args[0]
-	w.timeout = args[1]
-	w.connections = strings.Split(args[2], ",")
+	//flag.Parse()
+	//args := flag.Args()
+	//w.identity = args[0]
+	//w.timeout = args[1]
+	//w.connections = strings.Split(args[2], ",")
 	w.clientGandalf = goclient.NewClientGandalf(w.identity, w.timeout, w.connections)
 	//return goclient.NewClientGandalf(args[0], args[1], strings.Split(args[2], ","))
 }
