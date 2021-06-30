@@ -27,13 +27,26 @@ type UploadController struct {
 }
 
 func NewUploadController(cli *client.Client, identity, timeout string, connections []string) *UploadController {
+	fmt.Println("tata1")
 	uploadController := new(UploadController)
+	fmt.Println("tata2")
 	uploadController.cli = cli
+	fmt.Println("tata3")
+
 	uploadController.identity = identity
+	fmt.Println("tata4")
+
 	uploadController.timeout = timeout
+	fmt.Println("tata5")
+
 	uploadController.connections = connections
+	fmt.Println("tata6")
+
 	uploadController.path = utils.GetPathFromConnections(connections)
-	uploadController.addresses = utils.TransformConnectionsSliceToString(connections)
+	fmt.Println("tata7")
+
+	uploadController.addresses = utils.ChangePathFromConnections(connections)
+	fmt.Println("tata8")
 
 	return uploadController
 }

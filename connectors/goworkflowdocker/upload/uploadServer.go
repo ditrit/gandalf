@@ -1,6 +1,7 @@
 package upload
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -19,8 +20,9 @@ type ServerUpload struct {
 // NewServerAPI :
 func NewServerUpload(cli *client.Client, identity, timeout string, connections []string) *ServerUpload {
 	serverUpload := new(ServerUpload)
-
+	fmt.Println("toto")
 	serverUpload.router = GetRouter(cli, identity, timeout, connections)
+	fmt.Println("toto1")
 
 	return serverUpload
 }

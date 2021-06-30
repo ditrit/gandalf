@@ -28,7 +28,7 @@ import (
 func main() {
 
 	var major = int64(1)
-	var minor = int64(5)
+	var minor = int64(0)
 
 	fmt.Println("VERSION")
 	fmt.Println(major)
@@ -42,8 +42,16 @@ func main() {
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
+		fmt.Println("ERR")
 		log.Fatalln("Unable to create docker client")
 	}
+
+	fmt.Println("identity")
+	fmt.Println(worker.GetIdentity())
+	fmt.Println("timeout")
+	fmt.Println(worker.GetTimeout())
+	fmt.Println("connections")
+	fmt.Println(worker.GetConnections())
 
 	worker.Context["client"] = cli
 	worker.Context["identity"] = worker.GetIdentity()
@@ -52,10 +60,12 @@ func main() {
 
 	//worker.RegisterCommandsFuncs("REGISTER", Register)
 	//worker.RegisterCommandsFuncs("EXECUTE", Execute)
-
+	fmt.Println("START")
 	serverupload := upload.NewServerUpload(cli, worker.GetIdentity(), worker.GetTimeout(), worker.GetConnections())
+	fmt.Println("START2")
 	worker.RegisterServicesFuncs("UploadService", serverupload.Run)
 
+	fmt.Println("RUN")
 	worker.Run()
 }
 

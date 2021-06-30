@@ -8,5 +8,5 @@ type KeyValue struct {
 	KeyID              uint
 	Key                Key
 	LogicalComponentID uint
-	//LogicalConnector   LogicalConnector
+	LogicalComponent   LogicalComponent
 }

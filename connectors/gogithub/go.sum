@@ -47,6 +47,8 @@ github.com/ditrit/gandalf/connectors/go v0.0.0-20210309085845-3de4f1d2c53d h1:F1
 github.com/ditrit/gandalf/connectors/go v0.0.0-20210309085845-3de4f1d2c53d/go.mod h1:/6CrQTrGP3kNUiNPOrm53+rwKdidzlwY4d2Ej9bew2Y=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20210324150802-22782409f699 h1:nnqfTmq58FYHD6QVA8+70VUaguHkoN7SEItxUJ9FHgg=
 github.com/ditrit/gandalf/connectors/go v0.0.0-20210324150802-22782409f699/go.mod h1:/6CrQTrGP3kNUiNPOrm53+rwKdidzlwY4d2Ej9bew2Y=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20210629113427-99f41666acdf h1:KEEXfAohWxrewTwEgvUBwShMKSPO0v7YBHiNph2M7I4=
+github.com/ditrit/gandalf/connectors/go v0.0.0-20210629113427-99f41666acdf/go.mod h1:/6CrQTrGP3kNUiNPOrm53+rwKdidzlwY4d2Ej9bew2Y=
 github.com/ditrit/gandalf/core v0.0.0-20210309085845-3de4f1d2c53d h1:cDaLddZQD9wexAQUV6kNm0NII9EnftKwYB8PFohIDQk=
 github.com/ditrit/gandalf/core v0.0.0-20210309085845-3de4f1d2c53d/go.mod h1:MlpP+tI0JwcWVTPzeULD+VW/EWf595YzjVevtPppBJ0=
 github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201214140623-f5acfca99e05/go.mod h1:iLHOj4xQukOlouoELocjgIgzz+lOTx+FZGn39GSV6Dg=

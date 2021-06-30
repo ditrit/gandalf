@@ -9,8 +9,8 @@ type Key struct {
 	Type               string
 	Shortname          string
 	Mandatory          bool
-	PivotID            uint `gorm:"check:(pivot_id IS NOT NULL AND connector_product_id IS NULL) OR (pivot_id IS NULL AND connector_product_id IS NOT NULL)"`
+	PivotID            uint `gorm:"check:(pivot_id IS NOT NULL AND product_connector_id IS NULL) OR (pivot_id IS NULL AND product_connector_id IS NOT NULL)"`
 	Pivot              Pivot
-	ConnectorProductID uint `gorm:"check:(pivot_id IS NOT NULL AND connector_product_id IS NULL) OR (pivot_id IS NULL AND connector_product_id IS NOT NULL)"`
-	ConnectorProduct   ConnectorProduct
+	ProductConnectorID uint `gorm:"check:(pivot_id IS NOT NULL AND product_connector_id IS NULL) OR (pivot_id IS NULL AND product_connector_id IS NOT NULL)"`
+	ProductConnector   ProductConnector
 }
