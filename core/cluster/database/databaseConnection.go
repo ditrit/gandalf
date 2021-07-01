@@ -67,7 +67,7 @@ func (dc DatabaseConnection) newDatabaseClient(name, password string) (gandalfDa
 
 // InitGandalfDatabase : Gandalf database init.
 func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login []string, password []string, err error) {
-	gandalfDatabaseClient.AutoMigrate(&models.State{}, &models.Application{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
+	gandalfDatabaseClient.AutoMigrate(&models.State{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
 		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{},
 		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{})
@@ -139,7 +139,7 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 
 // InitTenantDatabase : Tenant database init.
 func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login []string, password []string, err error) {
-	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Application{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
+	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
 		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{},
 		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{})
@@ -205,7 +205,7 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 	return
 }
 
-//DemoCreateConnectorType
+/* //DemoCreateConnectorType
 func CreateConnectorType(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "utils"})
 	tenantDatabaseClient.Create(&models.ConnectorType{Name: "workflow"})
@@ -220,7 +220,7 @@ func CreateAction(tenantDatabaseClient *gorm.DB) {
 	tenantDatabaseClient.Create(&models.Action{Name: "read"})
 	tenantDatabaseClient.Create(&models.Action{Name: "update"})
 	tenantDatabaseClient.Create(&models.Action{Name: "delete"})
-}
+} */
 
 //TODO REVOIR
 func (dc DatabaseConnection) GetGandalfDatabaseClient() *gorm.DB {

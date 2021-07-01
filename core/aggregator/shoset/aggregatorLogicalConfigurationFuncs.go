@@ -113,10 +113,10 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 //SendSecret :
 func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
-	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
-	configMarshal, err := json.Marshal(configurationLogicalAggregator)
+	//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
+	//configMarshal, err := json.Marshal(configurationLogicalAggregator)
 	if err == nil {
-		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
+		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", "")
 		configurationMsg.Tenant = configurationAggregator.GetTenant()
 		configurationMsg.GetContext()["componentType"] = "aggregator"
 		configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()

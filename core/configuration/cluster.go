@@ -26,20 +26,20 @@ var clusterCfg = verdeter.NewConfigCmd(
 		fmt.Println("cluster called")
 
 		offset := verdeter.GetOffset()
-		fmt.Printf("computed offset : %d\n", offset)
+		fmt.Printf("computed offset : %d \n", offset)
 
 		done := make(chan bool)
 		configurationCluster := cmodels.NewConfigurationCluster()
 		//fmt.Println(viper.GetString("bind"))
 		//fmt.Println(configurationCluster.GetBindAddress())
 		if !viper.IsSet("join") {
-			fmt.Printf("calling ClusterMemberInit\n")
+			fmt.Println("calling ClusterMemberInit")
 			cluster.ClusterMemberInit(configurationCluster)
 		} else {
-			fmt.Printf("calling ClusterMemberJoin\n")
+			fmt.Println("calling ClusterMemberJoin")
 			cluster.ClusterMemberJoin(configurationCluster)
 		}
-		fmt.Printf("Cluster call done\n")
+		fmt.Println("Cluster call done")
 		<-done
 	})
 

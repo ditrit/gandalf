@@ -147,10 +147,10 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	configurationCluster := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
 
-	configurationLogicalCluster := configurationCluster.ConfigurationToDatabase()
-	configMarshal, err := json.Marshal(configurationLogicalCluster)
+	//configurationLogicalCluster := configurationCluster.ConfigurationToDatabase()
+	//configMarshal, err := json.Marshal(configurationLogicalCluster)
 	if err == nil {
-		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
+		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", "")
 		//secretMsg.Tenant = "cluster"
 		configurationMsg.GetContext()["componentType"] = "cluster"
 		configurationMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()

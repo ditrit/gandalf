@@ -21,7 +21,6 @@ type Controllers struct {
 	EventTypeToPollController   *controllers.EventTypeToPollController
 	ResourceTypeController      *controllers.ResourceTypeController
 	EventTypeController         *controllers.EventTypeController
-	ApplicationController       *controllers.ApplicationController
 }
 
 // ReturnControllers :
@@ -42,7 +41,6 @@ func ReturnControllers(databaseConnection *database.DatabaseConnection, shoset *
 	aggregatorControllers.EventTypeToPollController = controllers.NewEventTypeToPollController(databaseConnection)
 	aggregatorControllers.ResourceTypeController = controllers.NewResourceTypeController(databaseConnection)
 	aggregatorControllers.EventTypeController = controllers.NewEventTypeController(databaseConnection)
-	aggregatorControllers.ApplicationController = controllers.NewApplicationController(databaseConnection)
 
 	return aggregatorControllers
 }

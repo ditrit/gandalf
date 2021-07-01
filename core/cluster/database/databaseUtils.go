@@ -7,9 +7,6 @@ import (
 	"math/rand"
 	"os"
 	"time"
-
-	"github.com/ditrit/gandalf/core/models"
-	"github.com/jinzhu/gorm"
 )
 
 func IsNodeExist(dataDir, node string) (result bool) {
@@ -36,7 +33,7 @@ func IsDatabaseCreated(dataDir, node string) (result bool, err error) {
 	return
 }
 
-func IsDatabasePopulated(gandalfDatabaseClient *gorm.DB) (result bool) {
+/* func IsDatabasePopulated(gandalfDatabaseClient *gorm.DB) (result bool) {
 
 	var clusters []models.Cluster
 	gandalfDatabaseClient.Find(&clusters)
@@ -46,7 +43,7 @@ func IsDatabasePopulated(gandalfDatabaseClient *gorm.DB) (result bool) {
 	}
 	return false
 
-}
+} */
 
 func GenerateRandomHash() string {
 	source := rand.NewSource(time.Now().UnixNano())

@@ -1,8 +1,6 @@
 package models
 
 import (
-	"github.com/ditrit/gandalf/core/models"
-
 	"github.com/spf13/viper"
 )
 
@@ -88,20 +86,4 @@ func (ca ConfigurationAggregator) GetMaxTimeout() int64 {
 func (ca ConfigurationAggregator) SetMaxTimeout(maxTimeout int64) {
 	viper.Set("max_timeout", maxTimeout)
 
-}
-
-func (ca ConfigurationAggregator) ConfigurationToDatabase() *models.ConfigurationLogicalAggregator {
-	configurationLogicalAggregator := new(models.ConfigurationLogicalAggregator)
-	configurationLogicalAggregator.LogicalName = ca.GetLogicalName()
-	configurationLogicalAggregator.Tenant = ca.GetTenant()
-	configurationLogicalAggregator.Secret = ca.GetSecret()
-	configurationLogicalAggregator.MaxTimeout = ca.GetMaxTimeout()
-	return configurationLogicalAggregator
-}
-
-func (ca ConfigurationAggregator) DatabaseToConfiguration(configurationLogicalAggregator *models.ConfigurationLogicalAggregator) {
-	ca.SetLogicalName(configurationLogicalAggregator.LogicalName)
-	ca.SetTenant(configurationLogicalAggregator.Tenant)
-	ca.SetSecret(configurationLogicalAggregator.Secret)
-	ca.SetMaxTimeout(configurationLogicalAggregator.MaxTimeout)
 }

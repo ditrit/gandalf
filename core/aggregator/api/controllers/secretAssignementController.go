@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ditrit/gandalf/core/aggregator/database"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
@@ -46,7 +47,7 @@ func (sac SecretAssignementController) Create(w http.ResponseWriter, r *http.Req
 	database := sac.databaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		var secretAssignement models.SecretAssignement
-		secretAssignement.Secret = utils.GenerateHash()
+		secretAssignement.Secret = uuid.NewString()
 		fmt.Println("SECRET")
 		fmt.Println(secretAssignement)
 		if err := dao.CreateSecretAssignement(database, secretAssignement); err != nil {

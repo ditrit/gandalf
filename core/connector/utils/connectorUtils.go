@@ -220,7 +220,7 @@ func DownloadProductConnector(url, ressource string) (productConnector *models.P
 	return
 }
 
-// DownloadConfiguration : Download configuration from url
+/* // DownloadConfiguration : Download configuration from url
 func DownloadConfiguration(url, ressource string) (connectorConfig *models.ConnectorConfig, err error) {
 
 	resp, err := http.Get(url + ressource)
@@ -246,7 +246,7 @@ func DownloadConfiguration(url, ressource string) (connectorConfig *models.Conne
 	}
 
 	return
-}
+} */
 
 // DownloadConfigurationsKeys : Download configurationsKeys from url
 func DownloadConfigurationsKeys(url, ressource string) (body string, err error) {

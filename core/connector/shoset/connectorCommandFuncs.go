@@ -72,12 +72,17 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			} else {
 				pivot = utils.GetPivotByVersion(cmd.Major, cmd.Minor, listPivot)
 			}
-
+			fmt.Println("pivot")
+			fmt.Println(pivot)
 			//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
 			if pivot != nil {
 				commandType := utils.GetConnectorCommandType(cmd.GetCommand(), pivot.CommandTypes)
 				if commandType.Name != "" {
 					validate = utils.ValidatePayload(cmd.GetPayload(), commandType.Schema)
+					fmt.Println("validate pivot")
+					fmt.Println(validate)
+					fmt.Println(cmd.GetPayload())
+					fmt.Println(commandType.Schema)
 				} else {
 					product := configurationConnector.GetProduct()
 					if product != "" {

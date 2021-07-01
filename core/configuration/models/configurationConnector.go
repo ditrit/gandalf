@@ -179,31 +179,3 @@ func (cc ConfigurationConnector) GetVersionsString() string {
 func (cc ConfigurationConnector) SetVersionsString(versions string) {
 	viper.Set("versions", versions)
 }
-
-func (cc ConfigurationConnector) ConfigurationToDatabase() *models.ConfigurationLogicalConnector {
-	configurationLogicalConnector := new(models.ConfigurationLogicalConnector)
-
-	configurationLogicalConnector.LogicalName = cc.GetLogicalName()
-	configurationLogicalConnector.Tenant = cc.GetTenant()
-	configurationLogicalConnector.Secret = cc.GetSecret()
-	configurationLogicalConnector.ConnectorType = cc.GetConnectorType()
-	configurationLogicalConnector.Product = cc.GetProduct()
-	configurationLogicalConnector.WorkersUrl = cc.GetWorkersUrl()
-	configurationLogicalConnector.AutoUpdateTime = cc.GetAutoUpdateTime()
-	configurationLogicalConnector.MaxTimeout = cc.GetMaxTimeout()
-	configurationLogicalConnector.Versions = cc.GetVersionsString()
-
-	return configurationLogicalConnector
-}
-
-func (cc ConfigurationConnector) DatabaseToConfiguration(configurationLogicalConnector *models.ConfigurationLogicalConnector) {
-	cc.SetLogicalName(configurationLogicalConnector.LogicalName)
-	cc.SetTenant(configurationLogicalConnector.Tenant)
-	cc.SetSecret(configurationLogicalConnector.Secret)
-	cc.SetConnectorType(configurationLogicalConnector.ConnectorType)
-	cc.SetProduct(configurationLogicalConnector.Product)
-	cc.SetWorkersUrl(configurationLogicalConnector.WorkersUrl)
-	cc.SetAutoUpdateTime(configurationLogicalConnector.AutoUpdateTime)
-	cc.SetMaxTimeout(configurationLogicalConnector.MaxTimeout)
-	cc.SetVersionsString(configurationLogicalConnector.Versions)
-}

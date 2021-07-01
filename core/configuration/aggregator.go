@@ -30,6 +30,9 @@ var aggregatorCfg = verdeter.NewConfigCmd(
 
 		configurationAggregator := cmodels.NewConfigurationAggregator()
 		aggregator.AggregatorMemberInit(configurationAggregator)
+
+		fmt.Println("Aggregator call done")
+
 		<-done
 	})
 

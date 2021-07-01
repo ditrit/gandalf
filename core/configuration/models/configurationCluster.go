@@ -1,8 +1,6 @@
 package models
 
 import (
-	"github.com/ditrit/gandalf/core/models"
-
 	"github.com/spf13/viper"
 )
 
@@ -144,18 +142,4 @@ func (cc ConfigurationCluster) GetRepositoryUrl() string {
 
 func (cc ConfigurationCluster) SetRepositoryUrl(workersUrl string) {
 	viper.Set("repository_url", workersUrl)
-}
-
-func (cc ConfigurationCluster) ConfigurationToDatabase() *models.ConfigurationLogicalCluster {
-	configurationLogicalCluster := new(models.ConfigurationLogicalCluster)
-	configurationLogicalCluster.LogicalName = cc.GetLogicalName()
-	configurationLogicalCluster.Secret = cc.GetSecret()
-	configurationLogicalCluster.MaxTimeout = cc.GetMaxTimeout()
-	return configurationLogicalCluster
-}
-
-func (cc ConfigurationCluster) DatabaseToConfiguration(configurationLogicalCluster *models.ConfigurationLogicalCluster) {
-	cc.SetLogicalName(configurationLogicalCluster.LogicalName)
-	cc.SetSecret(configurationLogicalCluster.Secret)
-	cc.SetMaxTimeout(configurationLogicalCluster.MaxTimeout)
 }

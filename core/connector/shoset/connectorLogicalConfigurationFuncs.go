@@ -80,10 +80,10 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 //SendSecret :
 func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	configurationConnector := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-	configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
-	configMarshal, err := json.Marshal(configurationLogicalConnector)
+	//configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
+	//configMarshal, err := json.Marshal(configurationLogicalConnector)
 	if err == nil {
-		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", string(configMarshal))
+		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", "")
 		//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 		configurationMsg.GetContext()["componentType"] = "connector"
 		configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()

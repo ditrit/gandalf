@@ -29,6 +29,8 @@ var connectorCfg = verdeter.NewConfigCmd(
 		configurationConnector := cmodels.NewConfigurationConnector(cfg)
 		connector.ConnectorMemberInit(configurationConnector)
 		//go oauth2.NewOAuth2Client()
+		fmt.Println("Connector call done")
+
 		<-done
 	})
 

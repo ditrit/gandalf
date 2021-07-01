@@ -16,12 +16,11 @@ import (
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
 
-	"github.com/ditrit/gandalf/core/cluster/api"
-
 	"github.com/ditrit/shoset/msg"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
+	"github.com/google/uuid"
 
 	net "github.com/ditrit/shoset"
 )
@@ -200,7 +199,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 										//TODO TRANSACTION
 										//CREATE SECRET
 										var secretAssignement models.SecretAssignement
-										secretAssignement.Secret = utils.GenerateHash()
+										secretAssignement.Secret = uuid.NewString()
 										err := gandalfDatabaseClient.Create(secretAssignement).Error
 										if err == nil {
 											//GET PIVOT AGGREGATOR
@@ -463,13 +462,13 @@ func (m *ClusterMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.Lo
 	return nil, fmt.Errorf("Configuration nil")
 }
 
-// ConfigurationValidation : Validation configuration
+/* // ConfigurationValidation : Validation configuration
 func (m *ClusterMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection) (err error) {
 	server := api.NewServerAPI(bindAdress, databaseConnection)
 	server.Run()
 
 	return
-}
+} */
 
 // CreateStore : Cluster create store function.
 func CreateStoreOffSet(bros []string, delta int) string {

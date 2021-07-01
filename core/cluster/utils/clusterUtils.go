@@ -75,7 +75,7 @@ func GetTenant(tenantName string, client *gorm.DB) (tenant models.Tenant, err er
 	return
 }
 
-// GetConfigurationCluster :
+/* // GetConfigurationCluster :
 func GetConfigurationCluster(logicalName string, client *gorm.DB) (configurationCluster models.ConfigurationLogicalCluster, err error) {
 	err = client.Where("logical_name = ?", logicalName).First(&configurationCluster).Error
 
@@ -115,7 +115,7 @@ func SaveConfigurationConnector(configurationConnector models.ConfigurationLogic
 	err = client.Create(&configurationConnector).Error
 
 	return
-}
+}*/
 
 /* // GetConnectorConfiguration : Cluster application context getter.
 func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []models.ConnectorConfig) {
