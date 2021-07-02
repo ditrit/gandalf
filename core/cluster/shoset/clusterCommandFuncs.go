@@ -42,7 +42,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 				if ok {
 					log.Printf("Succes capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
 				} else {
-					log.Printf("Fail capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
+					log.Printf("Error : Fail capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
 					err = errors.New("Fail capture command" + cmd.GetCommand() + " on tenant" + cmd.GetTenant())
 				}
 

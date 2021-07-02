@@ -39,7 +39,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 				if ok {
 					log.Printf("Succes capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
 				} else {
-					log.Printf("Fail capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
+					log.Printf("Error : Fail capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
 					err = errors.New("Fail capture event" + evt.GetEvent() + " on tenant" + evt.GetTenant())
 				}
 			} else {

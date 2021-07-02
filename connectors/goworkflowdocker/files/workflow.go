@@ -7,6 +7,11 @@ import (
 )
 
 func Workflow(clientGandalf *goclient.ClientGandalf) {
-	fmt.Println("Test Workflow")
+	fmt.Println("Start 4")
+
+	fmt.Println("SEND COMMMAND CREATE_REPOSITORY")
+	payload := `{"Token":"","Name":"TestConnector","Description":"TestConnector","Private":true}`
+	commandMessageUUID := clientGandalf.SendCommand("vcs.CREATE_REPOSITORY", map[string]string{"payload": payload})
+	fmt.Println(commandMessageUUID)
 
 }

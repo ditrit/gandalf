@@ -65,27 +65,27 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 
 		file, handler, err := r.FormFile("myFile")
 		if err != nil {
-			fmt.Println("Error Retrieving the File")
-			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		defer file.Close()
+
 		fmt.Printf("Uploaded File: %+v\n", handler.Filename)
 		fmt.Printf("File Size: %+v\n", handler.Size)
 		fmt.Printf("MIME Header: %+v\n", handler.Header)
 
 		fileBytes, err := ioutil.ReadAll(file)
 		if err != nil {
-			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
 		}
 
 		var logicalComponent *models.LogicalComponent
 		err = yaml.Unmarshal(fileBytes, &logicalComponent)
 		if err != nil {
-			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
 		}
-
-		fmt.Fprintf(w, "Successfully Uploaded File\n")
 
 		if typeComponent == "aggregator" {
 			version := models.Version{Major: int8(logicalComponent.Pivot.Major), Minor: int8(logicalComponent.Pivot.Minor)}
@@ -127,6 +127,8 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	fmt.Fprintf(w, "Successfully Uploaded File\n")
+
 }
 
 func (lc LogicalComponentController) GetPivot(client *gorm.DB, baseurl, componentType string, version models.Version) (models.Pivot, error) {
@@ -147,7 +149,7 @@ func (lc LogicalComponentController) DownloadPivot(url, ressource string) (pivot
 
 	resp, err := http.Get(url + ressource)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 
@@ -231,7 +233,7 @@ func (lc LogicalComponentController) DownloadProductConnector(url, ressource str
 	fmt.Println(url + ressource)
 	resp, err := http.Get(url + ressource)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		fmt.Println(err)
 		return
 	}

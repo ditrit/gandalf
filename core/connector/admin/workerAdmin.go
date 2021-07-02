@@ -446,7 +446,7 @@ func (w WorkerAdmin) startWorker(version models.Version) (err error) {
 				}
 				err = cmd.Start()
 				if err != nil {
-					log.Printf("Can't start worker %s", fileWorkersPathVersion)
+					log.Printf("Error : Can't start worker %s", fileWorkersPathVersion)
 				}
 				time.Sleep(time.Second * time.Duration(5))
 

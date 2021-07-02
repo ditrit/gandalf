@@ -154,7 +154,7 @@ func ValidatePayload(payload, payloadSchema string) (result bool) {
 
 	validate, err := gojsonschema.Validate(payloadSchemaloader, payloadloader)
 	if err != nil {
-		log.Printf("Error on validation payload : %s", err)
+		log.Printf("Error : Can't validate payload : %s", err)
 	} else {
 		if validate.Valid() {
 			result = true
@@ -169,7 +169,7 @@ func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
 
 	resp, err := http.Get(url + ressource)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 
@@ -197,7 +197,7 @@ func DownloadProductConnector(url, ressource string) (productConnector *models.P
 
 	resp, err := http.Get(url + ressource)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 
@@ -254,7 +254,7 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 	resp, err := http.Get(url + ressource)
 	if err != nil {
 		fmt.Println(err)
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 	defer resp.Body.Close()
@@ -276,7 +276,7 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 func DownloadWorkers(url, filePath string) (err error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 
@@ -288,14 +288,14 @@ func DownloadWorkers(url, filePath string) (err error) {
 	out, err := os.Create(filePath)
 	if err != nil {
 		fmt.Println(err)
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 
@@ -311,7 +311,7 @@ func DownloadVersions(url, ressource string) (versions []string, err error) {
 	fmt.Println("url1")
 	resp, err := http.Get(url + ressource)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		fmt.Printf("err: %s", err)
 		return
 	}

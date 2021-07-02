@@ -202,7 +202,7 @@ func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
 
 	resp, err := http.Get(url + ressource)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 

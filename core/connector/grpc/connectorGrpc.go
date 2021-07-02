@@ -125,11 +125,11 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 					validation = result
 
 				} else {
-					log.Printf("Can't get connector configuration version %s", int8(in.GetMajor()))
+					log.Printf("Error : Can't get connector configuration version %s", int8(in.GetMajor()))
 				}
 
 			} else {
-				log.Printf("Connectors configuration not found")
+				log.Println("Error : Connectors configuration not found")
 			}
 		}
 	}
