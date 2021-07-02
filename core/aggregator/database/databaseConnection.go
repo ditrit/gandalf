@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+
 	"log"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -49,7 +50,7 @@ func (dc DatabaseConnection) GetTenantDatabaseClient() *gorm.DB {
 		if err == nil {
 			dc.tenantDatabaseClient = tenantDatabaseClient
 		} else {
-			log.Println("Can't create database client")
+			log.Println("Error : Can't create database client : " + err.Error())
 			return nil
 		}
 	}
@@ -67,11 +68,11 @@ func (dc DatabaseConnection) GetDatabaseClientByTenant(tenantName string) *gorm.
 			if err == nil {
 				dc.mapTenantDatabaseClients[tenantName] = tenantDatabaseClient
 			} else {
-				log.Println("Can't create database client")
+				log.Println("Error : Can't create database client : " + err.Error())
 				return nil
 			}
 		} else {
-			log.Println("Can't get tenant " + tenantName)
+			log.Println("Error : Can't get tenant " + tenantName + " : " + err.Error())
 		}
 
 	}

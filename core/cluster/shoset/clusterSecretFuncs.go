@@ -2,7 +2,6 @@
 package shoset
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -76,68 +75,76 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	if secret.GetCommand() == "VALIDATION" {
 
 		var databaseClient *gorm.DB
-		databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
-		if databaseConnection != nil {
-			//databasePath := ch.Context["databasePath"].(string)
-			databaseClient = databaseConnection.GetGandalfDatabaseClient()
-
-			/*if secret.GetContext()["componentType"].(string) == "cluster" {
+		databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
+		if ok {
+			if databaseConnection != nil {
+				//databasePath := ch.Context["databasePath"].(string)
 				databaseClient = databaseConnection.GetGandalfDatabaseClient()
-			} else {
-				databaseClient = databaseConnection.GetDatabaseClientByTenant(secret.GetTenant())
 
-				 	mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-				//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-				configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
-
-				if mapDatabaseClient != nil {
-					databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
+				/*if secret.GetContext()["componentType"].(string) == "cluster" {
+					databaseClient = databaseConnection.GetGandalfDatabaseClient()
 				} else {
-					log.Println("Database client map is empty")
-					err = errors.New("Database client map is empty")
-				}
-			}*/
+					databaseClient = databaseConnection.GetDatabaseClientByTenant(secret.GetTenant())
 
-			if databaseClient != nil {
+						 mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+					//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
+					configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
-				bindAddr := secret.GetContext()["bindAddress"].(string)
-				componentType := secret.GetContext()["componentType"].(string)
-				var result bool
-				result, err = utils.ValidateSecret(databaseClient, secret.GetContext()["secret"].(string), secret.GetContext()["bindAddress"].(string))
-				fmt.Println("result")
-				fmt.Println(result)
-				if err == nil {
-					target := secret.GetTarget()
-					if componentType == "aggregator" || componentType == "cluster" {
-						target = ""
-					}
-					secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
-					secretReply.Tenant = secret.GetTenant()
-
-					var shoset *net.ShosetConn
-					if componentType == "cluster" {
-
-						shoset = ch.ConnsJoin.Get(bindAddr)
+					if mapDatabaseClient != nil {
+						databaseClient = cutils.GetDatabaseClientByTenant(secret.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
 					} else {
-						shoset = ch.ConnsByAddr.Get(c.GetBindAddr())
+						log.Println("Database client map is empty")
+						err = errors.New("Database client map is empty")
+					}
+				}*/
 
+				if databaseClient != nil {
+
+					bindAddr, ok := secret.GetContext()["bindAddress"].(string)
+					if ok {
+						componentType, ok := secret.GetContext()["componentType"].(string)
+						if ok {
+							stringsecret, ok := secret.GetContext()["secret"].(string)
+							if ok {
+								var result bool
+								result, err = utils.ValidateSecret(databaseClient, stringsecret, bindAddr)
+								fmt.Println("result")
+								fmt.Println(result)
+								if err == nil {
+									target := secret.GetTarget()
+									if componentType == "aggregator" || componentType == "cluster" {
+										target = ""
+									}
+									secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
+									secretReply.Tenant = secret.GetTenant()
+
+									var shoset *net.ShosetConn
+									if componentType == "cluster" {
+
+										shoset = ch.ConnsJoin.Get(bindAddr)
+									} else {
+										shoset = ch.ConnsByAddr.Get(c.GetBindAddr())
+
+									}
+
+									shoset.SendMessage(secretReply)
+
+								} else {
+									log.Println("Error : Can't validate secret")
+								}
+							}
+
+						}
 					}
 
-					shoset.SendMessage(secretReply)
-
 				} else {
-					log.Println("Can't validate secret")
-					err = errors.New("Can't validate secret")
+					log.Println("Error : Can't get database client")
 				}
-
 			} else {
-				log.Println("Can't get database client")
-				err = errors.New("Can't get database client")
+				log.Println("Error : Database connection is empty")
 			}
-		} else {
-			log.Println("Database connection is empty")
-			err = errors.New("Database connection is empty")
 		}
+
 	} else if secret.GetCommand() == "VALIDATION_REPLY" {
 		ch.Context["validation"] = secret.GetPayload()
 	}
@@ -167,65 +174,65 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendSecret :
 func SendSecret(shoset *net.Shoset) (err error) {
-	configurationCluster := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
+	configurationCluster, ok := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
+	if ok {
+		secretMsg := cmsg.NewSecret("", "VALIDATION", "")
+		//secretMsg.Tenant = "cluster"
+		secretMsg.GetContext()["componentType"] = "cluster"
+		secretMsg.GetContext()["secret"] = configurationCluster.GetSecret()
+		secretMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
+		//conf.GetContext()["product"] = shoset.Context["product"]
 
-	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
-	//secretMsg.Tenant = "cluster"
-	secretMsg.GetContext()["componentType"] = "cluster"
-	secretMsg.GetContext()["secret"] = configurationCluster.GetSecret()
-	secretMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
-	//conf.GetContext()["product"] = shoset.Context["product"]
+		shosets := net.GetByType(shoset.ConnsJoin, "")
 
-	shosets := net.GetByType(shoset.ConnsJoin, "")
-
-	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
-			secretMsg.Timeout = configurationCluster.GetMaxTimeout()
-		}
-		notSend := true
-		for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
-			index := getSecretSendIndex(shosets)
-			shosets[index].SendMessage(secretMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["validation"] != nil {
-				notSend = false
-				break
+		if len(shosets) != 0 {
+			if secretMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
+				secretMsg.Timeout = configurationCluster.GetMaxTimeout()
 			}
+			notSend := true
+			for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(secretMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+
+				timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
+
+				time.Sleep(timeoutSend * time.Millisecond)
+
+				if shoset.Context["validation"] != nil {
+					notSend = false
+					break
+				}
+			}
+
+			if notSend {
+				return nil
+			}
+
+			/* 		notSend := true
+			   for notSend {
+
+				   index := getSecretSendIndex(shosets)
+				   shosets[index].SendMessage(secretMsg)
+				   log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+
+				   timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
+
+				   time.Sleep(timeoutSend * time.Millisecond)
+
+				   if shoset.Context["validation"] != nil {
+					   notSend = false
+					   break
+				   }
+			   }
+
+			   if notSend {
+				   return nil
+			   } */
+
+		} else {
+			log.Println("Error : Can't find cluster to send")
 		}
-
-		if notSend {
-			return nil
-		}
-
-		/* 		notSend := true
-		   		for notSend {
-
-		   			index := getSecretSendIndex(shosets)
-		   			shosets[index].SendMessage(secretMsg)
-		   			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
-
-		   			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
-
-		   			time.Sleep(timeoutSend * time.Millisecond)
-
-		   			if shoset.Context["validation"] != nil {
-		   				notSend = false
-		   				break
-		   			}
-		   		}
-
-		   		if notSend {
-		   			return nil
-		   		} */
-
-	} else {
-		log.Println("can't find cluster to send")
-		err = errors.New("can't find cluster to send")
 	}
 
 	return err
@@ -233,12 +240,12 @@ func SendSecret(shoset *net.Shoset) (err error) {
 
 // getCommandSendIndex : Aggregator getSendIndex function.
 func getSecretSendIndex(conns []*net.ShosetConn) int {
-	aux := secretSendIndex
-	secretSendIndex++
-
 	if secretSendIndex >= len(conns) {
 		secretSendIndex = 0
 	}
+
+	aux := secretSendIndex
+	secretSendIndex++
 
 	return aux
 }

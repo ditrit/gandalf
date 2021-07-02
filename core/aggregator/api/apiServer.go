@@ -1,8 +1,9 @@
 package api
 
 import (
-	"log"
 	"net/http"
+
+	"log"
 
 	net "github.com/ditrit/shoset"
 
@@ -38,6 +39,6 @@ func NewServerAPI(bindAddress string, databaseConnection *database.DatabaseConne
 // Run :
 func (sa ServerAPI) Run() {
 	// Start the workerUpload
-	log.Printf("Listening on localhost: %s", sa.bindAddress)
+	log.Println("Listening on localhost: " + sa.bindAddress)
 	log.Println(http.ListenAndServe(sa.bindAddress, sa.router))
 }

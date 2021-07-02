@@ -3,7 +3,6 @@ package grpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net"
@@ -86,51 +85,60 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 	   		mapVersionConnectorCommands[int8(in.GetMajor())] = append(mapVersionConnectorCommands[int8(in.GetMajor())], in.GetCommands()...)
 	   	} */
 
-	Pivots := r.Shoset.Context["Pivots"].([]*models.Pivot)
-	ProductConnector := r.Shoset.Context["ProductConnectors"].([]*models.ProductConnector)
-
-	if Pivots != nil && ProductConnector != nil {
-		//configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-		//connectorType := configurationConnector.GetConnectorType()
-		//product := configurationConnector.GetProduct()
-		pivot := utils.GetPivotByVersion(int8(in.GetMajor()), int8(in.GetMinor()), Pivots)
-		productConnector := utils.GetConnectorProductByVersion(int8(in.GetMajor()), int8(in.GetMinor()), ProductConnector)
-		if pivot != nil && productConnector != nil {
-			var configCommands []string
-			for _, pivotCommand := range pivot.CommandTypes {
-				configCommands = append(configCommands, pivotCommand.Name)
-			}
-			for _, productConnectorCommand := range productConnector.CommandTypes {
-				configCommands = append(configCommands, productConnectorCommand.Name)
-			}
-
-			result := true
-			for _, command := range configCommands {
-				r, _ := regexp.Compile("ADMIN_*")
-				if !r.MatchString(command) {
-					currentResult := false
-					for _, icommand := range in.GetCommands() {
-						if command == icommand {
-							currentResult = true
-						}
+	Pivots, ok := r.Shoset.Context["Pivots"].([]*models.Pivot)
+	if ok {
+		ProductConnectors, ok := r.Shoset.Context["ProductConnectors"].([]*models.ProductConnector)
+		if ok {
+			if Pivots != nil && ProductConnectors != nil {
+				//configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+				//connectorType := configurationConnector.GetConnectorType()
+				//product := configurationConnector.GetProduct()
+				pivot := utils.GetPivotByVersion(int8(in.GetMajor()), int8(in.GetMinor()), Pivots)
+				productConnector := utils.GetConnectorProductByVersion(int8(in.GetMajor()), int8(in.GetMinor()), ProductConnectors)
+				fmt.Println("pivot")
+				fmt.Println(pivot)
+				fmt.Println("productConnector")
+				fmt.Println(productConnector)
+				if pivot != nil && productConnector != nil {
+					var configCommands []string
+					for _, pivotCommand := range pivot.CommandTypes {
+						configCommands = append(configCommands, pivotCommand.Name)
 					}
-					result = result && currentResult
+					for _, productConnectorCommand := range productConnector.CommandTypes {
+						configCommands = append(configCommands, productConnectorCommand.Name)
+					}
+
+					result := true
+					for _, command := range configCommands {
+						r, _ := regexp.Compile("ADMIN_*")
+						if !r.MatchString(command) {
+							currentResult := false
+							for _, icommand := range in.GetCommands() {
+								if command == icommand {
+									currentResult = true
+								}
+							}
+							result = result && currentResult
+						}
+
+					}
+					validation = result
+
+				} else {
+					log.Printf("Can't get connector configuration version %s", int8(in.GetMajor()))
 				}
 
+			} else {
+				log.Printf("Connectors configuration not found")
 			}
-			validation = result
-
-		} else {
-			log.Printf("Can't get connector configuration version %s", int8(in.GetMajor()))
 		}
-
-	} else {
-		log.Printf("Connectors configuration not found")
 	}
 
-	activeWorkers := r.Shoset.Context["mapActiveWorkers"].(map[models.Version]bool)
-	activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}] = validation
-	r.Shoset.Context["mapActiveWorkers"] = activeWorkers
+	activeWorkers, ok := r.Shoset.Context["mapActiveWorkers"].(map[models.Version]bool)
+	if ok {
+		activeWorkers[models.Version{Major: int8(in.GetMajor()), Minor: int8(in.GetMinor())}] = validation
+		r.Shoset.Context["mapActiveWorkers"] = activeWorkers
+	}
 
 	return &pb.Validate{Valid: validation}, nil
 }
@@ -155,48 +163,48 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	cmd := pb.CommandFromGrpc(in)
 	//connectorType := r.Shoset.Context["connectorType"].(string)
 
-	configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	configurationConnector, ok := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	if ok {
+		cmd.Tenant = configurationConnector.GetTenant()
+		shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
 
-	cmd.Tenant = configurationConnector.GetTenant()
-	shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
-
-	if len(shosets) != 0 {
-		if cmd.GetTimeout() > r.timeoutMax {
-			cmd.Timeout = r.timeoutMax
-		}
-
-		iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
-		iterator := r.MapIterators[iteratorMessage.GetId()]
-
-		go r.runIteratorEvent(cmd.GetCommand(), "ON_GOING", cmd.GetUUID(), iterator, r.ValidationChannel)
-
-		notSend := true
-		for notSend {
-			index := getGrpcSendIndex(shosets)
-			shosets[index].SendMessage(cmd)
-			log.Printf("%s : send command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(cmd.GetTimeout()) / len(shosets)))
-
-			messageChannel := <-r.ValidationChannel
-			log.Printf("%s : receive validation event for command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
-
-			if messageChannel != nil {
-				notSend = false
-				break
+		if len(shosets) != 0 {
+			if cmd.GetTimeout() > r.timeoutMax {
+				cmd.Timeout = r.timeoutMax
 			}
 
-			time.Sleep(timeoutSend)
-		}
+			iteratorMessage, _ := r.CreateIteratorEvent(ctx, new(pb.Empty))
+			iterator := r.MapIterators[iteratorMessage.GetId()]
 
-		if notSend {
-			return nil, nil
-		}
+			go r.runIteratorEvent(cmd.GetCommand(), "ON_GOING", cmd.GetUUID(), iterator, r.ValidationChannel)
 
-		commandMessageUUID = &pb.CommandMessageUUID{UUID: cmd.UUID}
-	} else {
-		log.Println("can't find aggregators to send")
-		err = errors.New("can't find aggregators to send")
+			notSend := true
+			for notSend {
+				index := getGrpcSendIndex(shosets)
+				shosets[index].SendMessage(cmd)
+				log.Printf("%s : send command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
+
+				timeoutSend := time.Duration((int(cmd.GetTimeout()) / len(shosets)))
+
+				messageChannel := <-r.ValidationChannel
+				log.Printf("%s : receive validation event for command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
+
+				if messageChannel != nil {
+					notSend = false
+					break
+				}
+
+				time.Sleep(timeoutSend)
+			}
+
+			if notSend {
+				return nil, nil
+			}
+
+			commandMessageUUID = &pb.CommandMessageUUID{UUID: cmd.UUID}
+		} else {
+			log.Println("Error : Can't find aggregators to send")
+		}
 	}
 
 	return commandMessageUUID, err
@@ -224,19 +232,21 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 	fmt.Println("Handle send event")
 	fmt.Println(evt)
 
-	configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
-	evt.Tenant = configurationConnector.GetTenant()
-	thisOne := r.Shoset.GetBindAddr()
+	configurationConnector, ok := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	if ok {
+		evt.Tenant = configurationConnector.GetTenant()
+		thisOne := r.Shoset.GetBindAddr()
 
-	if evt.GetReferenceUUID() == "" {
-		r.Shoset.ConnsByAddr.Iterate(
-			func(key string, val *sn.ShosetConn) {
-				if key != r.Shoset.GetBindAddr() && key != thisOne && val.ShosetType == "a" {
-					val.SendMessage(evt)
-					log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
-				}
-			},
-		)
+		if evt.GetReferenceUUID() == "" {
+			r.Shoset.ConnsByAddr.Iterate(
+				func(key string, val *sn.ShosetConn) {
+					if key != r.Shoset.GetBindAddr() && key != thisOne && val.ShosetType == "a" {
+						val.SendMessage(evt)
+						log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
+					}
+				},
+			)
+		}
 	}
 
 	return &pb.Empty{}, err

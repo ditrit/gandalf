@@ -2,7 +2,6 @@
 package shoset
 
 import (
-	"errors"
 	"fmt"
 	"log"
 
@@ -28,56 +27,52 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	fmt.Println("Handle command")
 	fmt.Println(cmd)
 
-	configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	if ok {
+		if cmd.GetTenant() == configurationAggregator.GetTenant() {
+			//_ = ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
 
-	if cmd.GetTenant() == configurationAggregator.GetTenant() {
-		//_ = ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
-
-		//if ok {
-		if dir == "in" {
-			if c.GetShosetType() == "c" {
-				shosets := net.GetByType(ch.ConnsByAddr, "cl")
-				if len(shosets) != 0 {
-					index := getCommandSendIndex(shosets)
-					shosets[index].SendMessage(cmd)
-					log.Printf("%s : send in command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
+			//if ok {
+			if dir == "in" {
+				if c.GetShosetType() == "c" {
+					shosets := net.GetByType(ch.ConnsByAddr, "cl")
+					if len(shosets) != 0 {
+						index := getCommandSendIndex(shosets)
+						shosets[index].SendMessage(cmd)
+						log.Printf("%s : send in command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
+					} else {
+						log.Println("Error : Can't find clusters to send")
+					}
 				} else {
-					log.Println("can't find clusters to send")
-					err = errors.New("can't find clusters to send")
+					log.Println("Error : Wrong shoset type")
 				}
-			} else {
-				log.Println("wrong Shoset type")
-				err = errors.New("wrong Shoset type")
 			}
-		}
 
-		if dir == "out" {
-			if c.GetShosetType() == "cl" {
-				fmt.Println("cmd.GetTarget()")
-				fmt.Println(cmd.GetTarget())
-				shosets := net.GetByType(ch.ConnsByName.Get(cmd.GetTarget()), "c")
-				fmt.Println("shosets")
-				fmt.Println(shosets)
-				if len(shosets) != 0 {
-					index := getCommandSendIndex(shosets)
-					shosets[index].SendMessage(cmd)
-					log.Printf("%s : send out command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
+			if dir == "out" {
+				if c.GetShosetType() == "cl" {
+					fmt.Println("cmd.GetTarget()")
+					fmt.Println(cmd.GetTarget())
+					shosets := net.GetByType(ch.ConnsByName.Get(cmd.GetTarget()), "c")
+					fmt.Println("shosets")
+					fmt.Println(shosets)
+					if len(shosets) != 0 {
+						index := getCommandSendIndex(shosets)
+						shosets[index].SendMessage(cmd)
+						log.Printf("%s : send out command %s to %s\n", thisOne, cmd.GetCommand(), shosets[index])
+					} else {
+						log.Println("Error : Can't find connectors to send")
+					}
 				} else {
-					log.Println("can't find connectors to send")
-					err = errors.New("can't find connectors to send")
+					log.Println("Error : Wrong shoset type")
 				}
-			} else {
-				log.Println("wrong Shoset type")
-				err = errors.New("wrong Shoset type")
 			}
+			/* 	} else {
+				log.Println("can't push to queue")
+				err = errors.New("can't push to queue")
+			} */
+		} else {
+			log.Println("Error : Wrong tenant")
 		}
-		/* 	} else {
-			log.Println("can't push to queue")
-			err = errors.New("can't push to queue")
-		} */
-	} else {
-		log.Println("wrong tenant")
-		err = errors.New("wrong tenant")
 	}
 
 	return err
@@ -85,11 +80,12 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 // getCommandSendIndex : Aggregator getSendIndex function.
 func getCommandSendIndex(conns []*net.ShosetConn) int {
-	aux := commandSendIndex
-	commandSendIndex++
-
 	if commandSendIndex >= len(conns) {
 		commandSendIndex = 0
 	}
+
+	aux := commandSendIndex
+	commandSendIndex++
+
 	return aux
 }

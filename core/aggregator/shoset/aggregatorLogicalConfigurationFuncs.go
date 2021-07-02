@@ -3,7 +3,6 @@ package shoset
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -71,18 +70,18 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
 				logicalConfiguration.Target = c.GetBindAddr()
-				configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
-				logicalConfiguration.Tenant = configurationAggregator.GetTenant()
-				index := getLogicalConfigurationSendIndex(shosets)
-				shosets[index].SendMessage(logicalConfiguration)
-				log.Printf("%s : send in configuration %s to %s\n", thisOne, logicalConfiguration.GetCommand(), shosets[index])
+				configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+				if ok {
+					logicalConfiguration.Tenant = configurationAggregator.GetTenant()
+					index := getLogicalConfigurationSendIndex(shosets)
+					shosets[index].SendMessage(logicalConfiguration)
+					log.Printf("%s : send in configuration %s to %s\n", thisOne, logicalConfiguration.GetCommand(), shosets[index])
+				}
 			} else {
-				log.Println("can't find clusters to send")
-				err = errors.New("can't find clusters to send")
+				log.Println("Error : Can't find clusters to send")
 			}
 		} else {
-			log.Println("wrong Shoset type")
-			err = errors.New("wrong Shoset type")
+			log.Println("Error : Wrong Shoset type")
 		}
 	}
 
@@ -102,8 +101,7 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 				shoset.SendMessage(logicalConfiguration)
 			}
 		} else {
-			log.Println("wrong Shoset type")
-			err = errors.New("wrong Shoset type")
+			log.Println("Error : Wrong Shoset type")
 		}
 	}
 
@@ -112,47 +110,48 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 
 //SendSecret :
 func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
-	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
-	//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
-	//configMarshal, err := json.Marshal(configurationLogicalAggregator)
-	if err == nil {
-		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", "")
-		configurationMsg.Tenant = configurationAggregator.GetTenant()
-		configurationMsg.GetContext()["componentType"] = "aggregator"
-		configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
-		configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
-		//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
-		//conf.GetContext()["product"] = shoset.Context["product"]
+	configurationAggregator, ok := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	if ok {
+		//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
+		//configMarshal, err := json.Marshal(configurationLogicalAggregator)
+		if err == nil {
+			configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", "")
+			configurationMsg.Tenant = configurationAggregator.GetTenant()
+			configurationMsg.GetContext()["componentType"] = "aggregator"
+			configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
+			configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
+			//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
+			//conf.GetContext()["product"] = shoset.Context["product"]
 
-		shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+			shosets := net.GetByType(shoset.ConnsByAddr, "cl")
 
-		if len(shosets) != 0 {
-			if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
-				configurationMsg.Timeout = configurationAggregator.GetMaxTimeout()
-			}
-
-			notSend := true
-			for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
-				index := getLogicalConfigurationSendIndex(shosets)
-				shosets[index].SendMessage(configurationMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
-
-				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-				time.Sleep(timeoutSend * time.Millisecond)
-
-				if shoset.Context["logicalConfiguration"] != nil {
-					notSend = false
-					break
+			if len(shosets) != 0 {
+				if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+					configurationMsg.Timeout = configurationAggregator.GetMaxTimeout()
 				}
-			}
 
-			if notSend {
-				return nil
+				notSend := true
+				for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
+					index := getLogicalConfigurationSendIndex(shosets)
+					shosets[index].SendMessage(configurationMsg)
+					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+
+					timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
+
+					time.Sleep(timeoutSend * time.Millisecond)
+
+					if shoset.Context["logicalConfiguration"] != nil {
+						notSend = false
+						break
+					}
+				}
+
+				if notSend {
+					return nil
+				}
+			} else {
+				log.Println("Error : Can't find cluster to send")
 			}
-		} else {
-			log.Println("can't find cluster to send")
-			err = errors.New("can't find cluster to send")
 		}
 	}
 
@@ -161,12 +160,12 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 
 // getCommandSendIndex : Aggregator getSendIndex function.
 func getLogicalConfigurationSendIndex(conns []*net.ShosetConn) int {
-	aux := logicalConfigurationSendIndex
-	logicalConfigurationSendIndex++
-
 	if logicalConfigurationSendIndex >= len(conns) {
 		logicalConfigurationSendIndex = 0
 	}
+
+	aux := logicalConfigurationSendIndex
+	logicalConfigurationSendIndex++
 
 	return aux
 }

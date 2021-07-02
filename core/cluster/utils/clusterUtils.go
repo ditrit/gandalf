@@ -123,30 +123,30 @@ func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []mode
 
 	return
 } */
-func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponent models.LogicalComponent) {
-	client.Where("logical_name = ?", logicalName).Preload("KeyValues.Key").Preload("Resources.EventTypeToPolls.Resource").Preload("Resources.EventTypeToPolls.EventType").First(&logicalComponent)
+func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponent models.LogicalComponent, err error) {
+	err = client.Where("logical_name = ?", logicalName).Preload("KeyValues.Key").Preload("Resources.EventTypeToPolls.Resource").Preload("Resources.EventTypeToPolls.EventType").First(&logicalComponent).Error
 	fmt.Println("logicalComponent")
 	fmt.Println(logicalComponent)
 	return
 }
 
-func GetPivots(client *gorm.DB, componentType string, version models.Version) (pivot models.Pivot) {
+func GetPivots(client *gorm.DB, componentType string, version models.Version) (pivot models.Pivot, err error) {
 	fmt.Println("GET PIVOT")
 	fmt.Println(componentType)
 	fmt.Println(version.Major)
 	fmt.Println(version.Minor)
-	err := client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error
+	err = client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error
 	fmt.Println(err)
 	fmt.Println(pivot)
 	return
 }
 
-func GetProductConnectors(client *gorm.DB, product string, version models.Version) (productConnector models.ProductConnector) {
+func GetProductConnectors(client *gorm.DB, product string, version models.Version) (productConnector models.ProductConnector, err error) {
 	var productdb models.Product
 	client.Where("name = ?", product).First(&productdb)
 	fmt.Println("productdb")
 	fmt.Println(productdb)
-	client.Where("product_id = ? and major = ? and minor = ?", productdb.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector)
+	err = client.Where("product_id = ? and major = ? and minor = ?", productdb.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector).Error
 	fmt.Println("productConnector")
 	fmt.Println(productConnector)
 	//client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Ressources").Preload("EventTypeToPolls").First(&productConnector)
@@ -242,7 +242,7 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 	default:
 		ok = false
 
-		log.Println("Can't capture this message")
+		log.Println("Error : Can't capture message")
 	}
 
 	return ok

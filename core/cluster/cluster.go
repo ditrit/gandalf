@@ -225,25 +225,25 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 											log.Fatalf("Can't create API server")
 										} */
 									} else {
-										log.Fatalf("Can't save logical component")
+										log.Fatalf("Error : Can't save logical component")
 									}
 								} else {
-									log.Fatalf("Can't get pivot")
+									log.Fatalf("Error : Can't get pivot")
 								}
 							} else {
-								log.Fatalf("Can't initialize database")
+								log.Fatalf("Error : Can't initialize database")
 							}
 						} else {
-							log.Fatalf("Can't create database client")
+							log.Fatalf("Error : Can't create database client")
 						}
 					} else {
-						log.Fatalf("Can't create database")
+						log.Fatalf("Error : Can't create database")
 					}
 				} else {
-					log.Fatalf("Can't init node")
+					log.Fatalf("Error : Can't init node")
 				}
 			} else {
-				log.Fatalf("Can't create node")
+				log.Fatalf("Error : Can't create node")
 			}
 		} else {
 			log.Println("Node already exist")
@@ -271,20 +271,20 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								log.Fatalf("Can't create API server")
 							} */
 						} else {
-							log.Fatalf("Can't get logical component")
+							log.Fatalf("Error : Can't get logical component")
 						}
 					} else {
-						log.Fatalf("Can't get pivot")
+						log.Fatalf("Error : Can't get pivot")
 					}
 				} else {
-					log.Fatalf("Can't create database client")
+					log.Fatalf("Error : Can't create database client")
 				}
 			} else {
-				log.Fatalf("Can't start node")
+				log.Fatalf("Error : Can't start node")
 			}
 		}
 	} else {
-		log.Fatalf("Can't bind shoset on %s", configurationCluster.GetBindAddress())
+		log.Fatalf("Error : Can't bind shoset on %s", configurationCluster.GetBindAddress())
 	}
 
 	return member
@@ -346,28 +346,28 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 										log.Fatalf("Can't create API server")
 									} */
 								} else {
-									log.Fatalf("Can't create database client")
+									log.Fatalf("Error : Can't create database client")
 								}
 							} else {
-								log.Fatalf("Can't create node")
+								log.Fatalf("Error : Can't create node")
 							}
 						} else {
-							log.Fatalf("Can't get logical configuration")
+							log.Fatalf("Error : Can't get logical configuration")
 						}
 					} else {
-						log.Fatalf("Can't get pivot")
+						log.Fatalf("Error : Can't get pivot")
 					}
 				} else {
-					log.Fatalf("Invalid secret")
+					log.Fatalf("Error : Invalid secret")
 				}
 			} else {
-				log.Fatalf("Can't get secret")
+				log.Fatalf("Error : Can't get secret")
 			}
 		} else {
-			log.Fatalf("Can't join shoset on %s", configurationCluster.GetJoinAddress())
+			log.Fatalf("Error : Can't join shoset on %s", configurationCluster.GetJoinAddress())
 		}
 	} else {
-		log.Fatalf("Can't bind shoset on %s", configurationCluster.GetBindAddress())
+		log.Fatalf("Error : Can't bind shoset on %s", configurationCluster.GetBindAddress())
 	}
 
 	return member
@@ -424,15 +424,15 @@ func (m *ClusterMember) SaveLogicalComponent(client *gorm.DB, configurationClust
 
 //TODO REVOIR ERROR
 func (m *ClusterMember) GetInitPivot(client *gorm.DB, componentType string, version models.Version) (*models.Pivot, error) {
-	pivot := utils.GetPivots(client, componentType, version)
+	pivot, err := utils.GetPivots(client, componentType, version)
 
-	return &pivot, nil
+	return &pivot, err
 }
 
 func (m *ClusterMember) GetInitLogicalConfiguration(client *gorm.DB, logicalName string) (*models.LogicalComponent, error) {
-	logicalComponent := utils.GetLogicalComponents(client, logicalName)
+	logicalComponent, err := utils.GetLogicalComponents(client, logicalName)
 
-	return &logicalComponent, nil
+	return &logicalComponent, err
 }
 
 func (m *ClusterMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {

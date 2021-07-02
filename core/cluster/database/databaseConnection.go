@@ -229,7 +229,7 @@ func (dc DatabaseConnection) GetGandalfDatabaseClient() *gorm.DB {
 		if err == nil {
 			dc.gandalfDatabaseClient = gandalfDatabaseClient
 		} else {
-			log.Println("Can't create database client")
+			log.Println("Error : Can't create database client")
 			return nil
 		}
 	}
@@ -247,11 +247,11 @@ func (dc DatabaseConnection) GetDatabaseClientByTenant(tenantName string) *gorm.
 			if err == nil {
 				dc.mapTenantDatabaseClients[tenantName] = tenantDatabaseClient
 			} else {
-				log.Println("Can't create database client")
+				log.Println("Error : Can't create database client")
 				return nil
 			}
 		} else {
-			log.Println("Can't get tenant " + tenantName)
+			log.Println("Error : Can't get tenant " + tenantName)
 		}
 
 	}

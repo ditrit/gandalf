@@ -2,7 +2,6 @@
 package shoset
 
 import (
-	"errors"
 	"log"
 
 	net "github.com/ditrit/shoset"
@@ -36,8 +35,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	if ok {
 		log.Printf("%s : push event %s to queue \n", thisOne, evt.GetEvent())
 	} else {
-		log.Println("Can't push to queue")
-		err = errors.New("Can't push to queue")
+		log.Println("Error : Can't push to queue")
 	}
 	/* } else {
 		log.Println("invalid payload")
