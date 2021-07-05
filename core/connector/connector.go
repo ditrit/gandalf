@@ -57,8 +57,10 @@ func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) 
 	//member.chaussette.Context["versions"] = versions
 	member.chaussette.Context["configuration"] = configurationConnector
 	member.chaussette.Context["mapActiveWorkers"] = member.mapActiveWorkers
-	member.chaussette.Context["Pivots"] = []*models.Pivot{}
-	member.chaussette.Context["ProductConnectors"] = []*models.ProductConnector{}
+	member.chaussette.Context["Pivots"] = make(map[models.Version]*models.Pivot)
+	member.chaussette.Context["ProductConnectors"] = make(map[models.Version]*models.ProductConnector)
+	//member.chaussette.Context["Pivots"] = []*models.Pivot{}
+	//member.chaussette.Context["ProductConnectors"] = []*models.ProductConnector{}
 	//member.chaussette.Context["mapConnectorsConfig"] = member.mapConnectorsConfig
 	//member.chaussette.Context["pivot"] = member.pivot
 	//member.chaussette.Context["workerAdminPivot"] = member.workerAdminPivot

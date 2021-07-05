@@ -122,7 +122,15 @@ func GetConnectorEventType(eventName string, list []models.EventType) (result mo
 }
 
 // GetPivotByVersion : GetPivotByVersion
-func GetPivotByVersion(major, minor int8, pivots []*models.Pivot) (result *models.Pivot) {
+func GetPivotByVersion(major, minor int8, pivots map[models.Version]*models.Pivot) (result *models.Pivot) {
+	if val, ok := pivots[models.Version{Major: major, Minor: minor}]; ok {
+		result = val
+	}
+
+	return
+}
+
+/* func GetPivotByVersion(major, minor int8, pivots []*models.Pivot) (result *models.Pivot) {
 	for _, pivot := range pivots {
 		if pivot.Major == major && pivot.Minor == minor {
 			result = pivot
@@ -131,10 +139,18 @@ func GetPivotByVersion(major, minor int8, pivots []*models.Pivot) (result *model
 	}
 
 	return
-}
+} */
 
 // GetPivotByVersion : GetPivotByVersion
-func GetConnectorProductByVersion(major, minor int8, productConnectors []*models.ProductConnector) (result *models.ProductConnector) {
+func GetConnectorProductByVersion(major, minor int8, productConnectors map[models.Version]*models.ProductConnector) (result *models.ProductConnector) {
+	if val, ok := productConnectors[models.Version{Major: major, Minor: minor}]; ok {
+		result = val
+	}
+
+	return
+}
+
+/* func GetConnectorProductByVersion(major, minor int8, productConnectors []*models.ProductConnector) (result *models.ProductConnector) {
 	for _, productConnector := range productConnectors {
 		if productConnector.Major == major && productConnector.Minor == minor {
 			result = productConnector
@@ -143,7 +159,7 @@ func GetConnectorProductByVersion(major, minor int8, productConnectors []*models
 	}
 
 	return
-}
+} */
 
 // ValidatePayload : Validate payload
 func ValidatePayload(payload, payloadSchema string) (result bool) {

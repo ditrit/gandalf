@@ -77,12 +77,17 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 				case "connector":
 					ch.Context["pivot"] = pivot
 				case "worker":
-					ch.Context["pivotWorker"] = pivot
+					pivots, ok := ch.Context["Pivots"].(map[models.Version]*models.Pivot)
+					if ok {
+						pivots[models.Version{Major: pivot.Major, Minor: pivot.Minor}] = pivot
+					}
+					ch.Context["Pivots"] = pivots
+					/* 	ch.Context["pivotWorker"] = pivot
 					pivots, ok := ch.Context["Pivots"].([]*models.Pivot)
 					if ok {
 						pivots = append(pivots, pivot)
 						ch.Context["Pivots"] = pivots
-					}
+					} */
 
 				}
 			}
@@ -92,12 +97,17 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		var productConnector *models.ProductConnector
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &productConnector)
 		if err == nil {
-			ch.Context["productConnector"] = productConnector
+			productConnectors, ok := ch.Context["ProductConnectors"].(map[models.Version]*models.ProductConnector)
+			if ok {
+				productConnectors[models.Version{Major: productConnector.Major, Minor: productConnector.Minor}] = productConnector
+			}
+			ch.Context["ProductConnectors"] = productConnectors
+			/* ch.Context["productConnector"] = productConnector
 			productConnectors, ok := ch.Context["ProductConnectors"].([]*models.ProductConnector)
 			if ok {
 				productConnectors = append(productConnectors, productConnector)
 				ch.Context["ProductConnectors"] = productConnectors
-			}
+			} */
 
 		}
 	}
@@ -188,11 +198,18 @@ func SendWorkerPivotConfiguration(shoset *net.Shoset, version models.Version) (e
 
 					time.Sleep(timeoutSend * time.Millisecond)
 
-					if shoset.Context["pivotWorker"] != nil {
+					pivots, ok := shoset.Context["Pivots"].(map[models.Version]*models.Pivot)
+					if ok {
+						if pivots[version] != nil {
+							notSend = false
+							break
+						}
+					}
+					/* if shoset.Context["pivotWorker"] != nil {
 						notSend = false
 						shoset.Context["pivotWorker"] = nil
 						break
-					}
+					} */
 				}
 
 				if notSend {
@@ -289,11 +306,19 @@ func SendProductConnectorConfiguration(shoset *net.Shoset, version models.Versio
 
 					time.Sleep(timeoutSend * time.Millisecond)
 
-					if shoset.Context["productConnector"] != nil {
+					productConnectors, ok := shoset.Context["ProductConnectors"].(map[models.Version]*models.ProductConnector)
+					if ok {
+						if productConnectors[version] != nil {
+							notSend = false
+							break
+						}
+					}
+
+					/* 	if shoset.Context["productConnector"] != nil {
 						notSend = false
 						shoset.Context["productConnector"] = nil
 						break
-					}
+					} */
 				}
 
 				if notSend {

@@ -85,16 +85,16 @@ func (r ConnectorGrpc) SendCommandList(ctx context.Context, in *pb.CommandList) 
 	   		mapVersionConnectorCommands[int8(in.GetMajor())] = append(mapVersionConnectorCommands[int8(in.GetMajor())], in.GetCommands()...)
 	   	} */
 
-	Pivots, ok := r.Shoset.Context["Pivots"].([]*models.Pivot)
+	mapPivot, ok := r.Shoset.Context["Pivots"].(map[models.Version]*models.Pivot)
 	if ok {
-		ProductConnectors, ok := r.Shoset.Context["ProductConnectors"].([]*models.ProductConnector)
+		mapProductConnector, ok := r.Shoset.Context["ProductConnectors"].(map[models.Version]*models.ProductConnector)
 		if ok {
-			if Pivots != nil && ProductConnectors != nil {
+			if mapPivot != nil && mapProductConnector != nil {
 				//configurationConnector := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 				//connectorType := configurationConnector.GetConnectorType()
 				//product := configurationConnector.GetProduct()
-				pivot := utils.GetPivotByVersion(int8(in.GetMajor()), int8(in.GetMinor()), Pivots)
-				productConnector := utils.GetConnectorProductByVersion(int8(in.GetMajor()), int8(in.GetMinor()), ProductConnectors)
+				pivot := utils.GetPivotByVersion(int8(in.GetMajor()), int8(in.GetMinor()), mapPivot)
+				productConnector := utils.GetConnectorProductByVersion(int8(in.GetMajor()), int8(in.GetMinor()), mapProductConnector)
 				fmt.Println("pivot")
 				fmt.Println(pivot)
 				fmt.Println("productConnector")

@@ -55,7 +55,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			connectorType := configurationConnector.GetConnectorType()
 			if connectorType != "" {
 				var pivot *models.Pivot
-				listPivot, ok := ch.Context["Pivots"].([]*models.Pivot)
+				mapPivot, ok := ch.Context["Pivots"].(map[models.Version]*models.Pivot)
 				if ok {
 					if cmd.Major == 0 {
 						versions, ok := ch.Context["versions"].([]models.Version)
@@ -66,14 +66,14 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 								fmt.Println(maxVersion)
 								cmd.Major = maxVersion.Major
 								//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-								pivot = utils.GetPivotByVersion(maxVersion.Major, maxVersion.Minor, listPivot)
+								pivot = utils.GetPivotByVersion(maxVersion.Major, maxVersion.Minor, mapPivot)
 
 							} else {
 								log.Println("Error : Versions not found")
 							}
 						}
 					} else {
-						pivot = utils.GetPivotByVersion(cmd.Major, cmd.Minor, listPivot)
+						pivot = utils.GetPivotByVersion(cmd.Major, cmd.Minor, mapPivot)
 					}
 					fmt.Println("pivot")
 					fmt.Println(pivot)
@@ -92,7 +92,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 						product := configurationConnector.GetProduct()
 						if product != "" {
 							var productConnector *models.ProductConnector
-							listProductConnector, ok := ch.Context["ProductConnectors"].([]*models.ProductConnector)
+							mapProductConnector, ok := ch.Context["ProductConnectors"].(map[models.Version]*models.ProductConnector)
 							if ok {
 								if cmd.Major == 0 {
 									versions, ok := ch.Context["versions"].([]models.Version)
@@ -103,14 +103,14 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 											fmt.Println(maxVersion)
 											cmd.Major = maxVersion.Major
 											//connectorTypeConfig := utils.GetConnectorTypeConfigByVersion(int64(cmd.GetMajor()), listConnectorTypeConfig)
-											productConnector = utils.GetConnectorProductByVersion(maxVersion.Major, maxVersion.Minor, listProductConnector)
+											productConnector = utils.GetConnectorProductByVersion(maxVersion.Major, maxVersion.Minor, mapProductConnector)
 
 										} else {
 											log.Println("Error : Versions not found")
 										}
 									}
 								} else {
-									productConnector = utils.GetConnectorProductByVersion(cmd.Major, cmd.Minor, listProductConnector)
+									productConnector = utils.GetConnectorProductByVersion(cmd.Major, cmd.Minor, mapProductConnector)
 								}
 							}
 							if productConnector != nil {
