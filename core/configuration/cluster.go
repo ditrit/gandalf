@@ -47,7 +47,7 @@ func init() {
 	startCfg.AddConfig(clusterCfg)
 
 	//clusterCfg.SetRequired("lname")
-	//clusterCfg.SetDefault("lname", "cluster")
+	clusterCfg.SetDefault("lname", "cluster")
 
 	clusterCfg.LKey("join", verdeter.IsStr, "j", "remote address (of an already existing member of cluster) to join")
 	clusterCfg.SetCheck("join", verdeter.CheckNotEmpty)

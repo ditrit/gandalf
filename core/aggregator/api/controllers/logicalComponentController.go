@@ -131,6 +131,19 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 
 }
 
+func ValidationAggregator(logicalComponent *models.LogicalComponent, pivot *models.Pivot) (result bool) {
+	result = false
+	if logicalComponent.LogicalName != "" {
+		if logicalComponent.Type == "aggregator" {
+			for _, key := range pivot.Keys {
+				for _, keyValue := range logicalComponent.KeyValues {
+
+				}
+			}
+		}
+	}
+}
+
 func (lc LogicalComponentController) GetPivot(client *gorm.DB, baseurl, componentType string, version models.Version) (models.Pivot, error) {
 	var pivot models.Pivot
 	err := client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error

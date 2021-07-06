@@ -77,7 +77,7 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 	err = gandalfDatabaseClient.Create(&state).Error
 
 	//Init Root Domain
-	domain := models.Domain{Name: "Root"}
+	domain := models.Domain{Name: "root"}
 	models.InsertDomainRoot(gandalfDatabaseClient, domain)
 
 	//Init Administartor Role
@@ -88,7 +88,7 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 		err = gandalfDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
 		if err == nil {
 			var root models.Domain
-			err = gandalfDatabaseClient.Where("name = ?", "Root").First(&root).Error
+			err = gandalfDatabaseClient.Where("name = ?", "root").First(&root).Error
 			if err == nil {
 				login1, password1 := "Administrator1", GenerateRandomHash()
 				user1 := models.NewUser(login1, login1, password1)
@@ -149,7 +149,7 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 	err = tenantDatabaseClient.Create(&state).Error
 
 	//Init Root Domain
-	domain := models.Domain{Name: "Root"}
+	domain := models.Domain{Name: "root"}
 	models.InsertDomainRoot(tenantDatabaseClient, domain)
 
 	//Init Administartor Role
@@ -160,7 +160,7 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 		err = tenantDatabaseClient.Where("name = ?", "Administrator").First(&admin).Error
 		if err == nil {
 			var root models.Domain
-			err = tenantDatabaseClient.Where("name = ?", "Root").First(&root).Error
+			err = tenantDatabaseClient.Where("name = ?", "root").First(&root).Error
 			if err == nil {
 				login1, password1 := "Administrator1", GenerateRandomHash()
 				user1 := models.NewUser(login1, login1, password1)

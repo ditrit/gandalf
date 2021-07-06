@@ -26,12 +26,12 @@ func CreateDomain(database *gorm.DB, domain models.Domain, parentDomainName stri
 	if err == nil {
 		if admin {
 			if parentDomainName == "root" {
-				models.InsertDomainRoot(database, domain)
+				err = models.InsertDomainRoot(database, domain)
 			} else {
 				var parentDomain models.Domain
 				err = database.Where("name = ?", parentDomainName).First(&parentDomain).Error
 				if err == nil {
-					models.InsertDomainNewChild(database, domain, parentDomain.ID)
+					err = models.InsertDomainNewChild(database, domain, parentDomain.ID)
 				}
 			}
 		} else {
