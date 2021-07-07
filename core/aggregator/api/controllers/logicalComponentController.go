@@ -93,7 +93,13 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 			pivot, err := lc.GetPivot(database, lc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, typeComponent, version)
 			if err == nil {
 				//TODO ADD VALIDATION
-				lc.SaveAggregatorLogicalComponent(database, logicalComponent, pivot)
+				if validationAggregator(logicalComponent, pivot) {
+					lc.SaveAggregatorLogicalComponent(database, logicalComponent, pivot)
+
+				} else {
+					utils.RespondWithError(w, http.StatusInternalServerError, "invalid logicalcomponent")
+					return
+				}
 			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, "pivot not found")
 				return
@@ -109,8 +115,14 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 				productConnector, err = lc.GetProductConnector(database, lc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, logicalComponent.ProductConnector.Name, logicalComponent.ProductConnector.Product.Name, version, pivot)
 				if err == nil {
 					//TODO ADD VALIDATION
+					if validationConnector(logicalComponent, pivot, productConnector) {
+						lc.SaveConnectorLogicalComponent(database, logicalComponent, productConnector)
+
+					} else {
+						utils.RespondWithError(w, http.StatusInternalServerError, "invalid logicalcomponent")
+						return
+					}
 					fmt.Println("SAVE")
-					lc.SaveConnectorLogicalComponent(database, logicalComponent, productConnector)
 
 				} else {
 					utils.RespondWithError(w, http.StatusInternalServerError, "product connector not found")
@@ -131,17 +143,64 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 
 }
 
-func ValidationAggregator(logicalComponent *models.LogicalComponent, pivot *models.Pivot) (result bool) {
+func validationAggregator(logicalComponent *models.LogicalComponent, pivot models.Pivot) (result bool) {
 	result = false
 	if logicalComponent.LogicalName != "" {
 		if logicalComponent.Type == "aggregator" {
+			keysValidation := true
 			for _, key := range pivot.Keys {
+				keyValueValidation := false
 				for _, keyValue := range logicalComponent.KeyValues {
+					if keyValue.Key.Name == key.Name {
+						keyValueValidation = true
+					}
+				}
+				keysValidation = keysValidation && keyValueValidation
+			}
+			if keysValidation {
+				result = true
+			}
+		}
+	}
 
+	return
+}
+
+func validationConnector(logicalComponent *models.LogicalComponent, pivot models.Pivot, productConnector models.ProductConnector) (result bool) {
+	result = false
+	if logicalComponent.LogicalName != "" {
+		if logicalComponent.Type == "connector" {
+			if logicalComponent.Aggregator != "" {
+				keysValidationPivot := true
+				for _, key := range pivot.Keys {
+					keyValueValidationPivot := false
+					for _, keyValue := range logicalComponent.KeyValues {
+						if keyValue.Key.Name == key.Name {
+							keyValueValidationPivot = true
+						}
+					}
+					keysValidationPivot = keysValidationPivot && keyValueValidationPivot
+				}
+				if keysValidationPivot {
+					keysValidationProductConnector := true
+					for _, key := range productConnector.Keys {
+						keyValueValidationProductConnector := false
+						for _, keyValue := range logicalComponent.KeyValues {
+							if keyValue.Key.Name == key.Name {
+								keyValueValidationProductConnector = true
+							}
+						}
+						keysValidationProductConnector = keysValidationProductConnector && keyValueValidationProductConnector
+					}
+					if keysValidationProductConnector {
+						result = true
+					}
 				}
 			}
 		}
 	}
+
+	return
 }
 
 func (lc LogicalComponentController) GetPivot(client *gorm.DB, baseurl, componentType string, version models.Version) (models.Pivot, error) {
