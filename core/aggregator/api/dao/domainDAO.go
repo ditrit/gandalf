@@ -69,7 +69,7 @@ func DeleteDomain(database *gorm.DB, id int) (err error) {
 			var domain models.Domain
 			err = database.First(&domain, id).Error
 			if err == nil {
-				models.DeleteDomainChild(database, domain)
+				err = models.DeleteDomainChild(database, domain)
 			}
 		} else {
 			err = errors.New("Invalid state")

@@ -143,15 +143,34 @@ func GetPivots(client *gorm.DB, componentType string, version models.Version) (p
 
 func GetProductConnectors(client *gorm.DB, product string, version models.Version) (productConnector models.ProductConnector, err error) {
 	var productdb models.Product
-	client.Where("name = ?", product).First(&productdb)
+	err = client.Where("name = ?", product).First(&productdb).Error
 	fmt.Println("productdb")
 	fmt.Println(productdb)
-	err = client.Where("product_id = ? and major = ? and minor = ?", productdb.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector).Error
-	fmt.Println("productConnector")
-	fmt.Println(productConnector)
-	//client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Ressources").Preload("EventTypeToPolls").First(&productConnector)
+	if err == nil {
+		err = client.Where("product_id = ? and major = ? and minor = ?", productdb.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector).Error
+		fmt.Println("productConnector")
+		fmt.Println(productConnector)
+		//client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Ressources").Preload("EventTypeToPolls").First(&productConnector)
+
+	}
 
 	return
+}
+
+func SaveOrUpdateHeartbeat(heartbeat models.Heartbeat, client *gorm.DB) {
+	//IF ALREADY EXIST : UPDATE
+	var heartbeatdb models.Heartbeat
+	err := client.Where("logical_name = ?, type = ?, address = ?", heartbeat.LogicalName, heartbeat.Type, heartbeat.Address).First(&heartbeatdb).Error
+	if err == nil {
+		heartbeatdb.UpdatedAt = time.Now()
+		client.Save(&heartbeatdb)
+	} else {
+		heartbeat.CreatedAt = time.Now()
+		heartbeat.UpdatedAt = time.Now()
+		//IF NOT : SAVE
+		client.Save(&heartbeat)
+	}
+
 }
 
 func SavePivot(pivot models.Pivot, client *gorm.DB) {

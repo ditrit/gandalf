@@ -65,6 +65,10 @@ func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregato
 	member.chaussette.Get["configurationDatabase"] = shoset.GetConfigurationDatabase
 	member.chaussette.Wait["configurationDatabase"] = shoset.WaitConfigurationDatabase
 	member.chaussette.Handle["configurationDatabase"] = shoset.HandleConfigurationDatabase
+	member.chaussette.Queue["heartbeat"] = msg.NewQueue()
+	member.chaussette.Get["heartbeat"] = shoset.GetHeartbeat
+	member.chaussette.Wait["heartbeat"] = shoset.WaitHeartbeat
+	member.chaussette.Handle["heartbeat"] = shoset.HandleHeartbeat
 	//coreLog.OpenLogFile("/var/log")
 
 	//coreLog.OpenLogFile(logPath)
@@ -171,6 +175,11 @@ func (m *AggregatorMember) StartAPI(bindAdress string, databaseConnection *datab
 	return
 }
 
+// StartHeartbeat :
+func (m *AggregatorMember) StartHeartbeat(nshoset *net.Shoset) {
+	shoset.SendHeartbeat(nshoset)
+}
+
 // AggregatorMemberInit : Aggregator init function.
 func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
 	member := NewAggregatorMember(configurationAggregator)
@@ -205,6 +214,7 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 								err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
 								if err != nil {
 									log.Fatalf("Can't create API server")
+									go member.StartHeartbeat(member.GetChaussette())
 								}
 
 							} else {

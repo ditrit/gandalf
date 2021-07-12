@@ -17,7 +17,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle event")
 	log.Println(evt)
 
-	/* 	configuration := ch.Context["connectorConfig"].(models.ConnectorConfig)
+	/* 	configuration := ch.Context["connectorConfig"]......models.ConnectorConfig)
 	   	var eventConf models.ConnectorTypeEvent
 	   	for _, event := range configuration.ConnectorTypeEvents {
 	   		if evt.GetEvent() == event.Name {

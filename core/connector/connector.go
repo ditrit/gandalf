@@ -187,6 +187,11 @@ func (m *ConnectorMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.
 	return nil, fmt.Errorf("Configuration nil")
 }
 
+// StartHeartbeat :
+func (m *ConnectorMember) StartHeartbeat(nshoset *net.Shoset) {
+	shoset.SendHeartbeat(nshoset)
+}
+
 // getBrothers : Connector list brothers function.
 func getBrothers(address string, member *ConnectorMember) []string {
 	bros := []string{address}
@@ -247,7 +252,7 @@ func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector)
 						err = member.StartWorkerAdmin(member.GetChaussette())
 						if err == nil {
 							log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetBindAddress(), configurationConnector.GetGRPCSocketBind(), configurationConnector.GetLinkAddress())
-							fmt.Printf("%s.JoinBrothers Init(%#v)\n", configurationConnector.GetBindAddress(), getBrothers(configurationConnector.GetBindAddress(), member))
+							go member.StartHeartbeat(member.GetChaussette())
 						} else {
 							log.Fatalf("Can't start worker admin")
 						}

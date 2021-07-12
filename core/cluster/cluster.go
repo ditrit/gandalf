@@ -83,7 +83,10 @@ func NewClusterMember(configurationCluster *cmodels.ConfigurationCluster) *Clust
 	member.chaussette.Get["configurationDatabase"] = shoset.GetConfigurationDatabase
 	member.chaussette.Wait["configurationDatabase"] = shoset.WaitConfigurationDatabase
 	member.chaussette.Handle["configurationDatabase"] = shoset.HandleConfigurationDatabase
-
+	member.chaussette.Queue["heartbeat"] = msg.NewQueue()
+	member.chaussette.Get["heartbeat"] = shoset.GetHeartbeat
+	member.chaussette.Wait["heartbeat"] = shoset.WaitHeartbeat
+	member.chaussette.Handle["heartbeat"] = shoset.HandleHeartbeat
 	//coreLog.OpenLogFile(logPath)
 
 	return member

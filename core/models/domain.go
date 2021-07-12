@@ -74,7 +74,7 @@ func DeleteDomainChild(database *gorm.DB, domain Domain) (err error) {
 			return err
 		}
 		var domainClosure DomainClosure
-		if err := tx.Where("descendant = ?", domain.ID).Delete(&domainClosure).Error; err != nil {
+		if err := tx.Where("descendant_id = ?", domain.ID).Delete(&domainClosure).Error; err != nil {
 			// return any error will rollback
 			return err
 		}

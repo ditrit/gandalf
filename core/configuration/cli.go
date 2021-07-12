@@ -341,20 +341,13 @@ func runListTenants(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	result, err := cliClient.CliService.Cli()
+	tenants, err := cliClient.TenantService.List(configurationCli.GetToken())
 	if err == nil {
-		if result == "cluster" {
-			tenants, err := cliClient.TenantService.List(configurationCli.GetToken())
-			if err == nil {
-				for _, tenant := range tenants {
-					fmt.Println(tenant)
-				}
-			} else {
-				fmt.Println(err)
-			}
-		} else if result == "aggregator" {
-			fmt.Println("Error: Not allowed")
+		for _, tenant := range tenants {
+			fmt.Println(tenant)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -483,7 +476,7 @@ func runCreateEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
 		fmt.Println("cli eventType")
 		fmt.Println(eventType)
 		fmt.Println(err)
-		
+
 		if err == nil {
 			eventTypeToPoll := models.EventTypeToPoll{Resource: *resource, EventType: *eventType}
 			err = cliClient.EventTypeToPollService.Create(configurationCli.GetToken(), eventTypeToPoll)
