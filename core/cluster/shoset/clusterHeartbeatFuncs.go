@@ -1,9 +1,11 @@
 package shoset
 
 import (
+	"fmt"
 	"log"
 	"time"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
@@ -81,6 +83,38 @@ func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 			log.Println("Error : Can't get database clients")
 		}
 	}
+
+	return err
+}
+
+//SendSecret :
+func SendHeartbeat(shoset *net.Shoset) (err error) {
+	fmt.Println("SEND HEARTBEAT")
+	configurationCluster, ok := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
+	if ok {
+		databaseConnection, ok := shoset.Context["databaseConnection"].(*database.DatabaseConnection)
+		if ok {
+			if databaseConnection != nil {
+				databaseClient := databaseConnection.GetGandalfDatabaseClient()
+				if databaseClient != nil {
+					for range time.Tick(time.Minute * 1) {
+						fmt.Println("SEND TICK")
+						heartbeat := new(models.Heartbeat)
+						heartbeat.LogicalName = configurationCluster.GetLogicalName()
+						heartbeat.Type = "cluster"
+						heartbeat.Address = configurationCluster.GetBindAddress()
+						cutils.SaveOrUpdateHeartbeat(*heartbeat, databaseClient)
+
+					}
+				} else {
+					log.Println("Error : Can't get database client by tenant")
+				}
+			} else {
+				log.Println("Error : Can't get database clients")
+			}
+		}
+	}
+	fmt.Println("END SEND HEARTBEAT")
 
 	return err
 }

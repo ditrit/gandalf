@@ -45,7 +45,7 @@ func DeleteResourceAuthorization(database *gorm.DB, id int) (err error) {
 	if err == nil {
 		if admin {
 			var resourceAuthorization models.ResourceAuthorization
-			err = database.Delete(&resourceAuthorization, id).Error
+			err = database.Unscoped().Delete(&resourceAuthorization, id).Error
 		} else {
 			err = errors.New("Invalid state")
 		}

@@ -159,10 +159,9 @@ func (m *ConnectorMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 }
 
 // ConfigurationValidation : Validation configuration
-func (m *ConnectorMember) StartWorkerAdmin(chaussette *net.Shoset) (err error) {
+func (m *ConnectorMember) StartWorkerAdmin(chaussette *net.Shoset) {
 	workerAdmin := admin.NewWorkerAdmin(chaussette)
-	go workerAdmin.Run()
-	return
+	workerAdmin.Run()
 }
 
 func (m *ConnectorMember) GetPivotConfiguration(nshoset *net.Shoset) (*models.Pivot, error) {
@@ -249,13 +248,14 @@ func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector)
 					err = member.GrpcBind(configurationConnector.GetGRPCSocketBind())
 					if err == nil {
 						//var versions []*models.Version{Major: configurationConnector.VersionsMajor, Minor: configurationConnector.VersionsMinor}
-						err = member.StartWorkerAdmin(member.GetChaussette())
-						if err == nil {
-							log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetBindAddress(), configurationConnector.GetGRPCSocketBind(), configurationConnector.GetLinkAddress())
-							go member.StartHeartbeat(member.GetChaussette())
-						} else {
-							log.Fatalf("Can't start worker admin")
-						}
+						//err = member.StartWorkerAdmin(member.GetChaussette())
+						go member.StartWorkerAdmin(member.GetChaussette())
+						//if err == nil {
+						log.Printf("New Connector member %s for tenant %s bind on %s GrpcBind on %s link on %s \n", configurationConnector.GetLogicalName(), configurationConnector.GetTenant(), configurationConnector.GetBindAddress(), configurationConnector.GetGRPCSocketBind(), configurationConnector.GetLinkAddress())
+						go member.StartHeartbeat(member.GetChaussette())
+						//} else {
+						//	log.Fatalf("Can't start worker admin")
+						//}
 					} else {
 						log.Fatalf("Can't Grpc bind shoset on %s", configurationConnector.GetGRPCSocketBind())
 					}

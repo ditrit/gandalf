@@ -214,13 +214,14 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 												logicalComponent := utils.CreateAggregatorLogicalComponent("gandalf", member.logicalConfiguration.GetKeyValueByKey("repository_url").Value, pivot)
 												err := gandalfDatabaseClient.Create(logicalComponent).Error
 												if err == nil {
-													fmt.Printf("New Aggregator : %s %s", logicalComponent.LogicalName, secretAssignement.Secret)
+													fmt.Printf("New Aggregator : %s %s \n", logicalComponent.LogicalName, secretAssignement.Secret)
+													go member.StartHeartbeat(member.GetChaussette())
 												}
 											} else {
-
+												log.Fatalf("Error : Can't save aggregator pivot")
 											}
 										} else {
-
+											log.Fatalf("Error : Can't create aggregator secret")
 										}
 
 										/* err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
@@ -269,6 +270,8 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 						logicalComponent, err = member.GetInitLogicalConfiguration(gandalfDatabaseClient, configurationCluster.GetLogicalName())
 						if err == nil {
 							member.logicalConfiguration = logicalComponent
+
+							go member.StartHeartbeat(member.GetChaussette())
 							/* 	err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
 							if err != nil {
 								log.Fatalf("Can't create API server")
@@ -343,7 +346,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 								if err == nil {
 									log.Printf("New gandalf database client")
-
+									go member.StartHeartbeat(member.GetChaussette())
 									/* 	err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
 									if err != nil {
 										log.Fatalf("Can't create API server")
@@ -374,6 +377,11 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 	}
 
 	return member
+}
+
+// StartHeartbeat :
+func (m *ClusterMember) StartHeartbeat(nshoset *net.Shoset) {
+	shoset.SendHeartbeat(nshoset)
 }
 
 func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {

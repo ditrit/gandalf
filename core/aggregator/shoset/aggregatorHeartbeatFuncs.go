@@ -1,6 +1,7 @@
 package shoset
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -84,26 +85,29 @@ func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendSecret :
 func SendHeartbeat(shoset *net.Shoset) (err error) {
-	configurationConnector, ok := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
+	fmt.Println("SEND HEARTBEAT")
+	configurationAggregator, ok := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	if ok {
 		heartbeat := cmsg.NewHeartbeat("HEARTBEAT")
-		heartbeat.Tenant = configurationConnector.GetTenant()
+		heartbeat.Tenant = configurationAggregator.GetTenant()
 		heartbeat.GetContext()["componentType"] = "aggregator"
-		heartbeat.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
-		heartbeat.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
+		heartbeat.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
+		heartbeat.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
 
 		for range time.Tick(time.Minute * 1) {
+			fmt.Println("SEND TICK")
 			shoset.ConnsByAddr.Iterate(
 				func(key string, val *net.ShosetConn) {
 					if val.ShosetType == "cl" {
 						//if key != c.GetBindAddr() && key != thisOne && val.ShosetType == "cl" {
 						val.SendMessage(heartbeat)
-						log.Printf("%s : send in heartbeat %s to %s\n", configurationConnector.GetBindAddress(), heartbeat.GetEvent(), val)
+						log.Printf("%s : send in heartbeat %s to %s\n", configurationAggregator.GetBindAddress(), heartbeat.GetEvent(), val)
 					}
 				},
 			)
 		}
 	}
+	fmt.Println("END SEND HEARTBEAT")
 
 	return err
 }

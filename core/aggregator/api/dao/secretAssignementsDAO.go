@@ -33,7 +33,7 @@ func DeleteSecretAssignement(database *gorm.DB, secret string) (err error) {
 	if err == nil {
 		if admin {
 			var secret models.SecretAssignement
-			err = database.Delete(&secret, secret).Error
+			err = database.Unscoped().Delete(&secret, secret).Error
 		} else {
 			err = errors.New("Invalid state")
 		}

@@ -93,13 +93,13 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 			pivot, err := lc.GetPivot(database, lc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, typeComponent, version)
 			if err == nil {
 				//TODO ADD VALIDATION
-				if validationAggregator(logicalComponent, pivot) {
-					lc.SaveAggregatorLogicalComponent(database, logicalComponent, pivot)
+				//if validationAggregator(logicalComponent, pivot) {
+				lc.SaveAggregatorLogicalComponent(database, logicalComponent, pivot)
 
-				} else {
-					utils.RespondWithError(w, http.StatusInternalServerError, "invalid logicalcomponent")
-					return
-				}
+				//} else {
+				//	utils.RespondWithError(w, http.StatusInternalServerError, "invalid logicalcomponent")
+				//	return
+				//}
 			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, "pivot not found")
 				return
@@ -115,13 +115,13 @@ func (lc LogicalComponentController) Upload(w http.ResponseWriter, r *http.Reque
 				productConnector, err = lc.GetProductConnector(database, lc.databaseConnection.GetLogicalComponent().GetKeyValueByKey("repository_url").Value, logicalComponent.ProductConnector.Name, logicalComponent.ProductConnector.Product.Name, version, pivot)
 				if err == nil {
 					//TODO ADD VALIDATION
-					if validationConnector(logicalComponent, pivot, productConnector) {
-						lc.SaveConnectorLogicalComponent(database, logicalComponent, productConnector)
+					//if validationConnector(logicalComponent, pivot, productConnector) {
+					lc.SaveConnectorLogicalComponent(database, logicalComponent, productConnector)
 
-					} else {
-						utils.RespondWithError(w, http.StatusInternalServerError, "invalid logicalcomponent")
-						return
-					}
+					//} else {
+					//	utils.RespondWithError(w, http.StatusInternalServerError, "invalid logicalcomponent")
+					//	return
+					//}
 					fmt.Println("SAVE")
 
 				} else {

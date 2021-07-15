@@ -45,7 +45,7 @@ func DeleteRole(database *gorm.DB, id int) (err error) {
 	if err == nil {
 		if admin {
 			var role models.Role
-			err = database.Delete(&role, id).Error
+			err = database.Unscoped().Delete(&role, id).Error
 		} else {
 			err = errors.New("Invalid state")
 		}

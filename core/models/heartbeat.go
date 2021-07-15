@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	cmsg "github.com/ditrit/gandalf/core/msg"
 
 	"github.com/jinzhu/gorm"
@@ -13,8 +11,6 @@ type Heartbeat struct {
 	LogicalName string
 	Type        string
 	Address     string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
 }
 
 // FromShosetCommand : Shoset command to core command.

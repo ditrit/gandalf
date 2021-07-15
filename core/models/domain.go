@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -69,13 +71,15 @@ func DeleteDomainChild(database *gorm.DB, domain Domain) (err error) {
 
 	err = database.Transaction(func(tx *gorm.DB) error {
 
-		if err := tx.Delete(&domain).Error; err != nil {
+		if err := tx.Delete(&Domain{}, int(domain.ID)).Error; err != nil {
+			fmt.Println(err)
 			// return any error will rollback
 			return err
 		}
 		var domainClosure DomainClosure
 		if err := tx.Where("descendant_id = ?", domain.ID).Delete(&domainClosure).Error; err != nil {
 			// return any error will rollback
+			fmt.Println(err)
 			return err
 		}
 		return nil

@@ -168,11 +168,9 @@ func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*model
 }
 
 // StartAPI :
-func (m *AggregatorMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection, shoset *net.Shoset) (err error) {
+func (m *AggregatorMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection, shoset *net.Shoset) {
 	server := api.NewServerAPI(bindAdress, databaseConnection, shoset)
 	server.Run()
-
-	return
 }
 
 // StartHeartbeat :
@@ -211,12 +209,14 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 								//TODO START API
 								databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator, member.pivot, member.logicalConfiguration)
 
-								err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
-								if err != nil {
-									log.Fatalf("Can't create API server")
-									go member.StartHeartbeat(member.GetChaussette())
-								}
-
+								//err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
+								go member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
+								//if err == nil {
+								go member.StartHeartbeat(member.GetChaussette())
+								//go shoset.SendHeartbeat(member.GetChaussette())
+								//} else {
+								//	log.Fatalf("Can't create API server")
+								//}
 							} else {
 								log.Fatalf("Can't get configuration database")
 							}

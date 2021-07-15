@@ -160,17 +160,25 @@ func GetProductConnectors(client *gorm.DB, product string, version models.Versio
 func SaveOrUpdateHeartbeat(heartbeat models.Heartbeat, client *gorm.DB) {
 	//IF ALREADY EXIST : UPDATE
 	var heartbeatdb models.Heartbeat
-	err := client.Where("logical_name = ?, type = ?, address = ?", heartbeat.LogicalName, heartbeat.Type, heartbeat.Address).First(&heartbeatdb).Error
+	err := client.Where("logical_name = ? AND type = ? AND address = ?", heartbeat.LogicalName, heartbeat.Type, heartbeat.Address).First(&heartbeatdb).Error
 	if err == nil {
 		heartbeatdb.UpdatedAt = time.Now()
+		fmt.Println("UPDATE HEARTBEAT")
 		client.Save(&heartbeatdb)
 	} else {
 		heartbeat.CreatedAt = time.Now()
 		heartbeat.UpdatedAt = time.Now()
 		//IF NOT : SAVE
+		fmt.Println("SAVE HEARTBEAT")
 		client.Save(&heartbeat)
 	}
 
+	//TEST
+	var listheartbeat []models.Heartbeat
+	client.Find(&listheartbeat)
+	for _, toto := range listheartbeat {
+		fmt.Println(toto)
+	}
 }
 
 func SavePivot(pivot models.Pivot, client *gorm.DB) {

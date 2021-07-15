@@ -54,7 +54,7 @@ func DeleteResource(database *gorm.DB, id int) (err error) {
 	if err == nil {
 		if admin {
 			var resource models.Resource
-			err = database.Delete(&resource, id).Error
+			err = database.Unscoped().Delete(&resource, id).Error
 		} else {
 			err = errors.New("Invalid state")
 		}

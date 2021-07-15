@@ -45,7 +45,7 @@ func DeleteTenant(database *gorm.DB, id int) (err error) {
 	if err == nil {
 		if admin {
 			var tenant models.Tenant
-			err = database.Delete(&tenant, id).Error
+			err = database.Unscoped().Delete(&tenant, id).Error
 		} else {
 			err = errors.New("Invalid state")
 		}

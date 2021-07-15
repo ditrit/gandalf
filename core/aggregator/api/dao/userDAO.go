@@ -38,7 +38,7 @@ func UpdateUser(database *gorm.DB, user models.User) (err error) {
 
 func DeleteUser(database *gorm.DB, id int) (err error) {
 	var user models.User
-	err = database.Delete(&user, id).Error
+	err = database.Unscoped().Delete(&user, id).Error
 
 	return
 }

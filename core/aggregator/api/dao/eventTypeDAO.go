@@ -54,7 +54,7 @@ func DeleteEventType(database *gorm.DB, id int) (err error) {
 	if err == nil {
 		if admin {
 			var eventType models.EventType
-			err = database.Delete(&eventType, id).Error
+			err = database.Unscoped().Delete(&eventType, id).Error
 		} else {
 			err = errors.New("Invalid state")
 		}

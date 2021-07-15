@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -161,6 +162,15 @@ func (dc DomainController) Delete(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
+		}
+
+		//TEST
+		var domains []models.Domain
+		database.Unscoped().Find(&domains)
+		fmt.Println("domains")
+		for _, domain := range domains {
+			fmt.Println(domain)
+
 		}
 
 		if err := dao.DeleteDomain(database, id); err != nil {
