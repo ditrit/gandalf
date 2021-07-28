@@ -127,12 +127,12 @@ func (m *ConnectorMember) GrpcBind(grpcBindAddress string) (err error) {
 
 // Join : Connector join function.
 func (m *ConnectorMember) Join(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Join(addr)
+	return m.chaussette.Protocol(addr, "join")
 }
 
 // Link : Connector link function.
 func (m *ConnectorMember) Link(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Link(addr)
+	return m.chaussette.Protocol(addr, "link")
 }
 
 // GetConfiguration : Get configuration from cluster
@@ -195,10 +195,13 @@ func (m *ConnectorMember) StartHeartbeat(nshoset *net.Shoset) {
 func getBrothers(address string, member *ConnectorMember) []string {
 	bros := []string{address}
 
-	member.chaussette.ConnsJoin.Iterate(
-		func(key string, val *net.ShosetConn) {
-			bros = append(bros, key)
-		})
+	connsJoin := member.chaussette.ConnsByName.Get(member.chaussette.GetLogicalName())
+	if connsJoin != nil {
+		connsJoin.Iterate(
+			func(key string, val *net.ShosetConn) {
+				bros = append(bros, key)
+			})
+	}
 
 	return bros
 }

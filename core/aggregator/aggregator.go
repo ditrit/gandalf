@@ -93,22 +93,25 @@ func (m *AggregatorMember) Bind(addr string) error {
 
 // Join : Aggregator join function.
 func (m *AggregatorMember) Join(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Join(addr)
+	return m.chaussette.Protocol(addr, "join")
 }
 
 // Link : Aggregator link function.
 func (m *AggregatorMember) Link(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Link(addr)
+	return m.chaussette.Protocol(addr, "link")
 }
 
 // getBrothers : Aggregator list brothers function.
 func getBrothers(address string, member *AggregatorMember) []string {
 	bros := []string{address}
 
-	member.chaussette.ConnsJoin.Iterate(
-		func(key string, val *net.ShosetConn) {
-			bros = append(bros, key)
-		})
+	connsJoin := member.chaussette.ConnsByName.Get(member.chaussette.GetLogicalName())
+	if connsJoin != nil {
+		connsJoin.Iterate(
+			func(key string, val *net.ShosetConn) {
+				bros = append(bros, key)
+			})
+	}
 
 	return bros
 }

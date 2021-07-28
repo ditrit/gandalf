@@ -54,7 +54,7 @@ func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 	heartbeat := message.(cmsg.Heartbeat)
 	ch := c.GetCh()
 	dir := c.GetDir()
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 	err = nil
 
 	log.Println("Handle heartbeat")
@@ -62,13 +62,13 @@ func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 	configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	if ok {
 		if heartbeat.GetTenant() == configurationAggregator.GetTenant() {
-			//ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
+			//ok := ch.Queue["evt"].Push(evt, c.GetRemoteShosetType(), c.GetBindAddress())
 			//if ok {
 			if dir == "in" {
 				ch.ConnsByAddr.Iterate(
 					func(key string, val *net.ShosetConn) {
-						if key != thisOne && val.ShosetType == "cl" {
-							//if key != c.GetBindAddr() && key != thisOne && val.ShosetType == "cl" {
+						if key != thisOne && val.GetRemoteShosetType() == "cl" {
+							//if key != c.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "cl" {
 							val.SendMessage(heartbeat)
 							log.Printf("%s : send in event %s to %s\n", thisOne, heartbeat.GetEvent(), val)
 						}
@@ -98,8 +98,8 @@ func SendHeartbeat(shoset *net.Shoset) (err error) {
 			fmt.Println("SEND TICK")
 			shoset.ConnsByAddr.Iterate(
 				func(key string, val *net.ShosetConn) {
-					if val.ShosetType == "cl" {
-						//if key != c.GetBindAddr() && key != thisOne && val.ShosetType == "cl" {
+					if val.GetRemoteShosetType() == "cl" {
+						//if key != c.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "cl" {
 						val.SendMessage(heartbeat)
 						log.Printf("%s : send in heartbeat %s to %s\n", configurationAggregator.GetBindAddress(), heartbeat.GetEvent(), val)
 					}

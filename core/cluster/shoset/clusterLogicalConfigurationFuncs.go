@@ -73,7 +73,7 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 	fmt.Println("handle logical configuration")
 	fmt.Println(logicalConfiguration)
 
-	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["secret"].Push(secret, c.GetRemoteShosetType(), c.GetBindAddress())
 	//if ok {
 	if logicalConfiguration.GetCommand() == "LOGICAL_CONFIGURATION" {
 		var databaseClient *gorm.DB
@@ -111,20 +111,26 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 										if ok {
 											configurationReply := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 											configurationReply.Tenant = logicalConfiguration.GetTenant()
-											shoset := ch.ConnsJoin.Get(bindAddr)
+
+											var shoset *net.ShosetConn
+											connsJoin := ch.ConnsByName.Get(ch.GetLogicalName())
+											if connsJoin != nil {
+												shoset = connsJoin.Get(bindAddr)
+											}
+
 											shoset.SendMessage(configurationReply)
 										}
 										break
 									case "aggregator":
 										configurationReply := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 										configurationReply.Tenant = logicalConfiguration.GetTenant()
-										shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+										shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 										shoset.SendMessage(configurationReply)
 										break
 									case "connector":
 										configurationReply := cmsg.NewLogicalConfiguration(logicalConfiguration.GetTarget(), "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 										configurationReply.Tenant = logicalConfiguration.GetTenant()
-										shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+										shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 										shoset.SendMessage(configurationReply)
 										break
 									}
@@ -170,7 +176,12 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 		//configurationMsg.GetContext()["configuration"] = configurationLogicalCluster
 		//conf.GetContext()["product"] = shoset.Context["product"]
 
-		shosets := net.GetByType(shoset.ConnsJoin, "")
+		var shosets []*net.ShosetConn
+		connsJoin := shoset.ConnsByName.Get(shoset.GetLogicalName())
+		if connsJoin != nil {
+			shosets = net.GetByType(connsJoin, "")
+
+		}
 
 		if len(shosets) != 0 {
 			if configurationMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
@@ -181,7 +192,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 			for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
 				index := getLogicalConfigurationSendIndex(shosets)
 				shosets[index].SendMessage(configurationMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), configurationMsg.GetCommand(), shosets[index])
 
 				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
 

@@ -12,7 +12,7 @@ import (
 func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	evt := message.(msg.Event)
 	ch := c.GetCh()
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 
 	log.Println("Handle event")
 	log.Println(evt)
@@ -30,7 +30,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 
 	   	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if result.Valid() {*/
-	ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
+	ok := ch.Queue["evt"].Push(evt, c.GetRemoteShosetType(), c.GetLocalAddress())
 
 	if ok {
 		log.Printf("%s : push event %s to queue \n", thisOne, evt.GetEvent())

@@ -105,7 +105,13 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 											if ok {
 												cmdReply := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION_REPLY", string(jsonData))
 												cmdReply.Tenant = configuration.GetTenant()
-												shoset := ch.ConnsJoin.Get(bindaddr)
+
+												var shoset *net.ShosetConn
+												connsJoin := ch.ConnsByName.Get(ch.GetLogicalName())
+												if connsJoin != nil {
+													shoset = connsJoin.Get(bindaddr)
+												}
+
 												fmt.Println("shoset")
 												fmt.Println(shoset)
 												shoset.SendMessage(cmdReply)
@@ -115,7 +121,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 										case "aggregator":
 											cmdReply := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION_REPLY", string(jsonData))
 											cmdReply.Tenant = configuration.GetTenant()
-											shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+											shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 
 											shoset.SendMessage(cmdReply)
 											break
@@ -124,7 +130,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 											cmdReply.Tenant = configuration.GetTenant()
 											cmdReply.GetContext()["componentType"] = "connector"
 
-											shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+											shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 
 											shoset.SendMessage(cmdReply)
 											break
@@ -133,7 +139,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 											cmdReply.Tenant = configuration.GetTenant()
 											cmdReply.GetContext()["componentType"] = "admin"
 
-											shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+											shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 
 											shoset.SendMessage(cmdReply)
 										default:
@@ -141,7 +147,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 											cmdReply.Tenant = configuration.GetTenant()
 											cmdReply.GetContext()["componentType"] = "worker"
 
-											shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+											shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 
 											shoset.SendMessage(cmdReply)
 											break
@@ -203,7 +209,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 									if err == nil {
 										cmdReply := cmsg.NewConfiguration(configuration.GetTarget(), "CONNECTOR_PRODUCT_CONFIGURATION_REPLY", string(jsonData))
 										cmdReply.Tenant = configuration.GetTenant()
-										shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+										shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 										fmt.Println("shoset")
 										fmt.Println(shoset)
 										shoset.SendMessage(cmdReply)
@@ -325,8 +331,12 @@ func SendClusterPivotConfiguration(shoset *net.Shoset) (err error) {
 				conf.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
 
 				//conf.GetContext()["product"] = shoset.Context["product"]
+				var shosets []*net.ShosetConn
+				connsJoin := shoset.ConnsByName.Get(shoset.GetLogicalName())
+				if connsJoin != nil {
+					shosets = net.GetByType(connsJoin, "")
 
-				shosets := net.GetByType(shoset.ConnsJoin, "")
+				}
 
 				if len(shosets) != 0 {
 					if conf.GetTimeout() > configurationCluster.GetMaxTimeout() {
@@ -337,7 +347,7 @@ func SendClusterPivotConfiguration(shoset *net.Shoset) (err error) {
 					for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
 						index := getConfigurationSendIndex(shosets)
 						shosets[index].SendMessage(conf)
-						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
 						timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 

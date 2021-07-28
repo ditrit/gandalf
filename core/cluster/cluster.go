@@ -115,22 +115,25 @@ func (m *ClusterMember) Bind(addr string) error {
 
 // Join : Cluster join function.
 func (m *ClusterMember) Join(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Join(addr)
+	return m.chaussette.Protocol(addr, "join")
 }
 
 // Link : Cluster link function.
 func (m *ClusterMember) Link(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Link(addr)
+	return m.chaussette.Protocol(addr, "link")
 }
 
 // getBrothers : Cluster list brothers function.
 func getBrothers(address string, member *ClusterMember) []string {
 	bros := []string{address}
 
-	member.chaussette.ConnsJoin.Iterate(
-		func(key string, val *net.ShosetConn) {
-			bros = append(bros, key)
-		})
+	connsJoin := member.chaussette.ConnsByName.Get(member.chaussette.GetLogicalName())
+	if connsJoin != nil {
+		connsJoin.Iterate(
+			func(key string, val *net.ShosetConn) {
+				bros = append(bros, key)
+			})
+	}
 
 	return bros
 }

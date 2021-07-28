@@ -68,7 +68,7 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	log.Println(configurationDb)
 
 	fmt.Println("CONFIGURATION_DATABASE")
-	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["secret"].Push(secret, c.GetRemoteShosetType(), c.GetBindAddress())
 	//if ok {
 	if configurationDb.GetCommand() == "CONFIGURATION_DATABASE" {
 		var databaseClient *gorm.DB
@@ -88,7 +88,7 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 							configurationReply := cmsg.NewConfigurationDatabase(target, "CONFIGURATION_DATABASE_REPLY", string(configMarshal))
 							configurationReply.Tenant = configurationDb.GetTenant()
 
-							shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+							shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 							shoset.SendMessage(configurationReply)
 						}
 					} else {
@@ -138,7 +138,7 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 										target := ""
 										creationReply := cmsg.NewConfigurationDatabase(target, "CREATE_DATABASE_REPLY", string(configMarshal))
 										creationReply.Tenant = configurationDb.GetTenant()
-										shoset := ch.ConnsByAddr.Get(c.GetBindAddr())
+										shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
 										fmt.Println("SEND")
 										shoset.SendMessage(creationReply)
 									}

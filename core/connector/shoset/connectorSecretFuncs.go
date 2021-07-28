@@ -95,7 +95,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 			for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(secretMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
 
 				timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
 
@@ -117,7 +117,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(secretMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
 
 				timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
 				fmt.Println("timeoutSend")

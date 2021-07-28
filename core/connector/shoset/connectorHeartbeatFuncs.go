@@ -26,8 +26,8 @@ func SendHeartbeat(shoset *net.Shoset) (err error) {
 
 			shoset.ConnsByAddr.Iterate(
 				func(key string, val *net.ShosetConn) {
-					if val.ShosetType == "a" {
-						//if key != c.GetBindAddr() && key != thisOne && val.ShosetType == "cl" {
+					if val.GetRemoteShosetType() == "a" {
+						//if key != c.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "cl" {
 						val.SendMessage(heartbeat)
 						fmt.Println("SEND HEARTBEAT")
 						log.Printf("%s : send in heartbeat %s to %s\n", configurationConnector.GetBindAddress(), heartbeat.GetEvent(), val)

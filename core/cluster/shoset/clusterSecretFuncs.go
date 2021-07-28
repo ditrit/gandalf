@@ -70,7 +70,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 	fmt.Println("Handle secret")
 	fmt.Println(secret)
-	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddress())
 	//if ok {
 	if secret.GetCommand() == "VALIDATION" {
 
@@ -121,9 +121,13 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 									var shoset *net.ShosetConn
 									if componentType == "cluster" {
 
-										shoset = ch.ConnsJoin.Get(bindAddr)
+										connsJoin := ch.ConnsByName.Get(ch.GetLogicalName())
+										if connsJoin != nil {
+											shoset = connsJoin.Get(bindAddr)
+										}
+
 									} else {
-										shoset = ch.ConnsByAddr.Get(c.GetBindAddr())
+										shoset = ch.ConnsByAddr.Get(c.GetLocalAddress())
 
 									}
 
@@ -183,7 +187,12 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		secretMsg.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
 		//conf.GetContext()["product"] = shoset.Context["product"]
 
-		shosets := net.GetByType(shoset.ConnsJoin, "")
+		var shosets []*net.ShosetConn
+		connsJoin := shoset.ConnsByName.Get(shoset.GetLogicalName())
+		if connsJoin != nil {
+			shosets = net.GetByType(connsJoin, "")
+
+		}
 
 		if len(shosets) != 0 {
 			if secretMsg.GetTimeout() > configurationCluster.GetMaxTimeout() {
@@ -193,7 +202,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 			for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(secretMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
 
 				timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
 
@@ -214,7 +223,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 
 				   index := getSecretSendIndex(shosets)
 				   shosets[index].SendMessage(secretMsg)
-				   log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
+				   log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
 
 				   timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
 

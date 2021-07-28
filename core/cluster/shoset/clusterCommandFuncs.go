@@ -27,7 +27,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	fmt.Println("Handle command")
 	fmt.Println(cmd)
-	//ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["cmd"].Push(cmd, c.GetRemoteShosetType(), c.GetBindAddress())
 
 	//if ok {
 	//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)

@@ -60,7 +60,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	ch := c.GetCh()
 	dir := c.GetDir()
 	err = nil
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 
 	log.Println("Handle configuration")
 	log.Println(configuration)
@@ -70,14 +70,14 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	if ok {
 		if configuration.GetTenant() == configurationAggregator.GetTenant() {
-			//ok := ch.Queue["config"].Push(conf, c.ShosetType, c.GetBindAddr())
+			//ok := ch.Queue["config"].Push(conf, c.GetRemoteShosetType(), c.GetBindAddress())
 
 			//if ok {
 			if dir == "in" {
-				if c.GetShosetType() == "c" {
+				if c.GetRemoteShosetType() == "c" {
 					shosets := net.GetByType(ch.ConnsByAddr, "cl")
 					if len(shosets) != 0 {
-						configuration.Target = c.GetBindAddr()
+						configuration.Target = c.GetLocalAddress()
 						index := getConfigurationSendIndex(shosets)
 						shosets[index].SendMessage(configuration)
 						log.Printf("%s : send in command %s to %s\n", thisOne, configuration.GetCommand(), shosets[index])
@@ -90,7 +90,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			}
 
 			if dir == "out" {
-				if c.GetShosetType() == "cl" {
+				if c.GetRemoteShosetType() == "cl" {
 					if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
 						if configuration.GetTarget() == "" {
 							var pivot *models.Pivot
@@ -150,7 +150,7 @@ func SendAggregatorPivotConfiguration(shoset *net.Shoset) (err error) {
 					for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
 						index := getConfigurationSendIndex(shosets)
 						shosets[index].SendMessage(conf)
-						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
 						timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 

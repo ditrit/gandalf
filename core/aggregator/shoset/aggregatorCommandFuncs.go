@@ -19,7 +19,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	ch := c.GetCh()
 	dir := c.GetDir()
 	err = nil
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 
 	log.Println("Handle command")
 	log.Println(cmd)
@@ -30,11 +30,11 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	if ok {
 		if cmd.GetTenant() == configurationAggregator.GetTenant() {
-			//_ = ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
+			//_ = ch.Queue["cmd"].Push(cmd, c.GetRemoteShosetType(), c.GetBindAddress())
 
 			//if ok {
 			if dir == "in" {
-				if c.GetShosetType() == "c" {
+				if c.GetRemoteShosetType() == "c" {
 					shosets := net.GetByType(ch.ConnsByAddr, "cl")
 					if len(shosets) != 0 {
 						index := getCommandSendIndex(shosets)
@@ -49,7 +49,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			}
 
 			if dir == "out" {
-				if c.GetShosetType() == "cl" {
+				if c.GetRemoteShosetType() == "cl" {
 					fmt.Println("cmd.GetTarget()")
 					fmt.Println(cmd.GetTarget())
 					shosets := net.GetByType(ch.ConnsByName.Get(cmd.GetTarget()), "c")

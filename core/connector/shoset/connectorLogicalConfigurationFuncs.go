@@ -102,7 +102,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 				for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
 					index := getLogicalConfigurationSendIndex(shosets)
 					shosets[index].SendMessage(configurationMsg)
-					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), configurationMsg.GetCommand(), shosets[index])
 
 					timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
 
@@ -124,7 +124,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 
 					index := getSecretSendIndex(shosets)
 					shosets[index].SendMessage(configurationMsg)
-					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), configurationMsg.GetCommand(), shosets[index])
 
 					timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
 

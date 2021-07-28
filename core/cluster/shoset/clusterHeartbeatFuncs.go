@@ -57,7 +57,7 @@ func WaitHeartbeat(c *net.Shoset, replies *msg.Iterator, args map[string]string,
 func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 	heartbeat := message.(cmsg.Heartbeat)
 	ch := c.GetCh()
-	//thisOne := ch.GetBindAddr()
+	//thisOne := ch.GetBindAddress()
 	err = nil
 
 	log.Println("Handle heartbeat")

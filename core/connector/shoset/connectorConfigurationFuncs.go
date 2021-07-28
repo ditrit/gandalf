@@ -141,7 +141,7 @@ func SendWorkerAdminPivotConfiguration(shoset *net.Shoset) (err error) {
 					for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
 						index := getConfigurationSendIndex(shosets)
 						shosets[index].SendMessage(conf)
-						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
 						timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 
@@ -192,7 +192,7 @@ func SendWorkerPivotConfiguration(shoset *net.Shoset, version models.Version) (e
 				for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
 					index := getConfigurationSendIndex(shosets)
 					shosets[index].SendMessage(conf)
-					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
 					timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 
@@ -251,7 +251,7 @@ func SendConnectorPivotConfiguration(shoset *net.Shoset) (err error) {
 					for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
 						index := getConfigurationSendIndex(shosets)
 						shosets[index].SendMessage(conf)
-						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
 						timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 
@@ -300,7 +300,7 @@ func SendProductConnectorConfiguration(shoset *net.Shoset, version models.Versio
 				for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
 					index := getConfigurationSendIndex(shosets)
 					shosets[index].SendMessage(conf)
-					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
 					timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 
@@ -355,7 +355,7 @@ func SendSavePivotConfiguration(shoset *net.Shoset, pivot *models.Pivot) (err er
 
 				index := getConfigurationSendIndex(shosets)
 				shosets[index].SendMessage(conf)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
 			} else {
 				log.Println("Error : Can't find aggregators to send")
@@ -386,7 +386,7 @@ func SendSaveProductConnectorConfiguration(shoset *net.Shoset, productConnector 
 
 				index := getConfigurationSendIndex(shosets)
 				shosets[index].SendMessage(conf)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), conf.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
 			} else {
 				log.Println("Error : Can't find aggregators to send")

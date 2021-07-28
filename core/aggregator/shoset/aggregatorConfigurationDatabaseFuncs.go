@@ -59,20 +59,20 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	ch := c.GetCh()
 	dir := c.GetDir()
 	//err = nil
-	//thisOne := ch.GetBindAddr()
+	//thisOne := ch.GetBindAddress()
 	log.Println("Handle configuration database")
 	log.Println(configurationDb)
 
 	fmt.Println("Handle configuration database")
 	fmt.Println(configurationDb)
 	//if configuration.GetTenant() == ch.Context["tenant"] {
-	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["configuration"].Push(configuration, c.GetRemoteShosetType(), c.GetBindAddress())
 	//if ok {
 	if dir == "in" {
 		/*if c.GetShosetType() == "c" {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
-				configuration.Target = c.GetBindAddr()
+				configuration.Target = c.GetBindAddress()
 				configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 				configuration.Tenant = configurationAggregator.GetTenant()
 				index := getSecretSendIndex(shosets)
@@ -89,7 +89,7 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	}
 
 	if dir == "out" {
-		if c.GetShosetType() == "cl" {
+		if c.GetRemoteShosetType() == "cl" {
 			if configurationDb.GetCommand() == "CONFIGURATION_DATABASE_REPLY" {
 				var configurationDatabaseAggregator *models.ConfigurationDatabaseAggregator
 				err = json.Unmarshal([]byte(configurationDb.GetPayload()), &configurationDatabaseAggregator)
@@ -143,7 +143,7 @@ func SendConfigurationDatabase(shoset *net.Shoset) (err error) {
 			for start := time.Now(); time.Since(start) < time.Duration(configurationDbMsg.GetTimeout())*time.Millisecond; {
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(configurationDbMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationDbMsg.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), configurationDbMsg.GetCommand(), shosets[index])
 
 				timeoutSend := time.Duration((int(configurationDbMsg.GetTimeout()) / len(shosets)))
 
@@ -190,7 +190,7 @@ func SendCreateDatabase(shoset *net.Shoset, tenant string) (err error) {
 			for start := time.Now(); time.Since(start) < time.Duration(configurationDbMsg.GetTimeout())*time.Millisecond; {
 				index := getSecretSendIndex(shosets)
 				shosets[index].SendMessage(configurationDbMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationDbMsg.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), configurationDbMsg.GetCommand(), shosets[index])
 
 				timeoutSend := time.Duration((int(configurationDbMsg.GetTimeout()) / len(shosets)))
 

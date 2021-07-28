@@ -182,12 +182,12 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 			for notSend {
 				index := getGrpcSendIndex(shosets)
 				shosets[index].SendMessage(cmd)
-				log.Printf("%s : send command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
+				log.Printf("%s : send command %s to %s\n", r.Shoset.GetBindAddress(), cmd.GetCommand(), shosets[index])
 
 				timeoutSend := time.Duration((int(cmd.GetTimeout()) / len(shosets)))
 
 				messageChannel := <-r.ValidationChannel
-				log.Printf("%s : receive validation event for command %s to %s\n", r.Shoset.GetBindAddr(), cmd.GetCommand(), shosets[index])
+				log.Printf("%s : receive validation event for command %s to %s\n", r.Shoset.GetBindAddress(), cmd.GetCommand(), shosets[index])
 
 				if messageChannel != nil {
 					notSend = false
@@ -235,12 +235,12 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 	configurationConnector, ok := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 	if ok {
 		evt.Tenant = configurationConnector.GetTenant()
-		thisOne := r.Shoset.GetBindAddr()
+		thisOne := r.Shoset.GetBindAddress()
 
 		if evt.GetReferenceUUID() == "" {
 			r.Shoset.ConnsByAddr.Iterate(
 				func(key string, val *sn.ShosetConn) {
-					if key != r.Shoset.GetBindAddr() && key != thisOne && val.ShosetType == "a" {
+					if key != r.Shoset.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "a" {
 						val.SendMessage(evt)
 						log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
 					}

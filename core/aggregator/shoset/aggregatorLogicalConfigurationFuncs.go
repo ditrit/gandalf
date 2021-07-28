@@ -59,17 +59,17 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 	ch := c.GetCh()
 	dir := c.GetDir()
 	err = nil
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 	log.Println("Handle logical configuration")
 	log.Println(logicalConfiguration)
 	fmt.Println("Handle logical configuration")
 	fmt.Println(logicalConfiguration)
 	if dir == "in" {
 		fmt.Println("IN")
-		if c.GetShosetType() == "c" {
+		if c.GetRemoteShosetType() == "c" {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
-				logicalConfiguration.Target = c.GetBindAddr()
+				logicalConfiguration.Target = c.GetLocalAddress()
 				configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 				if ok {
 					logicalConfiguration.Tenant = configurationAggregator.GetTenant()
@@ -87,7 +87,7 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 
 	if dir == "out" {
 		fmt.Println("OUT")
-		if c.GetShosetType() == "cl" {
+		if c.GetRemoteShosetType() == "cl" {
 			if logicalConfiguration.GetTarget() == "" {
 				if logicalConfiguration.GetCommand() == "LOGICAL_CONFIGURATION_REPLY" {
 					var logicalComponent *models.LogicalComponent
@@ -134,7 +134,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 				for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
 					index := getLogicalConfigurationSendIndex(shosets)
 					shosets[index].SendMessage(configurationMsg)
-					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+					log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), configurationMsg.GetCommand(), shosets[index])
 
 					timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
 

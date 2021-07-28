@@ -18,7 +18,7 @@ import (
 func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	cmd := message.(msg.Command)
 	ch := c.GetCh()
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 	err = nil
 
 	log.Println("Handle command")
@@ -140,14 +140,14 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 		fmt.Println(validate)
 		if validate {
 
-			ok := ch.Queue["cmd"].Push(cmd, c.ShosetType, c.GetBindAddr())
+			ok := ch.Queue["cmd"].Push(cmd, c.GetRemoteShosetType(), c.GetLocalAddress())
 			fmt.Println("ok")
 			fmt.Println(ok)
 			ch.Queue["cmd"].Print()
 			if ok {
 				ch.ConnsByAddr.Iterate(
 					func(key string, val *net.ShosetConn) {
-						if key != thisOne && val.ShosetType == "a" {
+						if key != thisOne && val.GetRemoteShosetType() == "a" {
 							val.SendMessage(utils.CreateValidationEvent(cmd, configurationConnector.GetTenant()))
 							log.Printf("%s : send validation event for command %s to %s\n", thisOne, cmd.GetCommand(), val)
 						}

@@ -52,7 +52,7 @@ go build -o gandalf
 
 **Cluster initialisation**
 ```bash
-./gandalf start cluster --offset 1 -l Cluster 
+./gandalf start cluster --offset 1 -l cluster 
 ```
 **CLI authentification**
 ```bash

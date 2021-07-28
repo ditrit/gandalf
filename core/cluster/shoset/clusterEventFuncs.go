@@ -17,13 +17,13 @@ import (
 func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	evt := message.(msg.Event)
 	ch := c.GetCh()
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 	err = nil
 
 	log.Println("Handle event")
 	log.Println(evt)
 
-	//ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["evt"].Push(evt, c.GetRemoteShosetType(), c.GetBindAddress())
 
 	//if ok {
 	databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
@@ -51,7 +51,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 
 		ch.ConnsByAddr.Iterate(
 			func(key string, val *net.ShosetConn) {
-				if key != thisOne && val.ShosetType == "a" && c.GetCh().Context["tenant"] == val.GetCh().Context["tenant"] {
+				if key != thisOne && val.GetRemoteShosetType() == "a" && c.GetCh().Context["tenant"] == val.GetCh().Context["tenant"] {
 					val.SendMessage(evt)
 					log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
 				}
