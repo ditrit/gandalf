@@ -99,6 +99,14 @@ github.com/ditrit/shoset v0.0.0-20210728101611-42f55208d31c h1:NHUAu1m4PS9btilVC
 github.com/ditrit/shoset v0.0.0-20210728101611-42f55208d31c/go.mod h1:j3EY/qc953pB7sz8JxWQGkGAMF+0H8ycX3T3HdYwH3w=
 github.com/ditrit/shoset v0.0.0-20210728124900-be07cfaa423a h1:OQ+GtONLt6BbhKskjoM3iyeyCCx/+UBYmAK5KCmYGuc=
 github.com/ditrit/shoset v0.0.0-20210728124900-be07cfaa423a/go.mod h1:j3EY/qc953pB7sz8JxWQGkGAMF+0H8ycX3T3HdYwH3w=
+github.com/ditrit/shoset v0.0.0-20210730134648-ce6b6f45f23a h1:P2Hz6G0STlAtM/fjD4QC0zo2x0WV0/5i/Us8UYOQUQY=
+github.com/ditrit/shoset v0.0.0-20210730134648-ce6b6f45f23a/go.mod h1:j3EY/qc953pB7sz8JxWQGkGAMF+0H8ycX3T3HdYwH3w=
+github.com/ditrit/shoset v0.0.0-20210730144505-220e5a7cc820 h1:j0HXCMJHUXpp9m4uYsZ3hJtHDb3M3ApUrDfuj48eyJ8=
+github.com/ditrit/shoset v0.0.0-20210730144505-220e5a7cc820/go.mod h1:j3EY/qc953pB7sz8JxWQGkGAMF+0H8ycX3T3HdYwH3w=
+github.com/ditrit/shoset v0.0.0-20210802142024-bba3cc90b1d9 h1:FNlKyAAyVG/HSr5N7vTK4/9h93uf2IrahnLpJO5mCF8=
+github.com/ditrit/shoset v0.0.0-20210802142024-bba3cc90b1d9/go.mod h1:j3EY/qc953pB7sz8JxWQGkGAMF+0H8ycX3T3HdYwH3w=
+github.com/ditrit/shoset v0.0.0-20210803152627-f91e4b9d997e h1:pyuyecXa3dKOHjv+VKKvIJJRnBzBNnn+rVj19n+/JNY=
+github.com/ditrit/shoset v0.0.0-20210803152627-f91e4b9d997e/go.mod h1:j3EY/qc953pB7sz8JxWQGkGAMF+0H8ycX3T3HdYwH3w=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=

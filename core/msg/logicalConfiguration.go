@@ -5,18 +5,18 @@ import "github.com/ditrit/shoset/msg"
 // Configuration : gandalf configs
 type LogicalConfiguration struct {
 	msg.MessageBase
-	Target  string
-	Command string
-	Context map[string]interface{}
+	TargetAddress     string
+	TargetLogicalName string
+	Command           string
+	Context           map[string]interface{}
 }
 
 // NewConfiguration : Configuration constructor
 // todo : passer une map pour gerer les valeurs optionnelles ?
-func NewLogicalConfiguration(target string, command string, payload string) *LogicalConfiguration {
+func NewLogicalConfiguration(command string, payload string) *LogicalConfiguration {
 	s := new(LogicalConfiguration)
 	s.InitMessageBase()
 
-	s.Target = target
 	s.Context = make(map[string]interface{})
 	s.Command = command
 	s.Payload = payload
@@ -27,7 +27,10 @@ func NewLogicalConfiguration(target string, command string, payload string) *Log
 func (lc LogicalConfiguration) GetMsgType() string { return "logicalConfiguration" }
 
 // GetTarget :
-func (lc LogicalConfiguration) GetTarget() string { return lc.Target }
+func (lc LogicalConfiguration) GetTargetLogicalName() string { return lc.TargetLogicalName }
+
+// GetTarget :
+func (lc LogicalConfiguration) GetTargetAddress() string { return lc.TargetAddress }
 
 // GetCommand :
 func (lc LogicalConfiguration) GetCommand() string { return lc.Command }

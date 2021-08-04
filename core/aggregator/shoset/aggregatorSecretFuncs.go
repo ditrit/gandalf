@@ -2,6 +2,7 @@
 package shoset
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -65,9 +66,10 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	//if ok {
 	if dir == "in" {
 		if c.GetRemoteShosetType() == "c" {
-			shosets := net.GetByType(ch.ConnsByAddr, "cl")
+			shosets := ch.GetConnsByTypeArray("cl")
 			if len(shosets) != 0 {
-				secret.Target = c.GetLocalAddress()
+				secret.TargetAddress = c.GetRemoteAddress()
+				secret.TargetLogicalName = c.GetRemoteLogicalName()
 				configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 				if ok {
 					secret.Tenant = configurationAggregator.GetTenant()
@@ -86,12 +88,18 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	if dir == "out" {
 		if c.GetRemoteShosetType() == "cl" {
 
-			if secret.GetTarget() == "" {
+			if secret.GetTargetLogicalName() == "" && secret.GetTargetAddress() == "" {
 				if secret.GetCommand() == "VALIDATION_REPLY" {
 					ch.Context["validation"] = secret.GetPayload()
 				}
 			} else {
-				shoset := ch.ConnsByAddr.Get(secret.GetTarget())
+
+				mapshoset := ch.ConnsByName.Get(secret.GetTargetLogicalName())
+				var shoset *net.ShosetConn
+				if mapshoset != nil {
+					shoset = mapshoset.Get(secret.GetTargetAddress())
+				}
+
 				shoset.SendMessage(secret)
 			}
 		} else {
@@ -114,15 +122,18 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 func SendSecret(shoset *net.Shoset) (err error) {
 	configurationAggregator, ok := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
 	if ok {
-		secretMsg := cmsg.NewSecret("", "VALIDATION", "")
+		secretMsg := cmsg.NewSecret("VALIDATION", "")
 
 		secretMsg.Tenant = configurationAggregator.GetTenant()
 		secretMsg.GetContext()["componentType"] = "aggregator"
 		secretMsg.GetContext()["secret"] = configurationAggregator.GetSecret()
 		secretMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
 		//conf.GetContext()["product"] = shoset.Context["product"]
-
-		shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+		fmt.Println("shoset.ConnsByName")
+		fmt.Println(shoset.ConnsByName)
+		shosets := shoset.GetConnsByTypeArray("cl")
+		fmt.Println("shosets")
+		fmt.Println(shosets)
 
 		if len(shosets) != 0 {
 			if secretMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {

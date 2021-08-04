@@ -111,11 +111,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 								fmt.Println("result")
 								fmt.Println(result)
 								if err == nil {
-									target := secret.GetTarget()
-									if componentType == "aggregator" || componentType == "cluster" {
-										target = ""
-									}
-									secretReply := cmsg.NewSecret(target, "VALIDATION_REPLY", strconv.FormatBool(result))
+
+									secretReply := cmsg.NewSecret("VALIDATION_REPLY", strconv.FormatBool(result))
 									secretReply.Tenant = secret.GetTenant()
 
 									var shoset *net.ShosetConn
@@ -126,9 +123,25 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 											shoset = connsJoin.Get(bindAddr)
 										}
 
-									} else {
-										shoset = ch.ConnsByAddr.Get(c.GetLocalAddress())
+									} else if componentType == "aggregator" {
 
+										mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+										fmt.Println("mapshoset")
+										fmt.Println(mapshoset)
+										if mapshoset != nil {
+											shoset = mapshoset.Get(c.GetRemoteAddress())
+											fmt.Println("shoset")
+											fmt.Println(shoset)
+										}
+
+									} else {
+										secretReply.TargetAddress = secret.GetTargetAddress()
+										secretReply.TargetLogicalName = secret.GetTargetLogicalName()
+
+										mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+										if mapshoset != nil {
+											shoset = mapshoset.Get(c.GetRemoteAddress())
+										}
 									}
 
 									shoset.SendMessage(secretReply)
@@ -180,7 +193,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 func SendSecret(shoset *net.Shoset) (err error) {
 	configurationCluster, ok := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
 	if ok {
-		secretMsg := cmsg.NewSecret("", "VALIDATION", "")
+		secretMsg := cmsg.NewSecret("VALIDATION", "")
 		//secretMsg.Tenant = "cluster"
 		secretMsg.GetContext()["componentType"] = "cluster"
 		secretMsg.GetContext()["secret"] = configurationCluster.GetSecret()

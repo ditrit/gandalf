@@ -124,13 +124,13 @@ func SendWorkerAdminPivotConfiguration(shoset *net.Shoset) (err error) {
 		if err == nil {
 			configurationConnector, ok := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 			if ok {
-				conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
+				conf := cmsg.NewConfiguration("PIVOT_CONFIGURATION", "")
 				conf.Tenant = configurationConnector.GetTenant()
 				conf.GetContext()["componentType"] = "admin"
 				conf.GetContext()["version"] = jsonVersion
 				//conf.GetContext()["product"] = shoset.Context["product"]
 
-				shosets := net.GetByType(shoset.ConnsByAddr, "a")
+				shosets := shoset.GetConnsByTypeArray("a")
 
 				if len(shosets) != 0 {
 					if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
@@ -175,13 +175,13 @@ func SendWorkerPivotConfiguration(shoset *net.Shoset, version models.Version) (e
 	if err == nil {
 		configurationConnector, ok := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 		if ok {
-			conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
+			conf := cmsg.NewConfiguration("PIVOT_CONFIGURATION", "")
 			conf.Tenant = configurationConnector.GetTenant()
 			conf.GetContext()["componentType"] = configurationConnector.GetConnectorType()
 			conf.GetContext()["version"] = jsonVersion
 			//conf.GetContext()["product"] = shoset.Context["product"]
 
-			shosets := net.GetByType(shoset.ConnsByAddr, "a")
+			shosets := shoset.GetConnsByTypeArray("a")
 
 			if len(shosets) != 0 {
 				if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
@@ -234,13 +234,13 @@ func SendConnectorPivotConfiguration(shoset *net.Shoset) (err error) {
 		if err == nil {
 			configurationConnector, ok := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 			if ok {
-				conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
+				conf := cmsg.NewConfiguration("PIVOT_CONFIGURATION", "")
 				conf.Tenant = configurationConnector.GetTenant()
 				conf.GetContext()["componentType"] = "connector"
 				conf.GetContext()["version"] = jsonVersion
 				//conf.GetContext()["product"] = shoset.Context["product"]
 
-				shosets := net.GetByType(shoset.ConnsByAddr, "a")
+				shosets := shoset.GetConnsByTypeArray("a")
 
 				if len(shosets) != 0 {
 					if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
@@ -283,13 +283,13 @@ func SendProductConnectorConfiguration(shoset *net.Shoset, version models.Versio
 	if err == nil {
 		configurationConnector, ok := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 		if ok {
-			conf := cmsg.NewConfiguration("", "CONNECTOR_PRODUCT_CONFIGURATION", "")
+			conf := cmsg.NewConfiguration("CONNECTOR_PRODUCT_CONFIGURATION", "")
 			conf.Tenant = configurationConnector.GetTenant()
 			conf.GetContext()["product"] = configurationConnector.GetProduct()
 			conf.GetContext()["version"] = jsonVersion
 			//conf.GetContext()["product"] = shoset.Context["product"]
 
-			shosets := net.GetByType(shoset.ConnsByAddr, "a")
+			shosets := shoset.GetConnsByTypeArray("a")
 
 			if len(shosets) != 0 {
 				if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
@@ -341,12 +341,12 @@ func SendSavePivotConfiguration(shoset *net.Shoset, pivot *models.Pivot) (err er
 	if err == nil {
 		configurationConnector, ok := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 		if ok {
-			conf := cmsg.NewConfiguration("", "SAVE_PIVOT_CONFIGURATION", string(jsonData))
+			conf := cmsg.NewConfiguration("SAVE_PIVOT_CONFIGURATION", string(jsonData))
 			conf.Tenant = configurationConnector.GetTenant()
 
 			//conf.GetContext()["product"] = shoset.Context["product"]
 
-			shosets := net.GetByType(shoset.ConnsByAddr, "a")
+			shosets := shoset.GetConnsByTypeArray("a")
 
 			if len(shosets) != 0 {
 				if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {
@@ -372,12 +372,12 @@ func SendSaveProductConnectorConfiguration(shoset *net.Shoset, productConnector 
 	if err == nil {
 		configurationConnector, ok := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 		if ok {
-			conf := cmsg.NewConfiguration("", "SAVE_PRODUCT_CONNECTOR_CONFIGURATION", string(jsonData))
+			conf := cmsg.NewConfiguration("SAVE_PRODUCT_CONNECTOR_CONFIGURATION", string(jsonData))
 			conf.Tenant = configurationConnector.GetTenant()
 
 			//conf.GetContext()["product"] = shoset.Context["product"]
 
-			shosets := net.GetByType(shoset.ConnsByAddr, "a")
+			shosets := shoset.GetConnsByTypeArray("a")
 
 			if len(shosets) != 0 {
 				if conf.GetTimeout() > configurationConnector.GetMaxTimeout() {

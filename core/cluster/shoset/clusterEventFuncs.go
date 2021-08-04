@@ -49,7 +49,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 			log.Println("Error : Database client map is empty")
 		}
 
-		ch.ConnsByAddr.Iterate(
+		ch.ConnsByName.IterateAll(
 			func(key string, val *net.ShosetConn) {
 				if key != thisOne && val.GetRemoteShosetType() == "a" && c.GetCh().Context["tenant"] == val.GetCh().Context["tenant"] {
 					val.SendMessage(evt)

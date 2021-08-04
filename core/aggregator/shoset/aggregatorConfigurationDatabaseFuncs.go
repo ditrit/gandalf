@@ -132,7 +132,7 @@ func SendConfigurationDatabase(shoset *net.Shoset) (err error) {
 		//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 		//conf.GetContext()["product"] = shoset.Context["product"]
 
-		shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+		shosets := shoset.GetConnsByTypeArray("cl")
 
 		if len(shosets) != 0 {
 			if configurationDbMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
@@ -179,7 +179,7 @@ func SendCreateDatabase(shoset *net.Shoset, tenant string) (err error) {
 		//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 		//conf.GetContext()["product"] = shoset.Context["product"]
 
-		shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+		shosets := shoset.GetConnsByTypeArray("cl")
 
 		if len(shosets) != 0 {
 			if configurationDbMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {

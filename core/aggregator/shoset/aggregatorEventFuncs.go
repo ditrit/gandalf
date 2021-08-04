@@ -26,7 +26,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 			//ok := ch.Queue["evt"].Push(evt, c.GetRemoteShosetType(), c.GetBindAddress())
 			//if ok {
 			if dir == "in" {
-				ch.ConnsByAddr.Iterate(
+				ch.ConnsByName.IterateAll(
 					func(key string, val *net.ShosetConn) {
 						if key != thisOne && val.GetRemoteShosetType() == "cl" {
 							//if key != c.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "cl" {
@@ -38,7 +38,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 			}
 
 			if dir == "out" {
-				ch.ConnsByAddr.Iterate(
+				ch.ConnsByName.IterateAll(
 					func(key string, val *net.ShosetConn) {
 						if key != thisOne && val.GetRemoteShosetType() == "c" {
 							//if key != c.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "c" {

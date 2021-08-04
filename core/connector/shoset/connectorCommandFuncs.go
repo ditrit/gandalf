@@ -145,7 +145,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			fmt.Println(ok)
 			ch.Queue["cmd"].Print()
 			if ok {
-				ch.ConnsByAddr.Iterate(
+				ch.ConnsByName.IterateAll(
 					func(key string, val *net.ShosetConn) {
 						if key != thisOne && val.GetRemoteShosetType() == "a" {
 							val.SendMessage(utils.CreateValidationEvent(cmd, configurationConnector.GetTenant()))

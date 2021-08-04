@@ -35,7 +35,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			//if ok {
 			if dir == "in" {
 				if c.GetRemoteShosetType() == "c" {
-					shosets := net.GetByType(ch.ConnsByAddr, "cl")
+					shosets := ch.GetConnsByTypeArray("cl")
 					if len(shosets) != 0 {
 						index := getCommandSendIndex(shosets)
 						shosets[index].SendMessage(cmd)

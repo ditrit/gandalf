@@ -2,6 +2,7 @@
 package shoset
 
 import (
+	"fmt"
 	"log"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -77,14 +78,19 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 func SendSecret(shoset *net.Shoset) (err error) {
 	configurationConnector, ok := shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 	if ok {
-		secretMsg := cmsg.NewSecret("", "VALIDATION", "")
+		secretMsg := cmsg.NewSecret("VALIDATION", "")
 		//secretMsg.Tenant = shoset.Context["tenant"].(string)
 		secretMsg.GetContext()["componentType"] = "connector"
 		secretMsg.GetContext()["secret"] = configurationConnector.GetSecret()
 		secretMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
 		//conf.GetContext()["product"] = shoset.Context["product"]
 
-		shosets := net.GetByType(shoset.ConnsByAddr, "a")
+		shosets := shoset.GetConnsByTypeArray("a")
+		fmt.Println("shosets")
+		fmt.Println(shosets)
+
+		fmt.Println("shoset")
+		fmt.Println(shoset)
 
 		if len(shosets) != 0 {
 			if secretMsg.GetTimeout() > configurationConnector.GetMaxTimeout() {

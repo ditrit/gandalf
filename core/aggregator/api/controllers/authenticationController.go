@@ -41,7 +41,7 @@ func (ac AuthenticationController) Login(w http.ResponseWriter, r *http.Request)
 		err := json.NewDecoder(r.Body).Decode(ruser)
 		if err != nil {
 
-			utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 
 			//var resp = map[string]interface{}{"status": false, "message": "Invalid request"}
 			//json.NewEncoder(w).Encode(resp)

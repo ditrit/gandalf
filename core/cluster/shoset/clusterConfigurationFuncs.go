@@ -103,7 +103,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 										case "cluster":
 											bindaddr, ok := configuration.Context["bindAddress"].(string)
 											if ok {
-												cmdReply := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+												cmdReply := cmsg.NewConfiguration("PIVOT_CONFIGURATION_REPLY", string(jsonData))
 												cmdReply.Tenant = configuration.GetTenant()
 
 												var shoset *net.ShosetConn
@@ -119,35 +119,58 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 											break
 										case "aggregator":
-											cmdReply := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+											cmdReply := cmsg.NewConfiguration("PIVOT_CONFIGURATION_REPLY", string(jsonData))
 											cmdReply.Tenant = configuration.GetTenant()
-											shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+
+											mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+											var shoset *net.ShosetConn
+											if mapshoset != nil {
+												shoset = mapshoset.Get(c.GetRemoteAddress())
+											}
 
 											shoset.SendMessage(cmdReply)
 											break
 										case "connector":
-											cmdReply := cmsg.NewConfiguration(configuration.GetTarget(), "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+											cmdReply := cmsg.NewConfiguration("PIVOT_CONFIGURATION_REPLY", string(jsonData))
 											cmdReply.Tenant = configuration.GetTenant()
+											cmdReply.TargetLogicalName = configuration.GetTargetLogicalName()
+											cmdReply.TargetAddress = configuration.GetTargetAddress()
 											cmdReply.GetContext()["componentType"] = "connector"
 
-											shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+											mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+											var shoset *net.ShosetConn
+											if mapshoset != nil {
+												shoset = mapshoset.Get(c.GetRemoteAddress())
+											}
 
 											shoset.SendMessage(cmdReply)
 											break
 										case "admin":
-											cmdReply := cmsg.NewConfiguration(configuration.GetTarget(), "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+											cmdReply := cmsg.NewConfiguration("PIVOT_CONFIGURATION_REPLY", string(jsonData))
 											cmdReply.Tenant = configuration.GetTenant()
+											cmdReply.TargetLogicalName = configuration.GetTargetLogicalName()
+											cmdReply.TargetAddress = configuration.GetTargetAddress()
 											cmdReply.GetContext()["componentType"] = "admin"
 
-											shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+											mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+											var shoset *net.ShosetConn
+											if mapshoset != nil {
+												shoset = mapshoset.Get(c.GetRemoteAddress())
+											}
 
 											shoset.SendMessage(cmdReply)
 										default:
-											cmdReply := cmsg.NewConfiguration(configuration.GetTarget(), "PIVOT_CONFIGURATION_REPLY", string(jsonData))
+											cmdReply := cmsg.NewConfiguration("PIVOT_CONFIGURATION_REPLY", string(jsonData))
 											cmdReply.Tenant = configuration.GetTenant()
+											cmdReply.TargetLogicalName = configuration.GetTargetLogicalName()
+											cmdReply.TargetAddress = configuration.GetTargetAddress()
 											cmdReply.GetContext()["componentType"] = "worker"
 
-											shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+											mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+											var shoset *net.ShosetConn
+											if mapshoset != nil {
+												shoset = mapshoset.Get(c.GetRemoteAddress())
+											}
 
 											shoset.SendMessage(cmdReply)
 											break
@@ -207,9 +230,17 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 									jsonData, err := json.Marshal(productConnectors)
 
 									if err == nil {
-										cmdReply := cmsg.NewConfiguration(configuration.GetTarget(), "CONNECTOR_PRODUCT_CONFIGURATION_REPLY", string(jsonData))
+										cmdReply := cmsg.NewConfiguration("CONNECTOR_PRODUCT_CONFIGURATION_REPLY", string(jsonData))
+										cmdReply.TargetLogicalName = configuration.GetTargetLogicalName()
+										cmdReply.TargetAddress = configuration.GetTargetAddress()
 										cmdReply.Tenant = configuration.GetTenant()
-										shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+
+										mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+										var shoset *net.ShosetConn
+										if mapshoset != nil {
+											shoset = mapshoset.Get(c.GetRemoteAddress())
+										}
+
 										fmt.Println("shoset")
 										fmt.Println(shoset)
 										shoset.SendMessage(cmdReply)
@@ -325,7 +356,7 @@ func SendClusterPivotConfiguration(shoset *net.Shoset) (err error) {
 		if err == nil {
 			configurationCluster, ok := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
 			if ok {
-				conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
+				conf := cmsg.NewConfiguration("PIVOT_CONFIGURATION", "")
 				conf.GetContext()["componentType"] = "cluster"
 				conf.GetContext()["version"] = jsonVersion
 				conf.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()

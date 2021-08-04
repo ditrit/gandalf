@@ -83,7 +83,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 		//configurationLogicalConnector := configurationConnector.ConfigurationToDatabase()
 		//configMarshal, err := json.Marshal(configurationLogicalConnector)
 		if err == nil {
-			configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", "")
+			configurationMsg := cmsg.NewLogicalConfiguration("LOGICAL_CONFIGURATION", "")
 			//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 			configurationMsg.GetContext()["componentType"] = "connector"
 			configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
@@ -91,7 +91,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 			//configurationMsg.GetContext()["configuration"] = configurationLogicalConnector
 			//conf.GetContext()["product"] = shoset.Context["product"]
 
-			shosets := net.GetByType(shoset.ConnsByAddr, "a")
+			shosets := shoset.GetConnsByTypeArray("a")
 
 			if len(shosets) != 0 {
 				if configurationMsg.GetTimeout() > configurationConnector.GetMaxTimeout() {

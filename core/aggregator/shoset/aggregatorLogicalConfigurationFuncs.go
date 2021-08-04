@@ -67,9 +67,14 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 	if dir == "in" {
 		fmt.Println("IN")
 		if c.GetRemoteShosetType() == "c" {
-			shosets := net.GetByType(ch.ConnsByAddr, "cl")
+			shosets := ch.GetConnsByTypeArray("cl")
 			if len(shosets) != 0 {
-				logicalConfiguration.Target = c.GetLocalAddress()
+				logicalConfiguration.TargetAddress = c.GetRemoteAddress()
+				logicalConfiguration.TargetLogicalName = c.GetRemoteLogicalName()
+				fmt.Println("logicalConfiguration.TargetAddress")
+				fmt.Println(logicalConfiguration.TargetAddress)
+				fmt.Println("logicalConfiguration.TargetLogicalName")
+				fmt.Println(logicalConfiguration.TargetLogicalName)
 				configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 				if ok {
 					logicalConfiguration.Tenant = configurationAggregator.GetTenant()
@@ -88,7 +93,7 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 	if dir == "out" {
 		fmt.Println("OUT")
 		if c.GetRemoteShosetType() == "cl" {
-			if logicalConfiguration.GetTarget() == "" {
+			if logicalConfiguration.GetTargetAddress() == "" && logicalConfiguration.GetTargetLogicalName() == "" {
 				if logicalConfiguration.GetCommand() == "LOGICAL_CONFIGURATION_REPLY" {
 					var logicalComponent *models.LogicalComponent
 					err = json.Unmarshal([]byte(logicalConfiguration.GetPayload()), &logicalComponent)
@@ -97,7 +102,13 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 					}
 				}
 			} else {
-				shoset := ch.ConnsByAddr.Get(logicalConfiguration.GetTarget())
+
+				mapshoset := ch.ConnsByName.Get(logicalConfiguration.GetTargetLogicalName())
+				var shoset *net.ShosetConn
+				if mapshoset != nil {
+					shoset = mapshoset.Get(logicalConfiguration.GetTargetAddress())
+				}
+
 				shoset.SendMessage(logicalConfiguration)
 			}
 		} else {
@@ -115,7 +126,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 		//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
 		//configMarshal, err := json.Marshal(configurationLogicalAggregator)
 		if err == nil {
-			configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", "")
+			configurationMsg := cmsg.NewLogicalConfiguration("LOGICAL_CONFIGURATION", "")
 			configurationMsg.Tenant = configurationAggregator.GetTenant()
 			configurationMsg.GetContext()["componentType"] = "aggregator"
 			configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
@@ -123,7 +134,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 			//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
 			//conf.GetContext()["product"] = shoset.Context["product"]
 
-			shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+			shosets := shoset.GetConnsByTypeArray("cl")
 
 			if len(shosets) != 0 {
 				if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {

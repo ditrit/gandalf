@@ -166,7 +166,7 @@ func (r ConnectorGrpc) SendCommandMessage(ctx context.Context, in *pb.CommandMes
 	configurationConnector, ok := r.Shoset.Context["configuration"].(*cmodels.ConfigurationConnector)
 	if ok {
 		cmd.Tenant = configurationConnector.GetTenant()
-		shosets := sn.GetByType(r.Shoset.ConnsByAddr, "a")
+		shosets := r.Shoset.GetConnsByTypeArray("a")
 
 		if len(shosets) != 0 {
 			if cmd.GetTimeout() > r.timeoutMax {
@@ -238,7 +238,7 @@ func (r ConnectorGrpc) SendEventMessage(ctx context.Context, in *pb.EventMessage
 		thisOne := r.Shoset.GetBindAddress()
 
 		if evt.GetReferenceUUID() == "" {
-			r.Shoset.ConnsByAddr.Iterate(
+			r.Shoset.ConnsByName.IterateAll(
 				func(key string, val *sn.ShosetConn) {
 					if key != r.Shoset.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "a" {
 						val.SendMessage(evt)

@@ -76,7 +76,7 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
 		}
 
@@ -84,7 +84,7 @@ func (rc RoleController) Read(w http.ResponseWriter, r *http.Request) {
 		if role, err = dao.ReadRole(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+				utils.RespondWithError(w, http.StatusNotFound, "User not found")
 			default:
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
@@ -105,7 +105,7 @@ func (rc RoleController) Update(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
 		}
 

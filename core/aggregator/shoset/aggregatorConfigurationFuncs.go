@@ -75,9 +75,10 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			//if ok {
 			if dir == "in" {
 				if c.GetRemoteShosetType() == "c" {
-					shosets := net.GetByType(ch.ConnsByAddr, "cl")
+					shosets := ch.GetConnsByTypeArray("cl")
 					if len(shosets) != 0 {
-						configuration.Target = c.GetLocalAddress()
+						configuration.TargetAddress = c.GetRemoteAddress()
+						configuration.TargetLogicalName = c.GetRemoteLogicalName()
 						index := getConfigurationSendIndex(shosets)
 						shosets[index].SendMessage(configuration)
 						log.Printf("%s : send in command %s to %s\n", thisOne, configuration.GetCommand(), shosets[index])
@@ -92,18 +93,29 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			if dir == "out" {
 				if c.GetRemoteShosetType() == "cl" {
 					if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
-						if configuration.GetTarget() == "" {
+						if configuration.GetTargetLogicalName() == "" && configuration.GetTargetAddress() == "" {
 							var pivot *models.Pivot
 							err = json.Unmarshal([]byte(configuration.GetPayload()), &pivot)
 							if err == nil {
 								ch.Context["pivot"] = pivot
 							}
 						} else {
-							shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
+
+							mapshoset := ch.ConnsByName.Get(configuration.GetTargetLogicalName())
+							var shoset *net.ShosetConn
+							if mapshoset != nil {
+								shoset = mapshoset.Get(configuration.GetTargetAddress())
+							}
+
 							shoset.SendMessage(configuration)
 						}
 					} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION_REPLY" {
-						shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
+
+						mapshoset := ch.ConnsByName.Get(configuration.GetTargetLogicalName())
+						var shoset *net.ShosetConn
+						if mapshoset != nil {
+							shoset = mapshoset.Get(configuration.GetTargetAddress())
+						}
 						fmt.Println("CONNECTOR_PRODUCT_CONFIGURATION_REPLY")
 						fmt.Println("shoset")
 						fmt.Println(shoset)
@@ -133,13 +145,13 @@ func SendAggregatorPivotConfiguration(shoset *net.Shoset) (err error) {
 		if err == nil {
 			configurationAggregator, ok := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
 			if ok {
-				conf := cmsg.NewConfiguration("", "PIVOT_CONFIGURATION", "")
+				conf := cmsg.NewConfiguration("PIVOT_CONFIGURATION", "")
 				conf.Tenant = configurationAggregator.GetTenant()
 				conf.GetContext()["componentType"] = "aggregator"
 				conf.GetContext()["version"] = jsonVersion
 				//conf.GetContext()["product"] = shoset.Context["product"]
 
-				shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+				shosets := shoset.GetConnsByTypeArray("cl")
 
 				if len(shosets) != 0 {
 					if conf.GetTimeout() > configurationAggregator.GetMaxTimeout() {

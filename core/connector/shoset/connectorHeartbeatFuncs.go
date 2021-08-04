@@ -24,7 +24,7 @@ func SendHeartbeat(shoset *net.Shoset) (err error) {
 		for range time.Tick(time.Minute * 1) {
 			fmt.Println("SEND TICK")
 
-			shoset.ConnsByAddr.Iterate(
+			shoset.ConnsByName.IterateAll(
 				func(key string, val *net.ShosetConn) {
 					if val.GetRemoteShosetType() == "a" {
 						//if key != c.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "cl" {

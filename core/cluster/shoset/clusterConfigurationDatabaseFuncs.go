@@ -88,7 +88,11 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 							configurationReply := cmsg.NewConfigurationDatabase(target, "CONFIGURATION_DATABASE_REPLY", string(configMarshal))
 							configurationReply.Tenant = configurationDb.GetTenant()
 
-							shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+							mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+							var shoset *net.ShosetConn
+							if mapshoset != nil {
+								shoset = mapshoset.Get(c.GetRemoteAddress())
+							}
 							shoset.SendMessage(configurationReply)
 						}
 					} else {
@@ -138,7 +142,13 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 										target := ""
 										creationReply := cmsg.NewConfigurationDatabase(target, "CREATE_DATABASE_REPLY", string(configMarshal))
 										creationReply.Tenant = configurationDb.GetTenant()
-										shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+
+										mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+										var shoset *net.ShosetConn
+										if mapshoset != nil {
+											shoset = mapshoset.Get(c.GetRemoteAddress())
+										}
+
 										fmt.Println("SEND")
 										shoset.SendMessage(creationReply)
 									}

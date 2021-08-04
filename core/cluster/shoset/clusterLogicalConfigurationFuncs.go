@@ -109,7 +109,7 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 									case "cluster":
 										bindAddr, ok := logicalConfiguration.GetContext()["bindAddress"].(string)
 										if ok {
-											configurationReply := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
+											configurationReply := cmsg.NewLogicalConfiguration("LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 											configurationReply.Tenant = logicalConfiguration.GetTenant()
 
 											var shoset *net.ShosetConn
@@ -122,15 +122,28 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 										}
 										break
 									case "aggregator":
-										configurationReply := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
+										configurationReply := cmsg.NewLogicalConfiguration("LOGICAL_CONFIGURATION_REPLY", string(jsonData))
 										configurationReply.Tenant = logicalConfiguration.GetTenant()
-										shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+
+										mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+										var shoset *net.ShosetConn
+										if mapshoset != nil {
+											shoset = mapshoset.Get(c.GetRemoteAddress())
+										}
+
 										shoset.SendMessage(configurationReply)
 										break
 									case "connector":
-										configurationReply := cmsg.NewLogicalConfiguration(logicalConfiguration.GetTarget(), "LOGICAL_CONFIGURATION_REPLY", string(jsonData))
+										configurationReply := cmsg.NewLogicalConfiguration("LOGICAL_CONFIGURATION_REPLY", string(jsonData))
+										configurationReply.TargetLogicalName = logicalConfiguration.GetTargetLogicalName()
+										configurationReply.TargetAddress = logicalConfiguration.GetTargetAddress()
 										configurationReply.Tenant = logicalConfiguration.GetTenant()
-										shoset := ch.ConnsByAddr.Get(c.GetLocalAddress())
+
+										mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
+										var shoset *net.ShosetConn
+										if mapshoset != nil {
+											shoset = mapshoset.Get(c.GetRemoteAddress())
+										}
 										shoset.SendMessage(configurationReply)
 										break
 									}
@@ -168,7 +181,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 	//configurationLogicalCluster := configurationCluster.ConfigurationToDatabase()
 	//configMarshal, err := json.Marshal(configurationLogicalCluster)
 	if err == nil {
-		configurationMsg := cmsg.NewLogicalConfiguration("", "LOGICAL_CONFIGURATION", "")
+		configurationMsg := cmsg.NewLogicalConfiguration("LOGICAL_CONFIGURATION", "")
 		//secretMsg.Tenant = "cluster"
 		configurationMsg.GetContext()["componentType"] = "cluster"
 		configurationMsg.GetContext()["logicalName"] = configurationCluster.GetLogicalName()

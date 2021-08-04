@@ -215,7 +215,9 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 								//err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
 								go member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
 								//if err == nil {
+
 								go member.StartHeartbeat(member.GetChaussette())
+
 								//go shoset.SendHeartbeat(member.GetChaussette())
 								//} else {
 								//	log.Fatalf("Can't create API server")

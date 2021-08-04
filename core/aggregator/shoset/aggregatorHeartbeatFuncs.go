@@ -65,7 +65,7 @@ func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 			//ok := ch.Queue["evt"].Push(evt, c.GetRemoteShosetType(), c.GetBindAddress())
 			//if ok {
 			if dir == "in" {
-				ch.ConnsByAddr.Iterate(
+				ch.ConnsByName.IterateAll(
 					func(key string, val *net.ShosetConn) {
 						if key != thisOne && val.GetRemoteShosetType() == "cl" {
 							//if key != c.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "cl" {
@@ -96,7 +96,7 @@ func SendHeartbeat(shoset *net.Shoset) (err error) {
 
 		for range time.Tick(time.Minute * 1) {
 			fmt.Println("SEND TICK")
-			shoset.ConnsByAddr.Iterate(
+			shoset.ConnsByName.IterateAll(
 				func(key string, val *net.ShosetConn) {
 					if val.GetRemoteShosetType() == "cl" {
 						//if key != c.GetBindAddress() && key != thisOne && val.GetRemoteShosetType() == "cl" {

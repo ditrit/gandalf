@@ -9,13 +9,14 @@ import (
 // Secret : Secret struct.
 type Secret struct {
 	gorm.Model
-	UUID      string
-	Tenant    string
-	Timeout   int64
-	Timestamp int64
-	Payload   string
-	Target    string
-	Command   string
+	UUID              string
+	Tenant            string
+	Timeout           int64
+	Timestamp         int64
+	Payload           string
+	TargetLogicalName string
+	TargetAddress     string
+	Command           string
 }
 
 // FromShosetSecret : Shoset secret to core secret.
@@ -25,7 +26,8 @@ func FromShosetSecret(msecret msg.Secret) (secret Secret) {
 	secret.Timeout = msecret.GetTimeout()
 	secret.Timestamp = msecret.GetTimestamp()
 	secret.Payload = msecret.GetPayload()
-	secret.Target = msecret.GetTarget()
+	secret.TargetLogicalName = msecret.GetTargetLogicalName()
+	secret.TargetAddress = msecret.GetTargetAddress()
 	secret.Command = msecret.GetCommand()
 
 	return
