@@ -7,7 +7,7 @@ require (
 	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20210216134342-40c7d10bd6c4
 	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20210216134342-40c7d10bd6c4
 	github.com/ditrit/gandalf/verdeter v0.0.0-20210217103225-d2bf79e86cbd
-	github.com/ditrit/shoset v0.0.0-20210803152627-f91e4b9d997e
+	github.com/ditrit/shoset v0.0.0-20210805142222-4adad06bfe31
 	github.com/go-oauth2/oauth2/v4 v4.2.0
 	github.com/go-session/session v3.1.2+incompatible
 	github.com/golang/protobuf v1.5.2 // indirect
