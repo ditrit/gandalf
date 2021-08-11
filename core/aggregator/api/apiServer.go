@@ -23,15 +23,13 @@ type ServerAPI struct {
 }
 
 // NewServerAPI :
-func NewServerAPI(bindAddress string, databaseConnection *database.DatabaseConnection, shoset *net.Shoset) *ServerAPI {
+func NewServerAPI(bindAddress string) *ServerAPI {
 	serverAPI := new(ServerAPI)
 	serverAPI.bindAddress = bindAddress
-	serverAPI.databaseConnection = databaseConnection
-	serverAPI.shoset = shoset
 	//serverAPI.gandalfDatabaseClient = gandalfDatabaseClient
 	//serverAPI.mapTenantDatabaseClients = mapTenantDatabaseClients
 
-	serverAPI.router = GetRouter(serverAPI.databaseConnection, serverAPI.shoset)
+	serverAPI.router = NewRouter()
 
 	return serverAPI
 }

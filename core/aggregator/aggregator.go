@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+
 	"github.com/ditrit/gandalf/core/aggregator/api"
 
 	"github.com/ditrit/gandalf/core/aggregator/database"
@@ -172,7 +174,9 @@ func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*model
 
 // StartAPI :
 func (m *AggregatorMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection, shoset *net.Shoset) {
-	server := api.NewServerAPI(bindAdress, databaseConnection, shoset)
+
+	utils.InitAPIGlobals(shoset, databaseConnection)
+	server := api.NewServerAPI(bindAdress)
 	server.Run()
 }
 
