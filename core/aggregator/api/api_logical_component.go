@@ -29,7 +29,7 @@ import (
 
 func GetLogicalComponentByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	name := vars["name"]
+	name := vars["logicalComponentName"]
 
 	var logicalComponent models.LogicalComponent
 	var err error
@@ -48,8 +48,8 @@ func GetLogicalComponentByName(w http.ResponseWriter, r *http.Request) {
 
 func UploadLogicalComponentByTenantAndType(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	typeComponent := vars["type"]
-	tenant := vars["tenant"]
+	typeComponent := vars["typeName"]
+	tenant := vars["tenantName"]
 	database := utils.DatabaseConnection.GetDatabaseClientByTenant(tenant)
 	if database != nil {
 		fmt.Println("File Upload Endpoint Hit")

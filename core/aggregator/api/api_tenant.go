@@ -111,7 +111,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 
 func DeleteTenant(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	id, err := strconv.Atoi(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 		return
@@ -127,7 +127,7 @@ func DeleteTenant(w http.ResponseWriter, r *http.Request) {
 
 func GetTenantById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	id, err := strconv.Atoi(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return
@@ -160,7 +160,7 @@ func ListTenant(w http.ResponseWriter, r *http.Request) {
 
 func UpdateTenant(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	id, err := strconv.Atoi(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return

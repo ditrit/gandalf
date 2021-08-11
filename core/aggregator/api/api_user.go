@@ -54,7 +54,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["userId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -76,7 +76,7 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["userId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -101,7 +101,7 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 
 func GetUserByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	name := vars["name"]
+	name := vars["userName"]
 
 	var user models.User
 	var err error
@@ -201,7 +201,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["userId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return

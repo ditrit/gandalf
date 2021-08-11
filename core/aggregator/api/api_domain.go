@@ -27,7 +27,7 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		parentDomainName := vars["name"]
+		parentDomainName := vars["domainName"]
 		var domain models.Domain
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&domain); err != nil {
@@ -52,7 +52,7 @@ func DeleteDomain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["domainId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -83,7 +83,7 @@ func GetDomainById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["domainId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -109,7 +109,7 @@ func GetDomainById(w http.ResponseWriter, r *http.Request) {
 
 func GetDomainByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	name := vars["name"]
+	name := vars["domainName"]
 
 	var domain models.Domain
 	var err error
@@ -146,7 +146,7 @@ func UpdateDomain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["domainId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return

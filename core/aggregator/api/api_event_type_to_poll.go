@@ -49,7 +49,7 @@ func DeleteEventTypeToPoll(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["eventTypeToPollId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -71,7 +71,7 @@ func GetEventTypeToPollById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["eventTypeToPollId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -115,7 +115,7 @@ func UpdateEventTypeToPoll(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["eventTypeToPollId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return

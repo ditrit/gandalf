@@ -50,7 +50,7 @@ func DeleteResource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["resourceId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -72,7 +72,7 @@ func GetResourceById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["resourceId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -99,7 +99,7 @@ func GetResourceById(w http.ResponseWriter, r *http.Request) {
 func GetResourceByName(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("READ_BY_NAME")
 	vars := mux.Vars(r)
-	name := vars["name"]
+	name := vars["resourceName"]
 
 	var resource models.Resource
 	var err error
@@ -136,7 +136,7 @@ func UpdateResource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["resourceId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return

@@ -58,7 +58,7 @@ var routes = Routes{
 	Route{
 		"CreateDomain",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domain",
+		"/ditrit/Gandalf/1.0.0/domain/{domainName}",
 		CreateDomain,
 	},
 

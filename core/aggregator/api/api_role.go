@@ -49,7 +49,7 @@ func DeleteRole(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["roleId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -71,7 +71,7 @@ func GetRoleById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["roleId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -115,7 +115,7 @@ func UpdateRole(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["roleId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return

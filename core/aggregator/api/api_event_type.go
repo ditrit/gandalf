@@ -49,7 +49,7 @@ func DeleteEventType(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["eventTypeId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -71,7 +71,7 @@ func GetEventTypeById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["eventTypeId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -97,7 +97,7 @@ func GetEventTypeById(w http.ResponseWriter, r *http.Request) {
 
 func GetEventTypeByName(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	name := vars["name"]
+	name := vars["eventTypeName"]
 
 	var eventType models.EventType
 	var err error
@@ -134,7 +134,7 @@ func UpdateEventType(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["id"])
+		id, err := strconv.Atoi(vars["eventTypeId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
