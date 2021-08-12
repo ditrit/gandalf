@@ -43,9 +43,10 @@ else
 fi
 
 # copy certs into installation directory (until the internal PKI is ready)
+chmod 600 certs/node.key
+chmod 600 certs/client.root.key
 cp -r certs $TMPDIR/
-chmod 600 $TMPDIR/node.key
-chmod 600 $TMPDIR/client.root.key
+
 
 # Copy sutup script 
 cp mkinstall.setup.sh $TMPDIR/setup.sh
