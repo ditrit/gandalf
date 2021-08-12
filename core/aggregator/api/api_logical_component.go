@@ -87,8 +87,12 @@ func UploadLogicalComponentByTenantAndType(w http.ResponseWriter, r *http.Reques
 			if err == nil {
 				//TODO ADD VALIDATION
 				//if validationAggregator(logicalComponent, pivot) {
-				SaveAggregatorLogicalComponent(database, logicalComponent, pivot)
-
+				err = SaveAggregatorLogicalComponent(database, logicalComponent, pivot)
+				if err == nil {
+					utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "Successfully Uploaded File"})
+				} else {
+					utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+				}
 				//} else {
 				//	utils.RespondWithError(w, http.StatusInternalServerError, "invalid logicalcomponent")
 				//	return
@@ -109,8 +113,12 @@ func UploadLogicalComponentByTenantAndType(w http.ResponseWriter, r *http.Reques
 				if err == nil {
 					//TODO ADD VALIDATION
 					//if validationConnector(logicalComponent, pivot, productConnector) {
-					SaveConnectorLogicalComponent(database, logicalComponent, productConnector)
-
+					err = SaveConnectorLogicalComponent(database, logicalComponent, productConnector)
+					if err == nil {
+						utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "Successfully Uploaded File"})
+					} else {
+						utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+					}
 					//} else {
 					//	utils.RespondWithError(w, http.StatusInternalServerError, "invalid logicalcomponent")
 					//	return
@@ -131,9 +139,6 @@ func UploadLogicalComponentByTenantAndType(w http.ResponseWriter, r *http.Reques
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-
-	fmt.Fprintf(w, "Successfully Uploaded File\n")
-
 }
 
 func validationAggregator(logicalComponent *models.LogicalComponent, pivot models.Pivot) (result bool) {
@@ -341,7 +346,7 @@ func SaveAggregatorLogicalComponent(client *gorm.DB, logicalComponent *models.Lo
 	fmt.Println(logicalComponent)
 	err := client.Create(&logicalComponent).Error
 	fmt.Println(err)
-	return nil
+	return err
 }
 
 func SaveConnectorLogicalComponent(client *gorm.DB, logicalComponent *models.LogicalComponent, productConnector models.ProductConnector) error {
@@ -368,5 +373,5 @@ func SaveConnectorLogicalComponent(client *gorm.DB, logicalComponent *models.Log
 	fmt.Println(logicalComponent)
 	err := client.Create(&logicalComponent).Error
 	fmt.Println(err)
-	return nil
+	return err
 }
