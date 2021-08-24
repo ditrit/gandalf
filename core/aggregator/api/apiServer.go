@@ -35,7 +35,7 @@ func NewServerAPI(bindAddress string) *ServerAPI {
 	router := NewRouter()
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // NOT IN PRODUCTION !!!!!
+		AllowedOrigins:   []string{"*"}, // NOT FOR PRODUCTION !!!!!
 		AllowCredentials: true,
 	})
 
