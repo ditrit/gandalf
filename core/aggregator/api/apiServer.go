@@ -9,13 +9,15 @@ import (
 
 	"github.com/ditrit/gandalf/core/aggregator/database"
 
-	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 // ServerAPI :
 type ServerAPI struct {
-	bindAddress        string
-	router             *mux.Router
+	bindAddress string
+	//router      *mux.Router
+	handler http.Handler
+
 	databaseConnection *database.DatabaseConnection
 	shoset             *net.Shoset
 	//gandalfDatabaseClient    *gorm.DB
@@ -29,7 +31,15 @@ func NewServerAPI(bindAddress string) *ServerAPI {
 	//serverAPI.gandalfDatabaseClient = gandalfDatabaseClient
 	//serverAPI.mapTenantDatabaseClients = mapTenantDatabaseClients
 
-	serverAPI.router = NewRouter()
+	//serverAPI.router = NewRouter()
+	router := NewRouter()
+
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // NOT IN PRODUCTION !!!!!
+		AllowCredentials: true,
+	})
+
+	serverAPI.handler = c.Handler(router)
 
 	return serverAPI
 }
@@ -38,5 +48,5 @@ func NewServerAPI(bindAddress string) *ServerAPI {
 func (sa ServerAPI) Run() {
 	// Start the workerUpload
 	log.Println("Listening on localhost: " + sa.bindAddress)
-	log.Println(http.ListenAndServe(sa.bindAddress, sa.router))
+	log.Println(http.ListenAndServe(sa.bindAddress, sa.handler))
 }
