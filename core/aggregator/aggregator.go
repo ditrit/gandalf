@@ -87,7 +87,9 @@ func (m *AggregatorMember) GetChaussette() *net.Shoset {
 func (m *AggregatorMember) Bind(addr string) error {
 	ipAddr, err := net.GetIP(addr)
 	if err == nil {
+		fmt.Println("before Bind")
 		err = m.chaussette.Bind(ipAddr)
+		fmt.Println("after Bind")
 	}
 
 	return err
