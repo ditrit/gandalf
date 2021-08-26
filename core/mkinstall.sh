@@ -33,7 +33,7 @@ fi
 
 # Build gandalf
 [ -f gandalf ] && rm gandalf
-go build -o gandalf
+GOOS=linux GOARCH=amd64 go build -o gandalf
 if [ -f gandalf ]
 then
 	cp gandalf $TMPDIR/

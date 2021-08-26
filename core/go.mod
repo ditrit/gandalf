@@ -15,6 +15,7 @@ require (
 	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jinzhu/gorm v1.9.16
+	github.com/karalabe/xgo v0.0.0-20191115072854-c5ccff8648a7 // indirect
 	github.com/rs/cors v1.8.0 // indirect
 	github.com/spf13/viper v1.8.0
 	github.com/xeipuuv/gojsonschema v1.2.0
