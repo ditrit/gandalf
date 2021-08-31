@@ -256,6 +256,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			log.Println("Node already exist")
 
 			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
+
 			if err == nil {
 
 				gandalfDatabaseClient := member.DatabaseConnection.GetGandalfDatabaseClient()
