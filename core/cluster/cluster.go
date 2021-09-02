@@ -51,7 +51,7 @@ func InitClusterKeys(){
 // NewClusterMember : Cluster struct constructor.
 func NewClusterMember(configurationCluster *cmodels.ConfigurationCluster) *ClusterMember {
 	member := new(ClusterMember)
-	member.chaussette = net.NewShoset(configurationCluster.GetLogicalName(), "cl")
+	member.chaussette = net.NewShoset(configurationCluster.GetLogicalName(), "cl", configurationCluster.GetCertsPath(), configurationCluster.GetConfigPath())
 	//member.MapTenantDatabaseClients = make(map[string]*gorm.DB)
 	member.version = models.Version{Major: major, Minor: minor}
 	member.chaussette.Context["version"] = member.version

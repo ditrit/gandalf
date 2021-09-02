@@ -153,6 +153,22 @@ func (cc ConfigurationConnector) SetMaxTimeout(maxTimeout int64) {
 	viper.Set("max_timeout", maxTimeout)
 }
 
+func (cc ConfigurationConnector) GetCertsPath() string {
+	return viper.GetString("cert_dir")
+}
+
+func (cc ConfigurationConnector) SetCertsPath(certsPath string) {
+	viper.Set("cert_dir", certsPath)
+}
+
+func (cc ConfigurationConnector) GetConfigPath() string {
+	return viper.GetString("config_dir")
+}
+
+func (cc ConfigurationConnector) SetConfigPath(configPath string) {
+	viper.Set("config_dir", configPath)
+}
+
 func (cc ConfigurationConnector) GetVersions() (versions []models.Version) {
 	versionsSplit := strings.Split(viper.GetString("versions"), ",")
 	for _, versionSplit := range versionsSplit {

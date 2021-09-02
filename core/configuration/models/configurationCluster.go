@@ -132,8 +132,16 @@ func (cc ConfigurationCluster) GetCertsPath() string {
 	return viper.GetString("cert_dir")
 }
 
-func (cc ConfigurationCluster) SetCertsPath(maxTimeout string) {
-	viper.Set("cert_dir", maxTimeout)
+func (cc ConfigurationCluster) SetCertsPath(certsPath string) {
+	viper.Set("cert_dir", certsPath)
+}
+
+func (cc ConfigurationCluster) GetConfigPath() string {
+	return viper.GetString("config_dir")
+}
+
+func (cc ConfigurationCluster) SetConfigPath(configPath string) {
+	viper.Set("config_dir", configPath)
 }
 
 func (cc ConfigurationCluster) GetRepositoryUrl() string {

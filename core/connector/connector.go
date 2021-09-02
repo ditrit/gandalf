@@ -44,7 +44,8 @@ func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) 
 	member := new(ConnectorMember)
 	//member.logicalName = configurationConnector.GetLogicalName()
 	//member.connectorType = connectorType
-	member.chaussette = net.NewShoset(configurationConnector.GetLogicalName(), "c")
+	member.chaussette = net.NewShoset(configurationConnector.GetLogicalName(), "c", configurationConnector.GetCertsPath(), configurationConnector.GetConfigPath())
+
 	//member.versions = versions
 	member.version = models.Version{Major: major, Minor: minor}
 	member.chaussette.Context["version"] = member.version

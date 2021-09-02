@@ -41,7 +41,7 @@ type AggregatorMember struct {
 // NewAggregatorMember :
 func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
 	member := new(AggregatorMember)
-	member.chaussette = net.NewShoset(configurationAggregator.GetLogicalName(), "a")
+	member.chaussette = net.NewShoset(configurationAggregator.GetLogicalName(), "a", configurationAggregator.GetCertsPath(), configurationAggregator.GetConfigPath())
 
 	member.version = models.Version{Major: major, Minor: minor}
 	member.chaussette.Context["version"] = member.version

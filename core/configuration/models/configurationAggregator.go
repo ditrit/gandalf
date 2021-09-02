@@ -87,3 +87,19 @@ func (ca ConfigurationAggregator) SetMaxTimeout(maxTimeout int64) {
 	viper.Set("max_timeout", maxTimeout)
 
 }
+
+func (ca ConfigurationAggregator) GetCertsPath() string {
+	return viper.GetString("cert_dir")
+}
+
+func (ca ConfigurationAggregator) SetCertsPath(certsPath string) {
+	viper.Set("cert_dir", certsPath)
+}
+
+func (ca ConfigurationAggregator) GetConfigPath() string {
+	return viper.GetString("config_dir")
+}
+
+func (ca ConfigurationAggregator) SetConfigPath(configPath string) {
+	viper.Set("config_dir", configPath)
+}
