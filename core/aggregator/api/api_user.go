@@ -366,8 +366,46 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func LogoutUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	http.SetCookie(w,
+		&http.Cookie{
+			Name:    "gandalf",
+			Value:   "",
+			Expires: time.Now().Add(-time.Hour),
+		})
+	utils.RespondWithJSON(w, http.StatusOK, "")
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
