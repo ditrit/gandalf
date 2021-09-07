@@ -3,7 +3,7 @@ package dao
 import (
 	"errors"
 
-	"github.com/ditrit/gandalf/core/cluster/api/utils"
+	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -45,7 +45,7 @@ func DeleteTenant(database *gorm.DB, id int) (err error) {
 	if err == nil {
 		if admin {
 			var tenant models.Tenant
-			err = database.Delete(&tenant, id).Error
+			err = database.Unscoped().Delete(&tenant, id).Error
 		} else {
 			err = errors.New("Invalid state")
 		}

@@ -8,6 +8,7 @@ package configuration
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/ditrit/gandalf/verdeter"
 
@@ -21,11 +22,10 @@ import (
 // cliCmd represents the cli command
 var cliCfg = verdeter.NewConfigCmd("cli", "Launch gandalf in 'cli' mode.", `Gandalf is launched as CLI (Command Line Interface) to interact with a Gandalf system.`, nil)
 
-var cliCreate = verdeter.NewConfigCmd("create", "create user|tenant|role|domain", "create command allows the creation of Gandalf objects (users, tenants, roles and domains).", nil)
-var cliList = verdeter.NewConfigCmd("list", "list users|tenants|roles|domain", "list command allows to list Gandalf objects (users, tenants, roles and domains).", nil)
-var cliUpdate = verdeter.NewConfigCmd("update", "update user|tenant|role|domain", "update command allows update of Gandalf objects (users, tenants, roles and domains).", nil)
-var cliDelete = verdeter.NewConfigCmd("delete", "delete user|tenant|role|domain", "update command allows deleting of Gandalf objects (users, tenants, roles and domains).", nil)
-var cliDeclare = verdeter.NewConfigCmd("declare", "declare cluster|agregator|connector", "declare command allows to declare a new Gandalf component name or member (cluster, aggregator, connector).", nil)
+var cliCreate = verdeter.NewConfigCmd("create", "create user|tenant|role|domain|resource|eventTypeToPoll|resourceType|eventType", "create command allows the creation of Gandalf objects (users, tenants, roles and domains).", nil)
+var cliList = verdeter.NewConfigCmd("list", "list users|tenants|roles|domain|resource|eventTypeToPoll|resourceType|eventType", "list command allows to list Gandalf objects (users, tenants, roles and domains).", nil)
+var cliUpdate = verdeter.NewConfigCmd("update", "update user|tenant|role|domain|resource|eventTypeToPoll|resourceType|eventType", "update command allows update of Gandalf objects (users, tenants, roles and domains).", nil)
+var cliDelete = verdeter.NewConfigCmd("delete", "delete user|tenant|role|domain|resource|eventTypeToPoll|resourceType|eventType", "update command allows deleting of Gandalf objects (users, tenants, roles and domains).", nil)
 var cliLogin = verdeter.NewConfigCmd("login", "log in as a user into Gandalf", "login command allows user to authenticate using its credentials.", runLogin)
 
 var cliCreateUser = verdeter.NewConfigCmd("user", "create user <username> <email> <password>", "create user command allows the creation of a new user", runCreateUser)
@@ -48,17 +48,30 @@ var cliListDomains = verdeter.NewConfigCmd("domain", "list domains ", "list doma
 var cliUpdateDomain = verdeter.NewConfigCmd("domain", "update domain <domainname> [options]", "update domain command allows to update a Gandalf domain.", runUpdateDomain)
 var cliDeleteDomain = verdeter.NewConfigCmd("domain", "delete domain <domainname>", "delete domain command allows to delete a Gandalf domain.", runDeleteDomain)
 
-var cliDeclareCluster = verdeter.NewConfigCmd("cluster", "declare cluster", "declare cluster command allows to declare a new cluster memeber", nil)
-var cliDeclareAggregator = verdeter.NewConfigCmd("aggregator", "declare aggregator name|member", "declare aggregator command allows to declare the name or a new member for an aggragator.", nil)
-var cliDeclareConnector = verdeter.NewConfigCmd("connector", "declare connector name|member", "declare connector command allows to declare the name or a new member for a connector.", nil)
+var cliCreateResource = verdeter.NewConfigCmd("resource", "create resource <resourcename>", "create resource command allows the creation of a new resource (in the form <[name.]*name>)", runCreateResource)
+var cliListResources = verdeter.NewConfigCmd("resource", "list resources ", "list resource command allows to list Gandalf resources.", runListResources)
+var cliUpdateResource = verdeter.NewConfigCmd("resource", "update resource <resourcename> [options]", "update resource command allows to update a Gandalf resource.", runUpdateResource)
+var cliDeleteResource = verdeter.NewConfigCmd("resource", "delete resource <resourcename>", "delete resource command allows to delete a Gandalf resource.", runDeleteResource)
 
-var cliDeclareClusterMember = verdeter.NewConfigCmd("member", "declare cluster member", "declare cluster command allows to declare a new cluster member", runDeclareClusterMember)
+var cliCreateEventTypeToPoll = verdeter.NewConfigCmd("eventtypetopoll", "create eventtypetopoll <eventtypetopollname>", "create eventtypetopoll command allows the creation of a new resource (in the form <[name.]*name>)", runCreateEventTypeToPoll)
+var cliListEventTypeToPolls = verdeter.NewConfigCmd("eventtypetopoll", "list eventtypetopolls ", "list eventtypetopolls command allows to list Gandalf eventtypetopolls.", runListEventTypeToPolls)
+var cliUpdateEventTypeToPoll = verdeter.NewConfigCmd("eventtypetopoll", "update eventtypetopoll <eventtypetopollname> [options]", "update resource command allows to update a Gandalf eventtypetopoll.", runUpdateEventTypeToPoll)
+var cliDeleteEventTypeToPoll = verdeter.NewConfigCmd("eventtypetopoll", "delete eventtypetopoll <eventtypetopollname>", "delete eventtypetopoll command allows to delete a Gandalf eventtypetopoll.", runDeleteEventTypeToPoll)
 
-var cliDeclareAggregatorName = verdeter.NewConfigCmd("name", "declare aggregator name <name>", "declare aggregator name command allows to declare the name of a new aggregator.", runDeclareAggregatorName)
-var cliDeclareAggregatorMember = verdeter.NewConfigCmd("member", "declare aggregator member <name>", "declare aggregator member command allows to declare a new member for an existing aggregator.", runDeclareAggregatorMember)
+//
+var cliCreateResourceType = verdeter.NewConfigCmd("resourcetype", "create resourcetype <resourcetypename>", "create resourcetype command allows the creation of a new resource (in the form <[name.]*name>)", runCreateResourceType)
+var cliListResourceTypes = verdeter.NewConfigCmd("resourcetype", "list resourcetype ", "list resourcetype command allows to list Gandalf resourcetypes.", runListResourceTypes)
+var cliUpdateResourceType = verdeter.NewConfigCmd("resourcetype", "update resourcetype <resourcetypename> [options]", "update resource command allows to update a Gandalf resourcetype.", runUpdateResourceType)
+var cliDeleteResourceType = verdeter.NewConfigCmd("resourcetype", "delete resourcetype <resourcetypename>", "delete resourcetype command allows to delete a Gandalf resourcetype.", runDeleteResourceType)
 
-var cliDeclareConnectorName = verdeter.NewConfigCmd("name", "declare  name <name>", "declare  name command allows to declare the name of a new connector.", runDeclareConnectorName)
-var cliDeclareConnectorMember = verdeter.NewConfigCmd("member", "declare  member <name>", "declare  member command allows to declare a new member for an existing connector.", runDeclareAggregatorName)
+var cliCreateEventType = verdeter.NewConfigCmd("eventtype", "create eventtype <eventtypename>", "create eventtype command allows the creation of a new resource (in the form <[name.]*name>)", runCreateEventType)
+var cliListEventTypes = verdeter.NewConfigCmd("eventtype", "list eventtypes ", "list eventtypes command allows to list Gandalf eventtype.", runListEventTypes)
+var cliUpdateEventType = verdeter.NewConfigCmd("eventtype", "update eventtype <eventtypename> [options]", "update resource command allows to update a Gandalf eventtype.", runUpdateEventType)
+var cliDeleteEventType = verdeter.NewConfigCmd("eventtype", "delete eventtype <eventtypename>", "delete eventtype command allows to delete a Gandalf eventtype.", runDeleteEventType)
+
+//
+var cliCreateSecret = verdeter.NewConfigCmd("secret", "create secret", "declare  name command allows to declare the name of a new connector.", runCreateSecret)
+var cliListSecret = verdeter.NewConfigCmd("secret", "list secret", "declare  member command allows to declare a new member for an existing connector.", runListSecret)
 
 func init() {
 
@@ -73,8 +86,10 @@ func init() {
 	cliCfg.AddConfig(cliList)
 	cliCfg.AddConfig(cliUpdate)
 	cliCfg.AddConfig(cliDelete)
-	cliCfg.AddConfig(cliDeclare)
 	cliCfg.AddConfig(cliLogin)
+
+	cliCreate.AddConfig(cliCreateSecret)
+	cliList.AddConfig(cliListSecret)
 
 	cliCreate.AddConfig(cliCreateUser)
 	cliList.AddConfig(cliListUsers)
@@ -96,19 +111,30 @@ func init() {
 	cliUpdate.AddConfig(cliUpdateDomain)
 	cliDelete.AddConfig(cliDeleteDomain)
 
-	cliDeclare.AddConfig(cliDeclareCluster)
-	cliDeclare.AddConfig(cliDeclareAggregator)
-	cliDeclare.AddConfig(cliDeclareConnector)
+	cliCreate.AddConfig(cliCreateResource)
+	cliList.AddConfig(cliListResources)
+	cliUpdate.AddConfig(cliUpdateResource)
+	cliDelete.AddConfig(cliDeleteResource)
 
-	cliDeclareCluster.AddConfig(cliDeclareClusterMember)
+	cliCreate.AddConfig(cliCreateEventTypeToPoll)
+	cliList.AddConfig(cliListEventTypeToPolls)
+	cliUpdate.AddConfig(cliUpdateEventTypeToPoll)
+	cliDelete.AddConfig(cliDeleteEventTypeToPoll)
 
-	cliDeclareAggregator.AddConfig(cliDeclareAggregatorName)
-	cliDeclareAggregator.AddConfig(cliDeclareAggregatorMember)
+	cliCreate.AddConfig(cliCreateResourceType)
+	cliList.AddConfig(cliListResourceTypes)
+	cliUpdate.AddConfig(cliUpdateResourceType)
+	cliDelete.AddConfig(cliDeleteResourceType)
 
-	cliDeclareConnector.AddConfig(cliDeclareConnectorName)
-	cliDeclareConnector.AddConfig(cliDeclareConnectorMember)
+	cliCreate.AddConfig(cliCreateEventType)
+	cliList.AddConfig(cliListEventTypes)
+	cliUpdate.AddConfig(cliUpdateEventType)
+	cliDelete.AddConfig(cliDeleteEventType)
 
 	cliLogin.SetNbArgs(2)
+
+	cliCreateSecret.SetNbArgs(0)
+	cliListSecret.SetNbArgs(0)
 
 	cliCreateUser.SetNbArgs(3)
 	cliListUsers.SetNbArgs(0)
@@ -130,17 +156,35 @@ func init() {
 	cliDeleteRole.SetNbArgs(1)
 	cliUpdateRole.LKey("rolename", verdeter.IsStr, "r", "name of the Role")
 
-	cliCreateDomain.SetNbArgs(1)
+	cliCreateDomain.SetNbArgs(2)
 	cliListDomains.SetNbArgs(0)
 	cliUpdateDomain.SetNbArgs(1)
 	cliDeleteDomain.SetNbArgs(1)
 	cliUpdateDomain.LKey("domainname", verdeter.IsStr, "d", "name of the Domain")
 
-	cliDeclareClusterMember.SetNbArgs(0)
-	cliDeclareAggregatorName.SetNbArgs(1)
-	cliDeclareAggregatorMember.SetNbArgs(1)
-	cliDeclareConnectorName.SetNbArgs(1)
-	cliDeclareConnectorMember.SetNbArgs(1)
+	cliCreateResource.SetNbArgs(4)
+	cliListResources.SetNbArgs(0)
+	cliUpdateResource.SetNbArgs(1)
+	cliDeleteResource.SetNbArgs(1)
+	cliUpdateResource.LKey("resourcename", verdeter.IsStr, "r", "name of the Resource")
+
+	cliCreateEventTypeToPoll.SetNbArgs(2)
+	cliListEventTypeToPolls.SetNbArgs(0)
+	cliUpdateEventTypeToPoll.SetNbArgs(1)
+	cliDeleteEventTypeToPoll.SetNbArgs(1)
+	cliUpdateEventTypeToPoll.LKey("eventtypetopollname", verdeter.IsStr, "r", "name of the EventTypeToPoll")
+
+	cliCreateResourceType.SetNbArgs(2)
+	cliListResourceTypes.SetNbArgs(0)
+	cliUpdateResourceType.SetNbArgs(1)
+	cliDeleteResourceType.SetNbArgs(1)
+	cliUpdateResourceType.LKey("resourcetypename", verdeter.IsStr, "r", "name of the ResourceType")
+
+	cliCreateEventType.SetNbArgs(2)
+	cliListEventTypes.SetNbArgs(0)
+	cliUpdateEventType.SetNbArgs(1)
+	cliDeleteEventType.SetNbArgs(1)
+	cliUpdateEventType.LKey("eventypename", verdeter.IsStr, "r", "name of the EventType")
 }
 
 func runLogin(cfg *verdeter.ConfigCmd, args []string) {
@@ -160,6 +204,37 @@ func runLogin(cfg *verdeter.ConfigCmd, args []string) {
 	token, err := cliClient.AuthenticationService.Login(user)
 	if err == nil {
 		fmt.Println("Token: " + token)
+	} else {
+		fmt.Println(err)
+	}
+}
+
+func runCreateSecret(cfg *verdeter.ConfigCmd, args []string) {
+
+	fmt.Printf("gandalf cli create secret called \n")
+	configurationCli := cmodels.NewConfigurationCli()
+	fmt.Println(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	secret, err := cliClient.SecretAssignementService.Create(configurationCli.GetToken())
+	if err == nil {
+		fmt.Println(secret)
+	} else {
+		fmt.Println(err)
+	}
+}
+
+func runListSecret(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list secret called \n")
+	configurationCli := cmodels.NewConfigurationCli()
+	fmt.Println(configurationCli.GetEndpoint())
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	secrets, err := cliClient.SecretAssignementService.List(configurationCli.GetToken())
+	if err == nil {
+		for _, secret := range secrets {
+			fmt.Println(secret)
+		}
 	} else {
 		fmt.Println(err)
 	}
@@ -266,20 +341,13 @@ func runListTenants(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	result, err := cliClient.CliService.Cli()
+	tenants, err := cliClient.TenantService.List(configurationCli.GetToken())
 	if err == nil {
-		if result == "cluster" {
-			tenants, err := cliClient.TenantService.List(configurationCli.GetToken())
-			if err == nil {
-				for _, tenant := range tenants {
-					fmt.Println(tenant)
-				}
-			} else {
-				fmt.Println(err)
-			}
-		} else if result == "aggregator" {
-			fmt.Println("Error: Not allowed")
+		for _, tenant := range tenants {
+			fmt.Println(tenant)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -317,12 +385,33 @@ func runDeleteRole(cfg *verdeter.ConfigCmd, args []string) {
 
 func runCreateDomain(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
-	parent := viper.GetString("parent")
-	fmt.Printf("gandalf cli create domain called with domain=%s parent=%s\n", name, parent)
+	parentName := args[1]
+	fmt.Printf("gandalf cli create domain called with domain=%s parent=%s\n", name, parentName)
+
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+	domain := models.Domain{Name: name}
+	err := cliClient.DomainService.Create(configurationCli.GetToken(), domain, parentName)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 }
 
 func runListDomains(cfg *verdeter.ConfigCmd, args []string) {
 	fmt.Printf("gandalf cli list domains\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	domains, err := cliClient.DomainService.List(configurationCli.GetToken())
+	if err == nil {
+		for _, domain := range domains {
+			fmt.Println(domain)
+		}
+	} else {
+		fmt.Println(err)
+	}
+
 }
 
 func runUpdateDomain(cfg *verdeter.ConfigCmd, args []string) {
@@ -337,41 +426,60 @@ func runDeleteDomain(cfg *verdeter.ConfigCmd, args []string) {
 	fmt.Printf("gandalf cli delete domain called with domain=%s\n", name)
 }
 
-func runDeclareClusterMember(cfg *verdeter.ConfigCmd, args []string) {
-	fmt.Printf("gandalf declare cluster member\n")
+func runCreateResource(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+
+	fmt.Printf("gandalf cli create resource called with resource=%s", name)
+}
+
+func runListResources(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list resources\n")
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	result, err := cliClient.CliService.Cli()
+	resources, err := cliClient.ResourceService.List(configurationCli.GetToken())
 	if err == nil {
-		if result == "cluster" {
-			cluster, err := cliClient.ClusterService.DeclareMember(configurationCli.GetToken())
-			if err == nil {
-				fmt.Println(cluster)
-			} else {
-				fmt.Println(err)
-			}
-		} else if result == "aggregator" {
-			fmt.Println("Error: Not allowed")
+		for _, resource := range resources {
+			fmt.Println(resource)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
 
-func runDeclareAggregatorName(cfg *verdeter.ConfigCmd, args []string) {
+func runUpdateResource(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
-	fmt.Printf("gandalf declare aggregator name with name=%s\n", name)
+	newName := viper.GetString("name")
+	parent := viper.GetString("parent")
+	fmt.Printf("gandalf cli update resource called with resource=%s, newName=%s, parent=%s\n", name, newName, parent)
+}
+
+func runDeleteResource(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	fmt.Printf("gandalf cli delete resource called with resource=%s\n", name)
+}
+
+func runCreateEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
+	resourceName := args[0]
+	eventTypeName := args[1]
+	fmt.Printf("gandalf cli create eventtypetopoll called with resource=%s and eventtype=%s \n", resourceName, eventTypeName)
+
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	result, err := cliClient.CliService.Cli()
+	resource, err := cliClient.ResourceService.ReadByName(configurationCli.GetToken(), resourceName)
 	if err == nil {
-		if result == "cluster" {
-			fmt.Println("Error: Not allowed")
-		} else if result == "aggregator" {
-			var aggregator models.Aggregator
-			aggregator.LogicalName = name
-			err := cliClient.AggregatorService.Create(configurationCli.GetToken(), aggregator)
+		fmt.Println("cli resource")
+		fmt.Println(resource)
+		fmt.Println(err)
+		eventType, err := cliClient.EventTypeService.ReadByName(configurationCli.GetToken(), eventTypeName)
+		fmt.Println("cli eventType")
+		fmt.Println(eventType)
+		fmt.Println(err)
+
+		if err == nil {
+			eventTypeToPoll := models.EventTypeToPoll{Resource: *resource, EventType: *eventType}
+			err = cliClient.EventTypeToPollService.Create(configurationCli.GetToken(), eventTypeToPoll)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -380,73 +488,98 @@ func runDeclareAggregatorName(cfg *verdeter.ConfigCmd, args []string) {
 
 }
 
-func runDeclareAggregatorMember(cfg *verdeter.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf declare aggregator member with name=%s\n", name)
+func runListEventTypeToPolls(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list resources\n")
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	result, err := cliClient.CliService.Cli()
+	eventTypeToPolls, err := cliClient.EventTypeToPollService.List(configurationCli.GetToken())
 	if err == nil {
-		if result == "cluster" {
-			fmt.Println("Error: Not allowed")
-
-		} else if result == "aggregator" {
-			aggregator, err := cliClient.AggregatorService.DeclareMember(configurationCli.GetToken(), name)
-			if err == nil {
-				fmt.Println(aggregator)
-			} else {
-				fmt.Println(err)
-			}
+		for _, eventTypeToPoll := range eventTypeToPolls {
+			fmt.Println(eventTypeToPoll)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
 
-func runDeclareConnectorName(cfg *verdeter.ConfigCmd, args []string) {
+func runUpdateEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
-	fmt.Printf("gandalf declare connector name with name=%s\n", name)
+	newName := viper.GetString("name")
+	parent := viper.GetString("parent")
+	fmt.Printf("gandalf cli update eventtypetopoll called with eventtypetopoll=%s, newName=%s, parent=%s\n", name, newName, parent)
+}
+
+func runDeleteEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	fmt.Printf("gandalf cli delete eventtypetopoll called with eventtypetopoll=%s\n", name)
+}
+
+func runCreateResourceType(cfg *verdeter.ConfigCmd, args []string) {
+	resourceID, _ := strconv.Atoi(args[0])
+	fmt.Printf("gandalf cli create eventtypetopoll called with eventtypetopoll=%s", resourceID)
+}
+
+func runListResourceTypes(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list resources\n")
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	result, err := cliClient.CliService.Cli()
+	eventTypeToPolls, err := cliClient.EventTypeToPollService.List(configurationCli.GetToken())
 	if err == nil {
-		if result == "cluster" {
-			fmt.Println("Error: Not allowed")
-
-		} else if result == "aggregator" {
-			var connector models.Connector
-			connector.LogicalName = name
-			err := cliClient.ConnectorService.Create(configurationCli.GetToken(), connector)
-			if err != nil {
-				fmt.Println(err)
-			}
+		for _, eventTypeToPoll := range eventTypeToPolls {
+			fmt.Println(eventTypeToPoll)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
 
-func runDeclareConnectorMember(cfg *verdeter.ConfigCmd, args []string) {
+func runUpdateResourceType(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
-	fmt.Printf("gandalf declare connector member with name=%s\n", name)
+	newName := viper.GetString("name")
+	parent := viper.GetString("parent")
+	fmt.Printf("gandalf cli update eventtypetopoll called with eventtypetopoll=%s, newName=%s, parent=%s\n", name, newName, parent)
+}
+
+func runDeleteResourceType(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	fmt.Printf("gandalf cli delete eventtypetopoll called with eventtypetopoll=%s\n", name)
+}
+
+func runCreateEventType(cfg *verdeter.ConfigCmd, args []string) {
+	resourceID, _ := strconv.Atoi(args[0])
+	fmt.Printf("gandalf cli create eventtypetopoll called with eventtypetopoll=%s", resourceID)
+}
+
+func runListEventTypes(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list eventtypes\n")
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	result, err := cliClient.CliService.Cli()
+	eventTypeToPolls, err := cliClient.EventTypeService.List(configurationCli.GetToken())
 	if err == nil {
-		if result == "cluster" {
-			fmt.Println("Error: Not allowed")
-
-		} else if result == "aggregator" {
-			connector, err := cliClient.ConnectorService.DeclareMember(configurationCli.GetToken(), name)
-			if err == nil {
-				fmt.Println(connector)
-			} else {
-				fmt.Println(err)
-			}
+		for _, eventTypeToPoll := range eventTypeToPolls {
+			fmt.Println(eventTypeToPoll)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
+}
+
+func runUpdateEventType(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	newName := viper.GetString("name")
+	parent := viper.GetString("parent")
+	fmt.Printf("gandalf cli update eventtypetopoll called with eventtypetopoll=%s, newName=%s, parent=%s\n", name, newName, parent)
+}
+
+func runDeleteEventType(cfg *verdeter.ConfigCmd, args []string) {
+	name := args[0]
+	fmt.Printf("gandalf cli delete eventtypetopoll called with eventtypetopoll=%s\n", name)
 }
 
 /*

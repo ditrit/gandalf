@@ -33,7 +33,7 @@ fi
 
 # Build gandalf
 [ -f gandalf ] && rm gandalf
-go build -o gandalf
+GOOS=linux GOARCH=amd64 go build -o gandalf
 if [ -f gandalf ]
 then
 	cp gandalf $TMPDIR/
@@ -43,7 +43,10 @@ else
 fi
 
 # copy certs into installation directory (until the internal PKI is ready)
+chmod 600 certs/node.key
+chmod 600 certs/client.root.key
 cp -r certs $TMPDIR/
+
 
 # Copy sutup script 
 cp mkinstall.setup.sh $TMPDIR/setup.sh

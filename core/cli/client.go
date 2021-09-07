@@ -14,17 +14,20 @@ import (
 
 // Client :
 type Client struct {
-	BaseURL               *url.URL
-	UserAgent             string
-	HTTPClient            *http.Client
-	AuthenticationService *AuthenticationService
-	CliService            *CliService
-	ClusterService        *ClusterService
-	RoleService           *RoleService
-	TenantService         *TenantService
-	UserService           *UserService
-	AggregatorService     *AggregatorService
-	ConnectorService      *ConnectorService
+	BaseURL                  *url.URL
+	UserAgent                string
+	HTTPClient               *http.Client
+	AuthenticationService    *AuthenticationService
+	CliService               *CliService
+	RoleService              *RoleService
+	TenantService            *TenantService
+	UserService              *UserService
+	SecretAssignementService *SecretAssignementService
+	ResourceService          *ResourceService
+	DomainService            *DomainService
+	EventTypeToPollService   *EventTypeToPollService
+	ResourceTypeService      *ResourceTypeService
+	EventTypeService         *EventTypeService
 }
 
 // NewClient :
@@ -47,12 +50,15 @@ func NewClient(bindAddress string) (client *Client) {
 
 	client.AuthenticationService = &AuthenticationService{client: client}
 	client.CliService = &CliService{client: client}
-	client.ClusterService = &ClusterService{client: client}
 	client.RoleService = &RoleService{client: client}
 	client.TenantService = &TenantService{client: client}
 	client.UserService = &UserService{client: client}
-	client.AggregatorService = &AggregatorService{client: client}
-	client.ConnectorService = &ConnectorService{client: client}
+	client.SecretAssignementService = &SecretAssignementService{client: client}
+	client.ResourceService = &ResourceService{client: client}
+	client.DomainService = &DomainService{client: client}
+	client.EventTypeToPollService = &EventTypeToPollService{client: client}
+	client.ResourceTypeService = &ResourceTypeService{client: client}
+	client.EventTypeService = &EventTypeService{client: client}
 
 	return
 
@@ -71,6 +77,8 @@ func (c *Client) newRequest(method, path, token string, body interface{}) (*http
 	}
 	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
+		fmt.Println("error req")
+		fmt.Println(err)
 		return nil, err
 	}
 	if body != nil {
@@ -88,6 +96,8 @@ func (c *Client) newRequest(method, path, token string, body interface{}) (*http
 }
 
 func (c *Client) do(req *http.Request, v interface{}) error {
+	fmt.Println("req")
+	fmt.Println(req)
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return err
@@ -102,7 +112,8 @@ func (c *Client) do(req *http.Request, v interface{}) error {
 
 		return fmt.Errorf("unknown error, status code: %d", resp.StatusCode)
 	}
-
+	fmt.Println("resp.Body")
+	fmt.Println(resp.Body)
 	if err = json.NewDecoder(resp.Body).Decode(&v); err != nil {
 		return err
 	}

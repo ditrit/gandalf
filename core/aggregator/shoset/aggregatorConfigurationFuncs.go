@@ -3,15 +3,15 @@ package shoset
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"time"
 
-	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
 
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	cmsg "github.com/ditrit/gandalf/core/msg"
+
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
 )
@@ -54,137 +54,136 @@ func WaitConfiguration(c *net.Shoset, replies *msg.Iterator, args map[string]str
 	}
 }
 
-// HandleSecret :
+// HandleConnectorConfig : Aggregator handle connector config function.
 func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 	configuration := message.(cmsg.Configuration)
 	ch := c.GetCh()
 	dir := c.GetDir()
 	err = nil
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
+
 	log.Println("Handle configuration")
 	log.Println(configuration)
 
-	//if configuration.GetTenant() == ch.Context["tenant"] {
-	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
-	//if ok {
-	if dir == "in" {
-		fmt.Println("IN")
-		if c.GetShosetType() == "c" {
-			shosets := net.GetByType(ch.ConnsByAddr, "cl")
-			if len(shosets) != 0 {
-				configuration.Target = c.GetBindAddr()
-				configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
-				configuration.Tenant = configurationAggregator.GetTenant()
-				index := getSecretSendIndex(shosets)
-				shosets[index].SendMessage(configuration)
-				log.Printf("%s : send in configuration %s to %s\n", thisOne, configuration.GetCommand(), shosets[index])
-			} else {
-				log.Println("can't find clusters to send")
-				err = errors.New("can't find clusters to send")
-			}
-		} else {
-			log.Println("wrong Shoset type")
-			err = errors.New("wrong Shoset type")
-		}
-	}
+	fmt.Println("Handle configuration")
+	fmt.Println(configuration)
+	configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	if ok {
+		if configuration.GetTenant() == configurationAggregator.GetTenant() {
+			//ok := ch.Queue["config"].Push(conf, c.GetRemoteShosetType(), c.GetBindAddress())
 
-	if dir == "out" {
-		fmt.Println("OUT")
-		if c.GetShosetType() == "cl" {
-			if configuration.GetTarget() == "" {
-				if configuration.GetCommand() == "CONFIGURATION_REPLY" {
-					var configurationAggregator *models.ConfigurationLogicalAggregator
-					err = json.Unmarshal([]byte(configuration.GetPayload()), &configurationAggregator)
-					if err == nil {
-						ch.Context["logicalConfiguration"] = configurationAggregator
+			//if ok {
+			if dir == "in" {
+				if c.GetRemoteShosetType() == "c" {
+					shosets := ch.GetConnsByTypeArray("cl")
+					if len(shosets) != 0 {
+						configuration.TargetAddress = c.GetRemoteAddress()
+						configuration.TargetLogicalName = c.GetRemoteLogicalName()
+						index := getConfigurationSendIndex(shosets)
+						shosets[index].SendMessage(configuration)
+						log.Printf("%s : send in command %s to %s\n", thisOne, configuration.GetCommand(), shosets[index])
+					} else {
+						log.Println("Error : Can't find clusters to send")
 					}
+				} else {
+					log.Println("Error : Wrong shoset type")
 				}
-			} else {
-				shoset := ch.ConnsByAddr.Get(configuration.GetTarget())
-				shoset.SendMessage(configuration)
 			}
+
+			if dir == "out" {
+				if c.GetRemoteShosetType() == "cl" {
+					if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
+						if configuration.GetTargetLogicalName() == "" && configuration.GetTargetAddress() == "" {
+							var pivot *models.Pivot
+							err = json.Unmarshal([]byte(configuration.GetPayload()), &pivot)
+							if err == nil {
+								ch.Context["pivot"] = pivot
+							}
+						} else {
+
+							mapshoset := ch.ConnsByName.Get(configuration.GetTargetLogicalName())
+							var shoset *net.ShosetConn
+							if mapshoset != nil {
+								shoset = mapshoset.Get(configuration.GetTargetAddress())
+							}
+
+							shoset.SendMessage(configuration)
+						}
+					} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION_REPLY" {
+
+						mapshoset := ch.ConnsByName.Get(configuration.GetTargetLogicalName())
+						var shoset *net.ShosetConn
+						if mapshoset != nil {
+							shoset = mapshoset.Get(configuration.GetTargetAddress())
+						}
+						fmt.Println("CONNECTOR_PRODUCT_CONFIGURATION_REPLY")
+						fmt.Println("shoset")
+						fmt.Println(shoset)
+						shoset.SendMessage(configuration)
+					}
+				} else {
+					log.Println("Error : Wrong shoset type")
+				}
+			}
+			/* } else {
+				log.Println("can't push to queue")
+				err = errors.New("can't push to queue")
+			} */
 		} else {
-			log.Println("wrong Shoset type")
-			err = errors.New("wrong Shoset type")
+			log.Println("Error : Wrong tenant")
 		}
 	}
-	/* } else {
-		log.Println("can't push to queue")
-		err = errors.New("can't push to queue")
-	} */
-	/*} else {
-		log.Println("wrong tenant")
-		err = errors.New("wrong tenant")
-	}*/
 
 	return err
 }
 
-//SendSecret :
-func SendConfiguration(shoset *net.Shoset) (err error) {
-	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
-	configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
-	configMarshal, err := json.Marshal(configurationLogicalAggregator)
-	if err == nil {
-		configurationMsg := cmsg.NewConfiguration("", "CONFIGURATION", string(configMarshal))
-		configurationMsg.Tenant = configurationAggregator.GetTenant()
-		configurationMsg.GetContext()["componentType"] = "aggregator"
-		configurationMsg.GetContext()["logicalName"] = configurationAggregator.GetLogicalName()
-		configurationMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
-		//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
-		//conf.GetContext()["product"] = shoset.Context["product"]
+//SendPivotConfiguration :
+func SendAggregatorPivotConfiguration(shoset *net.Shoset) (err error) {
+	version, ok := shoset.Context["version"].(models.Version)
+	if ok {
+		jsonVersion, err := json.Marshal(version)
+		if err == nil {
+			configurationAggregator, ok := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+			if ok {
+				conf := cmsg.NewConfiguration("PIVOT_CONFIGURATION", "")
+				conf.Tenant = configurationAggregator.GetTenant()
+				conf.GetContext()["componentType"] = "aggregator"
+				conf.GetContext()["version"] = jsonVersion
+				//conf.GetContext()["product"] = shoset.Context["product"]
 
-		shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+				shosets := shoset.GetConnsByTypeArray("cl")
 
-		if len(shosets) != 0 {
-			if configurationMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
-				configurationMsg.Timeout = configurationAggregator.GetMaxTimeout()
-			}
+				if len(shosets) != 0 {
+					if conf.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+						conf.Timeout = configurationAggregator.GetMaxTimeout()
+					}
 
-			notSend := true
-			for start := time.Now(); time.Since(start) < time.Duration(configurationMsg.GetTimeout())*time.Millisecond; {
-				index := getSecretSendIndex(shosets)
-				shosets[index].SendMessage(configurationMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+					notSend := true
+					for start := time.Now(); time.Since(start) < time.Duration(conf.GetTimeout())*time.Millisecond; {
+						index := getConfigurationSendIndex(shosets)
+						shosets[index].SendMessage(conf)
+						log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), conf.GetCommand(), shosets[index])
 
-				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
+						timeoutSend := time.Duration((int(conf.GetTimeout()) / len(shosets)))
 
-				time.Sleep(timeoutSend * time.Millisecond)
+						time.Sleep(timeoutSend * time.Millisecond)
 
-				if shoset.Context["logicalConfiguration"] != nil {
-					notSend = false
-					break
+						if shoset.Context["pivot"] != nil {
+							notSend = false
+							break
+						}
+					}
+
+					if notSend {
+						return nil
+					}
+
+				} else {
+					log.Println("Error : Can't find aggregators to send")
 				}
 			}
-
-			if notSend {
-				return nil
-			}
-
-			/* notSend := true
-			for notSend {
-
-				index := getSecretSendIndex(shosets)
-				shosets[index].SendMessage(configurationMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
-
-				timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-				time.Sleep(timeoutSend * time.Millisecond)
-
-				if shoset.Context["logicalConfiguration"] != nil {
-					notSend = false
-					break
-				}
-			}
-
-			if notSend {
-				return nil
-			} */
-
 		} else {
-			log.Println("can't find cluster to send")
-			err = errors.New("can't find cluster to send")
+			log.Println("Error : Can't marshall version")
 		}
 	}
 
@@ -193,12 +192,12 @@ func SendConfiguration(shoset *net.Shoset) (err error) {
 
 // getCommandSendIndex : Aggregator getSendIndex function.
 func getConfigurationSendIndex(conns []*net.ShosetConn) int {
-	aux := configurationSendIndex
-	configurationSendIndex++
-
 	if configurationSendIndex >= len(conns) {
 		configurationSendIndex = 0
 	}
+
+	aux := configurationSendIndex
+	configurationSendIndex++
 
 	return aux
 }

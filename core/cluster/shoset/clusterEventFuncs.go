@@ -17,48 +17,48 @@ import (
 func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	evt := message.(msg.Event)
 	ch := c.GetCh()
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 	err = nil
 
 	log.Println("Handle event")
 	log.Println(evt)
 
-	//ok := ch.Queue["evt"].Push(evt, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["evt"].Push(evt, c.GetRemoteShosetType(), c.GetBindAddress())
 
 	//if ok {
-	databaseConnection := ch.Context["databaseConnection"].(*database.DatabaseConnection)
-	//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-	//databasePath := ch.Context["databasePath"].(string)
-	//configurationCluster := ch.Context["configurationCluster"].(*cmodels.ConfigurationCluster)
+	databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
+	if ok {
+		//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
+		//databasePath := ch.Context["databasePath"].(string)
+		//configurationCluster := ch.Context["configurationCluster"].(*cmodels.ConfigurationCluster)
 
-	if databaseConnection != nil {
-		databaseClient := databaseConnection.GetDatabaseClientByTenant(evt.GetTenant())
-		if databaseClient != nil {
-			ok := utils.CaptureMessage(message, "evt", databaseClient)
-			if ok {
-				log.Printf("Succes capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
+		if databaseConnection != nil {
+			databaseClient := databaseConnection.GetDatabaseClientByTenant(evt.GetTenant())
+			if databaseClient != nil {
+				ok := utils.CaptureMessage(message, "evt", databaseClient)
+				if ok {
+					log.Printf("Succes capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
+				} else {
+					log.Printf("Error : Fail capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
+					err = errors.New("Fail capture event" + evt.GetEvent() + " on tenant" + evt.GetTenant())
+				}
 			} else {
-				log.Printf("Fail capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
-				err = errors.New("Fail capture event" + evt.GetEvent() + " on tenant" + evt.GetTenant())
+				log.Println("Error : Can't get database client by tenant")
 			}
 		} else {
-			log.Println("Can't get database client by tenant")
-			err = errors.New("Can't get database client by tenant")
+			log.Println("Error : Database client map is empty")
 		}
-	} else {
-		log.Println("Database client map is empty")
-		err = errors.New("Database client map is empty")
-	}
 
-	ch.ConnsByAddr.Iterate(
-		func(key string, val *net.ShosetConn) {
-			if key != thisOne && val.ShosetType == "a" && c.GetCh().Context["tenant"] == val.GetCh().Context["tenant"] {
-				val.SendMessage(evt)
-				log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
-			}
-		},
-	)
-	//}
+		ch.ConnsByName.IterateAll(
+			func(key string, val *net.ShosetConn) {
+				if key != thisOne && val.GetRemoteShosetType() == "a" && c.GetCh().Context["tenant"] == val.GetCh().Context["tenant"] {
+					val.SendMessage(evt)
+					log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
+				}
+			},
+		)
+		//}
+	}
 
 	return err
 }

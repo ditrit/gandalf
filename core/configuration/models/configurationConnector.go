@@ -153,6 +153,22 @@ func (cc ConfigurationConnector) SetMaxTimeout(maxTimeout int64) {
 	viper.Set("max_timeout", maxTimeout)
 }
 
+func (cc ConfigurationConnector) GetCertsPath() string {
+	return viper.GetString("cert_dir")
+}
+
+func (cc ConfigurationConnector) SetCertsPath(certsPath string) {
+	viper.Set("cert_dir", certsPath)
+}
+
+func (cc ConfigurationConnector) GetConfigPath() string {
+	return viper.GetString("config_dir")
+}
+
+func (cc ConfigurationConnector) SetConfigPath(configPath string) {
+	viper.Set("config_dir", configPath)
+}
+
 func (cc ConfigurationConnector) GetVersions() (versions []models.Version) {
 	versionsSplit := strings.Split(viper.GetString("versions"), ",")
 	for _, versionSplit := range versionsSplit {
@@ -178,72 +194,4 @@ func (cc ConfigurationConnector) GetVersionsString() string {
 
 func (cc ConfigurationConnector) SetVersionsString(versions string) {
 	viper.Set("versions", versions)
-}
-
-func (cc ConfigurationConnector) ConfigurationToDatabase() *models.ConfigurationLogicalConnector {
-	configurationLogicalConnector := new(models.ConfigurationLogicalConnector)
-
-	configurationLogicalConnector.LogicalName = cc.GetLogicalName()
-	configurationLogicalConnector.Tenant = cc.GetTenant()
-	configurationLogicalConnector.Secret = cc.GetSecret()
-	configurationLogicalConnector.ConnectorType = cc.GetConnectorType()
-	configurationLogicalConnector.Product = cc.GetProduct()
-	configurationLogicalConnector.WorkersUrl = cc.GetWorkersUrl()
-	configurationLogicalConnector.AutoUpdateTime = cc.GetAutoUpdateTime()
-	configurationLogicalConnector.MaxTimeout = cc.GetMaxTimeout()
-	configurationLogicalConnector.Versions = cc.GetVersionsString()
-
-	return configurationLogicalConnector
-}
-
-func (cc ConfigurationConnector) DatabaseToConfiguration(configurationLogicalConnector *models.ConfigurationLogicalConnector) {
-	cc.SetLogicalName(configurationLogicalConnector.LogicalName)
-	cc.SetTenant(configurationLogicalConnector.Tenant)
-	cc.SetSecret(configurationLogicalConnector.Secret)
-	cc.SetConnectorType(configurationLogicalConnector.ConnectorType)
-	cc.SetProduct(configurationLogicalConnector.Product)
-	cc.SetWorkersUrl(configurationLogicalConnector.WorkersUrl)
-	cc.SetAutoUpdateTime(configurationLogicalConnector.AutoUpdateTime)
-	cc.SetMaxTimeout(configurationLogicalConnector.MaxTimeout)
-	cc.SetVersionsString(configurationLogicalConnector.Versions)
-}
-
-func (cc ConfigurationConnector) AddConnectorConfigurationKeys(listConfigurationKeys []models.ConfigurationKeys) bool {
-	for _, configurationKey := range listConfigurationKeys {
-		switch configurationKey.Type {
-		case "string":
-			cc.cfg.LKey(configurationKey.Name, verdeter.IsStr, "", "")
-		case "int":
-			cc.cfg.LKey(configurationKey.Name, verdeter.IsInt, "", "")
-		case "bool":
-			cc.cfg.LKey(configurationKey.Name, verdeter.IsBool, "", "")
-		}
-		cc.cfg.SetDefault(configurationKey.Name, configurationKey.DefaultValue)
-		if configurationKey.Mandatory {
-			cc.cfg.SetRequired(configurationKey.Name)
-		}
-	}
-	return cc.cfg.ValidOK()
-}
-
-func (cc ConfigurationConnector) GetConfigurationKeys(listConfigurationKeys []models.ConfigurationKeys) (stindargs string) {
-	var value string
-	for i, configurationKey := range listConfigurationKeys {
-		switch configurationKey.Type {
-		case "string":
-			value = viper.GetString(configurationKey.Name)
-		case "int":
-			value = string(viper.GetInt(configurationKey.Name))
-		case "bool":
-			value = strconv.FormatBool(viper.GetBool(configurationKey.Name))
-		}
-		if i == 0 {
-			stindargs = "{\"" + configurationKey.Name + "\":" + "\"" + value + "\""
-		} else {
-			stindargs = stindargs + ", \"" + configurationKey.Name + "\":" + "\"" + value + "\""
-		}
-
-	}
-	stindargs = stindargs + "}"
-	return
 }

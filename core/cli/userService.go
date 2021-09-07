@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/ditrit/gandalf/core/models"
 )
 
@@ -54,7 +56,7 @@ func (as *UserService) ReadByName(token string, name string) (*models.User, erro
 
 // Update :
 func (as *UserService) Update(token string, id int, user models.User) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/users/"+string(id), token, user)
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/users/"+strconv.Itoa(id), token, user)
 	if err != nil {
 		return err
 	}
@@ -64,7 +66,7 @@ func (as *UserService) Update(token string, id int, user models.User) error {
 
 // Delete :
 func (as *UserService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/users/"+string(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/auth/gandalf/users/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}

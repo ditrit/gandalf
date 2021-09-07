@@ -1,8 +1,6 @@
 package models
 
 import (
-	"github.com/ditrit/gandalf/core/models"
-
 	"github.com/spf13/viper"
 )
 
@@ -90,18 +88,18 @@ func (ca ConfigurationAggregator) SetMaxTimeout(maxTimeout int64) {
 
 }
 
-func (ca ConfigurationAggregator) ConfigurationToDatabase() *models.ConfigurationLogicalAggregator {
-	configurationLogicalAggregator := new(models.ConfigurationLogicalAggregator)
-	configurationLogicalAggregator.LogicalName = ca.GetLogicalName()
-	configurationLogicalAggregator.Tenant = ca.GetTenant()
-	configurationLogicalAggregator.Secret = ca.GetSecret()
-	configurationLogicalAggregator.MaxTimeout = ca.GetMaxTimeout()
-	return configurationLogicalAggregator
+func (ca ConfigurationAggregator) GetCertsPath() string {
+	return viper.GetString("cert_dir")
 }
 
-func (ca ConfigurationAggregator) DatabaseToConfiguration(configurationLogicalAggregator *models.ConfigurationLogicalAggregator) {
-	ca.SetLogicalName(configurationLogicalAggregator.LogicalName)
-	ca.SetTenant(configurationLogicalAggregator.Tenant)
-	ca.SetSecret(configurationLogicalAggregator.Secret)
-	ca.SetMaxTimeout(configurationLogicalAggregator.MaxTimeout)
+func (ca ConfigurationAggregator) SetCertsPath(certsPath string) {
+	viper.Set("cert_dir", certsPath)
+}
+
+func (ca ConfigurationAggregator) GetConfigPath() string {
+	return viper.GetString("config_dir")
+}
+
+func (ca ConfigurationAggregator) SetConfigPath(configPath string) {
+	viper.Set("config_dir", configPath)
 }

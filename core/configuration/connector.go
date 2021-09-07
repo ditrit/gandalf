@@ -29,6 +29,8 @@ var connectorCfg = verdeter.NewConfigCmd(
 		configurationConnector := cmodels.NewConfigurationConnector(cfg)
 		connector.ConnectorMemberInit(configurationConnector)
 		//go oauth2.NewOAuth2Client()
+		fmt.Println("Connector call done")
+
 		<-done
 	})
 
@@ -124,7 +126,7 @@ func init() {
 		})
 
 	connectorCfg.LKey("workers_url", verdeter.IsStr, "u", "workers URL")
-	connectorCfg.SetDefault("workers_url", "https://github.com/ditrit/workers/raw/master")
+	connectorCfg.SetDefault("workers_url", "https://raw.githubusercontent.com/ditrit/gandalf-workers/master")
 
 	connectorCfg.LKey("versions", verdeter.IsStr, "v", "worker versions")
 

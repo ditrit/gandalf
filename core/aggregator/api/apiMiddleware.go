@@ -6,11 +6,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ditrit/gandalf/core/cluster/api/utils"
+	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 
-	apimodels "github.com/ditrit/gandalf/core/cluster/api/models"
+	apimodels "github.com/ditrit/gandalf/core/aggregator/api/models"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 // CommonMiddleware :

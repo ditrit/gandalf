@@ -2,10 +2,13 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/ditrit/gandalf/core/models"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 	"github.com/ditrit/shoset/msg"
@@ -29,10 +32,25 @@ func main() {
 
 	worker := worker.NewWorker(major, minor)
 
+	var inputPayload InputPayload
+	err := json.Unmarshal([]byte(input.Text()), &inputPayload)
+	fmt.Println("inputPayload")
+	fmt.Println(err)
+	fmt.Println(inputPayload)
+
 	worker.RegisterCommandsFuncs("CREATE_FORM", CreateForm)
 	worker.RegisterCommandsFuncs("SEND_AUTH_MAIL", SendAuthMail)
 
 	worker.Run()
+}
+
+type InputPayload struct {
+	TotoKey          string
+	TataKey          string
+	TutuKey          string
+	TitiKey          string
+	EventTypeToPolls []models.EventTypeToPoll
+	//....
 }
 
 func SendAuthMail(clientGandalf *goclient.ClientGandalf, major int64, command msg.Command) int {

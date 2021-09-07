@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+
 	"github.com/ditrit/gandalf/core/aggregator/api"
 
 	"github.com/ditrit/gandalf/core/aggregator/database"
@@ -19,9 +21,15 @@ import (
 	net "github.com/ditrit/shoset"
 )
 
+const major = int8(1)
+const minor = int8(0)
+
 // AggregatorMember : Aggregator struct.
 type AggregatorMember struct {
-	chaussette *net.Shoset
+	chaussette           *net.Shoset
+	version              models.Version
+	pivot                *models.Pivot
+	logicalConfiguration *models.LogicalComponent
 }
 
 /*func InitAggregatorKeys(){
@@ -33,18 +41,24 @@ type AggregatorMember struct {
 // NewAggregatorMember :
 func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
 	member := new(AggregatorMember)
-	member.chaussette = net.NewShoset(configurationAggregator.GetLogicalName(), "a")
+	member.chaussette = net.NewShoset(configurationAggregator.GetLogicalName(), "a", configurationAggregator.GetCertsPath(), configurationAggregator.GetConfigPath())
+
+	member.version = models.Version{Major: major, Minor: minor}
+	member.chaussette.Context["version"] = member.version
 
 	member.chaussette.Context["configuration"] = configurationAggregator
 	//member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
-	member.chaussette.Handle["models"] = shoset.HandleCommand
+	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
-	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
 	member.chaussette.Queue["secret"] = msg.NewQueue()
 	member.chaussette.Get["secret"] = shoset.GetSecret
 	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
+	member.chaussette.Queue["logicalConfiguration"] = msg.NewQueue()
+	member.chaussette.Get["logicalConfiguration"] = shoset.GetLogicalConfiguration
+	member.chaussette.Wait["logicalConfiguration"] = shoset.WaitLogicalConfiguration
+	member.chaussette.Handle["logicalConfiguration"] = shoset.HandleLogicalConfiguration
 	member.chaussette.Queue["configuration"] = msg.NewQueue()
 	member.chaussette.Get["configuration"] = shoset.GetConfiguration
 	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration
@@ -53,6 +67,10 @@ func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregato
 	member.chaussette.Get["configurationDatabase"] = shoset.GetConfigurationDatabase
 	member.chaussette.Wait["configurationDatabase"] = shoset.WaitConfigurationDatabase
 	member.chaussette.Handle["configurationDatabase"] = shoset.HandleConfigurationDatabase
+	member.chaussette.Queue["heartbeat"] = msg.NewQueue()
+	member.chaussette.Get["heartbeat"] = shoset.GetHeartbeat
+	member.chaussette.Wait["heartbeat"] = shoset.WaitHeartbeat
+	member.chaussette.Handle["heartbeat"] = shoset.HandleHeartbeat
 	//coreLog.OpenLogFile("/var/log")
 
 	//coreLog.OpenLogFile(logPath)
@@ -69,7 +87,9 @@ func (m *AggregatorMember) GetChaussette() *net.Shoset {
 func (m *AggregatorMember) Bind(addr string) error {
 	ipAddr, err := net.GetIP(addr)
 	if err == nil {
+		fmt.Println("before Bind")
 		err = m.chaussette.Bind(ipAddr)
+		fmt.Println("after Bind")
 	}
 
 	return err
@@ -77,22 +97,25 @@ func (m *AggregatorMember) Bind(addr string) error {
 
 // Join : Aggregator join function.
 func (m *AggregatorMember) Join(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Join(addr)
+	return m.chaussette.Protocol(addr, "join")
 }
 
 // Link : Aggregator link function.
 func (m *AggregatorMember) Link(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Link(addr)
+	return m.chaussette.Protocol(addr, "link")
 }
 
 // getBrothers : Aggregator list brothers function.
 func getBrothers(address string, member *AggregatorMember) []string {
 	bros := []string{address}
 
-	member.chaussette.ConnsJoin.Iterate(
-		func(key string, val *net.ShosetConn) {
-			bros = append(bros, key)
-		})
+	connsJoin := member.chaussette.ConnsByName.Get(member.chaussette.GetLogicalName())
+	if connsJoin != nil {
+		connsJoin.Iterate(
+			func(key string, val *net.ShosetConn) {
+				bros = append(bros, key)
+			})
+	}
 
 	return bros
 }
@@ -115,14 +138,26 @@ func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 	return false, fmt.Errorf("Validation nil")
 }
 
-func (m *AggregatorMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalAggregator, error) {
+func (m *AggregatorMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {
 	fmt.Println("SEND")
-	shoset.SendConfiguration(nshoset)
+	shoset.SendAggregatorPivotConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationAggregator, ok := m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalAggregator)
+	pivot, ok := m.chaussette.Context["pivot"].(*models.Pivot)
 	if ok {
-		return configurationAggregator, nil
+		return pivot, nil
+	}
+	return nil, fmt.Errorf("Configuration nil")
+}
+
+func (m *AggregatorMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.LogicalComponent, error) {
+	fmt.Println("SEND")
+	shoset.SendLogicalConfiguration(nshoset)
+	time.Sleep(time.Second * time.Duration(5))
+
+	logicalConfiguration, ok := m.chaussette.Context["logicalConfiguration"].(*models.LogicalComponent)
+	if ok {
+		return logicalConfiguration, nil
 	}
 	return nil, fmt.Errorf("Configuration nil")
 }
@@ -140,11 +175,16 @@ func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*model
 }
 
 // StartAPI :
-func (m *AggregatorMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection) (err error) {
-	server := api.NewServerAPI(bindAdress, databaseConnection)
-	server.Run()
+func (m *AggregatorMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection, shoset *net.Shoset) {
 
-	return
+	utils.InitAPIGlobals(shoset, databaseConnection)
+	server := api.NewServerAPI(bindAdress)
+	server.Run()
+}
+
+// StartHeartbeat :
+func (m *AggregatorMember) StartHeartbeat(nshoset *net.Shoset) {
+	shoset.SendHeartbeat(nshoset)
 }
 
 // AggregatorMemberInit : Aggregator init function.
@@ -159,25 +199,43 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 			validateSecret, err = member.ValidateSecret(member.GetChaussette())
 			if err == nil {
 				if validateSecret {
-					configurationLogicalAggregator, err := member.GetConfiguration(member.GetChaussette())
+					pivot, err := member.GetPivot(member.GetChaussette())
 					if err == nil {
-						fmt.Println(configurationLogicalAggregator)
-						configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
-
-						//TODO ADD CONFIGURATION DATABASE
-						configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
+						fmt.Println("pivot")
+						fmt.Println(pivot)
+						member.pivot = pivot
+						logicalConfiguration, err := member.GetLogicalConfiguration(member.GetChaussette())
 						if err == nil {
-							//TODO START API
-							databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator)
-							err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection)
-							if err != nil {
-								log.Fatalf("Can't create API server")
+							fmt.Println("logicalConfiguration")
+							fmt.Println(logicalConfiguration)
+							member.logicalConfiguration = logicalConfiguration
+							//configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
+
+							//TODO ADD CONFIGURATION DATABASE
+							configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
+							fmt.Println(configurationDatabaseAggregator)
+							if err == nil {
+								//TODO START API
+								databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator, member.pivot, member.logicalConfiguration)
+
+								//err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
+								go member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
+								//if err == nil {
+
+								go member.StartHeartbeat(member.GetChaussette())
+
+								//go shoset.SendHeartbeat(member.GetChaussette())
+								//} else {
+								//	log.Fatalf("Can't create API server")
+								//}
+							} else {
+								log.Fatalf("Can't get configuration database")
 							}
 						} else {
-							log.Fatalf("Can't get configuration database")
+							log.Fatalf("Can't get logical configuration")
 						}
 					} else {
-						log.Fatalf("Can't get configuration")
+						log.Fatalf("Can't get pivot")
 					}
 				} else {
 					log.Fatalf("Invalid secret")

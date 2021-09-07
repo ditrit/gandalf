@@ -3,7 +3,7 @@ package shoset
 
 import (
 	"encoding/json"
-	"errors"
+	"fmt"
 	"log"
 	"time"
 
@@ -59,18 +59,20 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	ch := c.GetCh()
 	dir := c.GetDir()
 	//err = nil
-	//thisOne := ch.GetBindAddr()
+	//thisOne := ch.GetBindAddress()
 	log.Println("Handle configuration database")
 	log.Println(configurationDb)
 
+	fmt.Println("Handle configuration database")
+	fmt.Println(configurationDb)
 	//if configuration.GetTenant() == ch.Context["tenant"] {
-	//ok := ch.Queue["configuration"].Push(configuration, c.ShosetType, c.GetBindAddr())
+	//ok := ch.Queue["configuration"].Push(configuration, c.GetRemoteShosetType(), c.GetBindAddress())
 	//if ok {
 	if dir == "in" {
 		/*if c.GetShosetType() == "c" {
 			shosets := net.GetByType(ch.ConnsByAddr, "cl")
 			if len(shosets) != 0 {
-				configuration.Target = c.GetBindAddr()
+				configuration.Target = c.GetBindAddress()
 				configurationAggregator := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
 				configuration.Tenant = configurationAggregator.GetTenant()
 				index := getSecretSendIndex(shosets)
@@ -87,18 +89,23 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	}
 
 	if dir == "out" {
-		if c.GetShosetType() == "cl" {
+		if c.GetRemoteShosetType() == "cl" {
 			if configurationDb.GetCommand() == "CONFIGURATION_DATABASE_REPLY" {
 				var configurationDatabaseAggregator *models.ConfigurationDatabaseAggregator
 				err = json.Unmarshal([]byte(configurationDb.GetPayload()), &configurationDatabaseAggregator)
 				if err == nil {
 					ch.Context["databaseConfiguration"] = configurationDatabaseAggregator
 				}
+			} else if configurationDb.GetCommand() == "CREATE_DATABASE_REPLY" {
+				var createDatabase *models.CreateDatabase
+				err = json.Unmarshal([]byte(configurationDb.GetPayload()), &createDatabase)
+				if err == nil {
+					ch.Context["databaseCreation"] = createDatabase
+				}
 			}
 
 		} else {
-			log.Println("wrong Shoset type")
-			err = errors.New("wrong Shoset type")
+			log.Println("Error : Wrong Shoset type")
 		}
 	}
 	/* } else {
@@ -115,66 +122,93 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 
 //SendSecret :
 func SendConfigurationDatabase(shoset *net.Shoset) (err error) {
-	configurationAggregator := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
-	//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
-	//configMarshal, err := json.Marshal(configurationLogicalAggregator)
+	configurationAggregator, ok := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	if ok {
+		//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
+		//configMarshal, err := json.Marshal(configurationLogicalAggregator)
 
-	configurationDbMsg := cmsg.NewConfigurationDatabase("", "CONFIGURATION_DATABASE", "")
-	configurationDbMsg.Tenant = configurationAggregator.GetTenant()
-	//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
-	//conf.GetContext()["product"] = shoset.Context["product"]
+		configurationDbMsg := cmsg.NewConfigurationDatabase("", "CONFIGURATION_DATABASE", "")
+		configurationDbMsg.Tenant = configurationAggregator.GetTenant()
+		//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
+		//conf.GetContext()["product"] = shoset.Context["product"]
 
-	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+		shosets := shoset.GetConnsByTypeArray("cl")
 
-	if len(shosets) != 0 {
-		if configurationDbMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
-			configurationDbMsg.Timeout = configurationAggregator.GetMaxTimeout()
-		}
-
-		notSend := true
-		for start := time.Now(); time.Since(start) < time.Duration(configurationDbMsg.GetTimeout())*time.Millisecond; {
-			index := getSecretSendIndex(shosets)
-			shosets[index].SendMessage(configurationDbMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationDbMsg.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(configurationDbMsg.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["databaseConfiguration"] != nil {
-				notSend = false
-				break
+		if len(shosets) != 0 {
+			if configurationDbMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+				configurationDbMsg.Timeout = configurationAggregator.GetMaxTimeout()
 			}
-		}
 
-		if notSend {
-			return nil
-		}
+			notSend := true
+			for start := time.Now(); time.Since(start) < time.Duration(configurationDbMsg.GetTimeout())*time.Millisecond; {
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(configurationDbMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), configurationDbMsg.GetCommand(), shosets[index])
 
-		/* notSend := true
-		for notSend {
+				timeoutSend := time.Duration((int(configurationDbMsg.GetTimeout()) / len(shosets)))
 
-			index := getSecretSendIndex(shosets)
-			shosets[index].SendMessage(configurationMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), configurationMsg.GetCommand(), shosets[index])
+				time.Sleep(timeoutSend * time.Millisecond)
 
-			timeoutSend := time.Duration((int(configurationMsg.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["logicalConfiguration"] != nil {
-				notSend = false
-				break
+				if shoset.Context["databaseConfiguration"] != nil {
+					notSend = false
+					break
+				}
 			}
+
+			if notSend {
+				return nil
+			}
+
+		} else {
+			log.Println("Error : Can't find cluster to send")
 		}
+	}
 
-		if notSend {
-			return nil
-		} */
+	return err
+}
 
-	} else {
-		log.Println("can't find cluster to send")
-		err = errors.New("can't find cluster to send")
+//SendSecret :
+func SendCreateDatabase(shoset *net.Shoset, tenant string) (err error) {
+	configurationAggregator, ok := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	if ok {
+		//configurationLogicalAggregator := configurationAggregator.ConfigurationToDatabase()
+		//configMarshal, err := json.Marshal(configurationLogicalAggregator)
+
+		configurationDbMsg := cmsg.NewConfigurationDatabase("", "CREATE_DATABASE", tenant)
+		configurationDbMsg.Tenant = configurationAggregator.GetTenant()
+		//configurationMsg.GetContext()["configuration"] = configurationLogicalAggregator
+		//conf.GetContext()["product"] = shoset.Context["product"]
+
+		shosets := shoset.GetConnsByTypeArray("cl")
+
+		if len(shosets) != 0 {
+			if configurationDbMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+				configurationDbMsg.Timeout = configurationAggregator.GetMaxTimeout()
+			}
+
+			notSend := true
+			for start := time.Now(); time.Since(start) < time.Duration(configurationDbMsg.GetTimeout())*time.Millisecond; {
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(configurationDbMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), configurationDbMsg.GetCommand(), shosets[index])
+
+				timeoutSend := time.Duration((int(configurationDbMsg.GetTimeout()) / len(shosets)))
+
+				time.Sleep(timeoutSend * time.Millisecond)
+
+				if shoset.Context["databaseCreation"] != nil {
+					notSend = false
+					break
+				}
+			}
+
+			if notSend {
+				return nil
+			}
+
+		} else {
+			log.Println("Error : Can't find cluster to send")
+		}
 	}
 
 	return err
@@ -182,12 +216,12 @@ func SendConfigurationDatabase(shoset *net.Shoset) (err error) {
 
 // getCommandSendIndex : Aggregator getSendIndex function.
 func getConfigurationDatabaseSendIndex(conns []*net.ShosetConn) int {
-	aux := configurationSendIndex
-	configurationSendIndex++
 
 	if configurationSendIndex >= len(conns) {
 		configurationSendIndex = 0
 	}
+	aux := configurationSendIndex
+	configurationSendIndex++
 
 	return aux
 }

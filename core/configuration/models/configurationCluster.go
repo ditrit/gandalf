@@ -1,8 +1,6 @@
 package models
 
 import (
-	"github.com/ditrit/gandalf/core/models"
-
 	"github.com/spf13/viper"
 )
 
@@ -134,20 +132,22 @@ func (cc ConfigurationCluster) GetCertsPath() string {
 	return viper.GetString("cert_dir")
 }
 
-func (cc ConfigurationCluster) SetCertsPath(maxTimeout string) {
-	viper.Set("cert_dir", maxTimeout)
+func (cc ConfigurationCluster) SetCertsPath(certsPath string) {
+	viper.Set("cert_dir", certsPath)
 }
 
-func (cc ConfigurationCluster) ConfigurationToDatabase() *models.ConfigurationLogicalCluster {
-	configurationLogicalCluster := new(models.ConfigurationLogicalCluster)
-	configurationLogicalCluster.LogicalName = cc.GetLogicalName()
-	configurationLogicalCluster.Secret = cc.GetSecret()
-	configurationLogicalCluster.MaxTimeout = cc.GetMaxTimeout()
-	return configurationLogicalCluster
+func (cc ConfigurationCluster) GetConfigPath() string {
+	return viper.GetString("config_dir")
 }
 
-func (cc ConfigurationCluster) DatabaseToConfiguration(configurationLogicalCluster *models.ConfigurationLogicalCluster) {
-	cc.SetLogicalName(configurationLogicalCluster.LogicalName)
-	cc.SetSecret(configurationLogicalCluster.Secret)
-	cc.SetMaxTimeout(configurationLogicalCluster.MaxTimeout)
+func (cc ConfigurationCluster) SetConfigPath(configPath string) {
+	viper.Set("config_dir", configPath)
+}
+
+func (cc ConfigurationCluster) GetRepositoryUrl() string {
+	return viper.GetString("repository_url")
+}
+
+func (cc ConfigurationCluster) SetRepositoryUrl(workersUrl string) {
+	viper.Set("repository_url", workersUrl)
 }

@@ -8,24 +8,34 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/viper"
+
+	"github.com/ditrit/gandalf/core/cluster/utils"
+
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
-
-	"github.com/ditrit/gandalf/core/cluster/api"
+	"github.com/jinzhu/gorm"
 
 	"github.com/ditrit/shoset/msg"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
 	"github.com/ditrit/gandalf/core/cluster/shoset"
+	"github.com/google/uuid"
 
 	net "github.com/ditrit/shoset"
 )
 
+const major = int8(1)
+const minor = int8(0)
+
 // ClusterMember : Cluster struct.
 type ClusterMember struct {
-	chaussette         *net.Shoset
-	Store              *[]string
-	DatabaseConnection *database.DatabaseConnection
+	chaussette           *net.Shoset
+	Store                *[]string
+	DatabaseConnection   *database.DatabaseConnection
+	version              models.Version
+	pivot                *models.Pivot
+	logicalConfiguration *models.LogicalComponent
 	//GandalfDatabaseClient    *gorm.DB
 	//MapTenantDatabaseClients map[string]*gorm.DB
 }
@@ -41,11 +51,12 @@ func InitClusterKeys(){
 // NewClusterMember : Cluster struct constructor.
 func NewClusterMember(configurationCluster *cmodels.ConfigurationCluster) *ClusterMember {
 	member := new(ClusterMember)
-	member.chaussette = net.NewShoset(configurationCluster.GetLogicalName(), "cl")
+	member.chaussette = net.NewShoset(configurationCluster.GetLogicalName(), "cl", configurationCluster.GetCertsPath(), configurationCluster.GetConfigPath())
 	//member.MapTenantDatabaseClients = make(map[string]*gorm.DB)
+	member.version = models.Version{Major: major, Minor: minor}
+	member.chaussette.Context["version"] = member.version
 
 	member.chaussette.Context["configuration"] = configurationCluster
-
 	member.DatabaseConnection = database.NewDatabaseConnection(configurationCluster)
 	member.chaussette.Context["databaseConnection"] = member.DatabaseConnection
 	//member.chaussette.Context["databasePath"] = databasePath
@@ -53,14 +64,17 @@ func NewClusterMember(configurationCluster *cmodels.ConfigurationCluster) *Clust
 	//member.chaussette.Context["gandalfDatabase"] = member.GandalfDatabaseClient
 	//member.chaussette.Context["tenantDatabases"] = member.MapTenantDatabaseClients
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
-	member.chaussette.Handle["models"] = shoset.HandleCommand
+	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
-	member.chaussette.Handle["config"] = shoset.HandleConnectorConfig
 	member.chaussette.Queue["secret"] = msg.NewQueue()
 	member.chaussette.Get["secret"] = shoset.GetSecret
 	//member.chaussette.Send["secret"] = shoset.SendSecret
 	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
+	member.chaussette.Queue["logicalConfiguration"] = msg.NewQueue()
+	member.chaussette.Get["logicalConfiguration"] = shoset.GetLogicalConfiguration
+	member.chaussette.Wait["logicalConfiguration"] = shoset.WaitLogicalConfiguration
+	member.chaussette.Handle["logicalConfiguration"] = shoset.HandleLogicalConfiguration
 	member.chaussette.Queue["configuration"] = msg.NewQueue()
 	member.chaussette.Get["configuration"] = shoset.GetConfiguration
 	member.chaussette.Wait["configuration"] = shoset.WaitConfiguration
@@ -69,7 +83,10 @@ func NewClusterMember(configurationCluster *cmodels.ConfigurationCluster) *Clust
 	member.chaussette.Get["configurationDatabase"] = shoset.GetConfigurationDatabase
 	member.chaussette.Wait["configurationDatabase"] = shoset.WaitConfigurationDatabase
 	member.chaussette.Handle["configurationDatabase"] = shoset.HandleConfigurationDatabase
-
+	member.chaussette.Queue["heartbeat"] = msg.NewQueue()
+	member.chaussette.Get["heartbeat"] = shoset.GetHeartbeat
+	member.chaussette.Wait["heartbeat"] = shoset.WaitHeartbeat
+	member.chaussette.Handle["heartbeat"] = shoset.HandleHeartbeat
 	//coreLog.OpenLogFile(logPath)
 
 	return member
@@ -98,22 +115,25 @@ func (m *ClusterMember) Bind(addr string) error {
 
 // Join : Cluster join function.
 func (m *ClusterMember) Join(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Join(addr)
+	return m.chaussette.Protocol(addr, "join")
 }
 
 // Link : Cluster link function.
 func (m *ClusterMember) Link(addr string) (*net.ShosetConn, error) {
-	return m.chaussette.Link(addr)
+	return m.chaussette.Protocol(addr, "link")
 }
 
 // getBrothers : Cluster list brothers function.
 func getBrothers(address string, member *ClusterMember) []string {
 	bros := []string{address}
 
-	member.chaussette.ConnsJoin.Iterate(
-		func(key string, val *net.ShosetConn) {
-			bros = append(bros, key)
-		})
+	connsJoin := member.chaussette.ConnsByName.Get(member.chaussette.GetLogicalName())
+	if connsJoin != nil {
+		connsJoin.Iterate(
+			func(key string, val *net.ShosetConn) {
+				bros = append(bros, key)
+			})
+	}
 
 	return bros
 }
@@ -159,58 +179,122 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 							log.Printf("populating database")
 
-							var login, password, secret string
-							login, password, secret, err = member.DatabaseConnection.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
+							var login, password []string
+							login, password, err = member.DatabaseConnection.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
 							if err == nil {
 								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
-								fmt.Printf("Created cluster, logical name : %s, secret : %s \n", configurationCluster.GetLogicalName(), secret)
 
-								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
-								if err != nil {
-									log.Fatalf("Can't create API server")
+								//GET PIVOT
+								var pivot *models.Pivot
+								pivot, err = member.DownloadPivot(member.chaussette, gandalfDatabaseClient, configurationCluster.GetRepositoryUrl(), "cluster", member.version)
+								if err == nil {
+									member.pivot = pivot
+									member.DatabaseConnection.SetPivot(pivot)
+									fmt.Println("pivot")
+									fmt.Println(pivot)
+									//SAVE LOGICALCOMPONENT
+									var logicalComponent *models.LogicalComponent
+									logicalComponent, err = member.SaveLogicalComponent(gandalfDatabaseClient, configurationCluster)
+									if err == nil {
+										member.logicalConfiguration = logicalComponent
+										member.DatabaseConnection.SetLogicalComponent(logicalComponent)
+
+										fmt.Println("logicalComponent")
+										fmt.Println(logicalComponent)
+
+										//TODO TRANSACTION
+										//CREATE SECRET
+										var secretAssignement models.SecretAssignement
+										secretAssignement.Secret = uuid.NewString()
+										err := gandalfDatabaseClient.Create(secretAssignement).Error
+										if err == nil {
+											//GET PIVOT AGGREGATOR
+											fmt.Println("GET PIVOT AGG")
+											pivot, _ := utils.GetAggregatorPivot(member.logicalConfiguration.GetKeyValueByKey("repository_url").Value, "aggregator", member.version)
+											err := gandalfDatabaseClient.Create(pivot).Error
+											if err == nil {
+												//CREATE AGGREGATOR LOGICAL COMPONENT
+												logicalComponent := utils.CreateAggregatorLogicalComponent("gandalf", member.logicalConfiguration.GetKeyValueByKey("repository_url").Value, pivot)
+												err := gandalfDatabaseClient.Create(logicalComponent).Error
+												if err == nil {
+													fmt.Printf("New Aggregator : %s %s \n", logicalComponent.LogicalName, secretAssignement.Secret)
+													go member.StartHeartbeat(member.GetChaussette())
+												}
+											} else {
+												log.Fatalf("Error : Can't save aggregator pivot")
+											}
+										} else {
+											log.Fatalf("Error : Can't create aggregator secret")
+										}
+
+										/* err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
+										if err != nil {
+											log.Fatalf("Can't create API server")
+										} */
+									} else {
+										log.Fatalf("Error : Can't save logical component")
+									}
+								} else {
+									log.Fatalf("Error : Can't get pivot")
 								}
 							} else {
-								log.Fatalf("Can't initialize database")
+								log.Fatalf("Error : Can't initialize database")
 							}
 						} else {
-							log.Fatalf("Can't create database client")
+							log.Fatalf("Error : Can't create database client")
 						}
 					} else {
-						log.Fatalf("Can't create database")
+						log.Fatalf("Error : Can't create database")
 					}
 				} else {
-					log.Fatalf("Can't init node")
+					log.Fatalf("Error : Can't init node")
 				}
 			} else {
-				log.Fatalf("Can't create node")
+				log.Fatalf("Error : Can't create node")
 			}
 		} else {
 			log.Println("Node already exist")
 
 			err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), configurationCluster.GetDatabaseBindAddress())
+
 			if err == nil {
 
-				member.DatabaseConnection.GetGandalfDatabaseClient()
+				gandalfDatabaseClient := member.DatabaseConnection.GetGandalfDatabaseClient()
 				//var gandalfDatabaseClient *gorm.DB
 				//gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
 				//member.GandalfDatabaseClient = gandalfDatabaseClient
 				//member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
 				if err == nil {
 					log.Printf("New gandalf database client")
+					var pivot *models.Pivot
+					pivot, err = member.GetInitPivot(gandalfDatabaseClient, "cluster", member.version)
+					if err == nil {
+						member.pivot = pivot
+						var logicalComponent *models.LogicalComponent
+						logicalComponent, err = member.GetInitLogicalConfiguration(gandalfDatabaseClient, configurationCluster.GetLogicalName())
+						if err == nil {
+							member.logicalConfiguration = logicalComponent
 
-					err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
-					if err != nil {
-						log.Fatalf("Can't create API server")
+							go member.StartHeartbeat(member.GetChaussette())
+							/* 	err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
+							if err != nil {
+								log.Fatalf("Can't create API server")
+							} */
+						} else {
+							log.Fatalf("Error : Can't get logical component")
+						}
+					} else {
+						log.Fatalf("Error : Can't get pivot")
 					}
 				} else {
-					log.Fatalf("Can't create database client")
+					log.Fatalf("Error : Can't create database client")
 				}
 			} else {
-				log.Fatalf("Can't start node")
+				log.Fatalf("Error : Can't start node")
 			}
 		}
 	} else {
-		log.Fatalf("Can't bind shoset on %s", configurationCluster.GetBindAddress())
+		log.Fatalf("Error : Can't bind shoset on %s", configurationCluster.GetBindAddress())
 	}
 
 	return member
@@ -231,61 +315,77 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", configurationCluster.GetLogicalName(), "join", configurationCluster.GetBindAddress(), configurationCluster.GetJoinAddress())
 
 			validateSecret, err := member.ValidateSecret(member.GetChaussette())
+			fmt.Println("validateSecret")
+			fmt.Println(validateSecret)
 			if err == nil {
 				if validateSecret {
-					configurationLogicalCluster, err := member.GetConfiguration(member.GetChaussette())
+					pivot, err := member.GetPivot(member.GetChaussette())
 					if err == nil {
-						fmt.Println(configurationLogicalCluster)
-						configurationCluster.DatabaseToConfiguration(configurationLogicalCluster)
-						//member.GetChaussette().Context["databasePath"] = databasePath
-						var databaseStore string
-						if configurationCluster.GetOffset() > 0 {
-							databaseStore = CreateStoreOffSet(getBrothers(configurationCluster.GetBindAddress(), member), 200)
-						} else {
-							databaseStore = CreateStore(getBrothers(configurationCluster.GetBindAddress(), member), configurationCluster.GetDatabasePort())
-						}
-
-						time.Sleep(5 * time.Second)
-						err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), databaseStore)
-
+						fmt.Println("pivot")
+						fmt.Println(pivot)
+						member.pivot = pivot
+						logicalConfiguration, err := member.GetLogicalConfiguration(member.GetChaussette())
 						if err == nil {
-							log.Printf("New database node bind on %s \n", "")
+							fmt.Println(logicalConfiguration)
+							member.logicalConfiguration = logicalConfiguration
+							//configurationCluster.DatabaseToConfiguration(configurationLogicalCluster)
+							//member.GetChaussette().Context["databasePath"] = databasePath
+							var databaseStore string
+							if configurationCluster.GetOffset() > 0 {
+								databaseStore = CreateStoreOffSet(getBrothers(configurationCluster.GetBindAddress(), member), 200)
+							} else {
+								databaseStore = CreateStore(getBrothers(configurationCluster.GetBindAddress(), member), configurationCluster.GetDatabasePort())
+							}
 
-							member.DatabaseConnection.GetGandalfDatabaseClient()
-							//var gandalfDatabaseClient *gorm.DB
-							//gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
-							//member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+							time.Sleep(5 * time.Second)
+							err = database.CoackroachStart(configurationCluster.GetDatabasePath(), configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseName(), configurationCluster.GetDatabaseBindAddress(), configurationCluster.GetDatabaseHttpAddress(), databaseStore)
 
 							if err == nil {
-								log.Printf("New gandalf database client")
+								log.Printf("New database node bind on %s \n", "")
 
-								err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection)
-								if err != nil {
-									log.Fatalf("Can't create API server")
+								member.DatabaseConnection.GetGandalfDatabaseClient()
+								//var gandalfDatabaseClient *gorm.DB
+								//gandalfDatabaseClient, err = database.NewGandalfDatabaseClient(configurationCluster.GetDatabaseBindAddress(), "gandalf")
+								//member.GetChaussette().Context["gandalfDatabase"] = gandalfDatabaseClient
+
+								if err == nil {
+									log.Printf("New gandalf database client")
+									go member.StartHeartbeat(member.GetChaussette())
+									/* 	err = member.StartAPI(configurationCluster.GetAPIBindAddress(), member.DatabaseConnection, member.logicalConfiguration)
+									if err != nil {
+										log.Fatalf("Can't create API server")
+									} */
+								} else {
+									log.Fatalf("Error : Can't create database client")
 								}
 							} else {
-								log.Fatalf("Can't create database client")
+								log.Fatalf("Error : Can't create node")
 							}
 						} else {
-							log.Fatalf("Can't create node")
+							log.Fatalf("Error : Can't get logical configuration")
 						}
 					} else {
-						log.Fatalf("Can't get configuration")
+						log.Fatalf("Error : Can't get pivot")
 					}
 				} else {
-					log.Fatalf("Invalid secret")
+					log.Fatalf("Error : Invalid secret")
 				}
 			} else {
-				log.Fatalf("Can't get secret")
+				log.Fatalf("Error : Can't get secret")
 			}
 		} else {
-			log.Fatalf("Can't join shoset on %s", configurationCluster.GetJoinAddress())
+			log.Fatalf("Error : Can't join shoset on %s", configurationCluster.GetJoinAddress())
 		}
 	} else {
-		log.Fatalf("Can't bind shoset on %s", configurationCluster.GetBindAddress())
+		log.Fatalf("Error : Can't bind shoset on %s", configurationCluster.GetBindAddress())
 	}
 
 	return member
+}
+
+// StartHeartbeat :
+func (m *ClusterMember) StartHeartbeat(nshoset *net.Shoset) {
+	shoset.SendHeartbeat(nshoset)
 }
 
 func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
@@ -305,24 +405,85 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 	return false, fmt.Errorf("Validation nil")
 }
 
-func (m *ClusterMember) GetConfiguration(nshoset *net.Shoset) (*models.ConfigurationLogicalCluster, error) {
-	shoset.SendConfiguration(nshoset)
+//TODO REVOIR ERROR
+func (m *ClusterMember) DownloadPivot(nshoset *net.Shoset, client *gorm.DB, baseurl, componentType string, version models.Version) (*models.Pivot, error) {
+
+	pivot, _ := utils.DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
+
+	err := client.Create(&pivot).Error
+	fmt.Println(err)
+	m.chaussette.Context["pivot"] = pivot
+
+	return pivot, nil
+}
+
+func (m *ClusterMember) SaveLogicalComponent(client *gorm.DB, configurationCluster *cmodels.ConfigurationCluster) (*models.LogicalComponent, error) {
+	logicalComponent := new(models.LogicalComponent)
+	logicalComponent.LogicalName = configurationCluster.GetLogicalName()
+	logicalComponent.Type = "cluster"
+	logicalComponent.Pivot = *m.pivot
+	var keyValues []models.KeyValue
+	for _, key := range m.pivot.Keys {
+		keyValue := new(models.KeyValue)
+		keyValue.Value = viper.GetString(key.Name)
+		keyValue.Key = key
+		keyValues = append(keyValues, *keyValue)
+	}
+
+	logicalComponent.KeyValues = keyValues
+
+	client.Create(&logicalComponent)
+
+	return logicalComponent, nil
+}
+
+//TODO REVOIR ERROR
+func (m *ClusterMember) GetInitPivot(client *gorm.DB, componentType string, version models.Version) (*models.Pivot, error) {
+	pivot, err := utils.GetPivots(client, componentType, version)
+
+	return &pivot, err
+}
+
+func (m *ClusterMember) GetInitLogicalConfiguration(client *gorm.DB, logicalName string) (*models.LogicalComponent, error) {
+	logicalComponent, err := utils.GetLogicalComponents(client, logicalName)
+
+	return &logicalComponent, err
+}
+
+func (m *ClusterMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {
+	shoset.SendClusterPivotConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	configurationCluster, ok := m.chaussette.Context["logicalConfiguration"].(*models.ConfigurationLogicalCluster)
+	fmt.Println("m.chaussette.Context[]")
+	fmt.Println(m.chaussette.Context["pivot"])
+
+	pivot, ok := m.chaussette.Context["pivot"].(*models.Pivot)
+	fmt.Println("pivot")
+	fmt.Println(pivot)
 	if ok {
-		return configurationCluster, nil
+		return pivot, nil
 	}
 	return nil, fmt.Errorf("Configuration nil")
 }
 
-// ConfigurationValidation : Validation configuration
+func (m *ClusterMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.LogicalComponent, error) {
+	shoset.SendLogicalConfiguration(nshoset)
+	time.Sleep(time.Second * time.Duration(5))
+
+	logicalConfiguration, ok := m.chaussette.Context["logicalConfiguration"].(*models.LogicalComponent)
+	if ok {
+		return logicalConfiguration, nil
+	}
+	return nil, fmt.Errorf("Configuration nil")
+}
+
+/* // ConfigurationValidation : Validation configuration
 func (m *ClusterMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection) (err error) {
 	server := api.NewServerAPI(bindAdress, databaseConnection)
 	server.Run()
 
 	return
-}
+} */
 
 // CreateStore : Cluster create store function.
 func CreateStoreOffSet(bros []string, delta int) string {

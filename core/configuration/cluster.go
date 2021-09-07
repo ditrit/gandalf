@@ -26,20 +26,20 @@ var clusterCfg = verdeter.NewConfigCmd(
 		fmt.Println("cluster called")
 
 		offset := verdeter.GetOffset()
-		fmt.Printf("computed offset : %d\n", offset)
+		fmt.Printf("computed offset : %d \n", offset)
 
 		done := make(chan bool)
 		configurationCluster := cmodels.NewConfigurationCluster()
 		//fmt.Println(viper.GetString("bind"))
 		//fmt.Println(configurationCluster.GetBindAddress())
 		if !viper.IsSet("join") {
-			fmt.Printf("calling ClusterMemberInit\n")
+			fmt.Println("calling ClusterMemberInit")
 			cluster.ClusterMemberInit(configurationCluster)
 		} else {
-			fmt.Printf("calling ClusterMemberJoin\n")
+			fmt.Println("calling ClusterMemberJoin")
 			cluster.ClusterMemberJoin(configurationCluster)
 		}
-		fmt.Printf("Cluster call done\n")
+		fmt.Println("Cluster call done")
 		<-done
 	})
 
@@ -47,7 +47,7 @@ func init() {
 	startCfg.AddConfig(clusterCfg)
 
 	//clusterCfg.SetRequired("lname")
-	//clusterCfg.SetDefault("lname", "cluster")
+	clusterCfg.SetDefault("lname", "cluster")
 
 	clusterCfg.LKey("join", verdeter.IsStr, "j", "remote address (of an already existing member of cluster) to join")
 	clusterCfg.SetCheck("join", verdeter.CheckNotEmpty)
@@ -112,6 +112,9 @@ func init() {
 	func() interface{} {
 		return 9299 + GetOffset()
 	}) */
+
+	clusterCfg.LKey("repository_url", verdeter.IsStr, "u", "repository URL")
+	clusterCfg.SetDefault("repository_url", "https://raw.githubusercontent.com/ditrit/gandalf-workers/master")
 
 	clusterCfg.SetConstraint("a secret can not be set for cluster initialization (no join provided)",
 		func() bool {

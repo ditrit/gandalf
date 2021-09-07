@@ -15,6 +15,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+var jwtKey = []byte("secret_key")
+
 func RespondWithError(w http.ResponseWriter, code int, message string) {
 	RespondWithJSON(w, code, map[string]string{"error": message})
 }
@@ -25,6 +27,10 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(response)
+}
+
+func GetJwtKey() []byte {
+	return jwtKey
 }
 
 /* //TODO
@@ -121,20 +127,3 @@ func GenerateHash() string {
 	hash := base64.URLEncoding.EncodeToString(sha512.Sum(nil))
 	return hash
 }
-
-//TODO REVOIR UTILE ???
-/* func ChangeStateTenant(client *gorm.DB) {
-	var state models.State
-	client.First(&state)
-
-	if !state.Admin {
-		var roleadmin models.Role
-		client.Where("name = ?", "Administrator").First(&roleadmin)
-		var users []models.User
-		result := client.Where("role_id = ?", roleadmin.ID).Find(&users)
-		if result.RowsAffected >= 2 {
-			state.Admin = true
-			client.Update(&state)
-		}
-	}
-} */
