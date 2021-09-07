@@ -16,13 +16,48 @@ import (
 	"strconv"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
+	apimodels "github.com/ditrit/gandalf/core/aggregator/api/models"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/gorilla/mux"
 )
 
 func CreateEventType(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		var eventType models.EventType
@@ -46,6 +81,39 @@ func CreateEventType(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteEventType(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
@@ -68,6 +136,39 @@ func DeleteEventType(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetEventTypeById(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
@@ -96,11 +197,43 @@ func GetEventTypeById(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetEventTypeByName(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	name := vars["eventTypeName"]
 
 	var eventType models.EventType
-	var err error
 	if eventType, err = dao.ReadEventTypeByName(utils.DatabaseConnection.GetTenantDatabaseClient(), name); err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -115,6 +248,39 @@ func GetEventTypeByName(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListEventType(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		eventTypes, err := dao.ListEventType(database)
@@ -131,6 +297,39 @@ func ListEventType(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateEventType(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {

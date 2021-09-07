@@ -14,7 +14,9 @@ import (
 	"net/http"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
+	apimodels "github.com/ditrit/gandalf/core/aggregator/api/models"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/google/uuid"
 
@@ -22,6 +24,39 @@ import (
 )
 
 func CreateSecretAssignement(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		var secretAssignement models.SecretAssignement
@@ -42,6 +77,39 @@ func CreateSecretAssignement(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListSecretAssignement(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		secrets, err := dao.ListSecretAssignement(database)

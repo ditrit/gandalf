@@ -21,8 +21,10 @@ import (
 	"time"
 
 	"github.com/ditrit/gandalf/core/aggregator/shoset"
+	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
+	apimodels "github.com/ditrit/gandalf/core/aggregator/api/models"
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -32,6 +34,39 @@ import (
 )
 
 func CreateTenant(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	var result map[string]interface{}
 	result = make(map[string]interface{})
 
@@ -45,7 +80,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 
 	tenant.Password = utils.GenerateHash()
 
-	err := dao.CreateTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), tenant)
+	err = dao.CreateTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), tenant)
 	fmt.Println("tenant.Password")
 	fmt.Println(tenant.Password)
 	fmt.Println(err)
@@ -110,6 +145,39 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteTenant(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["tenantId"])
 	if err != nil {
@@ -126,6 +194,39 @@ func DeleteTenant(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTenantById(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["tenantId"])
 	if err != nil {
@@ -148,6 +249,38 @@ func GetTenantById(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListTenant(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
 
 	tenants, err := dao.ListTenant(utils.DatabaseConnection.GetTenantDatabaseClient())
 	if err != nil {
@@ -159,6 +292,39 @@ func ListTenant(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateTenant(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["tenantId"])
 	if err != nil {

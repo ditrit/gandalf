@@ -18,8 +18,8 @@ import (
 	"time"
 
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/golang-jwt/jwt/v4"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	apimodels "github.com/ditrit/gandalf/core/aggregator/api/models"
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
@@ -28,6 +28,39 @@ import (
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		var user models.User
@@ -51,6 +84,39 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
@@ -73,6 +139,39 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUserById(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
@@ -100,11 +199,43 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetUserByName(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	name := vars["userName"]
 
 	var user models.User
-	var err error
 	if user, err = dao.ReadUserByName(utils.DatabaseConnection.GetTenantDatabaseClient(), name); err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -119,6 +250,39 @@ func GetUserByName(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListUser(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		users, err := dao.ListUser(database)
@@ -157,7 +321,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusNotFound, "Username not found")
 			return
 		}
-		expiresAt := time.Now().Add(time.Minute * 100000).Unix()
 
 		errf := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(ruser.Password))
 		if errf != nil && errf == bcrypt.ErrMismatchedHashAndPassword { //Password does not match!
@@ -167,23 +330,33 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusUnauthorized, "Invalid login credentials. Please try again")
 			return
 		}
-		tk := &apimodels.Claims{
+
+		expirationTime := time.Now().Add(time.Minute * 5)
+
+		claims := &apimodels.Claims{
 			UserID: user.ID,
 			Name:   user.Name,
 			Email:  user.Email,
 			StandardClaims: &jwt.StandardClaims{
-				ExpiresAt: expiresAt,
+				ExpiresAt: expirationTime.Unix(),
 			},
 		}
 
-		token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-
-		tokenString, err := token.SignedString([]byte("aggregator"))
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := token.SignedString(utils.GetJwtKey())
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
+
+		http.SetCookie(w,
+			&http.Cookie{
+				Name:    "gandalf",
+				Value:   tokenString,
+				Expires: expirationTime,
+			})
+
 		utils.RespondWithJSON(w, http.StatusOK, tokenString)
 		return
 	} else {
@@ -198,6 +371,39 @@ func LogoutUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("gandalf")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tokenStr := cookie.Value
+
+	claims := &apimodels.Claims{}
+
+	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
+		func(t *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+			return
+		}
+		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if !tkn.Valid {
+		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {

@@ -13,7 +13,7 @@ info:
 externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
-servers:
+servers:role
 - url: https://virtserver.swaggerhub.com/ditrit/Gandalf/1.0.0
 - url: http://virtserver.swaggerhub.com/ditrit/Gandalf/1.0.0
 tags:

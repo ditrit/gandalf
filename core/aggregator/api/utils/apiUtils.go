@@ -15,6 +15,8 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+var jwtKey = []byte("secret_key")
+
 func RespondWithError(w http.ResponseWriter, code int, message string) {
 	RespondWithJSON(w, code, map[string]string{"error": message})
 }
@@ -25,6 +27,10 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(response)
+}
+
+func GetJwtKey() []byte {
+	return jwtKey
 }
 
 /* //TODO
