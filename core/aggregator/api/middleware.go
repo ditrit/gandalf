@@ -24,6 +24,37 @@ func CommonMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func IsAuthorized(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		header := utils.ExtractToken(r)
+
+		header = strings.TrimSpace(header)
+
+		if header == "" {
+			//Token is missing, returns with error code 403 Unauthorized
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(apimodels.Exception{Message: "Missing auth token"})
+			return
+		}
+		tk := &apimodels.Claims{}
+
+		_, err := jwt.ParseWithClaims(header, tk, func(token *jwt.Token) (interface{}, error) {
+			return utils.GetJwtKey(), nil
+		})
+
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			json.NewEncoder(w).Encode(apimodels.Exception{Message: err.Error()})
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "user", tk)
+		handler.ServeHTTP(w, r.WithContext(ctx))
+
+	}
+}
+
 // TenantsJwtVerify :
 func TenantsJwtVerify(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

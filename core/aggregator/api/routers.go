@@ -59,336 +59,336 @@ var routes = Routes{
 		"CreateDomain",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainName}",
-		CreateDomain,
+		IsAuthorized(CreateDomain),
 	},
 
 	Route{
 		"DeleteDomain",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainId}",
-		DeleteDomain,
+		IsAuthorized(DeleteDomain),
 	},
 
 	Route{
 		"GetDomainById",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainId}",
-		GetDomainById,
+		IsAuthorized(GetDomainById),
 	},
 
 	Route{
 		"GetDomainByName",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainName}",
-		GetDomainByName,
+		IsAuthorized(GetDomainByName),
 	},
 
 	Route{
 		"ListDomain",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/domain",
-		ListDomain,
+		IsAuthorized(ListDomain),
 	},
 
 	Route{
 		"UpdateDomain",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainId}",
-		UpdateDomain,
+		IsAuthorized(UpdateDomain),
 	},
 
 	Route{
 		"CreateEventType",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/eventType",
-		CreateEventType,
+		IsAuthorized(CreateEventType),
 	},
 
 	Route{
 		"DeleteEventType",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId}",
-		DeleteEventType,
+		IsAuthorized(DeleteEventType),
 	},
 
 	Route{
 		"GetEventTypeById",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId}",
-		GetEventTypeById,
+		IsAuthorized(GetEventTypeById),
 	},
 
 	Route{
 		"GetEventTypeByName",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeName}",
-		GetEventTypeByName,
+		IsAuthorized(GetEventTypeByName),
 	},
 
 	Route{
 		"ListEventType",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/eventType",
-		ListEventType,
+		IsAuthorized(ListEventType),
 	},
 
 	Route{
 		"UpdateEventType",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId}",
-		UpdateEventType,
+		IsAuthorized(UpdateEventType),
 	},
 
 	Route{
 		"CreateEventTypeToPoll",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/eventTypeToPoll",
-		CreateEventTypeToPoll,
+		IsAuthorized(CreateEventTypeToPoll),
 	},
 
 	Route{
 		"DeleteEventTypeToPoll",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId}",
-		DeleteEventTypeToPoll,
+		IsAuthorized(DeleteEventTypeToPoll),
 	},
 
 	Route{
 		"GetEventTypeToPollById",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId}",
-		GetEventTypeToPollById,
+		IsAuthorized(GetEventTypeToPollById),
 	},
 
 	Route{
 		"ListEventTypeToPoll",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/eventTypeToPoll",
-		ListEventTypeToPoll,
+		IsAuthorized(ListEventTypeToPoll),
 	},
 
 	Route{
 		"UpdateEventTypeToPoll",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId}",
-		UpdateEventTypeToPoll,
+		IsAuthorized(UpdateEventTypeToPoll),
 	},
 
 	Route{
 		"GetLogicalComponentByName",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/logicalcomponent/{logicalComponentName}",
-		GetLogicalComponentByName,
+		IsAuthorized(GetLogicalComponentByName),
 	},
 
 	Route{
 		"UploadLogicalComponentByTenantAndType",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/logicalcomponent/upload/{tenantName}/{typeName}",
-		UploadLogicalComponentByTenantAndType,
+		IsAuthorized(UploadLogicalComponentByTenantAndType),
 	},
 
 	Route{
 		"CreateResource",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/resource",
-		CreateResource,
+		IsAuthorized(CreateResource),
 	},
 
 	Route{
 		"DeleteResource",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/resource/{resourceId}",
-		DeleteResource,
+		IsAuthorized(DeleteResource),
 	},
 
 	Route{
 		"GetResourceById",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/resource/{resourceId}",
-		GetResourceById,
+		IsAuthorized(GetResourceById),
 	},
 
 	Route{
 		"GetResourceByName",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/resource/{resourceName}",
-		GetResourceByName,
+		IsAuthorized(GetResourceByName),
 	},
 
 	Route{
 		"ListResource",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/resource",
-		ListResource,
+		IsAuthorized(ListResource),
 	},
 
 	Route{
 		"UpdateResource",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/resource/{resourceId}",
-		UpdateResource,
+		IsAuthorized(UpdateResource),
 	},
 
 	Route{
 		"CreateResourceType",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/resourceType",
-		CreateResourceType,
+		IsAuthorized(CreateResourceType),
 	},
 
 	Route{
 		"DeleteResourceType",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId}",
-		DeleteResourceType,
+		IsAuthorized(DeleteResourceType),
 	},
 
 	Route{
 		"GetResourceTypeById",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId}",
-		GetResourceTypeById,
+		IsAuthorized(GetResourceTypeById),
 	},
 
 	Route{
 		"GetResourceTypeByName",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeName}",
-		GetResourceTypeByName,
+		IsAuthorized(GetResourceTypeByName),
 	},
 
 	Route{
 		"ListResourceType",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/resourceType",
-		ListResourceType,
+		IsAuthorized(ListResourceType),
 	},
 
 	Route{
 		"UpdateResourceType",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId}",
-		UpdateResourceType,
+		IsAuthorized(UpdateResourceType),
 	},
 
 	Route{
 		"CreateRole",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/role",
-		CreateRole,
+		IsAuthorized(CreateRole),
 	},
 
 	Route{
 		"DeleteRole",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/role/{roleId}",
-		DeleteRole,
+		IsAuthorized(DeleteRole),
 	},
 
 	Route{
 		"GetRoleById",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/role/{roleId}",
-		GetRoleById,
+		IsAuthorized(GetRoleById),
 	},
 
 	Route{
 		"ListRole",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/role",
-		ListRole,
+		IsAuthorized(ListRole),
 	},
 
 	Route{
 		"UpdateRole",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/role/{roleId}",
-		UpdateRole,
+		IsAuthorized(UpdateRole),
 	},
 
 	Route{
 		"CreateSecretAssignement",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/secretAssignement",
-		CreateSecretAssignement,
+		IsAuthorized(CreateSecretAssignement),
 	},
 
 	Route{
 		"ListSecretAssignement",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/secretAssignement",
-		ListSecretAssignement,
+		IsAuthorized(ListSecretAssignement),
 	},
 
 	Route{
 		"CreateTenant",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/tenant",
-		CreateTenant,
+		IsAuthorized(CreateTenant),
 	},
 
 	Route{
 		"DeleteTenant",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/tenant/{tenantId}",
-		DeleteTenant,
+		IsAuthorized(DeleteTenant),
 	},
 
 	Route{
 		"GetTenantById",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/tenant/{tenantId}",
-		GetTenantById,
+		IsAuthorized(GetTenantById),
 	},
 
 	Route{
 		"ListTenant",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/tenant",
-		ListTenant,
+		IsAuthorized(ListTenant),
 	},
 
 	Route{
 		"UpdateTenant",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/tenant/{tenantId}",
-		UpdateTenant,
+		IsAuthorized(UpdateTenant),
 	},
 
 	Route{
 		"CreateUser",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/user",
-		CreateUser,
+		IsAuthorized(CreateUser),
 	},
 
 	Route{
 		"DeleteUser",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/user/{userId}",
-		DeleteUser,
+		IsAuthorized(DeleteUser),
 	},
 
 	Route{
 		"GetUserById",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/user/{userId}",
-		GetUserById,
+		IsAuthorized(GetUserById),
 	},
 
 	Route{
 		"GetUserByName",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/user/{userName}",
-		GetUserByName,
+		IsAuthorized(GetUserByName),
 	},
 
 	Route{
 		"ListUser",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/user",
-		ListUser,
+		IsAuthorized(ListUser),
 	},
 
 	Route{
@@ -400,7 +400,7 @@ var routes = Routes{
 
 	Route{
 		"LogoutUser",
-		strings.ToUpper("Get"),
+		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/user/logout",
 		LogoutUser,
 	},
@@ -409,6 +409,6 @@ var routes = Routes{
 		"UpdateUser",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/user/{userId}",
-		UpdateUser,
+		IsAuthorized(UpdateUser),
 	},
 }

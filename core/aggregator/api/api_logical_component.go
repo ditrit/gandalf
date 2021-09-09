@@ -19,9 +19,7 @@ import (
 	"strings"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
-	apimodels "github.com/ditrit/gandalf/core/aggregator/api/models"
 	"github.com/ditrit/gandalf/core/models"
-	"github.com/golang-jwt/jwt/v4"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/gorilla/mux"
@@ -30,42 +28,10 @@ import (
 )
 
 func GetLogicalComponentByName(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("gandalf")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	tokenStr := cookie.Value
-
-	claims := &apimodels.Claims{}
-
-	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return utils.GetJwtKey(), nil
-		})
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if !tkn.Valid {
-		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
 
 	vars := mux.Vars(r)
 	name := vars["logicalComponentName"]
-
+	var err error
 	var logicalComponent models.LogicalComponent
 	if logicalComponent, err = dao.ReadLogicalComponentByName(utils.DatabaseConnection.GetTenantDatabaseClient(), name); err != nil {
 		switch err {
@@ -81,38 +47,6 @@ func GetLogicalComponentByName(w http.ResponseWriter, r *http.Request) {
 }
 
 func UploadLogicalComponentByTenantAndType(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("gandalf")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	tokenStr := cookie.Value
-
-	claims := &apimodels.Claims{}
-
-	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return utils.GetJwtKey(), nil
-		})
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if !tkn.Valid {
-		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
 
 	vars := mux.Vars(r)
 	typeComponent := vars["typeName"]
