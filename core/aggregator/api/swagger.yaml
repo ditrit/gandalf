@@ -1,1331 +1,1388 @@
 openapi: 3.0.0
 info:
-  description: |
-    This is a sample Petstore server.  You can find 
-    out more about Swagger at 
-    [http://swagger.io](http://swagger.io) or on 
-    [irc.freenode.net, #swagger](http://swagger.io/irc/).
-  version: 1.0.0-oas3
   title: Swagger Gandalf
-  termsOfService: 'http://swagger.io/terms/'
+  description: "This is a sample Petstore server.  You can find \nout more about Swagger\
+    \ at \n[http://swagger.io](http://swagger.io) or on \n[irc.freenode.net, #swagger](http://swagger.io/irc/).\n"
+  termsOfService: http://swagger.io/terms/
   contact:
     email: romain.fairant@orness.com
   license:
     name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0-oas3
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:role
+- url: https://virtserver.swaggerhub.com/ditrit/Gandalf/1.0.0
+- url: http://virtserver.swaggerhub.com/ditrit/Gandalf/1.0.0
 tags:
-  - name: role
-    description: Everything about your Roles
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: domain
-    description: Everything about your Domains
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: resource
-    description: Everything about your Resources
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: resourceType
-    description: Everything about your ResourceTypes
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: eventTypeToPoll
-    description: Everything about your EventTypeToPolls
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: eventType
-    description: Everything about your EventTypes
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: user
-    description: Operations about User
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: tenant
-    description: Operations about Tenant
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: secretAssignement
-    description: Operations about Secret
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
-  - name: logicalComponent
-    description: Operations about Logical Component
-    externalDocs:
-      description: Find out more
-      url: 'http://swagger.io'
+- name: role
+  description: Everything about your Roles
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: domain
+  description: Everything about your Domains
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: resource
+  description: Everything about your Resources
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: resourceType
+  description: Everything about your ResourceTypes
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: eventTypeToPoll
+  description: Everything about your EventTypeToPolls
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: eventType
+  description: Everything about your EventTypes
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: user
+  description: Operations about User
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: tenant
+  description: Operations about Tenant
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: secretAssignement
+  description: Operations about Secret
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
+- name: logicalComponent
+  description: Operations about Logical Component
+  externalDocs:
+    description: Find out more
+    url: http://swagger.io
 paths:
   /role:
     get:
       tags:
-        - role
+      - role
       summary: List roles
       operationId: listRole
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/Role'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - role
+      - role
       summary: Create a role
       operationId: createRole
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateRole'
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/role/{roleId}':
+      - bearerAuth: []
+  /role/{roleId}:
     get:
       tags:
-        - role
+      - role
       summary: Find role by ID
       description: Returns a single role
       operationId: getRoleById
       parameters:
-        - name: roleId
-          in: path
-          description: ID of role to return
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: roleId
+        in: path
+        description: ID of role to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: Role not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - role
+      - role
       summary: Updates a role
       operationId: updateRole
       parameters:
-        - name: roleId
-          in: path
-          description: ID of role that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: roleId
+        in: path
+        description: ID of role that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateRole'
       responses:
-        '200':
+        "200":
           description: Updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Role'
-        '400':
-          $ref: '#/components/responses/400Error'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied | Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - role
+      - role
       summary: Deletes a role
       operationId: deleteRole
       parameters:
-        - name: roleId
-          in: path
-          description: Role id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: roleId
+        in: path
+        description: Role id to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: Succes
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /domain:
     get:
       tags:
-        - domain
+      - domain
       summary: List domains
       operationId: listDomain
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/Domain'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200_1'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/domain/{domainId}':
+      - bearerAuth: []
+  /domain/{domainId}:
     get:
       tags:
-        - domain
+      - domain
       summary: Find domain by ID
       description: Returns a single domain
       operationId: getDomainById
       parameters:
-        - name: domainId
-          in: path
-          description: ID of domain to return
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: domainId
+        in: path
+        description: ID of domain to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Domain'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: Domain not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - domain
+      - domain
       summary: Updates a domain
       operationId: updateDomain
       parameters:
-        - name: domainId
-          in: path
-          description: ID of domain that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: domainId
+        in: path
+        description: ID of domain that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateDomain'
       responses:
-        '200':
+        "200":
           description: Updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Domain'
-        '400':
-          $ref: '#/components/responses/400Error'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied | Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - domain
+      - domain
       summary: Deletes a domain
       operationId: deleteDomain
       parameters:
-        - name: domainId
-          in: path
-          description: Domain id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: domainId
+        in: path
+        description: Domain id to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: Succes
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/domain/{domainName}':
+      - bearerAuth: []
+  /domain/{domainName}:
     get:
       tags:
-        - domain
+      - domain
       summary: Find domain by Name
       description: Returns a single Domain
       operationId: getDomainByName
       parameters:
-        - name: domainName
-          in: path
-          description: Name of domain to return
-          required: true
-          schema:
-            type: string
+      - name: domainName
+        in: path
+        description: Name of domain to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Domain'
-        '404':
+        "404":
           description: Domain not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - domain
+      - domain
       summary: Create a domain
       operationId: createDomain
       parameters:
-        - name: domainName
-          in: path
-          description: Name of parent domain
-          required: true
-          schema:
-            type: string
+      - name: domainName
+        in: path
+        description: Name of parent domain
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateDomain'
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Domain'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /tenant:
     get:
       tags:
-        - tenant
+      - tenant
       summary: List tenants
       operationId: listTenant
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/Tenant'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200_2'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - tenant
+      - tenant
       summary: Create a tenant
       operationId: createTenant
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateTenant'
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tenant'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/tenant/{tenantId}':
+      - bearerAuth: []
+  /tenant/{tenantId}:
     get:
       tags:
-        - tenant
+      - tenant
       summary: Find tenant by ID
       description: Returns a single tenant
       operationId: getTenantById
       parameters:
-        - name: tenantId
-          in: path
-          description: ID of tenant to return
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: tenantId
+        in: path
+        description: ID of tenant to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tenant'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: Tenant not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - tenant
+      - tenant
       summary: Updates a tenant
       operationId: updateTenant
       parameters:
-        - name: tenantId
-          in: path
-          description: ID of tenant that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: tenantId
+        in: path
+        description: ID of tenant that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateTenant'
       responses:
-        '200':
+        "200":
           description: Updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tenant'
-        '400':
-          $ref: '#/components/responses/400Error'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied | Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - tenant
+      - tenant
       summary: Deletes a tenant
       operationId: deleteTenant
       parameters:
-        - name: tenantId
-          in: path
-          description: Tenant id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: tenantId
+        in: path
+        description: Tenant id to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: Succes
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /secretAssignement:
     get:
       tags:
-        - secretAssignement
+      - secretAssignement
       summary: List SecretAssignements
       operationId: listSecretAssignement
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/SecretAssignement'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200_3'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - secretAssignement
+      - secretAssignement
       summary: Create a SecretAssignement
       operationId: createSecretAssignement
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SecretAssignement'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/logicalcomponent/{logicalComponentName}':
+      - bearerAuth: []
+  /logicalcomponent/{logicalComponentName}:
     get:
       tags:
-        - logicalComponent
+      - logicalComponent
       summary: Find domain by Name
       description: Returns a single logical component
       operationId: getLogicalComponentByName
       parameters:
-        - name: logicalComponentName
-          in: path
-          description: Name of logical component to return
-          required: true
-          schema:
-            type: string
+      - name: logicalComponentName
+        in: path
+        description: Name of logical component to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogicalComponent'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: Logical component not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/logicalcomponent/upload/{tenantName}/{typeName}':
+      - bearerAuth: []
+  /logicalcomponent/upload/{tenantName}/{typeName}:
     post:
       tags:
-        - logicalComponent
+      - logicalComponent
       summary: Find domain by Name
       description: Returns a single logical component
       operationId: uploadLogicalComponentByTenantAndType
       parameters:
-        - name: tenantName
-          in: path
-          description: Name of tenant
-          required: true
-          schema:
-            type: string
-        - name: typeName
-          in: path
-          description: Name of type (aggregator/connector)
-          required: true
-          schema:
-            type: string
+      - name: tenantName
+        in: path
+        description: Name of tenant
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: typeName
+        in: path
+        description: Name of type (aggregator/connector)
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       requestBody:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                fileName:
-                  type: string
-                  format: binary
+              $ref: '#/components/schemas/tenantName_typeName_body'
       responses:
-        '200':
+        "200":
           description: Successfully Uploaded File
-        '500':
-          $ref: '#/components/responses/500UploadLogicalComponentError'
+        "500":
+          description: Database error | Tenant not found | Pivot not found | ProductConnector
+            not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /resource:
     get:
       tags:
-        - resource
+      - resource
       summary: List resources
       operationId: listResource
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/Resource'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200_4'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - resource
+      - resource
       summary: Create a resource
       operationId: createResource
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateResource'
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Resource'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/resource/{resourceId}':
+      - bearerAuth: []
+  /resource/{resourceId}:
     get:
       tags:
-        - resource
+      - resource
       summary: Find resource by ID
       description: Returns a single resource
       operationId: getResourceById
       parameters:
-        - name: resourceId
-          in: path
-          description: ID of role to return
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: resourceId
+        in: path
+        description: ID of role to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Resource'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: Resource not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - resource
+      - resource
       summary: Updates a resource
       operationId: updateResource
       parameters:
-        - name: resourceId
-          in: path
-          description: ID of resource that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: resourceId
+        in: path
+        description: ID of resource that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateResource'
       responses:
-        '200':
+        "200":
           description: Updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Resource'
-        '400':
-          $ref: '#/components/responses/400Error'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied | Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - resource
+      - resource
       summary: Deletes a resource
       operationId: deleteResource
       parameters:
-        - name: api_key
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: resourceId
-          in: path
-          description: Resource id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: api_key
+        in: header
+        required: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: resourceId
+        in: path
+        description: Resource id to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: Success
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/resource/{resourceName}':
+      - bearerAuth: []
+  /resource/{resourceName}:
     get:
       tags:
-        - resource
+      - resource
       summary: Find resource by Name
       description: Returns a single Resource
       operationId: getResourceByName
       parameters:
-        - name: resourceName
-          in: path
-          description: Name of resource to return
-          required: true
-          schema:
-            type: string
+      - name: resourceName
+        in: path
+        description: Name of resource to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Resource'
-        '404':
+        "404":
           description: Resource not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /resourceType:
     get:
       tags:
-        - resourceType
+      - resourceType
       summary: List resourceTypes
       operationId: listResourceType
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/ResourceType'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200_5'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - resourceType
+      - resourceType
       summary: Create a resourcetype
       operationId: createResourceType
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateResourceType'
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResourceType'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/resourceType/{resourceTypeId}':
+      - bearerAuth: []
+  /resourceType/{resourceTypeId}:
     get:
       tags:
-        - resourceType
+      - resourceType
       summary: Find resourceType by ID
       description: Returns a single resourceType
       operationId: getResourceTypeById
       parameters:
-        - name: resourceTypeId
-          in: path
-          description: ID of role to return
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: resourceTypeId
+        in: path
+        description: ID of role to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResourceType'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: ResourceType not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - resourceType
+      - resourceType
       summary: Updates a resourcetype
       operationId: updateResourceType
       parameters:
-        - name: resourceTypeId
-          in: path
-          description: ID of resourcetype that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: resourceTypeId
+        in: path
+        description: ID of resourcetype that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateResourceType'
       responses:
-        '200':
+        "200":
           description: Updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResourceType'
-        '400':
-          $ref: '#/components/responses/400Error'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied | Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - resourceType
+      - resourceType
       summary: Deletes a resourceType
       operationId: deleteResourceType
       parameters:
-        - name: api_key
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: resourceTypeId
-          in: path
-          description: ResourceType id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: api_key
+        in: header
+        required: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: resourceTypeId
+        in: path
+        description: ResourceType id to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: Success
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/resourceType/{resourceTypeName}':
+      - bearerAuth: []
+  /resourceType/{resourceTypeName}:
     get:
       tags:
-        - resourceType
+      - resourceType
       summary: Find resourceType by Name
       description: Returns a single ResourceType
       operationId: getResourceTypeByName
       parameters:
-        - name: resourceTypeName
-          in: path
-          description: Name of resourceType to return
-          required: true
-          schema:
-            type: string
+      - name: resourceTypeName
+        in: path
+        description: Name of resourceType to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResourceType'
-        '404':
+        "404":
           description: ResourceType not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /eventTypeToPoll:
     get:
       tags:
-        - eventTypeToPoll
+      - eventTypeToPoll
       summary: List eventTypeToPolls
       operationId: listEventTypeToPoll
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/EventTypeToPoll'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200_6'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - eventTypeToPoll
+      - eventTypeToPoll
       summary: Create a eventTypeToPoll
       operationId: createEventTypeToPoll
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateEventTypeToPoll'
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventTypeToPoll'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/eventTypeToPoll/{eventTypeToPollId}':
+      - bearerAuth: []
+  /eventTypeToPoll/{eventTypeToPollId}:
     get:
       tags:
-        - eventTypeToPoll
+      - eventTypeToPoll
       summary: Find eventTypeToPoll by ID
       description: Returns a single eventTypeToPoll
       operationId: getEventTypeToPollById
       parameters:
-        - name: eventTypeToPollId
-          in: path
-          description: ID of eventTypeToPoll to return
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: eventTypeToPollId
+        in: path
+        description: ID of eventTypeToPoll to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventTypeToPoll'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: EventTypeToPoll not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - eventTypeToPoll
+      - eventTypeToPoll
       summary: Updates a eventTypeToPoll
       operationId: updateEventTypeToPoll
       parameters:
-        - name: eventTypeToPollId
-          in: path
-          description: ID of eventTypeToPoll that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: eventTypeToPollId
+        in: path
+        description: ID of eventTypeToPoll that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateEventTypeToPoll'
       responses:
-        '200':
+        "200":
           description: Updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventTypeToPoll'
-        '400':
-          $ref: '#/components/responses/400Error'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied | Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - eventTypeToPoll
+      - eventTypeToPoll
       summary: Deletes a eventTypeToPoll
       operationId: deleteEventTypeToPoll
       parameters:
-        - name: api_key
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: eventTypeToPollId
-          in: path
-          description: EventTypeToPoll id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: api_key
+        in: header
+        required: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: eventTypeToPollId
+        in: path
+        description: EventTypeToPoll id to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: Success
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /eventType:
     get:
       tags:
-        - eventType
+      - eventType
       summary: List eventTypes
       operationId: listEventType
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/EventType'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200_7'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - eventType
+      - eventType
       summary: Create a eventType
       operationId: createEventType
-      requestBody:        
-       $ref: '#/components/requestBodies/createOrUpdateEventType'
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEventType'
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventType'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/eventType/{eventTypeId}':
+      - bearerAuth: []
+  /eventType/{eventTypeId}:
     get:
       tags:
-        - eventType
+      - eventType
       summary: Find eventType by ID
       description: Returns a single eventType
       operationId: getEventTypeById
       parameters:
-        - name: eventTypeId
-          in: path
-          description: ID of role to return
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: eventTypeId
+        in: path
+        description: ID of role to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventType'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: EventType not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - eventType
+      - eventType
       summary: Updates a eventType
       operationId: updateEventType
       parameters:
-        - name: eventTypeId
-          in: path
-          description: ID of eventType that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: eventTypeId
+        in: path
+        description: ID of eventType that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateEventType'
       responses:
-        '200':
+        "200":
           description: Updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventType'
-        '400':
-          $ref: '#/components/responses/400Error'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied | Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - eventType
+      - eventType
       summary: Deletes a eventType
       operationId: deleteEventType
       parameters:
-        - name: api_key
-          in: header
-          required: false
-          schema:
-            type: string
-        - name: eventTypeId
-          in: path
-          description: EventType id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: api_key
+        in: header
+        required: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: eventTypeId
+        in: path
+        description: EventType id to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: Success
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/eventType/{eventTypeName}':
+      - bearerAuth: []
+  /eventType/{eventTypeName}:
     get:
       tags:
-        - eventType
+      - eventType
       summary: Find eventType by Name
       description: Returns a single EventType
       operationId: getEventTypeByName
       parameters:
-        - name: eventTypeName
-          in: path
-          description: Name of eventType to return
-          required: true
-          schema:
-            type: string
+      - name: eventTypeName
+        in: path
+        description: Name of eventType to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventType'
-        '404':
+        "404":
           description: EventType not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /user:
     get:
       tags:
-        - user
+      - user
       summary: List users
       operationId: listUser
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/User'
-        '500':
-          $ref: '#/components/responses/500Error'
+                  $ref: '#/components/schemas/inline_response_200_8'
+                x-content-type: application/json
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     post:
       tags:
-        - user
+      - user
       summary: Create a user
       operationId: createUser
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateUser'
       responses:
-        '201':
+        "201":
           description: Created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/user/{userId}':
+      - bearerAuth: []
+  /user/{userId}:
     get:
       tags:
-        - user
+      - user
       summary: Find user by ID
       description: Returns a single user
       operationId: getUserById
       parameters:
-        - name: userId
-          in: path
-          description: ID of user to return
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: userId
+        in: path
+        description: ID of user to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '404':
+        "400":
+          description: Invalid ID supplied
+        "404":
           description: User not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     put:
       tags:
-        - user
+      - user
       summary: Updates a role
       operationId: updateUser
       parameters:
-        - name: userId
-          in: path
-          description: ID of role that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: userId
+        in: path
+        description: ID of role that needs to be updated
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       requestBody:
         $ref: '#/components/requestBodies/createOrUpdateUser'
       responses:
-        '200':
+        "200":
           description: Updated
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          $ref: '#/components/responses/400Error'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied | Invalid request payload
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
     delete:
       tags:
-        - user
+      - user
       summary: Deletes a role
       operationId: deleteUser
       parameters:
-        - name: userId
-          in: path
-          description: Role id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: userId
+        in: path
+        description: Role id to delete
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
       responses:
-        '200':
+        "200":
           description: Succes
-        '400':
-           $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
+        "400":
+          description: Invalid ID supplied
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
-  '/user/{userName}':
+      - bearerAuth: []
+  /user/{userName}:
     get:
       tags:
-        - user
+      - user
       summary: Find user by Name
       description: Returns a single User
       operationId: getUserByName
       parameters:
-        - name: userName
-          in: path
-          description: Name of user to return
-          required: true
-          schema:
-            type: string
+      - name: userName
+        in: path
+        description: Name of user to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '404':
+        "404":
           description: User not found
-        '500':
-          $ref: '#/components/responses/500Error'
+        "500":
+          description: Database error | Tenant not found
       security:
-        - bearerAuth: []
+      - bearerAuth: []
   /user/login:
     post:
       tags:
-        - user
+      - user
       summary: Logs user into the system
       operationId: loginUser
       requestBody:
         $ref: '#/components/requestBodies/loginUser'
       responses:
-        '200':
+        "200":
           description: successful operation
           content:
             application/json:
               schema:
                 type: string
-        '400':
-          $ref: '#/components/responses/InvalidRequestPayload'
-        '401':
+                x-content-type: application/json
+        "400":
+          description: Invalid request payload
+        "401":
           description: Invalid username/password supplied
   /user/register:
     post:
@@ -1347,9 +1404,9 @@ paths:
         '500':
           $ref: '#/components/responses/500Error'
   /user/logout:
-    post:
+    get:
       tags:
-        - user
+      - user
       summary: Logs out current logged in user session
       operationId: logoutUser
       responses:
@@ -1365,16 +1422,21 @@ components:
           description: The ID.
         createdAt:
           type: string
-          format: date-time
           description: The created date.
+          format: date-time
         updatedAt:
           type: string
-          format: date-time
           description: The updated date.
+          format: date-time
         deletedAt:
           type: string
-          format: date-time
           description: The deleted date.
+          format: date-time
+      example:
+        createdAt: 2000-01-23T04:56:07.000+00:00
+        deletedAt: 2000-01-23T04:56:07.000+00:00
+        id: 0
+        updatedAt: 2000-01-23T04:56:07.000+00:00
     User:
       type: object
       properties:
@@ -1389,6 +1451,15 @@ components:
         password:
           type: string
           description: The user password.
+      example:
+        password: password
+        name: name
+        model:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          id: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        email: email
     Role:
       type: object
       properties:
@@ -1397,6 +1468,13 @@ components:
         name:
           type: string
           description: The role name.
+      example:
+        name: name
+        model:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          id: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
     Domain:
       type: object
       properties:
@@ -1405,6 +1483,13 @@ components:
         name:
           type: string
           description: The domain name.
+      example:
+        name: name
+        model:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          id: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
     Resource:
       type: object
       properties:
@@ -1422,6 +1507,16 @@ components:
         resourceTypeId:
           type: integer
           description: The resourceType id.
+      example:
+        resourceTypeId: 7
+        name: name
+        model:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          id: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
+        logicalComponentId: 5
+        domainId: 2
     ResourceType:
       type: object
       properties:
@@ -1436,6 +1531,15 @@ components:
         productConnectorId:
           type: integer
           description: The productConnector id.
+      example:
+        productConnectorId: 6
+        pivotId: 0
+        name: name
+        model:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          id: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
     EventType:
       type: object
       properties:
@@ -1452,6 +1556,16 @@ components:
         productConnectorId:
           type: integer
           description: The productConnector id.
+      example:
+        schema: schema
+        productConnectorId: 6
+        pivotId: 0
+        name: name
+        model:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          id: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
     EventTypeToPoll:
       type: object
       properties:
@@ -1466,6 +1580,15 @@ components:
         eventTypeId:
           type: integer
           description: The eventType id.
+      example:
+        resourceId: 0
+        eventTypeId: 6
+        name: name
+        model:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          id: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
     Tenant:
       type: object
       properties:
@@ -1477,6 +1600,14 @@ components:
         password:
           type: string
           description: The tenant password.
+      example:
+        password: password
+        name: name
+        model:
+          createdAt: 2000-01-23T04:56:07.000+00:00
+          deletedAt: 2000-01-23T04:56:07.000+00:00
+          id: 0
+          updatedAt: 2000-01-23T04:56:07.000+00:00
     SecretAssignement:
       type: object
       properties:
@@ -1486,6 +1617,9 @@ components:
         addressIP:
           type: string
           description: The secret IP Address.
+      example:
+        secret: secret
+        addressIP: addressIP
     LogicalComponent:
       type: object
       properties:
@@ -1507,17 +1641,49 @@ components:
         keyValues:
           type: array
           items:
-            type: object
-            properties:
-              schema: 
-                $ref: '#/components/schemas/KeyValue'
+            $ref: '#/components/schemas/LogicalComponent_keyValues'
         resources:
           type: array
           items:
-            type: object
-            properties:
-              schema: 
-                $ref: '#/components/schemas/Resource'
+            $ref: '#/components/schemas/inline_response_200_4'
+      example:
+        productConnectorID: 6
+        pivotID: 0
+        aggregator: aggregator
+        logicalName: logicalName
+        resources:
+        - schema:
+            resourceTypeId: 7
+            name: name
+            model:
+              createdAt: 2000-01-23T04:56:07.000+00:00
+              deletedAt: 2000-01-23T04:56:07.000+00:00
+              id: 0
+              updatedAt: 2000-01-23T04:56:07.000+00:00
+            logicalComponentId: 5
+            domainId: 2
+        - schema:
+            resourceTypeId: 7
+            name: name
+            model:
+              createdAt: 2000-01-23T04:56:07.000+00:00
+              deletedAt: 2000-01-23T04:56:07.000+00:00
+              id: 0
+              updatedAt: 2000-01-23T04:56:07.000+00:00
+            logicalComponentId: 5
+            domainId: 2
+        type: type
+        keyValues:
+        - schema:
+            keyID: 1
+            addressIP: addressIP
+            logicalComponentID: 5
+            value: value
+        - schema:
+            keyID: 1
+            addressIP: addressIP
+            logicalComponentID: 5
+            value: value
     KeyValue:
       type: object
       properties:
@@ -1533,55 +1699,213 @@ components:
         logicalComponentID:
           type: integer
           description: The ID of logicalComponent.
-  securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
-      type: http
-      scheme: bearer
-      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+      example:
+        keyID: 1
+        addressIP: addressIP
+        logicalComponentID: 5
+        value: value
+    inline_response_200:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/Role'
+      example:
+        schema:
+          name: name
+          model:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            deletedAt: 2000-01-23T04:56:07.000+00:00
+            id: 0
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+    inline_response_200_1:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/Domain'
+      example:
+        schema:
+          name: name
+          model:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            deletedAt: 2000-01-23T04:56:07.000+00:00
+            id: 0
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+    inline_response_200_2:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/Tenant'
+      example:
+        schema:
+          password: password
+          name: name
+          model:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            deletedAt: 2000-01-23T04:56:07.000+00:00
+            id: 0
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+    inline_response_200_3:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/SecretAssignement'
+      example:
+        schema:
+          secret: secret
+          addressIP: addressIP
+    tenantName_typeName_body:
+      type: object
+      properties:
+        fileName:
+          type: string
+          format: binary
+    inline_response_200_4:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/Resource'
+      example:
+        schema:
+          resourceTypeId: 7
+          name: name
+          model:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            deletedAt: 2000-01-23T04:56:07.000+00:00
+            id: 0
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+          logicalComponentId: 5
+          domainId: 2
+    inline_response_200_5:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/ResourceType'
+      example:
+        schema:
+          productConnectorId: 6
+          pivotId: 0
+          name: name
+          model:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            deletedAt: 2000-01-23T04:56:07.000+00:00
+            id: 0
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+    inline_response_200_6:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/EventTypeToPoll'
+      example:
+        schema:
+          resourceId: 0
+          eventTypeId: 6
+          name: name
+          model:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            deletedAt: 2000-01-23T04:56:07.000+00:00
+            id: 0
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+    inline_response_200_7:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/EventType'
+      example:
+        schema:
+          schema: schema
+          productConnectorId: 6
+          pivotId: 0
+          name: name
+          model:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            deletedAt: 2000-01-23T04:56:07.000+00:00
+            id: 0
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+    inline_response_200_8:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/User'
+      example:
+        schema:
+          password: password
+          name: name
+          model:
+            createdAt: 2000-01-23T04:56:07.000+00:00
+            deletedAt: 2000-01-23T04:56:07.000+00:00
+            id: 0
+            updatedAt: 2000-01-23T04:56:07.000+00:00
+          email: email
+    LogicalComponent_keyValues:
+      type: object
+      properties:
+        schema:
+          $ref: '#/components/schemas/KeyValue'
+      example:
+        schema:
+          keyID: 1
+          addressIP: addressIP
+          logicalComponentID: 5
+          value: value
+  responses:
+    "500Error":
+      description: Database error | Tenant not found
+    "500UploadLogicalComponentError":
+      description: Database error | Tenant not found | Pivot not found | ProductConnector
+        not found
+    "400Error":
+      description: Invalid ID supplied | Invalid request payload
+    InvalidRequestPayload:
+      description: Invalid request payload
+    InvalidIDSupplied:
+      description: Invalid ID supplied
+    UnauthorizedError:
+      description: Access token is missing or invalid
   requestBodies:
     createOrUpdateRole:
-      content:
-        application/json:
-          schema:
-            type: object
-            required:
-              - name
-            properties:
-              name:
-                type: string
       description: The role to create.
+      content:
+        application/json:
+          schema:
+            required:
+            - name
+            type: object
+            properties:
+              name:
+                type: string
     createOrUpdateDomain:
-      content:
-        application/json:
-          schema:
-            type: object
-            required:
-              - name
-            properties:
-              name:
-                type: string
       description: The domain to create.
-    createOrUpdateTenant:
       content:
         application/json:
           schema:
-            type: object
             required:
-              - name
+            - name
+            type: object
             properties:
               name:
                 type: string
+    createOrUpdateTenant:
       description: The tenant to create.
-    createOrUpdateResource:
       content:
         application/json:
           schema:
-            type: object
             required:
-              - name
-              - logicalComponentID
-              - domainID
-              - resourceTypeID
+            - name
+            type: object
+            properties:
+              name:
+                type: string
+    createOrUpdateResource:
+      description: The resource to create.
+      content:
+        application/json:
+          schema:
+            required:
+            - domainID
+            - logicalComponentID
+            - name
+            - resourceTypeID
+            type: object
             properties:
               name:
                 type: string
@@ -1591,16 +1915,16 @@ components:
                 type: integer
               resourceTypeID:
                 type: integer
-      description: The resource to create.
     createOrUpdateResourceType:
+      description: The resourceType to create.
       content:
         application/json:
           schema:
-            type: object
             required:
-              - name
-              - pivotID
-              - productConnectorID
+            - name
+            - pivotID
+            - productConnectorID
+            type: object
             properties:
               name:
                 type: string
@@ -1608,17 +1932,17 @@ components:
                 type: integer
               productConnectorID:
                 type: integer
-      description: The resourceType to create.
     createOrUpdateEventType:
+      description: The eventType to create.
       content:
         application/json:
           schema:
-            type: object
             required:
-              - name
-              - schema
-              - pivotID
-              - productConnectorID
+            - name
+            - pivotID
+            - productConnectorID
+            - schema
+            type: object
             properties:
               name:
                 type: string
@@ -1628,30 +1952,30 @@ components:
                 type: integer
               productConnectorID:
                 type: integer
-      description: The eventType to create.   
     createOrUpdateEventTypeToPoll:
+      description: The eventTypeToPoll to create.
       content:
         application/json:
           schema:
-            type: object
             required:
-              - resourceID
-              - eventTypeID
+            - eventTypeID
+            - resourceID
+            type: object
             properties:
               resourceID:
                 type: integer
               eventTypeID:
                 type: integer
-      description: The eventTypeToPoll to create.
     createOrUpdateUser:
+      description: The user to create.
       content:
         application/json:
           schema:
-            type: object
             required:
-              - name
-              - email
-              - password
+            - email
+            - name
+            - password
+            type: object
             properties:
               name:
                 type: string
@@ -1659,37 +1983,22 @@ components:
                 type: string
               password:
                 type: string
-      description: The user to create.
     loginUser:
+      description: The user to create.
       content:
         application/json:
           schema:
-            type: object
             required:
-              - email
-              - password
+            - email
+            - password
+            type: object
             properties:
               email:
                 type: string
               password:
                 type: string
-      description: The user to create.
-  responses:
-    500Error:
-      description: Database error | Tenant not found
-    500UploadLogicalComponentError:
-      description: Database error | Tenant not found | Pivot not found | ProductConnector not found
-    400Error:
-      description: Invalid ID supplied | Invalid request payload
-    InvalidRequestPayload:
-      description: Invalid request payload
-    InvalidIDSupplied:
-      description: Invalid ID supplied
-    UnauthorizedError:
-      description: Access token is missing or invalid
-externalDocs:
-  description: Find out more about Swagger
-  url: 'http://swagger.io'
-servers:
-  - url: 'https://virtserver.swaggerhub.com/ditrit/Gandalf/1.0.0'
-  - url: 'http://virtserver.swaggerhub.com/ditrit/Gandalf/1.0.0'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
