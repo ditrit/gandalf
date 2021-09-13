@@ -198,6 +198,29 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func RegisterUser(w http.ResponseWriter, r *http.Request) {
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		var user models.User
+		decoder := json.NewDecoder(r.Body)
+		if err := decoder.Decode(&user); err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+			return
+		}
+		defer r.Body.Close()
+
+		if err := dao.CreateUser(database, user); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusCreated, user)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
 func LogoutUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("USER LOGOUT")
 

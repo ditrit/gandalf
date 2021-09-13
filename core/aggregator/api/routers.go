@@ -406,6 +406,13 @@ var routes = Routes{
 	},
 
 	Route{
+		"RegisterUser",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/user/register",
+		RegisterUser,
+	},
+
+	Route{
 		"UpdateUser",
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/user/{userId}",
