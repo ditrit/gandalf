@@ -189,6 +189,41 @@ var routes = Routes{
 	},
 
 	Route{
+		"CreateProduct",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/product",
+		IsAuthorized(CreateProduct),
+	},
+
+	Route{
+		"DeleteProduct",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/product/{productId}",
+		IsAuthorized(DeleteProduct),
+	},
+
+	Route{
+		"GetProductById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/product/{productId}",
+		IsAuthorized(GetProductById),
+	},
+
+	Route{
+		"ListProduct",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/product",
+		IsAuthorized(ListProduct),
+	},
+
+	Route{
+		"UpdateProduct",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/product/{productId}",
+		IsAuthorized(UpdateProduct),
+	},
+
+	Route{
 		"CreateResource",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/resource",
