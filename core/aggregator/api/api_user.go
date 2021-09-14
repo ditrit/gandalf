@@ -158,7 +158,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 			//var resp = map[string]interface{}{"status": false, "message": "Username not found"}
 			//return resp
-			utils.RespondWithError(w, http.StatusNotFound, "Username not found")
+			utils.RespondWithError(w, http.StatusNotFound, "Email not found")
 			return
 		}
 
@@ -171,7 +171,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		expirationTime := time.Now().Add(time.Minute * 5)
+		expirationTime := time.Now().Add(time.Hour * 1)
 
 		claims := &apimodels.Claims{
 			UserID: user.ID,
@@ -201,20 +201,50 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var user models.User
+		var ruser models.User
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&user); err != nil {
+		if err := decoder.Decode(&ruser); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateUser(database, user); err != nil {
+		if err := dao.CreateUser(database, ruser); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, user)
+		user := models.User{}
+		var err error
+		if user, err = dao.ReadUserByEmail(database, ruser.Email); err != nil {
+
+			//var resp = map[string]interface{}{"status": false, "message": "Username not found"}
+			//return resp
+			utils.RespondWithError(w, http.StatusNotFound, "Email not found")
+			return
+		}
+
+		expirationTime := time.Now().Add(time.Hour * 1)
+
+		claims := &apimodels.Claims{
+			UserID: user.ID,
+			Name:   user.Name,
+			Email:  user.Email,
+			StandardClaims: &jwt.StandardClaims{
+				ExpiresAt: expirationTime.Unix(),
+			},
+		}
+
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := token.SignedString(utils.GetJwtKey())
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, tokenString)
+		return
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
