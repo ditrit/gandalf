@@ -67,7 +67,134 @@ tags:
   externalDocs:
     description: Find out more
     url: http://swagger.io
+- name: product
+  description: Operations about Product
+  externalDocs:
+    description: Find out more
+    url: 'http://swagger.io'
 paths:
+  /product:
+    get:
+      tags:
+        - product
+      summary: List products
+      operationId: listProduct
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Product'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - product
+      summary: Create a product
+      operationId: createProduct
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateProduct'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/product/{productId}':
+    get:
+      tags:
+        - product
+      summary: Find role by ID
+      description: Returns a single product
+      operationId: getProductById
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Product not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - product
+      summary: Updates a role
+      operationId: updateProduct
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateProduct'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - product
+      summary: Deletes a Product
+      operationId: deleteProduct
+      parameters:
+        - name: productId
+          in: path
+          description: Poroduct id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
   /role:
     get:
       tags:
@@ -1437,6 +1564,26 @@ components:
         deletedAt: 2000-01-23T04:56:07.000+00:00
         id: 0
         updatedAt: 2000-01-23T04:56:07.000+00:00
+    Product:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The product name.
+        shortdescription:
+          type: string
+          description: The product short description.
+        description:
+          type: string
+          description: The product description.
+        logo:
+          type: string
+          description: The path to the logo.
+        domainId:
+          type: integer
+          description: The domain id.
     User:
       type: object
       properties:
@@ -1862,6 +2009,24 @@ components:
     UnauthorizedError:
       description: Access token is missing or invalid
   requestBodies:
+    createOrUpdateProduct:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+              domainID:
+                type: integer
     createOrUpdateRole:
       description: The role to create.
       content:

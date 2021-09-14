@@ -8,4 +8,6 @@ type Product struct {
 	ShortDescription string
 	Description      string
 	Logo             string
+	DomainID         uint
+	Domain           Domain
 }
