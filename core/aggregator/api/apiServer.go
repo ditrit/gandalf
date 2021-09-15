@@ -36,8 +36,8 @@ func NewServerAPI(bindAddress string) *ServerAPI {
 
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"}, // NOT FOR PRODUCTION !!!!!
-		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodHead, http.MethodOptions},
-		AllowedHeaders: []string{"Authorization"},
+		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
+		AllowedHeaders: []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "Access-Control-Request-Headers", "Access-Control-Request-Method", "Connection", "Host", "Origin", "User-Agent", "Referer", "Cache-Control", "X-header"},
 		Debug:          true,
 	})
 
