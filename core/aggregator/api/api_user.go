@@ -15,7 +15,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/ditrit/gandalf/core/models"
@@ -190,7 +189,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"access_token": tokenString})
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"accessToken": tokenString})
 		return
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
@@ -243,7 +242,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"access_token": tokenString})
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"accessToken": tokenString})
 		return
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
@@ -254,39 +253,6 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 func LogoutUser(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("USER LOGOUT")
 
-	header := utils.ExtractToken(r)
-
-	header = strings.TrimSpace(header)
-
-	claims := &apimodels.Claims{}
-
-	tkn, err := jwt.ParseWithClaims(header, claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return utils.GetJwtKey(), nil
-		})
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if !tkn.Valid {
-		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
-
-	http.SetCookie(w,
-		&http.Cookie{
-			Name:    "gandalf",
-			Value:   "",
-			Expires: time.Now().Add(-time.Hour),
-		})
-
-	utils.RespondWithJSON(w, http.StatusOK, "")
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
