@@ -190,7 +190,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, tokenString)
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"access_token": tokenString})
 		return
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
@@ -243,7 +243,7 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, tokenString)
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"access_token": tokenString})
 		return
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
