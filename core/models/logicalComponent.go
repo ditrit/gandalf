@@ -13,6 +13,8 @@ type LogicalComponent struct {
 	Aggregator         string     `gorm:"check:aggregator IS NOT NULL AND type == 'connector'"`
 	KeyValues          []KeyValue `gorm:"foreignkey:LogicalComponentID"`
 	Resources          []Resource `gorm:"foreignkey:LogicalComponentID"`
+	ShortDescription   string
+	Description        string
 }
 
 func (lc LogicalComponent) GetKeyValueByKey(key string) *KeyValue {

@@ -56,6 +56,41 @@ var routes = Routes{
 	},
 
 	Route{
+		"CreateAuthorization",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/authorization",
+		IsAuthorized(CreateAuthorization),
+	},
+
+	Route{
+		"DeleteAuthorization",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId}",
+		IsAuthorized(DeleteAuthorization),
+	},
+
+	Route{
+		"GetAuthorizationById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId}",
+		IsAuthorized(GetAuthorizationById),
+	},
+
+	Route{
+		"ListAuthorization",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/authorization",
+		IsAuthorized(ListAuthorization),
+	},
+
+	Route{
+		"UpdateAuthorization",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId}",
+		IsAuthorized(UpdateAuthorization),
+	},
+
+	Route{
 		"CreateDomain",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainName}",

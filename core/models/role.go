@@ -7,5 +7,8 @@ import (
 // Role : Role struct.
 type Role struct {
 	gorm.Model
-	Name string `gorm:"unique;not null"`
+	Name             string `gorm:"unique;not null"`
+	ShortDescription string
+	Description      string
+	Logo             string
 }
