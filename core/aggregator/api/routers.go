@@ -392,6 +392,41 @@ var routes = Routes{
 	},
 
 	Route{
+		"CreateTag",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/tag",
+		IsAuthorized(CreateTag),
+	},
+
+	Route{
+		"DeleteTag",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/tag/{tagId}",
+		IsAuthorized(DeleteTag),
+	},
+
+	Route{
+		"GetTagById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/tag/{tagId}",
+		IsAuthorized(GetTagById),
+	},
+
+	Route{
+		"ListTag",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/tag",
+		IsAuthorized(ListTag),
+	},
+
+	Route{
+		"UpdateTag",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/tag/{tagId}",
+		IsAuthorized(UpdateTag),
+	},
+
+	Route{
 		"CreateTenant",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/tenant",
