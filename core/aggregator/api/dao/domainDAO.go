@@ -11,12 +11,12 @@ import (
 )
 
 func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
-	/* 	var root models.Domain
-	   	err = database.Where("name = ?", "root").First(&root).Error
-	   	if err == nil {
-	   		domains, err = models.GetDomainDescendants(database, root.ID)
-	   	} */
-	err = database.Find(&domains).Error
+	var root models.Domain
+	err = database.Where("name = ?", "root").First(&root).Error
+	if err == nil {
+		domains, err = models.GetDomainDescendants(database, root.ID)
+	}
+	//err = database.Find(&domains).Error
 
 	return
 }

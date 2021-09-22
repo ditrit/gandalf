@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 
@@ -31,6 +32,14 @@ func CreateTag(database *gorm.DB, tag models.Tag) (err error) {
 func ReadTag(database *gorm.DB, id int) (tag models.Tag, err error) {
 	err = database.First(&tag, id).Error
 
+	return
+}
+
+func ReadTagByName(database *gorm.DB, name string) (tag models.Tag, err error) {
+	fmt.Println("DAO")
+	err = database.Where("name = ?", name).First(&tag).Error
+	fmt.Println(err)
+	fmt.Println(tag)
 	return
 }
 

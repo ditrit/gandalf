@@ -98,6 +98,26 @@ func GetTagById(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetTagByName(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	name := vars["tagName"]
+
+	var tag models.Tag
+	var err error
+	if tag, err = dao.ReadTagByName(utils.DatabaseConnection.GetTenantDatabaseClient(), name); err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+		default:
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+		}
+		return
+	}
+
+	utils.RespondWithJSON(w, http.StatusOK, tag)
+}
+
 func ListTag(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
