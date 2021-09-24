@@ -93,7 +93,7 @@ var routes = Routes{
 	Route{
 		"CreateDomain",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainName}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId}",
 		IsAuthorized(CreateDomain),
 	},
 
@@ -394,7 +394,7 @@ var routes = Routes{
 	Route{
 		"CreateTag",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/tag",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId}",
 		IsAuthorized(CreateTag),
 	},
 

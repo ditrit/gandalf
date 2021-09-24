@@ -28,7 +28,12 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		parentDomainName := vars["domainName"]
+		parentDomainId, err := strconv.Atoi(vars["domainId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
 		var domain models.Domain
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&domain); err != nil {
@@ -37,7 +42,7 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateDomain(database, domain, parentDomainName); err != nil {
+		if err := dao.CreateDomain(database, domain, uint(parentDomainId)); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -131,7 +136,6 @@ func GetDomainByName(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListDomain(w http.ResponseWriter, r *http.Request) {
-
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		domains, err := dao.ListDomain(database)

@@ -11,16 +11,31 @@ import (
 )
 
 func ListTag(database *gorm.DB) (tags []models.Tag, err error) {
-	err = database.Find(&tags).Error
+	var root models.Tag
+	err = database.Where("name = ?", "root").First(&root).Error
+	if err == nil {
+		//tags, err = models.GetTagAncestors(database, root.ID)
+		tags, err = models.GetTagDescendants(database, root.ID)
+		//tags, err = models.GetTagTree(database, root.ID)
+	}
+	//err = database.Find(&tags).Error
 
 	return
 }
 
-func CreateTag(database *gorm.DB, tag models.Tag) (err error) {
+func CreateTag(database *gorm.DB, tag models.Tag, parentTagID uint) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
-			err = database.Create(&tag).Error
+			// if parentTagName == "root" {
+			// 	err = models.InsertTagRoot(database, tag)
+			// } else {
+			// var parentTag models.Tag
+			// err = database.Where("name = ?", parentTagName).First(&parentTag).Error
+			// if err == nil {
+			err = models.InsertTagNewChild(database, tag, parentTagID)
+			//}
+			//}
 		} else {
 			err = errors.New("Invalid state")
 		}
@@ -54,7 +69,10 @@ func DeleteTag(database *gorm.DB, id int) (err error) {
 	if err == nil {
 		if admin {
 			var tag models.Tag
-			err = database.Unscoped().Delete(&tag, id).Error
+			err = database.First(&tag, id).Error
+			if err == nil {
+				err = models.DeleteTagChild(database, tag)
+			}
 		} else {
 			err = errors.New("Invalid state")
 		}

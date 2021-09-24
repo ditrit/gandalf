@@ -23,9 +23,14 @@ import (
 )
 
 func CreateTag(w http.ResponseWriter, r *http.Request) {
-
+	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
+		parentTagId, err := strconv.Atoi(vars["tagId"])
+		if err != nil {
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
 		var tag models.Tag
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&tag); err != nil {
@@ -34,7 +39,7 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateTag(database, tag); err != nil {
+		if err := dao.CreateTag(database, tag, uint(parentTagId)); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}

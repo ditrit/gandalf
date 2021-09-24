@@ -14,8 +14,8 @@ func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
 	var root models.Domain
 	err = database.Where("name = ?", "root").First(&root).Error
 	if err == nil {
-		domains, err = models.GetDomainAncestors(database, root.ID)
-		//domains, err = models.GetDomainDescendants(database, root.ID)
+		//domains, err = models.GetDomainAncestors(database, root.ID)
+		domains, err = models.GetDomainDescendants(database, root.ID)
 		//domains, err = models.GetDomainTree(database, root.ID)
 	}
 	//err = database.Find(&domains).Error
@@ -23,19 +23,19 @@ func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
 	return
 }
 
-func CreateDomain(database *gorm.DB, domain models.Domain, parentDomainName string) (err error) {
+func CreateDomain(database *gorm.DB, domain models.Domain, parentDomainID uint) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			// if parentDomainName == "root" {
 			// 	err = models.InsertDomainRoot(database, domain)
 			// } else {
-			var parentDomain models.Domain
-			err = database.Where("name = ?", parentDomainName).First(&parentDomain).Error
-			if err == nil {
-				err = models.InsertDomainNewChild(database, domain, parentDomain.ID)
-				//}
-			}
+			// var parentDomain models.Domain
+			// err = database.Where("name = ?", parentDomainName).First(&parentDomain).Error
+			// if err == nil {
+			err = models.InsertDomainNewChild(database, domain, parentDomainID)
+			//}
+			//}
 		} else {
 			err = errors.New("Invalid state")
 		}

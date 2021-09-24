@@ -8,10 +8,30 @@ import (
 
 type Domain struct {
 	gorm.Model
-	Name             string `gorm:"not null"`
-	ShortDescription string
-	Description      string
-	Logo             string
+	Name string `gorm:"not null"`
+	//ShortDescription string
+	//Description      string
+	//Logo             string
+}
+
+func GetDomainTree(database *gorm.DB, id uint) (domains []Domain, err error) {
+	var toto []DomainClosure
+	database.Find(&toto)
+	for _, titi := range toto {
+		fmt.Println(titi)
+	}
+	//err = database.Order("depth asc").Joins("JOIN domain_closures ON domains.id = domain_closures.descendant_id").Where("domain_closures.ancestor_id = ?", id).Find(&domains).Error
+	//rows, err := database.Table("domains").Select("domains.id, domains.name, domain_closures.ancestor_id , domain_closures.descendant_id , domain_closures.depth").Joins("JOIN domain_closures ON domains.id = domain_closures.descendant_id").Where("domain_closures.ancestor_id = ?", id).Order("depth asc").Rows()
+	rows, err := database.Raw("SELECT d.id, d.name, domain_closures.descendant_id, domain_closures.ancestor_id, domain_closures.depth FROM domain_closures JOIN domains as d ON (domain_closures.descendant_id = d.id) JOIN domains as t ON (domain_closures.ancestor_id = t.id) ORDER BY domain_closures.depth;").Rows()
+	fmt.Println("err")
+	fmt.Println(err)
+	fmt.Println("rows")
+	fmt.Println(rows)
+	for rows.Next() {
+		fmt.Println(rows)
+	}
+	return
+
 }
 
 func GetDomainDescendants(database *gorm.DB, id uint) (domains []Domain, err error) {
