@@ -15,10 +15,10 @@ func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
 	err = database.Where("name = ?", "root").First(&root).Error
 	if err == nil {
 		//domains, err = models.GetDomainAncestors(database, root.ID)
-		domains, err = models.GetDomainDescendants(database, root.ID)
+		//domains, err = models.GetDomainDescendants(database, root.ID)
 		//domains, err = models.GetDomainTree(database, root.ID)
 	}
-	//err = database.Find(&domains).Error
+	err = database.Unscoped().Find(&domains).Error
 
 	return
 }

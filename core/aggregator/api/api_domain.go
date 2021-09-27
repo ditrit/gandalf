@@ -41,7 +41,6 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-
 		if err := dao.CreateDomain(database, domain, uint(parentDomainId)); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
