@@ -78,7 +78,7 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 	err = gandalfDatabaseClient.Create(&state).Error
 
 	//Init Root Domain
-	domain := models.Domain{Name: "root"}
+	domain := models.Domain{Name: "root", ShortDescription: "root", Description: "Domain root"}
 	models.InsertDomainRoot(gandalfDatabaseClient, domain)
 
 	//Init Root Domain
@@ -155,7 +155,7 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 	err = tenantDatabaseClient.Create(&state).Error
 
 	//Init Root Domain
-	domain := models.Domain{Name: "root"}
+	domain := models.Domain{Name: "root", ShortDescription: "root", Description: "Domain root"}
 	models.InsertDomainRoot(tenantDatabaseClient, domain)
 
 	//Init Root Domain
