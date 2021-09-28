@@ -10,12 +10,12 @@ import (
 // User : user struct
 type User struct {
 	gorm.Model
-	Name       string `gorm:"unique;not null"`
-	Email      string `gorm:"unique;not null"`
-	Password   string
-	FirstName  string
-	SecondName string
-	CompanyId  string
+	Name      string `gorm:"unique;not null"`
+	Email     string `gorm:"unique;not null"`
+	Password  string
+	FirstName string
+	LastName  string
+	CompanyId string
 }
 
 // NewUser : create new user
@@ -25,7 +25,7 @@ func NewUser(name, email, firstname, secondname, companyid, password string) Use
 	user.Email = email
 	user.Password = HashAndSaltPassword(password)
 	user.FirstName = firstname
-	user.SecondName = secondname
+	user.LastName = secondname
 	user.CompanyId = companyid
 
 	return *user

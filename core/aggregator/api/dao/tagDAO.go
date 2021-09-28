@@ -15,11 +15,11 @@ func ListTag(database *gorm.DB) (tags []models.Tag, err error) {
 	err = database.Where("name = ?", "root").First(&root).Error
 	if err == nil {
 		//tags, err = models.GetTagAncestors(database, root.ID)
-		tags, err = models.GetTagDescendants(database, root.ID)
+		//tags, err = models.GetTagDescendants(database, root.ID)
 		//tags, err = models.GetTagTree(database, root.ID)
 	}
-	//err = database.Find(&tags).Error
-
+	err = database.Preload("Parent").Find(&tags).Error
+	fmt.Println(err)
 	return
 }
 
@@ -33,7 +33,8 @@ func CreateTag(database *gorm.DB, tag models.Tag, parentTagID uint) (err error) 
 			// var parentTag models.Tag
 			// err = database.Where("name = ?", parentTagName).First(&parentTag).Error
 			// if err == nil {
-			err = models.InsertTagNewChild(database, tag, parentTagID)
+			tag.ParentID = &parentTagID
+			err = database.Save(&tag).Error
 			//}
 			//}
 		} else {
@@ -71,7 +72,7 @@ func DeleteTag(database *gorm.DB, id int) (err error) {
 			var tag models.Tag
 			err = database.First(&tag, id).Error
 			if err == nil {
-				err = models.DeleteTagChild(database, tag)
+				err = database.Unscoped().Delete(&tag).Error
 			}
 		} else {
 			err = errors.New("Invalid state")

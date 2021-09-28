@@ -68,10 +68,10 @@ func (dc DatabaseConnection) newDatabaseClient(name, password string) (gandalfDa
 // InitGandalfDatabase : Gandalf database init.
 func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login []string, password []string, err error) {
 	gandalfDatabaseClient.AutoMigrate(&models.State{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
-		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{},
+		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{},
 		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{}, &models.Heartbeat{},
-		&models.Product{}, &models.Tag{}, &models.TagClosure{})
+		&models.Product{}, &models.Tag{})
 
 	//Init State
 	state := models.State{Admin: true}
@@ -79,11 +79,13 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 
 	//Init Root Domain
 	domain := models.Domain{Name: "root", ShortDescription: "root", Description: "Domain root"}
-	models.InsertDomainRoot(gandalfDatabaseClient, domain)
+	//models.InsertDomainRoot(gandalfDatabaseClient, domain)
+	gandalfDatabaseClient.Save(&domain)
 
 	//Init Root Domain
 	tag := models.Tag{Name: "root"}
-	models.InsertTagRoot(gandalfDatabaseClient, tag)
+	//models.InsertTagRoot(gandalfDatabaseClient, tag)
+	gandalfDatabaseClient.Save(&tag)
 
 	//Init Administartor Role
 	err = gandalfDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error
@@ -145,10 +147,10 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 // InitTenantDatabase : Tenant database init.
 func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login []string, password []string, err error) {
 	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
-		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{},
+		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{},
 		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{},
-		&models.Heartbeat{}, &models.Product{}, &models.Tag{}, &models.TagClosure{})
+		&models.Heartbeat{}, &models.Product{}, &models.Tag{})
 
 	//Init State
 	state := models.State{Admin: true}
@@ -156,11 +158,13 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 
 	//Init Root Domain
 	domain := models.Domain{Name: "root", ShortDescription: "root", Description: "Domain root"}
-	models.InsertDomainRoot(tenantDatabaseClient, domain)
+	//models.InsertDomainRoot(tenantDatabaseClient, domain)
+	tenantDatabaseClient.Save(&domain)
 
 	//Init Root Domain
 	tag := models.Tag{Name: "root"}
-	models.InsertTagRoot(tenantDatabaseClient, tag)
+	//models.InsertTagRoot(tenantDatabaseClient, tag)
+	tenantDatabaseClient.Save(&tag)
 
 	//Init Administartor Role
 	err = tenantDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error

@@ -8,12 +8,23 @@ import (
 
 type Domain struct {
 	gorm.Model
-	ParentID         uint    `gorm:"constraint:OnDelete:CASCADE;"`
+	ParentID         *uint
 	Parent           *Domain `gorm:"constraint:OnDelete:CASCADE;"`
 	Name             string  `gorm:"not null"`
 	ShortDescription string
 	Description      string
 	Logo             string
+}
+
+func (d *Domain) BeforeDelete(tx *gorm.DB) (err error) {
+	var childs []Domain
+	tx.Where("parent_id = ?", d.ID).Find(&childs)
+	fmt.Println(childs)
+	for _, child := range childs {
+		tx.Unscoped().Delete(&child)
+	}
+
+	return
 }
 
 func GetDomainTree(database *gorm.DB, id uint) (domains []Domain, err error) {
@@ -66,71 +77,4 @@ func GetDomainTree(database *gorm.DB, id uint) (domains []Domain, err error) {
 
 	return
 
-}
-
-func GetDomainDescendants(database *gorm.DB, id uint) (domains []Domain, err error) {
-	err = database.Order("depth asc").Joins("JOIN domain_closures ON domains.id = domain_closures.descendant_id").Where("domain_closures.ancestor_id = ?", id).Find(&domains).Error
-
-	return
-
-}
-
-func GetDomainAncestors(database *gorm.DB, id uint) (domains []Domain, err error) {
-	err = database.Order("depth desc").Joins("JOIN domain_closures ON domains.id = domain_closures.ancestor_id").Where("domain_closures.descendant_id = ?", id).Find(&domains).Error
-
-	return
-}
-
-func InsertDomainRoot(database *gorm.DB, domain Domain) (err error) {
-	err = database.Save(&domain).Error
-
-	return
-}
-
-func InsertDomainNewChild(database *gorm.DB, domain Domain, id uint) (err error) {
-	domain.ParentID = id
-	err = database.Save(&domain).Error
-
-	return
-}
-
-func DeleteDomainChild(database *gorm.DB, domain Domain) (err error) {
-	err = database.Unscoped().Delete(&Domain{}, int(domain.ID)).Error
-	return
-}
-
-func DeleteDomainSubtree(database *gorm.DB, id uint) (err error) {
-
-	err = database.Transaction(func(tx *gorm.DB) error {
-
-		if err := tx.Exec("DELETE FROM domains WHERE domains.id IN (SELECT descendant_id FROM domain_closures WHERE ancestor_id = ?);", id).Error; err != nil {
-			// return any error will rollback
-			return err
-		}
-		if err := tx.Exec("DELETE FROM domain_closures WHERE descendant_id IN (SELECT descendant_id FROM domain_closures WHERE ancestor_id = ?);", id).Error; err != nil {
-			// return any error will rollback
-			return err
-		}
-		return nil
-	})
-
-	return
-}
-
-func UpdateDomainChild(database *gorm.DB, domain Domain, newAncestor uint) (err error) {
-
-	err = database.Transaction(func(tx *gorm.DB) error {
-
-		if err := tx.Exec("DELETE FROM domain_closures WHERE descendant_id IN (SELECT descendant_id FROM domain_closures WHERE ancestor_id = ?) AND ancestor_id IN (SELECT ancestor_id FROM domain_closures WHERE descendant_id = ? AND ancestor_id != descendant_id);", domain.ID, domain.ID).Error; err != nil {
-			// return any error will rollback
-			return err
-		}
-		if err := tx.Exec("INSERT INTO domain_closures (ancestor_id, descendant_id, depth) SELECT supertree.ancestor_id, subtree.descendant_id,  supertree.depth + subtree.depth + 1 AS depth FROM domain_closures AS supertree CROSS JOIN domain_closures AS subtree WHERE supertree.descendant_id = ? AND subtree.ancestor_id = ?;", newAncestor, domain.ID).Error; err != nil {
-			// return any error will rollback
-			return err
-		}
-		return nil
-	})
-
-	return
 }

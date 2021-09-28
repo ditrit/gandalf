@@ -18,8 +18,8 @@ func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
 		//domains, err = models.GetDomainDescendants(database, root.ID)
 		//domains, err = models.GetDomainTree(database, root.ID)
 	}
-	err = database.Unscoped().Find(&domains).Error
-
+	err = database.Preload("Parent").Find(&domains).Error
+	fmt.Println(err)
 	return
 }
 
@@ -33,7 +33,8 @@ func CreateDomain(database *gorm.DB, domain models.Domain, parentDomainID uint) 
 			// var parentDomain models.Domain
 			// err = database.Where("name = ?", parentDomainName).First(&parentDomain).Error
 			// if err == nil {
-			err = models.InsertDomainNewChild(database, domain, parentDomainID)
+			domain.ParentID = &parentDomainID
+			err = database.Save(&domain).Error
 			//}
 			//}
 		} else {
@@ -71,7 +72,7 @@ func DeleteDomain(database *gorm.DB, id int) (err error) {
 			var domain models.Domain
 			err = database.First(&domain, id).Error
 			if err == nil {
-				err = models.DeleteDomainChild(database, domain)
+				err = database.Unscoped().Delete(&domain).Error
 			}
 		} else {
 			err = errors.New("Invalid state")
