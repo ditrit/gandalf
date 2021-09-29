@@ -100,22 +100,15 @@ var routes = Routes{
 	Route{
 		"DeleteDomain",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
 		IsAuthorized(DeleteDomain),
 	},
 
 	Route{
 		"GetDomainById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
 		IsAuthorized(GetDomainById),
-	},
-
-	Route{
-		"GetDomainByName",
-		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainName}",
-		IsAuthorized(GetDomainByName),
 	},
 
 	Route{
@@ -126,9 +119,16 @@ var routes = Routes{
 	},
 
 	Route{
+		"TreeDomain",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/domain/tree",
+		IsAuthorized(GetDomainTree),
+	},
+
+	Route{
 		"UpdateDomain",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
 		IsAuthorized(UpdateDomain),
 	},
 
@@ -394,21 +394,21 @@ var routes = Routes{
 	Route{
 		"CreateTag",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/tag/{tagId}",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId:[0-9]+}",
 		IsAuthorized(CreateTag),
 	},
 
 	Route{
 		"DeleteTag",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/tag/{tagId}",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId:[0-9]+}",
 		IsAuthorized(DeleteTag),
 	},
 
 	Route{
 		"GetTagById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/tag/{tagId}",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId:[0-9]+}",
 		IsAuthorized(GetTagById),
 	},
 
@@ -422,8 +422,15 @@ var routes = Routes{
 	Route{
 		"UpdateTag",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/tag/{tagId}",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId:[0-9]+}",
 		IsAuthorized(UpdateTag),
+	},
+
+	Route{
+		"TreeTag",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/tag/tree",
+		IsAuthorized(GetTagTree),
 	},
 
 	Route{

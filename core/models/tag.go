@@ -9,7 +9,7 @@ import (
 type Tag struct {
 	gorm.Model
 	Name     string `gorm:"not null"`
-	ParentID *uint
+	ParentID uint
 	Parent   *Tag `gorm:"constraint:OnDelete:CASCADE;"`
 }
 

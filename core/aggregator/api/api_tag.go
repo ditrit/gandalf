@@ -74,6 +74,22 @@ func DeleteTag(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetTagTree(w http.ResponseWriter, r *http.Request) {
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		tags, err := dao.TreeTag(database)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, tags)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
 func GetTagById(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)

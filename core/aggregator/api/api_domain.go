@@ -85,6 +85,22 @@ func DeleteDomain(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetDomainTree(w http.ResponseWriter, r *http.Request) {
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		domains, err := dao.TreeDomain(database)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, domains)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
 func GetDomainById(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)

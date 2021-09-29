@@ -33,7 +33,7 @@ func CreateTag(database *gorm.DB, tag models.Tag, parentTagID uint) (err error) 
 			// var parentTag models.Tag
 			// err = database.Where("name = ?", parentTagName).First(&parentTag).Error
 			// if err == nil {
-			tag.ParentID = &parentTagID
+			tag.ParentID = parentTagID
 			err = database.Save(&tag).Error
 			//}
 			//}
@@ -43,6 +43,31 @@ func CreateTag(database *gorm.DB, tag models.Tag, parentTagID uint) (err error) 
 	}
 
 	return
+}
+
+func TreeTag(database *gorm.DB) (result *models.TagTree, err error) {
+	var results []models.Tag
+	database.Raw("select * from tags order by parent_id").Scan(&results)
+
+	tagTree := new(models.TagTree)
+	tagTree.Tag = results[0]
+	TreeRecursiveTag(tagTree, results)
+
+	result = tagTree
+	return
+}
+
+func TreeRecursiveTag(tagtree *models.TagTree, results []models.Tag) {
+	for _, result := range results {
+		if result.ParentID == tagtree.Tag.ID {
+			currentTagTree := new(models.TagTree)
+			currentTagTree.Tag = result
+			tagtree.Childs = append(tagtree.Childs, currentTagTree)
+		}
+	}
+	for _, child := range tagtree.Childs {
+		TreeRecursiveTag(child, results)
+	}
 }
 
 func ReadTag(database *gorm.DB, id int) (tag models.Tag, err error) {

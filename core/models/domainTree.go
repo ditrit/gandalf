@@ -1,6 +1,6 @@
 package models
 
 type DomainTree struct {
-	Name   string
+	Domain Domain
 	Childs []*DomainTree
 }
