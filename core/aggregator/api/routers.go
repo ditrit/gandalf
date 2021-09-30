@@ -65,14 +65,14 @@ var routes = Routes{
 	Route{
 		"DeleteAuthorization",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId}",
+		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId:[0-9]+}",
 		IsAuthorized(DeleteAuthorization),
 	},
 
 	Route{
 		"GetAuthorizationById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId}",
+		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId:[0-9]+}",
 		IsAuthorized(GetAuthorizationById),
 	},
 
@@ -93,7 +93,7 @@ var routes = Routes{
 	Route{
 		"CreateDomain",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
 		IsAuthorized(CreateDomain),
 	},
 
@@ -142,14 +142,14 @@ var routes = Routes{
 	Route{
 		"DeleteEventType",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId}",
+		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[0-9]+}",
 		IsAuthorized(DeleteEventType),
 	},
 
 	Route{
 		"GetEventTypeById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId}",
+		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[0-9]+}",
 		IsAuthorized(GetEventTypeById),
 	},
 
@@ -170,7 +170,7 @@ var routes = Routes{
 	Route{
 		"UpdateEventType",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId}",
+		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[0-9]+}",
 		IsAuthorized(UpdateEventType),
 	},
 
@@ -184,14 +184,14 @@ var routes = Routes{
 	Route{
 		"DeleteEventTypeToPoll",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId}",
+		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[0-9]+}",
 		IsAuthorized(DeleteEventTypeToPoll),
 	},
 
 	Route{
 		"GetEventTypeToPollById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId}",
+		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[0-9]+}",
 		IsAuthorized(GetEventTypeToPollById),
 	},
 
@@ -205,7 +205,7 @@ var routes = Routes{
 	Route{
 		"UpdateEventTypeToPoll",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId}",
+		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[0-9]+}",
 		IsAuthorized(UpdateEventTypeToPoll),
 	},
 
@@ -233,14 +233,14 @@ var routes = Routes{
 	Route{
 		"DeleteLibrary",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId}",
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
 		IsAuthorized(DeleteLibrary),
 	},
 
 	Route{
 		"GetLibraryById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId}",
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
 		IsAuthorized(GetLibraryById),
 	},
 
@@ -254,7 +254,7 @@ var routes = Routes{
 	Route{
 		"UpdateLibrary",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId}",
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
 		IsAuthorized(UpdateLibrary),
 	},
 
@@ -268,14 +268,14 @@ var routes = Routes{
 	Route{
 		"DeleteProduct",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/product/{productId}",
+		"/ditrit/Gandalf/1.0.0/product/{productId:[0-9]+}",
 		IsAuthorized(DeleteProduct),
 	},
 
 	Route{
 		"GetProductById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/product/{productId}",
+		"/ditrit/Gandalf/1.0.0/product/{productId:[0-9]+}",
 		IsAuthorized(GetProductById),
 	},
 
@@ -289,7 +289,7 @@ var routes = Routes{
 	Route{
 		"UpdateProduct",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/product/{productId}",
+		"/ditrit/Gandalf/1.0.0/product/{productId:[0-9]+",
 		IsAuthorized(UpdateProduct),
 	},
 
@@ -303,14 +303,14 @@ var routes = Routes{
 	Route{
 		"DeleteResource",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/resource/{resourceId}",
+		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[0-9]+}",
 		IsAuthorized(DeleteResource),
 	},
 
 	Route{
 		"GetResourceById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/resource/{resourceId}",
+		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[0-9]+}",
 		IsAuthorized(GetResourceById),
 	},
 
@@ -331,7 +331,7 @@ var routes = Routes{
 	Route{
 		"UpdateResource",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/resource/{resourceId}",
+		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[0-9]+}",
 		IsAuthorized(UpdateResource),
 	},
 
@@ -345,14 +345,14 @@ var routes = Routes{
 	Route{
 		"DeleteResourceType",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId}",
+		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[0-9]+}",
 		IsAuthorized(DeleteResourceType),
 	},
 
 	Route{
 		"GetResourceTypeById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId}",
+		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[0-9]+}",
 		IsAuthorized(GetResourceTypeById),
 	},
 
@@ -373,7 +373,7 @@ var routes = Routes{
 	Route{
 		"UpdateResourceType",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId}",
+		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[0-9]+}",
 		IsAuthorized(UpdateResourceType),
 	},
 
@@ -387,14 +387,14 @@ var routes = Routes{
 	Route{
 		"DeleteRole",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/role/{roleId}",
+		"/ditrit/Gandalf/1.0.0/role/{roleId:[0-9]+}",
 		IsAuthorized(DeleteRole),
 	},
 
 	Route{
 		"GetRoleById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/role/{roleId}",
+		"/ditrit/Gandalf/1.0.0/role/{roleId:[0-9]+}",
 		IsAuthorized(GetRoleById),
 	},
 
@@ -408,7 +408,7 @@ var routes = Routes{
 	Route{
 		"UpdateRole",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/role/{roleId}",
+		"/ditrit/Gandalf/1.0.0/role/{roleId:[0-9]+}",
 		IsAuthorized(UpdateRole),
 	},
 
@@ -478,14 +478,14 @@ var routes = Routes{
 	Route{
 		"DeleteTenant",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/tenant/{tenantId}",
+		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[0-9]+}",
 		IsAuthorized(DeleteTenant),
 	},
 
 	Route{
 		"GetTenantById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/tenant/{tenantId}",
+		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[0-9]+}",
 		IsAuthorized(GetTenantById),
 	},
 
@@ -499,7 +499,7 @@ var routes = Routes{
 	Route{
 		"UpdateTenant",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/tenant/{tenantId}",
+		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[0-9]+}",
 		IsAuthorized(UpdateTenant),
 	},
 
@@ -513,14 +513,14 @@ var routes = Routes{
 	Route{
 		"DeleteUser",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/user/{userId}",
+		"/ditrit/Gandalf/1.0.0/user/{userId:[0-9]+}",
 		IsAuthorized(DeleteUser),
 	},
 
 	Route{
 		"GetUserById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/user/{userId}",
+		"/ditrit/Gandalf/1.0.0/user/{userId:[0-9]+}",
 		IsAuthorized(GetUserById),
 	},
 
@@ -562,7 +562,7 @@ var routes = Routes{
 	Route{
 		"UpdateUser",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/user/{userId}",
+		"/ditrit/Gandalf/1.0.0/user/{userId:[0-9]+}",
 		IsAuthorized(UpdateUser),
 	},
 }
