@@ -224,6 +224,41 @@ var routes = Routes{
 	},
 
 	Route{
+		"CreateLibrary",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/library",
+		IsAuthorized(CreateLibrary),
+	},
+
+	Route{
+		"DeleteLibrary",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/library/{libraryId}",
+		IsAuthorized(DeleteLibrary),
+	},
+
+	Route{
+		"GetLibraryById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/library/{libraryId}",
+		IsAuthorized(GetLibraryById),
+	},
+
+	Route{
+		"ListProduct",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/library",
+		IsAuthorized(ListLibrary),
+	},
+
+	Route{
+		"UpdateLibrary",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/library/{libraryId}",
+		IsAuthorized(UpdateLibrary),
+	},
+
+	Route{
 		"CreateProduct",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/product",
