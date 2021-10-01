@@ -2,7 +2,7 @@ package models
 
 import "github.com/jinzhu/gorm"
 
-type Library struct {
+type DomainLibrary struct {
 	gorm.Model
 	Name             string `gorm:"not null"`
 	ShortDescription string

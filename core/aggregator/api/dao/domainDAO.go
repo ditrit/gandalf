@@ -11,14 +11,7 @@ import (
 )
 
 func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
-	var root models.Domain
-	err = database.Where("name = ?", "root").First(&root).Error
-	if err == nil {
-		//domains, err = models.GetDomainAncestors(database, root.ID)
-		//domains, err = models.GetDomainDescendants(database, root.ID)
-		//domains, err = models.GetDomainTree(database, root.ID)
-	}
-	err = database.Preload("Parent").Find(&domains).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Library").Find(&domains).Error
 	fmt.Println(err)
 	return
 }
@@ -71,14 +64,14 @@ func TreeRecursiveDomain(domaintree *models.DomainTree, results []models.Domain)
 }
 
 func ReadDomain(database *gorm.DB, id int) (domain models.Domain, err error) {
-	err = database.First(&domain, id).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Library").First(&domain, id).Error
 
 	return
 }
 
 func ReadDomainByName(database *gorm.DB, name string) (domain models.Domain, err error) {
 	fmt.Println("DAO")
-	err = database.Where("name = ?", name).First(&domain).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Library").Where("name = ?", name).First(&domain).Error
 	fmt.Println(err)
 	fmt.Println(domain)
 	return

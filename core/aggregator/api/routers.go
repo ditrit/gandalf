@@ -224,38 +224,73 @@ var routes = Routes{
 	},
 
 	Route{
-		"CreateLibrary",
+		"CreateDomainLibrary",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/library",
-		IsAuthorized(CreateLibrary),
+		"/ditrit/Gandalf/1.0.0/domainlibrary",
+		IsAuthorized(CreateDomainLibrary),
 	},
 
 	Route{
-		"DeleteLibrary",
+		"DeleteDomainLibrary",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
-		IsAuthorized(DeleteLibrary),
+		"/ditrit/Gandalf/1.0.0/domainlibrary/{libraryId:[0-9]+}",
+		IsAuthorized(DeleteDomainLibrary),
 	},
 
 	Route{
-		"GetLibraryById",
+		"GetDomainLibraryById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
-		IsAuthorized(GetLibraryById),
+		"/ditrit/Gandalf/1.0.0/domainlibrary/{libraryId:[0-9]+}",
+		IsAuthorized(GetDomainLibraryById),
 	},
 
 	Route{
-		"ListProduct",
+		"ListDomainLibrary",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/library",
-		IsAuthorized(ListLibrary),
+		"/ditrit/Gandalf/1.0.0/domainlibrary",
+		IsAuthorized(ListDomainLibrary),
 	},
 
 	Route{
-		"UpdateLibrary",
+		"UpdateDomainLibrary",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
-		IsAuthorized(UpdateLibrary),
+		"/ditrit/Gandalf/1.0.0/domainlibrary/{libraryId:[0-9]+}",
+		IsAuthorized(UpdateDomainLibrary),
+	},
+
+	Route{
+		"CreateDomainProduct",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/domainproduct",
+		IsAuthorized(CreateDomainProduct),
+	},
+
+	Route{
+		"DeleteDomainProduct",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/domainproduct/{libraryId:[0-9]+}",
+		IsAuthorized(DeleteDomainProduct),
+	},
+
+	Route{
+		"GetDomainProductById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/domainproduct/{libraryId:[0-9]+}",
+		IsAuthorized(GetDomainProductById),
+	},
+
+	Route{
+		"ListDomainProduct",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/domainproduct",
+		IsAuthorized(ListDomainProduct),
+	},
+
+	Route{
+		"UpdateDomainProduct",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/domainproduct/{libraryId:[0-9]+}",
+		IsAuthorized(UpdateDomainProduct),
 	},
 
 	Route{

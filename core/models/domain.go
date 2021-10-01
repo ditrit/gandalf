@@ -11,6 +11,8 @@ type Domain struct {
 	ParentID         uint
 	Parent           *Domain `gorm:"constraint:OnDelete:CASCADE;"`
 	Name             string  `gorm:"not null"`
+	Products         []DomainProduct
+	Libraries        []DomainLibrary
 	ShortDescription string
 	Description      string
 	Logo             string

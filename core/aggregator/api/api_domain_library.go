@@ -22,42 +22,42 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func CreateLibrary(w http.ResponseWriter, r *http.Request) {
+func CreateDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var library models.Library
+		var domainLibrary models.DomainLibrary
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&library); err != nil {
+		if err := decoder.Decode(&domainLibrary); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateLibrary(database, library); err != nil {
+		if err := dao.CreateDomainLibrary(database, domainLibrary); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, library)
+		utils.RespondWithJSON(w, http.StatusCreated, domainLibrary)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
 }
 
-func DeleteLibrary(w http.ResponseWriter, r *http.Request) {
+func DeleteDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["libraryId"])
+		id, err := strconv.Atoi(vars["domainLibraryId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Library ID")
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid DomainLibrary ID")
 			return
 		}
 
-		if err := dao.DeleteLibrary(database, id); err != nil {
+		if err := dao.DeleteDomainLibrary(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -69,19 +69,19 @@ func DeleteLibrary(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetLibraryById(w http.ResponseWriter, r *http.Request) {
+func GetDomainLibraryById(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["libraryId"])
+		id, err := strconv.Atoi(vars["domainLibraryId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
 		}
 
-		var library models.Library
-		if library, err = dao.ReadLibrary(database, id); err != nil {
+		var domainLibrary models.DomainLibrary
+		if domainLibrary, err = dao.ReadDomainLibrary(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
 				utils.RespondWithError(w, http.StatusNotFound, "User not found")
@@ -91,56 +91,56 @@ func GetLibraryById(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, library)
+		utils.RespondWithJSON(w, http.StatusOK, domainLibrary)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
 }
 
-func ListLibrary(w http.ResponseWriter, r *http.Request) {
+func ListDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		librarys, err := dao.ListLibrary(database)
+		domainLibrarys, err := dao.ListDomainLibrary(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, librarys)
+		utils.RespondWithJSON(w, http.StatusOK, domainLibrarys)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
 }
 
-func UpdateLibrary(w http.ResponseWriter, r *http.Request) {
+func UpdateDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["libraryId"])
+		id, err := strconv.Atoi(vars["domainLibraryId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
 		}
 
-		var library models.Library
+		var domainLibrary models.DomainLibrary
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&library); err != nil {
+		if err := decoder.Decode(&domainLibrary); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 			return
 		}
 		defer r.Body.Close()
-		library.ID = uint(id)
+		domainLibrary.ID = uint(id)
 
-		if err := dao.UpdateLibrary(database, library); err != nil {
+		if err := dao.UpdateDomainLibrary(database, domainLibrary); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, library)
+		utils.RespondWithJSON(w, http.StatusOK, domainLibrary)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
