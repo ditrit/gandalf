@@ -71,7 +71,7 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{},
 		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{}, &models.Heartbeat{},
-		&models.Product{}, &models.Tag{})
+		&models.Product{}, &models.Tag{}, &models.DomainLibrary{}, &models.DomainProduct{})
 
 	//Init State
 	state := models.State{Admin: true}
@@ -150,7 +150,7 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{},
 		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{},
-		&models.Heartbeat{}, &models.Product{}, &models.Tag{})
+		&models.Heartbeat{}, &models.Product{}, &models.Tag{}, &models.DomainLibrary{}, &models.DomainProduct{})
 
 	//Init State
 	state := models.State{Admin: true}
