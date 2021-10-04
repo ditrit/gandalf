@@ -191,7 +191,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"accessToken": tokenString})
+		utils.RespondWithJSON(w, http.StatusOK, map[string]interface{}{"accessToken": tokenString, "user": user})
 		return
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
