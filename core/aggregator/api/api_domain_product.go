@@ -22,47 +22,42 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func CreateTag(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+func CreateDomainProduct(w http.ResponseWriter, r *http.Request) {
+
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		parentTagId, err := strconv.Atoi(vars["tagId"])
-		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
-			return
-		}
-		var tag models.Tag
+		var domainProduct models.DomainProduct
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&tag); err != nil {
+		if err := decoder.Decode(&domainProduct); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateTag(database, tag, uint(parentTagId)); err != nil {
+		if err := dao.CreateDomainProduct(database, domainProduct); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusCreated, tag)
+		utils.RespondWithJSON(w, http.StatusCreated, domainProduct)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
 }
 
-func DeleteTag(w http.ResponseWriter, r *http.Request) {
+func DeleteDomainProduct(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["tagId"])
+		id, err := strconv.Atoi(vars["domainProductId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid DomainProduct ID")
 			return
 		}
 
-		if err := dao.DeleteTag(database, id); err != nil {
+		if err := dao.DeleteDomainProduct(database, id); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -74,35 +69,19 @@ func DeleteTag(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetTagTree(w http.ResponseWriter, r *http.Request) {
-	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
-		tags, err := dao.TreeTag(database)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		utils.RespondWithJSON(w, http.StatusOK, tags)
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
-}
-
-func GetTagById(w http.ResponseWriter, r *http.Request) {
+func GetDomainProductById(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["tagId"])
+		id, err := strconv.Atoi(vars["domainProductId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
 		}
 
-		var tag models.Tag
-		if tag, err = dao.ReadTag(database, id); err != nil {
+		var domainProduct models.DomainProduct
+		if domainProduct, err = dao.ReadDomainProduct(database, id); err != nil {
 			switch err {
 			case sql.ErrNoRows:
 				utils.RespondWithError(w, http.StatusNotFound, "User not found")
@@ -112,76 +91,56 @@ func GetTagById(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, tag)
+		utils.RespondWithJSON(w, http.StatusOK, domainProduct)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
 }
 
-func GetTagByName(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	name := vars["tagName"]
-
-	var tag models.Tag
-	var err error
-	if tag, err = dao.ReadTagByName(utils.DatabaseConnection.GetTenantDatabaseClient(), name); err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-		default:
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-		}
-		return
-	}
-
-	utils.RespondWithJSON(w, http.StatusOK, tag)
-}
-
-func ListTag(w http.ResponseWriter, r *http.Request) {
+func ListDomainProduct(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		tags, err := dao.ListTag(database)
+		domainProducts, err := dao.ListDomainProduct(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, tags)
+		utils.RespondWithJSON(w, http.StatusOK, domainProducts)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
 }
 
-func UpdateTag(w http.ResponseWriter, r *http.Request) {
+func UpdateDomainProduct(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["tagId"])
+		id, err := strconv.Atoi(vars["domainProductId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
 		}
 
-		var tag models.Tag
+		var domainProduct models.DomainProduct
 		decoder := json.NewDecoder(r.Body)
-		if err := decoder.Decode(&tag); err != nil {
+		if err := decoder.Decode(&domainProduct); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid resquest payload")
 			return
 		}
 		defer r.Body.Close()
-		tag.ID = uint(id)
+		domainProduct.ID = uint(id)
 
-		if err := dao.UpdateTag(database, tag); err != nil {
+		if err := dao.UpdateDomainProduct(database, domainProduct); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, tag)
+		utils.RespondWithJSON(w, http.StatusOK, domainProduct)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
