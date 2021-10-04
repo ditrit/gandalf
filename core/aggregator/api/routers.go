@@ -98,10 +98,24 @@ var routes = Routes{
 	},
 
 	Route{
+		"CreateDomainEnvironment",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment/{environmentName}",
+		IsAuthorized(CreateDomainEnvironment),
+	},
+
+	Route{
 		"DeleteDomain",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
 		IsAuthorized(DeleteDomain),
+	},
+
+	Route{
+		"DeleteDomainEnvironment",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment/{environmentName}",
+		IsAuthorized(DeleteDomainEnvironment),
 	},
 
 	Route{

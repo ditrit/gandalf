@@ -13,6 +13,7 @@ type Domain struct {
 	Name             string  `gorm:"not null"`
 	Products         []DomainProduct
 	Libraries        []DomainLibrary
+	Environments     string
 	ShortDescription string
 	Description      string
 	Logo             string

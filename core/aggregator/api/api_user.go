@@ -39,6 +39,8 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
+		user.Password = models.HashAndSaltPassword(user.Password)
+
 		if err := dao.CreateUser(database, user); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
@@ -207,6 +209,8 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
+
+		ruser.Password = models.HashAndSaltPassword(ruser.Password)
 
 		if err := dao.CreateUser(database, ruser); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
