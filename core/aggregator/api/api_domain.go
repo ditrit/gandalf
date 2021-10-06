@@ -35,16 +35,43 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
 		}
-		var domain models.Domain
+
+		var parentDomain models.Domain
+		if parentDomain, err = dao.ReadDomain(database, parentDomainId); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		var domain *models.Domain
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&domain); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
 			return
 		}
+
+		// Env
+		domain.Environments = parentDomain.Environments
+
 		defer r.Body.Close()
 		if err := dao.CreateDomain(database, domain, uint(parentDomainId)); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
+		}
+
+		// Tag
+
+		// Members
+		for _, authorization := range parentDomain.Authorizations {
+			currentAuthorization := new(models.Authorization)
+			currentAuthorization.User = authorization.User
+			currentAuthorization.Role = authorization.Role
+			currentAuthorization.Domain = *domain
+			dao.CreateAuthorization(database, currentAuthorization)
 		}
 
 		utils.RespondWithJSON(w, http.StatusCreated, domain)

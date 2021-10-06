@@ -26,7 +26,7 @@ func CreateDomainProduct(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var domainProduct models.DomainProduct
+		var domainProduct *models.DomainProduct
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&domainProduct); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

@@ -10,12 +10,12 @@ import (
 )
 
 func ListAuthorization(database *gorm.DB) (authorizations []models.Authorization, err error) {
-	err = database.Find(&authorizations).Error
+	err = database.Preload("User").Preload("Role").Preload("Domain").Find(&authorizations).Error
 
 	return
 }
 
-func CreateAuthorization(database *gorm.DB, authorization models.Authorization) (err error) {
+func CreateAuthorization(database *gorm.DB, authorization *models.Authorization) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
@@ -29,7 +29,7 @@ func CreateAuthorization(database *gorm.DB, authorization models.Authorization) 
 }
 
 func ReadAuthorization(database *gorm.DB, id int) (authorization models.Authorization, err error) {
-	err = database.First(&authorization, id).Error
+	err = database.Preload("User").Preload("Role").Preload("Domain").First(&authorization, id).Error
 
 	return
 }

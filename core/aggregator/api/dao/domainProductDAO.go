@@ -15,7 +15,7 @@ func ListDomainProduct(database *gorm.DB) (domainProducts []models.DomainProduct
 	return
 }
 
-func CreateDomainProduct(database *gorm.DB, domainProduct models.DomainProduct) (err error) {
+func CreateDomainProduct(database *gorm.DB, domainProduct *models.DomainProduct) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

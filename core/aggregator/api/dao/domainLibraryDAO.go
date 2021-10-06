@@ -15,7 +15,7 @@ func ListDomainLibrary(database *gorm.DB) (domainLibrarys []models.DomainLibrary
 	return
 }
 
-func CreateDomainLibrary(database *gorm.DB, domainLibrary models.DomainLibrary) (err error) {
+func CreateDomainLibrary(database *gorm.DB, domainLibrary *models.DomainLibrary) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

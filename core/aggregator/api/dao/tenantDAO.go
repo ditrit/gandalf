@@ -15,7 +15,7 @@ func ListTenant(database *gorm.DB) (tenants []models.Tenant, err error) {
 	return
 }
 
-func CreateTenant(database *gorm.DB, tenant models.Tenant) (err error) {
+func CreateTenant(database *gorm.DB, tenant *models.Tenant) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

@@ -16,7 +16,7 @@ func ListUser(database *gorm.DB) (users []models.User, err error) {
 	return
 }
 
-func CreateUser(database *gorm.DB, user models.User) (err error) {
+func CreateUser(database *gorm.DB, user *models.User) (err error) {
 	err = database.Create(&user).Error
 	if err == nil {
 		err = utils.ChangeStateTenant(database)

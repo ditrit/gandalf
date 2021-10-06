@@ -16,7 +16,7 @@ func ListResourceType(database *gorm.DB) (resourceTypes []models.ResourceType, e
 	return
 }
 
-func CreateResourceType(database *gorm.DB, resourceType models.ResourceType) (err error) {
+func CreateResourceType(database *gorm.DB, resourceType *models.ResourceType) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

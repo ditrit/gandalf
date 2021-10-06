@@ -26,7 +26,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var product models.Product
+		var product *models.Product
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&product); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

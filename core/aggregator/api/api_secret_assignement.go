@@ -25,7 +25,7 @@ func CreateSecretAssignement(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var secretAssignement models.SecretAssignement
+		var secretAssignement *models.SecretAssignement
 		secretAssignement.Secret = uuid.NewString()
 		fmt.Println("SECRET")
 		fmt.Println(secretAssignement)

@@ -26,7 +26,7 @@ func CreateRole(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var role models.Role
+		var role *models.Role
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&role); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

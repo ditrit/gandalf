@@ -15,7 +15,7 @@ func ListRole(database *gorm.DB) (roles []models.Role, err error) {
 	return
 }
 
-func CreateRole(database *gorm.DB, role models.Role) (err error) {
+func CreateRole(database *gorm.DB, role *models.Role) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

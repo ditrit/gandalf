@@ -26,7 +26,7 @@ func CreateDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var domainLibrary models.DomainLibrary
+		var domainLibrary *models.DomainLibrary
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&domainLibrary); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

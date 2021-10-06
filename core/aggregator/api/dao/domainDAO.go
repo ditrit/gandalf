@@ -11,12 +11,12 @@ import (
 )
 
 func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Find(&domains).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").Find(&domains).Error
 	fmt.Println(err)
 	return
 }
 
-func CreateDomain(database *gorm.DB, domain models.Domain, parentDomainID uint) (err error) {
+func CreateDomain(database *gorm.DB, domain *models.Domain, parentDomainID uint) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
@@ -64,7 +64,7 @@ func TreeRecursiveDomain(domaintree *models.DomainTree, results []models.Domain)
 }
 
 func ReadDomain(database *gorm.DB, id int) (domain models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").First(&domain, id).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").First(&domain, id).Error
 
 	return
 }

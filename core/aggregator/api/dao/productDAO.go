@@ -15,7 +15,7 @@ func ListProduct(database *gorm.DB) (products []models.Product, err error) {
 	return
 }
 
-func CreateProduct(database *gorm.DB, product models.Product) (err error) {
+func CreateProduct(database *gorm.DB, product *models.Product) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
