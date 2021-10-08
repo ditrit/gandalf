@@ -142,7 +142,7 @@ func GetPivots(client *gorm.DB, componentType string, version models.Version) (p
 }
 
 func GetProductConnectors(client *gorm.DB, product string, version models.Version) (productConnector models.ProductConnector, err error) {
-	var productdb models.Product
+	var productdb models.ConnectorProduct
 	err = client.Where("name = ?", product).First(&productdb).Error
 	fmt.Println("productdb")
 	fmt.Println(productdb)
@@ -186,9 +186,9 @@ func SavePivot(pivot models.Pivot, client *gorm.DB) {
 }
 
 func SaveProductConnector(productConnector *models.ProductConnector, client *gorm.DB) {
-	var product models.Product
+	var product models.ConnectorProduct
 	client.Where("name = ?", productConnector.Product.Name).First(&product)
-	if (product != models.Product{}) {
+	if (product != models.ConnectorProduct{}) {
 		productConnector.Product = product
 	}
 

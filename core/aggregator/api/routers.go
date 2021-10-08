@@ -238,73 +238,38 @@ var routes = Routes{
 	},
 
 	Route{
-		"CreateDomainLibrary",
+		"CreateLibrary",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domainlibrary",
-		IsAuthorized(CreateDomainLibrary),
+		"/ditrit/Gandalf/1.0.0/library",
+		IsAuthorized(CreateLibrary),
 	},
 
 	Route{
-		"DeleteDomainLibrary",
+		"DeleteLibrary",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/domainlibrary/{libraryId:[0-9]+}",
-		IsAuthorized(DeleteDomainLibrary),
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
+		IsAuthorized(DeleteLibrary),
 	},
 
 	Route{
-		"GetDomainLibraryById",
+		"GetLibraryById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domainlibrary/{libraryId:[0-9]+}",
-		IsAuthorized(GetDomainLibraryById),
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
+		IsAuthorized(GetLibraryById),
 	},
 
 	Route{
-		"ListDomainLibrary",
+		"ListLibrary",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domainlibrary",
-		IsAuthorized(ListDomainLibrary),
+		"/ditrit/Gandalf/1.0.0/library",
+		IsAuthorized(ListLibrary),
 	},
 
 	Route{
-		"UpdateDomainLibrary",
+		"UpdateLibrary",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/domainlibrary/{libraryId:[0-9]+}",
-		IsAuthorized(UpdateDomainLibrary),
-	},
-
-	Route{
-		"CreateDomainProduct",
-		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domainproduct",
-		IsAuthorized(CreateDomainProduct),
-	},
-
-	Route{
-		"DeleteDomainProduct",
-		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/domainproduct/{libraryId:[0-9]+}",
-		IsAuthorized(DeleteDomainProduct),
-	},
-
-	Route{
-		"GetDomainProductById",
-		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domainproduct/{libraryId:[0-9]+}",
-		IsAuthorized(GetDomainProductById),
-	},
-
-	Route{
-		"ListDomainProduct",
-		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domainproduct",
-		IsAuthorized(ListDomainProduct),
-	},
-
-	Route{
-		"UpdateDomainProduct",
-		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/domainproduct/{libraryId:[0-9]+}",
-		IsAuthorized(UpdateDomainProduct),
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
+		IsAuthorized(UpdateLibrary),
 	},
 
 	Route{
@@ -338,8 +303,43 @@ var routes = Routes{
 	Route{
 		"UpdateProduct",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/product/{productId:[0-9]+",
+		"/ditrit/Gandalf/1.0.0/product/{productId:[0-9]+}",
 		IsAuthorized(UpdateProduct),
+	},
+
+	Route{
+		"CreateConnectorProduct",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/connectorProduct",
+		IsAuthorized(CreateConnectorProduct),
+	},
+
+	Route{
+		"DeleteConnectorProduct",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[0-9]+}",
+		IsAuthorized(DeleteConnectorProduct),
+	},
+
+	Route{
+		"GetConnectorProductById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[0-9]+}",
+		IsAuthorized(GetConnectorProductById),
+	},
+
+	Route{
+		"ListConnectorProduct",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/connectorProduct",
+		IsAuthorized(ListConnectorProduct),
+	},
+
+	Route{
+		"UpdateConnectorProduct",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[0-9]+",
+		IsAuthorized(UpdateConnectorProduct),
 	},
 
 	Route{

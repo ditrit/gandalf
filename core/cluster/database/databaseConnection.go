@@ -69,9 +69,9 @@ func (dc DatabaseConnection) newDatabaseClient(name, password string) (gandalfDa
 func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login []string, password []string, err error) {
 	gandalfDatabaseClient.AutoMigrate(&models.State{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
 		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{},
-		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
+		&models.Pivot{}, &models.ProductConnector{}, &models.ConnectorProduct{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{}, &models.Heartbeat{},
-		&models.Product{}, &models.Tag{}, &models.DomainLibrary{}, &models.DomainProduct{})
+		&models.Tag{}, &models.Library{}, &models.Product{})
 
 	//Init State
 	state := models.State{Admin: true}
@@ -148,9 +148,9 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login []string, password []string, err error) {
 	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
 		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{},
-		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
+		&models.Pivot{}, &models.ProductConnector{}, &models.ConnectorProduct{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
 		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{},
-		&models.Heartbeat{}, &models.Product{}, &models.Tag{}, &models.DomainLibrary{}, &models.DomainProduct{})
+		&models.Heartbeat{}, &models.Tag{}, &models.Library{}, &models.Product{})
 
 	//Init State
 	state := models.State{Admin: true}
