@@ -8,12 +8,13 @@ import (
 
 type Domain struct {
 	gorm.Model
+	Name             string `gorm:"not null"`
 	ParentID         uint
 	Parent           *Domain `gorm:"constraint:OnDelete:CASCADE;"`
-	Name             string  `gorm:"not null"`
 	Products         []Product
 	Libraries        []Library
 	Authorizations   []Authorization
+	Tags             []Tag `gorm:"many2many:domain_tags;"`
 	Environments     string
 	ShortDescription string
 	Description      string
