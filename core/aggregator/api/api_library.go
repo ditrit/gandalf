@@ -23,7 +23,6 @@ import (
 )
 
 func CreateLibrary(w http.ResponseWriter, r *http.Request) {
-
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		var library *models.Library
@@ -99,7 +98,6 @@ func GetLibraryById(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListLibrary(w http.ResponseWriter, r *http.Request) {
-
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		librarys, err := dao.ListLibrary(database)
