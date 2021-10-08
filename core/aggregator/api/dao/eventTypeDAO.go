@@ -16,7 +16,7 @@ func ListEventType(database *gorm.DB) (eventTypes []models.EventType, err error)
 	return
 }
 
-func CreateEventType(database *gorm.DB, eventType models.EventType) (err error) {
+func CreateEventType(database *gorm.DB, eventType *models.EventType) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

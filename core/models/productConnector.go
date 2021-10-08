@@ -10,7 +10,7 @@ type ProductConnector struct {
 	PivotID       uint
 	Pivot         Pivot
 	ProductID     uint
-	Product       Product
+	Product       ConnectorProduct
 	ResourceTypes []ResourceType `gorm:"ForeignKey:ProductConnectorID"`
 	CommandTypes  []CommandType  `gorm:"ForeignKey:ProductConnectorID"`
 	EventTypes    []EventType    `gorm:"ForeignKey:ProductConnectorID"`

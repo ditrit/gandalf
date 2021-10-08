@@ -26,7 +26,7 @@ func CreateEventTypeToPoll(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var eventTypeToPoll models.EventTypeToPoll
+		var eventTypeToPoll *models.EventTypeToPoll
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&eventTypeToPoll); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

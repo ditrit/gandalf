@@ -23,7 +23,7 @@ func ListTag(database *gorm.DB) (tags []models.Tag, err error) {
 	return
 }
 
-func CreateTag(database *gorm.DB, tag models.Tag, parentTagID uint) (err error) {
+func CreateTag(database *gorm.DB, tag *models.Tag, parentTagID uint) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

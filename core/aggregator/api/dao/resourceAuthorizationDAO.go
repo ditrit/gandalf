@@ -15,7 +15,7 @@ func ListResourceAuthorization(database *gorm.DB) (resourceAuthorizations []mode
 	return
 }
 
-func CreateResourceAuthorization(database *gorm.DB, resourceAuthorization models.ResourceAuthorization) (err error) {
+func CreateResourceAuthorization(database *gorm.DB, resourceAuthorization *models.ResourceAuthorization) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

@@ -15,7 +15,7 @@ func ListEventTypeToPoll(database *gorm.DB) (eventTypeToPolls []models.EventType
 	return
 }
 
-func CreateEventTypeToPoll(database *gorm.DB, eventTypeToPoll models.EventTypeToPoll) (err error) {
+func CreateEventTypeToPoll(database *gorm.DB, eventTypeToPoll *models.EventTypeToPoll) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

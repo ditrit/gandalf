@@ -36,7 +36,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 	var result map[string]interface{}
 	result = make(map[string]interface{})
 	var err error
-	var tenant models.Tenant
+	var tenant *models.Tenant
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&tenant); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -68,7 +68,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 			if err == nil {
 
 				//CREATE SECRET
-				var secretAssignement models.SecretAssignement
+				var secretAssignement *models.SecretAssignement
 				secretAssignement.Secret = utils.GenerateHash()
 				err := dao.CreateSecretAssignement(utils.DatabaseConnection.GetTenantDatabaseClient(), secretAssignement)
 				fmt.Println("CREATE 2")

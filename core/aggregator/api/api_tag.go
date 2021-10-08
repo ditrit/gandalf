@@ -31,7 +31,7 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
 		}
-		var tag models.Tag
+		var tag *models.Tag
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&tag); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

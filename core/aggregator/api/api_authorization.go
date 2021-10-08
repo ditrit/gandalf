@@ -26,7 +26,7 @@ func CreateAuthorization(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var authorization models.Authorization
+		var authorization *models.Authorization
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&authorization); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

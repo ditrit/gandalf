@@ -26,7 +26,7 @@ func CreateEventType(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var eventType models.EventType
+		var eventType *models.EventType
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&eventType); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

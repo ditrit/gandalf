@@ -16,7 +16,7 @@ func ListResource(database *gorm.DB) (resources []models.Resource, err error) {
 	return
 }
 
-func CreateResource(database *gorm.DB, resource models.Resource) (err error) {
+func CreateResource(database *gorm.DB, resource *models.Resource) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {

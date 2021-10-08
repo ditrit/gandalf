@@ -10,12 +10,12 @@ import (
 )
 
 func ListProduct(database *gorm.DB) (products []models.Product, err error) {
-	err = database.Find(&products).Error
+	err = database.Preload("Domain").Find(&products).Error
 
 	return
 }
 
-func CreateProduct(database *gorm.DB, product models.Product) (err error) {
+func CreateProduct(database *gorm.DB, product *models.Product) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
@@ -29,7 +29,7 @@ func CreateProduct(database *gorm.DB, product models.Product) (err error) {
 }
 
 func ReadProduct(database *gorm.DB, id int) (product models.Product, err error) {
-	err = database.First(&product, id).Error
+	err = database.Preload("Domain").First(&product, id).Error
 
 	return
 }

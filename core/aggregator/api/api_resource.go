@@ -27,7 +27,7 @@ func CreateResource(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var resource models.Resource
+		var resource *models.Resource
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&resource); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

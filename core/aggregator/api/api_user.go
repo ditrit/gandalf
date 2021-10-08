@@ -31,7 +31,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var user models.User
+		var user *models.User
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&user); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -202,7 +202,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 func RegisterUser(w http.ResponseWriter, r *http.Request) {
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var ruser models.User
+		var ruser *models.User
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&ruser); err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")

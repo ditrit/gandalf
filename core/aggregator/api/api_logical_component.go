@@ -246,7 +246,7 @@ func DownloadPivot(url, ressource string) (pivot models.Pivot, err error) {
 func GetProductConnector(client *gorm.DB, baseurl, productType, product string, version models.Version, pivot models.Pivot) (models.ProductConnector, error) {
 	var productConnector models.ProductConnector
 	var productConnectors []models.ProductConnector
-	var productDB models.Product
+	var productDB models.ConnectorProduct
 	err := client.Where("name = ?", product).First(&productDB).Error
 	fmt.Println(productDB)
 	fmt.Println(productDB.ID)

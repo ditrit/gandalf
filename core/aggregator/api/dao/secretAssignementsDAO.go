@@ -15,7 +15,7 @@ func ListSecretAssignement(database *gorm.DB) (secretAssignement []models.Secret
 	return
 }
 
-func CreateSecretAssignement(database *gorm.DB, secretAssignement models.SecretAssignement) (err error) {
+func CreateSecretAssignement(database *gorm.DB, secretAssignement *models.SecretAssignement) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
