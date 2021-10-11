@@ -115,7 +115,7 @@ func CreateDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, domain)
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -191,7 +191,7 @@ func DeleteDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, domain)
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
