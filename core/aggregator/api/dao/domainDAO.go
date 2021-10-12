@@ -100,6 +100,19 @@ func DeleteDomain(database *gorm.DB, id int) (err error) {
 	return
 }
 
+func ListDomainTag(database *gorm.DB, domain models.Domain) (tags []models.Tag, err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Tags").Find(&tags).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
 func AddDomainTag(database *gorm.DB, domain models.Domain, tag models.Tag) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
