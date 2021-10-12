@@ -176,7 +176,6 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 
 		claims := &apimodels.Claims{
 			UserID: user.ID,
-			Name:   user.Name,
 			Email:  user.Email,
 			StandardClaims: &jwt.StandardClaims{
 				ExpiresAt: expirationTime.Unix(),
@@ -231,7 +230,6 @@ func RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 		claims := &apimodels.Claims{
 			UserID: user.ID,
-			Name:   user.Name,
 			Email:  user.Email,
 			StandardClaims: &jwt.StandardClaims{
 				ExpiresAt: expirationTime.Unix(),

@@ -20,7 +20,6 @@ type User struct {
 // NewUser : create new user
 func NewUser(name, email, firstname, secondname, companyid, password string) User {
 	user := new(User)
-	user.Name = name
 	user.Email = email
 	user.Password = HashAndSaltPassword(password)
 	user.FirstName = firstname
