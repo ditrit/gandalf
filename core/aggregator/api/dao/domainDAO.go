@@ -11,7 +11,7 @@ import (
 )
 
 func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").Find(&domains).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").Preload("Tags").Find(&domains).Error
 	fmt.Println(err)
 	return
 }
@@ -64,14 +64,14 @@ func TreeRecursiveDomain(domaintree *models.DomainTree, results []models.Domain)
 }
 
 func ReadDomain(database *gorm.DB, id int) (domain models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").First(&domain, id).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").Preload("Tags").First(&domain, id).Error
 
 	return
 }
 
 func ReadDomainByName(database *gorm.DB, name string) (domain models.Domain, err error) {
 	fmt.Println("DAO")
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Where("name = ?", name).First(&domain).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").Preload("Tags").Where("name = ?", name).First(&domain).Error
 	fmt.Println(err)
 	fmt.Println(domain)
 	return
@@ -92,6 +92,46 @@ func DeleteDomain(database *gorm.DB, id int) (err error) {
 			if err == nil {
 				err = database.Unscoped().Delete(&domain).Error
 			}
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func ListDomainTag(database *gorm.DB, domain models.Domain) (tags []models.Tag, err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Tags").Find(&tags).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func AddDomainTag(database *gorm.DB, domain models.Domain, tag models.Tag) (err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Tags").Append(&tag).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func RemoveDomainTag(database *gorm.DB, domain models.Domain, tag models.Tag) (err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Tags").Delete(tag).Error
+
 		} else {
 			err = errors.New("Invalid state")
 		}

@@ -201,13 +201,13 @@ func DeleteDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 func GetDomainTree(w http.ResponseWriter, r *http.Request) {
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		domains, err := dao.TreeDomain(database)
+		domain, err := dao.TreeDomain(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, domains)
+		utils.RespondWithJSON(w, http.StatusOK, domain)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
@@ -305,6 +305,143 @@ func UpdateDomain(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusOK, domain)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
+func ListDomainTag(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		idDomain, err := strconv.Atoi(vars["domainId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var domain models.Domain
+		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		tags, err := dao.ListDomainTag(database, domain)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, tags)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
+func CreateDomainTag(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		idDomain, err := strconv.Atoi(vars["domainId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var domain models.Domain
+		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		idTag, err := strconv.Atoi(vars["tagId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var tag models.Tag
+		if tag, err = dao.ReadTag(database, idTag); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		if err := dao.AddDomainTag(database, domain, tag); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
+func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		idDomain, err := strconv.Atoi(vars["domainId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var domain models.Domain
+		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		idTag, err := strconv.Atoi(vars["tagId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var tag models.Tag
+		if tag, err = dao.ReadTag(database, idTag); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		if err := dao.RemoveDomainTag(database, domain, tag); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
