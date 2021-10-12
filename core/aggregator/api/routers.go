@@ -147,6 +147,20 @@ var routes = Routes{
 	},
 
 	Route{
+		"CreateDomainTag",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/tag/{tagId:[0-9]+}",
+		IsAuthorized(CreateDomainTag),
+	},
+
+	Route{
+		"DeleteDomainTag",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/tag/{tagId:[0-9]+}",
+		IsAuthorized(DeleteDomainTag),
+	},
+
+	Route{
 		"CreateEventType",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/eventType",
