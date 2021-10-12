@@ -200,7 +200,6 @@ func runLogin(cfg *verdeter.ConfigCmd, args []string) {
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	var user models.User
-	user.Name = name
 	//user.Email = name
 	user.Password = password
 	//user := models.NewUser(name, name, password)
