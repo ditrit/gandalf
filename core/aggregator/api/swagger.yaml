@@ -734,12 +734,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/DomainTree'
+                $ref: '#/components/schemas/DomainTree'
         '500':
           $ref: '#/components/responses/500Error'
       security:
@@ -851,12 +846,101 @@ paths:
           $ref: '#/components/responses/500Error'
       security:
         - bearerAuth: []
+  '/domain/{domainId}/tag':
+    get:
+      tags:
+        - domain
+      summary: List domain tags
+      operationId: listDomainTag
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Tag'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []  
+  '/domain/{domainId}/tag/{tagId}':
+    post:
+      tags:
+        - domain
+      summary: Create a tag domain
+      operationId: createDomainTag
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tagId
+          in: path
+          description: ID of tag that needs to be added
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - domain
+      summary: Deletes a tag domain
+      operationId: deleteDomainTag
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tagId
+          in: path
+          description: ID of tag that needs to be added
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
   '/domain/{domainId}/environment/{environmentName}':
     post:
       tags:
         - domain
       summary: Create a environment domain
-      operationId: createEnvironmentDomain
+      operationId: createDomainEnvironment
       parameters:
         - name: domainId
           in: path
@@ -884,7 +968,7 @@ paths:
       tags:
         - domain
       summary: Deletes a environment domain
-      operationId: deleteEnvironmentDomain
+      operationId: deleteDomainEnvironment
       parameters:
         - name: domainId
           in: path

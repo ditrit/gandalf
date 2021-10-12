@@ -201,13 +201,13 @@ func DeleteDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 func GetDomainTree(w http.ResponseWriter, r *http.Request) {
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		domains, err := dao.TreeDomain(database)
+		domain, err := dao.TreeDomain(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		utils.RespondWithJSON(w, http.StatusOK, domains)
+		utils.RespondWithJSON(w, http.StatusOK, domain)
 	} else {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
