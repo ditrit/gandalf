@@ -64,6 +64,9 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Tag
+		for _, tag := range parentDomain.Tags {
+			dao.AddDomainTag(database, *domain, tag)
+		}
 
 		// Members
 		for _, authorization := range parentDomain.Authorizations {
