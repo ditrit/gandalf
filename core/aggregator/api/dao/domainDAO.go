@@ -11,7 +11,7 @@ import (
 )
 
 func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").Preload("Tags").Find(&domains).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Find(&domains).Error
 	fmt.Println(err)
 	return
 }
@@ -64,14 +64,14 @@ func TreeRecursiveDomain(domaintree *models.DomainTree, results []models.Domain)
 }
 
 func ReadDomain(database *gorm.DB, id int) (domain models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").Preload("Tags").First(&domain, id).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").First(&domain, id).Error
 
 	return
 }
 
 func ReadDomainByName(database *gorm.DB, name string) (domain models.Domain, err error) {
 	fmt.Println("DAO")
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations").Preload("Tags").Where("name = ?", name).First(&domain).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Where("name = ?", name).First(&domain).Error
 	fmt.Println(err)
 	fmt.Println(domain)
 	return
