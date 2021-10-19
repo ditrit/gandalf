@@ -98,24 +98,10 @@ var routes = Routes{
 	},
 
 	Route{
-		"CreateDomainEnvironment",
-		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment/{environmentName}",
-		IsAuthorized(CreateDomainEnvironment),
-	},
-
-	Route{
 		"DeleteDomain",
 		strings.ToUpper("Delete"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
 		IsAuthorized(DeleteDomain),
-	},
-
-	Route{
-		"DeleteDomainEnvironment",
-		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment/{environmentName}",
-		IsAuthorized(DeleteDomainEnvironment),
 	},
 
 	Route{
@@ -166,6 +152,28 @@ var routes = Routes{
 		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/tag/{tagId:[0-9]+}",
 		IsAuthorized(DeleteDomainTag),
 	},
+
+	Route{
+		"ListDomainEnvironmentg",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment",
+		IsAuthorized(ListDomainEnvironment),
+	},
+
+	Route{
+		"CreateDomainEnvironment",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment/{environmentId:[0-9]+}",
+		IsAuthorized(CreateDomainEnvironment),
+	},
+
+	Route{
+		"DeleteDomainEnvironment",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment/{environmentId:[0-9]+}",
+		IsAuthorized(DeleteDomainEnvironment),
+	},
+	///
 
 	Route{
 		"CreateEventType",
@@ -480,6 +488,76 @@ var routes = Routes{
 		strings.ToUpper("Put"),
 		"/ditrit/Gandalf/1.0.0/role/{roleId:[0-9]+}",
 		IsAuthorized(UpdateRole),
+	},
+
+	Route{
+		"CreateEnvironment",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/environment",
+		IsAuthorized(CreateEnvironment),
+	},
+
+	Route{
+		"DeleteEnvironment",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[0-9]+}",
+		IsAuthorized(DeleteEnvironment),
+	},
+
+	Route{
+		"GetEnvironmentById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[0-9]+}",
+		IsAuthorized(GetEnvironmentById),
+	},
+
+	Route{
+		"ListEnvironment",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/environment",
+		IsAuthorized(ListEnvironment),
+	},
+
+	Route{
+		"UpdateEnvironment",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[0-9]+}",
+		IsAuthorized(UpdateEnvironment),
+	},
+
+	Route{
+		"CreateEnvironmentType",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/environmentType",
+		IsAuthorized(CreateEnvironmentType),
+	},
+
+	Route{
+		"DeleteEnvironmentType",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[0-9]+}",
+		IsAuthorized(DeleteEnvironmentType),
+	},
+
+	Route{
+		"GetEnvironmentTypeById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[0-9]+}",
+		IsAuthorized(GetEnvironmentTypeById),
+	},
+
+	Route{
+		"ListEnvironmentType",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/environmentType",
+		IsAuthorized(ListEnvironmentType),
+	},
+
+	Route{
+		"UpdateEnvironmentType",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[0-9]+}",
+		IsAuthorized(UpdateEnvironmentType),
 	},
 
 	Route{
