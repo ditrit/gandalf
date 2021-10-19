@@ -24,6 +24,16 @@ tags:
     externalDocs:
       description: Find out more
       url: 'http://swagger.io'
+  - name: environmentType
+    description: Everything about your EnvrionementType
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: envrionment
+    description: Everything about your Envrionment
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
   - name: domain
     description: Everything about your Domains
     externalDocs:
@@ -700,6 +710,257 @@ paths:
           $ref: '#/components/responses/500Error'
       security:
         - bearerAuth: []
+        
+  /envrionmentType:
+    get:
+      tags:
+        - environmentType
+      summary: List environmentType
+      operationId: listEnvironmentType
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/EnvironmentType'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - environmentType
+      summary: Create a environmentType
+      operationId: createEnvironmentType
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEnvironmentType'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentType'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/environmentType/{environmentTypeId}':
+    get:
+      tags:
+        - environmentType
+      summary: Find environmentType by ID
+      description: Returns a single environmentType
+      operationId: getEnvironmentTypeById
+      parameters:
+        - name: environmentTypeId
+          in: path
+          description: ID of environmentType to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentType'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: EnvironmentType not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - environmentType
+      summary: Updates a environmentType
+      operationId: updateEnvironmentType
+      parameters:
+        - name: environmentTypeId
+          in: path
+          description: ID of environmentType that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEnvironmentType'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentType'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - environmentType
+      summary: Deletes a environmentType
+      operationId: deleteEnvironmentType
+      parameters:
+        - name: environmentTypeId
+          in: path
+          description: EnvironmentType id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+       
+        
+  /environment:
+    get:
+      tags:
+        - environment
+      summary: List environments
+      operationId: listEnvironment
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Environment'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - environment
+      summary: Create a environment
+      operationId: createEnvironment
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEnvironment'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/environment/{environmentId}':
+    get:
+      tags:
+        - environment
+      summary: Find environment by ID
+      description: Returns a single environment
+      operationId: getEnvironmentById
+      parameters:
+        - name: environmentId
+          in: path
+          description: ID of environment to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Environment not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - environment
+      summary: Updates a environment
+      operationId: updateEnvironment
+      parameters:
+        - name: environmentId
+          in: path
+          description: ID of environment that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEnvironment'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - environment
+      summary: Deletes a environment
+      operationId: deleteEnvironment
+      parameters:
+        - name: environmentId
+          in: path
+          description: Environment id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+
+
+
+
   /domain:
     get:
       tags:
@@ -921,7 +1182,7 @@ paths:
             format: int64
         - name: tagId
           in: path
-          description: ID of tag that needs to be added
+          description: ID of tag that needs to be deleted
           required: true
           schema:
             type: integer
@@ -935,7 +1196,37 @@ paths:
           $ref: '#/components/responses/500Error'
       security:
         - bearerAuth: []
-  '/domain/{domainId}/environment/{environmentName}':
+  '/domain/{domainId}/environment':
+    get:
+      tags:
+        - domain
+      summary: List domain environments
+      operationId: listDomainEnvironment
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Environment'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []  
+  '/domain/{domainId}/environment/{environmentId}':
     post:
       tags:
         - domain
@@ -949,12 +1240,13 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: environmentName
+        - name: environmentId
           in: path
-          description: Name of environment that needs to be added
+          description: ID of environment that needs to be added
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
         '200':
           description: Succes
@@ -977,12 +1269,13 @@ paths:
           schema:
             type: integer
             format: int64
-        - name: environmentName
+        - name: environmentId
           in: path
-          description: Name of environment that needs to be deleted
+          description: ID of environment that needs to be deleted
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
         '200':
           description: Succes
@@ -992,6 +1285,7 @@ paths:
           $ref: '#/components/responses/500Error'
       security:
         - bearerAuth: []
+
   /tag:
     get:
       tags:
@@ -2364,6 +2658,43 @@ components:
         eventTypeId:
           type: integer
           description: The eventType id.
+    EnvironmentType:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The envrionmentType name.
+        shortdescription:
+          type: string
+          description: The envrionmentType short description.
+        description:
+          type: string
+          description: The envrionmentType description.
+        logo:
+          type: string
+          description: The envrionmentType logo.
+    Environment:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The envrionment name.
+        shortdescription:
+          type: string
+          description: The envrionment short description.
+        description:
+          type: string
+          description: The envrionment description.
+        logo:
+          type: string
+          description: The envrionment logo.
+        envrionmentTypeID:
+          type: integer
+          description: The ID of envrionementType.
     Tag:
       type: object
       properties:
@@ -2372,6 +2703,15 @@ components:
         name:
           type: string
           description: The tag name.
+        shortdescription:
+          type: string
+          description: The tag short description.
+        description:
+          type: string
+          description: The tag description.
+        logo:
+          type: string
+          description: The tag logo.
     TagTree:
       type: object
       properties:
@@ -2630,10 +2970,62 @@ components:
             type: object
             required:
               - name
+              - shortdescription
+              - description
+              - logo
             properties:
               name:
                 type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
       description: The tag to create.
+    createOrUpdateEnvironmentType:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - shortdescription
+              - description
+              - logo
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+      description: The envrionment type to create.
+    createOrUpdateEnvironment:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - shortdescription
+              - description
+              - logo
+              - envrionmentTypeID
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+              envrionmentTypeID:
+                type: integer
+      description: The envrionment to create.
     createOrUpdateEventType:
       content:
         application/json:

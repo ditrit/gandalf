@@ -8,9 +8,12 @@ import (
 
 type Tag struct {
 	gorm.Model
-	Name     string `gorm:"not null"`
-	ParentID uint
-	Parent   *Tag `gorm:"constraint:OnDelete:CASCADE;"`
+	Name             string `gorm:"not null"`
+	ParentID         uint
+	Parent           *Tag `gorm:"constraint:OnDelete:CASCADE;"`
+	ShortDescription string
+	Description      string
+	Logo             string
 }
 
 func (t *Tag) BeforeDelete(tx *gorm.DB) (err error) {

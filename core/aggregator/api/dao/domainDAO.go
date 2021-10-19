@@ -11,7 +11,7 @@ import (
 )
 
 func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Find(&domains).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments").Find(&domains).Error
 	fmt.Println(err)
 	return
 }
@@ -64,14 +64,14 @@ func TreeRecursiveDomain(domaintree *models.DomainTree, results []models.Domain)
 }
 
 func ReadDomain(database *gorm.DB, id int) (domain models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").First(&domain, id).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments").First(&domain, id).Error
 
 	return
 }
 
 func ReadDomainByName(database *gorm.DB, name string) (domain models.Domain, err error) {
 	fmt.Println("DAO")
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Where("name = ?", name).First(&domain).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments").Where("name = ?", name).First(&domain).Error
 	fmt.Println(err)
 	fmt.Println(domain)
 	return
@@ -131,6 +131,46 @@ func RemoveDomainTag(database *gorm.DB, domain models.Domain, tag models.Tag) (e
 	if err == nil {
 		if admin {
 			err = database.Model(&domain).Association("Tags").Delete(tag).Error
+
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func ListDomainEnvironment(database *gorm.DB, domain models.Domain) (environments []models.Environment, err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Environments").Find(&environments).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func AddDomainEnvironment(database *gorm.DB, domain models.Domain, environment models.Environment) (err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Environments").Append(&environment).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func RemoveDomainEnvironment(database *gorm.DB, domain models.Domain, environment models.Environment) (err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Environments").Delete(environment).Error
 
 		} else {
 			err = errors.New("Invalid state")

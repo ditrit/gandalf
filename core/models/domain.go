@@ -14,8 +14,8 @@ type Domain struct {
 	Products         []Product
 	Libraries        []Library
 	Authorizations   []Authorization
-	Tags             []Tag `gorm:"many2many:domain_tags;"`
-	Environments     string
+	Tags             []Tag         `gorm:"many2many:domain_tags;"`
+	Environments     []Environment `gorm:"many2many:domain_environments;"`
 	ShortDescription string
 	Description      string
 	Logo             string
