@@ -1,12 +1,14 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/google/uuid"
+)
 
 type KeyValue struct {
-	gorm.Model
+	Model
 	Value              string
-	KeyID              uint
+	KeyID              uuid.UUID `gorm:"type:uuid"`
 	Key                Key
-	LogicalComponentID uint
+	LogicalComponentID uuid.UUID `gorm:"type:uuid"`
 	LogicalComponent   LogicalComponent
 }

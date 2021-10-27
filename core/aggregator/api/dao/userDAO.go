@@ -1,9 +1,11 @@
 package dao
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 
@@ -24,8 +26,8 @@ func CreateUser(database *gorm.DB, user *models.User) (err error) {
 	return
 }
 
-func ReadUser(database *gorm.DB, id int) (user models.User, err error) {
-	err = database.First(&user, id).Error
+func ReadUser(database *gorm.DB, id uuid.UUID) (user models.User, err error) {
+	err = database.Where("id = ?", id).First(&user).Error
 
 	return
 }
@@ -36,9 +38,19 @@ func UpdateUser(database *gorm.DB, user models.User) (err error) {
 	return
 }
 
-func DeleteUser(database *gorm.DB, id int) (err error) {
-	var user models.User
-	err = database.Unscoped().Delete(&user, id).Error
+func DeleteUser(database *gorm.DB, id uuid.UUID) (err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			var user models.User
+			err = database.Where("id = ?", id).First(&user).Error
+			if err == nil {
+				err = database.Unscoped().Delete(&user).Error
+			}
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
 
 	return
 }

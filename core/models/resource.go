@@ -1,15 +1,17 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/google/uuid"
+)
 
 type Resource struct {
-	gorm.Model
-	Name               string `gorm:"unique;not null"`
-	LogicalComponentID uint
+	Model
+	Name               string    `gorm:"unique;not null"`
+	LogicalComponentID uuid.UUID `gorm:"type:uuid"`
 	LogicalComponent   LogicalComponent
-	DomainID           uint
+	DomainID           uuid.UUID `gorm:"type:uuid"`
 	Domain             Domain
-	ResourceTypeID     uint
+	ResourceTypeID     uuid.UUID `gorm:"type:uuid"`
 	ResourceType       ResourceType
 	EventTypeToPolls   []EventTypeToPoll `gorm:"ForeignKey:ResourceID"`
 }

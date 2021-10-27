@@ -14,10 +14,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/gorilla/mux"
@@ -52,7 +52,7 @@ func DeleteResource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["resourceId"])
+		id, err := uuid.Parse(vars["resourceId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -75,7 +75,7 @@ func GetResourceById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["resourceId"])
+		id, err := uuid.Parse(vars["resourceId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -141,7 +141,7 @@ func UpdateResource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["resourceId"])
+		id, err := uuid.Parse(vars["resourceId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -154,7 +154,7 @@ func UpdateResource(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		resource.ID = uint(id)
+		resource.ID = id
 
 		if err := dao.UpdateResource(database, resource); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

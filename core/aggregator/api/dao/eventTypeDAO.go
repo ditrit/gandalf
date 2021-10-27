@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -29,8 +30,8 @@ func CreateEventType(database *gorm.DB, eventType *models.EventType) (err error)
 	return
 }
 
-func ReadEventType(database *gorm.DB, id int) (eventType models.EventType, err error) {
-	err = database.First(&eventType, id).Error
+func ReadEventType(database *gorm.DB, id uuid.UUID) (eventType models.EventType, err error) {
+	err = database.Where("id = ?", id).First(&eventType).Error
 
 	return
 }
@@ -49,12 +50,15 @@ func UpdateEventType(database *gorm.DB, eventType models.EventType) (err error) 
 	return
 }
 
-func DeleteEventType(database *gorm.DB, id int) (err error) {
+func DeleteEventType(database *gorm.DB, id uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var eventType models.EventType
-			err = database.Unscoped().Delete(&eventType, id).Error
+			err = database.Where("id = ?", id).First(&eventType).Error
+			if err == nil {
+				err = database.Unscoped().Delete(&eventType).Error
+			}
 		} else {
 			err = errors.New("Invalid state")
 		}

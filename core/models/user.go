@@ -3,13 +3,12 @@ package models
 import (
 	"fmt"
 
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // User : user struct
 type User struct {
-	gorm.Model
+	Model
 	Email     string `gorm:"unique;not null"`
 	Password  string
 	FirstName string

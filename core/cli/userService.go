@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // UserService :
@@ -55,8 +54,8 @@ func (as *UserService) ReadByName(token string, name string) (*models.User, erro
 }
 
 // Update :
-func (as *UserService) Update(token string, id int, user models.User) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/users/"+strconv.Itoa(id), token, user)
+func (as *UserService) Update(token string, id uuid.UUID, user models.User) error {
+	req, err := as.client.newRequest("PUT", "/auth/gandalf/users/"+id.String(), token, user)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *UserService) Update(token string, id int, user models.User) error {
 }
 
 // Delete :
-func (as *UserService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/users/"+strconv.Itoa(id), token, nil)
+func (as *UserService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/auth/gandalf/users/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

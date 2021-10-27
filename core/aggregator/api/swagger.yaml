@@ -2455,7 +2455,8 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
+          format: uuid
           description: The ID.
         createdAt:
           type: string
@@ -2475,13 +2476,16 @@ components:
         model:
           $ref: '#/components/schemas/Model'
         userId:
-          type: integer
+          type: string
+          format: uuid
           description: The user id.
         roleId:
-          type: integer
+          type: string
+          format: uuid
           description: The role id.
         domainId:
-          type: integer
+          type: string
+          format: uuid
           description: The domain id.
     User:
       type: object
@@ -2552,7 +2556,8 @@ components:
           type: string
           description: The path to the logo.
         domainId:
-          type: integer
+          type: string
+          format: uuid
           description: The domain id.
     Role:
       type: object
@@ -2606,13 +2611,16 @@ components:
           type: string
           description: The resource name.
         logicalComponentId:
-          type: integer
+          type: string
+          format: uuid
           description: The logical component id.
         domainId:
-          type: integer
+          type: string
+          format: uuid
           description: The domain id.
         resourceTypeId:
-          type: integer
+          type: string
+          format: uuid
           description: The resourceType id.
     ResourceType:
       type: object
@@ -2623,10 +2631,12 @@ components:
           type: string
           description: The resourceType name.
         pivotId:
-          type: integer
+          type: string
+          format: uuid
           description: The pivot id.
         productConnectorId:
-          type: integer
+          type: string
+          format: uuid
           description: The productConnector id.
     EventType:
       type: object
@@ -2639,10 +2649,12 @@ components:
         schema:
           type: string
         pivotId:
-          type: integer
+          type: string
+          format: uuid
           description: The pivot id.
         productConnectorId:
-          type: integer
+          type: string
+          format: uuid
           description: The productConnector id.
     EventTypeToPoll:
       type: object
@@ -2653,10 +2665,12 @@ components:
           type: string
           description: The eventTypeToPoll name.
         resourceId:
-          type: integer
+          type: string
+          format: uuid
           description: The resource id.
         eventTypeId:
-          type: integer
+          type: string
+          format: uuid
           description: The eventType id.
     EnvironmentType:
       type: object
@@ -2693,7 +2707,8 @@ components:
           type: string
           description: The envrionment logo.
         envrionmentTypeID:
-          type: integer
+          type: string
+          format: uuid
           description: The ID of envrionementType.
     Tag:
       type: object
@@ -2760,10 +2775,12 @@ components:
           type: string
           description: The type of logical component.
         pivotID:
-          type: integer
+          type: string
+          format: uuid
           description: The ID of pivot.
         productConnectorID:
-          type: integer
+          type: string
+          format: uuid
           description: The ID of product connector.
         aggregator:
           type: string
@@ -2798,10 +2815,12 @@ components:
           type: string
           description: The secret IP Address.
         keyID:
-          type: integer
+          type: string
+          format: uuid
           description: The ID of key.
         logicalComponentID:
-          type: integer
+          type: string
+          format: uuid
           description: The ID of logicalComponent.
   securitySchemes:
     bearerAuth:            # arbitrary name for the security scheme
@@ -2820,11 +2839,14 @@ components:
               - domainID
             properties:
               userID:
-                type: integer
+                type: string
+                format: uuid
               roleID:
-                type: integer
+                type: string
+                format: uuid
               domainID:
-                type: integer
+                type: string
+                format: uuid
       description: The authorization to create.
     createOrUpdateProduct:
       content:
@@ -2843,7 +2865,8 @@ components:
               logo:
                 type: string
               domainID:
-                type: integer
+                type: string
+                format: uuid
       description: The product to create.
     createOrUpdateConnectorProduct:
       content:
@@ -2873,7 +2896,8 @@ components:
               logo:
                 type: string
               domainID:
-                type: integer
+                type: string
+                format: uuid
       description: The library to create.
     createOrUpdateRole:
       content:
@@ -2940,11 +2964,14 @@ components:
               name:
                 type: string
               logicalComponentID:
-                type: integer
+                type: string
+                format: uuid
               domainID:
-                type: integer
+                type: string
+                format: uuid
               resourceTypeID:
-                type: integer
+                type: string
+                format: uuid
       description: The resource to create.
     createOrUpdateResourceType:
       content:
@@ -2959,9 +2986,11 @@ components:
               name:
                 type: string
               pivotID:
-                type: integer
+                type: string
+                format: uuid
               productConnectorID:
-                type: integer
+                type: string
+                format: uuid
       description: The resourceType to create.
     createOrUpdateTag:
       content:
@@ -3024,7 +3053,8 @@ components:
               logo:
                 type: string
               envrionmentTypeID:
-                type: integer
+                type: string
+                format: uuid
       description: The envrionment to create.
     createOrUpdateEventType:
       content:
@@ -3042,9 +3072,11 @@ components:
               schema:
                 type: string
               pivotID:
-                type: integer
+                type: string
+                format: uuid
               productConnectorID:
-                type: integer
+                type: string
+                format: uuid
       description: The eventType to create.   
     createOrUpdateEventTypeToPoll:
       content:
@@ -3056,9 +3088,11 @@ components:
               - eventTypeID
             properties:
               resourceID:
-                type: integer
+                type: string
+                format: uuid
               eventTypeID:
-                type: integer
+                type: string
+                format: uuid
       description: The eventTypeToPoll to create.
     createOrUpdateUser:
       content:

@@ -13,10 +13,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/gorilla/mux"
@@ -50,7 +50,7 @@ func DeleteLibrary(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["libraryId"])
+		id, err := uuid.Parse(vars["libraryId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Library ID")
 			return
@@ -73,7 +73,7 @@ func GetLibraryById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["libraryId"])
+		id, err := uuid.Parse(vars["libraryId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -118,7 +118,7 @@ func UpdateLibrary(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["libraryId"])
+		id, err := uuid.Parse(vars["libraryId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -131,7 +131,7 @@ func UpdateLibrary(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		library.ID = uint(id)
+		library.ID = id
 
 		if err := dao.UpdateLibrary(database, library); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

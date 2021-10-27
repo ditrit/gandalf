@@ -3,14 +3,15 @@ package models
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 )
 
 type Tag struct {
-	gorm.Model
-	Name             string `gorm:"not null"`
-	ParentID         uint
-	Parent           *Tag `gorm:"constraint:OnDelete:CASCADE;"`
+	Model
+	Name             string    `gorm:"not null"`
+	ParentID         uuid.UUID `gorm:"type:uuid"`
+	Parent           *Tag      `gorm:"constraint:OnDelete:CASCADE;"`
 	ShortDescription string
 	Description      string
 	Logo             string

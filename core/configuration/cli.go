@@ -293,7 +293,7 @@ func runUpdateUser(cfg *verdeter.ConfigCmd, args []string) {
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
 		user := models.NewUser(newName, email, firstname, secondname, companyid, password)
-		err = cliClient.UserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
+		err = cliClient.UserService.Update(configurationCli.GetToken(), oldUser.ID, user)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -311,7 +311,7 @@ func runDeleteUser(cfg *verdeter.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		err = cliClient.UserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
+		err = cliClient.UserService.Delete(configurationCli.GetToken(), oldUser.ID)
 		if err != nil {
 			fmt.Println(err)
 		}

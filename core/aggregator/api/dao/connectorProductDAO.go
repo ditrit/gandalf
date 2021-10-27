@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -28,8 +29,8 @@ func CreateConnectorProduct(database *gorm.DB, connectorProduct *models.Connecto
 	return
 }
 
-func ReadConnectorProduct(database *gorm.DB, id int) (connectorProduct models.ConnectorProduct, err error) {
-	err = database.First(&connectorProduct, id).Error
+func ReadConnectorProduct(database *gorm.DB, id uuid.UUID) (connectorProduct models.ConnectorProduct, err error) {
+	err = database.Where("id = ?", id).First(&connectorProduct).Error
 
 	return
 }
@@ -40,12 +41,15 @@ func UpdateConnectorProduct(database *gorm.DB, connectorProduct models.Connector
 	return
 }
 
-func DeleteConnectorProduct(database *gorm.DB, id int) (err error) {
+func DeleteConnectorProduct(database *gorm.DB, id uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var connectorProduct models.Role
-			err = database.Unscoped().Delete(&connectorProduct, id).Error
+			err = database.Where("id = ?", id).First(&connectorProduct).Error
+			if err == nil {
+				err = database.Unscoped().Delete(&connectorProduct).Error
+			}
 		} else {
 			err = errors.New("Invalid state")
 		}

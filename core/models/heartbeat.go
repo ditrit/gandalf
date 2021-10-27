@@ -2,12 +2,10 @@ package models
 
 import (
 	cmsg "github.com/ditrit/gandalf/core/msg"
-
-	"github.com/jinzhu/gorm"
 )
 
 type Heartbeat struct {
-	gorm.Model
+	Model
 	LogicalName string
 	Type        string
 	Address     string

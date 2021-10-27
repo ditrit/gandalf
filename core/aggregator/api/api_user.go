@@ -14,11 +14,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	apimodels "github.com/ditrit/gandalf/core/aggregator/api/models"
@@ -58,7 +58,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["userId"])
+		id, err := uuid.Parse(vars["userId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -81,7 +81,7 @@ func GetUserById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["userId"])
+		id, err := uuid.Parse(vars["userId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -262,7 +262,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["userId"])
+		id, err := uuid.Parse(vars["userId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -275,7 +275,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		user.ID = uint(id)
+		user.ID = id
 
 		if err := dao.UpdateUser(database, user); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
