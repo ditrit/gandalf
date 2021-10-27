@@ -13,10 +13,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/gorilla/mux"
@@ -51,7 +51,7 @@ func DeleteEventType(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["eventTypeId"])
+		id, err := uuid.Parse(vars["eventTypeId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -74,7 +74,7 @@ func GetEventTypeById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["eventTypeId"])
+		id, err := uuid.Parse(vars["eventTypeId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -139,7 +139,7 @@ func UpdateEventType(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["eventTypeId"])
+		id, err := uuid.Parse(vars["eventTypeId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -152,7 +152,7 @@ func UpdateEventType(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		eventType.ID = uint(id)
+		eventType.ID = id
 
 		if err := dao.UpdateEventType(database, eventType); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

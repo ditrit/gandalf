@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -23,7 +24,7 @@ func ListTag(database *gorm.DB) (tags []models.Tag, err error) {
 	return
 }
 
-func CreateTag(database *gorm.DB, tag *models.Tag, parentTagID uint) (err error) {
+func CreateTag(database *gorm.DB, tag *models.Tag, parentTagID uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
@@ -70,8 +71,8 @@ func TreeRecursiveTag(tagtree *models.TagTree, results []models.Tag) {
 	}
 }
 
-func ReadTag(database *gorm.DB, id int) (tag models.Tag, err error) {
-	err = database.First(&tag, id).Error
+func ReadTag(database *gorm.DB, id uuid.UUID) (tag models.Tag, err error) {
+	err = database.Where("id = ?", id).First(&tag).Error
 
 	return
 }
@@ -90,12 +91,12 @@ func UpdateTag(database *gorm.DB, tag models.Tag) (err error) {
 	return
 }
 
-func DeleteTag(database *gorm.DB, id int) (err error) {
+func DeleteTag(database *gorm.DB, id uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var tag models.Tag
-			err = database.First(&tag, id).Error
+			err = database.Where("id = ?", id).First(&tag).Error
 			if err == nil {
 				err = database.Unscoped().Delete(&tag).Error
 			}

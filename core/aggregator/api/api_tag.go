@@ -13,12 +13,12 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/models"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -26,11 +26,13 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		parentTagId, err := strconv.Atoi(vars["tagId"])
+		parentTagId, err := uuid.Parse(vars["tagId"])
+		//parentTagId, err := strconv.Atoi(vars["tagId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
 		}
+
 		var tag *models.Tag
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&tag); err != nil {
@@ -39,7 +41,8 @@ func CreateTag(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateTag(database, tag, uint(parentTagId)); err != nil {
+		//if err := dao.CreateTag(database, tag, uint(parentTagId)); err != nil {
+		if err := dao.CreateTag(database, tag, parentTagId); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -56,7 +59,7 @@ func DeleteTag(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["tagId"])
+		id, err := uuid.Parse(vars["tagId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -95,7 +98,7 @@ func GetTagById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["tagId"])
+		id, err := uuid.Parse(vars["tagId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -161,7 +164,8 @@ func UpdateTag(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["tagId"])
+		//id, err := strconv.Atoi(vars["tagId"])
+		id, err := uuid.Parse(vars["tagId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -174,7 +178,8 @@ func UpdateTag(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		tag.ID = uint(id)
+		//tag.ID = uint(id)
+		tag.ID = id
 
 		if err := dao.UpdateTag(database, tag); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

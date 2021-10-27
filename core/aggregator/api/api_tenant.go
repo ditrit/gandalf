@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/ditrit/gandalf/core/aggregator/shoset"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/models"
@@ -84,7 +85,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(logicalComponent)
 					fmt.Println("CREATE 4")
 				} else {
-					dao.DeleteTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), int(tenant.ID))
+					dao.DeleteTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), tenant.ID)
 					utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 					return
 				}
@@ -95,7 +96,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 				result["tenant"] = tenant
 
 			} else {
-				dao.DeleteTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), int(tenant.ID))
+				dao.DeleteTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), tenant.ID)
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -113,7 +114,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 func DeleteTenant(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["tenantId"])
+	id, err := uuid.Parse(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 		return
@@ -130,7 +131,7 @@ func DeleteTenant(w http.ResponseWriter, r *http.Request) {
 func GetTenantById(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["tenantId"])
+	id, err := uuid.Parse(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return
@@ -164,7 +165,7 @@ func ListTenant(w http.ResponseWriter, r *http.Request) {
 func UpdateTenant(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["tenantId"])
+	id, err := uuid.Parse(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return
@@ -177,7 +178,7 @@ func UpdateTenant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	tenant.ID = uint(id)
+	tenant.ID = id
 
 	if err := dao.UpdateTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), tenant); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

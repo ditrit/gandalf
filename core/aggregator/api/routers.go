@@ -65,14 +65,14 @@ var routes = Routes{
 	Route{
 		"DeleteAuthorization",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteAuthorization),
 	},
 
 	Route{
 		"GetAuthorizationById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/authorization/{authorizationId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetAuthorizationById),
 	},
 
@@ -93,21 +93,21 @@ var routes = Routes{
 	Route{
 		"CreateDomain",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(CreateDomain),
 	},
 
 	Route{
 		"DeleteDomain",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteDomain),
 	},
 
 	Route{
 		"GetDomainById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetDomainById),
 	},
 
@@ -128,49 +128,49 @@ var routes = Routes{
 	Route{
 		"UpdateDomain",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateDomain),
 	},
 
 	Route{
 		"ListDomainTag",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/tag",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/tag",
 		IsAuthorized(ListDomainTag),
 	},
 
 	Route{
 		"CreateDomainTag",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/tag/{tagId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/tag/{tagId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(CreateDomainTag),
 	},
 
 	Route{
 		"DeleteDomainTag",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/tag/{tagId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/tag/{tagId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteDomainTag),
 	},
 
 	Route{
 		"ListDomainEnvironmentg",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/environment",
 		IsAuthorized(ListDomainEnvironment),
 	},
 
 	Route{
 		"CreateDomainEnvironment",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment/{environmentId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/environment/{environmentId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(CreateDomainEnvironment),
 	},
 
 	Route{
 		"DeleteDomainEnvironment",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/domain/{domainId:[0-9]+}/environment/{environmentId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/environment/{environmentId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteDomainEnvironment),
 	},
 	///
@@ -185,14 +185,14 @@ var routes = Routes{
 	Route{
 		"DeleteEventType",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteEventType),
 	},
 
 	Route{
 		"GetEventTypeById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetEventTypeById),
 	},
 
@@ -213,7 +213,7 @@ var routes = Routes{
 	Route{
 		"UpdateEventType",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/eventType/{eventTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateEventType),
 	},
 
@@ -227,14 +227,14 @@ var routes = Routes{
 	Route{
 		"DeleteEventTypeToPoll",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteEventTypeToPoll),
 	},
 
 	Route{
 		"GetEventTypeToPollById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetEventTypeToPollById),
 	},
 
@@ -248,7 +248,7 @@ var routes = Routes{
 	Route{
 		"UpdateEventTypeToPoll",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/eventTypeToPoll/{eventTypeToPollId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateEventTypeToPoll),
 	},
 
@@ -276,14 +276,14 @@ var routes = Routes{
 	Route{
 		"DeleteLibrary",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteLibrary),
 	},
 
 	Route{
 		"GetLibraryById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetLibraryById),
 	},
 
@@ -297,7 +297,7 @@ var routes = Routes{
 	Route{
 		"UpdateLibrary",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/library/{libraryId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/library/{libraryId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateLibrary),
 	},
 
@@ -311,14 +311,14 @@ var routes = Routes{
 	Route{
 		"DeleteProduct",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/product/{productId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/product/{productId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteProduct),
 	},
 
 	Route{
 		"GetProductById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/product/{productId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/product/{productId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetProductById),
 	},
 
@@ -332,7 +332,7 @@ var routes = Routes{
 	Route{
 		"UpdateProduct",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/product/{productId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/product/{productId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateProduct),
 	},
 
@@ -346,14 +346,14 @@ var routes = Routes{
 	Route{
 		"DeleteConnectorProduct",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteConnectorProduct),
 	},
 
 	Route{
 		"GetConnectorProductById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetConnectorProductById),
 	},
 
@@ -367,7 +367,7 @@ var routes = Routes{
 	Route{
 		"UpdateConnectorProduct",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[0-9]+",
+		"/ditrit/Gandalf/1.0.0/connectorProduct/{connectorProductId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}",
 		IsAuthorized(UpdateConnectorProduct),
 	},
 
@@ -381,14 +381,14 @@ var routes = Routes{
 	Route{
 		"DeleteResource",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteResource),
 	},
 
 	Route{
 		"GetResourceById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetResourceById),
 	},
 
@@ -409,7 +409,7 @@ var routes = Routes{
 	Route{
 		"UpdateResource",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/resource/{resourceId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateResource),
 	},
 
@@ -423,14 +423,14 @@ var routes = Routes{
 	Route{
 		"DeleteResourceType",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteResourceType),
 	},
 
 	Route{
 		"GetResourceTypeById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetResourceTypeById),
 	},
 
@@ -451,7 +451,7 @@ var routes = Routes{
 	Route{
 		"UpdateResourceType",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/resourceType/{resourceTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateResourceType),
 	},
 
@@ -465,14 +465,14 @@ var routes = Routes{
 	Route{
 		"DeleteRole",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/role/{roleId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/role/{roleId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteRole),
 	},
 
 	Route{
 		"GetRoleById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/role/{roleId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/role/{roleId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetRoleById),
 	},
 
@@ -486,7 +486,7 @@ var routes = Routes{
 	Route{
 		"UpdateRole",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/role/{roleId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/role/{roleId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateRole),
 	},
 
@@ -500,14 +500,14 @@ var routes = Routes{
 	Route{
 		"DeleteEnvironment",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteEnvironment),
 	},
 
 	Route{
 		"GetEnvironmentById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetEnvironmentById),
 	},
 
@@ -521,7 +521,7 @@ var routes = Routes{
 	Route{
 		"UpdateEnvironment",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/environment/{environmentId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateEnvironment),
 	},
 
@@ -535,14 +535,14 @@ var routes = Routes{
 	Route{
 		"DeleteEnvironmentType",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteEnvironmentType),
 	},
 
 	Route{
 		"GetEnvironmentTypeById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetEnvironmentTypeById),
 	},
 
@@ -556,7 +556,7 @@ var routes = Routes{
 	Route{
 		"UpdateEnvironmentType",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/environmentType/{environmentTypeId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateEnvironmentType),
 	},
 
@@ -577,21 +577,21 @@ var routes = Routes{
 	Route{
 		"CreateTag",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/tag/{tagId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(CreateTag),
 	},
 
 	Route{
 		"DeleteTag",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/tag/{tagId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteTag),
 	},
 
 	Route{
 		"GetTagById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/tag/{tagId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetTagById),
 	},
 
@@ -605,7 +605,7 @@ var routes = Routes{
 	Route{
 		"UpdateTag",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/tag/{tagId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/tag/{tagId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateTag),
 	},
 
@@ -626,14 +626,14 @@ var routes = Routes{
 	Route{
 		"DeleteTenant",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteTenant),
 	},
 
 	Route{
 		"GetTenantById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetTenantById),
 	},
 
@@ -647,7 +647,7 @@ var routes = Routes{
 	Route{
 		"UpdateTenant",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/tenant/{tenantId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateTenant),
 	},
 
@@ -661,14 +661,14 @@ var routes = Routes{
 	Route{
 		"DeleteUser",
 		strings.ToUpper("Delete"),
-		"/ditrit/Gandalf/1.0.0/user/{userId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/user/{userId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteUser),
 	},
 
 	Route{
 		"GetUserById",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/user/{userId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/user/{userId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(GetUserById),
 	},
 
@@ -710,7 +710,7 @@ var routes = Routes{
 	Route{
 		"UpdateUser",
 		strings.ToUpper("Put"),
-		"/ditrit/Gandalf/1.0.0/user/{userId:[0-9]+}",
+		"/ditrit/Gandalf/1.0.0/user/{userId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateUser),
 	},
 }

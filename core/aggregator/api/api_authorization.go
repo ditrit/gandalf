@@ -13,10 +13,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/gorilla/mux"
@@ -51,7 +51,7 @@ func DeleteAuthorization(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["authorizationId"])
+		id, err := uuid.Parse(vars["authorizationId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -74,7 +74,7 @@ func GetAuthorizationById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["authorizationId"])
+		id, err := uuid.Parse(vars["authorizationId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -120,7 +120,7 @@ func UpdateAuthorization(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["authorizationId"])
+		id, err := uuid.Parse(vars["authorizationId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -133,7 +133,7 @@ func UpdateAuthorization(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		authorization.ID = uint(id)
+		authorization.ID = id
 
 		if err := dao.UpdateAuthorization(database, authorization); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

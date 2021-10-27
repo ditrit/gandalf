@@ -14,10 +14,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/gorilla/mux"
@@ -28,7 +28,8 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		parentDomainId, err := strconv.Atoi(vars["domainId"])
+		parentDomainId, err := uuid.Parse(vars["domainId"])
+
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -54,7 +55,7 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 		}
 
 		defer r.Body.Close()
-		if err := dao.CreateDomain(database, domain, uint(parentDomainId)); err != nil {
+		if err := dao.CreateDomain(database, domain, parentDomainId); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
@@ -90,7 +91,7 @@ func DeleteDomain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["domainId"])
+		id, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			return
@@ -138,7 +139,7 @@ func GetDomainById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["domainId"])
+		id, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -203,7 +204,7 @@ func UpdateDomain(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["domainId"])
+		id, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 			return
@@ -216,7 +217,7 @@ func UpdateDomain(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		domain.ID = uint(id)
+		domain.ID = id
 
 		if err := dao.UpdateDomain(database, domain); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
@@ -235,7 +236,7 @@ func ListDomainTag(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		idDomain, err := strconv.Atoi(vars["domainId"])
+		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -270,7 +271,7 @@ func CreateDomainTag(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		idDomain, err := strconv.Atoi(vars["domainId"])
+		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -287,7 +288,7 @@ func CreateDomainTag(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		idTag, err := strconv.Atoi(vars["tagId"])
+		idTag, err := uuid.Parse(vars["tagId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -321,7 +322,7 @@ func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		idDomain, err := strconv.Atoi(vars["domainId"])
+		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -338,7 +339,7 @@ func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		idTag, err := strconv.Atoi(vars["tagId"])
+		idTag, err := uuid.Parse(vars["tagId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -374,7 +375,7 @@ func ListDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		idDomain, err := strconv.Atoi(vars["domainId"])
+		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -409,7 +410,7 @@ func CreateDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		idDomain, err := strconv.Atoi(vars["domainId"])
+		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -426,7 +427,7 @@ func CreateDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		idEnvironment, err := strconv.Atoi(vars["environmentId"])
+		idEnvironment, err := uuid.Parse(vars["environmentId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -460,7 +461,7 @@ func DeleteDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		idDomain, err := strconv.Atoi(vars["domainId"])
+		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -477,7 +478,7 @@ func DeleteDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		idEnvironment, err := strconv.Atoi(vars["environmentId"])
+		idEnvironment, err := uuid.Parse(vars["environmentId"])
 		if err != nil {
 			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")

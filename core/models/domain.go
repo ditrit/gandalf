@@ -3,14 +3,15 @@ package models
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
 )
 
 type Domain struct {
-	gorm.Model
-	Name             string `gorm:"not null"`
-	ParentID         uint
-	Parent           *Domain `gorm:"constraint:OnDelete:CASCADE;"`
+	Model
+	Name             string    `gorm:"not null"`
+	ParentID         uuid.UUID `gorm:"type:uuid"`
+	Parent           *Domain   `gorm:"constraint:OnDelete:CASCADE;"`
 	Products         []Product
 	Libraries        []Library
 	Authorizations   []Authorization

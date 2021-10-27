@@ -2,13 +2,11 @@ package models
 
 import (
 	"github.com/ditrit/gandalf/core/msg"
-
-	"github.com/jinzhu/gorm"
 )
 
 // Secret : Secret struct.
 type Secret struct {
-	gorm.Model
+	Model
 	UUID              string
 	Tenant            string
 	Timeout           int64

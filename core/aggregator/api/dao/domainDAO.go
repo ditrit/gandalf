@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -16,7 +17,7 @@ func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
 	return
 }
 
-func CreateDomain(database *gorm.DB, domain *models.Domain, parentDomainID uint) (err error) {
+func CreateDomain(database *gorm.DB, domain *models.Domain, parentDomainID uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
@@ -63,8 +64,8 @@ func TreeRecursiveDomain(domaintree *models.DomainTree, results []models.Domain)
 	}
 }
 
-func ReadDomain(database *gorm.DB, id int) (domain models.Domain, err error) {
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments").First(&domain, id).Error
+func ReadDomain(database *gorm.DB, id uuid.UUID) (domain models.Domain, err error) {
+	err = database.Where("id = ?", id).Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments").First(&domain).Error
 
 	return
 }
@@ -83,12 +84,12 @@ func UpdateDomain(database *gorm.DB, domain models.Domain) (err error) {
 	return
 }
 
-func DeleteDomain(database *gorm.DB, id int) (err error) {
+func DeleteDomain(database *gorm.DB, id uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var domain models.Domain
-			err = database.First(&domain, id).Error
+			err = database.Where("id = ?", id).First(&domain).Error
 			if err == nil {
 				err = database.Unscoped().Delete(&domain).Error
 			}

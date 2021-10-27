@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -29,8 +30,8 @@ func CreateResourceType(database *gorm.DB, resourceType *models.ResourceType) (e
 	return
 }
 
-func ReadResourceType(database *gorm.DB, id int) (resourceType models.ResourceType, err error) {
-	err = database.First(&resourceType, id).Error
+func ReadResourceType(database *gorm.DB, id uuid.UUID) (resourceType models.ResourceType, err error) {
+	err = database.Where("id = ?", id).First(&resourceType).Error
 
 	return
 }
@@ -49,12 +50,15 @@ func UpdateResourceType(database *gorm.DB, resourceType models.ResourceType) (er
 	return
 }
 
-func DeleteResourceType(database *gorm.DB, id int) (err error) {
+func DeleteResourceType(database *gorm.DB, id uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var resourceType models.ResourceType
-			err = database.Unscoped().Delete(&resourceType, id).Error
+			err = database.Where("id = ?", id).First(&resourceType).Error
+			if err == nil {
+				err = database.Unscoped().Delete(&resourceType).Error
+			}
 		} else {
 			err = errors.New("Invalid state")
 		}

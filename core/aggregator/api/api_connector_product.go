@@ -13,10 +13,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/gorilla/mux"
@@ -51,7 +51,7 @@ func DeleteConnectorProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["connectorProductId"])
+		id, err := uuid.Parse(vars["connectorProductId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ConnectorProduct ID")
 			return
@@ -74,7 +74,7 @@ func GetConnectorProductById(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["connectorProductId"])
+		id, err := uuid.Parse(vars["connectorProductId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -120,7 +120,7 @@ func UpdateConnectorProduct(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		id, err := strconv.Atoi(vars["connectorProductId"])
+		id, err := uuid.Parse(vars["connectorProductId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
 			return
@@ -133,7 +133,7 @@ func UpdateConnectorProduct(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		defer r.Body.Close()
-		connectorProduct.ID = uint(id)
+		connectorProduct.ID = id
 
 		if err := dao.UpdateConnectorProduct(database, connectorProduct); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
