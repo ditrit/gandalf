@@ -15,6 +15,7 @@ type Tag struct {
 	ShortDescription string
 	Description      string
 	Logo             string
+	Childs           []*Tag
 }
 
 func (t *Tag) BeforeDelete(tx *gorm.DB) (err error) {

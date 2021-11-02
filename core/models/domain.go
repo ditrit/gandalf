@@ -20,6 +20,7 @@ type Domain struct {
 	ShortDescription string
 	Description      string
 	Logo             string
+	Childs           []*Domain
 }
 
 func (d *Domain) BeforeDelete(tx *gorm.DB) (err error) {
