@@ -11,7 +11,7 @@ import (
 )
 
 func ListLibrary(database *gorm.DB) (librarys []models.Library, err error) {
-	err = database.Preload("Domain").Find(&librarys).Error
+	err = database.Find(&librarys).Error
 
 	return
 }
@@ -30,7 +30,7 @@ func CreateLibrary(database *gorm.DB, library *models.Library) (err error) {
 }
 
 func ReadLibrary(database *gorm.DB, id uuid.UUID) (library models.Library, err error) {
-	err = database.Where("id = ?", id).Preload("Domain").First(&library).Error
+	err = database.Where("id = ?", id).First(&library).Error
 
 	return
 }

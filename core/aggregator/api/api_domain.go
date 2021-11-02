@@ -60,6 +60,11 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Library
+		for _, library := range parentDomain.Libraries {
+			dao.AddDomainLibrary(database, *domain, library)
+		}
+
 		// Env
 		for _, environment := range parentDomain.Environments {
 			dao.AddDomainEnvironment(database, *domain, environment)
@@ -496,6 +501,145 @@ func DeleteDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := dao.RemoveDomainEnvironment(database, domain, environment); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
+///
+
+func ListDomainLibrary(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		idDomain, err := uuid.Parse(vars["domainId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var domain models.Domain
+		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		libraries, err := dao.ListDomainLibrary(database, domain)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, libraries)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
+func CreateDomainLibrary(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		idDomain, err := uuid.Parse(vars["domainId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var domain models.Domain
+		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		idLibrary, err := uuid.Parse(vars["libraryId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var library models.Library
+		if library, err = dao.ReadLibrary(database, idLibrary); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		if err := dao.AddDomainLibrary(database, domain, library); err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
+func DeleteDomainLibrary(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		idDomain, err := uuid.Parse(vars["domainId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var domain models.Domain
+		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		idLibrary, err := uuid.Parse(vars["libraryId"])
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			return
+		}
+		var library models.Library
+		if library, err = dao.ReadLibrary(database, idLibrary); err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
+			default:
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+
+		if err := dao.RemoveDomainLibrary(database, domain, library); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
