@@ -39,27 +39,25 @@ func CreateDomain(database *gorm.DB, domain *models.Domain, parentDomainID uuid.
 	return
 }
 
-func TreeDomain(database *gorm.DB) (result *models.DomainTree, err error) {
-	var results []models.Domain
+func TreeDomain(database *gorm.DB) (result *models.Domain, err error) {
+	var results []*models.Domain
 	database.Raw("select * from domains order by parent_id").Scan(&results)
 
-	domainTree := new(models.DomainTree)
-	domainTree.Domain = results[0]
-	TreeRecursiveDomain(domainTree, results)
+	domain := results[0]
+	TreeRecursiveDomain(domain, results)
 
-	result = domainTree
+	result = domain
 	return
 }
 
-func TreeRecursiveDomain(domaintree *models.DomainTree, results []models.Domain) {
+func TreeRecursiveDomain(domain *models.Domain, results []*models.Domain) {
 	for _, result := range results {
-		if result.ParentID == domaintree.Domain.ID {
-			currentDomainTree := new(models.DomainTree)
-			currentDomainTree.Domain = result
-			domaintree.Childs = append(domaintree.Childs, currentDomainTree)
+		if result.ParentID == domain.ID {
+			currentDomain := result
+			domain.Childs = append(domain.Childs, currentDomain)
 		}
 	}
-	for _, child := range domaintree.Childs {
+	for _, child := range domain.Childs {
 		TreeRecursiveDomain(child, results)
 	}
 }

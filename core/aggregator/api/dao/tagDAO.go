@@ -46,27 +46,25 @@ func CreateTag(database *gorm.DB, tag *models.Tag, parentTagID uuid.UUID) (err e
 	return
 }
 
-func TreeTag(database *gorm.DB) (result *models.TagTree, err error) {
-	var results []models.Tag
+func TreeTag(database *gorm.DB) (result *models.Tag, err error) {
+	var results []*models.Tag
 	database.Raw("select * from tags order by parent_id").Scan(&results)
 
-	tagTree := new(models.TagTree)
-	tagTree.Tag = results[0]
-	TreeRecursiveTag(tagTree, results)
+	tag := results[0]
+	TreeRecursiveTag(tag, results)
 
-	result = tagTree
+	result = tag
 	return
 }
 
-func TreeRecursiveTag(tagtree *models.TagTree, results []models.Tag) {
+func TreeRecursiveTag(tag *models.Tag, results []*models.Tag) {
 	for _, result := range results {
-		if result.ParentID == tagtree.Tag.ID {
-			currentTagTree := new(models.TagTree)
-			currentTagTree.Tag = result
-			tagtree.Childs = append(tagtree.Childs, currentTagTree)
+		if result.ParentID == tag.ID {
+			currentTag := result
+			tag.Childs = append(tag.Childs, currentTag)
 		}
 	}
-	for _, child := range tagtree.Childs {
+	for _, child := range tag.Childs {
 		TreeRecursiveTag(child, results)
 	}
 }
