@@ -1285,7 +1285,95 @@ paths:
           $ref: '#/components/responses/500Error'
       security:
         - bearerAuth: []
-
+  '/domain/{domainId}/library':
+    get:
+      tags:
+        - domain
+      summary: List domain libraries
+      operationId: listDomainLibrary
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Library'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []  
+  '/domain/{domainId}/library/{libraryId}':
+    post:
+      tags:
+        - domain
+      summary: Create a library domain
+      operationId: createDomainLibrary
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: libraryId
+          in: path
+          description: ID of library that needs to be added
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - domain
+      summary: Deletes a library domain
+      operationId: deleteDomainLibrary
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: libraryId
+          in: path
+          description: ID of library that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
   /tag:
     get:
       tags:
@@ -2555,10 +2643,6 @@ components:
         logo:
           type: string
           description: The path to the logo.
-        domainId:
-          type: string
-          format: uuid
-          description: The domain id.
     Role:
       type: object
       properties:
@@ -2895,9 +2979,6 @@ components:
                 type: string
               logo:
                 type: string
-              domainID:
-                type: string
-                format: uuid
       description: The library to create.
     createOrUpdateRole:
       content:
