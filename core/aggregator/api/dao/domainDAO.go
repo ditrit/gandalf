@@ -129,7 +129,7 @@ func RemoveDomainTag(database *gorm.DB, domain models.Domain, tag models.Tag) (e
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
-			err = database.Model(&domain).Association("Tags").Delete(tag).Error
+			err = database.Model(&domain).Association("Tags").Delete(&tag).Error
 
 		} else {
 			err = errors.New("Invalid state")
@@ -169,7 +169,47 @@ func RemoveDomainEnvironment(database *gorm.DB, domain models.Domain, environmen
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
-			err = database.Model(&domain).Association("Environments").Delete(environment).Error
+			err = database.Model(&domain).Association("Environments").Delete(&environment).Error
+
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func ListDomainLibrary(database *gorm.DB, domain models.Domain) (libraries []models.Library, err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Libraries").Find(&libraries).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func AddDomainLibrary(database *gorm.DB, domain models.Domain, library models.Library) (err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Libraries").Append(&library).Error
+		} else {
+			err = errors.New("Invalid state")
+		}
+	}
+
+	return
+}
+
+func RemoveDomainLibrary(database *gorm.DB, domain models.Domain, library models.Library) (err error) {
+	admin, err := utils.GetState(database)
+	if err == nil {
+		if admin {
+			err = database.Model(&domain).Association("Libraries").Delete(&library).Error
 
 		} else {
 			err = errors.New("Invalid state")

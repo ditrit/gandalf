@@ -12,9 +12,9 @@ type Domain struct {
 	Name             string    `gorm:"not null"`
 	ParentID         uuid.UUID `gorm:"type:uuid"`
 	Parent           *Domain   `gorm:"constraint:OnDelete:CASCADE;"`
-	Products         []Product
-	Libraries        []Library
 	Authorizations   []Authorization
+	Products         []Product
+	Libraries        []Library     `gorm:"many2many:domain_libraries;"`
 	Tags             []Tag         `gorm:"many2many:domain_tags;"`
 	Environments     []Environment `gorm:"many2many:domain_environments;"`
 	ShortDescription string

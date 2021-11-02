@@ -154,7 +154,7 @@ var routes = Routes{
 	},
 
 	Route{
-		"ListDomainEnvironmentg",
+		"ListDomainEnvironment",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/environment",
 		IsAuthorized(ListDomainEnvironment),
@@ -173,7 +173,27 @@ var routes = Routes{
 		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/environment/{environmentId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(DeleteDomainEnvironment),
 	},
-	///
+
+	Route{
+		"ListDomainLibrary",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/library",
+		IsAuthorized(ListDomainLibrary),
+	},
+
+	Route{
+		"CreateDomainLibrary",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/library/{libraryId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(CreateDomainLibrary),
+	},
+
+	Route{
+		"DeleteDomainLibrary",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/domain/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}/library/{libraryId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(DeleteDomainLibrary),
+	},
 
 	Route{
 		"CreateEventType",
