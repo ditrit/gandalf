@@ -14,7 +14,7 @@ type ResourceService struct {
 
 // List :
 func (as *ResourceService) List(token string) ([]models.Resource, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/resources/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resource/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (as *ResourceService) List(token string) ([]models.Resource, error) {
 
 // Create :
 func (as *ResourceService) Create(token string, resource models.Resource) error {
-	req, err := as.client.newRequest("POST", "/auth/gandalf/resources/", token, resource)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/resource/", token, resource)
 	if err != nil {
 		return err
 	}
@@ -35,7 +35,7 @@ func (as *ResourceService) Create(token string, resource models.Resource) error 
 
 // Read :
 func (as *ResourceService) Read(token string, id int) (*models.Resource, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/resources/"+strconv.Itoa(id), token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resource/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (as *ResourceService) Read(token string, id int) (*models.Resource, error) 
 
 // Read :
 func (as *ResourceService) ReadByName(token string, name string) (*models.Resource, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/resources/"+name, token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resource/"+name, token, nil)
 	fmt.Println("err service")
 	fmt.Println(err)
 	if err != nil {
@@ -61,7 +61,7 @@ func (as *ResourceService) ReadByName(token string, name string) (*models.Resour
 
 // Update :
 func (as *ResourceService) Update(token string, id int, resource models.Resource) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/resources/"+strconv.Itoa(id), token, resource)
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/resource/"+strconv.Itoa(id), token, resource)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (as *ResourceService) Update(token string, id int, resource models.Resource
 
 // Delete :
 func (as *ResourceService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/resources/"+strconv.Itoa(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/resource/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}

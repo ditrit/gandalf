@@ -13,7 +13,7 @@ type ResourceTypeService struct {
 
 // List :
 func (as *ResourceTypeService) List(token string) ([]models.ResourceType, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/resourcetypes/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resourcetype/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (as *ResourceTypeService) List(token string) ([]models.ResourceType, error)
 
 // Create :
 func (as *ResourceTypeService) Create(token string, resourceType models.ResourceType) error {
-	req, err := as.client.newRequest("POST", "/auth/gandalf/resourcetypes/", token, resourceType)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/resourcetype/", token, resourceType)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (as *ResourceTypeService) Create(token string, resourceType models.Resource
 
 // Read :
 func (as *ResourceTypeService) Read(token string, id int) (*models.ResourceType, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/resourcetypes/"+strconv.Itoa(id), token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resourcetype/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (as *ResourceTypeService) Read(token string, id int) (*models.ResourceType,
 
 // Read :
 func (as *ResourceTypeService) ReadByName(token string, name string) (*models.ResourceType, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/resourcetypes/"+name, token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resourcetype/"+name, token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (as *ResourceTypeService) ReadByName(token string, name string) (*models.Re
 
 // Update :
 func (as *ResourceTypeService) Update(token string, id int, resourceType models.ResourceType) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/resourcetypes/"+strconv.Itoa(id), token, resourceType)
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/resourcetype/"+strconv.Itoa(id), token, resourceType)
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (as *ResourceTypeService) Update(token string, id int, resourceType models.
 
 // Delete :
 func (as *ResourceTypeService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/resourcetypes/"+strconv.Itoa(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/resourcetype/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}
