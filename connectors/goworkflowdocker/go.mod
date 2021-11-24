@@ -3,7 +3,7 @@ module github.com/ditrit/gandalf/connectors/goworkflowdocker
 go 1.13
 
 require (
-	github.com/containerd/containerd v1.5.2 // indirect
+	github.com/containerd/containerd v1.5.8 // indirect
 	github.com/ditrit/gandalf/connectors/go v0.0.0-20210629113427-99f41666acdf
 	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201214140623-f5acfca99e05
 	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
