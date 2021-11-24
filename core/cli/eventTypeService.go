@@ -13,7 +13,7 @@ type EventTypeService struct {
 
 // List :
 func (as *EventTypeService) List(token string) ([]models.EventType, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/eventtypes/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtype/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (as *EventTypeService) List(token string) ([]models.EventType, error) {
 
 // Create :
 func (as *EventTypeService) Create(token string, eventType models.EventType) error {
-	req, err := as.client.newRequest("POST", "/auth/gandalf/eventtypes/", token, eventType)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/eventtype/", token, eventType)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (as *EventTypeService) Create(token string, eventType models.EventType) err
 
 // Read :
 func (as *EventTypeService) Read(token string, id int) (*models.EventType, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/eventtypes/"+strconv.Itoa(id), token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtype/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (as *EventTypeService) Read(token string, id int) (*models.EventType, error
 
 // Read :
 func (as *EventTypeService) ReadByName(token string, name string) (*models.EventType, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/eventtypes/"+name, token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtype/"+name, token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (as *EventTypeService) ReadByName(token string, name string) (*models.Event
 
 // Update :
 func (as *EventTypeService) Update(token string, id int, eventType models.EventType) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/eventtypes/"+strconv.Itoa(id), token, eventType)
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/eventtype/"+strconv.Itoa(id), token, eventType)
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (as *EventTypeService) Update(token string, id int, eventType models.EventT
 
 // Delete :
 func (as *EventTypeService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/eventtypes/"+strconv.Itoa(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/eventtype/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}

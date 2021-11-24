@@ -12,7 +12,7 @@ type UserService struct {
 
 // List :
 func (as *UserService) List(token string) ([]models.User, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/users/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/user", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *UserService) List(token string) ([]models.User, error) {
 
 // Create :
 func (as *UserService) Create(token string, user models.User) error {
-	req, err := as.client.newRequest("POST", "/auth/gandalf/users/", token, user)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/user", token, user)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (as *UserService) Create(token string, user models.User) error {
 
 // Read :
 func (as *UserService) Read(token string, id int) (*models.User, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/users/"+string(id), token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/user/"+string(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (as *UserService) Read(token string, id int) (*models.User, error) {
 
 // Read :
 func (as *UserService) ReadByName(token string, name string) (*models.User, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/users/"+name, token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/users/"+name, token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (as *UserService) ReadByName(token string, name string) (*models.User, erro
 
 // Update :
 func (as *UserService) Update(token string, id uuid.UUID, user models.User) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/users/"+id.String(), token, user)
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/user/"+id.String(), token, user)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func (as *UserService) Update(token string, id uuid.UUID, user models.User) erro
 
 // Delete :
 func (as *UserService) Delete(token string, id uuid.UUID) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/users/"+id.String(), token, nil)
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/user/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

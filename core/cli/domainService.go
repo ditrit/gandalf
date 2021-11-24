@@ -13,7 +13,7 @@ type DomainService struct {
 
 // List :
 func (as *DomainService) List(token string) ([]models.Domain, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/domains/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/domain/", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (as *DomainService) List(token string) ([]models.Domain, error) {
 
 // Create :
 func (as *DomainService) Create(token string, domain models.Domain, parentDomainName string) error {
-	req, err := as.client.newRequest("POST", "/auth/gandalf/domains/"+parentDomainName, token, domain)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/domain/"+parentDomainName, token, domain)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (as *DomainService) Create(token string, domain models.Domain, parentDomain
 
 // Read :
 func (as *DomainService) Read(token string, id int) (*models.Domain, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/domains/"+strconv.Itoa(id), token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/domain/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (as *DomainService) Read(token string, id int) (*models.Domain, error) {
 
 // Read :
 func (as *DomainService) ReadByName(token string, name string) (*models.Domain, error) {
-	req, err := as.client.newRequest("GET", "/auth/gandalf/domains/"+name, token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/domain/"+name, token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (as *DomainService) ReadByName(token string, name string) (*models.Domain, 
 
 // Update :
 func (as *DomainService) Update(token string, id int, domain models.Domain) error {
-	req, err := as.client.newRequest("PUT", "/auth/gandalf/domains/"+strconv.Itoa(id), token, domain)
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/domain/"+strconv.Itoa(id), token, domain)
 	if err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (as *DomainService) Update(token string, id int, domain models.Domain) erro
 
 // Delete :
 func (as *DomainService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/auth/gandalf/domains/"+strconv.Itoa(id), token, nil)
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/domain/"+strconv.Itoa(id), token, nil)
 	if err != nil {
 		return err
 	}

@@ -66,8 +66,18 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Env
-		for _, environment := range parentDomain.Environments {
+		/* 		for _, environment := range parentDomain.Environments {
 			dao.AddDomainEnvironment(database, *domain, environment)
+		} */
+		for _, environment := range parentDomain.Environments {
+			currentEnvironment := new(models.Environment)
+			currentEnvironment.Name = environment.Name
+			currentEnvironment.EnvironmentType = environment.EnvironmentType
+			currentEnvironment.ShortDescription = environment.ShortDescription
+			currentEnvironment.Description = environment.Description
+			currentEnvironment.Logo = environment.Logo
+			currentEnvironment.Domain = *domain
+			dao.CreateEnvironment(database, currentEnvironment)
 		}
 
 		// Tag
@@ -374,7 +384,7 @@ func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
 }
 
 ///
-
+/*
 func ListDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -510,7 +520,7 @@ func DeleteDomainEnvironment(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
-}
+} */
 
 ///
 

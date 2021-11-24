@@ -29,8 +29,8 @@ tags:
     externalDocs:
       description: Find out more
       url: 'http://swagger.io'
-  - name: envrionment
-    description: Everything about your Envrionment
+  - name: environment
+    description: Everything about your environment
     externalDocs:
       description: Find out more
       url: 'http://swagger.io'
@@ -711,7 +711,7 @@ paths:
       security:
         - bearerAuth: []
         
-  /envrionmentType:
+  /environmentType:
     get:
       tags:
         - environmentType
@@ -1183,95 +1183,6 @@ paths:
         - name: tagId
           in: path
           description: ID of tag that needs to be deleted
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Succes
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
-      security:
-        - bearerAuth: []
-  '/domain/{domainId}/environment':
-    get:
-      tags:
-        - domain
-      summary: List domain environments
-      operationId: listDomainEnvironment
-      parameters:
-        - name: domainId
-          in: path
-          description: ID of domain
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    schema: 
-                      $ref: '#/components/schemas/Environment'
-        '500':
-          $ref: '#/components/responses/500Error'
-      security:
-        - bearerAuth: []  
-  '/domain/{domainId}/environment/{environmentId}':
-    post:
-      tags:
-        - domain
-      summary: Create a environment domain
-      operationId: createDomainEnvironment
-      parameters:
-        - name: domainId
-          in: path
-          description: ID of domain that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: environmentId
-          in: path
-          description: ID of environment that needs to be added
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Succes
-        '400':
-          $ref: '#/components/responses/InvalidIDSupplied'
-        '500':
-          $ref: '#/components/responses/500Error'
-      security:
-        - bearerAuth: []
-    delete:
-      tags:
-        - domain
-      summary: Deletes a environment domain
-      operationId: deleteDomainEnvironment
-      parameters:
-        - name: domainId
-          in: path
-          description: ID of domain that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: environmentId
-          in: path
-          description: ID of environment that needs to be deleted
           required: true
           schema:
             type: integer
@@ -2763,16 +2674,16 @@ components:
           $ref: '#/components/schemas/Model'
         name:
           type: string
-          description: The envrionmentType name.
+          description: The environmentType name.
         shortdescription:
           type: string
-          description: The envrionmentType short description.
+          description: The environmentType short description.
         description:
           type: string
-          description: The envrionmentType description.
+          description: The environmentType description.
         logo:
           type: string
-          description: The envrionmentType logo.
+          description: The environmentType logo.
     Environment:
       type: object
       properties:
@@ -2780,17 +2691,17 @@ components:
           $ref: '#/components/schemas/Model'
         name:
           type: string
-          description: The envrionment name.
+          description: The environment name.
         shortdescription:
           type: string
-          description: The envrionment short description.
+          description: The environment short description.
         description:
           type: string
-          description: The envrionment description.
+          description: The environment description.
         logo:
           type: string
-          description: The envrionment logo.
-        envrionmentTypeID:
+          description: The environment logo.
+        environmentTypeID:
           type: string
           format: uuid
           description: The ID of envrionementType.
@@ -3112,7 +3023,7 @@ components:
                 type: string
               logo:
                 type: string
-      description: The envrionment type to create.
+      description: The environment type to create.
     createOrUpdateEnvironment:
       content:
         application/json:
@@ -3123,7 +3034,7 @@ components:
               - shortdescription
               - description
               - logo
-              - envrionmentTypeID
+              - environmentTypeID
             properties:
               name:
                 type: string
@@ -3133,10 +3044,10 @@ components:
                 type: string
               logo:
                 type: string
-              envrionmentTypeID:
+              environmentTypeID:
                 type: string
                 format: uuid
-      description: The envrionment to create.
+      description: The environment to create.
     createOrUpdateEventType:
       content:
         application/json:
