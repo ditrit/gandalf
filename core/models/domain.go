@@ -14,9 +14,9 @@ type Domain struct {
 	Parent           *Domain   `gorm:"constraint:OnDelete:CASCADE;"`
 	Authorizations   []Authorization
 	Products         []Product
-	Libraries        []Library     `gorm:"many2many:domain_libraries;"`
-	Tags             []Tag         `gorm:"many2many:domain_tags;"`
-	Environments     []Environment `gorm:"many2many:domain_environments;"`
+	Libraries        []Library `gorm:"many2many:domain_libraries;"`
+	Tags             []Tag     `gorm:"many2many:domain_tags;"`
+	Environments     []Environment
 	ShortDescription string
 	Description      string
 	Logo             string

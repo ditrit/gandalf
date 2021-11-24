@@ -63,14 +63,14 @@ func TreeRecursiveDomain(domain *models.Domain, results []*models.Domain) {
 }
 
 func ReadDomain(database *gorm.DB, id uuid.UUID) (domain models.Domain, err error) {
-	err = database.Where("id = ?", id).Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments").First(&domain).Error
+	err = database.Where("id = ?", id).Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments.EnvironmentType").Preload("Environments.Domain").First(&domain).Error
 
 	return
 }
 
 func ReadDomainByName(database *gorm.DB, name string) (domain models.Domain, err error) {
 	fmt.Println("DAO")
-	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments").Where("name = ?", name).First(&domain).Error
+	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments.EnvironmentType").Preload("Environments.Domain").Where("name = ?", name).First(&domain).Error
 	fmt.Println(err)
 	fmt.Println(domain)
 	return
@@ -139,6 +139,7 @@ func RemoveDomainTag(database *gorm.DB, domain models.Domain, tag models.Tag) (e
 	return
 }
 
+/*
 func ListDomainEnvironment(database *gorm.DB, domain models.Domain) (environments []models.Environment, err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
@@ -177,7 +178,7 @@ func RemoveDomainEnvironment(database *gorm.DB, domain models.Domain, environmen
 	}
 
 	return
-}
+} */
 
 func ListDomainLibrary(database *gorm.DB, domain models.Domain) (libraries []models.Library, err error) {
 	admin, err := utils.GetState(database)
