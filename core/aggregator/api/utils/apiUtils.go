@@ -33,25 +33,6 @@ func GetJwtKey() []byte {
 	return jwtKey
 }
 
-/* //TODO
-// GetDatabaseClientByTenant : Cluster database client getter by tenant.
-func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
-	if _, ok := mapDatabaseClient[tenant]; !ok {
-
-		//var tenantDatabaseClient *gorm.DB
-		tenantDatabaseClient, err := database.NewTenantDatabaseClient(addr, tenant)
-		if err == nil {
-			mapDatabaseClient[tenant] = tenantDatabaseClient
-		} else {
-			log.Println("Can't create database client")
-			return nil
-		}
-
-	}
-
-	return mapDatabaseClient[tenant]
-} */
-
 func ExtractToken(r *http.Request) string {
 	bearToken := r.Header.Get("Authorization")
 	//normally Authorization the_token_xxx

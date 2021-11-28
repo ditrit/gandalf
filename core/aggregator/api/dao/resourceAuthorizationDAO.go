@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -15,7 +16,7 @@ func ListResourceAuthorization(database *gorm.DB) (resourceAuthorizations []mode
 	return
 }
 
-func CreateResourceAuthorization(database *gorm.DB, resourceAuthorization models.ResourceAuthorization) (err error) {
+func CreateResourceAuthorization(database *gorm.DB, resourceAuthorization *models.ResourceAuthorization) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
@@ -28,8 +29,8 @@ func CreateResourceAuthorization(database *gorm.DB, resourceAuthorization models
 	return
 }
 
-func ReadResourceAuthorization(database *gorm.DB, id int) (resourceAuthorization models.ResourceAuthorization, err error) {
-	err = database.First(&resourceAuthorization, id).Error
+func ReadResourceAuthorization(database *gorm.DB, id uuid.UUID) (resourceAuthorization models.ResourceAuthorization, err error) {
+	err = database.Where("id = ?", id).First(&resourceAuthorization).Error
 
 	return
 }
@@ -40,12 +41,15 @@ func UpdateResourceAuthorization(database *gorm.DB, resourceAuthorization models
 	return
 }
 
-func DeleteResourceAuthorization(database *gorm.DB, id int) (err error) {
+func DeleteResourceAuthorization(database *gorm.DB, id uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var resourceAuthorization models.ResourceAuthorization
-			err = database.Unscoped().Delete(&resourceAuthorization, id).Error
+			err = database.Where("id = ?", id).First(&resourceAuthorization).Error
+			if err == nil {
+				err = database.Unscoped().Delete(&resourceAuthorization).Error
+			}
 		} else {
 			err = errors.New("Invalid state")
 		}

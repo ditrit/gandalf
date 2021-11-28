@@ -136,12 +136,15 @@ func init() {
 	cliCreateSecret.SetNbArgs(0)
 	cliListSecret.SetNbArgs(0)
 
-	cliCreateUser.SetNbArgs(3)
+	cliCreateUser.SetNbArgs(6)
 	cliListUsers.SetNbArgs(0)
 	cliUpdateUser.SetNbArgs(1)
 	cliDeleteUser.SetNbArgs(1)
 	cliUpdateUser.LKey("username", verdeter.IsStr, "u", "name of the user")
 	cliUpdateUser.LKey("email", verdeter.IsStr, "m", "mail of the user")
+	cliUpdateUser.LKey("firstname", verdeter.IsStr, "f", "firstname of the user")
+	cliUpdateUser.LKey("secondname", verdeter.IsStr, "s", "secondname of the user")
+	cliUpdateUser.LKey("companyid", verdeter.IsStr, "c", "companyid of the user")
 	cliUpdateUser.LKey("password", verdeter.IsStr, "p", "password of the user")
 
 	cliCreateTenant.SetNbArgs(1)
@@ -197,7 +200,6 @@ func runLogin(cfg *verdeter.ConfigCmd, args []string) {
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	var user models.User
-	user.Name = name
 	//user.Email = name
 	user.Password = password
 	//user := models.NewUser(name, name, password)
@@ -243,13 +245,16 @@ func runListSecret(cfg *verdeter.ConfigCmd, args []string) {
 func runCreateUser(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
 	email := args[1]
-	password := args[2]
+	firstname := args[2]
+	secondname := args[3]
+	companyid := args[4]
+	password := args[5]
 
 	fmt.Printf("gandalf cli create user called with username=%s, email=%s, password=%s\n", name, email, password)
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	user := models.NewUser(name, email, password)
+	user := models.NewUser(name, email, firstname, secondname, companyid, password)
 	err := cliClient.UserService.Create(configurationCli.GetToken(), user)
 	if err != nil {
 		fmt.Println(err)
@@ -277,6 +282,9 @@ func runUpdateUser(cfg *verdeter.ConfigCmd, args []string) {
 	name := args[0]
 	newName := viper.GetString("username")
 	email := viper.GetViper().GetString("email")
+	firstname := viper.GetViper().GetString("firstname")
+	secondname := viper.GetViper().GetString("secondname")
+	companyid := viper.GetViper().GetString("companyid")
 	password := viper.GetViper().GetString("password")
 	fmt.Printf("gandalf cli update user called with username=%s, newname=%s, email=%s, password=%s\n", name, newName, email, password)
 	configurationCli := cmodels.NewConfigurationCli()
@@ -284,8 +292,8 @@ func runUpdateUser(cfg *verdeter.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		user := models.NewUser(newName, email, password)
-		err = cliClient.UserService.Update(configurationCli.GetToken(), int(oldUser.ID), user)
+		user := models.NewUser(newName, email, firstname, secondname, companyid, password)
+		err = cliClient.UserService.Update(configurationCli.GetToken(), oldUser.ID, user)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -303,7 +311,7 @@ func runDeleteUser(cfg *verdeter.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		err = cliClient.UserService.Delete(configurationCli.GetToken(), int(oldUser.ID))
+		err = cliClient.UserService.Delete(configurationCli.GetToken(), oldUser.ID)
 		if err != nil {
 			fmt.Println(err)
 		}

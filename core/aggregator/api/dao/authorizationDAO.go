@@ -4,18 +4,19 @@ import (
 	"errors"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
 )
 
 func ListAuthorization(database *gorm.DB) (authorizations []models.Authorization, err error) {
-	err = database.Find(&authorizations).Error
+	err = database.Preload("User").Preload("Role").Preload("Domain").Find(&authorizations).Error
 
 	return
 }
 
-func CreateAuthorization(database *gorm.DB, authorization models.Authorization) (err error) {
+func CreateAuthorization(database *gorm.DB, authorization *models.Authorization) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
@@ -28,8 +29,8 @@ func CreateAuthorization(database *gorm.DB, authorization models.Authorization) 
 	return
 }
 
-func ReadAuthorization(database *gorm.DB, id int) (authorization models.Authorization, err error) {
-	err = database.First(&authorization, id).Error
+func ReadAuthorization(database *gorm.DB, id uuid.UUID) (authorization models.Authorization, err error) {
+	err = database.Where("id = ?", id).Preload("User").Preload("Role").Preload("Domain").First(&authorization).Error
 
 	return
 }
@@ -40,12 +41,15 @@ func UpdateAuthorization(database *gorm.DB, authorization models.Authorization) 
 	return
 }
 
-func DeleteAuthorization(database *gorm.DB, id int) (err error) {
+func DeleteAuthorization(database *gorm.DB, id uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var authorization models.Authorization
-			err = database.Unscoped().Delete(&authorization, id).Error
+			err = database.Where("id = ?", id).First(&authorization).Error
+			if err == nil {
+				err = database.Unscoped().Delete(&authorization).Error
+			}
 		} else {
 			err = errors.New("Invalid state")
 		}

@@ -1,16 +1,19 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/google/uuid"
+	"github.com/jinzhu/gorm"
+)
 
 type ProductConnector struct {
 	gorm.Model
 	Name          string `gorm:"unique;not null"`
 	Major         int8
 	Minor         int8
-	PivotID       uint
+	PivotID       uuid.UUID `gorm:"type:uuid"`
 	Pivot         Pivot
-	ProductID     uint
-	Product       Product
+	ProductID     uuid.UUID `gorm:"type:uuid"`
+	Product       ConnectorProduct
 	ResourceTypes []ResourceType `gorm:"ForeignKey:ProductConnectorID"`
 	CommandTypes  []CommandType  `gorm:"ForeignKey:ProductConnectorID"`
 	EventTypes    []EventType    `gorm:"ForeignKey:ProductConnectorID"`

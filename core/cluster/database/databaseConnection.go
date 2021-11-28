@@ -68,17 +68,24 @@ func (dc DatabaseConnection) newDatabaseClient(name, password string) (gandalfDa
 // InitGandalfDatabase : Gandalf database init.
 func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB, logicalName, bindAddress string) (login []string, password []string, err error) {
 	gandalfDatabaseClient.AutoMigrate(&models.State{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
-		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{},
-		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
-		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{}, &models.Heartbeat{})
+		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{},
+		&models.Pivot{}, &models.ProductConnector{}, &models.ConnectorProduct{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
+		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{}, &models.Heartbeat{},
+		&models.Tag{}, &models.Library{}, &models.Product{}, &models.Environment{}, &models.EnvironmentType{})
 
 	//Init State
 	state := models.State{Admin: true}
 	err = gandalfDatabaseClient.Create(&state).Error
 
 	//Init Root Domain
-	domain := models.Domain{Name: "root"}
-	models.InsertDomainRoot(gandalfDatabaseClient, domain)
+	domain := models.Domain{Name: "root", ShortDescription: "root", Description: "Domain root"}
+	//models.InsertDomainRoot(gandalfDatabaseClient, domain)
+	gandalfDatabaseClient.Save(&domain)
+
+	//Init Root Domain
+	tag := models.Tag{Name: "root"}
+	//models.InsertTagRoot(gandalfDatabaseClient, tag)
+	gandalfDatabaseClient.Save(&tag)
 
 	//Init Administartor Role
 	err = gandalfDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error
@@ -91,10 +98,10 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 			err = gandalfDatabaseClient.Where("name = ?", "root").First(&root).Error
 			if err == nil {
 				login1, password1 := "Administrator1", GenerateRandomHash()
-				user1 := models.NewUser(login1, login1, password1)
+				user1 := models.NewUser(login1, login1, login1, login1, login1, password1)
 				//authorization1 := models.Authorization{User: user1, Role: admin, Domain: root}
 				login2, password2 := "Administrator2", GenerateRandomHash()
-				user2 := models.NewUser(login2, login2, password2)
+				user2 := models.NewUser(login2, login2, login2, login2, login2, password2)
 				//authorization2 := models.Authorization{User: user2, Role: admin, Domain: root}
 				err = gandalfDatabaseClient.Transaction(func(tx *gorm.DB) error {
 
@@ -140,17 +147,24 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 // InitTenantDatabase : Tenant database init.
 func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (login []string, password []string, err error) {
 	tenantDatabaseClient.AutoMigrate(&models.State{}, &models.Event{}, &models.Tenant{}, &models.SecretAssignement{},
-		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{}, &models.DomainClosure{},
-		&models.Pivot{}, &models.ProductConnector{}, &models.Product{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
-		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{}, &models.Heartbeat{})
+		&models.Command{}, &models.Authorization{}, &models.Role{}, &models.User{}, &models.Domain{},
+		&models.Pivot{}, &models.ProductConnector{}, &models.ConnectorProduct{}, &models.Key{}, &models.CommandType{}, &models.EventType{},
+		&models.ResourceType{}, &models.Resource{}, &models.KeyValue{}, &models.LogicalComponent{}, &models.EventTypeToPoll{},
+		&models.Heartbeat{}, &models.Tag{}, &models.Library{}, &models.Product{}, &models.Environment{}, &models.EnvironmentType{})
 
 	//Init State
 	state := models.State{Admin: true}
 	err = tenantDatabaseClient.Create(&state).Error
 
 	//Init Root Domain
-	domain := models.Domain{Name: "root"}
-	models.InsertDomainRoot(tenantDatabaseClient, domain)
+	domain := models.Domain{Name: "root", ShortDescription: "root", Description: "Domain root"}
+	//models.InsertDomainRoot(tenantDatabaseClient, domain)
+	tenantDatabaseClient.Save(&domain)
+
+	//Init Root Domain
+	tag := models.Tag{Name: "root"}
+	//models.InsertTagRoot(tenantDatabaseClient, tag)
+	tenantDatabaseClient.Save(&tag)
 
 	//Init Administartor Role
 	err = tenantDatabaseClient.Create(&models.Role{Name: "Administrator"}).Error
@@ -163,10 +177,10 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 			err = tenantDatabaseClient.Where("name = ?", "root").First(&root).Error
 			if err == nil {
 				login1, password1 := "Administrator1", GenerateRandomHash()
-				user1 := models.NewUser(login1, login1, password1)
+				user1 := models.NewUser(login1, login1, login1, login1, login1, password1)
 				//authorization1 := models.Authorization{User: user1, Role: admin, Domain: root}
 				login2, password2 := "Administrator2", GenerateRandomHash()
-				user2 := models.NewUser(login2, login2, password2)
+				user2 := models.NewUser(login2, login2, login2, login2, login2, password2)
 				//authorization2 := models.Authorization{User: user2, Role: admin, Domain: root}
 				err = tenantDatabaseClient.Transaction(func(tx *gorm.DB) error {
 

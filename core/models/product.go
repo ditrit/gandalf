@@ -1,8 +1,15 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/google/uuid"
+)
 
 type Product struct {
-	gorm.Model
-	Name string `gorm:"unique;not null"`
+	Model
+	Name             string `gorm:"unique;not null"`
+	ShortDescription string
+	Description      string
+	Logo             string
+	DomainID         uuid.UUID `gorm:"type:uuid"`
+	Domain           Domain
 }

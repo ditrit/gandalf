@@ -21,10 +21,9 @@ import (
 	"time"
 
 	"github.com/ditrit/gandalf/core/aggregator/shoset"
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
-	apimodels "github.com/ditrit/gandalf/core/aggregator/api/models"
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -34,43 +33,11 @@ import (
 )
 
 func CreateTenant(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("gandalf")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	tokenStr := cookie.Value
-
-	claims := &apimodels.Claims{}
-
-	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return utils.GetJwtKey(), nil
-		})
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if !tkn.Valid {
-		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
 
 	var result map[string]interface{}
 	result = make(map[string]interface{})
-
-	var tenant models.Tenant
+	var err error
+	var tenant *models.Tenant
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&tenant); err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -102,7 +69,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 			if err == nil {
 
 				//CREATE SECRET
-				var secretAssignement models.SecretAssignement
+				var secretAssignement *models.SecretAssignement
 				secretAssignement.Secret = utils.GenerateHash()
 				err := dao.CreateSecretAssignement(utils.DatabaseConnection.GetTenantDatabaseClient(), secretAssignement)
 				fmt.Println("CREATE 2")
@@ -118,7 +85,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 					fmt.Println(logicalComponent)
 					fmt.Println("CREATE 4")
 				} else {
-					dao.DeleteTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), int(tenant.ID))
+					dao.DeleteTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), tenant.ID)
 					utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 					return
 				}
@@ -129,7 +96,7 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 				result["tenant"] = tenant
 
 			} else {
-				dao.DeleteTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), int(tenant.ID))
+				dao.DeleteTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), tenant.ID)
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 				return
 			}
@@ -145,41 +112,9 @@ func CreateTenant(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteTenant(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("gandalf")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	tokenStr := cookie.Value
-
-	claims := &apimodels.Claims{}
-
-	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return utils.GetJwtKey(), nil
-		})
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if !tkn.Valid {
-		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
 
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["tenantId"])
+	id, err := uuid.Parse(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 		return
@@ -194,41 +129,9 @@ func DeleteTenant(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTenantById(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("gandalf")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	tokenStr := cookie.Value
-
-	claims := &apimodels.Claims{}
-
-	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return utils.GetJwtKey(), nil
-		})
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if !tkn.Valid {
-		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
 
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["tenantId"])
+	id, err := uuid.Parse(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return
@@ -249,38 +152,6 @@ func GetTenantById(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListTenant(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("gandalf")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	tokenStr := cookie.Value
-
-	claims := &apimodels.Claims{}
-
-	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return utils.GetJwtKey(), nil
-		})
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if !tkn.Valid {
-		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
 
 	tenants, err := dao.ListTenant(utils.DatabaseConnection.GetTenantDatabaseClient())
 	if err != nil {
@@ -292,41 +163,9 @@ func ListTenant(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateTenant(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("gandalf")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	tokenStr := cookie.Value
-
-	claims := &apimodels.Claims{}
-
-	tkn, err := jwt.ParseWithClaims(tokenStr, claims,
-		func(t *jwt.Token) (interface{}, error) {
-			return utils.GetJwtKey(), nil
-		})
-
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-			return
-		}
-		utils.RespondWithError(w, http.StatusBadRequest, err.Error())
-		return
-	}
-
-	if !tkn.Valid {
-		utils.RespondWithError(w, http.StatusUnauthorized, err.Error())
-		return
-	}
 
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["tenantId"])
+	id, err := uuid.Parse(vars["tenantId"])
 	if err != nil {
 		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
 		return
@@ -339,7 +178,7 @@ func UpdateTenant(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer r.Body.Close()
-	tenant.ID = uint(id)
+	tenant.ID = id
 
 	if err := dao.UpdateTenant(utils.DatabaseConnection.GetTenantDatabaseClient(), tenant); err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
