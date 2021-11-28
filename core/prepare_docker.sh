@@ -35,6 +35,6 @@ WORKDIR /usr/local/bin
 # command to launch at the startup of the container 
 CMD rungandalf.sh
 EOF
-sudo docker rm `sudo docker ps -a | grep "geandalfdocker" | cut -d" " -f1 | grep -v CONTAINER`
+sudo docker rm `sudo docker ps -a | grep "gandalfdocker" | cut -d" " -f1 | grep -v CONTAINER`
 sudo docker rmi gandalfdocker
 sudo docker build -t gandalfdocker .
