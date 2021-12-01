@@ -995,7 +995,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DomainTree'
+                $ref: '#/components/schemas/Domain'
         '500':
           $ref: '#/components/responses/500Error'
       security:
@@ -1324,7 +1324,7 @@ paths:
                   type: object
                   properties:
                     schema: 
-                      $ref: '#/components/schemas/TagTree'
+                      $ref: '#/components/schemas/Tag'
         '500':
           $ref: '#/components/responses/500Error'
       security:
@@ -2526,6 +2526,9 @@ components:
         logo:
           type: string
           description: The path to the logo.
+        repositoryURL:
+          type: string
+          description: The repository URL.
         domainId:
           type: integer
           description: The domain id.
@@ -2588,15 +2591,13 @@ components:
         logo:
           type: string
           description: The domain logo.
-    DomainTree:
-      type: object
-      properties:
-        domain:
-          $ref: '#/components/schemas/Domain'
+        gitURL:
+          type: string
+          description: The git URL.
         childs:
           type: array
           items:
-            $ref: '#/components/schemas/DomainTree'
+            $ref: '#/components/schemas/Domain'
     Resource:
       type: object
       properties:
@@ -2705,6 +2706,10 @@ components:
           type: string
           format: uuid
           description: The ID of envrionementType.
+        domainID:
+          type: string
+          format: uuid
+          description: The ID of domain.
     Tag:
       type: object
       properties:
@@ -2722,15 +2727,10 @@ components:
         logo:
           type: string
           description: The tag logo.
-    TagTree:
-      type: object
-      properties:
-        domain:
-          $ref: '#/components/schemas/Tag'
         childs:
           type: array
           items:
-            $ref: '#/components/schemas/TagTree'
+            $ref: '#/components/schemas/Tag'
     Tenant:
       type: object
       properties:
@@ -2858,6 +2858,8 @@ components:
               description:
                 type: string
               logo:
+                type: string
+              repositoryURL:
                 type: string
               domainID:
                 type: string
@@ -3035,6 +3037,7 @@ components:
               - description
               - logo
               - environmentTypeID
+              - domainID
             properties:
               name:
                 type: string
@@ -3045,6 +3048,9 @@ components:
               logo:
                 type: string
               environmentTypeID:
+                type: string
+                format: uuid
+              domainID:
                 type: string
                 format: uuid
       description: The environment to create.
