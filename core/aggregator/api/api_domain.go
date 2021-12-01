@@ -54,6 +54,9 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// GitURL
+		domain.GitURL = parentDomain.GitURL
+
 		defer r.Body.Close()
 		if err := dao.CreateDomain(database, domain, parentDomainId); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

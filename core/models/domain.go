@@ -20,6 +20,7 @@ type Domain struct {
 	ShortDescription string
 	Description      string
 	Logo             string
+	GitURL           string
 	Childs           []*Domain
 }
 
