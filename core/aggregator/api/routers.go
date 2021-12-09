@@ -712,4 +712,18 @@ var routes = Routes{
 		"/ditrit/Gandalf/1.0.0/user/{userId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(UpdateUser),
 	},
+
+	Route{
+		"Upload",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/upload/{fileId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(Upload),
+	},
+
+	Route{
+		"GetFile",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/files/{fileId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(GetFile),
+	},
 }
