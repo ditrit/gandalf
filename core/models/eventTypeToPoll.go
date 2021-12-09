@@ -1,11 +1,11 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import "github.com/google/uuid"
 
 type EventTypeToPoll struct {
-	gorm.Model
-	ResourceID  uint `gorm:"UNIQUE_INDEX:compositeindex;not null"`
+	Model
+	ResourceID  uuid.UUID `gorm:"type:uuid;UNIQUE_INDEX:compositeindex;not null"`
 	Resource    Resource
-	EventTypeID uint `gorm:"UNIQUE_INDEX:compositeindex;not null"`
+	EventTypeID uuid.UUID `gorm:"type:uuid;UNIQUE_INDEX:compositeindex;not null"`
 	EventType   EventType
 }

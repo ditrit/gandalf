@@ -1,13 +1,15 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"github.com/google/uuid"
+)
 
 type Authorization struct {
-	gorm.Model
-	UserID   uint
+	Model
+	UserID   uuid.UUID `gorm:"type:uuid"`
 	User     User
-	RoleID   uint
+	RoleID   uuid.UUID `gorm:"type:uuid"`
 	Role     Role
-	DomainID uint
+	DomainID uuid.UUID `gorm:"type:uuid"`
 	Domain   Domain
 }

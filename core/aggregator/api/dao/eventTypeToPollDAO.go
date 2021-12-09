@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/models"
 	"github.com/jinzhu/gorm"
@@ -15,7 +16,7 @@ func ListEventTypeToPoll(database *gorm.DB) (eventTypeToPolls []models.EventType
 	return
 }
 
-func CreateEventTypeToPoll(database *gorm.DB, eventTypeToPoll models.EventTypeToPoll) (err error) {
+func CreateEventTypeToPoll(database *gorm.DB, eventTypeToPoll *models.EventTypeToPoll) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
@@ -28,8 +29,8 @@ func CreateEventTypeToPoll(database *gorm.DB, eventTypeToPoll models.EventTypeTo
 	return
 }
 
-func ReadEventTypeToPoll(database *gorm.DB, id int) (eventTypeToPoll models.EventTypeToPoll, err error) {
-	err = database.First(&eventTypeToPoll, id).Error
+func ReadEventTypeToPoll(database *gorm.DB, id uuid.UUID) (eventTypeToPoll models.EventTypeToPoll, err error) {
+	err = database.Where("id = ?", id).First(&eventTypeToPoll).Error
 
 	return
 }
@@ -40,12 +41,15 @@ func UpdateEventTypeToPoll(database *gorm.DB, eventTypeToPoll models.EventTypeTo
 	return
 }
 
-func DeleteEventTypeToPoll(database *gorm.DB, id int) (err error) {
+func DeleteEventTypeToPoll(database *gorm.DB, id uuid.UUID) (err error) {
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
 			var eventTypeToPoll models.EventTypeToPoll
-			err = database.Unscoped().Delete(&eventTypeToPoll, id).Error
+			err = database.Where("id = ?", id).First(&eventTypeToPoll).Error
+			if err == nil {
+				err = database.Unscoped().Delete(&eventTypeToPoll).Error
+			}
 		} else {
 			err = errors.New("Invalid state")
 		}

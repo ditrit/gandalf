@@ -35,8 +35,10 @@ func NewServerAPI(bindAddress string) *ServerAPI {
 	router := NewRouter()
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // NOT FOR PRODUCTION !!!!!
-		AllowCredentials: true,
+		AllowedOrigins: []string{"*"}, // NOT FOR PRODUCTION !!!!!
+		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodOptions},
+		AllowedHeaders: []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "Access-Control-Request-Headers", "Access-Control-Request-Method", "Connection", "Host", "Origin", "User-Agent", "Referer", "Cache-Control", "X-header"},
+		Debug:          true,
 	})
 
 	serverAPI.handler = c.Handler(router)
