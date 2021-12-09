@@ -48,6 +48,29 @@ func init() {
 			return 9199 + verdeter.GetOffset()
 		})
 
+	aggregatorCfg.LKey("api_path", verdeter.IsStr, "", "path for the gandalf API files (absolute or relative to the configuration directory)")
+	aggregatorCfg.SetCheck("api_path", func(val interface{}) bool {
+		valStr, ok := val.(string)
+		if ok {
+			return verdeter.CreateWritableDirectory(valStr)
+		}
+		return false
+	})
+	aggregatorCfg.SetComputedValue("api_path",
+		func() interface{} {
+			ok := verdeter.CreateWritableDirectory("/var/lib/gandalf/files/")
+			if ok {
+				return "/var/lib/gandalf/files/"
+			}
+			dbDir := verdeter.GetHomeDirectory() + "/gandalf/files/"
+			ok = verdeter.CreateWritableDirectory(dbDir)
+			if ok {
+				return dbDir
+			}
+			fmt.Println("Error: can't use or write into API directory")
+			return nil
+		})
+
 	aggregatorCfg.LKey("tenant", verdeter.IsStr, "t", "name of the tenant name of the aggregator")
 	aggregatorCfg.SetCheck("tenant", verdeter.CheckNotEmpty)
 	aggregatorCfg.SetRequired("tenant")
