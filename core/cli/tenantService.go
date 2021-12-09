@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // TenantService :
@@ -39,8 +38,8 @@ func (as *TenantService) Create(token string, tenant models.Tenant) (string, str
 }
 
 // Read :
-func (as *TenantService) Read(token string, id int) (*models.Tenant, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/tenant/"+strconv.Itoa(id), token, nil)
+func (as *TenantService) Read(token string, id uuid.UUID) (*models.Tenant, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/tenant/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -50,8 +49,8 @@ func (as *TenantService) Read(token string, id int) (*models.Tenant, error) {
 }
 
 // Update :
-func (as *TenantService) Update(token string, id int, tenant models.Tenant) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/tenant/"+strconv.Itoa(id), token, tenant)
+func (as *TenantService) Update(token string, id uuid.UUID, tenant models.Tenant) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/tenant/"+id.String(), token, tenant)
 	if err != nil {
 		return err
 	}
@@ -60,8 +59,8 @@ func (as *TenantService) Update(token string, id int, tenant models.Tenant) erro
 }
 
 // Delete :
-func (as *TenantService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/tenant/"+strconv.Itoa(id), token, nil)
+func (as *TenantService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/tenant/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

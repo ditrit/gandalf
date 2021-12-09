@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // DomainService :
@@ -33,8 +32,8 @@ func (as *DomainService) Create(token string, domain models.Domain, parentDomain
 }
 
 // Read :
-func (as *DomainService) Read(token string, id int) (*models.Domain, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/domain/"+strconv.Itoa(id), token, nil)
+func (as *DomainService) Read(token string, id uuid.UUID) (*models.Domain, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/domain/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ func (as *DomainService) ReadByName(token string, name string) (*models.Domain, 
 }
 
 // Update :
-func (as *DomainService) Update(token string, id int, domain models.Domain) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/domain/"+strconv.Itoa(id), token, domain)
+func (as *DomainService) Update(token string, id uuid.UUID, domain models.Domain) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/domain/"+id.String(), token, domain)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *DomainService) Update(token string, id int, domain models.Domain) erro
 }
 
 // Delete :
-func (as *DomainService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/domain/"+strconv.Itoa(id), token, nil)
+func (as *DomainService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/domain/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // LogicalComponentService :
@@ -33,8 +32,8 @@ func (as *LogicalComponentService) Create(token string, logicalComponent models.
 }
 
 // Read :
-func (as *LogicalComponentService) Read(token string, id int) (*models.LogicalComponent, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/logicalComponent/"+strconv.Itoa(id), token, nil)
+func (as *LogicalComponentService) Read(token string, id uuid.UUID) (*models.LogicalComponent, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/logicalComponent/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ func (as *LogicalComponentService) ReadByName(token string, name string) (*model
 }
 
 // Update :
-func (as *LogicalComponentService) Update(token string, id int, logicalComponent models.LogicalComponent) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/logicalComponent/"+strconv.Itoa(id), token, logicalComponent)
+func (as *LogicalComponentService) Update(token string, id uuid.UUID, logicalComponent models.LogicalComponent) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/logicalComponent/"+id.String(), token, logicalComponent)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *LogicalComponentService) Update(token string, id int, logicalComponent
 }
 
 // Delete :
-func (as *LogicalComponentService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/logicalComponent/"+strconv.Itoa(id), token, nil)
+func (as *LogicalComponentService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/logicalComponent/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

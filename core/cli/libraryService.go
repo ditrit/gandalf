@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // LibraryService :
@@ -33,8 +32,8 @@ func (as *LibraryService) Create(token string, library models.Library, parentLib
 }
 
 // Read :
-func (as *LibraryService) Read(token string, id int) (*models.Library, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/library/"+strconv.Itoa(id), token, nil)
+func (as *LibraryService) Read(token string, id uuid.UUID) (*models.Library, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/library/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ func (as *LibraryService) ReadByName(token string, name string) (*models.Library
 }
 
 // Update :
-func (as *LibraryService) Update(token string, id int, library models.Library) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/library/"+strconv.Itoa(id), token, library)
+func (as *LibraryService) Update(token string, id uuid.UUID, library models.Library) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/library/"+id.String(), token, library)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *LibraryService) Update(token string, id int, library models.Library) e
 }
 
 // Delete :
-func (as *LibraryService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/library/"+strconv.Itoa(id), token, nil)
+func (as *LibraryService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/library/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

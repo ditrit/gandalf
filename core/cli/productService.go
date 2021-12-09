@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // ProductService :
@@ -33,8 +32,8 @@ func (as *ProductService) Create(token string, product models.Product, parentPro
 }
 
 // Read :
-func (as *ProductService) Read(token string, id int) (*models.Product, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/product/"+strconv.Itoa(id), token, nil)
+func (as *ProductService) Read(token string, id uuid.UUID) (*models.Product, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/product/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ func (as *ProductService) ReadByName(token string, name string) (*models.Product
 }
 
 // Update :
-func (as *ProductService) Update(token string, id int, product models.Product) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/product/"+strconv.Itoa(id), token, product)
+func (as *ProductService) Update(token string, id uuid.UUID, product models.Product) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/product/"+id.String(), token, product)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *ProductService) Update(token string, id int, product models.Product) e
 }
 
 // Delete :
-func (as *ProductService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/product/"+strconv.Itoa(id), token, nil)
+func (as *ProductService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/product/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

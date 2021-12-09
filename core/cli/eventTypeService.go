@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // EventTypeService :
@@ -33,8 +32,8 @@ func (as *EventTypeService) Create(token string, eventType models.EventType) err
 }
 
 // Read :
-func (as *EventTypeService) Read(token string, id int) (*models.EventType, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtype/"+strconv.Itoa(id), token, nil)
+func (as *EventTypeService) Read(token string, id uuid.UUID) (*models.EventType, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtype/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ func (as *EventTypeService) ReadByName(token string, name string) (*models.Event
 }
 
 // Update :
-func (as *EventTypeService) Update(token string, id int, eventType models.EventType) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/eventtype/"+strconv.Itoa(id), token, eventType)
+func (as *EventTypeService) Update(token string, id uuid.UUID, eventType models.EventType) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/eventtype/"+id.String(), token, eventType)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *EventTypeService) Update(token string, id int, eventType models.EventT
 }
 
 // Delete :
-func (as *EventTypeService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/eventtype/"+strconv.Itoa(id), token, nil)
+func (as *EventTypeService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/eventtype/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // RoleService :
@@ -33,8 +32,8 @@ func (as *RoleService) Create(token string, role models.Role) error {
 }
 
 // Read :
-func (as *RoleService) Read(token string, id int) (*models.Role, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/role/"+strconv.Itoa(id), token, nil)
+func (as *RoleService) Read(token string, id uuid.UUID) (*models.Role, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/role/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -44,8 +43,8 @@ func (as *RoleService) Read(token string, id int) (*models.Role, error) {
 }
 
 // Update :
-func (as *RoleService) Update(token string, id int, role models.Role) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/role/"+strconv.Itoa(id), token, role)
+func (as *RoleService) Update(token string, id uuid.UUID, role models.Role) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/role/"+id.String(), token, role)
 	if err != nil {
 		return err
 	}
@@ -54,8 +53,8 @@ func (as *RoleService) Update(token string, id int, role models.Role) error {
 }
 
 // Delete :
-func (as *RoleService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/role/"+strconv.Itoa(id), token, nil)
+func (as *RoleService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/role/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

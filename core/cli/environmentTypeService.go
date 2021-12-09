@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // EnvironmentTypeService :
@@ -33,8 +32,8 @@ func (as *EnvironmentTypeService) Create(token string, environmentType models.En
 }
 
 // Read :
-func (as *EnvironmentTypeService) Read(token string, id int) (*models.EnvironmentType, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/environmentType/"+strconv.Itoa(id), token, nil)
+func (as *EnvironmentTypeService) Read(token string, id uuid.UUID) (*models.EnvironmentType, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/environmentType/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ func (as *EnvironmentTypeService) ReadByName(token string, name string) (*models
 }
 
 // Update :
-func (as *EnvironmentTypeService) Update(token string, id int, environmentType models.EnvironmentType) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/environmentType/"+strconv.Itoa(id), token, environmentType)
+func (as *EnvironmentTypeService) Update(token string, id uuid.UUID, environmentType models.EnvironmentType) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/environmentType/"+id.String(), token, environmentType)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *EnvironmentTypeService) Update(token string, id int, environmentType m
 }
 
 // Delete :
-func (as *EnvironmentTypeService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/environmentType/"+strconv.Itoa(id), token, nil)
+func (as *EnvironmentTypeService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/environmentType/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}
