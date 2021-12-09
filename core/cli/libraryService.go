@@ -22,8 +22,8 @@ func (as *LibraryService) List(token string) ([]models.Library, error) {
 }
 
 // Create :
-func (as *LibraryService) Create(token string, library models.Library, parentLibraryName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/library/"+parentLibraryName, token, library)
+func (as *LibraryService) Create(token string, library models.Library) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/library/", token, library)
 	if err != nil {
 		return err
 	}

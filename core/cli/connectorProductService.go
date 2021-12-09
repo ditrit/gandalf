@@ -22,8 +22,8 @@ func (as *ConnectorProductService) List(token string) ([]models.ConnectorProduct
 }
 
 // Create :
-func (as *ConnectorProductService) Create(token string, connectorProduct models.ConnectorProduct, parentConnectorProductName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/connectorProduct/"+parentConnectorProductName, token, connectorProduct)
+func (as *ConnectorProductService) Create(token string, connectorProduct models.ConnectorProduct) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/connectorProduct/", token, connectorProduct)
 	if err != nil {
 		return err
 	}

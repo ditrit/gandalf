@@ -22,8 +22,8 @@ func (as *ProductService) List(token string) ([]models.Product, error) {
 }
 
 // Create :
-func (as *ProductService) Create(token string, product models.Product, parentProductName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/product/"+parentProductName, token, product)
+func (as *ProductService) Create(token string, product models.Product) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/product/", token, product)
 	if err != nil {
 		return err
 	}

@@ -22,8 +22,8 @@ func (as *EnvironmentTypeService) List(token string) ([]models.EnvironmentType, 
 }
 
 // Create :
-func (as *EnvironmentTypeService) Create(token string, environmentType models.EnvironmentType, parentEnvironmentTypeName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/environmentType/"+parentEnvironmentTypeName, token, environmentType)
+func (as *EnvironmentTypeService) Create(token string, environmentType models.EnvironmentType) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/environmentType/", token, environmentType)
 	if err != nil {
 		return err
 	}

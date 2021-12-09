@@ -22,8 +22,8 @@ func (as *AuthorizationService) List(token string) ([]models.Authorization, erro
 }
 
 // Create :
-func (as *AuthorizationService) Create(token string, authorization models.Authorization, parentAuthorizationName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/authorization/"+parentAuthorizationName, token, authorization)
+func (as *AuthorizationService) Create(token string, authorization models.Authorization) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/authorization/", token, authorization)
 	if err != nil {
 		return err
 	}

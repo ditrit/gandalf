@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/ditrit/gandalf/verdeter"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/gandalf/core/cli"
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -318,19 +319,19 @@ func init() {
 }
 
 func runLogin(cfg *verdeter.ConfigCmd, args []string) {
-	name := args[0]
+	mail := args[0]
 	password := args[1]
 
-	fmt.Printf("gandalf cli login called with username=%s and password=%s\n", name, password)
+	fmt.Printf("gandalf cli login called with mail=%s and password=%s\n", mail, password)
 	configurationCli := cmodels.NewConfigurationCli()
 	fmt.Println(configurationCli.GetEndpoint())
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	var user models.User
-	//user.Email = name
+	user.Email = mail
 	user.Password = password
 	//user := models.NewUser(name, name, password)
-	token, err := cliClient.AuthenticationService.Login(user)
+	token, err := cliClient.UserService.Login(user)
 	if err == nil {
 		fmt.Println("Token: " + token)
 	} else {
@@ -339,20 +340,25 @@ func runLogin(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runCreateAuthorization(cfg *verdeter.ConfigCmd, args []string) {
-	userID := args[0]
-	roleID := args[1]
-	domainID := args[2]
+	userID, err := uuid.Parse(args[0])
+	if err == nil {
+		roleID, err := uuid.Parse(args[1])
+		if err == nil {
+			domainID, err := uuid.Parse(args[2])
+			if err == nil {
 
-	fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+				fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
+				configurationCli := cmodels.NewConfigurationCli()
+				cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
-	err := cliClient.UserService.Create(configurationCli.GetToken(), authorization)
-	if err != nil {
-		fmt.Println(err)
+				authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
+				err := cliClient.AuthorizationService.Create(configurationCli.GetToken(), authorization)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
 	}
-
 }
 
 func runListAuthorizations(cfg *verdeter.ConfigCmd, args []string) {
@@ -372,27 +378,35 @@ func runListAuthorizations(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runUpdateAuthorization(cfg *verdeter.ConfigCmd, args []string) {
-	authorizationID := args[0]
-	userID := viper.GetString("userID")
-	roleID := viper.GetViper().GetString("roleID")
-	domainID := viper.GetViper().GetString("domainID")
-	fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+	authorizationID, err := uuid.Parse(args[0])
 	if err == nil {
-		oldAuthorization.UserID = userID
-		oldAuthorization.RoleID = roleID
-		oldAuthorization.DomainID = domainID
-		err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID.ID, user)
-		if err != nil {
-			fmt.Println(err)
-		}
-	} else {
-		fmt.Println(err)
-	}
+		userID, err := uuid.Parse(viper.GetString("userID"))
+		if err == nil {
+			roleID, err := uuid.Parse(viper.GetViper().GetString("roleID"))
+			if err == nil {
+				domainID, err := uuid.Parse(viper.GetViper().GetString("domainID"))
+				if err == nil {
 
+					fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
+					configurationCli := cmodels.NewConfigurationCli()
+					cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+					oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+					if err == nil {
+						oldAuthorization.UserID = userID
+						oldAuthorization.RoleID = roleID
+						oldAuthorization.DomainID = domainID
+						err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID, *oldAuthorization)
+						if err != nil {
+							fmt.Println(err)
+						}
+					} else {
+						fmt.Println(err)
+					}
+				}
+			}
+		}
+	}
 }
 
 func runDeleteAuthorization(cfg *verdeter.ConfigCmd, args []string) {
@@ -416,20 +430,25 @@ func runDeleteAuthorization(cfg *verdeter.ConfigCmd, args []string) {
 ///
 
 func runCreateEnvironment(cfg *verdeter.ConfigCmd, args []string) {
-	userID := args[0]
-	roleID := args[1]
-	domainID := args[2]
+	userID, err := uuid.Parse(args[0])
+	if err == nil {
+		roleID, err := uuid.Parse(args[1])
+		if err == nil {
+			domainID, err := uuid.Parse(args[2])
+			if err == nil {
 
-	fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+				fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
+				configurationCli := cmodels.NewConfigurationCli()
+				cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
-	err := cliClient.UserService.Create(configurationCli.GetToken(), authorization)
-	if err != nil {
-		fmt.Println(err)
+				authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
+				err := cliClient.AuthorizationService.Create(configurationCli.GetToken(), authorization)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
 	}
-
 }
 
 func runListEnvironments(cfg *verdeter.ConfigCmd, args []string) {
@@ -449,27 +468,34 @@ func runListEnvironments(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runUpdateEnvironment(cfg *verdeter.ConfigCmd, args []string) {
-	authorizationID := args[0]
-	userID := viper.GetString("userID")
-	roleID := viper.GetViper().GetString("roleID")
-	domainID := viper.GetViper().GetString("domainID")
-	fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+	authorizationID, err := uuid.Parse(args[0])
 	if err == nil {
-		oldAuthorization.UserID = userID
-		oldAuthorization.RoleID = roleID
-		oldAuthorization.DomainID = domainID
-		err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID.ID, user)
-		if err != nil {
-			fmt.Println(err)
-		}
-	} else {
-		fmt.Println(err)
-	}
+		userID, err := uuid.Parse(viper.GetString("userID"))
+		if err == nil {
+			roleID, err := uuid.Parse(viper.GetViper().GetString("roleID"))
+			if err == nil {
+				domainID, err := uuid.Parse(viper.GetViper().GetString("domainID"))
+				if err == nil {
+					fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
+					configurationCli := cmodels.NewConfigurationCli()
+					cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
+					oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+					if err == nil {
+						oldAuthorization.UserID = userID
+						oldAuthorization.RoleID = roleID
+						oldAuthorization.DomainID = domainID
+						err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID, *oldAuthorization)
+						if err != nil {
+							fmt.Println(err)
+						}
+					} else {
+						fmt.Println(err)
+					}
+				}
+			}
+		}
+	}
 }
 
 func runDeleteEnvironment(cfg *verdeter.ConfigCmd, args []string) {
@@ -480,7 +506,7 @@ func runDeleteEnvironment(cfg *verdeter.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		err = cliClient.UserService.Delete(configurationCli.GetToken(), oldUser.ID)
+		err = cliClient.AuthorizationService.Delete(configurationCli.GetToken(), oldUser.ID)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -493,20 +519,25 @@ func runDeleteEnvironment(cfg *verdeter.ConfigCmd, args []string) {
 ///
 
 func runCreateProduct(cfg *verdeter.ConfigCmd, args []string) {
-	userID := args[0]
-	roleID := args[1]
-	domainID := args[2]
+	userID, err := uuid.Parse(args[0])
+	if err == nil {
+		roleID, err := uuid.Parse(args[1])
+		if err == nil {
+			domainID, err := uuid.Parse(args[2])
+			if err == nil {
 
-	fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+				fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
+				configurationCli := cmodels.NewConfigurationCli()
+				cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
-	err := cliClient.UserService.Create(configurationCli.GetToken(), authorization)
-	if err != nil {
-		fmt.Println(err)
+				authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
+				err := cliClient.AuthorizationService.Create(configurationCli.GetToken(), authorization)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
 	}
-
 }
 
 func runListProducts(cfg *verdeter.ConfigCmd, args []string) {
@@ -526,27 +557,34 @@ func runListProducts(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runUpdateProduct(cfg *verdeter.ConfigCmd, args []string) {
-	authorizationID := args[0]
-	userID := viper.GetString("userID")
-	roleID := viper.GetViper().GetString("roleID")
-	domainID := viper.GetViper().GetString("domainID")
-	fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+	authorizationID, err := uuid.Parse(args[0])
 	if err == nil {
-		oldAuthorization.UserID = userID
-		oldAuthorization.RoleID = roleID
-		oldAuthorization.DomainID = domainID
-		err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID.ID, user)
-		if err != nil {
-			fmt.Println(err)
-		}
-	} else {
-		fmt.Println(err)
-	}
+		userID, err := uuid.Parse(viper.GetString("userID"))
+		if err == nil {
+			roleID, err := uuid.Parse(viper.GetViper().GetString("roleID"))
+			if err == nil {
+				domainID, err := uuid.Parse(viper.GetViper().GetString("domainID"))
+				if err == nil {
+					fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
+					configurationCli := cmodels.NewConfigurationCli()
+					cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
+					oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+					if err == nil {
+						oldAuthorization.UserID = userID
+						oldAuthorization.RoleID = roleID
+						oldAuthorization.DomainID = domainID
+						err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID, *oldAuthorization)
+						if err != nil {
+							fmt.Println(err)
+						}
+					} else {
+						fmt.Println(err)
+					}
+				}
+			}
+		}
+	}
 }
 
 func runDeleteProduct(cfg *verdeter.ConfigCmd, args []string) {
@@ -557,7 +595,7 @@ func runDeleteProduct(cfg *verdeter.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		err = cliClient.UserService.Delete(configurationCli.GetToken(), oldUser.ID)
+		err = cliClient.AuthorizationService.Delete(configurationCli.GetToken(), oldUser.ID)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -570,20 +608,25 @@ func runDeleteProduct(cfg *verdeter.ConfigCmd, args []string) {
 ///
 
 func runCreateLibrary(cfg *verdeter.ConfigCmd, args []string) {
-	userID := args[0]
-	roleID := args[1]
-	domainID := args[2]
+	userID, err := uuid.Parse(args[0])
+	if err == nil {
+		roleID, err := uuid.Parse(args[1])
+		if err == nil {
+			domainID, err := uuid.Parse(args[2])
+			if err == nil {
 
-	fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+				fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
+				configurationCli := cmodels.NewConfigurationCli()
+				cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
-	err := cliClient.UserService.Create(configurationCli.GetToken(), authorization)
-	if err != nil {
-		fmt.Println(err)
+				authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
+				err := cliClient.AuthorizationService.Create(configurationCli.GetToken(), authorization)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
 	}
-
 }
 
 func runListLibraries(cfg *verdeter.ConfigCmd, args []string) {
@@ -603,27 +646,34 @@ func runListLibraries(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runUpdateLibrary(cfg *verdeter.ConfigCmd, args []string) {
-	authorizationID := args[0]
-	userID := viper.GetString("userID")
-	roleID := viper.GetViper().GetString("roleID")
-	domainID := viper.GetViper().GetString("domainID")
-	fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+	authorizationID, err := uuid.Parse(args[0])
 	if err == nil {
-		oldAuthorization.UserID = userID
-		oldAuthorization.RoleID = roleID
-		oldAuthorization.DomainID = domainID
-		err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID.ID, user)
-		if err != nil {
-			fmt.Println(err)
-		}
-	} else {
-		fmt.Println(err)
-	}
+		userID, err := uuid.Parse(viper.GetString("userID"))
+		if err == nil {
+			roleID, err := uuid.Parse(viper.GetViper().GetString("roleID"))
+			if err == nil {
+				domainID, err := uuid.Parse(viper.GetViper().GetString("domainID"))
+				if err == nil {
+					fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
+					configurationCli := cmodels.NewConfigurationCli()
+					cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
+					oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+					if err == nil {
+						oldAuthorization.UserID = userID
+						oldAuthorization.RoleID = roleID
+						oldAuthorization.DomainID = domainID
+						err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID, *oldAuthorization)
+						if err != nil {
+							fmt.Println(err)
+						}
+					} else {
+						fmt.Println(err)
+					}
+				}
+			}
+		}
+	}
 }
 
 func runDeleteLibrary(cfg *verdeter.ConfigCmd, args []string) {
@@ -634,7 +684,7 @@ func runDeleteLibrary(cfg *verdeter.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		err = cliClient.UserService.Delete(configurationCli.GetToken(), oldUser.ID)
+		err = cliClient.AuthorizationService.Delete(configurationCli.GetToken(), oldUser.ID)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -647,20 +697,24 @@ func runDeleteLibrary(cfg *verdeter.ConfigCmd, args []string) {
 ///
 
 func runCreateEnvironmentType(cfg *verdeter.ConfigCmd, args []string) {
-	userID := args[0]
-	roleID := args[1]
-	domainID := args[2]
+	userID, err := uuid.Parse(args[0])
+	if err == nil {
+		roleID, err := uuid.Parse(args[1])
+		if err == nil {
+			domainID, err := uuid.Parse(args[2])
+			if err == nil {
+				fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
+				configurationCli := cmodels.NewConfigurationCli()
+				cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
-	err := cliClient.UserService.Create(configurationCli.GetToken(), authorization)
-	if err != nil {
-		fmt.Println(err)
+				authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
+				err = cliClient.AuthorizationService.Create(configurationCli.GetToken(), authorization)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
 	}
-
 }
 
 func runListEnvironmentTypes(cfg *verdeter.ConfigCmd, args []string) {
@@ -680,27 +734,34 @@ func runListEnvironmentTypes(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runUpdateEnvironmentType(cfg *verdeter.ConfigCmd, args []string) {
-	authorizationID := args[0]
-	userID := viper.GetString("userID")
-	roleID := viper.GetViper().GetString("roleID")
-	domainID := viper.GetViper().GetString("domainID")
-	fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+	authorizationID, err := uuid.Parse(args[0])
 	if err == nil {
-		oldAuthorization.UserID = userID
-		oldAuthorization.RoleID = roleID
-		oldAuthorization.DomainID = domainID
-		err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID.ID, user)
-		if err != nil {
-			fmt.Println(err)
-		}
-	} else {
-		fmt.Println(err)
-	}
+		userID, err := uuid.Parse(viper.GetString("userID"))
+		if err == nil {
+			roleID, err := uuid.Parse(viper.GetViper().GetString("roleID"))
+			if err == nil {
+				domainID, err := uuid.Parse(viper.GetViper().GetString("domainID"))
+				if err == nil {
+					fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
+					configurationCli := cmodels.NewConfigurationCli()
+					cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
+					oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+					if err == nil {
+						oldAuthorization.UserID = userID
+						oldAuthorization.RoleID = roleID
+						oldAuthorization.DomainID = domainID
+						err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID, *oldAuthorization)
+						if err != nil {
+							fmt.Println(err)
+						}
+					} else {
+						fmt.Println(err)
+					}
+				}
+			}
+		}
+	}
 }
 
 func runDeleteEnvironmentType(cfg *verdeter.ConfigCmd, args []string) {
@@ -711,7 +772,7 @@ func runDeleteEnvironmentType(cfg *verdeter.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		err = cliClient.UserService.Delete(configurationCli.GetToken(), oldUser.ID)
+		err = cliClient.AuthorizationService.Delete(configurationCli.GetToken(), oldUser.ID)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -724,20 +785,25 @@ func runDeleteEnvironmentType(cfg *verdeter.ConfigCmd, args []string) {
 ///
 
 func runCreateTag(cfg *verdeter.ConfigCmd, args []string) {
-	userID := args[0]
-	roleID := args[1]
-	domainID := args[2]
+	userID, err := uuid.Parse(args[0])
+	if err == nil {
+		roleID, err := uuid.Parse(args[1])
+		if err == nil {
+			domainID, err := uuid.Parse(args[2])
+			if err == nil {
 
-	fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+				fmt.Printf("gandalf cli create authorization called with userID=%s, roleID=%s, domainID=%s\n", userID, roleID, domainID)
+				configurationCli := cmodels.NewConfigurationCli()
+				cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
-	err := cliClient.UserService.Create(configurationCli.GetToken(), authorization)
-	if err != nil {
-		fmt.Println(err)
+				authorization := models.Authorization{UserID: userID, RoleID: roleID, DomainID: domainID}
+				err := cliClient.AuthorizationService.Create(configurationCli.GetToken(), authorization)
+				if err != nil {
+					fmt.Println(err)
+				}
+			}
+		}
 	}
-
 }
 
 func runListTags(cfg *verdeter.ConfigCmd, args []string) {
@@ -757,27 +823,34 @@ func runListTags(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runUpdateTag(cfg *verdeter.ConfigCmd, args []string) {
-	authorizationID := args[0]
-	userID := viper.GetString("userID")
-	roleID := viper.GetViper().GetString("roleID")
-	domainID := viper.GetViper().GetString("domainID")
-	fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+	authorizationID, err := uuid.Parse(args[0])
 	if err == nil {
-		oldAuthorization.UserID = userID
-		oldAuthorization.RoleID = roleID
-		oldAuthorization.DomainID = domainID
-		err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID.ID, user)
-		if err != nil {
-			fmt.Println(err)
-		}
-	} else {
-		fmt.Println(err)
-	}
+		userID, err := uuid.Parse(viper.GetString("userID"))
+		if err == nil {
+			roleID, err := uuid.Parse(viper.GetViper().GetString("roleID"))
+			if err == nil {
+				domainID, err := uuid.Parse(viper.GetViper().GetString("domainID"))
+				if err == nil {
+					fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
+					configurationCli := cmodels.NewConfigurationCli()
+					cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
+					oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
+					if err == nil {
+						oldAuthorization.UserID = userID
+						oldAuthorization.RoleID = roleID
+						oldAuthorization.DomainID = domainID
+						err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID, *oldAuthorization)
+						if err != nil {
+							fmt.Println(err)
+						}
+					} else {
+						fmt.Println(err)
+					}
+				}
+			}
+		}
+	}
 }
 
 func runDeleteTag(cfg *verdeter.ConfigCmd, args []string) {
@@ -788,7 +861,7 @@ func runDeleteTag(cfg *verdeter.ConfigCmd, args []string) {
 
 	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
 	if err == nil {
-		err = cliClient.UserService.Delete(configurationCli.GetToken(), oldUser.ID)
+		err = cliClient.AuthorizationService.Delete(configurationCli.GetToken(), oldUser.ID)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -915,21 +988,15 @@ func runCreateTenant(cfg *verdeter.ConfigCmd, args []string) {
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	result, err := cliClient.CliService.Cli()
+	tenant := models.Tenant{Name: name}
+	login, password, err := cliClient.TenantService.Create(configurationCli.GetToken(), tenant)
 	if err == nil {
-		if result == "cluster" {
-			tenant := models.Tenant{Name: name}
-			login, password, err := cliClient.TenantService.Create(configurationCli.GetToken(), tenant)
-			if err == nil {
-				fmt.Println("login : " + login)
-				fmt.Println("password : " + password)
-			} else {
-				fmt.Println(err)
-			}
-		} else if result == "aggregator" {
-			fmt.Println("Error: Not allowed")
-		}
+		fmt.Println("login : " + login)
+		fmt.Println("password : " + password)
+	} else {
+		fmt.Println(err)
 	}
+
 }
 
 func runListTenants(cfg *verdeter.ConfigCmd, args []string) {

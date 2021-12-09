@@ -72,3 +72,14 @@ func (as *UserService) Delete(token string, id uuid.UUID) error {
 	err = as.client.do(req, nil)
 	return err
 }
+
+// Login :
+func (as *UserService) Login(user models.User) (string, error) {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/user/login", "", user)
+	if err != nil {
+		return "", err
+	}
+	var token string
+	err = as.client.do(req, &token)
+	return token, err
+}
