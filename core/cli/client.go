@@ -17,17 +17,21 @@ type Client struct {
 	BaseURL                  *url.URL
 	UserAgent                string
 	HTTPClient               *http.Client
-	AuthenticationService    *AuthenticationService
-	CliService               *CliService
+	AuthorizationService     *AuthorizationService
+	DomainService            *DomainService
+	EnvironmentService       *EnvironmentService
+	EnvironmentTypeService   *EnvironmentTypeService
+	EventTypeService         *EventTypeService
+	EventTypeToPollService   *EventTypeToPollService
+	LibraryService           *LibraryService
+	ProductService           *ProductService
+	ResourceService          *ResourceService
+	ResourceTypeService      *ResourceTypeService
 	RoleService              *RoleService
+	SecretAssignementService *SecretAssignementService
+	TagService               *TagService
 	TenantService            *TenantService
 	UserService              *UserService
-	SecretAssignementService *SecretAssignementService
-	ResourceService          *ResourceService
-	DomainService            *DomainService
-	EventTypeToPollService   *EventTypeToPollService
-	ResourceTypeService      *ResourceTypeService
-	EventTypeService         *EventTypeService
 }
 
 // NewClient :
@@ -48,17 +52,21 @@ func NewClient(bindAddress string) (client *Client) {
 		},
 	}
 
-	client.AuthenticationService = &AuthenticationService{client: client}
-	client.CliService = &CliService{client: client}
+	client.AuthorizationService = &AuthorizationService{client: client}
+	client.DomainService = &DomainService{client: client}
+	client.EnvironmentService = &EnvironmentService{client: client}
+	client.EnvironmentTypeService = &EnvironmentTypeService{client: client}
+	client.EventTypeService = &EventTypeService{client: client}
+	client.EventTypeToPollService = &EventTypeToPollService{client: client}
+	client.LibraryService = &LibraryService{client: client}
+	client.ProductService = &ProductService{client: client}
+	client.ResourceService = &ResourceService{client: client}
+	client.ResourceTypeService = &ResourceTypeService{client: client}
 	client.RoleService = &RoleService{client: client}
+	client.SecretAssignementService = &SecretAssignementService{client: client}
+	client.TagService = &TagService{client: client}
 	client.TenantService = &TenantService{client: client}
 	client.UserService = &UserService{client: client}
-	client.SecretAssignementService = &SecretAssignementService{client: client}
-	client.ResourceService = &ResourceService{client: client}
-	client.DomainService = &DomainService{client: client}
-	client.EventTypeToPollService = &EventTypeToPollService{client: client}
-	client.ResourceTypeService = &ResourceTypeService{client: client}
-	client.EventTypeService = &EventTypeService{client: client}
 
 	return
 
