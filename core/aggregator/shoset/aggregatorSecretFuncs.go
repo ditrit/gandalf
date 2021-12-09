@@ -2,9 +2,11 @@
 package shoset
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"time"
+
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 
 	cmsg "github.com/ditrit/gandalf/core/msg"
 	net "github.com/ditrit/shoset"
@@ -55,100 +57,131 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	ch := c.GetCh()
 	dir := c.GetDir()
 	err = nil
-	thisOne := ch.GetBindAddr()
+	thisOne := ch.GetBindAddress()
 	log.Println("Handle secret")
 	log.Println(secret)
 
-	if secret.GetTenant() == ch.Context["tenant"] {
-		//ok := ch.Queue["secret"].Push(secret, c.ShosetType, c.GetBindAddr())
-		//if ok {
-		if dir == "in" {
-			if c.GetShosetType() == "c" {
-				shosets := net.GetByType(ch.ConnsByAddr, "cl")
-				if len(shosets) != 0 {
-					secret.Target = c.GetBindAddr()
+	//if secret.GetTenant() == ch.Context["tenant"] {
+	//ok := ch.Queue["secret"].Push(secret, c.GetRemoteShosetType(), c.GetBindAddress())
+	//if ok {
+	if dir == "in" {
+		if c.GetRemoteShosetType() == "c" {
+			shosets := ch.GetConnsByTypeArray("cl")
+			if len(shosets) != 0 {
+				secret.TargetAddress = c.GetRemoteAddress()
+				secret.TargetLogicalName = c.GetRemoteLogicalName()
+				configurationAggregator, ok := ch.Context["configuration"].(*cmodels.ConfigurationAggregator)
+				if ok {
+					secret.Tenant = configurationAggregator.GetTenant()
 					index := getSecretSendIndex(shosets)
 					shosets[index].SendMessage(secret)
 					log.Printf("%s : send in secret %s to %s\n", thisOne, secret.GetCommand(), shosets[index])
-				} else {
-					log.Println("can't find clusters to send")
-					err = errors.New("can't find clusters to send")
 				}
 			} else {
-				log.Println("wrong Shoset type")
-				err = errors.New("wrong Shoset type")
+				log.Println("Error : Can't find clusters to send")
 			}
+		} else {
+			log.Println("Error : Wrong Shoset type")
 		}
+	}
 
-		if dir == "out" {
-			if c.GetShosetType() == "cl" {
+	if dir == "out" {
+		if c.GetRemoteShosetType() == "cl" {
 
-				if secret.GetTarget() == "" {
-					if secret.GetCommand() == "VALIDATION_REPLY" {
-						ch.Context["validation"] = secret.GetPayload()
-					}
-				} else {
-					shoset := ch.ConnsByAddr.Get(secret.GetTarget())
-					shoset.SendMessage(secret)
+			if secret.GetTargetLogicalName() == "" && secret.GetTargetAddress() == "" {
+				if secret.GetCommand() == "VALIDATION_REPLY" {
+					ch.Context["validation"] = secret.GetPayload()
 				}
 			} else {
-				log.Println("wrong Shoset type")
-				err = errors.New("wrong Shoset type")
+
+				mapshoset := ch.ConnsByName.Get(secret.GetTargetLogicalName())
+				var shoset *net.ShosetConn
+				if mapshoset != nil {
+					shoset = mapshoset.Get(secret.GetTargetAddress())
+				}
+
+				shoset.SendMessage(secret)
 			}
+		} else {
+			log.Println("Error : Wrong Shoset type")
 		}
-		/* } else {
-			log.Println("can't push to queue")
-			err = errors.New("can't push to queue")
-		} */
-	} else {
+	}
+	/* } else {
+		log.Println("can't push to queue")
+		err = errors.New("can't push to queue")
+	} */
+	/*} else {
 		log.Println("wrong tenant")
 		err = errors.New("wrong tenant")
-	}
+	}*/
 
 	return err
 }
 
 //SendSecret :
-func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, instanceName, tenant, secret string) (err error) {
-	secretMsg := cmsg.NewSecret("", "VALIDATION", "")
-	secretMsg.Tenant = shoset.Context["tenant"].(string)
-	secretMsg.GetContext()["componentType"] = "aggregator"
-	secretMsg.GetContext()["logicalName"] = logicalName
-	secretMsg.GetContext()["instanceName"] = instanceName
-	secretMsg.GetContext()["secret"] = secret
-	//conf.GetContext()["product"] = shoset.Context["product"]
+func SendSecret(shoset *net.Shoset) (err error) {
+	configurationAggregator, ok := shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	if ok {
+		secretMsg := cmsg.NewSecret("VALIDATION", "")
 
-	shosets := net.GetByType(shoset.ConnsByAddr, "cl")
+		secretMsg.Tenant = configurationAggregator.GetTenant()
+		secretMsg.GetContext()["componentType"] = "aggregator"
+		secretMsg.GetContext()["secret"] = configurationAggregator.GetSecret()
+		secretMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
+		//conf.GetContext()["product"] = shoset.Context["product"]
+		fmt.Println("shoset.ConnsByName")
+		fmt.Println(shoset.ConnsByName)
+		shosets := shoset.GetConnsByTypeArray("cl")
+		fmt.Println("shosets")
+		fmt.Println(shosets)
 
-	if len(shosets) != 0 {
-		if secretMsg.GetTimeout() > timeoutMax {
-			secretMsg.Timeout = timeoutMax
-		}
-
-		notSend := true
-		for notSend {
-
-			index := getSecretSendIndex(shosets)
-			shosets[index].SendMessage(secretMsg)
-			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddr(), secretMsg.GetCommand(), shosets[index])
-
-			timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
-
-			time.Sleep(timeoutSend * time.Millisecond)
-
-			if shoset.Context["validation"] != nil {
-				notSend = false
-				break
+		if len(shosets) != 0 {
+			if secretMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+				secretMsg.Timeout = configurationAggregator.GetMaxTimeout()
 			}
-		}
+			notSend := true
+			for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(secretMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
 
-		if notSend {
-			return nil
-		}
+				timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
 
-	} else {
-		log.Println("can't find cluster to send")
-		err = errors.New("can't find cluster to send")
+				time.Sleep(timeoutSend * time.Millisecond)
+
+				if shoset.Context["validation"] != nil {
+					notSend = false
+					break
+				}
+			}
+
+			if notSend {
+				return nil
+			}
+			/* notSend := true
+			for notSend {
+
+				index := getSecretSendIndex(shosets)
+				shosets[index].SendMessage(secretMsg)
+				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
+
+				timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
+
+				time.Sleep(timeoutSend * time.Millisecond)
+
+				if shoset.Context["validation"] != nil {
+					notSend = false
+					break
+				}
+			}
+
+			if notSend {
+				return nil
+			} */
+
+		} else {
+			log.Println("Error : Can't find cluster to send")
+		}
 	}
 
 	return err
@@ -156,12 +189,12 @@ func SendSecret(shoset *net.Shoset, timeoutMax int64, logicalName, instanceName,
 
 // getCommandSendIndex : Aggregator getSendIndex function.
 func getSecretSendIndex(conns []*net.ShosetConn) int {
-	aux := secretSendIndex
-	secretSendIndex++
-
 	if secretSendIndex >= len(conns) {
 		secretSendIndex = 0
 	}
+
+	aux := secretSendIndex
+	secretSendIndex++
 
 	return aux
 }

@@ -6,7 +6,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/ditrit/gandalf/libraries/goclient/models"
+	"github.com/ditrit/gandalf/connectors/goworkflowcustom/server"
+	"github.com/ditrit/gandalf/libraries/goclient"
 
 	worker "github.com/ditrit/gandalf/connectors/go"
 )
@@ -26,78 +27,82 @@ func main() {
 	fmt.Println(input.Text())
 
 	worker := worker.NewWorker(major, minor)
-	clientGandalf := worker.Start()
+	fmt.Println("Start")
+
+	worker.Start()
+	fmt.Println("Start 2")
+
+	clientGandalf := worker.GetClientGandalf()
+	fmt.Println("clientGandalf")
+	fmt.Println(clientGandalf)
+	fmt.Println("Start 3")
+
+	testGithub(clientGandalf)
+	//testUtils(clientGandalf)
+
+	//toto := server.NewWorkflowServer(clientGandalf)
+	//toto.Run()
+
+}
+
+func testDemo(clientGandalf *goclient.ClientGandalf) {
+	toto := server.NewWorkflowServer(clientGandalf)
+	toto.Run()
+
+}
+
+func testDocker(clientGandalf *goclient.ClientGandalf) {
+
+	fmt.Println("SEND COMMMAND REGISTER")
+	payload := `{"name":"test", "content": "{test}"}`
+	commandMessageUUID := clientGandalf.SendCommand("Workflow.REGISTER", map[string]string{"payload": payload})
+	fmt.Println(commandMessageUUID)
+
+	time.Sleep(5 * time.Second)
+
+	fmt.Println("SEND COMMMAND EXECUTE")
+	payload = `{"name":"test"}`
+	commandMessageUUID = clientGandalf.SendCommand("Workflow.EXECUTE", map[string]string{"payload": payload})
+	fmt.Println(commandMessageUUID)
+
+}
+
+func testUtils(clientGandalf *goclient.ClientGandalf) {
 
 	id := clientGandalf.CreateIteratorEvent()
+	fmt.Println("Start 4")
 
 	fmt.Println("SEND COMMMAND CREATE_FORM")
 	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-	commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-	formUUID := commandMessageUUID.GetUUID()
-	fmt.Println(formUUID)
+	commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", map[string]string{"payload": payload})
+	fmt.Println(commandMessageUUID)
 
 	time.Sleep(5 * time.Second)
 
 	fmt.Println("SEND COMMMAND ADMIN_UPDATE")
-	commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
-	updateUUID := commandMessageUUIDupdate.GetUUID()
-	fmt.Println(updateUUID)
-	event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
+	commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", map[string]string{})
+	fmt.Println(commandMessageUUIDupdate)
+	event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", commandMessageUUIDupdate, id)
 	fmt.Println(event)
 
 	time.Sleep(5 * time.Second)
 
 	fmt.Println("SEND COMMMAND CREATE_FORM")
 	payload = `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-	commandMessageUUID = clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-	formUUID = commandMessageUUID.GetUUID()
+	commandMessageUUID = clientGandalf.SendCommand("Utils.CREATE_FORM", map[string]string{"payload": payload})
+	fmt.Println(commandMessageUUID)
 
-	//fmt.Println("SEND COMMMAND ADMIN_GET_LAST_VERSION_WORKER")
-	//payloadStop := `{"Major":1,"Minor":5}`
-	//commandMessageUUIDstop := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
-	//fmt.Println(commandMessageUUIDstop)
-	/* 	fmt.Println("SEND COMMMAND CREATE_FORM")
-	   	payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-	   	commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-	   	fmt.Println(commandMessageUUID)
+}
 
-	   	fmt.Println("SEND COMMMAND ADMIN_STOP_WORKER")
-	   	payloadStop := `{"Major":1,"Minor":0}`
-	   	commandMessageUUIDstop := clientGandalf.SendCommand("Utils.ADMIN_STOP_WORKER", models.NewOptions("", payloadStop))
-	   	fmt.Println(commandMessageUUIDstop) */
-	/* id := clientGandalf.CreateIteratorEvent()
-	cpt := 0
-	for true {
+func testGithub(clientGandalf *goclient.ClientGandalf) {
 
-		if cpt == 2 {
+	fmt.Println("Start 4")
 
-			fmt.Println("SEND COMMMAND ADMIN_UPDATE")
-			//payloadStop := `{"Major":1,"Minor":5}`
-			//commandMessageUUIDstop := clientGandalf.SendCommand("Utils.ADMIN_GET_WORKER", models.NewOptions("", payloadStop))
-			commandMessageUUIDupdate := clientGandalf.SendAdminCommand("Utils.ADMIN_UPDATE", models.NewOptions("", `""`))
-			updateUUID := commandMessageUUIDupdate.GetUUID()
-			fmt.Println(updateUUID)
-			//event := clientGandalf.WaitReplyByEvent("ADMIN_UPDATE", "SUCCES", updateUUID, id)
-			//fmt.Println("event")
-			//fmt.Println(event)
+	fmt.Println("SEND COMMMAND CREATE_REPOSITORY")
+	payload := `{"Username":"","Password":"","Token":"","Name":"TestConnector","Description":"TestConnector","Private":true}`
+	commandMessageUUID := clientGandalf.SendCommand("vcs.CREATE_REPOSITORY", map[string]string{"payload": payload})
+	fmt.Println(commandMessageUUID)
 
-		} else {
-			fmt.Println("SEND COMMMAND CREATE_FORM")
-			payload := `{"Fields":[{"Name":"ID","HtmlType":"TextField","Value":"Id"}]}`
-			commandMessageUUID := clientGandalf.SendCommand("Utils.CREATE_FORM", models.NewOptions("", payload))
-			formUUID := commandMessageUUID.GetUUID()
-			event := clientGandalf.WaitReplyByEvent("CREATE_FORM", "SUCCES", formUUID, id)
-			fmt.Println("event")
-			fmt.Println(event)
-
-		}
-		cpt++
-
-		time.Sleep(5 * time.Second)
-	} */
-
-	//workerUpload := workers.NewWorkerUpload(clientGandalf)
-	//go workerUpload.Run()
 }
 
 /* //Upload : Upload

@@ -3,30 +3,25 @@ module github.com/ditrit/gandalf/core
 go 1.14
 
 require (
-	github.com/canonical/go-dqlite v1.6.0
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201203125032-9d5ef702f928
-	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20201123160255-94c665cab23c
-	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
-	github.com/go-chi/chi v4.1.2+incompatible // indirect
-	github.com/go-oauth2/oauth2 v3.9.2+incompatible // indirect
-	github.com/go-oauth2/oauth2/v4 v4.1.2
-	github.com/go-session/session v3.1.2+incompatible
-	github.com/golang/protobuf v1.4.3
-	github.com/google/uuid v1.1.2
+	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20210216134342-40c7d10bd6c4
+	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20210216134342-40c7d10bd6c4
+	github.com/ditrit/gandalf/verdeter v0.0.0-20210217103225-d2bf79e86cbd
+	github.com/ditrit/shoset v0.0.0-20210903074700-5ef969b431ba
+	github.com/golang-jwt/jwt/v4 v4.0.0
+	github.com/google/uuid v1.2.0
 	github.com/gorilla/mux v1.8.0
-	github.com/jinzhu/gorm v1.9.14
-	github.com/pkg/errors v0.9.1
-	github.com/techknowlogick/go-oauth2-gorm v0.0.0-20191219033350-a561e9f2b1cf // indirect
-	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
+	github.com/jinzhu/gorm v1.9.16
+	github.com/rs/cors v1.8.0
+	github.com/spf13/viper v1.8.0
 	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/text v0.3.3 // indirect
-	google.golang.org/genproto v0.0.0-20201022181438-0ff5f38871d5 // indirect
-	google.golang.org/grpc v1.33.2
-	google.golang.org/protobuf v1.25.0
-	gopkg.in/oauth2.v3 v3.12.0 // indirect
-	gopkg.in/yaml.v2 v2.3.0
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	google.golang.org/grpc v1.39.0
+	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )
+
+replace github.com/ditrit/gandalf/verdeter => ../verdeter
+
+replace github.com/ditrit/gandalf/libraries/goclient => ../libraries/goclient
+
+replace github.com/ditrit/gandalf/libraries/gogrpc => ../libraries/gogrpc

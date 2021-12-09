@@ -3,16 +3,18 @@ package utils
 
 import (
 	"archive/zip"
+	"crypto/sha512"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/ditrit/gandalf/core/configuration"
+	"time"
 
 	"github.com/ditrit/gandalf/core/models"
 	"gopkg.in/yaml.v2"
@@ -52,7 +54,7 @@ func GetMaxVersion(versions []models.Version) (maxversion models.Version) {
 	return
 }
 
-// GetConnectorType : GetConnectorType
+/* // GetConnectorType : GetConnectorType
 func GetConnectorType(connectorTypeName string, list []*models.ConnectorConfig) (result *models.ConnectorConfig) {
 	for _, connectorType := range list {
 		if connectorType.Name == connectorTypeName {
@@ -95,7 +97,69 @@ func GetConnectorEvent(eventName string, list []models.Object) (result models.Ob
 		}
 	}
 	return result
+} */
+
+// GetConnectorCommand : GetConnectorCommand
+func GetConnectorCommandType(commandName string, list []models.CommandType) (result models.CommandType) {
+	for _, command := range list {
+		if command.Name == commandName {
+			result = command
+			break
+		}
+	}
+	return result
 }
+
+// GetConnectorEvent : GetConnectorEvent
+func GetConnectorEventType(eventName string, list []models.EventType) (result models.EventType) {
+	for _, event := range list {
+		if event.Name == eventName {
+			result = event
+			break
+		}
+	}
+	return result
+}
+
+// GetPivotByVersion : GetPivotByVersion
+func GetPivotByVersion(major, minor int8, pivots map[models.Version]*models.Pivot) (result *models.Pivot) {
+	if val, ok := pivots[models.Version{Major: major, Minor: minor}]; ok {
+		result = val
+	}
+
+	return
+}
+
+/* func GetPivotByVersion(major, minor int8, pivots []*models.Pivot) (result *models.Pivot) {
+	for _, pivot := range pivots {
+		if pivot.Major == major && pivot.Minor == minor {
+			result = pivot
+			break
+		}
+	}
+
+	return
+} */
+
+// GetPivotByVersion : GetPivotByVersion
+func GetConnectorProductByVersion(major, minor int8, productConnectors map[models.Version]*models.ProductConnector) (result *models.ProductConnector) {
+	if val, ok := productConnectors[models.Version{Major: major, Minor: minor}]; ok {
+		result = val
+	}
+
+	return
+}
+
+/* func GetConnectorProductByVersion(major, minor int8, productConnectors []*models.ProductConnector) (result *models.ProductConnector) {
+	for _, productConnector := range productConnectors {
+		if productConnector.Major == major && productConnector.Minor == minor {
+			result = productConnector
+			break
+		}
+	}
+
+	return
+} */
 
 // ValidatePayload : Validate payload
 func ValidatePayload(payload, payloadSchema string) (result bool) {
@@ -106,7 +170,7 @@ func ValidatePayload(payload, payloadSchema string) (result bool) {
 
 	validate, err := gojsonschema.Validate(payloadSchemaloader, payloadloader)
 	if err != nil {
-		log.Printf("Error on validation payload : %s", err)
+		log.Printf("Error : Can't validate payload : %s", err)
 	} else {
 		if validate.Valid() {
 			result = true
@@ -116,7 +180,63 @@ func ValidatePayload(payload, payloadSchema string) (result bool) {
 
 }
 
-// DownloadConfiguration : Download configuration from url
+// DownloadPivot : Download pivot from url
+func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("Error : %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &pivot)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
+}
+
+// DownloadConnectorProduct : Download connector product from url
+func DownloadProductConnector(url, ressource string) (productConnector *models.ProductConnector, err error) {
+
+	resp, err := http.Get(url + ressource)
+	if err != nil {
+		log.Printf("Error : %s", err)
+		return
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return
+	}
+
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = yaml.Unmarshal(bodyBytes, &productConnector)
+	if err != nil {
+		fmt.Println(err)
+		log.Fatal(err)
+	}
+
+	return
+}
+
+/* // DownloadConfiguration : Download configuration from url
 func DownloadConfiguration(url, ressource string) (connectorConfig *models.ConnectorConfig, err error) {
 
 	resp, err := http.Get(url + ressource)
@@ -142,7 +262,7 @@ func DownloadConfiguration(url, ressource string) (connectorConfig *models.Conne
 	}
 
 	return
-}
+} */
 
 // DownloadConfigurationsKeys : Download configurationsKeys from url
 func DownloadConfigurationsKeys(url, ressource string) (body string, err error) {
@@ -150,7 +270,7 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 	resp, err := http.Get(url + ressource)
 	if err != nil {
 		fmt.Println(err)
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 	defer resp.Body.Close()
@@ -172,7 +292,7 @@ func DownloadConfigurationsKeys(url, ressource string) (body string, err error) 
 func DownloadWorkers(url, filePath string) (err error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 
@@ -184,14 +304,14 @@ func DownloadWorkers(url, filePath string) (err error) {
 	out, err := os.Create(filePath)
 	if err != nil {
 		fmt.Println(err)
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
 		return
 	}
 
@@ -200,23 +320,37 @@ func DownloadWorkers(url, filePath string) (err error) {
 
 // DownloadVersions : Download versions from url
 func DownloadVersions(url, ressource string) (versions []string, err error) {
-
+	fmt.Println("url")
+	fmt.Println(url)
+	fmt.Println(ressource)
+	fmt.Println(url + ressource)
+	fmt.Println("url1")
 	resp, err := http.Get(url + ressource)
 	if err != nil {
-		log.Printf("err: %s", err)
+		log.Printf("Error : %s", err)
+		fmt.Printf("err: %s", err)
 		return
 	}
-
+	fmt.Println("url2")
+	fmt.Println(resp)
+	fmt.Println(resp.Body)
+	fmt.Println(resp.StatusCode)
 	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
+		fmt.Println("url200")
 		return
 	}
+	fmt.Println("url3")
 
+	fmt.Println("resp.Body")
+	fmt.Println(resp.Body)
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	fmt.Println("string(bodyBytes)")
+	fmt.Println(string(bodyBytes))
 	err = yaml.Unmarshal(bodyBytes, &versions)
 	if err != nil {
 		fmt.Println(err)
@@ -278,21 +412,6 @@ func Unzip(zipPath string, dirPath string) ([]string, error) {
 	return filenames, nil
 }
 
-func GetConfigurationKeys(configkeys []models.ConfigurationKeys) (stindargs string) {
-	var keyValue string
-	for i, configkey := range configkeys {
-		keyValue, _ = configuration.GetStringConfig(configkey.Name)
-		if i == 0 {
-			stindargs = "{\"" + configkey.Name + "\":" + "\"" + keyValue + "\""
-		} else {
-			stindargs = stindargs + ", \"" + configkey.Name + "\":" + "\"" + keyValue + "\""
-		}
-
-	}
-	stindargs = stindargs + "}"
-	return
-}
-
 // IsExecAll : IsExecAll
 func IsExecAll(mode os.FileMode) bool {
 	return mode&0111 == 0111
@@ -314,4 +433,15 @@ func CheckFileExistAndIsExecAll(path string) bool {
 		return false
 	}
 	return false
+}
+
+func GenerateHash(logicalName string) string {
+	source := rand.NewSource(time.Now().UnixNano())
+	random := rand.New(source)
+
+	concatenated := fmt.Sprint(logicalName, random.Intn(100))
+	sha512 := sha512.New()
+	sha512.Write([]byte(concatenated))
+	hash := base64.URLEncoding.EncodeToString(sha512.Sum(nil))
+	return hash
 }

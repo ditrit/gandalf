@@ -3,13 +3,11 @@ package models
 
 import (
 	"github.com/ditrit/shoset/msg"
-
-	"github.com/jinzhu/gorm"
 )
 
 // Config : Config struct.
 type Config struct {
-	gorm.Model
+	Model
 	UUID      string
 	Tenant    string
 	Token     string

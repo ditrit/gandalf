@@ -9,20 +9,9 @@
             <div class="text-center">
                <h1 class="h4 text-gray-900 mb-4">{{ .Title}}</h1>
             </div>
-            <form enctype="multipart/form-data" action={{ .Url}} method="post">
-
-               <div class="custom-file mb-3">
-                  <input type="file" class="custom-file-input" id="uploadfile" name="uploadfile">
-                  <label class="custom-file-label" for="uploadfile">Choose workflow</label>
-               </div>
-
-               <div class="custom-file mb-3">
-                  <input type="file" class="custom-file-input" id="uploadconf" name="uploadconf">
-                  <label class="custom-file-label" for="uploadconf">Choose configuration</label>
-               </div>
-             
-               <input type="submit" value="upload" class="btn btn-primary"/>
-            </form>
+            <div id="container" style="width: 75%;">
+               <canvas id="canvas"></canvas>
+            </div>
          </div>
       </div>
    </div>
@@ -30,11 +19,18 @@
 </div>
 
 <script>
-// Add the following code if you want the name of the file appear on select
-$(".custom-file-input").on("change", function() {
-  var fileName = $(this).val().split("\\").pop();
-  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
-});
+ // Create a new HTML5 EventSource
+var source = new EventSource('/events/');
+
+// Create a callback for when a new message is received.
+source.onmessage = function(e) {
+
+   // Append the `data` attribute of the message to the DOM.
+   document.body.innerHTML += e.data + '<br>';
+};
+
+
+
 </script>
 
 

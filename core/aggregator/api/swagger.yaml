@@ -1,0 +1,3144 @@
+openapi: 3.0.0
+info:
+  description: |
+    This is a sample Petstore server.  You can find 
+    out more about Swagger at 
+    [http://swagger.io](http://swagger.io) or on 
+    [irc.freenode.net, #swagger](http://swagger.io/irc/).
+  version: 1.0.0-oas3
+  title: Swagger Gandalf
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: romain.fairant@orness.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+tags:
+  - name: authorization
+    description: Everything about your Authorizations
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: role
+    description: Everything about your Roles
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: environmentType
+    description: Everything about your EnvrionementType
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: environment
+    description: Everything about your environment
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: domain
+    description: Everything about your Domains
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: tag
+    description: Everything about your Tags
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: resource
+    description: Everything about your Resources
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: resourceType
+    description: Everything about your ResourceTypes
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: eventTypeToPoll
+    description: Everything about your EventTypeToPolls
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: eventType
+    description: Everything about your EventTypes
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: user
+    description: Operations about User
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: tenant
+    description: Operations about Tenant
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: secretAssignement
+    description: Operations about Secret
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: logicalComponent
+    description: Operations about Logical Component
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: product
+    description: Operations about Product
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: library
+    description: Operations about Library
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+  - name: connectorProduct
+    description: Operations about Library
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
+paths:
+  /authorization:
+    get:
+      tags:
+        - authorization
+      summary: List authorizations
+      operationId: listAuthorization
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Authorization'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - authorization
+      summary: Create a authorization
+      operationId: createAuthorization
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateAuthorization'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authorization'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/authorization/{authorizationId}':
+    get:
+      tags:
+        - authorization
+      summary: Find authorization by ID
+      description: Returns a single product
+      operationId: getAuthorizationById
+      parameters:
+        - name: authorizationId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authorization'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Authorization not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - authorization
+      summary: Updates a Authorization
+      operationId: updateAuthorization
+      parameters:
+        - name: authorizationId
+          in: path
+          description: ID of product that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateAuthorization'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authorization'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - authorization
+      summary: Deletes a Authorization
+      operationId: deleteAuthorization
+      parameters:
+        - name: authorizationId
+          in: path
+          description: Poroduct id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /product:
+    get:
+      tags:
+        - product
+      summary: List products
+      operationId: listProduct
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Product'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - product
+      summary: Create a product
+      operationId: createProduct
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateProduct'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/product/{productId}':
+    get:
+      tags:
+        - product
+      summary: Find product by ID
+      description: Returns a single product
+      operationId: getProductById
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Product not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - product
+      summary: Updates a product
+      operationId: updateProduct
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateProduct'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - product
+      summary: Deletes a Product
+      operationId: deleteProduct
+      parameters:
+        - name: productId
+          in: path
+          description: Poroduct id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /connectorproduct:
+    get:
+      tags:
+        - connectorProduct
+      summary: List connectorProducts
+      operationId: listConnectorProduct
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/ConnectorProduct'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - connectorProduct
+      summary: Create a connectorProduct
+      operationId: createConnectorProduct
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateConnectorProduct'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorProduct'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/connectorproduct/{connectorProductId}':
+    get:
+      tags:
+        - connectorProduct
+      summary: Find connectorProduct by ID
+      description: Returns a single connectorProduct
+      operationId: getConnectorProductById
+      parameters:
+        - name: connectorProductId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorProduct'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Product not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - connectorProduct
+      summary: Updates a connectorProduct
+      operationId: updateConnectorProduct
+      parameters:
+        - name: connectorProductId
+          in: path
+          description: ID of product that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateConnectorProduct'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorProduct'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - connectorProduct
+      summary: Deletes a connectorProduct
+      operationId: deleteConnectorProduct
+      parameters:
+        - name: connectorProductId
+          in: path
+          description: ConnectorProduct id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []        
+  /library:
+    get:
+      tags:
+        - library
+      summary: List libraries
+      operationId: listLibrary
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Library'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - library
+      summary: Create a library
+      operationId: createLibrary
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateLibrary'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Library'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/library/{libraryId}':
+    get:
+      tags:
+        - library
+      summary: Find library by ID
+      description: Returns a single library
+      operationId: getLibraryById
+      parameters:
+        - name: libraryId
+          in: path
+          description: ID of library to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Library'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Library not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - library
+      summary: Updates a library
+      operationId: updateLibrary
+      parameters:
+        - name: libraryId
+          in: path
+          description: ID of library that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateLibrary'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Library'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - library
+      summary: Deletes a library
+      operationId: deleteLibrary
+      parameters:
+        - name: libraryId
+          in: path
+          description: library id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []        
+  /role:
+    get:
+      tags:
+        - role
+      summary: List roles
+      operationId: listRole
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Role'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - role
+      summary: Create a role
+      operationId: createRole
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateRole'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/role/{roleId}':
+    get:
+      tags:
+        - role
+      summary: Find role by ID
+      description: Returns a single role
+      operationId: getRoleById
+      parameters:
+        - name: roleId
+          in: path
+          description: ID of role to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Role not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - role
+      summary: Updates a role
+      operationId: updateRole
+      parameters:
+        - name: roleId
+          in: path
+          description: ID of role that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateRole'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - role
+      summary: Deletes a role
+      operationId: deleteRole
+      parameters:
+        - name: roleId
+          in: path
+          description: Role id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+        
+  /environmentType:
+    get:
+      tags:
+        - environmentType
+      summary: List environmentType
+      operationId: listEnvironmentType
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/EnvironmentType'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - environmentType
+      summary: Create a environmentType
+      operationId: createEnvironmentType
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEnvironmentType'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentType'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/environmentType/{environmentTypeId}':
+    get:
+      tags:
+        - environmentType
+      summary: Find environmentType by ID
+      description: Returns a single environmentType
+      operationId: getEnvironmentTypeById
+      parameters:
+        - name: environmentTypeId
+          in: path
+          description: ID of environmentType to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentType'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: EnvironmentType not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - environmentType
+      summary: Updates a environmentType
+      operationId: updateEnvironmentType
+      parameters:
+        - name: environmentTypeId
+          in: path
+          description: ID of environmentType that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEnvironmentType'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnvironmentType'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - environmentType
+      summary: Deletes a environmentType
+      operationId: deleteEnvironmentType
+      parameters:
+        - name: environmentTypeId
+          in: path
+          description: EnvironmentType id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+       
+        
+  /environment:
+    get:
+      tags:
+        - environment
+      summary: List environments
+      operationId: listEnvironment
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Environment'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - environment
+      summary: Create a environment
+      operationId: createEnvironment
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEnvironment'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/environment/{environmentId}':
+    get:
+      tags:
+        - environment
+      summary: Find environment by ID
+      description: Returns a single environment
+      operationId: getEnvironmentById
+      parameters:
+        - name: environmentId
+          in: path
+          description: ID of environment to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Environment not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - environment
+      summary: Updates a environment
+      operationId: updateEnvironment
+      parameters:
+        - name: environmentId
+          in: path
+          description: ID of environment that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEnvironment'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Environment'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - environment
+      summary: Deletes a environment
+      operationId: deleteEnvironment
+      parameters:
+        - name: environmentId
+          in: path
+          description: Environment id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+
+
+
+
+  /domain:
+    get:
+      tags:
+        - domain
+      summary: List domains
+      operationId: listDomain
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Domain'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/domain/tree':
+    get:
+      tags:
+        - domain
+      summary: List domains tree
+      operationId: listDomainTree
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/domain/{domainId}':
+    get:
+      tags:
+        - domain
+      summary: Find domain by ID
+      description: Returns a single domain
+      operationId: getDomainById
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Domain not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - domain
+      summary: Create a domain
+      operationId: createDomain
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of parent domain
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateDomain'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - domain
+      summary: Updates a domain
+      operationId: updateDomain
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateDomain'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - domain
+      summary: Deletes a domain
+      operationId: deleteDomain
+      parameters:
+        - name: domainId
+          in: path
+          description: Domain id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/domain/{domainId}/tag':
+    get:
+      tags:
+        - domain
+      summary: List domain tags
+      operationId: listDomainTag
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Tag'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []  
+  '/domain/{domainId}/tag/{tagId}':
+    post:
+      tags:
+        - domain
+      summary: Create a tag domain
+      operationId: createDomainTag
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tagId
+          in: path
+          description: ID of tag that needs to be added
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - domain
+      summary: Deletes a tag domain
+      operationId: deleteDomainTag
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: tagId
+          in: path
+          description: ID of tag that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/domain/{domainId}/library':
+    get:
+      tags:
+        - domain
+      summary: List domain libraries
+      operationId: listDomainLibrary
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Library'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []  
+  '/domain/{domainId}/library/{libraryId}':
+    post:
+      tags:
+        - domain
+      summary: Create a library domain
+      operationId: createDomainLibrary
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: libraryId
+          in: path
+          description: ID of library that needs to be added
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - domain
+      summary: Deletes a library domain
+      operationId: deleteDomainLibrary
+      parameters:
+        - name: domainId
+          in: path
+          description: ID of domain that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: libraryId
+          in: path
+          description: ID of library that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /tag:
+    get:
+      tags:
+        - tag
+      summary: List tags
+      operationId: listTag
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Tag'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/tag/tree':
+    get:
+      tags:
+        - tag
+      summary: List tags tree
+      operationId: listTagTree
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Tag'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/tag/{tagId}':
+    get:
+      tags:
+        - tag
+      summary: Find tag by ID
+      description: Returns a single tag
+      operationId: getTagById
+      parameters:
+        - name: tagId
+          in: path
+          description: ID of tag to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Tag not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - tag
+      summary: Create a tag
+      operationId: createTag
+      parameters:
+        - name: tagId
+          in: path
+          description: ID of parent tag
+          required: true
+          schema:
+            type: string
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateTag'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - tag
+      summary: Updates a tag
+      operationId: updateTag
+      parameters:
+        - name: tagId
+          in: path
+          description: ID of tag that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateTag'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - tag
+      summary: Deletes a tag
+      operationId: deleteTag
+      parameters:
+        - name: tagId
+          in: path
+          description: Tag id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /tenant:
+    get:
+      tags:
+        - tenant
+      summary: List tenants
+      operationId: listTenant
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Tenant'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - tenant
+      summary: Create a tenant
+      operationId: createTenant
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateTenant'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/tenant/{tenantId}':
+    get:
+      tags:
+        - tenant
+      summary: Find tenant by ID
+      description: Returns a single tenant
+      operationId: getTenantById
+      parameters:
+        - name: tenantId
+          in: path
+          description: ID of tenant to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Tenant not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - tenant
+      summary: Updates a tenant
+      operationId: updateTenant
+      parameters:
+        - name: tenantId
+          in: path
+          description: ID of tenant that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateTenant'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tenant'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - tenant
+      summary: Deletes a tenant
+      operationId: deleteTenant
+      parameters:
+        - name: tenantId
+          in: path
+          description: Tenant id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /secretAssignement:
+    get:
+      tags:
+        - secretAssignement
+      summary: List SecretAssignements
+      operationId: listSecretAssignement
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/SecretAssignement'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - secretAssignement
+      summary: Create a SecretAssignement
+      operationId: createSecretAssignement
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecretAssignement'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/logicalcomponent/{logicalComponentName}':
+    get:
+      tags:
+        - logicalComponent
+      summary: Find domain by Name
+      description: Returns a single logical component
+      operationId: getLogicalComponentByName
+      parameters:
+        - name: logicalComponentName
+          in: path
+          description: Name of logical component to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogicalComponent'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Logical component not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/logicalcomponent/upload/{tenantName}/{typeName}':
+    post:
+      tags:
+        - logicalComponent
+      summary: Find domain by Name
+      description: Returns a single logical component
+      operationId: uploadLogicalComponentByTenantAndType
+      parameters:
+        - name: tenantName
+          in: path
+          description: Name of tenant
+          required: true
+          schema:
+            type: string
+        - name: typeName
+          in: path
+          description: Name of type (aggregator/connector)
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                fileName:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Successfully Uploaded File
+        '500':
+          $ref: '#/components/responses/500UploadLogicalComponentError'
+      security:
+        - bearerAuth: []
+  /resource:
+    get:
+      tags:
+        - resource
+      summary: List resources
+      operationId: listResource
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/Resource'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - resource
+      summary: Create a resource
+      operationId: createResource
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateResource'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/resource/{resourceId}':
+    get:
+      tags:
+        - resource
+      summary: Find resource by ID
+      description: Returns a single resource
+      operationId: getResourceById
+      parameters:
+        - name: resourceId
+          in: path
+          description: ID of role to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: Resource not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - resource
+      summary: Updates a resource
+      operationId: updateResource
+      parameters:
+        - name: resourceId
+          in: path
+          description: ID of resource that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateResource'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - resource
+      summary: Deletes a resource
+      operationId: deleteResource
+      parameters:
+        - name: api_key
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: resourceId
+          in: path
+          description: Resource id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/resource/{resourceName}':
+    get:
+      tags:
+        - resource
+      summary: Find resource by Name
+      description: Returns a single Resource
+      operationId: getResourceByName
+      parameters:
+        - name: resourceName
+          in: path
+          description: Name of resource to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Resource'
+        '404':
+          description: Resource not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /resourceType:
+    get:
+      tags:
+        - resourceType
+      summary: List resourceTypes
+      operationId: listResourceType
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/ResourceType'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - resourceType
+      summary: Create a resourcetype
+      operationId: createResourceType
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateResourceType'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceType'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/resourceType/{resourceTypeId}':
+    get:
+      tags:
+        - resourceType
+      summary: Find resourceType by ID
+      description: Returns a single resourceType
+      operationId: getResourceTypeById
+      parameters:
+        - name: resourceTypeId
+          in: path
+          description: ID of role to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceType'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: ResourceType not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - resourceType
+      summary: Updates a resourcetype
+      operationId: updateResourceType
+      parameters:
+        - name: resourceTypeId
+          in: path
+          description: ID of resourcetype that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateResourceType'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceType'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - resourceType
+      summary: Deletes a resourceType
+      operationId: deleteResourceType
+      parameters:
+        - name: api_key
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: resourceTypeId
+          in: path
+          description: ResourceType id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/resourceType/{resourceTypeName}':
+    get:
+      tags:
+        - resourceType
+      summary: Find resourceType by Name
+      description: Returns a single ResourceType
+      operationId: getResourceTypeByName
+      parameters:
+        - name: resourceTypeName
+          in: path
+          description: Name of resourceType to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceType'
+        '404':
+          description: ResourceType not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /eventTypeToPoll:
+    get:
+      tags:
+        - eventTypeToPoll
+      summary: List eventTypeToPolls
+      operationId: listEventTypeToPoll
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/EventTypeToPoll'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - eventTypeToPoll
+      summary: Create a eventTypeToPoll
+      operationId: createEventTypeToPoll
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEventTypeToPoll'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeToPoll'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/eventTypeToPoll/{eventTypeToPollId}':
+    get:
+      tags:
+        - eventTypeToPoll
+      summary: Find eventTypeToPoll by ID
+      description: Returns a single eventTypeToPoll
+      operationId: getEventTypeToPollById
+      parameters:
+        - name: eventTypeToPollId
+          in: path
+          description: ID of eventTypeToPoll to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeToPoll'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: EventTypeToPoll not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - eventTypeToPoll
+      summary: Updates a eventTypeToPoll
+      operationId: updateEventTypeToPoll
+      parameters:
+        - name: eventTypeToPollId
+          in: path
+          description: ID of eventTypeToPoll that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEventTypeToPoll'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventTypeToPoll'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - eventTypeToPoll
+      summary: Deletes a eventTypeToPoll
+      operationId: deleteEventTypeToPoll
+      parameters:
+        - name: api_key
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: eventTypeToPollId
+          in: path
+          description: EventTypeToPoll id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /eventType:
+    get:
+      tags:
+        - eventType
+      summary: List eventTypes
+      operationId: listEventType
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/EventType'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - eventType
+      summary: Create a eventType
+      operationId: createEventType
+      requestBody:        
+       $ref: '#/components/requestBodies/createOrUpdateEventType'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/eventType/{eventTypeId}':
+    get:
+      tags:
+        - eventType
+      summary: Find eventType by ID
+      description: Returns a single eventType
+      operationId: getEventTypeById
+      parameters:
+        - name: eventTypeId
+          in: path
+          description: ID of role to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: EventType not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - eventType
+      summary: Updates a eventType
+      operationId: updateEventType
+      parameters:
+        - name: eventTypeId
+          in: path
+          description: ID of eventType that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateEventType'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - eventType
+      summary: Deletes a eventType
+      operationId: deleteEventType
+      parameters:
+        - name: api_key
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: eventTypeId
+          in: path
+          description: EventType id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Success
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/eventType/{eventTypeName}':
+    get:
+      tags:
+        - eventType
+      summary: Find eventType by Name
+      description: Returns a single EventType
+      operationId: getEventTypeByName
+      parameters:
+        - name: eventTypeName
+          in: path
+          description: Name of eventType to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '404':
+          description: EventType not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /user:
+    get:
+      tags:
+        - user
+      summary: List users
+      operationId: listUser
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    schema: 
+                      $ref: '#/components/schemas/User'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - user
+      summary: Create a user
+      operationId: createUser
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/user/{userId}':
+    get:
+      tags:
+        - user
+      summary: Find user by ID
+      description: Returns a single user
+      operationId: getUserById
+      parameters:
+        - name: userId
+          in: path
+          description: ID of user to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidIDSupplied'
+        '404':
+          description: User not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    put:
+      tags:
+        - user
+      summary: Updates a role
+      operationId: updateUser
+      parameters:
+        - name: userId
+          in: path
+          description: ID of role that needs to be updated
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateUser'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/400Error'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+    delete:
+      tags:
+        - user
+      summary: Deletes a role
+      operationId: deleteUser
+      parameters:
+        - name: userId
+          in: path
+          description: Role id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Succes
+        '400':
+           $ref: '#/components/responses/InvalidIDSupplied'
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  '/user/{userName}':
+    get:
+      tags:
+        - user
+      summary: Find user by Name
+      description: Returns a single User
+      operationId: getUserByName
+      parameters:
+        - name: userName
+          in: path
+          description: Name of user to return
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+        '500':
+          $ref: '#/components/responses/500Error'
+      security:
+        - bearerAuth: []
+  /user/login:
+    post:
+      tags:
+        - user
+      summary: Logs user into the system
+      operationId: loginUser
+      requestBody:
+        $ref: '#/components/requestBodies/loginUser'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '401':
+          description: Invalid username/password supplied
+  /user/register:
+    post:
+      tags:
+        - user
+      summary: Register a user
+      operationId: registerUser
+      requestBody:
+        $ref: '#/components/requestBodies/createOrUpdateUser'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidRequestPayload'
+        '500':
+          $ref: '#/components/responses/500Error'
+  /user/logout:
+    post:
+      tags:
+        - user
+      summary: Logs out current logged in user session
+      operationId: logoutUser
+      responses:
+        default:
+          description: successful operation
+components:
+  schemas:
+    Model:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The ID.
+        createdAt:
+          type: string
+          format: date-time
+          description: The created date.
+        updatedAt:
+          type: string
+          format: date-time
+          description: The updated date.
+        deletedAt:
+          type: string
+          format: date-time
+          description: The deleted date.
+    Authorization:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        userId:
+          type: string
+          format: uuid
+          description: The user id.
+        roleId:
+          type: string
+          format: uuid
+          description: The role id.
+        domainId:
+          type: string
+          format: uuid
+          description: The domain id.
+    User:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The user name.
+        email:
+          type: string
+          description: The user email.
+        password:
+          type: string
+          description: The user password.
+        firstname:
+          type: string
+          description: The user first name.
+        secondname:
+          type: string
+          description: The user second name.
+        companyId:
+          type: string
+          description: The user company id.
+    Product:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The product name.
+        shortdescription:
+          type: string
+          description: The product short description.
+        description:
+          type: string
+          description: The product description.
+        logo:
+          type: string
+          description: The path to the logo.
+        repositoryURL:
+          type: string
+          description: The repository URL.
+        domainId:
+          type: integer
+          description: The domain id.
+    ConnectorProduct:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The product name.
+    Library:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The product name.
+        shortdescription:
+          type: string
+          description: The product short description.
+        description:
+          type: string
+          description: The product description.
+        logo:
+          type: string
+          description: The path to the logo.
+    Role:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The role name.
+        shortdescription:
+          type: string
+          description: The role short description.
+        description:
+          type: string
+          description: The role description.
+        logo:
+          type: string
+          description: The role logo.
+    Domain:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The domain name.
+        shortdescription:
+          type: string
+          description: The domain short description.
+        description:
+          type: string
+          description: The domain description.
+        logo:
+          type: string
+          description: The domain logo.
+        gitURL:
+          type: string
+          description: The git URL.
+        childs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Domain'
+    Resource:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The resource name.
+        logicalComponentId:
+          type: string
+          format: uuid
+          description: The logical component id.
+        domainId:
+          type: string
+          format: uuid
+          description: The domain id.
+        resourceTypeId:
+          type: string
+          format: uuid
+          description: The resourceType id.
+    ResourceType:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The resourceType name.
+        pivotId:
+          type: string
+          format: uuid
+          description: The pivot id.
+        productConnectorId:
+          type: string
+          format: uuid
+          description: The productConnector id.
+    EventType:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The eventType name.
+        schema:
+          type: string
+        pivotId:
+          type: string
+          format: uuid
+          description: The pivot id.
+        productConnectorId:
+          type: string
+          format: uuid
+          description: The productConnector id.
+    EventTypeToPoll:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The eventTypeToPoll name.
+        resourceId:
+          type: string
+          format: uuid
+          description: The resource id.
+        eventTypeId:
+          type: string
+          format: uuid
+          description: The eventType id.
+    EnvironmentType:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The environmentType name.
+        shortdescription:
+          type: string
+          description: The environmentType short description.
+        description:
+          type: string
+          description: The environmentType description.
+        logo:
+          type: string
+          description: The environmentType logo.
+    Environment:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The environment name.
+        shortdescription:
+          type: string
+          description: The environment short description.
+        description:
+          type: string
+          description: The environment description.
+        logo:
+          type: string
+          description: The environment logo.
+        environmentTypeID:
+          type: string
+          format: uuid
+          description: The ID of envrionementType.
+        domainID:
+          type: string
+          format: uuid
+          description: The ID of domain.
+    Tag:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The tag name.
+        shortdescription:
+          type: string
+          description: The tag short description.
+        description:
+          type: string
+          description: The tag description.
+        logo:
+          type: string
+          description: The tag logo.
+        childs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    Tenant:
+      type: object
+      properties:
+        model:
+          $ref: '#/components/schemas/Model'
+        name:
+          type: string
+          description: The tenant name.
+        password:
+          type: string
+          description: The tenant password.
+        shortdescription:
+          type: string
+          description: The tenant short description.
+        description:
+          type: string
+          description: The tenant description.
+        logo:
+          type: string
+          description: The tenant logo.
+    SecretAssignement:
+      type: object
+      properties:
+        secret:
+          type: string
+          description: The secret.
+        addressIP:
+          type: string
+          description: The secret IP Address.
+    LogicalComponent:
+      type: object
+      properties:
+        logicalName:
+          type: string
+          description: The logical name.
+        type:
+          type: string
+          description: The type of logical component.
+        pivotID:
+          type: string
+          format: uuid
+          description: The ID of pivot.
+        productConnectorID:
+          type: string
+          format: uuid
+          description: The ID of product connector.
+        aggregator:
+          type: string
+          description: The aggregator.
+        keyValues:
+          type: array
+          items:
+            type: object
+            properties:
+              schema: 
+                $ref: '#/components/schemas/KeyValue'
+        shortdescription:
+          type: string
+          description: The logical component short description.
+        description:
+          type: string
+          description: The logical component description.
+        resources:
+          type: array
+          items:
+            type: object
+            properties:
+              schema: 
+                $ref: '#/components/schemas/Resource'
+    KeyValue:
+      type: object
+      properties:
+        value:
+          type: string
+          description: The secret.
+        addressIP:
+          type: string
+          description: The secret IP Address.
+        keyID:
+          type: string
+          format: uuid
+          description: The ID of key.
+        logicalComponentID:
+          type: string
+          format: uuid
+          description: The ID of logicalComponent.
+  securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT    # optional, arbitrary value for documentation purposes
+  requestBodies:
+    createOrUpdateAuthorization:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - userID
+              - roleID
+              - domainID
+            properties:
+              userID:
+                type: string
+                format: uuid
+              roleID:
+                type: string
+                format: uuid
+              domainID:
+                type: string
+                format: uuid
+      description: The authorization to create.
+    createOrUpdateProduct:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+              repositoryURL:
+                type: string
+              domainID:
+                type: string
+                format: uuid
+      description: The product to create.
+    createOrUpdateConnectorProduct:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+      description: The connector product to create.
+    createOrUpdateLibrary:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+      description: The library to create.
+    createOrUpdateRole:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+      description: The role to create.
+    createOrUpdateDomain:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+      description: The domain to create.
+    createOrUpdateTenant:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+      description: The tenant to create.
+    createOrUpdateResource:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - logicalComponentID
+              - domainID
+              - resourceTypeID
+            properties:
+              name:
+                type: string
+              logicalComponentID:
+                type: string
+                format: uuid
+              domainID:
+                type: string
+                format: uuid
+              resourceTypeID:
+                type: string
+                format: uuid
+      description: The resource to create.
+    createOrUpdateResourceType:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - pivotID
+              - productConnectorID
+            properties:
+              name:
+                type: string
+              pivotID:
+                type: string
+                format: uuid
+              productConnectorID:
+                type: string
+                format: uuid
+      description: The resourceType to create.
+    createOrUpdateTag:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - shortdescription
+              - description
+              - logo
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+      description: The tag to create.
+    createOrUpdateEnvironmentType:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - shortdescription
+              - description
+              - logo
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+      description: The environment type to create.
+    createOrUpdateEnvironment:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - shortdescription
+              - description
+              - logo
+              - environmentTypeID
+              - domainID
+            properties:
+              name:
+                type: string
+              shortdescription:
+                type: string
+              description:
+                type: string
+              logo:
+                type: string
+              environmentTypeID:
+                type: string
+                format: uuid
+              domainID:
+                type: string
+                format: uuid
+      description: The environment to create.
+    createOrUpdateEventType:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - schema
+              - pivotID
+              - productConnectorID
+            properties:
+              name:
+                type: string
+              schema:
+                type: string
+              pivotID:
+                type: string
+                format: uuid
+              productConnectorID:
+                type: string
+                format: uuid
+      description: The eventType to create.   
+    createOrUpdateEventTypeToPoll:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - resourceID
+              - eventTypeID
+            properties:
+              resourceID:
+                type: string
+                format: uuid
+              eventTypeID:
+                type: string
+                format: uuid
+      description: The eventTypeToPoll to create.
+    createOrUpdateUser:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - email
+              - password
+            properties:
+              name:
+                type: string
+              email:
+                type: string
+              password:
+                type: string
+      description: The user to create.
+    loginUser:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+      description: The user to create.
+  responses:
+    500Error:
+      description: Database error | Tenant not found
+    500UploadLogicalComponentError:
+      description: Database error | Tenant not found | Pivot not found | ProductConnector not found
+    400Error:
+      description: Invalid ID supplied | Invalid request payload
+    InvalidRequestPayload:
+      description: Invalid request payload
+    InvalidIDSupplied:
+      description: Invalid ID supplied
+    UnauthorizedError:
+      description: Access token is missing or invalid
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+servers:
+  - url: 'https://virtserver.swaggerhub.com/ditrit/Gandalf/1.0.0'
+  - url: 'http://virtserver.swaggerhub.com/ditrit/Gandalf/1.0.0'
