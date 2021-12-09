@@ -1,9 +1,9 @@
-module connectors/gandalf-core/connectors/goworkflow
+module github.com/ditrit/gandalf/connectors/goworkflow
 
 go 1.13
 
 require (
-	github.com/ditrit/gandalf/connectors/go v0.0.0-20200623124757-b1cf188004aa
-	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200623123443-2371476e0bd5
-	github.com/go-chi/chi v4.1.2+incompatible
+	github.com/ditrit/gandalf/connectors/go v0.0.0-20200716101344-a0335256a57d
+	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200626141445-daa8a3bd1d8d
+	google.golang.org/genproto v0.0.0-20200715011427-11fb19a81f2c // indirect
 )

@@ -26,4 +26,4 @@ test:
 
 .PHONY: coverage
 coverage:
-	bash scripts/coverage.bash
+	bash core/scripts/coverage.bash

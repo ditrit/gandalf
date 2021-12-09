@@ -1,0 +1,48 @@
+model:
+name: ConnectorConfigAdmin
+connectorcommands:
+- model:
+  name: ADMIN_GET_WORKER
+  schema: '{"$schema": "http://json-schema.org/draft-04/schema#","type": "object","properties": {"Major": { "type": "integer" },"Minor": { "type": "integer" }},"required": ["Major","Minor"]}'
+  actions:
+    - model:
+      name: execute
+- model:
+  name: ADMIN_START_WORKER
+  schema: '{"$schema": "http://json-schema.org/draft-04/schema#","type": "object","properties": {"Major": { "type": "integer" },"Minor": { "type": "integer" }},"required": ["Major","Minor"]}'
+  actions:
+    - model:
+      name: execute
+- model:
+  name: ADMIN_STOP_WORKER
+  schema: '{"$schema": "http://json-schema.org/draft-04/schema#","type": "object","properties": {"Major": { "type": "integer" },"Minor": { "type": "integer" }},"required": ["Major","Minor"]}'
+  actions:
+    - model:
+      name: execute
+- model:
+  name: ADMIN_GET_LAST_VERSION_WORKER
+  schema: '{"type":"string"}'
+  actions:
+    - model:
+      name: execute
+- model:
+  name: ADMIN_UPDATE
+  schema: '{"type":"string"}'
+  actions:
+    - model:
+      name: execute
+resources: 
+- model: 
+  name: totosource
+  actions:
+    - model:
+      name: create
+    - model:
+      name: delete
+- model: 
+  name: tatasource
+  actions:
+    - model:
+      name: update
+    - model:
+      name: read

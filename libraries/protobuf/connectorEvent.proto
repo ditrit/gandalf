@@ -3,8 +3,10 @@ syntax = "proto3";
 option java_multiple_files = true;
 option java_package = "com.ditrit.gandalf.java.grpc";
 option java_outer_classname = "ConnectorEventProto";
+option go_package = "github.com/ditrit/gandalf/libraries/gogrpc";
 
-package grpc;
+package gogrpc;
+
 import "connector.proto";
 
 service ConnectorEvent {
@@ -23,7 +25,7 @@ message EventMessage {
 	string UUID = 6;      
 	string Event = 7;     
 	string Payload = 8;  
-    string ReferenceUUID = 9; 
+    string ReferenceUUID = 9;       
 }
 
 message EventMessageWait {

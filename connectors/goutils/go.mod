@@ -1,12 +1,9 @@
-module connectors/gandalf-core/connectors/goutils
+module github.com/ditrit/gandalf/connectors/goutils
 
-go 1.13
+go 1.14
 
 require (
-	github.com/ditrit/gandalf/connectors/go v0.0.0-20200623124757-b1cf188004aa
-	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20200623123443-2371476e0bd5
-	github.com/go-chi/chi v4.1.2+incompatible
-	github.com/kirves/go-form-it v0.0.0-20170609125405-d661c96bd6ad
-	google.golang.org/genproto v0.0.0-20200624020401-64a14ca9d1ad // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
+	github.com/ditrit/gandalf/connectors/go v0.0.0-20201029132552-fbf589fc0142
+	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20201026165739-6894d8c7142b
+	github.com/ditrit/shoset v0.0.0-20201026092509-225b8a4a5276
 )

@@ -3,23 +3,25 @@ module github.com/ditrit/gandalf/core
 go 1.14
 
 require (
-	github.com/Rican7/retry v0.1.0 // indirect
-	github.com/canonical/go-dqlite v1.5.2
-	github.com/ditrit/shoset v0.0.0-20200615082144-3b2b2302e4a8
-	github.com/ghodss/yaml v1.0.0 // indirect
-	github.com/go-chi/chi v4.1.2+incompatible
-	github.com/golang/protobuf v1.4.2
-	github.com/google/uuid v1.1.1
-	github.com/jinzhu/gorm v1.9.14
-	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
-	github.com/pkg/errors v0.9.1
-	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
+	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20210216134342-40c7d10bd6c4
+	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20210216134342-40c7d10bd6c4
+	github.com/ditrit/gandalf/verdeter v0.0.0-20210217103225-d2bf79e86cbd
+	github.com/ditrit/shoset v0.0.0-20210903074700-5ef969b431ba
+	github.com/golang-jwt/jwt/v4 v4.0.0
+	github.com/google/uuid v1.2.0
+	github.com/gorilla/mux v1.8.0
+	github.com/jinzhu/gorm v1.9.16
+	github.com/rs/cors v1.8.0
+	github.com/spf13/viper v1.8.0
 	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/net v0.0.0-20200602114024-627f9648deb9 // indirect
-	golang.org/x/sys v0.0.0-20200622214017-ed371f2e16b4 // indirect
-	golang.org/x/text v0.3.3 // indirect
-	google.golang.org/genproto v0.0.0-20200623002339-fbb79eadd5eb // indirect
-	google.golang.org/grpc v1.30.0
-	gopkg.in/yaml.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	google.golang.org/grpc v1.39.0
+	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	gopkg.in/yaml.v2 v2.4.0
 )
+
+replace github.com/ditrit/gandalf/verdeter => ../verdeter
+
+replace github.com/ditrit/gandalf/libraries/goclient => ../libraries/goclient
+
+replace github.com/ditrit/gandalf/libraries/gogrpc => ../libraries/gogrpc
