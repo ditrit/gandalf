@@ -22,8 +22,8 @@ func (as *TagService) List(token string) ([]models.Tag, error) {
 }
 
 // Create :
-func (as *TagService) Create(token string, tag models.Tag, parentTagName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/tag/"+parentTagName, token, tag)
+func (as *TagService) Create(token string, tag models.Tag, parentTagID uuid.UUID) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/tag/"+parentTagID.String(), token, tag)
 	if err != nil {
 		return err
 	}

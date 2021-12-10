@@ -32,8 +32,8 @@ func (as *UserService) Create(token string, user models.User) error {
 }
 
 // Read :
-func (as *UserService) Read(token string, id int) (*models.User, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/user/"+string(id), token, nil)
+func (as *UserService) Read(token string, id uuid.UUID) (*models.User, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/user/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}

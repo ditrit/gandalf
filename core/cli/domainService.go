@@ -22,8 +22,8 @@ func (as *DomainService) List(token string) ([]models.Domain, error) {
 }
 
 // Create :
-func (as *DomainService) Create(token string, domain models.Domain, parentDomainName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/domain/"+parentDomainName, token, domain)
+func (as *DomainService) Create(token string, domain models.Domain, parentDomainID uuid.UUID) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/domain/"+parentDomainID.String(), token, domain)
 	if err != nil {
 		return err
 	}
