@@ -99,7 +99,61 @@ tags:
     externalDocs:
       description: Find out more
       url: 'http://swagger.io'
+  - name: file
+    description: Operations about file
+    externalDocs:
+      description: Find out more
+      url: 'http://swagger.io'
 paths:
+  '/file/{fileId}':
+    get:
+      tags:
+        - file
+      summary: Find file by ID
+      description: Returns a single product
+      operationId: getFileById
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:       
+            image/*:    
+              schema: 
+                type: string
+                format: binary
+      security:
+        - bearerAuth: []
+    post:
+      tags:
+        - file
+      summary: Upload a file
+      operationId: uploadFile
+      parameters:
+        - name: fileId
+          in: path
+          description: ID of file that needs to be upload
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          image/*:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Successfully Uploaded File
+      security:
+        - bearerAuth: []
   /authorization:
     get:
       tags:
@@ -2594,6 +2648,10 @@ components:
         gitURL:
           type: string
           description: The git URL.
+        parentId:
+          type: string
+          format: uuid
+          description: The parent id.
         childs:
           type: array
           items:
@@ -2917,6 +2975,7 @@ components:
             type: object
             required:
               - name
+              - parentID
             properties:
               name:
                 type: string
@@ -2926,6 +2985,9 @@ components:
                 type: string
               logo:
                 type: string
+              parentID:
+                type: string
+                format: uuid
       description: The domain to create.
     createOrUpdateTenant:
       content:

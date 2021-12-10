@@ -66,6 +66,14 @@ func (ca ConfigurationAggregator) SetAPIPort(apiPort int) {
 	viper.Set("api_port", apiPort)
 }
 
+func (ca ConfigurationAggregator) GetAPIPath() string {
+	return viper.GetString("api_path")
+}
+
+func (ca ConfigurationAggregator) SetAPIPath(apiPath string) {
+	viper.Set("api_path", apiPath)
+}
+
 func (ca ConfigurationAggregator) GetAPIBindAddress() string {
 	return viper.GetString("bind") + ":" + viper.GetString("api_port")
 }

@@ -2,9 +2,9 @@ package cli
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // ResourceService :
@@ -34,8 +34,8 @@ func (as *ResourceService) Create(token string, resource models.Resource) error 
 }
 
 // Read :
-func (as *ResourceService) Read(token string, id int) (*models.Resource, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resource/"+strconv.Itoa(id), token, nil)
+func (as *ResourceService) Read(token string, id uuid.UUID) (*models.Resource, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resource/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +60,8 @@ func (as *ResourceService) ReadByName(token string, name string) (*models.Resour
 }
 
 // Update :
-func (as *ResourceService) Update(token string, id int, resource models.Resource) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/resource/"+strconv.Itoa(id), token, resource)
+func (as *ResourceService) Update(token string, id uuid.UUID, resource models.Resource) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/resource/"+id.String(), token, resource)
 	if err != nil {
 		return err
 	}
@@ -70,8 +70,8 @@ func (as *ResourceService) Update(token string, id int, resource models.Resource
 }
 
 // Delete :
-func (as *ResourceService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/resource/"+strconv.Itoa(id), token, nil)
+func (as *ResourceService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/resource/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}
