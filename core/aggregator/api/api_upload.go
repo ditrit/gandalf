@@ -28,7 +28,7 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filePath)
 }
 
-func Upload(w http.ResponseWriter, r *http.Request) {
+func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Maximum upload of 10 MB files
 	r.ParseMultipartForm(10 << 20)
 	vars := mux.Vars(r)
