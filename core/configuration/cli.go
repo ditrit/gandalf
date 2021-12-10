@@ -803,52 +803,50 @@ func runListTags(cfg *verdeter.ConfigCmd, args []string) {
 }
 
 func runUpdateTag(cfg *verdeter.ConfigCmd, args []string) {
-	authorizationID, err := uuid.Parse(args[0])
+	tagID, err := uuid.Parse(args[0])
 	if err == nil {
-		userID, err := uuid.Parse(viper.GetString("userID"))
+		name := viper.GetViper().GetString("name")
+		shortDescription := viper.GetViper().GetString("shortDescription")
+		description := viper.GetViper().GetString("description")
+		logo := viper.GetViper().GetString("logo")
+		parentID, err := uuid.Parse(viper.GetViper().GetString("parentID"))
 		if err == nil {
-			roleID, err := uuid.Parse(viper.GetViper().GetString("roleID"))
-			if err == nil {
-				domainID, err := uuid.Parse(viper.GetViper().GetString("domainID"))
-				if err == nil {
-					fmt.Printf("gandalf cli update user called with userID=%s, roleID=%s, domainID=%s,\n", userID, roleID, domainID)
-					configurationCli := cmodels.NewConfigurationCli()
-					cliClient := cli.NewClient(configurationCli.GetEndpoint())
+			fmt.Printf("gandalf cli update user called with name=%s, shortDescription=%s, description=%s, logo=%s, parentID=%s\n", name, shortDescription, description, logo, parentID)
+			configurationCli := cmodels.NewConfigurationCli()
+			cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-					oldAuthorization, err := cliClient.AuthorizationService.Read(configurationCli.GetToken(), authorizationID)
-					if err == nil {
-						oldAuthorization.UserID = userID
-						oldAuthorization.RoleID = roleID
-						oldAuthorization.DomainID = domainID
-						err = cliClient.AuthorizationService.Update(configurationCli.GetToken(), authorizationID, *oldAuthorization)
-						if err != nil {
-							fmt.Println(err)
-						}
-					} else {
-						fmt.Println(err)
-					}
+			oldTag, err := cliClient.TagService.Read(configurationCli.GetToken(), tagID)
+			if err == nil {
+				oldTag.Name = name
+				oldTag.ShortDescription = shortDescription
+				oldTag.Description = description
+				oldTag.Logo = logo
+				oldTag.ParentID = parentID
+				err = cliClient.TagService.Update(configurationCli.GetToken(), tagID, *oldTag)
+				if err != nil {
+					fmt.Println(err)
 				}
+			} else {
+				fmt.Println(err)
 			}
 		}
 	}
+
 }
 
 func runDeleteTag(cfg *verdeter.ConfigCmd, args []string) {
-	name := args[0]
-	fmt.Printf("gandalf cli delete user called with username=%s\n", name)
-	configurationCli := cmodels.NewConfigurationCli()
-	cliClient := cli.NewClient(configurationCli.GetEndpoint())
-
-	oldUser, err := cliClient.UserService.ReadByName(configurationCli.GetToken(), name)
+	tagID, err := uuid.Parse(args[0])
 	if err == nil {
-		err = cliClient.AuthorizationService.Delete(configurationCli.GetToken(), oldUser.ID)
+		fmt.Printf("gandalf cli delete user called with tagID=%s\n", tagID)
+		configurationCli := cmodels.NewConfigurationCli()
+		cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+		err = cliClient.TagService.Delete(configurationCli.GetToken(), tagID)
 		if err != nil {
 			fmt.Println(err)
 		}
-	} else {
-		fmt.Println(err)
-	}
 
+	}
 }
 
 ///
