@@ -357,8 +357,14 @@ func runCreateAuthorization(cfg *verdeter.ConfigCmd, args []string) {
 				if err != nil {
 					fmt.Println(err)
 				}
+			} else {
+				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -404,9 +410,17 @@ func runUpdateAuthorization(cfg *verdeter.ConfigCmd, args []string) {
 					} else {
 						fmt.Println(err)
 					}
+				} else {
+					fmt.Println(err)
 				}
+			} else {
+				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -421,7 +435,8 @@ func runDeleteAuthorization(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
-
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -447,7 +462,11 @@ func runCreateEnvironment(cfg *verdeter.ConfigCmd, args []string) {
 			if err != nil {
 				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -499,8 +518,14 @@ func runUpdateEnvironment(cfg *verdeter.ConfigCmd, args []string) {
 				} else {
 					fmt.Println(err)
 				}
+			} else {
+				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -538,6 +563,8 @@ func runCreateProduct(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -586,7 +613,11 @@ func runUpdateProduct(cfg *verdeter.ConfigCmd, args []string) {
 			} else {
 				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -602,6 +633,8 @@ func runDeleteProduct(cfg *verdeter.ConfigCmd, args []string) {
 			fmt.Println(err)
 		}
 
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -666,6 +699,8 @@ func runUpdateLibrary(cfg *verdeter.ConfigCmd, args []string) {
 		} else {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -681,6 +716,8 @@ func runDeleteLibrary(cfg *verdeter.ConfigCmd, args []string) {
 			fmt.Println(err)
 		}
 
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -746,6 +783,8 @@ func runUpdateEnvironmentType(cfg *verdeter.ConfigCmd, args []string) {
 		} else {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -761,6 +800,8 @@ func runDeleteEnvironmentType(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -784,6 +825,8 @@ func runCreateTag(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -830,7 +873,11 @@ func runUpdateTag(cfg *verdeter.ConfigCmd, args []string) {
 			} else {
 				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -847,6 +894,8 @@ func runDeleteTag(cfg *verdeter.ConfigCmd, args []string) {
 			fmt.Println(err)
 		}
 
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -939,6 +988,8 @@ func runUpdateUser(cfg *verdeter.ConfigCmd, args []string) {
 		} else {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -954,6 +1005,8 @@ func runDeleteUser(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 
 }
@@ -1061,6 +1114,8 @@ func runUpdateRole(cfg *verdeter.ConfigCmd, args []string) {
 		} else {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1075,6 +1130,8 @@ func runDeleteRole(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1094,6 +1151,8 @@ func runCreateDomain(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1140,7 +1199,11 @@ func runUpdateDomain(cfg *verdeter.ConfigCmd, args []string) {
 			} else {
 				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1155,6 +1218,8 @@ func runDeleteDomain(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1175,8 +1240,14 @@ func runCreateResource(cfg *verdeter.ConfigCmd, args []string) {
 				if err != nil {
 					fmt.Println(err)
 				}
+			} else {
+				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1223,9 +1294,17 @@ func runUpdateResource(cfg *verdeter.ConfigCmd, args []string) {
 					} else {
 						fmt.Println(err)
 					}
+				} else {
+					fmt.Println(err)
 				}
+			} else {
+				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1240,6 +1319,8 @@ func runDeleteResource(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1259,8 +1340,12 @@ func runCreateEventTypeToPoll(cfg *verdeter.ConfigCmd, args []string) {
 				fmt.Println(err)
 			}
 
+		} else {
+			fmt.Println(err)
 		}
 
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1317,6 +1402,8 @@ func runCreateResourceType(cfg *verdeter.ConfigCmd, args []string) {
 			fmt.Println("Wrong type")
 		}
 
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1371,8 +1458,12 @@ func runUpdateResourceType(cfg *verdeter.ConfigCmd, args []string) {
 			} else {
 				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
 
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1387,6 +1478,8 @@ func runDeleteResourceType(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1416,6 +1509,8 @@ func runCreateEventType(cfg *verdeter.ConfigCmd, args []string) {
 			fmt.Println("Wrong type")
 		}
 
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1473,7 +1568,11 @@ func runUpdateEventType(cfg *verdeter.ConfigCmd, args []string) {
 			} else {
 				fmt.Println(err)
 			}
+		} else {
+			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
@@ -1488,6 +1587,8 @@ func runDeleteEventType(cfg *verdeter.ConfigCmd, args []string) {
 		if err != nil {
 			fmt.Println(err)
 		}
+	} else {
+		fmt.Println(err)
 	}
 }
 
