@@ -14,10 +14,11 @@ type User struct {
 	FirstName string
 	LastName  string
 	CompanyId string
+	Logo      string
 }
 
 // NewUser : create new user
-func NewUser(name, email, firstname, secondname, companyid, password string) User {
+func NewUser(email, firstname, secondname, companyid, password string) User {
 	user := new(User)
 	user.Email = email
 	user.Password = HashAndSaltPassword(password)

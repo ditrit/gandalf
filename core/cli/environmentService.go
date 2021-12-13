@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // EnvironmentService :
@@ -13,7 +12,7 @@ type EnvironmentService struct {
 
 // List :
 func (as *EnvironmentService) List(token string) ([]models.Environment, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/environment/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/environment", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,8 +22,8 @@ func (as *EnvironmentService) List(token string) ([]models.Environment, error) {
 }
 
 // Create :
-func (as *EnvironmentService) Create(token string, environment models.Environment, parentEnvironmentName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/environment/"+parentEnvironmentName, token, environment)
+func (as *EnvironmentService) Create(token string, environment models.Environment) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/environment", token, environment)
 	if err != nil {
 		return err
 	}
@@ -33,8 +32,8 @@ func (as *EnvironmentService) Create(token string, environment models.Environmen
 }
 
 // Read :
-func (as *EnvironmentService) Read(token string, id int) (*models.Environment, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/environment/"+strconv.Itoa(id), token, nil)
+func (as *EnvironmentService) Read(token string, id uuid.UUID) (*models.Environment, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/environment/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ func (as *EnvironmentService) ReadByName(token string, name string) (*models.Env
 }
 
 // Update :
-func (as *EnvironmentService) Update(token string, id int, environment models.Environment) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/environment/"+strconv.Itoa(id), token, environment)
+func (as *EnvironmentService) Update(token string, id uuid.UUID, environment models.Environment) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/environment/"+id.String(), token, environment)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *EnvironmentService) Update(token string, id int, environment models.En
 }
 
 // Delete :
-func (as *EnvironmentService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/environment/"+strconv.Itoa(id), token, nil)
+func (as *EnvironmentService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/environment/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}

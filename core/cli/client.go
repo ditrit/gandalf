@@ -17,17 +17,22 @@ type Client struct {
 	BaseURL                  *url.URL
 	UserAgent                string
 	HTTPClient               *http.Client
-	AuthenticationService    *AuthenticationService
-	CliService               *CliService
+	AuthorizationService     *AuthorizationService
+	DomainService            *DomainService
+	EnvironmentService       *EnvironmentService
+	EnvironmentTypeService   *EnvironmentTypeService
+	EventTypeService         *EventTypeService
+	EventTypeToPollService   *EventTypeToPollService
+	LibraryService           *LibraryService
+	ProductService           *ProductService
+	ResourceService          *ResourceService
+	ResourceTypeService      *ResourceTypeService
 	RoleService              *RoleService
+	SecretAssignementService *SecretAssignementService
+	TagService               *TagService
 	TenantService            *TenantService
 	UserService              *UserService
-	SecretAssignementService *SecretAssignementService
-	ResourceService          *ResourceService
-	DomainService            *DomainService
-	EventTypeToPollService   *EventTypeToPollService
-	ResourceTypeService      *ResourceTypeService
-	EventTypeService         *EventTypeService
+	LogicalComponentService  *LogicalComponentService
 }
 
 // NewClient :
@@ -48,17 +53,22 @@ func NewClient(bindAddress string) (client *Client) {
 		},
 	}
 
-	client.AuthenticationService = &AuthenticationService{client: client}
-	client.CliService = &CliService{client: client}
+	client.AuthorizationService = &AuthorizationService{client: client}
+	client.DomainService = &DomainService{client: client}
+	client.EnvironmentService = &EnvironmentService{client: client}
+	client.EnvironmentTypeService = &EnvironmentTypeService{client: client}
+	client.EventTypeService = &EventTypeService{client: client}
+	client.EventTypeToPollService = &EventTypeToPollService{client: client}
+	client.LibraryService = &LibraryService{client: client}
+	client.ProductService = &ProductService{client: client}
+	client.ResourceService = &ResourceService{client: client}
+	client.ResourceTypeService = &ResourceTypeService{client: client}
 	client.RoleService = &RoleService{client: client}
+	client.SecretAssignementService = &SecretAssignementService{client: client}
+	client.TagService = &TagService{client: client}
 	client.TenantService = &TenantService{client: client}
 	client.UserService = &UserService{client: client}
-	client.SecretAssignementService = &SecretAssignementService{client: client}
-	client.ResourceService = &ResourceService{client: client}
-	client.DomainService = &DomainService{client: client}
-	client.EventTypeToPollService = &EventTypeToPollService{client: client}
-	client.ResourceTypeService = &ResourceTypeService{client: client}
-	client.EventTypeService = &EventTypeService{client: client}
+	client.LogicalComponentService = &LogicalComponentService{client: client}
 
 	return
 
@@ -88,6 +98,27 @@ func (c *Client) newRequest(method, path, token string, body interface{}) (*http
 	var bearer = "Bearer " + token
 
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", c.UserAgent)
+	//req.Header.Set("x-access-token", token)
+	req.Header.Add("Authorization", bearer)
+
+	return req, nil
+}
+
+func (c *Client) newRequestUpload(method, path, token string, body *bytes.Buffer) (*http.Request, error) {
+	rel := &url.URL{Path: path}
+	u := c.BaseURL.ResolveReference(rel)
+
+	req, err := http.NewRequest(method, u.String(), body)
+	if err != nil {
+		fmt.Println("error req")
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var bearer = "Bearer " + token
+
+	//req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 	//req.Header.Set("x-access-token", token)
 	req.Header.Add("Authorization", bearer)

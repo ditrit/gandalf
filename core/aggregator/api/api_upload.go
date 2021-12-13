@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	cmodels "github.com/ditrit/gandalf/core/configuration/models"
+
 	"github.com/gorilla/mux"
 )
 
@@ -25,7 +28,7 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, filePath)
 }
 
-func Upload(w http.ResponseWriter, r *http.Request) {
+func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Maximum upload of 10 MB files
 	r.ParseMultipartForm(10 << 20)
 	vars := mux.Vars(r)
@@ -40,7 +43,8 @@ func Upload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	fileDir := "/var/lib/gandalf/files/"
+	configuration := utils.Shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	fileDir := configuration.GetAPIPath()
 	_, err = os.Stat(fileDir)
 	if os.IsNotExist(err) {
 		err = os.Mkdir(fileDir, 0666)

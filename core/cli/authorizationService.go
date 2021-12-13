@@ -1,9 +1,8 @@
 package cli
 
 import (
-	"strconv"
-
 	"github.com/ditrit/gandalf/core/models"
+	"github.com/google/uuid"
 )
 
 // AuthorizationService :
@@ -13,7 +12,7 @@ type AuthorizationService struct {
 
 // List :
 func (as *AuthorizationService) List(token string) ([]models.Authorization, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/authorization/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/authorization", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,8 +22,8 @@ func (as *AuthorizationService) List(token string) ([]models.Authorization, erro
 }
 
 // Create :
-func (as *AuthorizationService) Create(token string, authorization models.Authorization, parentAuthorizationName string) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/authorization/"+parentAuthorizationName, token, authorization)
+func (as *AuthorizationService) Create(token string, authorization models.Authorization) error {
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/authorization", token, authorization)
 	if err != nil {
 		return err
 	}
@@ -33,8 +32,8 @@ func (as *AuthorizationService) Create(token string, authorization models.Author
 }
 
 // Read :
-func (as *AuthorizationService) Read(token string, id int) (*models.Authorization, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/authorization/"+strconv.Itoa(id), token, nil)
+func (as *AuthorizationService) Read(token string, id uuid.UUID) (*models.Authorization, error) {
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/authorization/"+id.String(), token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -55,8 +54,8 @@ func (as *AuthorizationService) ReadByName(token string, name string) (*models.A
 }
 
 // Update :
-func (as *AuthorizationService) Update(token string, id int, authorization models.Authorization) error {
-	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/authorization/"+strconv.Itoa(id), token, authorization)
+func (as *AuthorizationService) Update(token string, id uuid.UUID, authorization models.Authorization) error {
+	req, err := as.client.newRequest("PUT", "/ditrit/Gandalf/1.0.0/authorization/"+id.String(), token, authorization)
 	if err != nil {
 		return err
 	}
@@ -65,8 +64,8 @@ func (as *AuthorizationService) Update(token string, id int, authorization model
 }
 
 // Delete :
-func (as *AuthorizationService) Delete(token string, id int) error {
-	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/authorization/"+strconv.Itoa(id), token, nil)
+func (as *AuthorizationService) Delete(token string, id uuid.UUID) error {
+	req, err := as.client.newRequest("DELETE", "/ditrit/Gandalf/1.0.0/authorization/"+id.String(), token, nil)
 	if err != nil {
 		return err
 	}
