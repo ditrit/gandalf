@@ -32,6 +32,7 @@ type Client struct {
 	TagService               *TagService
 	TenantService            *TenantService
 	UserService              *UserService
+	LogicalComponentService  *LogicalComponentService
 }
 
 // NewClient :
@@ -67,6 +68,7 @@ func NewClient(bindAddress string) (client *Client) {
 	client.TagService = &TagService{client: client}
 	client.TenantService = &TenantService{client: client}
 	client.UserService = &UserService{client: client}
+	client.LogicalComponentService = &LogicalComponentService{client: client}
 
 	return
 
@@ -96,6 +98,27 @@ func (c *Client) newRequest(method, path, token string, body interface{}) (*http
 	var bearer = "Bearer " + token
 
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("User-Agent", c.UserAgent)
+	//req.Header.Set("x-access-token", token)
+	req.Header.Add("Authorization", bearer)
+
+	return req, nil
+}
+
+func (c *Client) newRequestUpload(method, path, token string, body *bytes.Buffer) (*http.Request, error) {
+	rel := &url.URL{Path: path}
+	u := c.BaseURL.ResolveReference(rel)
+
+	req, err := http.NewRequest(method, u.String(), body)
+	if err != nil {
+		fmt.Println("error req")
+		fmt.Println(err)
+		return nil, err
+	}
+
+	var bearer = "Bearer " + token
+
+	//req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 	//req.Header.Set("x-access-token", token)
 	req.Header.Add("Authorization", bearer)

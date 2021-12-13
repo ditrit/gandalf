@@ -64,65 +64,113 @@ You should obtain a *"hello world"* response in your browser using the adreess *
 
 **Cluster initialisation**
 ```bash
-./gandalf start cluster --offset 1 -l cluster 
+./gandalf start cluster --offset 1
+```
+
+**Standard Aggregator initilisation**
+```bash
+./gandalf start aggregator --offset 4 -l gandalf -t gandalf --cluster 127.0.0.1:9100 --secret <secret_output_cluster>
 ```
 **CLI authentification**
 ```bash
-./gandalf cli -e http://localhost:9200 login <login> <password>
+./gandalf cli -e http://localhost:9203 login <login_output_cluster> <password_output_cluster>
 ```
-**Create administrator** 
+
+**Create cluster2 secret** 
 ```bash
-./gandalf cli -e http://localhost:9200 create user <username> <email> <password> -t <token>
-```
-**Cluster 2 declaration**
-```bash
-./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
+./gandalf cli -e http://localhost:9203 -t <token_output_login> create secret  
 ```
 **Cluster 2 start** 
 ```bash
 ./gandalf start cluster --offset 2 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 ```
-**Cluster 3 declaration**
+**Create cluster3 secret** 
 ```bash
-./gandalf cli -e http://localhost:9200 declare cluster member -t <token>
+./gandalf cli -e http://localhost:9203 -t <token_output_login> create secret  
 ```
-**Cluster 3 start**
+**Cluster 3 start** 
 ```bash
 ./gandalf start cluster --offset 3 -l Cluster --join 127.0.0.1:9100 --secret <secret>
 ```
+
 
 ### Tenant : 
 
 **Create tenant**
 ```bash
-./gandalf cli -e http://localhost:9200 create tenant <tenant> -t <token>
+./gandalf cli -e http://localhost:9203 -t <token> create tenant <name> <shortdescription> <description>
 ```
 
 ### Aggregator : 
-**CLI authentification**
+
+**Upload configuration** 
 ```bash
-./gandalf cli -e http://localhost:9203 login <login> <password>
+./gandalf cli -e http://localhost:9203 -t <token_output_login> create logicalcomponent <tenant> aggregator <path_to_configuration> 
 ```
-**Aggregator declaration** 
+> Aggregator configuration example : 
+```yaml
+model:
+logicalname: aggregator1
+type: aggregator
+pivot:
+  name: aggregator
+  major: 1
+  minor: 0
+keyvalues:
+- model:
+  value: https://raw.githubusercontent.com/ditrit/gandalf-workers/master 
+  key:
+    name: repository_url
+```
+**Create Aggregator secret** 
 ```bash
-./gandalf cli -e http://localhost:9203 declare aggregator member <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9203 -t <token_output_login> create secret  
 ```
 **Aggregator start** 
 ```bash
-./gandalf start aggregator --offset 4 -l <name> -t <tenant> --cluster 127.0.0.1:9100 --secret <secret>
+./gandalf start aggregator --offset 5 -l <name> -t <tenant> --cluster 127.0.0.1:9100 --secret <secret>
 ```
 
 ### Connector :
-**Creation connector** 
+**Upload configuration** 
 ```bash
-./gandalf cli -e http://localhost:9203 declare connector name <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9203 -t <token_output_login> create logicalcomponent <tenant> connector <path_to_configuration> 
 ```
 
-**Connector declaration** 
+> Connector configuration example : 
+```yaml
+model:
+logicalname: connector2
+type: connector
+productconnector:
+  name: workflow
+  major: 1
+  minor: 0
+  product:
+    name: docker
+aggregator: gandalf
+keyvalues:
+- model:
+  value: toto
+  key:
+    name: totokey
+- model:
+  value: tata
+  key:
+    name: tatakey
+resources:
+- model:
+  name: toto
+- model:
+  name: tata
+```
+
+
+**Upload configuration** 
 ```bash
-./gandalf cli -e http://localhost:9203 declare connector member <tenant> <name> -t <token>
+./gandalf cli -e http://localhost:9203 -t <token_output_login> create secret  
 ```
 **Connector start** 
 ```bash
-./gandalf start connector --offset 5 -l <name> --aggregator 127.0.0.1:9103 --secret <secret> --class <class> --product <product>
+./gandalf start connector --offset 6 -l <name> --aggregator 127.0.0.1:9103 --secret <secret> --class <class> --product <product>
 ```

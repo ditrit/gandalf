@@ -63,7 +63,8 @@ var cliListLibraries = verdeter.NewConfigCmd("library", "list libraries", "list 
 var cliUpdateLibrary = verdeter.NewConfigCmd("library", "update library <username> [options]", "update library command allows to update a Gandalf library.", runUpdateLibrary)
 var cliDeleteLibrary = verdeter.NewConfigCmd("library", "delete library <username>", "delete library command allows to delete a Gandalf library.", runDeleteLibrary)
 
-//Logical component ?
+var cliCreateLogicalComponent = verdeter.NewConfigCmd("logicalcomponent", "create logicalcomponents <tenant> <typeName> <fileToUpload>", "create logicalcomponent command allows the creation of a new logicalcomponent", runCreateLogicalComponent)
+var cliListLogicalComponents = verdeter.NewConfigCmd("logicalcomponent", "list logicalcomponents", "list logicalcomponents command allows to list Gandalf logicalcomponents.", runListLogicalComponents)
 
 var cliCreateProduct = verdeter.NewConfigCmd("product", "create product <username> <email> <password>", "create product command allows the creation of a new product", runCreateProduct)
 var cliListProducts = verdeter.NewConfigCmd("product", "list products", "list products command allows to list Gandalf products.", runListProducts)
@@ -175,6 +176,9 @@ func init() {
 	cliUpdate.AddConfig(cliUpdateRole)
 	cliDelete.AddConfig(cliDeleteRole)
 
+	cliCreate.AddConfig(cliCreateLogicalComponent)
+	cliList.AddConfig(cliListLogicalComponents)
+
 	cliCreate.AddConfig(cliCreateSecret)
 	cliList.AddConfig(cliListSecret)
 
@@ -194,6 +198,9 @@ func init() {
 	cliDelete.AddConfig(cliDeleteUser)
 
 	cliLogin.SetNbArgs(2)
+
+	cliCreateLogicalComponent.SetNbArgs(3)
+	cliListLogicalComponents.SetNbArgs(0)
 
 	cliCreateAuthorization.SetNbArgs(3)
 	cliListAuthorizations.SetNbArgs(0)
@@ -338,6 +345,39 @@ func runLogin(cfg *verdeter.ConfigCmd, args []string) {
 	} else {
 		fmt.Println(err)
 	}
+}
+
+func runCreateLogicalComponent(cfg *verdeter.ConfigCmd, args []string) {
+	tenant := args[0]
+	typeName := args[1]
+	fileToUpload := args[2]
+
+	fmt.Printf("gandalf cli create authorization called with tenant=%s, typeName=%s, fileToUpload=%s\n", tenant, typeName, fileToUpload)
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	extraParams := map[string]string{}
+
+	err := cliClient.LogicalComponentService.Upload(configurationCli.GetToken(), tenant, typeName, fileToUpload, extraParams)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+func runListLogicalComponents(cfg *verdeter.ConfigCmd, args []string) {
+	fmt.Printf("gandalf cli list logicalcomponents\n")
+	configurationCli := cmodels.NewConfigurationCli()
+	cliClient := cli.NewClient(configurationCli.GetEndpoint())
+
+	logicals, err := cliClient.LogicalComponentService.List(configurationCli.GetToken())
+	if err == nil {
+		for _, logical := range logicals {
+			fmt.Println(logical)
+		}
+	} else {
+		fmt.Println(err)
+	}
+
 }
 
 func runCreateAuthorization(cfg *verdeter.ConfigCmd, args []string) {

@@ -27,6 +27,23 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+func ListLogicalComponent(w http.ResponseWriter, r *http.Request) {
+
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		logicalComponents, err := dao.ListLogicalComponent(database)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, logicalComponents)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+}
+
 func GetLogicalComponentByName(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -47,7 +64,7 @@ func GetLogicalComponentByName(w http.ResponseWriter, r *http.Request) {
 }
 
 func UploadLogicalComponentByTenantAndType(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Println("UPLOAD")
 	vars := mux.Vars(r)
 	typeComponent := vars["typeName"]
 	tenant := vars["tenantName"]
