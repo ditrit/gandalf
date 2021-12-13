@@ -4,7 +4,7 @@ Gandalf (Gandalf is A Natural Devops Application Life-cycle Framework), is a too
 
 Gandalf allows each of your teams, at any time and in a few minutes, to integrate and evolve its tools and workflows.
 
-https://ditrit.io/gandalf/
+https://ditrit.io/
 
 ## Core 
 The Gandalf cluster, aggregator, connector infrastructure: [Readme](core/README.md)

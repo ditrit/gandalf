@@ -252,16 +252,23 @@ var routes = Routes{
 	},
 
 	Route{
+		"ListLogicalComponent",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/logicalComponent",
+		IsAuthorized(ListLogicalComponent),
+	},
+
+	Route{
 		"GetLogicalComponentByName",
 		strings.ToUpper("Get"),
-		"/ditrit/Gandalf/1.0.0/logicalcomponent/{logicalComponentName}",
+		"/ditrit/Gandalf/1.0.0/logicalComponent/{logicalComponentName}",
 		IsAuthorized(GetLogicalComponentByName),
 	},
 
 	Route{
 		"UploadLogicalComponentByTenantAndType",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/logicalcomponent/upload/{tenantName}/{typeName}",
+		"/ditrit/Gandalf/1.0.0/logicalComponent/upload/{tenantName}/{typeName}",
 		IsAuthorized(UploadLogicalComponentByTenantAndType),
 	},
 
