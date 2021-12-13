@@ -12,7 +12,7 @@ type ConnectorProductService struct {
 
 // List :
 func (as *ConnectorProductService) List(token string) ([]models.ConnectorProduct, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/connectorProduct/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/connectorProduct", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *ConnectorProductService) List(token string) ([]models.ConnectorProduct
 
 // Create :
 func (as *ConnectorProductService) Create(token string, connectorProduct models.ConnectorProduct) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/connectorProduct/", token, connectorProduct)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/connectorProduct", token, connectorProduct)
 	if err != nil {
 		return err
 	}

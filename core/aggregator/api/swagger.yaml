@@ -2563,6 +2563,9 @@ components:
         companyId:
           type: string
           description: The user company id.
+        logo:
+          type: string
+          description: The user logo.
     Product:
       type: object
       properties:
@@ -3160,15 +3163,20 @@ components:
           schema:
             type: object
             required:
-              - name
               - email
               - password
             properties:
-              name:
-                type: string
               email:
                 type: string
               password:
+                type: string
+              firstName:
+                type: string
+              lastName:
+                type: string
+              companyID:
+                type: string
+              logo:
                 type: string
       description: The user to create.
     loginUser:

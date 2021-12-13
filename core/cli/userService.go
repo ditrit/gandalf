@@ -79,7 +79,12 @@ func (as *UserService) Login(user models.User) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var token string
-	err = as.client.do(req, &token)
-	return token, err
+	var mapLogin map[string]interface{}
+	mapLogin = make(map[string]interface{})
+
+	err = as.client.do(req, &mapLogin)
+	if err != nil {
+		return "", err
+	}
+	return mapLogin["accessToken"].(string), err
 }

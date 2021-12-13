@@ -14,6 +14,7 @@ type User struct {
 	FirstName string
 	LastName  string
 	CompanyId string
+	Logo      string
 }
 
 // NewUser : create new user
