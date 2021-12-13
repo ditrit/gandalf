@@ -12,7 +12,7 @@ type EventTypeToPollService struct {
 
 // List :
 func (as *EventTypeToPollService) List(token string) ([]models.EventTypeToPoll, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtypetopoll/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtypetopoll", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *EventTypeToPollService) List(token string) ([]models.EventTypeToPoll, 
 
 // Create :
 func (as *EventTypeToPollService) Create(token string, eventTypeToPoll models.EventTypeToPoll) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/eventtypetopoll/", token, eventTypeToPoll)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/eventtypetopoll", token, eventTypeToPoll)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func (as *EventTypeToPollService) Create(token string, eventTypeToPoll models.Ev
 
 // DeclareMember :
 func (as *EventTypeToPollService) DeclareMember(token string) (*models.EventTypeToPoll, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtypetopoll/declare/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/eventtypetopoll/declare", token, nil)
 	if err != nil {
 		return nil, err
 	}

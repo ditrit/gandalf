@@ -12,7 +12,7 @@ type EnvironmentService struct {
 
 // List :
 func (as *EnvironmentService) List(token string) ([]models.Environment, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/environment/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/environment", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *EnvironmentService) List(token string) ([]models.Environment, error) {
 
 // Create :
 func (as *EnvironmentService) Create(token string, environment models.Environment) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/environment/", token, environment)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/environment", token, environment)
 	if err != nil {
 		return err
 	}

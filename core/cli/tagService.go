@@ -12,7 +12,7 @@ type TagService struct {
 
 // List :
 func (as *TagService) List(token string) ([]models.Tag, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/tag/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/tag", token, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -12,7 +12,7 @@ type LogicalComponentService struct {
 
 // List :
 func (as *LogicalComponentService) List(token string) ([]models.LogicalComponent, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/logicalComponent/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/logicalComponent", token, nil)
 	if err != nil {
 		return nil, err
 	}

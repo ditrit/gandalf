@@ -12,7 +12,7 @@ type LibraryService struct {
 
 // List :
 func (as *LibraryService) List(token string) ([]models.Library, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/library/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/library", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *LibraryService) List(token string) ([]models.Library, error) {
 
 // Create :
 func (as *LibraryService) Create(token string, library models.Library) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/library/", token, library)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/library", token, library)
 	if err != nil {
 		return err
 	}

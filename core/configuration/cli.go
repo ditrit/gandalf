@@ -664,6 +664,7 @@ func runListLibraries(cfg *verdeter.ConfigCmd, args []string) {
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 	libraries, err := cliClient.LibraryService.List(configurationCli.GetToken())
+	fmt.Println(libraries)
 	if err == nil {
 		for _, library := range libraries {
 			fmt.Println(library)

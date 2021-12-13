@@ -12,7 +12,7 @@ type ResourceTypeService struct {
 
 // List :
 func (as *ResourceTypeService) List(token string) ([]models.ResourceType, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resourcetype/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/resourcetype", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *ResourceTypeService) List(token string) ([]models.ResourceType, error)
 
 // Create :
 func (as *ResourceTypeService) Create(token string, resourceType models.ResourceType) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/resourcetype/", token, resourceType)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/resourcetype", token, resourceType)
 	if err != nil {
 		return err
 	}

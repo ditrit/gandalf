@@ -12,7 +12,7 @@ type AuthorizationService struct {
 
 // List :
 func (as *AuthorizationService) List(token string) ([]models.Authorization, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/authorization/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/authorization", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *AuthorizationService) List(token string) ([]models.Authorization, erro
 
 // Create :
 func (as *AuthorizationService) Create(token string, authorization models.Authorization) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/authorization/", token, authorization)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/authorization", token, authorization)
 	if err != nil {
 		return err
 	}

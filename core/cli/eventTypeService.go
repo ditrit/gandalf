@@ -23,7 +23,7 @@ func (as *EventTypeService) List(token string) ([]models.EventType, error) {
 
 // Create :
 func (as *EventTypeService) Create(token string, eventType models.EventType) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/eventtype/", token, eventType)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/eventtype", token, eventType)
 	if err != nil {
 		return err
 	}

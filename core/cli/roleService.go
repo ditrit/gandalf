@@ -12,7 +12,7 @@ type RoleService struct {
 
 // List :
 func (as *RoleService) List(token string) ([]models.Role, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/role/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/role", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *RoleService) List(token string) ([]models.Role, error) {
 
 // Create :
 func (as *RoleService) Create(token string, role models.Role) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/role/", token, role)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/role", token, role)
 	if err != nil {
 		return err
 	}

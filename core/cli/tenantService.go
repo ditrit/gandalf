@@ -12,7 +12,7 @@ type TenantService struct {
 
 // List :
 func (as *TenantService) List(token string) ([]models.Tenant, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/tenant/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/tenant", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *TenantService) List(token string) ([]models.Tenant, error) {
 
 // Create :
 func (as *TenantService) Create(token string, tenant models.Tenant) (string, string, error) {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/tenant/", token, tenant)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/tenant", token, tenant)
 	if err != nil {
 		return "", "", err
 	}

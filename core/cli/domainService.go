@@ -12,7 +12,7 @@ type DomainService struct {
 
 // List :
 func (as *DomainService) List(token string) ([]models.Domain, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/domain/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/domain", token, nil)
 	if err != nil {
 		return nil, err
 	}

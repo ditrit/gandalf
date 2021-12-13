@@ -12,7 +12,7 @@ type ProductService struct {
 
 // List :
 func (as *ProductService) List(token string) ([]models.Product, error) {
-	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/product/", token, nil)
+	req, err := as.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/product", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +23,7 @@ func (as *ProductService) List(token string) ([]models.Product, error) {
 
 // Create :
 func (as *ProductService) Create(token string, product models.Product) error {
-	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/product/", token, product)
+	req, err := as.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/product", token, product)
 	if err != nil {
 		return err
 	}
