@@ -20,6 +20,14 @@ func GetBuild(client *gojenkins.Jenkins, jobName string, number int64) (build *g
 	return
 }
 
+type BuildJobPayload struct {
+	Username string
+	Password string
+	URL      string
+	JobName  string
+	Params   map[string]string
+}
+
 func BuildJob(client *gojenkins.Jenkins, name string, params map[string]string) (int64, error) {
 	ctx := context.Background()
 	return client.BuildJob(ctx, name, params)
@@ -37,6 +45,11 @@ func GetAllBuildIds(client *gojenkins.Jenkins, jobName string) (build *gojenkins
 	build, err = client.GetAllBuildIds(ctx, jobName)
 
 	return
+}
+
+type GetBuildFromQueueIDPayload struct {
+	JobName string
+	Queueid int64
 }
 
 func GetBuildFromQueueID(client *gojenkins.Jenkins, jobName string, queueid int64) (int64, string, error) {
@@ -60,6 +73,13 @@ func GetBuildFromQueueID(client *gojenkins.Jenkins, jobName string, queueid int6
 	return build.GetBuildNumber(), build.GetResult(), err
 }
 
+type GetLastSuccessfulBuildPayload struct {
+	Username string
+	Password string
+	URL      string
+	JobName  string
+}
+
 func GetLastSuccessfulBuild(client *gojenkins.Jenkins, jobName string) (int64, string, error) {
 	ctx := context.Background()
 
@@ -71,6 +91,10 @@ func GetLastSuccessfulBuild(client *gojenkins.Jenkins, jobName string) (int64, s
 	}
 
 	return -1, "", err
+}
+
+type GetLastStableBuildPayload struct {
+	JobName string
 }
 
 func GetLastStableBuild(client *gojenkins.Jenkins, jobName string) (int64, string, error) {
