@@ -33,19 +33,15 @@ func main() {
 	fmt.Println(err)
 	fmt.Println("InputPayload")
 	fmt.Println(inputPayload)
-	fmt.Println(inputPayload.EventTypeToPolls)
 	if err == nil {
-		if inputPayload.Token != "" {
-			fmt.Println("Oauth2Token")
-			clientGithub := client.Oauth2Authentification(inputPayload.Token)
-			worker.Context["client"] = clientGithub
+		if inputPayload.Username != "" && inputPayload.Password != "" {
+			clientJenkins := client.ClientWithAuthentication(inputPayload.URL, inputPayload.Username, inputPayload.Password)
+			worker.Context["client"] = clientJenkins
 		} else if inputPayload.Username != "" && inputPayload.Password != "" {
 			fmt.Println("BasicAuthentification")
-			clientGithub := client.BasicAuthentification(inputPayload.Username, inputPayload.Password)
-			worker.Context["client"] = clientGithub
+			clientJenkins := client.ClientWithoutAuthentication(inputPayload.URL)
+			worker.Context["client"] = clientJenkins
 		}
-
-		worker.Context["EventTypeToPolls"] = inputPayload.EventTypeToPolls
 
 		worker.RegisterCommandsFuncs("CREATE_REPOSITORY", CreateRepository)
 		worker.RegisterCommandsFuncs("CREATE_REPOSITORY_FROM_TEMPLATE", CreateRepositoryFromTemplate)
@@ -58,4 +54,11 @@ func main() {
 
 		worker.Run()
 	}
+}
+
+type InputPayload struct {
+	Username string
+	Password string
+	URL      string
+	//....
 }
