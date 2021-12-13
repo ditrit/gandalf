@@ -3,6 +3,7 @@ module github.com/ditrit/gandalf/core
 go 1.14
 
 require (
+	github.com/bndr/gojenkins v1.1.0 // indirect
 	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20210216134342-40c7d10bd6c4
 	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20210216134342-40c7d10bd6c4
 	github.com/ditrit/gandalf/verdeter v0.0.0-20210217103225-d2bf79e86cbd
