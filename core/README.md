@@ -107,6 +107,7 @@ You should obtain a *"hello world"* response in your browser using the adreess *
 ```bash
 ./gandalf cli -e http://localhost:9203 -t <token_output_login> create logicalcomponent <tenant> aggregator <path_to_configuration> 
 ```
+> Aggregator configuration example : 
 ```yaml
 model:
 logicalname: aggregator1
@@ -127,7 +128,7 @@ keyvalues:
 ```
 **Aggregator start** 
 ```bash
-./gandalf start aggregator --offset 4 -l <name> -t <tenant> --cluster 127.0.0.1:9100 --secret <secret>
+./gandalf start aggregator --offset 5 -l <name> -t <tenant> --cluster 127.0.0.1:9100 --secret <secret>
 ```
 
 ### Connector :
@@ -135,6 +136,8 @@ keyvalues:
 ```bash
 ./gandalf cli -e http://localhost:9203 -t <token_output_login> create logicalcomponent <tenant> connector <path_to_configuration> 
 ```
+
+> Connector configuration example : 
 ```yaml
 model:
 logicalname: connector2
@@ -155,21 +158,19 @@ keyvalues:
   value: tata
   key:
     name: tatakey
-- model:
-  value: tutu
-  key:
-    name: tutukey
 resources:
 - model:
-  name: tutu
+  name: toto
 - model:
-  name: titi
+  name: tata
 ```
+
+
 **Upload configuration** 
 ```bash
 ./gandalf cli -e http://localhost:9203 -t <token_output_login> create secret  
 ```
 **Connector start** 
 ```bash
-./gandalf start connector --offset 5 -l <name> --aggregator 127.0.0.1:9103 --secret <secret> --class <class> --product <product>
+./gandalf start connector --offset 6 -l <name> --aggregator 127.0.0.1:9103 --secret <secret> --class <class> --product <product>
 ```
