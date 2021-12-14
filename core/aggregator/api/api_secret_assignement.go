@@ -25,8 +25,8 @@ func CreateSecretAssignement(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
-		var secretAssignement *models.SecretAssignement
-		secretAssignement.Secret = uuid.NewString()
+		secretAssignement := new(models.SecretAssignement)
+		secretAssignement.Secret = uuid.New().String()
 		fmt.Println("SECRET")
 		fmt.Println(secretAssignement)
 		if err := dao.CreateSecretAssignement(database, secretAssignement); err != nil {
@@ -43,7 +43,7 @@ func CreateSecretAssignement(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListSecretAssignement(w http.ResponseWriter, r *http.Request) {
-
+	fmt.Println("List")
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
 		secrets, err := dao.ListSecretAssignement(database)
