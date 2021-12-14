@@ -567,17 +567,17 @@ var routes = Routes{
 	},
 
 	Route{
-		"CreateSecretAssignement",
-		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/secretAssignement",
-		IsAuthorized(CreateSecretAssignement),
-	},
-
-	Route{
 		"ListSecretAssignement",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/secretAssignement",
 		IsAuthorized(ListSecretAssignement),
+	},
+
+	Route{
+		"CreateSecretAssignement",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/secretAssignement",
+		IsAuthorized(CreateSecretAssignement),
 	},
 
 	Route{

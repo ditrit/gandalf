@@ -13,7 +13,7 @@ type SecretAssignementService struct {
 
 // List :
 func (sas *SecretAssignementService) List(token string) ([]models.SecretAssignement, error) {
-	req, err := sas.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/secret", token, nil)
+	req, err := sas.client.newRequest("GET", "/ditrit/Gandalf/1.0.0/secretAssignement", token, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (sas *SecretAssignementService) List(token string) ([]models.SecretAssignem
 
 // Create :
 func (sas *SecretAssignementService) Create(token string) (string, error) {
-	req, err := sas.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/secret", token, nil)
+	req, err := sas.client.newRequest("POST", "/ditrit/Gandalf/1.0.0/secretAssignement", token, nil)
 	if err != nil {
 		return "", err
 	}
