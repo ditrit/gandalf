@@ -11,6 +11,7 @@ https://ditrit.io
 - [Build](#Build)
 - [Documentation](#Documentation)
 - [Getting started](#Getting-started)
+- [Demo](#Demo)
 
 
 ## Schema
