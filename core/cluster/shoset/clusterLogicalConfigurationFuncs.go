@@ -89,6 +89,8 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 						//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 						//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
 						//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
+						fmt.Println("logicalConfiguration.GetTenant()")
+						fmt.Println(logicalConfiguration.GetTenant())
 						databaseClient = databaseConnection.GetDatabaseClientByTenant(logicalConfiguration.GetTenant())
 						/* 	if mapDatabaseClient != nil {
 							databaseClient = cutils.GetDatabaseClientByTenant(configuration.GetTenant(), configurationCluster.GetDatabaseBindAddress(), mapDatabaseClient)
