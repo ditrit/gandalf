@@ -2,11 +2,10 @@ package models
 
 import (
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 )
 
 type ProductConnector struct {
-	gorm.Model
+	Model
 	Name          string `gorm:"unique;not null"`
 	Major         int8
 	Minor         int8

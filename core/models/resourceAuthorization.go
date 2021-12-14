@@ -2,11 +2,10 @@ package models
 
 import (
 	"github.com/google/uuid"
-	"github.com/jinzhu/gorm"
 )
 
 type ResourceAuthorization struct {
-	gorm.Model
+	Model
 	RoleID         uuid.UUID `gorm:"type:uuid"`
 	Role           Role
 	DomainID       uuid.UUID `gorm:"type:uuid"`

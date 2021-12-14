@@ -102,11 +102,15 @@ func (w WorkerAdmin) Run() {
 
 	if len(w.versions) == 0 {
 		lastVersion, err := w.getLastVersion()
+		fmt.Println("last version")
+		fmt.Println(lastVersion)
 		w.updateVersions(lastVersion)
 		if err == nil {
 			err = w.getWorkerConfiguration(lastVersion)
 			if err == nil {
 				err = w.getWorker(lastVersion)
+				fmt.Println("err")
+				fmt.Println(err)
 				if err == nil {
 					go w.startWorker(lastVersion)
 				}

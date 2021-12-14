@@ -86,6 +86,8 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 			configurationMsg := cmsg.NewLogicalConfiguration("LOGICAL_CONFIGURATION", "")
 			//configurationMsg.Tenant = shoset.Context["tenant"].(string)
 			configurationMsg.GetContext()["componentType"] = "connector"
+			fmt.Println("configurationConnector.GetLogicalName()")
+			fmt.Println(configurationConnector.GetLogicalName())
 			configurationMsg.GetContext()["logicalName"] = configurationConnector.GetLogicalName()
 			configurationMsg.GetContext()["bindAddress"] = configurationConnector.GetBindAddress()
 			//configurationMsg.GetContext()["configuration"] = configurationLogicalConnector
