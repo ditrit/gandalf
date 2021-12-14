@@ -17,12 +17,15 @@ func GetFile(w http.ResponseWriter, r *http.Request) {
 	fileId := vars["fileId"]
 
 	// TODO: must be configurable, check if directory already exists
-	fileDir := "/var/lib/gandalf/files/"
+	configuration := utils.Shoset.Context["configuration"].(*cmodels.ConfigurationAggregator)
+	fileDir := configuration.GetAPIPath()
 	filePath := fileDir + fileId
 	_, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
 		// TODO: Do not must crash + logs
 		fmt.Println(err)
+		utils.RespondWithError(w, http.StatusBadRequest, "File doesn't exist")
+		return
 	}
 
 	http.ServeFile(w, r, filePath)
@@ -39,6 +42,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println("Error Retrieving the File")
 		fmt.Println(err)
+		utils.RespondWithError(w, http.StatusBadRequest, "Error retrieving the file")
 		return
 	}
 	defer file.Close()
@@ -51,6 +55,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			// TODO: Do not must crash + logs
 			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusInternalServerError, "Error retrieving the directory")
 		}
 	}
 
@@ -59,6 +64,7 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		// TODO: Do not must crash + logs
 		fmt.Println(err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error creating the new file")
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -66,9 +72,11 @@ func UploadFile(w http.ResponseWriter, r *http.Request) {
 	// Copy the uploaded file to the created file on the filesystem
 	if _, err := io.Copy(dst, file); err != nil {
 		fmt.Println(err)
+		utils.RespondWithError(w, http.StatusInternalServerError, "Error copying the file")
+
 		//http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprintf(w, "Successfully Uploaded File\n")
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "Successfully Uploaded File"})
 }
