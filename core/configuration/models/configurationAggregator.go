@@ -12,6 +12,10 @@ func NewConfigurationAggregator() *ConfigurationAggregator {
 	return configurationAggregator
 }
 
+func (ca ConfigurationAggregator) GetOffset() int {
+	return viper.GetInt("offset")
+}
+
 func (ca ConfigurationAggregator) GetLogicalName() string {
 	return viper.GetString("lname")
 }
