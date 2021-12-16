@@ -154,15 +154,17 @@ func ExpandPath(rootPath, path interface{}) interface{} {
 	if ok {
 		pathStr, ok := path.(string)
 		if ok {
-			firstChar := pathStr[0:1]
-			var ret string
-			if firstChar == "/" {
-				ret = pathStr
-			} else {
-				ret = rootPathStr + pathStr
-			}
-			if FileExist(ret) {
-				return ret
+			if len(pathStr) > 0 {
+				firstChar := pathStr[0:1]
+				var ret string
+				if firstChar == "/" {
+					ret = pathStr
+				} else {
+					ret = rootPathStr + pathStr
+				}
+				if FileExist(ret) {
+					return ret
+				}
 			}
 		}
 	}

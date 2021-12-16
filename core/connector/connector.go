@@ -4,10 +4,13 @@ package connector
 import (
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 
 	"github.com/ditrit/gandalf/core/connector/admin"
 	"github.com/ditrit/gandalf/core/connector/grpc"
 	"github.com/ditrit/gandalf/core/connector/shoset"
+	"github.com/spf13/viper"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
@@ -41,6 +44,8 @@ type ConnectorMember struct {
 
 // NewConnectorMember : Connector struct constructor.
 func NewConnectorMember(configurationConnector *cmodels.ConfigurationConnector) *ConnectorMember {
+	SaveConfiguration(configurationConnector.GetOffset())
+
 	member := new(ConnectorMember)
 	//member.logicalName = configurationConnector.GetLogicalName()
 	//member.connectorType = connectorType
@@ -209,6 +214,7 @@ func getBrothers(address string, member *ConnectorMember) []string {
 
 // ConnectorMemberInit : Connector init function.
 func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector) (*ConnectorMember, error) {
+
 	member := NewConnectorMember(configurationConnector)
 	//member.timeoutMax = timeoutMax
 	err := member.Bind(configurationConnector.GetBindAddress())
@@ -276,4 +282,30 @@ func ConnectorMemberInit(configurationConnector *cmodels.ConfigurationConnector)
 		log.Fatalf("Can't bind shoset on %s", configurationConnector.GetBindAddress())
 	}
 	return member, err
+}
+
+func SaveConfiguration(offset int) {
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println(err)
+	}
+	if !DirectoryExist(dirname + "/.gandalf/") {
+		CreateDirectory(dirname + "/.gandalf/")
+	}
+	if offset > 0 {
+		viper.WriteConfigAs(dirname + "/.gandalf/" + "gandalf_" + strconv.Itoa(offset) + ".yaml")
+	} else {
+		viper.WriteConfigAs(dirname + "/.gandalf/" + "gandalf.yaml")
+	}
+}
+
+func DirectoryExist(path string) bool {
+	if stats, err := os.Stat(path); !os.IsNotExist(err) {
+		return stats.IsDir()
+	}
+	return false
+}
+
+func CreateDirectory(path string) error {
+	return os.MkdirAll(path, 0711)
 }
