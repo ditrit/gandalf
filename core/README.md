@@ -74,6 +74,9 @@ This section show how to start 3 cluster node, 1 standard aggregator, 1 custom a
 ```bash
 ./mkinstall.sh
 ```
+```bash
+./gandalf.sh cluster
+```
 
 ### Change user :
 ```bash
@@ -199,6 +202,18 @@ resources:
 ## Demo
 This section show how to start a cluster node, a standard aggregator and 2 connectors (github/workflow). Once the 2 connectors started u can upload the example workflow at http://localhost:8080/gandalf/upload to create a repository on Github  
 
+### Initialisation : 
+```bash
+./mkinstall.sh
+```
+```bash
+./gandalf.sh cluster
+```
+
+### Change user :
+```bash
+sudo -su gandalf
+```
 ### Cluster : 
 
 **Cluster initialisation**
