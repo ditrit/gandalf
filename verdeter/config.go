@@ -368,6 +368,7 @@ func InitConfig(c *ConfigCmd) {
 	}
 
 	if cfgFile == "" {
+		configDir := viper.GetString("config_dir")
 		viper.AddConfigPath(configDir)
 		viper.SetConfigName(instanceName)
 	}

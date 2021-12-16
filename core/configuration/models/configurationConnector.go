@@ -21,6 +21,10 @@ func NewConfigurationConnector(cfg *verdeter.ConfigCmd) *ConfigurationConnector 
 	return configurationConnector
 }
 
+func (cc ConfigurationConnector) GetOffset() int {
+	return viper.GetInt("offset")
+}
+
 func (cc ConfigurationConnector) GetLogicalName() string {
 	return viper.GetString("lname")
 }

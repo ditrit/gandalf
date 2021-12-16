@@ -10,6 +10,7 @@ https://ditrit.io
 - [Installation](#Installation)
 - [Build](#Build)
 - [Documentation](#Documentation)
+- [Docker](#Docker)
 - [Getting started](#Getting-started)
 - [Demo](#Demo)
 
@@ -47,7 +48,9 @@ go build -o gandalf
 ## Documentation
 [Wiki](https://github.com/ditrit/gandalf/wiki).
 
-## Getting started
+
+## Docker
+This section show how to start a cluster node and a standard aggregator with docker 
 
 ### Howto test Gandalf API using docker
 simply run 
@@ -62,6 +65,9 @@ run docker run -p 127.0.0.1:9203:9203/tcp gandalfdocker
 You should obtain a *"hello world"* response in your browser using the adreess *"http://127.0.0.1:9203/ditrit/Gandalf/1.0.0/"*.
 
 
+
+## Getting started
+This section show how to start 3 cluster node, 1 standard aggregator, 1 custom aggregator, and 1 connector
 
 
 ### Initialisation : 
@@ -191,7 +197,7 @@ resources:
 
 
 ## Demo
-
+This section show how to start a cluster node, a standard aggregator and 2 connectors (github/workflow). Once the 2 connectors started u can upload the example workflow at http://localhost:8080/gandalf/upload to create a repository on Github  
 
 ### Cluster : 
 

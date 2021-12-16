@@ -4,6 +4,7 @@ package cluster
 import (
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -50,6 +51,8 @@ func InitClusterKeys(){
 
 // NewClusterMember : Cluster struct constructor.
 func NewClusterMember(configurationCluster *cmodels.ConfigurationCluster) *ClusterMember {
+	SaveConfiguration(configurationCluster.GetOffset())
+
 	member := new(ClusterMember)
 	member.chaussette = net.NewShoset(configurationCluster.GetLogicalName(), "cl", configurationCluster.GetCertsPath(), configurationCluster.GetConfigPath())
 	//member.MapTenantDatabaseClients = make(map[string]*gorm.DB)
@@ -141,7 +144,6 @@ func getBrothers(address string, member *ClusterMember) []string {
 //TODO REVOIR
 // ClusterMemberInit : Cluster init function.
 func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *ClusterMember {
-
 	//databaseBindAddress, _ := net.DeltaAddress(bindAddress, 100)
 	//databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 200)
 	member := NewClusterMember(configurationCluster)
@@ -304,7 +306,6 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *ClusterMember {
 	//databaseBindAddress, _ := net.DeltaAddress(bindAddress, 1000)
 	//databaseHttpAddress, _ := net.DeltaAddress(bindAddress, 100)
-
 	member := NewClusterMember(configurationCluster)
 	err := member.Bind(configurationCluster.GetBindAddress())
 	if err == nil {
@@ -547,4 +548,30 @@ func ChangePort(addr string, port int) (string, bool) {
 		return "", false
 	}
 	return "", false
+}
+
+func SaveConfiguration(offset int) {
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Println(err)
+	}
+	if !DirectoryExist(dirname + "/.gandalf/") {
+		CreateDirectory(dirname + "/.gandalf/")
+	}
+	if offset > 0 {
+		viper.WriteConfigAs(dirname + "/.gandalf/" + "gandalf_" + strconv.Itoa(offset) + ".yaml")
+	} else {
+		viper.WriteConfigAs(dirname + "/.gandalf/" + "gandalf.yaml")
+	}
+}
+
+func DirectoryExist(path string) bool {
+	if stats, err := os.Stat(path); !os.IsNotExist(err) {
+		return stats.IsDir()
+	}
+	return false
+}
+
+func CreateDirectory(path string) error {
+	return os.MkdirAll(path, 0711)
 }
