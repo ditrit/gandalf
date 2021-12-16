@@ -24,47 +24,75 @@ A router is directly connected to one or several aggregator with a same logical 
 Received messages (either of event type, nor of command type) are simply stocked in waiting queue in order to be consume by a worker. No routing to set.
 Sent messages (by a worker and thus through a GRPC call) are either commands, or events. 
 
-#### Sending of a type event message 
+### Sending of a type event message
 
-Connector Shoset is only connected to one agregator instances.
++ Connector Shoset is only connected to one agregator instances.
++ The message is sent in same time on each shoset connections;
++ The message is alson stocked in local waiting queue in order to be able to be consumed by connector workers if needed. 
 
-The message is sent in same time on each shoset connections;
-The message is alson stocked in local waiting queue in order to be able to be consumed by connector workers if needed. 
+## Receiving a type event message
 
++ Message is received
++ Message is stocked into router waiting queue
 
 ---- 
 
-## Create a Gandalf Connector
+## Sending of type command message
 
-Design Steps:
++ Shoset is connected to several instances of one aggregator
++ Identification of connexions according to these instances: this is a globality of the shoset connexions.
++ We make iterations (in random order) onto these connexions.
++ Sending of command onto the connexion and waiting (while a time: timeout/number of connexions) from a response as an event.
++ If no response in delay, trying the next connexion. 
 
-0. Declare Major/Minor (int64)
-1. Pick up Input/Outputs
-2. Declare new Worker instance part
-3. OAuth and context configure
-4. "RegisterCommandFunc()" to create according to commands you want
-5. Create functions acccording to commands
+The waiting is done from a waiting function call into the events waiting queue, within a filter onto the uuid, from the referenced command.
 
-### Other parts
+## Receiving of type command message
 
-**Major/Minor:** Update "Major.Minor" version
-    
-    v1.0
++ Message is received.
++ Sending a receipt message to the source connector.
++ Message is stockeed into waiting queue into router waiting queue. 
 
-    Version Major.Minor
+---- 
 
-**Payload (from function):** Arguments from command
+## Sending of type config message
 
-- - - 
++ The shoset is connected to several instances of an unique aggregator.
++ Identification of all connexions corresponding to these instances: this is all connexions of the shoset.
++ Sending of config onto a connexion
 
-## Described Stages
+## Receiving a config message
 
-### Pick Up Input/Output
++ Message is received. Response payload recovering.
++ Update if configuration and to pivot languages.
+ 
+---- 
 
-Get scan/input and display it, in Golang :
+## Sending a configuration type message
 
-    input := bufio.NewScanner(os.Stdin)
-	input.Scan()
-	fmt.Println(input.Text())
++ Shoset is connected to differents instances of one aggregator. 
++ Identification connexions according to these instances: this is all connexions of the shoset.
++ Sending of configuration onto a connexion
 
+
+## Receiving a configuration message
+
++ Message is received. Response payload recovering.
++ Update of logical configuration.
+ 
+---- 
+
+## Sending a secret type message
+
++ Shoset is connected to differents instances of one aggregator. 
++ Identification connexions according to these instances: this is all connexions of the shoset.
++ Sending of secret onto a connexion
+
+
+## Receiving a configuration message
+
++ Message is received.
++ Recovering of response payload to validate or not the secret
+ 
+# Initialization
 
