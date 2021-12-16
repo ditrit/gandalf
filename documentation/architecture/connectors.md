@@ -94,5 +94,22 @@ The waiting is done from a waiting function call into the events waiting queue, 
 + Message is received.
 + Recovering of response payload to validate or not the secret
  
+
 # Initialization
 
+A connector is initialized by several steps: 
+
+## Communication
+A connector sends a command to its shoset, its GRPC server, and connect itself to aggregators instances.
+
+### Secret
+The connector sends a command to the cluster by its aggregator to validate its secret.
+
+### Logical Configuration
+The connector sends a command to the cluster by its aggregtor to save and update its logical configuration. 
+
+### Admin Worker
+The connector starts its admin worker.
+
+### Versions
+A connector have one or several worker versions. These versions influence the validaion of the configuration from a connector, also used on the command waiting queues functions.
