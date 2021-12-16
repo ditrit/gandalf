@@ -4,9 +4,12 @@ package aggregator
 import (
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
+	"github.com/spf13/viper"
 
 	"github.com/ditrit/gandalf/core/aggregator/api"
 
@@ -40,6 +43,8 @@ type AggregatorMember struct {
 
 // NewAggregatorMember :
 func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
+	SaveConfiguration(configurationAggregator.GetConfigPath(), configurationAggregator.GetOffset())
+
 	member := new(AggregatorMember)
 	member.chaussette = net.NewShoset(configurationAggregator.GetLogicalName(), "a", configurationAggregator.GetCertsPath(), configurationAggregator.GetConfigPath())
 
@@ -189,6 +194,7 @@ func (m *AggregatorMember) StartHeartbeat(nshoset *net.Shoset) {
 
 // AggregatorMemberInit : Aggregator init function.
 func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
+
 	member := NewAggregatorMember(configurationAggregator)
 	err := member.Bind(configurationAggregator.GetBindAddress())
 	if err == nil {
@@ -251,4 +257,23 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 	}
 
 	return member
+}
+
+func SaveConfiguration(configPath string, offset int) {
+	if offset > 0 {
+		viper.WriteConfigAs(configPath + "gandalf_" + strconv.Itoa(offset) + ".yaml")
+	} else {
+		viper.WriteConfigAs(configPath + "gandalf.yaml")
+	}
+}
+
+func DirectoryExist(path string) bool {
+	if stats, err := os.Stat(path); !os.IsNotExist(err) {
+		return stats.IsDir()
+	}
+	return false
+}
+
+func CreateDirectory(path string) error {
+	return os.MkdirAll(path, 0711)
 }
