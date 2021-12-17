@@ -322,7 +322,7 @@ func Workflow(clientGandalf *goclient.ClientGandalf) {
 - Review Enforce
 - Application context filter
 - Tests
-- Connectors
+- [Connectors](https://github.com/ditrit/gandalf/wiki/Cr%C3%A9ation-Connecteur).
 - Review auto update worker
 - Communication between gandalf component
 - Auto update gandalf component
