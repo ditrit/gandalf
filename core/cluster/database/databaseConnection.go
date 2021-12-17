@@ -98,10 +98,10 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 			err = gandalfDatabaseClient.Where("name = ?", "root").First(&root).Error
 			if err == nil {
 				login1, password1 := "Administrator1", GenerateRandomHash()
-				user1 := models.NewUser(login1, login1, login1, login1, password1)
+				user1 := models.NewUser(login1, login1, login1, login1, password1, login1)
 				//authorization1 := models.Authorization{User: user1, Role: admin, Domain: root}
 				login2, password2 := "Administrator2", GenerateRandomHash()
-				user2 := models.NewUser(login2, login2, login2, login2, password2)
+				user2 := models.NewUser(login2, login2, login2, login2, password2, login2)
 				//authorization2 := models.Authorization{User: user2, Role: admin, Domain: root}
 				err = gandalfDatabaseClient.Transaction(func(tx *gorm.DB) error {
 
@@ -177,10 +177,10 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 			err = tenantDatabaseClient.Where("name = ?", "root").First(&root).Error
 			if err == nil {
 				login1, password1 := "Administrator1", GenerateRandomHash()
-				user1 := models.NewUser(login1, login1, login1, login1, password1)
+				user1 := models.NewUser(login1, login1, login1, login1, password1, login1)
 				//authorization1 := models.Authorization{User: user1, Role: admin, Domain: root}
 				login2, password2 := "Administrator2", GenerateRandomHash()
-				user2 := models.NewUser(login2, login2, login2, login2, password2)
+				user2 := models.NewUser(login2, login2, login2, login2, password2, login2)
 				//authorization2 := models.Authorization{User: user2, Role: admin, Domain: root}
 				err = tenantDatabaseClient.Transaction(func(tx *gorm.DB) error {
 
