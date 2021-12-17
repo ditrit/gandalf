@@ -9,22 +9,24 @@ import (
 // User : user struct
 type User struct {
 	Model
-	Email     string `gorm:"unique;not null"`
-	Password  string
-	FirstName string
-	LastName  string
-	CompanyId string
-	Logo      string
+	Email       string `gorm:"unique;not null"`
+	Password    string
+	FirstName   string
+	LastName    string
+	CompanyId   string
+	Logo        string
+	Description string
 }
 
 // NewUser : create new user
-func NewUser(email, firstname, secondname, companyid, password string) User {
+func NewUser(email, firstname, secondname, companyid, password, description string) User {
 	user := new(User)
 	user.Email = email
 	user.Password = HashAndSaltPassword(password)
 	user.FirstName = firstname
 	user.LastName = secondname
 	user.CompanyId = companyid
+	user.Description = description
 
 	return *user
 }
