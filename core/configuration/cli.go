@@ -320,6 +320,7 @@ func init() {
 	cliUpdateUser.LKey("lastName", verdeter.IsStr, "l", "secondname of the user")
 	cliUpdateUser.LKey("companyID", verdeter.IsStr, "c", "companyid of the user")
 	cliUpdateUser.LKey("password", verdeter.IsStr, "p", "password of the user")
+	cliUpdateUser.LKey("description", verdeter.IsStr, "d", "description of the user")
 	cliDeleteUser.SetNbArgs(1)
 
 	// EVENT type to poll
@@ -978,12 +979,13 @@ func runCreateUser(cfg *verdeter.ConfigCmd, args []string) {
 	secondname := args[2]
 	companyid := args[3]
 	password := args[4]
+	description := args[5]
 
-	fmt.Printf("gandalf cli create user called with email=%s, firstname=%s, secondname=%s, companyid=%s, password=%s\n", email, firstname, secondname, companyid, password)
+	fmt.Printf("gandalf cli create user called with email=%s, firstname=%s, secondname=%s, companyid=%s, password=%s, description=%s\n", email, firstname, secondname, companyid, password, description)
 	configurationCli := cmodels.NewConfigurationCli()
 	cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-	user := models.NewUser(email, firstname, secondname, companyid, password)
+	user := models.NewUser(email, firstname, secondname, companyid, password, description)
 	err := cliClient.UserService.Create(configurationCli.GetToken(), user)
 	if err != nil {
 		fmt.Println(err)
@@ -1015,13 +1017,14 @@ func runUpdateUser(cfg *verdeter.ConfigCmd, args []string) {
 		secondname := viper.GetViper().GetString("secondname")
 		companyid := viper.GetViper().GetString("companyid")
 		password := viper.GetViper().GetString("password")
-		fmt.Printf("gandalf cli update user called with email=%s, firstname=%s, secondname=%s, companyid=%s, password=%s\n", email, firstname, secondname, companyid, password)
+		description := viper.GetViper().GetString("description")
+		fmt.Printf("gandalf cli update user called with email=%s, firstname=%s, secondname=%s, companyid=%s, password=%s, description=%s\n", email, firstname, secondname, companyid, password, description)
 		configurationCli := cmodels.NewConfigurationCli()
 		cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
 		_, err := cliClient.UserService.Read(configurationCli.GetToken(), userID)
 		if err == nil {
-			user := models.NewUser(email, firstname, secondname, companyid, password)
+			user := models.NewUser(email, firstname, secondname, companyid, password, description)
 			err = cliClient.UserService.Update(configurationCli.GetToken(), userID, user)
 			if err != nil {
 				fmt.Println(err)
