@@ -13,6 +13,7 @@ https://ditrit.io
 - [Docker](#Docker)
 - [Getting started](#Getting-started)
 - [Demo](#Demo)
+- [TODO](#TODO)
 
 
 ## Schema
@@ -315,3 +316,14 @@ func Workflow(clientGandalf *goclient.ClientGandalf) {
 
 }
 ```
+
+## TODO
+- Review Authorization API
+- Review Enforce
+- Application context filter
+- Tests
+- Connectors
+- Review auto update worker
+- Communication between gandalf component
+- Auto update gandalf component
+- Refactoring code

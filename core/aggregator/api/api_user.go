@@ -276,6 +276,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 		user.ID = id
+		user.Password = models.HashAndSaltPassword(user.Password)
 
 		if err := dao.UpdateUser(database, user); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())

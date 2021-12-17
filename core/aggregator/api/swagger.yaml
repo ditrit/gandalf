@@ -2566,6 +2566,9 @@ components:
         logo:
           type: string
           description: The user logo.
+        description:
+          type: string
+          description: The user description.
     Product:
       type: object
       properties:
@@ -3177,6 +3180,8 @@ components:
               companyID:
                 type: string
               logo:
+                type: string
+              description:
                 type: string
       description: The user to create.
     loginUser:
