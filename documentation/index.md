@@ -11,4 +11,5 @@ Organization: https://ditrit.io/
 + [Configuration](./technical/configuration.md)
 + [Administration](./technical/administration.md)
 + [Message](./technical/message.md)
-+ [Library](./technical/library.md)
++ [Libraries](./technical/libraries.md)
++ [API Tutorial](./technical/api_tutorial.md)

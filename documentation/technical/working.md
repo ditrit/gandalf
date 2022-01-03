@@ -10,3 +10,6 @@ There is another final layer, that are used softwares.
 + [Cluster](../architecture/cluster.md)
 + [Aggregators](../architecture/aggregators.md)
 + [Connectors](../architecture/connectors.md)
++ [Worker Admin](../architecture/worker_admin.md)
++ [Worker](../architecture/worker.md)
++ [Cli Working](../architecture/cli_working.md)
