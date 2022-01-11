@@ -13,3 +13,4 @@ Organization: https://ditrit.io/
 + [Message](./technical/message.md)
 + [Libraries](./technical/libraries.md)
 + [API Tutorial](./technical/api_tutorial.md)
++ [Connector Tutorial](./technical/connector_tutorial.md)
