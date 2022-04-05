@@ -289,3 +289,51 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func RefreshToken(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+
+	id, err := uuid.Parse(vars["userId"])
+	if err != nil {
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+		return
+	}
+
+	database := utils.DatabaseConnection.GetTenantDatabaseClient()
+	if database != nil {
+		user, err := dao.ReadUser(database,id)
+		if err != nil {
+			utils.RespondWithError(w, http.StatusInternalServerError, "User not found")
+			return
+		}
+
+		expirationTime := time.Now().Add(time.Hour * 1)
+
+		claims := &apimodels.Claims{
+			UserID: user.ID,
+			Email:  user.Email,
+			StandardClaims: &jwt.StandardClaims{
+				ExpiresAt: expirationTime.Unix(),
+			},
+		}
+
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		tokenString, err := token.SignedString(utils.GetJwtKey())
+		if err != nil {
+			fmt.Println(err)
+			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"accessToken": tokenString})
+		return
+
+
+		// utils.RespondWithJSON(w, http.StatusOK, users)
+	} else {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+
+}
