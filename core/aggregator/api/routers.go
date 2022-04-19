@@ -741,4 +741,39 @@ var routes = Routes{
 		// IsAuthorized(GetFile),
 		GetFile,
 	},
+
+	Route{
+		"GetRequirementGroups",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups",
+		IsAuthorized(GetRequirementGroups),
+	},
+
+	Route{
+		"GetRequirementGroupById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups/{requirementGroupId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(GetRequirementGroupById),
+	},
+
+	Route{
+		"CreateRequirementGroup",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups",
+		IsAuthorized(CreateRequirementGroup),
+	},
+
+	Route{
+		"UpdateRequirementGroup",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups/{requirementGroupId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(UpdateRequirementGroup),
+	},
+
+	Route{
+		"DeleteRequirementGroup",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups/{requirementGroupId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(DeleteRequirementGroup),
+	},
 }
