@@ -3,6 +3,7 @@ package aggregator
 
 import (
 	"fmt"
+	"gopkg.in/matryer/try.v1"
 	"log"
 	"os"
 	"strconv"
@@ -125,52 +126,90 @@ func getBrothers(address string, member *AggregatorMember) []string {
 	return bros
 }
 
-func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
+func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) {
+	log.Printf("try to validate secret")
+	retryTime := viper.GetInt("retry_time")
+	retryMax := viper.GetInt("retry_max")
+	try.MaxRetries = retryMax
 
-	shoset.SendSecret(nshoset)
-	time.Sleep(time.Second * time.Duration(5))
+	err := try.Do(func(attempt int) (retry bool, err error) {
+		shoset.SendSecret(nshoset)
+		time.Sleep(time.Second * time.Duration(retryTime))
+		resultString, ok := m.chaussette.Context["validation"].(string)
 
-	resultString, ok := m.chaussette.Context["validation"].(string)
-	if ok {
-		if resultString != "" {
-			if resultString == "true" {
-				return true, nil
-			}
+		if ok && resultString == "true" {
 			return false, nil
 		}
-		return false, fmt.Errorf("Validation empty")
+
+		log.Printf("validate new secret in %ds, attempt %d/%d\n", retryTime, attempt, retryMax)
+		time.Sleep(time.Second * time.Duration(retryTime))
+		return true, fmt.Errorf("fail to validate secret after %d try", attempt)
+	})
+
+	if err != nil {
+		log.Fatalln("error:", err)
 	}
-	return false, fmt.Errorf("Validation nil")
+	log.Printf("successfull secret validation")
 }
 
-func (m *AggregatorMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {
-	fmt.Println("SEND")
-	shoset.SendAggregatorPivotConfiguration(nshoset)
-	time.Sleep(time.Second * time.Duration(5))
+func (m *AggregatorMember) GetPivot(nshoset *net.Shoset) *models.Pivot {
+	log.Printf("try to get pivot")
+	retryTime := viper.GetInt("retry_time")
+	retryMax := viper.GetInt("retry_max")
+	try.MaxRetries = retryMax
 
-	pivot, ok := m.chaussette.Context["pivot"].(*models.Pivot)
-	if ok {
-		return pivot, nil
+	var pivot *models.Pivot
+	var ok bool
+	err := try.Do(func(attempt int) (retry bool, err error) {
+		pivot, ok = m.chaussette.Context["pivot"].(*models.Pivot)
+		shoset.SendAggregatorPivotConfiguration(nshoset)
+
+		if ok {
+			return false, nil
+		}
+		log.Printf("Get new pivot in %ds, attempt %d/%d\n", retryTime, attempt, retryMax)
+		time.Sleep(time.Second * time.Duration(retryTime))
+		return true, fmt.Errorf("fail to get pivot after %d try", attempt)
+	})
+
+	if err != nil {
+		log.Fatalln("error:", err)
 	}
-	return nil, fmt.Errorf("Configuration nil")
+	log.Printf("successfull get pivot")
+	return pivot
 }
 
-func (m *AggregatorMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.LogicalComponent, error) {
-	fmt.Println("SEND")
-	shoset.SendLogicalConfiguration(nshoset)
-	time.Sleep(time.Second * time.Duration(5))
+func (m *AggregatorMember) GetLogicalConfiguration(nshoset *net.Shoset) *models.LogicalComponent {
+	log.Printf("try to get loqical configuration")
+	retryTime := viper.GetInt("retry_time")
+	retryMax := viper.GetInt("retry_max")
+	try.MaxRetries = retryMax
 
-	logicalConfiguration, ok := m.chaussette.Context["logicalConfiguration"].(*models.LogicalComponent)
-	if ok {
-		return logicalConfiguration, nil
+	var logicalConfiguration *models.LogicalComponent
+	var ok bool
+	err := try.Do(func(attempt int) (retry bool, err error) {
+		shoset.SendLogicalConfiguration(nshoset)
+		logicalConfiguration, ok = m.chaussette.Context["logicalConfiguration"].(*models.LogicalComponent)
+
+		if ok {
+			return false, nil
+		}
+		log.Printf("Get loqical configuration in %ds, attempt %d/%d\n", retryTime, attempt, retryMax)
+		time.Sleep(time.Second * time.Duration(retryTime))
+		return true, fmt.Errorf("fail to loqical configuration after %d try", attempt)
+	})
+
+	if err != nil {
+		log.Fatalln("error:", err)
 	}
-	return nil, fmt.Errorf("Configuration nil")
+	log.Printf("successfull get loqical configuration")
+	return logicalConfiguration
 }
 
 func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*models.ConfigurationDatabaseAggregator, error) {
 	fmt.Println("SEND DATABASE")
 	shoset.SendConfigurationDatabase(nshoset)
-	time.Sleep(time.Second * time.Duration(5))
+	time.Sleep(time.Second * time.Duration(viper.GetInt("retry_time")))
 
 	configurationAggregator, ok := m.chaussette.Context["databaseConfiguration"].(*models.ConfigurationDatabaseAggregator)
 	if ok {
@@ -181,7 +220,6 @@ func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*model
 
 // StartAPI :
 func (m *AggregatorMember) StartAPI(bindAdress string, databaseConnection *database.DatabaseConnection, shoset *net.Shoset) {
-
 	utils.InitAPIGlobals(shoset, databaseConnection)
 	server := api.NewServerAPI(bindAdress)
 	server.Run()
@@ -194,67 +232,40 @@ func (m *AggregatorMember) StartHeartbeat(nshoset *net.Shoset) {
 
 // AggregatorMemberInit : Aggregator init function.
 func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
-
 	member := NewAggregatorMember(configurationAggregator)
 	err := member.Bind(configurationAggregator.GetBindAddress())
-	if err == nil {
-		_, err = member.Link(configurationAggregator.GetLinkAddress())
-		time.Sleep(time.Second * time.Duration(5))
-		if err == nil {
-			var validateSecret bool
-			validateSecret, err = member.ValidateSecret(member.GetChaussette())
-			if err == nil {
-				if validateSecret {
-					pivot, err := member.GetPivot(member.GetChaussette())
-					if err == nil {
-						fmt.Println("pivot")
-						fmt.Println(pivot)
-						member.pivot = pivot
-						logicalConfiguration, err := member.GetLogicalConfiguration(member.GetChaussette())
-						if err == nil {
-							fmt.Println("logicalConfiguration")
-							fmt.Println(logicalConfiguration)
-							member.logicalConfiguration = logicalConfiguration
-							//configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
-
-							//TODO ADD CONFIGURATION DATABASE
-							configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
-							fmt.Println(configurationDatabaseAggregator)
-							if err == nil {
-								//TODO START API
-								databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator, member.pivot, member.logicalConfiguration)
-
-								//err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
-								go member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
-								//if err == nil {
-
-								go member.StartHeartbeat(member.GetChaussette())
-
-								//go shoset.SendHeartbeat(member.GetChaussette())
-								//} else {
-								//	log.Fatalf("Can't create API server")
-								//}
-							} else {
-								log.Fatalf("Can't get configuration database")
-							}
-						} else {
-							log.Fatalf("Can't get logical configuration")
-						}
-					} else {
-						log.Fatalf("Can't get pivot")
-					}
-				} else {
-					log.Fatalf("Invalid secret")
-				}
-			} else {
-				log.Fatalf("Can't get secret")
-			}
-		} else {
-			log.Fatalf("Can't link shoset on %s", configurationAggregator.GetLinkAddress())
-		}
-	} else {
+	if err != nil {
 		log.Fatalf("Can't bind shoset on %s", configurationAggregator.GetBindAddress())
 	}
+	_, err = member.Link(configurationAggregator.GetLinkAddress())
+
+	if err != nil {
+		log.Fatalf("Can't link shoset on %s", configurationAggregator.GetLinkAddress())
+	}
+
+	fmt.Println("Validate secret")
+	time.Sleep(time.Second * time.Duration(viper.GetInt("retry_time")))
+	member.ValidateSecret(member.GetChaussette())
+	fmt.Println("Get pivot")
+	member.pivot = member.GetPivot(member.GetChaussette())
+	fmt.Println("get logical configuration")
+	member.logicalConfiguration = member.GetLogicalConfiguration(member.GetChaussette())
+	//configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
+
+	//TODO ADD CONFIGURATION DATABASE
+	configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
+	fmt.Println(configurationDatabaseAggregator)
+	if err != nil {
+		fmt.Println("Can't get configuration database", err)
+		log.Fatalf("Can't get configuration database")
+	}
+	//TODO START API
+	databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator, member.pivot, member.logicalConfiguration)
+
+	//err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
+	go member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
+
+	go member.StartHeartbeat(member.GetChaussette())
 
 	return member
 }
