@@ -53,6 +53,8 @@ func init() {
 	clusterCfg.SetCheck("join", verdeter.CheckNotEmpty)
 	clusterCfg.SetNormalize("join", verdeter.TrimToLower)
 
+	clusterCfg.LKey("first_secret", verdeter.IsStr, "", "Secret for the first aggregator.")
+
 	clusterCfg.LKey("api_port", verdeter.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
 	//clusterCfg.SetDefault("api_port", 9199+verdeter.GetOffset())
 	clusterCfg.SetCheck("api_port", verdeter.CheckTCPHighPort)

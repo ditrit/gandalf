@@ -207,7 +207,10 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 										//TODO TRANSACTION
 										//CREATE SECRET
 										var secretAssignement models.SecretAssignement
-										secretAssignement.Secret = uuid.NewString()
+										secretAssignement.Secret = viper.GetString("first_secret")
+										if len(secretAssignement.Secret) == 0 {
+											secretAssignement.Secret = uuid.NewString()
+										}
 										err := gandalfDatabaseClient.Create(secretAssignement).Error
 										if err == nil {
 											//GET PIVOT AGGREGATOR
