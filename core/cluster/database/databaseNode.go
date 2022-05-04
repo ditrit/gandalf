@@ -43,8 +43,8 @@ func CoackroachStart(dataDir, certsDir, node, bindAddress, httpAddress, members 
 func CoackroachInit(certsDir, host string) error {
 	//path, err := os.Getwd()
 	//cmdString := "/usr/local/bin/cockroach init --certs-dir=" + certsDir + " --host=" + host
-	cmd := exec.Command("/usr/local/bin/cockroach", "init", "--certs-dir="+certsDir, "--host="+host)
 	//cmd.Dir = path + "/cluster/database/"
+	cmd := exec.Command("/usr/local/bin/cockroach", "init", "--certs-dir="+certsDir, "--host=127.0.0.1:9299")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Start()
@@ -58,8 +58,8 @@ func CoackroachCreateDatabase(certsDir, host, database, password string) error {
 
 	//path, err := os.Getwd()
 	//cmdString := "/usr/local/bin/cockroach sql 	--certs-dir=" + certsDir + " --host=" + host + " <<EOF CREATE DATABASE IF NOT EXISTS " + database + "; CREATE USER IF NOT EXISTS " + database + " WITH PASSWORD '" + password + "'; GRANT ALL ON DATABASE " + database + " TO " + database + "; EOF"
-	cmd := exec.Command("/usr/local/bin/cockroach", "sql", "--certs-dir="+certsDir, "--host="+host, "--execute=CREATE DATABASE IF NOT EXISTS "+database+"; CREATE USER IF NOT EXISTS "+database+" WITH PASSWORD '"+password+"'; GRANT ALL ON DATABASE "+database+" TO "+database+";")
 	//cmd.Dir = path + "/cluster/database/"
+	cmd := exec.Command("/usr/local/bin/cockroach", "sql", "--certs-dir="+certsDir, "--host=127.0.0.1:9299", "--execute=CREATE DATABASE IF NOT EXISTS "+database+"; CREATE USER IF NOT EXISTS "+database+" WITH PASSWORD '"+password+"'; GRANT ALL ON DATABASE "+database+" TO "+database+";")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
