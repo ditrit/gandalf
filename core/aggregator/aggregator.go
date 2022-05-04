@@ -36,12 +36,6 @@ type AggregatorMember struct {
 	logicalConfiguration *models.LogicalComponent
 }
 
-/*func InitAggregatorKeys(){
-	_ = configuration.SetStringKeyConfig("aggregator","aggregator_tenant","","tenant1","tenant of the aggregator")
-	_ = configuration.SetStringKeyConfig("aggregator","cluster","","address1[:9800],address2[:6300],address3","clusters addresses linked to the aggregator")
-	_ = configuration.SetStringKeyConfig("aggregator","aggregator_log","","/etc/gandalf/log","path of the log file")
-}*/
-
 // NewAggregatorMember :
 func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregator) *AggregatorMember {
 	SaveConfiguration(configurationAggregator.GetConfigPath(), configurationAggregator.GetOffset())
@@ -53,7 +47,6 @@ func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregato
 	member.chaussette.Context["version"] = member.version
 
 	member.chaussette.Context["configuration"] = configurationAggregator
-	//member.chaussette.Context["tenant"] = tenant
 	member.chaussette.Handle["cfgjoin"] = shoset.HandleConfigJoin
 	member.chaussette.Handle["cmd"] = shoset.HandleCommand
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
@@ -77,9 +70,6 @@ func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregato
 	member.chaussette.Get["heartbeat"] = shoset.GetHeartbeat
 	member.chaussette.Wait["heartbeat"] = shoset.WaitHeartbeat
 	member.chaussette.Handle["heartbeat"] = shoset.HandleHeartbeat
-	//coreLog.OpenLogFile("/var/log")
-
-	//coreLog.OpenLogFile(logPath)
 
 	return member
 }
@@ -250,21 +240,17 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 	member.pivot = member.GetPivot(member.GetChaussette())
 	fmt.Println("get logical configuration")
 	member.logicalConfiguration = member.GetLogicalConfiguration(member.GetChaussette())
-	//configurationAggregator.DatabaseToConfiguration(configurationLogicalAggregator)
 
-	//TODO ADD CONFIGURATION DATABASE
 	configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
 	fmt.Println(configurationDatabaseAggregator)
 	if err != nil {
 		fmt.Println("Can't get configuration database", err)
 		log.Fatalf("Can't get configuration database")
 	}
-	//TODO START API
+
 	databaseConnection := database.NewDatabaseConnection(configurationDatabaseAggregator, member.pivot, member.logicalConfiguration)
 
-	//err = member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
 	go member.StartAPI(configurationAggregator.GetAPIBindAddress(), databaseConnection, member.GetChaussette())
-
 	go member.StartHeartbeat(member.GetChaussette())
 
 	return member

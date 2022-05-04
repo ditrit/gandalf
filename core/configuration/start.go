@@ -24,7 +24,6 @@ var startCfg = verdeter.NewConfigCmd(
 	})
 
 func init() {
-	// cobra.OnInitialize(initConfig)
 	rootCfg.AddConfig(startCfg)
 
 	startCfg.GKey("offset", verdeter.IsInt, "", "Offset used in case of multiple Gandals instances hosted on the same host")
@@ -83,7 +82,6 @@ func init() {
 		})
 
 	startCfg.GKey("port", verdeter.IsInt, "", "Port to bind (default is 9099 + offset if defined)")
-	//startCfg.SetDefault("port", 9099+verdeter.GetOffset())
 	startCfg.SetCheck("port", verdeter.CheckTCPHighPort)
 	startCfg.SetComputedValue("port",
 		func() interface{} {
@@ -121,6 +119,5 @@ func init() {
 		return verdeter.ExpandPath(viper.GetString("cert_dir"), val)
 	})
 	startCfg.GKey("log_dir", verdeter.IsStr, "", "directory to store gandalf logfile")
-	//startCfg.SetDefault("log_dir", "/var/log/")
 	startCfg.SetDefault("log_dir", "/var/log/gandalf/")
 }

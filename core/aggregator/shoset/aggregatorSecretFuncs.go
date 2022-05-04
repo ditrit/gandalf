@@ -62,9 +62,6 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle secret")
 	log.Println(secret)
 
-	//if secret.GetTenant() == ch.Context["tenant"] {
-	//ok := ch.Queue["secret"].Push(secret, c.GetRemoteShosetType(), c.GetBindAddress())
-	//if ok {
 	if dir == "in" {
 		if c.GetRemoteShosetType() == "c" {
 			shosets := ch.GetConnsByTypeArray("cl")
@@ -107,14 +104,6 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			log.Println("Error : Wrong Shoset type")
 		}
 	}
-	/* } else {
-		log.Println("can't push to queue")
-		err = errors.New("can't push to queue")
-	} */
-	/*} else {
-		log.Println("wrong tenant")
-		err = errors.New("wrong tenant")
-	}*/
 
 	return err
 }
@@ -129,7 +118,6 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		secretMsg.GetContext()["componentType"] = "aggregator"
 		secretMsg.GetContext()["secret"] = configurationAggregator.GetSecret()
 		secretMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
-		//conf.GetContext()["product"] = shoset.Context["product"]
 
 		shosets := shoset.GetConnsByTypeArray("cl")
 		retryCount := 0
