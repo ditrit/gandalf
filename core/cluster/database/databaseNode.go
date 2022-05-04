@@ -15,7 +15,7 @@ func CoackroachStart(dataDir, certsDir, node, bindAddress, httpAddress, members 
 	return err
 }
 
-func CoackroachInit(certsDir, host string) error {
+func CoackroachInit(certsDir string) error {
 	cmd := exec.Command("/usr/local/bin/cockroach", "init", "--certs-dir="+certsDir, "--host=127.0.0.1:9299")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -24,7 +24,7 @@ func CoackroachInit(certsDir, host string) error {
 	return err
 }
 
-func CoackroachCreateDatabase(certsDir, host, database, password string) error {
+func CoackroachCreateDatabase(certsDir, database, password string) error {
 	cmd := exec.Command("/usr/local/bin/cockroach", "sql", "--certs-dir="+certsDir, "--host=127.0.0.1:9299", "--execute=CREATE DATABASE IF NOT EXISTS "+database+"; CREATE USER IF NOT EXISTS "+database+" WITH PASSWORD '"+password+"'; GRANT ALL ON DATABASE "+database+" TO "+database+";")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

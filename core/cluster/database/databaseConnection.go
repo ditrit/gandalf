@@ -50,7 +50,7 @@ func (dc DatabaseConnection) SetLogicalComponent(logicalComponent *models.Logica
 
 // NewDatabase :
 func (dc DatabaseConnection) NewDatabase(name, password string) (err error) {
-	err = CoackroachCreateDatabase(dc.GetConfigurationCluster().GetCertsPath(), dc.GetConfigurationCluster().GetDatabaseBindAddress(), name, password)
+	err = CoackroachCreateDatabase(dc.GetConfigurationCluster().GetCertsPath(), name, password)
 	fmt.Println(err)
 
 	return

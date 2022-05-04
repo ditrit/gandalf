@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gopkg.in/matryer/try.v1"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
@@ -52,7 +51,6 @@ func NewAggregatorMember(configurationAggregator *cmodels.ConfigurationAggregato
 	member.chaussette.Handle["evt"] = shoset.HandleEvent
 	member.chaussette.Queue["secret"] = msg.NewQueue()
 	member.chaussette.Get["secret"] = shoset.GetSecret
-	member.chaussette.Wait["secret"] = shoset.WaitSecret
 	member.chaussette.Handle["secret"] = shoset.HandleSecret
 	member.chaussette.Queue["logicalConfiguration"] = msg.NewQueue()
 	member.chaussette.Get["logicalConfiguration"] = shoset.GetLogicalConfiguration
@@ -97,21 +95,6 @@ func (m *AggregatorMember) Join(addr string) (*net.ShosetConn, error) {
 // Link : Aggregator link function.
 func (m *AggregatorMember) Link(addr string) (*net.ShosetConn, error) {
 	return m.chaussette.Protocol(addr, "link")
-}
-
-// getBrothers : Aggregator list brothers function.
-func getBrothers(address string, member *AggregatorMember) []string {
-	bros := []string{address}
-
-	connsJoin := member.chaussette.ConnsByName.Get(member.chaussette.GetLogicalName())
-	if connsJoin != nil {
-		connsJoin.Iterate(
-			func(key string, val *net.ShosetConn) {
-				bros = append(bros, key)
-			})
-	}
-
-	return bros
 }
 
 func (m *AggregatorMember) ValidateSecret(nshoset *net.Shoset) {
@@ -254,15 +237,4 @@ func SaveConfiguration(configPath string, offset int) {
 	} else {
 		viper.WriteConfigAs(configPath + "gandalf.yaml")
 	}
-}
-
-func DirectoryExist(path string) bool {
-	if stats, err := os.Stat(path); !os.IsNotExist(err) {
-		return stats.IsDir()
-	}
-	return false
-}
-
-func CreateDirectory(path string) error {
-	return os.MkdirAll(path, 0711)
 }

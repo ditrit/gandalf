@@ -137,7 +137,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			if err == nil {
 				log.Printf("New database node bind on %s \n", "")
 
-				err = database.CoackroachInit(configurationCluster.GetCertsPath(), configurationCluster.GetDatabaseBindAddress())
+				err = database.CoackroachInit(configurationCluster.GetCertsPath())
 				if err == nil {
 					log.Printf("New database node init")
 					err = member.DatabaseConnection.NewDatabase("gandalf", "gandalf")
@@ -157,7 +157,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 
 								//GET PIVOT
 								var pivot *models.Pivot
-								pivot, err = member.DownloadPivot(member.chaussette, gandalfDatabaseClient, configurationCluster.GetRepositoryUrl(), "cluster", member.version)
+								pivot, err = member.DownloadPivot(gandalfDatabaseClient, configurationCluster.GetRepositoryUrl(), "cluster", member.version)
 								if err == nil {
 									member.pivot = pivot
 									member.DatabaseConnection.SetPivot(pivot)
@@ -281,7 +281,7 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 							if configurationCluster.GetOffset() > 0 {
 								databaseStore = CreateStoreOffSet(getBrothers(configurationCluster.GetBindAddress(), member), 200)
 							} else {
-								databaseStore = CreateStore(getBrothers(configurationCluster.GetBindAddress(), member), configurationCluster.GetDatabasePort())
+								databaseStore = CreateStore(getBrothers(configurationCluster.GetBindAddress(), member))
 							}
 
 							time.Sleep(5 * time.Second)
@@ -346,7 +346,7 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 }
 
 //TODO REVOIR ERROR
-func (m *ClusterMember) DownloadPivot(nshoset *net.Shoset, client *gorm.DB, baseurl, componentType string, version models.Version) (*models.Pivot, error) {
+func (m *ClusterMember) DownloadPivot(client *gorm.DB, baseurl, componentType string, version models.Version) (*models.Pivot, error) {
 	pivot, _ := utils.DownloadPivot(baseurl, "/configurations/"+strings.ToLower(componentType)+"/"+strconv.Itoa(int(version.Major))+"_"+strconv.Itoa(int(version.Minor))+"_pivot.yaml")
 
 	err := client.Create(&pivot).Error
@@ -444,16 +444,16 @@ func ChangePortOffSet(addr string, delta int) (string, bool) {
 }
 
 // CreateStore : Cluster create store function.
-func CreateStore(bros []string, port int) string {
+func CreateStore(bros []string) string {
 	var store string
 	for i, bro := range bros {
 		if i == 0 {
-			thisDBBro, ok := ChangePort(bro, port)
+			thisDBBro, ok := ChangePort(bro)
 			if ok {
 				store = thisDBBro
 			}
 		} else {
-			thisDBBro, ok := ChangePort(bro, port)
+			thisDBBro, ok := ChangePort(bro)
 			if ok {
 				store = store + "," + thisDBBro
 			}
@@ -463,7 +463,7 @@ func CreateStore(bros []string, port int) string {
 	return store
 }
 
-func ChangePort(addr string, port int) (string, bool) {
+func ChangePort(addr string) (string, bool) {
 	parts := strings.Split(addr, ":")
 	if len(parts) == 2 {
 		port, err := strconv.Atoi(parts[1])
