@@ -8,6 +8,7 @@ package configuration
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ditrit/gandalf/verdeter"
 
@@ -23,21 +24,21 @@ var clusterCfg = verdeter.NewConfigCmd(
 	"Launch gandalf in 'cluster' mode.",
 	`Gandalf is launched as a cluster member of a Gandalf system.`,
 	func(cfg *verdeter.ConfigCmd, args []string) {
-		fmt.Println("cluster called")
+		log.Println("cluster called")
 
 		offset := verdeter.GetOffset()
-		fmt.Printf("computed offset : %d \n", offset)
+		log.Printf("computed offset : %d \n", offset)
 
 		done := make(chan bool)
 		configurationCluster := cmodels.NewConfigurationCluster()
 		if !viper.IsSet("join") {
-			fmt.Println("calling ClusterMemberInit")
+			log.Println("calling ClusterMemberInit")
 			cluster.ClusterMemberInit(configurationCluster)
 		} else {
-			fmt.Println("calling ClusterMemberJoin")
+			log.Println("calling ClusterMemberJoin")
 			cluster.ClusterMemberJoin(configurationCluster)
 		}
-		fmt.Println("Cluster call done")
+		log.Println("Cluster call done")
 		<-done
 	})
 
@@ -78,7 +79,7 @@ func init() {
 			if ok {
 				return dbDir
 			}
-			fmt.Println("Error: can't use or write into database directory")
+			log.Println("Error: can't use or write into database directory")
 			return nil
 		})
 

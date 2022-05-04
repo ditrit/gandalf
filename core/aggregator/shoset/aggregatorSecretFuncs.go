@@ -2,7 +2,6 @@
 package shoset
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 	"log"
 	"time"
@@ -123,7 +122,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		retryCount := 0
 		for len(shosets) == 0 {
 			retryCount++
-			fmt.Println("Wait for cluster up, attempt", retryCount)
+			log.Println("Wait for cluster up, attempt", retryCount)
 			shosets = shoset.GetConnsByTypeArray("cl")
 
 			time.Sleep(time.Duration(viper.GetInt("retry_time")) * time.Second)

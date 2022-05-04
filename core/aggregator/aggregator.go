@@ -83,9 +83,7 @@ func (m *AggregatorMember) GetChaussette() *net.Shoset {
 func (m *AggregatorMember) Bind(addr string) error {
 	ipAddr, err := net.GetIP(addr)
 	if err == nil {
-		fmt.Println("before Bind")
 		err = m.chaussette.Bind(ipAddr)
-		fmt.Println("after Bind")
 	}
 
 	return err
@@ -197,7 +195,6 @@ func (m *AggregatorMember) GetLogicalConfiguration(nshoset *net.Shoset) *models.
 }
 
 func (m *AggregatorMember) GetConfigurationDatabase(nshoset *net.Shoset) (*models.ConfigurationDatabaseAggregator, error) {
-	fmt.Println("SEND DATABASE")
 	shoset.SendConfigurationDatabase(nshoset)
 	time.Sleep(time.Second * time.Duration(viper.GetInt("retry_time")))
 
@@ -233,18 +230,13 @@ func AggregatorMemberInit(configurationAggregator *cmodels.ConfigurationAggregat
 		log.Fatalf("Can't link shoset on %s", configurationAggregator.GetLinkAddress())
 	}
 
-	fmt.Println("Validate secret")
 	time.Sleep(time.Second * time.Duration(viper.GetInt("retry_time")))
 	member.ValidateSecret(member.GetChaussette())
-	fmt.Println("Get pivot")
 	member.pivot = member.GetPivot(member.GetChaussette())
-	fmt.Println("get logical configuration")
 	member.logicalConfiguration = member.GetLogicalConfiguration(member.GetChaussette())
 
 	configurationDatabaseAggregator, err := member.GetConfigurationDatabase(member.GetChaussette())
-	fmt.Println(configurationDatabaseAggregator)
 	if err != nil {
-		fmt.Println("Can't get configuration database", err)
 		log.Fatalf("Can't get configuration database")
 	}
 

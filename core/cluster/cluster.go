@@ -153,7 +153,7 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 							var login, password []string
 							login, password, err = member.DatabaseConnection.InitGandalfDatabase(gandalfDatabaseClient, configurationCluster.GetLogicalName(), configurationCluster.GetBindAddress())
 							if err == nil {
-								fmt.Printf("Created administrator login : %s, password : %s \n", login, password)
+								log.Printf("Created administrator login : %s, password : %s \n", login, password)
 
 								//GET PIVOT
 								var pivot *models.Pivot
@@ -161,17 +161,12 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 								if err == nil {
 									member.pivot = pivot
 									member.DatabaseConnection.SetPivot(pivot)
-									fmt.Println("pivot")
-									fmt.Println(pivot)
 									//SAVE LOGICALCOMPONENT
 									var logicalComponent *models.LogicalComponent
 									logicalComponent, err = member.SaveLogicalComponent(gandalfDatabaseClient, configurationCluster)
 									if err == nil {
 										member.logicalConfiguration = logicalComponent
 										member.DatabaseConnection.SetLogicalComponent(logicalComponent)
-
-										fmt.Println("logicalComponent")
-										fmt.Println(logicalComponent)
 
 										//TODO TRANSACTION
 										//CREATE SECRET
@@ -183,7 +178,6 @@ func ClusterMemberInit(configurationCluster *cmodels.ConfigurationCluster) *Clus
 										err := gandalfDatabaseClient.Create(secretAssignement).Error
 										if err == nil {
 											//GET PIVOT AGGREGATOR
-											fmt.Println("GET PIVOT AGG")
 											pivot, _ := utils.GetAggregatorPivot(member.logicalConfiguration.GetKeyValueByKey("repository_url").Value, "aggregator", member.version)
 											err := gandalfDatabaseClient.Create(pivot).Error
 											if err == nil {
@@ -273,18 +267,15 @@ func ClusterMemberJoin(configurationCluster *cmodels.ConfigurationCluster) *Clus
 			log.Printf("New Cluster member %s command %s bind on %s join on  %s \n", configurationCluster.GetLogicalName(), "join", configurationCluster.GetBindAddress(), configurationCluster.GetJoinAddress())
 
 			validateSecret, err := member.ValidateSecret(member.GetChaussette())
-			fmt.Println("validateSecret")
-			fmt.Println(validateSecret)
+
 			if err == nil {
 				if validateSecret {
 					pivot, err := member.GetPivot(member.GetChaussette())
 					if err == nil {
-						fmt.Println("pivot")
-						fmt.Println(pivot)
+
 						member.pivot = pivot
 						logicalConfiguration, err := member.GetLogicalConfiguration(member.GetChaussette())
 						if err == nil {
-							fmt.Println(logicalConfiguration)
 							member.logicalConfiguration = logicalConfiguration
 							var databaseStore string
 							if configurationCluster.GetOffset() > 0 {
@@ -402,12 +393,7 @@ func (m *ClusterMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {
 	shoset.SendClusterPivotConfiguration(nshoset)
 	time.Sleep(time.Second * time.Duration(5))
 
-	fmt.Println("m.chaussette.Context[]")
-	fmt.Println(m.chaussette.Context["pivot"])
-
 	pivot, ok := m.chaussette.Context["pivot"].(*models.Pivot)
-	fmt.Println("pivot")
-	fmt.Println(pivot)
 	if ok {
 		return pivot, nil
 	}

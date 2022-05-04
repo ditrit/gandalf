@@ -1,20 +1,17 @@
 package database
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 )
 
 func CoackroachStart(dataDir, certsDir, node, bindAddress, httpAddress, members string) error {
-	fmt.Println(dataDir)
 	cmd := exec.Command("/usr/local/bin/cockroach", "start", "--certs-dir="+certsDir, "--store="+node, "--listen-addr="+bindAddress, "--http-addr="+httpAddress, "--join="+members, "--background")
 	cmd.Dir = dataDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Start()
 	err := cmd.Wait()
-	fmt.Println("stop")
 	return err
 }
 
@@ -24,8 +21,6 @@ func CoackroachInit(certsDir, host string) error {
 	cmd.Stderr = os.Stderr
 	cmd.Start()
 	err := cmd.Wait()
-	fmt.Println("stop2")
-
 	return err
 }
 
@@ -37,7 +32,5 @@ func CoackroachCreateDatabase(certsDir, host, database, password string) error {
 	cmd.Start()
 
 	err := cmd.Wait()
-
-	fmt.Println("stop3")
 	return err
 }
