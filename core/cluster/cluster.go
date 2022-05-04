@@ -340,9 +340,9 @@ func (m *ClusterMember) ValidateSecret(nshoset *net.Shoset) (bool, error) {
 			}
 			return false, nil
 		}
-		return false, fmt.Errorf("Validation empty")
+		return false, fmt.Errorf("validation empty")
 	}
-	return false, fmt.Errorf("Validation nil")
+	return false, fmt.Errorf("validation nil")
 }
 
 //TODO REVOIR ERROR
@@ -397,7 +397,7 @@ func (m *ClusterMember) GetPivot(nshoset *net.Shoset) (*models.Pivot, error) {
 	if ok {
 		return pivot, nil
 	}
-	return nil, fmt.Errorf("Configuration nil")
+	return nil, fmt.Errorf("configuration nil")
 }
 
 func (m *ClusterMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.LogicalComponent, error) {
@@ -408,7 +408,7 @@ func (m *ClusterMember) GetLogicalConfiguration(nshoset *net.Shoset) (*models.Lo
 	if ok {
 		return logicalConfiguration, nil
 	}
-	return nil, fmt.Errorf("Configuration nil")
+	return nil, fmt.Errorf("configuration nil")
 }
 
 // CreateStore : Cluster create store function.
