@@ -8,6 +8,7 @@ package configuration
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/ditrit/gandalf/verdeter"
 
@@ -23,38 +24,36 @@ var clusterCfg = verdeter.NewConfigCmd(
 	"Launch gandalf in 'cluster' mode.",
 	`Gandalf is launched as a cluster member of a Gandalf system.`,
 	func(cfg *verdeter.ConfigCmd, args []string) {
-		fmt.Println("cluster called")
+		log.Println("cluster called")
 
 		offset := verdeter.GetOffset()
-		fmt.Printf("computed offset : %d \n", offset)
+		log.Printf("computed offset : %d \n", offset)
 
 		done := make(chan bool)
 		configurationCluster := cmodels.NewConfigurationCluster()
-		//fmt.Println(viper.GetString("bind"))
-		//fmt.Println(configurationCluster.GetBindAddress())
 		if !viper.IsSet("join") {
-			fmt.Println("calling ClusterMemberInit")
+			log.Println("calling ClusterMemberInit")
 			cluster.ClusterMemberInit(configurationCluster)
 		} else {
-			fmt.Println("calling ClusterMemberJoin")
+			log.Println("calling ClusterMemberJoin")
 			cluster.ClusterMemberJoin(configurationCluster)
 		}
-		fmt.Println("Cluster call done")
+		log.Println("Cluster call done")
 		<-done
 	})
 
 func init() {
 	startCfg.AddConfig(clusterCfg)
 
-	//clusterCfg.SetRequired("lname")
 	clusterCfg.SetDefault("lname", "cluster")
 
 	clusterCfg.LKey("join", verdeter.IsStr, "j", "remote address (of an already existing member of cluster) to join")
 	clusterCfg.SetCheck("join", verdeter.CheckNotEmpty)
 	clusterCfg.SetNormalize("join", verdeter.TrimToLower)
 
+	clusterCfg.LKey("first_secret", verdeter.IsStr, "", "Secret for the first aggregator.")
+
 	clusterCfg.LKey("api_port", verdeter.IsInt, "", "Port to bind (default is 9199 + offset if defined)")
-	//clusterCfg.SetDefault("api_port", 9199+verdeter.GetOffset())
 	clusterCfg.SetCheck("api_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("api_port",
 		func() interface{} {
@@ -80,21 +79,18 @@ func init() {
 			if ok {
 				return dbDir
 			}
-			fmt.Println("Error: can't use or write into database directory")
+			log.Println("Error: can't use or write into database directory")
 			return nil
 		})
-	//clusterCfg.SetDefault("db_path", "/var/lib/cockroach/")
 
 	clusterCfg.LKey("db_nodename", verdeter.IsStr, "", "name of the gandalf node")
 	clusterCfg.SetCheck("db_nodename", verdeter.CheckNotEmpty)
-	//clusterCfg.SetDefault("db_nodename", "node1")
 	clusterCfg.SetComputedValue("db_nodename",
 		func() interface{} {
 			return fmt.Sprint("node", verdeter.GetOffset())
 		})
 
 	clusterCfg.LKey("db_port", verdeter.IsInt, "", "Port to bind (default is 9299 + offset if defined)")
-	//clusterCfg.SetDefault("db_port", 9299)
 	clusterCfg.SetCheck("db_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("db_port",
 		func() interface{} {
@@ -102,16 +98,11 @@ func init() {
 		})
 
 	clusterCfg.LKey("db_http_port", verdeter.IsInt, "", "Port to bind (default is 9399 + offset if defined)")
-	//clusterCfg.SetDefault("db_http_port", 9399+verdeter.GetOffset())
 	clusterCfg.SetCheck("db_http_port", verdeter.CheckTCPHighPort)
 	clusterCfg.SetComputedValue("db_http_port",
 		func() interface{} {
 			return 9399 + verdeter.GetOffset()
 		})
-	/* 	connectorCfg.SetComputedValue("db_http_port",
-	func() interface{} {
-		return 9299 + GetOffset()
-	}) */
 
 	clusterCfg.LKey("repository_url", verdeter.IsStr, "u", "repository URL")
 	clusterCfg.SetDefault("repository_url", "https://raw.githubusercontent.com/ditrit/gandalf-workers/master")

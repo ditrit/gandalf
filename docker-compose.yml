@@ -1,0 +1,25 @@
+version: "3"
+services:
+
+  cluster:
+    image: gandalf
+    command: gandalf start cluster --bind 0.0.0.0 --port 9100 --first_secret test
+    ports:
+      - 9100:9100
+      - 9299:9299
+      - 9399:9399
+    volumes:
+      - gandalf:/cockroach/cockroach-data
+
+  aggregator:
+    image: gandalf
+    depends_on:
+      - cluster
+    command: gandalf start aggregator --bind 0.0.0.0 -l gandalf -t gandalf --cluster cluster:9100 --secret test
+    ports:
+      - 9099:9099
+      - 9199:9199
+
+volumes:
+  gandalf:
+    external: false

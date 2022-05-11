@@ -24,7 +24,6 @@ var startCfg = verdeter.NewConfigCmd(
 	})
 
 func init() {
-	// cobra.OnInitialize(initConfig)
 	rootCfg.AddConfig(startCfg)
 
 	startCfg.GKey("offset", verdeter.IsInt, "", "Offset used in case of multiple Gandals instances hosted on the same host")
@@ -55,6 +54,12 @@ func init() {
 	startCfg.GKey("secret", verdeter.IsStr, "", "Path to the secret (absolute or relative to the configuration directory)")
 	startCfg.SetCheck("secret", verdeter.CheckNotEmpty)
 
+	startCfg.GKey("retry_time", verdeter.IsInt, "", "Time to wait in second between each error")
+	startCfg.SetDefault("retry_time", 5)
+
+	startCfg.GKey("retry_max", verdeter.IsInt, "", "Max number of retry in case of error")
+	startCfg.SetDefault("retry_max", 5)
+
 	startCfg.GKey("max_timeout", verdeter.IsInt, "", "maximum timeout of the connector")
 	startCfg.SetDefault("max_timeout", 1000)
 
@@ -77,7 +82,6 @@ func init() {
 		})
 
 	startCfg.GKey("port", verdeter.IsInt, "", "Port to bind (default is 9099 + offset if defined)")
-	//startCfg.SetDefault("port", 9099+verdeter.GetOffset())
 	startCfg.SetCheck("port", verdeter.CheckTCPHighPort)
 	startCfg.SetComputedValue("port",
 		func() interface{} {
@@ -115,6 +119,5 @@ func init() {
 		return verdeter.ExpandPath(viper.GetString("cert_dir"), val)
 	})
 	startCfg.GKey("log_dir", verdeter.IsStr, "", "directory to store gandalf logfile")
-	//startCfg.SetDefault("log_dir", "/var/log/")
 	startCfg.SetDefault("log_dir", "/var/log/gandalf/")
 }

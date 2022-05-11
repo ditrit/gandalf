@@ -2,7 +2,7 @@
 package shoset
 
 import (
-	"fmt"
+	"github.com/spf13/viper"
 	"log"
 	"time"
 
@@ -21,36 +21,6 @@ func GetSecret(c *net.ShosetConn) (msg.Message, error) {
 	return conf, err
 }
 
-// WaitConfig :
-func WaitSecret(c *net.Shoset, replies *msg.Iterator, args map[string]string, timeout int) *msg.Message {
-	commandName, ok := args["name"]
-	if !ok {
-		return nil
-	}
-	term := make(chan *msg.Message, 1)
-	cont := true
-	go func() {
-		for cont {
-			message := replies.Get().GetMessage()
-			if message != nil {
-				config := message.(cmsg.Secret)
-				if config.GetCommand() == commandName {
-					term <- &message
-				}
-			} else {
-				time.Sleep(time.Duration(10) * time.Millisecond)
-			}
-		}
-	}()
-	select {
-	case res := <-term:
-		cont = false
-		return res
-	case <-time.After(time.Duration(timeout) * time.Second):
-		return nil
-	}
-}
-
 // HandleSecret :
 func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	secret := message.(cmsg.Secret)
@@ -61,9 +31,6 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle secret")
 	log.Println(secret)
 
-	//if secret.GetTenant() == ch.Context["tenant"] {
-	//ok := ch.Queue["secret"].Push(secret, c.GetRemoteShosetType(), c.GetBindAddress())
-	//if ok {
 	if dir == "in" {
 		if c.GetRemoteShosetType() == "c" {
 			shosets := ch.GetConnsByTypeArray("cl")
@@ -106,14 +73,6 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 			log.Println("Error : Wrong Shoset type")
 		}
 	}
-	/* } else {
-		log.Println("can't push to queue")
-		err = errors.New("can't push to queue")
-	} */
-	/*} else {
-		log.Println("wrong tenant")
-		err = errors.New("wrong tenant")
-	}*/
 
 	return err
 }
@@ -128,59 +87,38 @@ func SendSecret(shoset *net.Shoset) (err error) {
 		secretMsg.GetContext()["componentType"] = "aggregator"
 		secretMsg.GetContext()["secret"] = configurationAggregator.GetSecret()
 		secretMsg.GetContext()["bindAddress"] = configurationAggregator.GetBindAddress()
-		//conf.GetContext()["product"] = shoset.Context["product"]
-		fmt.Println("shoset.ConnsByName")
-		fmt.Println(shoset.ConnsByName)
+
 		shosets := shoset.GetConnsByTypeArray("cl")
-		fmt.Println("shosets")
-		fmt.Println(shosets)
+		retryCount := 0
+		for len(shosets) == 0 {
+			retryCount++
+			log.Println("Wait for cluster up, attempt", retryCount)
+			shosets = shoset.GetConnsByTypeArray("cl")
 
-		if len(shosets) != 0 {
-			if secretMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
-				secretMsg.Timeout = configurationAggregator.GetMaxTimeout()
+			time.Sleep(time.Duration(viper.GetInt("retry_time")) * time.Second)
+		}
+
+		if secretMsg.GetTimeout() > configurationAggregator.GetMaxTimeout() {
+			secretMsg.Timeout = configurationAggregator.GetMaxTimeout()
+		}
+		notSend := true
+		for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
+			index := getSecretSendIndex(shosets)
+			shosets[index].SendMessage(secretMsg)
+			log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
+
+			timeoutSend := time.Duration(int(secretMsg.GetTimeout()) / len(shosets))
+
+			time.Sleep(timeoutSend * time.Millisecond)
+
+			if shoset.Context["validation"] != nil {
+				notSend = false
+				break
 			}
-			notSend := true
-			for start := time.Now(); time.Since(start) < time.Duration(secretMsg.GetTimeout())*time.Millisecond; {
-				index := getSecretSendIndex(shosets)
-				shosets[index].SendMessage(secretMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
+		}
 
-				timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
-
-				time.Sleep(timeoutSend * time.Millisecond)
-
-				if shoset.Context["validation"] != nil {
-					notSend = false
-					break
-				}
-			}
-
-			if notSend {
-				return nil
-			}
-			/* notSend := true
-			for notSend {
-
-				index := getSecretSendIndex(shosets)
-				shosets[index].SendMessage(secretMsg)
-				log.Printf("%s : send command %s to %s\n", shoset.GetBindAddress(), secretMsg.GetCommand(), shosets[index])
-
-				timeoutSend := time.Duration((int(secretMsg.GetTimeout()) / len(shosets)))
-
-				time.Sleep(timeoutSend * time.Millisecond)
-
-				if shoset.Context["validation"] != nil {
-					notSend = false
-					break
-				}
-			}
-
-			if notSend {
-				return nil
-			} */
-
-		} else {
-			log.Println("Error : Can't find cluster to send")
+		if notSend {
+			return nil
 		}
 	}
 
