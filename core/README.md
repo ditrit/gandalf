@@ -50,23 +50,6 @@ go build -o gandalf
 [Wiki](https://github.com/ditrit/gandalf/wiki).
 
 
-## Docker
-This section show how to start a cluster node and a standard aggregator with docker 
-
-### Howto test Gandalf API using docker
-simply run 
-```bash 
-./prepare_docker.sh
-```
-It buids a ```gandalfdocker``` image.
-You can run a container to use the API endpoint on localhost:9203 :
-```bash
-run docker run -p 127.0.0.1:9203:9203/tcp gandalfdocker
-```
-You should obtain a *"hello world"* response in your browser using the adreess *"http://127.0.0.1:9203/ditrit/Gandalf/1.0.0/"*.
-
-
-
 ## Getting started
 This section show how to start 3 cluster node, 1 standard aggregator, 1 custom aggregator, and 1 connector
 
