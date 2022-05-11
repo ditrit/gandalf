@@ -75,12 +75,7 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		if ok {
 			databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 			if ok {
-				//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-				//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-				//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
-
 				if databaseConnection != nil {
-					//databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
 					var databaseClient *gorm.DB
 					if componentType == "cluster" {
 						databaseClient = databaseConnection.GetGandalfDatabaseClient()
@@ -88,7 +83,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 						databaseClient = databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
 					}
 					if databaseClient != nil {
-						//componentType := configuration.Context["componentType"].(string)
 						var version models.Version
 						jsonVersion, ok := configuration.Context["version"].([]byte)
 						if ok {
@@ -198,23 +192,11 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		}
 
 	} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION" {
-
-		/* 	componentType, ok := configuration.Context["componentType"].(string)
-		if ok { */
 		databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if ok {
-			//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 			if databaseConnection != nil {
 				databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
-				/* 	var databaseClient *gorm.DB
-				if componentType == "cluster" {
-					databaseClient = databaseConnection.GetGandalfDatabaseClient()
-				} else {
-					databaseClient = databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
-				} */
 				if databaseClient != nil {
 					product, ok := configuration.Context["product"].(string)
 					if ok {
@@ -263,8 +245,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 			}
 		}
 
-		//}
-
 	} else if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
 		fmt.Println("REPLY")
 		var pivot *models.Pivot
@@ -276,17 +256,12 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		fmt.Println("SAVE")
 		databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if ok {
-			//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-			//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-			//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 			if databaseConnection != nil {
-				//databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
 				var databaseClient *gorm.DB
 				databaseClient = databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
 
 				if databaseClient != nil {
-					//connectorConfig := conf.GetContext()["connectorConfig"].(models.ConnectorConfig)
 					var pivot models.Pivot
 					err = json.Unmarshal([]byte(configuration.GetPayload()), &pivot)
 					fmt.Println("PIVOT SAVE")
@@ -308,12 +283,8 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 		if ok {
 			databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 			if ok {
-				//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-				//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-				//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 
 				if databaseConnection != nil {
-					//databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
 					var databaseClient *gorm.DB
 					if componentType == "cluster" {
 						databaseClient = databaseConnection.GetGandalfDatabaseClient()
@@ -332,19 +303,9 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 				} else {
 					log.Println("Error : Can't get database clients")
 				}
-				//connectorConfig := conf.GetContext()["connectorConfig"].(models.ConnectorConfig)
 			}
 		}
 	}
-
-	/* 	gandalfdatabaseClient := cutils.GetGandalfDatabaseClient(databasePath)
-	   	if gandalfdatabaseClient != nil {
-
-	   	} else {
-	   		log.Println("Can't get gandalf database client")
-	   		err = errors.New("Can't get gandalf database client")
-	   	} */
-
 	return err
 }
 
@@ -361,7 +322,6 @@ func SendClusterPivotConfiguration(shoset *net.Shoset) (err error) {
 				conf.GetContext()["version"] = jsonVersion
 				conf.GetContext()["bindAddress"] = configurationCluster.GetBindAddress()
 
-				//conf.GetContext()["product"] = shoset.Context["product"]
 				var shosets []*net.ShosetConn
 				connsJoin := shoset.ConnsByName.Get(shoset.GetLogicalName())
 				if connsJoin != nil {

@@ -57,7 +57,6 @@ func WaitHeartbeat(c *net.Shoset, replies *msg.Iterator, args map[string]string,
 func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 	heartbeat := message.(cmsg.Heartbeat)
 	ch := c.GetCh()
-	//thisOne := ch.GetBindAddress()
 	err = nil
 
 	log.Println("Handle heartbeat")
@@ -65,13 +64,7 @@ func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 
 	databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 	if ok {
-		//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-		//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-		//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
-
 		if databaseConnection != nil {
-			//databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
-
 			databaseClient := databaseConnection.GetDatabaseClientByTenant(heartbeat.GetTenant())
 			if databaseClient != nil {
 				mHeartbeat := models.FromShosetHeartbeat(heartbeat)

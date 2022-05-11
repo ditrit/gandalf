@@ -27,14 +27,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 
 	fmt.Println("Handle command")
 	fmt.Println(cmd)
-	//ok := ch.Queue["cmd"].Push(cmd, c.GetRemoteShosetType(), c.GetBindAddress())
 
-	//if ok {
-	//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
 	databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 	if ok {
-		//databasePath := ch.Context["databasePath"].(string)
-		//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
 		if databaseConnection != nil {
 			databaseClient := databaseConnection.GetDatabaseClientByTenant(cmd.GetTenant())
 			if databaseClient != nil {
@@ -72,10 +67,6 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 		} else {
 			log.Println("Error : Database connection is empty")
 		}
-		/* 	} else {
-			log.Println("Can't push to queue")
-			err = errors.New("Can't push to queue")
-		} */
 	}
 
 	return err

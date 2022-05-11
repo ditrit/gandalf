@@ -60,7 +60,6 @@ func WaitConfigurationDatabase(c *net.Shoset, replies *msg.Iterator, args map[st
 func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err error) {
 	configurationDb := message.(cmsg.ConfigurationDatabase)
 	ch := c.GetCh()
-	//dir := c.GetDir()
 
 	err = nil
 
@@ -68,14 +67,11 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 	log.Println(configurationDb)
 
 	fmt.Println("CONFIGURATION_DATABASE")
-	//ok := ch.Queue["secret"].Push(secret, c.GetRemoteShosetType(), c.GetBindAddress())
-	//if ok {
 	if configurationDb.GetCommand() == "CONFIGURATION_DATABASE" {
 		var databaseClient *gorm.DB
 		databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if ok {
 			if databaseConnection != nil {
-				//databasePath := ch.Context["databasePath"].(string)
 				databaseClient = databaseConnection.GetGandalfDatabaseClient()
 				if databaseClient != nil {
 					tenant, err := cutils.GetTenant(configurationDb.GetTenant(), databaseClient)
@@ -114,7 +110,6 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 		if ok {
 			if databaseConnection != nil {
 				fmt.Println("CREATE1")
-				//databasePath := ch.Context["databasePath"].(string)
 				databaseClient = databaseConnection.GetGandalfDatabaseClient()
 				if databaseClient != nil {
 					fmt.Println("CREATE2")
@@ -126,9 +121,7 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 						fmt.Println(err)
 						if err == nil {
 							fmt.Println("CREATE4")
-							//var tenantDatabaseClient *gorm.DB
 							tenantDatabaseClient := databaseConnection.GetDatabaseClientByTenant(tenant.Name)
-							//tc.mapTenantDatabase[tenant.Name] = tenantDatabaseClient
 
 							if tenantDatabaseClient != nil {
 								fmt.Println("CREATE5")

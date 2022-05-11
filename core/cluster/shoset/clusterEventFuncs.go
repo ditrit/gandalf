@@ -23,14 +23,8 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	log.Println("Handle event")
 	log.Println(evt)
 
-	//ok := ch.Queue["evt"].Push(evt, c.GetRemoteShosetType(), c.GetBindAddress())
-
-	//if ok {
 	databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 	if ok {
-		//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-		//databasePath := ch.Context["databasePath"].(string)
-		//configurationCluster := ch.Context["configurationCluster"].(*cmodels.ConfigurationCluster)
 
 		if databaseConnection != nil {
 			databaseClient := databaseConnection.GetDatabaseClientByTenant(evt.GetTenant())
@@ -57,7 +51,6 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 				}
 			},
 		)
-		//}
 	}
 
 	return err

@@ -57,8 +57,6 @@ func (dc DatabaseConnection) NewDatabase(name, password string) (err error) {
 }
 
 func (dc DatabaseConnection) newDatabaseClient(name, password string) (gandalfDatabaseClient *gorm.DB, err error) {
-	//TODO REVOIR
-	//databaseFullPath := databasePath + "/" + name + ".db"
 	dsn := "postgres://" + name + ":" + password + "@" + dc.GetConfigurationCluster().GetDatabaseBindAddress() + "/" + name + "?sslmode=require"
 	gandalfDatabaseClient, err = gorm.Open("postgres", dsn)
 
@@ -79,12 +77,10 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 
 	//Init Root Domain
 	domain := models.Domain{Name: "root", ShortDescription: "root", Description: "Domain root"}
-	//models.InsertDomainRoot(gandalfDatabaseClient, domain)
 	gandalfDatabaseClient.Save(&domain)
 
 	//Init Root Domain
 	tag := models.Tag{Name: "root"}
-	//models.InsertTagRoot(gandalfDatabaseClient, tag)
 	gandalfDatabaseClient.Save(&tag)
 
 	//Init Administartor Role
@@ -99,10 +95,8 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 			if err == nil {
 				login1, password1 := "Administrator1", GenerateRandomHash()
 				user1 := models.NewUser(login1, login1, login1, login1, password1, login1)
-				//authorization1 := models.Authorization{User: user1, Role: admin, Domain: root}
 				login2, password2 := "Administrator2", GenerateRandomHash()
 				user2 := models.NewUser(login2, login2, login2, login2, password2, login2)
-				//authorization2 := models.Authorization{User: user2, Role: admin, Domain: root}
 				err = gandalfDatabaseClient.Transaction(func(tx *gorm.DB) error {
 
 					if err := tx.Create(&user1).Error; err != nil {
@@ -132,9 +126,6 @@ func (dc DatabaseConnection) InitGandalfDatabase(gandalfDatabaseClient *gorm.DB,
 				}
 			}
 		}
-
-		//CreateAction(tenantDatabaseClient)
-		//CreateConnectorType(tenantDatabaseClient)
 	}
 
 	//Init Tenant
@@ -158,12 +149,10 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 
 	//Init Root Domain
 	domain := models.Domain{Name: "root", ShortDescription: "root", Description: "Domain root"}
-	//models.InsertDomainRoot(tenantDatabaseClient, domain)
 	tenantDatabaseClient.Save(&domain)
 
 	//Init Root Domain
 	tag := models.Tag{Name: "root"}
-	//models.InsertTagRoot(tenantDatabaseClient, tag)
 	tenantDatabaseClient.Save(&tag)
 
 	//Init Administartor Role
@@ -178,10 +167,8 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 			if err == nil {
 				login1, password1 := "Administrator1", GenerateRandomHash()
 				user1 := models.NewUser(login1, login1, login1, login1, password1, login1)
-				//authorization1 := models.Authorization{User: user1, Role: admin, Domain: root}
 				login2, password2 := "Administrator2", GenerateRandomHash()
 				user2 := models.NewUser(login2, login2, login2, login2, password2, login2)
-				//authorization2 := models.Authorization{User: user2, Role: admin, Domain: root}
 				err = tenantDatabaseClient.Transaction(func(tx *gorm.DB) error {
 
 					if err := tx.Create(&user1).Error; err != nil {
@@ -211,32 +198,11 @@ func (dc DatabaseConnection) InitTenantDatabase(tenantDatabaseClient *gorm.DB) (
 				}
 			}
 		}
-
-		//CreateAction(tenantDatabaseClient)
-		//CreateConnectorType(tenantDatabaseClient)
 	}
 
 	return
 }
 
-/* //DemoCreateConnectorType
-func CreateConnectorType(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.ConnectorType{Name: "utils"})
-	tenantDatabaseClient.Create(&models.ConnectorType{Name: "workflow"})
-	tenantDatabaseClient.Create(&models.ConnectorType{Name: "demo"})
-}
-
-//DemoCreateConnectorType
-func CreateAction(tenantDatabaseClient *gorm.DB) {
-	tenantDatabaseClient.Create(&models.Action{Name: "all"})
-	tenantDatabaseClient.Create(&models.Action{Name: "execute"})
-	tenantDatabaseClient.Create(&models.Action{Name: "create"})
-	tenantDatabaseClient.Create(&models.Action{Name: "read"})
-	tenantDatabaseClient.Create(&models.Action{Name: "update"})
-	tenantDatabaseClient.Create(&models.Action{Name: "delete"})
-} */
-
-//TODO REVOIR
 func (dc DatabaseConnection) GetGandalfDatabaseClient() *gorm.DB {
 	if dc.gandalfDatabaseClient == nil {
 		gandalfDatabaseClient, err := dc.newDatabaseClient("gandalf", "gandalf")
@@ -256,7 +222,6 @@ func (dc DatabaseConnection) GetDatabaseClientByTenant(tenantName string) *gorm.
 
 		tenant, err := utils.GetTenant(tenantName, dc.GetGandalfDatabaseClient())
 		if err == nil {
-			//var tenantDatabaseClient *gorm.DB
 			tenantDatabaseClient, err := dc.newDatabaseClient(tenant.Name, tenant.Password)
 			if err == nil {
 				dc.mapTenantDatabaseClients[tenantName] = tenantDatabaseClient

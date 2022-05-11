@@ -33,18 +33,6 @@ func IsDatabaseCreated(dataDir, node string) (result bool, err error) {
 	return
 }
 
-/* func IsDatabasePopulated(gandalfDatabaseClient *gorm.DB) (result bool) {
-
-	var clusters []models.Cluster
-	gandalfDatabaseClient.Find(&clusters)
-
-	if len(clusters) > 0 {
-		return true
-	}
-	return false
-
-} */
-
 func GenerateRandomHash() string {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)

@@ -21,34 +21,6 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-/* // GetDatabaseClientByTenant : Cluster database client getter by tenant.
-func GetDatabaseClientByTenant(tenant, addr string, mapDatabaseClient map[string]*gorm.DB) *gorm.DB {
-	if _, ok := mapDatabaseClient[tenant]; !ok {
-
-		//var tenantDatabaseClient *gorm.DB
-		tenantDatabaseClient, err := database.NewTenantDatabaseClient(addr, tenant)
-		if err == nil {
-			mapDatabaseClient[tenant] = tenantDatabaseClient
-		} else {
-			log.Println("Can't create database client")
-			return nil
-		}
-
-	}
-
-	return mapDatabaseClient[tenant]
-} */
-
-/* // GetApplicationContext : Cluster application context getter.
-func GetApplicationContext(cmd msg.Command, client *gorm.DB) (applicationContext models.Application) {
-	var connectorType models.ConnectorType
-	client.Where("name = ?", cmd.GetContext()["connectorType"].(string)).First(&connectorType)
-
-	client.Where("connector_type_id = ?", connectorType.ID).Preload("Aggregator").Preload("Connector").Preload("ConnectorType").First(&applicationContext)
-
-	return
-} */
-
 // GetApplicationContext : Cluster application context getter.
 func GetApplicationContext(cmd msg.Command, client *gorm.DB) (connector models.LogicalComponent) {
 	connectorType := cmd.GetContext()["connectorType"].(string)
@@ -75,54 +47,6 @@ func GetTenant(tenantName string, client *gorm.DB) (tenant models.Tenant, err er
 	return
 }
 
-/* // GetConfigurationCluster :
-func GetConfigurationCluster(logicalName string, client *gorm.DB) (configurationCluster models.ConfigurationLogicalCluster, err error) {
-	err = client.Where("logical_name = ?", logicalName).First(&configurationCluster).Error
-
-	return
-}
-
-// SaveConfigurationCluster :
-func SaveConfigurationCluster(configurationCluster models.ConfigurationLogicalCluster, client *gorm.DB) (err error) {
-	err = client.Create(&configurationCluster).Error
-
-	return
-}
-
-// GetConfigurationAggregator :
-func GetConfigurationAggregator(logicalName string, client *gorm.DB) (configurationAggregator models.ConfigurationLogicalAggregator, err error) {
-	err = client.Where("logical_name = ?", logicalName).First(&configurationAggregator).Error
-
-	return
-}
-
-// SaveConfigurationAggregator :
-func SaveConfigurationAggregator(configurationAggregator models.ConfigurationLogicalAggregator, client *gorm.DB) (err error) {
-	err = client.Create(&configurationAggregator).Error
-
-	return
-}
-
-// GetConfigurationConnector :
-func GetConfigurationConnector(logicalName string, client *gorm.DB) (configurationConnector models.ConfigurationLogicalConnector, err error) {
-	err = client.Where("logical_name = ?", logicalName).First(&configurationConnector).Error
-
-	return
-}
-
-// SaveConfigurationConnector :
-func SaveConfigurationConnector(configurationConnector models.ConfigurationLogicalConnector, client *gorm.DB) (err error) {
-	err = client.Create(&configurationConnector).Error
-
-	return
-}*/
-
-/* // GetConnectorConfiguration : Cluster application context getter.
-func GetConnectorsConfiguration(client *gorm.DB) (connectorsConfiguration []models.ConnectorConfig) {
-	client.Order("connector_type_id, connector_product_id, major desc").Preload("ConnectorType").Preload("ConnectorProduct").Preload("ConnectorCommands").Preload("ConnectorEvents").Find(&connectorsConfiguration)
-
-	return
-} */
 func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponent models.LogicalComponent, err error) {
 	fmt.Println("logicalName")
 	fmt.Println(logicalName)
@@ -152,8 +76,6 @@ func GetProductConnectors(client *gorm.DB, product string, version models.Versio
 		err = client.Where("product_id = ? and major = ? and minor = ?", productdb.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector).Error
 		fmt.Println("productConnector")
 		fmt.Println(productConnector)
-		//client.Where("product.name = ? and major = ? and minor = ?", product, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").Preload("Ressources").Preload("EventTypeToPolls").First(&productConnector)
-
 	}
 
 	return
@@ -294,8 +216,6 @@ func ValidateSecret(databaseClient *gorm.DB, secret, bindAddress string) (result
 	if err == nil {
 		if secretAssignement != (models.SecretAssignement{}) {
 			if secretAssignement.AddressIP == "" {
-				//secretAssignement.AddressIP = bindAddress
-				//databaseClient.Save(secretAssignement)
 				databaseClient.Model(&models.SecretAssignement{}).Where("secret = ?", secretAssignement.Secret).Update("address_ip", bindAddress)
 				err = databaseClient.Where("secret = ?", secret).First(&secretAssignement).Error
 				fmt.Println("err2")
