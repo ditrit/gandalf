@@ -13,11 +13,12 @@ require (
 	github.com/jinzhu/gorm v1.9.16
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/rs/cors v1.8.0
+	github.com/rs/zerolog v1.26.1 // indirect
 	github.com/spf13/cobra v1.2.1 // indirect
 	github.com/spf13/viper v1.10.0
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0
-	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b
+	golang.org/x/crypto v0.0.0-20211215165025-cf75a172585e
 	golang.org/x/net v0.0.0-20211209124913-491a49abca63 // indirect
 	golang.org/x/sys v0.0.0-20211213223007-03aa0b5f6827 // indirect
 	google.golang.org/grpc v1.42.0
