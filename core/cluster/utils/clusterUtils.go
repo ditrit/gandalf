@@ -96,13 +96,6 @@ func SaveOrUpdateHeartbeat(heartbeat models.Heartbeat, client *gorm.DB) {
 		fmt.Println("SAVE HEARTBEAT")
 		client.Save(&heartbeat)
 	}
-
-	//TEST
-	var listheartbeat []models.Heartbeat
-	client.Find(&listheartbeat)
-	for _, toto := range listheartbeat {
-		fmt.Println(toto)
-	}
 }
 
 func SavePivot(pivot models.Pivot, client *gorm.DB) {
