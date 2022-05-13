@@ -3,8 +3,7 @@ package shoset
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
@@ -63,11 +62,10 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 
 	err = nil
 
-	log.Println("Handle configuration database")
-	log.Println(configurationDb)
+	log.Info().Msg("handle configuration database")
 
-	fmt.Println("CONFIGURATION_DATABASE")
 	if configurationDb.GetCommand() == "CONFIGURATION_DATABASE" {
+		log.Info().Msg("configure database")
 		var databaseClient *gorm.DB
 		databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if ok {
@@ -92,43 +90,35 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 							shoset.SendMessage(configurationReply)
 						}
 					} else {
-						log.Println("Error : Can't get tenant " + configurationDb.Tenant)
+						log.Error().Err(err).Str("tenant", configurationDb.Tenant).Msg("can't get tenant")
 					}
 				} else {
-					log.Println("Error : Can't get database client")
+					log.Error().Err(err).Msg("can't get database client")
 				}
 			} else {
-				log.Println("Error : Database connection is empty")
+				log.Error().Err(err).Msg("database connection is empty")
 			}
 		}
 
 	} else if configurationDb.GetCommand() == "CREATE_DATABASE" {
-		fmt.Println("CREATE")
+		log.Info().Msg("create database")
 
 		var databaseClient *gorm.DB
 		databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if ok {
 			if databaseConnection != nil {
-				fmt.Println("CREATE1")
 				databaseClient = databaseConnection.GetGandalfDatabaseClient()
 				if databaseClient != nil {
-					fmt.Println("CREATE2")
 					tenant, err := cutils.GetTenant(configurationDb.GetPayload(), databaseClient)
-					fmt.Println(err)
 					if err == nil {
-						fmt.Println("CREATE3")
 						err = databaseConnection.NewDatabase(tenant.Name, tenant.Password)
-						fmt.Println(err)
 						if err == nil {
-							fmt.Println("CREATE4")
 							tenantDatabaseClient := databaseConnection.GetDatabaseClientByTenant(tenant.Name)
 
 							if tenantDatabaseClient != nil {
-								fmt.Println("CREATE5")
 								var login, password []string
 								login, password, err = databaseConnection.InitTenantDatabase(tenantDatabaseClient)
 								if err == nil {
-									fmt.Println("CREATE6")
 									createDatabase := models.NewCreateDatabase(login, password)
 									configMarshal, err := json.Marshal(createDatabase)
 									if err == nil {
@@ -142,26 +132,26 @@ func HandleConfigurationDatabase(c *net.ShosetConn, message msg.Message) (err er
 											shoset = mapshoset.Get(c.GetRemoteAddress())
 										}
 
-										fmt.Println("SEND")
+										log.Info().Msg("send")
 										shoset.SendMessage(creationReply)
 									}
 								} else {
-									log.Println("Error : Can't init database")
+									log.Error().Err(err).Msg("can't init database")
 								}
 							} else {
-								log.Println("Error : Can't get database client by tenant")
+								log.Error().Err(err).Msg("can't get database client by tenant")
 							}
 						} else {
-							log.Println("Error : Can't create database")
+							log.Error().Err(err).Msg("can't create database")
 						}
 					} else {
-						log.Println("Error : Can't get tenant " + configurationDb.GetPayload())
+						log.Error().Err(err).Str("payload", configurationDb.GetPayload()).Msg("can't get tenant")
 					}
 				} else {
-					log.Println("Error : Can't get database client")
+					log.Error().Err(err).Msg("can't get database client")
 				}
 			} else {
-				log.Println("Error : Database connection is empty")
+				log.Error().Err(err).Msg("database connection is empty")
 			}
 		}
 	}

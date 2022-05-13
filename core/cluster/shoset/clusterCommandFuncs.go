@@ -3,8 +3,7 @@ package shoset
 
 import (
 	"errors"
-	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
 
@@ -22,11 +21,7 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 	ch := c.GetCh()
 	err = nil
 
-	log.Println("Handle command")
-	log.Println(cmd)
-
-	fmt.Println("Handle command")
-	fmt.Println(cmd)
+	log.Info().Msg("handle command")
 
 	databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 	if ok {
@@ -35,9 +30,9 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 			if databaseClient != nil {
 				ok := cutils.CaptureMessage(message, "cmd", databaseClient)
 				if ok {
-					log.Printf("Succes capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
+					log.Info().Str("command", cmd.GetCommand()).Str("tenant", cmd.GetTenant()).Msg("success capture command")
 				} else {
-					log.Printf("Error : Fail capture command %s on tenant %s \n", cmd.GetCommand(), cmd.GetTenant())
+					log.Error().Err(err).Str("command", cmd.GetCommand()).Str("tenant", cmd.GetTenant()).Msg("fail capture command")
 					err = errors.New("Fail capture command" + cmd.GetCommand() + " on tenant" + cmd.GetTenant())
 				}
 
@@ -53,19 +48,19 @@ func HandleCommand(c *net.ShosetConn, message msg.Message) (err error) {
 							index := getSendIndex(shosets)
 							shosets[index].SendMessage(cmd)
 						} else {
-							log.Println("Error : Can't find aggregators to send")
+							log.Error().Err(err).Msg("can't find aggregators to send")
 						}
 					} else {
-						log.Printf("Error : Can't find connection with name %s \n", app.Aggregator)
+						log.Error().Err(err).Str("name", app.Aggregator).Msg("can't find connection")
 					}
 				} else {
-					log.Println("Error : Can't find application context")
+					log.Error().Err(err).Msg("can't find application context")
 				}
 			} else {
-				log.Println("Error : Can't get database client by tenant")
+				log.Error().Err(err).Msg("can't get database client by tenant")
 			}
 		} else {
-			log.Println("Error : Database connection is empty")
+			log.Error().Err(err).Msg("database connection is empty")
 		}
 	}
 

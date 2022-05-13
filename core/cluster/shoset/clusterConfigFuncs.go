@@ -2,10 +2,9 @@
 package shoset
 
 import (
-	"log"
-
 	net "github.com/ditrit/shoset"
 	"github.com/ditrit/shoset/msg"
+	"github.com/rs/zerolog/log"
 )
 
 // HandleConfigJoin : Cluster handle config function.
@@ -16,14 +15,13 @@ func HandleConfigJoin(c *net.ShosetConn, message msg.Message) error {
 	thisOne := ch.GetBindAddress()
 	newMember := cfg.GetAddress() // recupere l'adresse distante
 
-	log.Println("Handle configuration")
-	log.Println(cfg)
+	log.Info().Msg("Handle configuration")
 
 	switch cfg.GetCommandName() {
 	case "join":
 		if dir == "in" {
 			ch.Protocol(newMember, "join")
-			log.Printf("%s : in event 'join' received from %s\n", thisOne, newMember)
+			log.Info().Str("address", thisOne).Str("member", newMember).Msg("event 'join' received")
 		}
 
 		cfgNewMember := msg.NewCfg(newMember, ch.GetLogicalName(), ch.GetShosetType(), "member")
@@ -34,7 +32,7 @@ func HandleConfigJoin(c *net.ShosetConn, message msg.Message) error {
 				func(key string, val *net.ShosetConn) {
 					if key != newMember && key != thisOne {
 						val.SendMessage(cfgNewMember)
-						log.Printf("%s : send in configuration %s to %s\n", thisOne, cfgNewMember.GetCommandName(), val)
+						log.Info().Str("address", thisOne).Str("configuration", cfgNewMember.GetCommandName()).Msg("sent configuration")
 					}
 				},
 			)
@@ -42,7 +40,7 @@ func HandleConfigJoin(c *net.ShosetConn, message msg.Message) error {
 
 	case "member":
 		ch.Protocol(newMember, "join")
-		log.Printf("%s : event 'member' received from %s\n", thisOne, newMember)
+		log.Info().Str("address", thisOne).Str("member", newMember).Msg("event 'member' received")
 	}
 
 	return nil

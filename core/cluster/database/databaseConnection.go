@@ -1,10 +1,10 @@
 package database
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/ditrit/gandalf/core/cluster/utils"
+	"github.com/google/uuid"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
 	"github.com/ditrit/gandalf/core/models"
@@ -13,6 +13,7 @@ import (
 )
 
 type DatabaseConnection struct {
+	logger                   zerolog.Logger
 	configurationCluster     *cmodels.ConfigurationCluster
 	pivot                    *models.Pivot
 	logicalComponent         *models.LogicalComponent
@@ -22,6 +23,7 @@ type DatabaseConnection struct {
 
 func NewDatabaseConnection(configurationCluster *cmodels.ConfigurationCluster) *DatabaseConnection {
 	databaseConnection := new(DatabaseConnection)
+	databaseConnection.logger = log.With().Str("uuid", uuid.NewString()).Logger()
 	databaseConnection.configurationCluster = configurationCluster
 	databaseConnection.mapTenantDatabaseClients = make(map[string]*gorm.DB)
 
@@ -51,8 +53,6 @@ func (dc DatabaseConnection) SetLogicalComponent(logicalComponent *models.Logica
 // NewDatabase :
 func (dc DatabaseConnection) NewDatabase(name, password string) (err error) {
 	err = CoackroachCreateDatabase(dc.GetConfigurationCluster().GetCertsPath(), dc.GetConfigurationCluster().GetDatabaseBindAddress(), name, password)
-	fmt.Println(err)
-
 	return
 }
 
@@ -209,7 +209,7 @@ func (dc DatabaseConnection) GetGandalfDatabaseClient() *gorm.DB {
 		if err == nil {
 			dc.gandalfDatabaseClient = gandalfDatabaseClient
 		} else {
-			log.Println("Error : Can't create database client")
+			dc.logger.Error().Err(err).Msg("can't create database client")
 			return nil
 		}
 	}
@@ -226,11 +226,11 @@ func (dc DatabaseConnection) GetDatabaseClientByTenant(tenantName string) *gorm.
 			if err == nil {
 				dc.mapTenantDatabaseClients[tenantName] = tenantDatabaseClient
 			} else {
-				log.Println("Error : Can't create database client")
+				dc.logger.Error().Err(err).Msg("can't create database client")
 				return nil
 			}
 		} else {
-			log.Println("Error : Can't get tenant " + tenantName)
+			dc.logger.Error().Err(err).Str("can't get tenant", tenantName)
 		}
 
 	}

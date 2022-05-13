@@ -1,35 +1,35 @@
 package database
 
 import (
-	"fmt"
+	"github.com/rs/zerolog/log"
 	"os"
 	"os/exec"
 )
 
 func CoackroachStart(dataDir, certsDir, node, bindAddress, httpAddress, members string) error {
-	fmt.Println(dataDir)
+	log.Info().Msg("cockroach start")
 	cmd := exec.Command("/usr/local/bin/cockroach", "start", "--certs-dir="+certsDir, "--store="+node, "--listen-addr="+bindAddress, "--http-addr="+httpAddress, "--join="+members, "--background")
 	cmd.Dir = dataDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Start()
 	err := cmd.Wait()
-	fmt.Println("stop")
 	return err
 }
 
 func CoackroachInit(certsDir, host string) error {
+	log.Info().Msg("cockroach init")
 	cmd := exec.Command("/usr/local/bin/cockroach", "init", "--certs-dir="+certsDir, "--host="+host)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Start()
 	err := cmd.Wait()
-	fmt.Println("stop2")
 
 	return err
 }
 
 func CoackroachCreateDatabase(certsDir, host, database, password string) error {
+	log.Info().Msg("cockroach create database")
 	cmd := exec.Command("/usr/local/bin/cockroach", "sql", "--certs-dir="+certsDir, "--host="+host, "--execute=CREATE DATABASE IF NOT EXISTS "+database+"; CREATE USER IF NOT EXISTS "+database+" WITH PASSWORD '"+password+"'; GRANT ALL ON DATABASE "+database+" TO "+database+";")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -37,7 +37,5 @@ func CoackroachCreateDatabase(certsDir, host, database, password string) error {
 	cmd.Start()
 
 	err := cmd.Wait()
-
-	fmt.Println("stop3")
 	return err
 }

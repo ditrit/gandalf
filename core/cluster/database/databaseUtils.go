@@ -3,7 +3,6 @@ package database
 import (
 	"crypto/sha512"
 	"encoding/base64"
-	"fmt"
 	"math/rand"
 	"os"
 	"time"
@@ -11,7 +10,7 @@ import (
 
 func IsNodeExist(dataDir, node string) (result bool) {
 	nodeFullPath := dataDir + node
-	fmt.Println(nodeFullPath)
+
 	if _, err := os.Stat(nodeFullPath); err == nil {
 		result = true
 	} else if os.IsNotExist(err) {

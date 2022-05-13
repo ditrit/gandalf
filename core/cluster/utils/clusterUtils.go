@@ -5,8 +5,8 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"io/ioutil"
-	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -26,13 +26,10 @@ func GetApplicationContext(cmd msg.Command, client *gorm.DB) (connector models.L
 	connectorType := cmd.GetContext()["connectorType"].(string)
 	var connectors []models.LogicalComponent
 	client.Where("type = ?", "connector").Preload("ProductConnector.Pivot").Find(&connectors)
-	fmt.Println("connectors")
-	fmt.Println(connectors)
 
 	for _, currentConnector := range connectors {
 		if currentConnector.ProductConnector.Pivot.Name == connectorType {
 			connector = currentConnector
-			fmt.Println("FIND")
 			return
 		}
 	}
@@ -48,34 +45,21 @@ func GetTenant(tenantName string, client *gorm.DB) (tenant models.Tenant, err er
 }
 
 func GetLogicalComponents(client *gorm.DB, logicalName string) (logicalComponent models.LogicalComponent, err error) {
-	fmt.Println("logicalName")
-	fmt.Println(logicalName)
 	err = client.Where("logical_name = ?", logicalName).Preload("KeyValues.Key").Preload("Resources.EventTypeToPolls.Resource").Preload("Resources.EventTypeToPolls.EventType").First(&logicalComponent).Error
-	fmt.Println("logicalComponent")
-	fmt.Println(logicalComponent)
 	return
 }
 
 func GetPivots(client *gorm.DB, componentType string, version models.Version) (pivot models.Pivot, err error) {
-	fmt.Println("GET PIVOT")
-	fmt.Println(componentType)
-	fmt.Println(version.Major)
-	fmt.Println(version.Minor)
+	log.Info().Int8("version major", version.Major).Int8("version minor", version.Minor).Str("component type", componentType).Msg("get pivot")
 	err = client.Where("name = ? and major = ? and minor = ?", componentType, version.Major, version.Minor).Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&pivot).Error
-	fmt.Println(err)
-	fmt.Println(pivot)
 	return
 }
 
 func GetProductConnectors(client *gorm.DB, product string, version models.Version) (productConnector models.ProductConnector, err error) {
 	var productdb models.ConnectorProduct
 	err = client.Where("name = ?", product).First(&productdb).Error
-	fmt.Println("productdb")
-	fmt.Println(productdb)
 	if err == nil {
 		err = client.Where("product_id = ? and major = ? and minor = ?", productdb.ID, version.Major, version.Minor).Preload("Product").Preload("ResourceTypes").Preload("CommandTypes").Preload("EventTypes").Preload("Keys").First(&productConnector).Error
-		fmt.Println("productConnector")
-		fmt.Println(productConnector)
 	}
 
 	return
@@ -87,13 +71,13 @@ func SaveOrUpdateHeartbeat(heartbeat models.Heartbeat, client *gorm.DB) {
 	err := client.Where("logical_name = ? AND type = ? AND address = ?", heartbeat.LogicalName, heartbeat.Type, heartbeat.Address).First(&heartbeatdb).Error
 	if err == nil {
 		heartbeatdb.UpdatedAt = time.Now()
-		fmt.Println("UPDATE HEARTBEAT")
+		log.Info().Msg("update heartbeat")
 		client.Save(&heartbeatdb)
 	} else {
 		heartbeat.CreatedAt = time.Now()
 		heartbeat.UpdatedAt = time.Now()
 		//IF NOT : SAVE
-		fmt.Println("SAVE HEARTBEAT")
+		log.Info().Msg("save heartbeat")
 		client.Save(&heartbeat)
 	}
 }
@@ -146,7 +130,7 @@ func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
 
 	resp, err := http.Get(url + ressource)
 	if err != nil {
-		log.Printf("Error : %s", err)
+		log.Error().Err(err).Msg("download pivot")
 		return
 	}
 
@@ -157,13 +141,12 @@ func DownloadPivot(url, ressource string) (pivot *models.Pivot, err error) {
 
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	err = yaml.Unmarshal(bodyBytes, &pivot)
 	if err != nil {
-		fmt.Println(err)
-		log.Fatal(err)
+		log.Fatal().Err(err)
 	}
 
 	return
@@ -185,8 +168,7 @@ func CaptureMessage(message msg.Message, msgType string, client *gorm.DB) bool {
 		client.Create(&currentMsg)
 	default:
 		ok = false
-
-		log.Println("Error : Can't capture message")
+		log.Error().Msg("can't capture message")
 	}
 
 	return ok
@@ -198,22 +180,13 @@ func ValidateSecret(databaseClient *gorm.DB, secret, bindAddress string) (result
 
 	var secretAssignements []models.SecretAssignement
 	err = databaseClient.Find(&secretAssignements).Error
-	fmt.Println(err)
-	fmt.Println("secretAssignments")
-	fmt.Println(secretAssignements)
 	var secretAssignement models.SecretAssignement
 	err = databaseClient.Where("secret = ?", secret).First(&secretAssignement).Error
-	fmt.Println("err")
-	fmt.Println(err)
-	fmt.Println(secretAssignement)
 	if err == nil {
 		if secretAssignement != (models.SecretAssignement{}) {
 			if secretAssignement.AddressIP == "" {
 				databaseClient.Model(&models.SecretAssignement{}).Where("secret = ?", secretAssignement.Secret).Update("address_ip", bindAddress)
 				err = databaseClient.Where("secret = ?", secret).First(&secretAssignement).Error
-				fmt.Println("err2")
-				fmt.Println(err)
-				fmt.Println(secretAssignement)
 				result = true
 			} else if secretAssignement.AddressIP == bindAddress {
 				result = true

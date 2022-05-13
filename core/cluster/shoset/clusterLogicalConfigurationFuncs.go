@@ -3,8 +3,7 @@ package shoset
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
@@ -66,11 +65,7 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 
 	err = nil
 
-	log.Println("Handle logical configuration")
-	log.Println(logicalConfiguration)
-
-	fmt.Println("handle logical configuration")
-	fmt.Println(logicalConfiguration)
+	log.Info().Msg("Handle logical configuration")
 
 	if logicalConfiguration.GetCommand() == "LOGICAL_CONFIGURATION" {
 		var databaseClient *gorm.DB
@@ -82,8 +77,6 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 					if componentType == "cluster" {
 						databaseClient = databaseConnection.GetGandalfDatabaseClient()
 					} else {
-						fmt.Println("logicalConfiguration.GetTenant()")
-						fmt.Println(logicalConfiguration.GetTenant())
 						databaseClient = databaseConnection.GetDatabaseClientByTenant(logicalConfiguration.GetTenant())
 					}
 
@@ -137,17 +130,17 @@ func HandleLogicalConfiguration(c *net.ShosetConn, message msg.Message) (err err
 										break
 									}
 								} else {
-									log.Println("Error : Can't unmarshall configuration")
+									log.Error().Err(err).Msg("can't unmarshall configuration")
 								}
 							} else {
-								log.Println("Error : Can't find logical component")
+								log.Error().Err(err).Msg("can't find logical component")
 							}
 						}
 					} else {
-						log.Println("Error : Can't get database client")
+						log.Error().Err(err).Msg("can't get database client")
 					}
 				} else {
-					log.Println("Error : Database connection is empty")
+					log.Error().Err(err).Msg("Error : Database connection is empty")
 				}
 			}
 		}
@@ -206,7 +199,7 @@ func SendLogicalConfiguration(shoset *net.Shoset) (err error) {
 			}
 
 		} else {
-			log.Println("Error : Can't find cluster to send")
+			log.Error().Err(err).Msg("can't find cluster to send")
 		}
 	}
 

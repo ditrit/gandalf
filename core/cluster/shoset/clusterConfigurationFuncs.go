@@ -3,8 +3,7 @@ package shoset
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -64,13 +63,10 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 
 	err = nil
 
-	log.Println("Handle configuration")
-	log.Println(configuration)
-	fmt.Println("HANDLE CONFIGURATION")
-	fmt.Println(configuration)
+	log.Info().Msg("Handle configuration")
 
 	if configuration.GetCommand() == "PIVOT_CONFIGURATION" {
-
+		log.Info().Msg("pivot configuration")
 		componentType, ok := configuration.Context["componentType"].(string)
 		if ok {
 			databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
@@ -105,9 +101,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 												if connsJoin != nil {
 													shoset = connsJoin.Get(bindaddr)
 												}
-
-												fmt.Println("shoset")
-												fmt.Println(shoset)
 												shoset.SendMessage(cmdReply)
 											}
 
@@ -171,27 +164,27 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 										}
 
 									} else {
-										log.Println("Error : Can't unmarshall configuration")
+										log.Error().Err(err).Msg("can't unmarshall configuration")
 									}
 								} else {
-									log.Println("Error : Can't find pivot")
+									log.Error().Err(err).Msg("can't find pivot")
 								}
 							} else {
-								log.Println("Error : Can't unmarshall version")
+								log.Error().Err(err).Msg("can't unmarshall version")
 							}
 						}
-
 					} else {
-						log.Println("Error : Can't get database client by tenant")
+						log.Error().Err(err).Msg("can't get database client by tenant")
 					}
 				} else {
-					log.Println("Error : Can't get database clients")
+					log.Error().Err(err).Msg("can't get database clients")
 				}
 			}
 
 		}
 
 	} else if configuration.GetCommand() == "CONNECTOR_PRODUCT_CONFIGURATION" {
+		log.Info().Msg("connector product configuration")
 		databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if ok {
 
@@ -206,8 +199,6 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 							err := json.Unmarshal(jsonVersion, &version)
 							if err == nil {
 								productConnectors, err := cutils.GetProductConnectors(databaseClient, product, version)
-								fmt.Println("productConnectors")
-								fmt.Println(productConnectors)
 								if err == nil {
 									jsonData, err := json.Marshal(productConnectors)
 
@@ -223,37 +214,35 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 											shoset = mapshoset.Get(c.GetRemoteAddress())
 										}
 
-										fmt.Println("shoset")
-										fmt.Println(shoset)
 										shoset.SendMessage(cmdReply)
 									} else {
-										log.Println("Error : Can't unmarshall configuration")
+										log.Error().Err(err).Msg("can't unmarshall configuration")
 									}
 								} else {
-									log.Println("Error : Can't find product connector")
+									log.Error().Err(err).Msg("can't find product connector")
 								}
 							} else {
-								log.Println("Error : Can't unmarshall version")
+								log.Error().Err(err).Msg("can't unmarshall version")
 							}
 						}
 					}
 				} else {
-					log.Println("Error : Can't get database client by tenant")
+					log.Error().Err(err).Msg("can't get database client by tenant")
 				}
 			} else {
-				log.Println("Error : Can't get database clients")
+				log.Error().Err(err).Msg("can't get database clients")
 			}
 		}
 
 	} else if configuration.GetCommand() == "PIVOT_CONFIGURATION_REPLY" {
-		fmt.Println("REPLY")
+		log.Info().Msg("pivot configuration reply")
 		var pivot *models.Pivot
 		err = json.Unmarshal([]byte(configuration.GetPayload()), &pivot)
 		if err == nil {
 			ch.Context["pivot"] = pivot
 		}
 	} else if configuration.GetCommand() == "SAVE_PIVOT_CONFIGURATION" {
-		fmt.Println("SAVE")
+		log.Info().Msg("save pivot configuration")
 		databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 		if ok {
 
@@ -264,21 +253,20 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 				if databaseClient != nil {
 					var pivot models.Pivot
 					err = json.Unmarshal([]byte(configuration.GetPayload()), &pivot)
-					fmt.Println("PIVOT SAVE")
-					fmt.Println(pivot)
+					log.Info().Msg("save pivot")
 					if err == nil {
 						cutils.SavePivot(pivot, databaseClient)
 					}
 				} else {
-					log.Println("Error : Can't get database client by tenant")
+					log.Error().Err(err).Msg("can't get database client by tenant")
 				}
 			} else {
-				log.Println("Error : Can't get database clients")
+				log.Error().Err(err).Msg("can't get database clients")
 			}
 		}
 
 	} else if configuration.GetCommand() == "SAVE_PRODUCT_CONNECTOR_CONFIGURATION" {
-
+		log.Info().Msg("save connector product configuration")
 		componentType, ok := configuration.Context["componentType"].(string)
 		if ok {
 			databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
@@ -298,10 +286,10 @@ func HandleConfiguration(c *net.ShosetConn, message msg.Message) (err error) {
 							cutils.SaveProductConnector(productConnector, databaseClient)
 						}
 					} else {
-						log.Println("Error : Can't get database client by tenant")
+						log.Error().Err(err).Msg("can't get database client by tenant")
 					}
 				} else {
-					log.Println("Error : Can't get database clients")
+					log.Error().Err(err).Msg("can't get database clients")
 				}
 			}
 		}
@@ -354,11 +342,11 @@ func SendClusterPivotConfiguration(shoset *net.Shoset) (err error) {
 						return nil
 					}
 				} else {
-					log.Println("Error : Can't find aggregators to send")
+					log.Error().Err(err).Msg("can't find aggregators to send")
 				}
 			}
 		} else {
-			log.Println("Error : Can't marshall version")
+			log.Error().Err(err).Msg("can't marshall version")
 		}
 	}
 

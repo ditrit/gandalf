@@ -2,8 +2,7 @@
 package shoset
 
 import (
-	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"strconv"
 	"time"
 
@@ -64,11 +63,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 
 	err = nil
 
-	log.Println("Handle secret")
-	log.Println(secret)
-
-	fmt.Println("Handle secret")
-	fmt.Println(secret)
+	log.Info().Msg("Handle secret")
 	if secret.GetCommand() == "VALIDATION" {
 
 		var databaseClient *gorm.DB
@@ -87,8 +82,6 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 							if ok {
 								var result bool
 								result, err = utils.ValidateSecret(databaseClient, stringsecret, bindAddr)
-								fmt.Println("result")
-								fmt.Println(result)
 								if err == nil {
 
 									secretReply := cmsg.NewSecret("VALIDATION_REPLY", strconv.FormatBool(result))
@@ -105,12 +98,8 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 									} else if componentType == "aggregator" {
 
 										mapshoset := ch.ConnsByName.Get(c.GetRemoteLogicalName())
-										fmt.Println("mapshoset")
-										fmt.Println(mapshoset)
 										if mapshoset != nil {
 											shoset = mapshoset.Get(c.GetRemoteAddress())
-											fmt.Println("shoset")
-											fmt.Println(shoset)
 										}
 
 									} else {
@@ -126,7 +115,7 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 									shoset.SendMessage(secretReply)
 
 								} else {
-									log.Println("Error : Can't validate secret")
+									log.Error().Err(err).Msg("can't validate secret")
 								}
 							}
 
@@ -134,10 +123,10 @@ func HandleSecret(c *net.ShosetConn, message msg.Message) (err error) {
 					}
 
 				} else {
-					log.Println("Error : Can't get database client")
+					log.Error().Err(err).Msg("can't get database client")
 				}
 			} else {
-				log.Println("Error : Database connection is empty")
+				log.Error().Err(err).Msg("database connection is empty")
 			}
 		}
 
@@ -189,7 +178,7 @@ func SendSecret(shoset *net.Shoset) (err error) {
 			}
 
 		} else {
-			log.Println("Error : Can't find cluster to send")
+			log.Error().Err(err).Msg("can't find cluster to send")
 		}
 	}
 

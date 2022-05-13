@@ -3,7 +3,7 @@ package shoset
 
 import (
 	"errors"
-	"log"
+	"github.com/rs/zerolog/log"
 
 	"github.com/ditrit/gandalf/core/cluster/database"
 
@@ -20,8 +20,7 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 	thisOne := ch.GetBindAddress()
 	err = nil
 
-	log.Println("Handle event")
-	log.Println(evt)
+	log.Info().Msg("Handle event")
 
 	databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 	if ok {
@@ -31,23 +30,23 @@ func HandleEvent(c *net.ShosetConn, message msg.Message) (err error) {
 			if databaseClient != nil {
 				ok := utils.CaptureMessage(message, "evt", databaseClient)
 				if ok {
-					log.Printf("Succes capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
+					log.Info().Str("event", evt.GetEvent()).Str("tenant", evt.GetTenant()).Msg("success capture event")
 				} else {
-					log.Printf("Error : Fail capture event %s on tenant %s \n", evt.GetEvent(), evt.GetTenant())
+					log.Error().Err(err).Str("event", evt.GetEvent()).Str("tenant", evt.GetTenant()).Msg("fail capture event")
 					err = errors.New("Fail capture event" + evt.GetEvent() + " on tenant" + evt.GetTenant())
 				}
 			} else {
-				log.Println("Error : Can't get database client by tenant")
+				log.Error().Err(err).Msg("can't get database client by tenant")
 			}
 		} else {
-			log.Println("Error : Database client map is empty")
+			log.Error().Err(err).Msg("Error : Database client map is empty")
 		}
 
 		ch.ConnsByName.IterateAll(
 			func(key string, val *net.ShosetConn) {
 				if key != thisOne && val.GetRemoteShosetType() == "a" && c.GetCh().Context["tenant"] == val.GetCh().Context["tenant"] {
 					val.SendMessage(evt)
-					log.Printf("%s : send event %s to %s\n", thisOne, evt.GetEvent(), val)
+					log.Info().Str("event", evt.GetEvent()).Msg("send event")
 				}
 			},
 		)
