@@ -1,8 +1,7 @@
 package shoset
 
 import (
-	"fmt"
-	"log"
+	"github.com/rs/zerolog/log"
 	"time"
 
 	cmodels "github.com/ditrit/gandalf/core/configuration/models"
@@ -57,30 +56,22 @@ func WaitHeartbeat(c *net.Shoset, replies *msg.Iterator, args map[string]string,
 func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 	heartbeat := message.(cmsg.Heartbeat)
 	ch := c.GetCh()
-	//thisOne := ch.GetBindAddress()
 	err = nil
 
-	log.Println("Handle heartbeat")
-	log.Println(heartbeat)
+	log.Info().Msg("Handle heartbeat")
 
 	databaseConnection, ok := ch.Context["databaseConnection"].(*database.DatabaseConnection)
 	if ok {
-		//mapDatabaseClient := ch.Context["tenantDatabases"].(map[string]*gorm.DB)
-		//databaseBindAddr := ch.Context["databaseBindAddr"].(string)
-		//configurationCluster := ch.Context["configuration"].(*cmodels.ConfigurationCluster)
-
 		if databaseConnection != nil {
-			//databaseClient := databaseConnection.GetDatabaseClientByTenant(configuration.GetTenant())
-
 			databaseClient := databaseConnection.GetDatabaseClientByTenant(heartbeat.GetTenant())
 			if databaseClient != nil {
 				mHeartbeat := models.FromShosetHeartbeat(heartbeat)
 				cutils.SaveOrUpdateHeartbeat(mHeartbeat, databaseClient)
 			} else {
-				log.Println("Error : Can't get database client by tenant")
+				log.Error().Err(err).Msg("can't get database client by tenant")
 			}
 		} else {
-			log.Println("Error : Can't get database clients")
+			log.Error().Err(err).Msg("can't get database clients")
 		}
 	}
 
@@ -89,7 +80,7 @@ func HandleHeartbeat(c *net.ShosetConn, message msg.Message) (err error) {
 
 //SendSecret :
 func SendHeartbeat(shoset *net.Shoset) (err error) {
-	fmt.Println("SEND HEARTBEAT")
+	log.Info().Msg("start send heartbeat")
 	configurationCluster, ok := shoset.Context["configuration"].(*cmodels.ConfigurationCluster)
 	if ok {
 		databaseConnection, ok := shoset.Context["databaseConnection"].(*database.DatabaseConnection)
@@ -98,7 +89,7 @@ func SendHeartbeat(shoset *net.Shoset) (err error) {
 				databaseClient := databaseConnection.GetGandalfDatabaseClient()
 				if databaseClient != nil {
 					for range time.Tick(time.Minute * 1) {
-						fmt.Println("SEND TICK")
+						log.Info().Msg("send tick")
 						heartbeat := new(models.Heartbeat)
 						heartbeat.LogicalName = configurationCluster.GetLogicalName()
 						heartbeat.Type = "cluster"
@@ -107,14 +98,14 @@ func SendHeartbeat(shoset *net.Shoset) (err error) {
 
 					}
 				} else {
-					log.Println("Error : Can't get database client by tenant")
+					log.Error().Err(err).Msg("can't get database client by tenant")
 				}
 			} else {
-				log.Println("Error : Can't get database clients")
+				log.Error().Err(err).Msg("can't get database clients")
 			}
 		}
 	}
-	fmt.Println("END SEND HEARTBEAT")
+	log.Info().Msg("end send heartbeat")
 
 	return err
 }

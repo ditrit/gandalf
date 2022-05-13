@@ -3,7 +3,6 @@ package database
 import (
 	"crypto/sha512"
 	"encoding/base64"
-	"fmt"
 	"math/rand"
 	"os"
 	"time"
@@ -11,7 +10,7 @@ import (
 
 func IsNodeExist(dataDir, node string) (result bool) {
 	nodeFullPath := dataDir + node
-	fmt.Println(nodeFullPath)
+
 	if _, err := os.Stat(nodeFullPath); err == nil {
 		result = true
 	} else if os.IsNotExist(err) {
@@ -32,18 +31,6 @@ func IsDatabaseCreated(dataDir, node string) (result bool, err error) {
 
 	return
 }
-
-/* func IsDatabasePopulated(gandalfDatabaseClient *gorm.DB) (result bool) {
-
-	var clusters []models.Cluster
-	gandalfDatabaseClient.Find(&clusters)
-
-	if len(clusters) > 0 {
-		return true
-	}
-	return false
-
-} */
 
 func GenerateRandomHash() string {
 	source := rand.NewSource(time.Now().UnixNano())
