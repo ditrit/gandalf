@@ -731,6 +731,11 @@ var routes = Routes{
 		"GetFile",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/file/{fileId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
-		IsAuthorized(GetFile),
+		// IsAuthorized(GetFile),
+		GetFile,
 	},
+
+
+
+
 }
