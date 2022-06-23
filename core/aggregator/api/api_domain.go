@@ -23,6 +23,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const INVALID_DOMAIN_ID = "invalid domain id"
+const DOMAIN_NOT_FOUND = "Domain not found"
+
 func CreateDomain(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -31,17 +34,16 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 		parentDomainId, err := uuid.Parse(vars["domainId"])
 
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 
 		var parentDomain models.Domain
 		if parentDomain, err = dao.ReadDomain(database, parentDomainId); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -50,7 +52,7 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 		var domain *models.Domain
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&domain); err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
+			utils.RespondWithError(w, http.StatusBadRequest, "Invalid request payload : " + err.Error())
 			return
 		}
 
@@ -111,7 +113,7 @@ func DeleteDomain(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		id, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 
@@ -159,16 +161,15 @@ func GetDomainById(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		id, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 
 		var domain models.Domain
 		if domain, err = dao.ReadDomain(database, id); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -189,10 +190,9 @@ func GetDomainByName(w http.ResponseWriter, r *http.Request) {
 	var domain models.Domain
 	var err error
 	if domain, err = dao.ReadDomainByName(utils.DatabaseConnection.GetTenantDatabaseClient(), name); err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-		default:
+		if err == sql.ErrNoRows {
+			utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+		} else {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
@@ -224,7 +224,7 @@ func UpdateDomain(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		id, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid product ID")
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 
@@ -256,16 +256,15 @@ func ListDomainTag(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var domain models.Domain
 		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -291,16 +290,15 @@ func CreateDomainTag(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var domain models.Domain
 		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -308,16 +306,15 @@ func CreateDomainTag(w http.ResponseWriter, r *http.Request) {
 
 		idTag, err := uuid.Parse(vars["tagId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var tag models.Tag
 		if tag, err = dao.ReadTag(database, idTag); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -342,16 +339,15 @@ func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var domain models.Domain
 		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -359,16 +355,15 @@ func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
 
 		idTag, err := uuid.Parse(vars["tagId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var tag models.Tag
 		if tag, err = dao.ReadTag(database, idTag); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -534,16 +529,15 @@ func ListDomainLibrary(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var domain models.Domain
 		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -569,16 +563,15 @@ func CreateDomainLibrary(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var domain models.Domain
 		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -586,16 +579,15 @@ func CreateDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 		idLibrary, err := uuid.Parse(vars["libraryId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var library models.Library
 		if library, err = dao.ReadLibrary(database, idLibrary); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -620,16 +612,15 @@ func DeleteDomainLibrary(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var domain models.Domain
 		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
@@ -637,16 +628,15 @@ func DeleteDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 		idLibrary, err := uuid.Parse(vars["libraryId"])
 		if err != nil {
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
 			log.Println(err)
+			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
 		}
 		var library models.Library
 		if library, err = dao.ReadLibrary(database, idLibrary); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, DOMAIN_NOT_FOUND)
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return

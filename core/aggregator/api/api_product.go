@@ -25,7 +25,11 @@ import (
 func CreateProduct(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
+	if database == nil {
+		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		return
+	}
+
 		var product *models.Product
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&product); err != nil {
@@ -40,10 +44,7 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusCreated, product)
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
+	
 }
 
 func DeleteProduct(w http.ResponseWriter, r *http.Request) {
@@ -82,10 +83,9 @@ func GetProductById(w http.ResponseWriter, r *http.Request) {
 
 		var product models.Product
 		if product, err = dao.ReadProduct(database, id); err != nil {
-			switch err {
-			case sql.ErrNoRows:
+			if err == sql.ErrNoRows {
 				utils.RespondWithError(w, http.StatusNotFound, "User not found")
-			default:
+			} else {
 				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			}
 			return
