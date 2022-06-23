@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/gorm"
@@ -27,7 +26,6 @@ type Domain struct {
 func (d *Domain) BeforeDelete(tx *gorm.DB) (err error) {
 	var childs []Domain
 	tx.Where("parent_id = ?", d.ID).Find(&childs)
-	fmt.Println(childs)
 	for _, child := range childs {
 		tx.Unscoped().Delete(&child)
 	}

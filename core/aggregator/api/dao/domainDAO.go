@@ -2,7 +2,7 @@ package dao
 
 import (
 	"errors"
-	"fmt"
+	"log"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/utils"
 	"github.com/google/uuid"
@@ -13,7 +13,7 @@ import (
 
 func ListDomain(database *gorm.DB) (domains []models.Domain, err error) {
 	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments").Find(&domains).Error
-	fmt.Println(err)
+	log.Println(err)
 	return
 }
 
@@ -69,10 +69,9 @@ func ReadDomain(database *gorm.DB, id uuid.UUID) (domain models.Domain, err erro
 }
 
 func ReadDomainByName(database *gorm.DB, name string) (domain models.Domain, err error) {
-	fmt.Println("DAO")
+	log.Println("DAO")
 	err = database.Preload("Parent").Preload("Products").Preload("Libraries").Preload("Authorizations.User").Preload("Authorizations.Role").Preload("Tags").Preload("Environments.EnvironmentType").Preload("Environments.Domain").Where("name = ?", name).First(&domain).Error
-	fmt.Println(err)
-	fmt.Println(domain)
+	log.Println(err)
 	return
 }
 

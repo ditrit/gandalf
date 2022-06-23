@@ -12,7 +12,7 @@ package api
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/ditrit/gandalf/core/aggregator/api/dao"
@@ -31,8 +31,8 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 		parentDomainId, err := uuid.Parse(vars["domainId"])
 
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 
@@ -256,8 +256,8 @@ func ListDomainTag(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var domain models.Domain
@@ -291,8 +291,8 @@ func CreateDomainTag(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var domain models.Domain
@@ -308,8 +308,8 @@ func CreateDomainTag(w http.ResponseWriter, r *http.Request) {
 
 		idTag, err := uuid.Parse(vars["tagId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var tag models.Tag
@@ -342,8 +342,8 @@ func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var domain models.Domain
@@ -359,8 +359,8 @@ func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
 
 		idTag, err := uuid.Parse(vars["tagId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var tag models.Tag
@@ -534,8 +534,8 @@ func ListDomainLibrary(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var domain models.Domain
@@ -569,8 +569,8 @@ func CreateDomainLibrary(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var domain models.Domain
@@ -586,8 +586,8 @@ func CreateDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 		idLibrary, err := uuid.Parse(vars["libraryId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var library models.Library
@@ -620,8 +620,8 @@ func DeleteDomainLibrary(w http.ResponseWriter, r *http.Request) {
 	if database != nil {
 		idDomain, err := uuid.Parse(vars["domainId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var domain models.Domain
@@ -637,8 +637,8 @@ func DeleteDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
 		idLibrary, err := uuid.Parse(vars["libraryId"])
 		if err != nil {
-			fmt.Println(err)
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
+			log.Println(err)
 			return
 		}
 		var library models.Library
