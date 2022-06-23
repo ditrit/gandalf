@@ -22,11 +22,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func CreateProduct(w http.ResponseWriter, r *http.Request) {
+const TENANT_NOT_FOUND = "tenant not found"
 
+func CreateProduct(w http.ResponseWriter, r *http.Request) {
+	var err error
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database == nil {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
+		utils.RespondWithError(w, http.StatusInternalServerError, TENANT_NOT_FOUND)
 		return
 	}
 
@@ -38,10 +40,31 @@ func CreateProduct(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		if err := dao.CreateProduct(database, product); err != nil {
+		var parentDomain models.Domain
+		if parentDomain, err = dao.ReadDomain(database, product.DomainID); err != nil {
+			if err == sql.ErrNoRows {
+				utils.RespondWithError(w, http.StatusNotFound, "Domain not found")
+			} else {
+				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
+			}
+			return
+		}
+		product.Domain = &parentDomain
+
+		if err := dao.CreateProduct(database, product, product.DomainID); err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
 			return
 		}
+
+
+		product.GitServerURL = parentDomain.GitServerURL
+		product.GitPersonalAccessToken = parentDomain.GitPersonalAccessToken
+		product.GitOrganization = parentDomain.GitOrganization
+
+		product.Authorizations = parentDomain.Authorizations
+		product.Libraries = parentDomain.Libraries
+		product.Tags = parentDomain.Tags
+		product.Environments = parentDomain.Environments
 
 		utils.RespondWithJSON(w, http.StatusCreated, product)
 	
@@ -51,7 +74,10 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
+	if database == nil {
+utils.RespondWithError(w, http.StatusInternalServerError, TENANT_NOT_FOUND)
+		return
+	}
 		id, err := uuid.Parse(vars["productId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
@@ -64,17 +90,17 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
+	
 }
 
 func GetProductById(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
+	if database == nil {
+utils.RespondWithError(w, http.StatusInternalServerError, TENANT_NOT_FOUND)
+		return
+	}
 		id, err := uuid.Parse(vars["productId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
@@ -92,16 +118,16 @@ func GetProductById(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusOK, product)
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
+	
 }
 
 func ListProduct(w http.ResponseWriter, r *http.Request) {
 
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
+	if database == nil {
+utils.RespondWithError(w, http.StatusInternalServerError, TENANT_NOT_FOUND)
+		return
+	}
 		products, err := dao.ListProduct(database)
 		if err != nil {
 			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
@@ -109,17 +135,17 @@ func ListProduct(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusOK, products)
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
+	
 }
 
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 	//TODO : verify if we need to update if fields are nil
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
+	if database == nil {
+utils.RespondWithError(w, http.StatusInternalServerError, TENANT_NOT_FOUND)
+		return
+	}
 		id, err := uuid.Parse(vars["productId"])
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, "Invalid ID supplied")
@@ -141,8 +167,5 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 		}
 
 		utils.RespondWithJSON(w, http.StatusOK, product)
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
+	
 }

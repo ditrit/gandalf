@@ -310,7 +310,7 @@ var routes = Routes{
 	Route{
 		"CreateProduct",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/product",
+		"/ditrit/Gandalf/1.0.0/product/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(CreateProduct),
 	},
 

@@ -14,4 +14,6 @@ type Environment struct {
 	Logo              string
 	DomainID          uuid.UUID `gorm:"type:uuid"`
 	Domain           Domain
+	ProductID          uuid.UUID `gorm:"type:uuid"`
+	Product 			Product
 }

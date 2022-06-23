@@ -594,11 +594,11 @@ func runCreateProduct(cfg *verdeter.ConfigCmd, args []string) {
 	domainID, err := uuid.Parse(args[4])
 	if err == nil {
 
-		fmt.Printf("gandalf cli create product called with name=%s, shortDescription=%s, description=%s, logo=%s, repositoryURL=%s, domainID=%s\n", name, shortDescription, description, logo, repositoryURL, domainID)
+		fmt.Printf("gandalf cli create product called with name=%s, shortDescription=%s, description=%s, logo=%s, domainID=%s\n", name, shortDescription, description, logo, domainID)
 		configurationCli := cmodels.NewConfigurationCli()
 		cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
-		product := models.Product{Name: name, ShortDescription: shortDescription, Description: description, Logo: logo, RepositoryURL: repositoryURL, DomainID: domainID}
+		product := models.Product{Name: name, ShortDescription: shortDescription, Description: description, Logo: logo, DomainID: domainID}
 		err := cliClient.ProductService.Create(configurationCli.GetToken(), product)
 		if err != nil {
 			fmt.Println(err)
@@ -643,7 +643,6 @@ func runUpdateProduct(cfg *verdeter.ConfigCmd, args []string) {
 				oldProduct.ShortDescription = shortDescription
 				oldProduct.Description = description
 				oldProduct.Logo = logo
-				oldProduct.RepositoryURL = repositoryURL
 				oldProduct.DomainID = domainID
 				err = cliClient.ProductService.Update(configurationCli.GetToken(), productID, *oldProduct)
 				if err != nil {

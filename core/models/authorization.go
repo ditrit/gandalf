@@ -12,4 +12,6 @@ type Authorization struct {
 	Role     Role
 	DomainID uuid.UUID `gorm:"type:uuid"`
 	Domain   Domain
+	ProductID uuid.UUID `gorm:"type:uuid"`
+	Product Product
 }
