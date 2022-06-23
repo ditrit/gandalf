@@ -9,18 +9,26 @@ import (
 type Domain struct {
 	Model
 	Name             string    `gorm:"not null"`
-	ParentID         uuid.UUID `gorm:"type:uuid"`
-	Parent           *Domain   `gorm:"constraint:OnDelete:CASCADE;"`
-	Authorizations   []Authorization
-	Products         []Product
-	Libraries        []Library `gorm:"many2many:domain_libraries;"`
-	Tags             []Tag     `gorm:"many2many:domain_tags;"`
-	Environments     []Environment
 	ShortDescription string
 	Description      string
 	Logo             string
-	GitURL           string
+
+	ParentID         uuid.UUID `gorm:"type:uuid"`
+	Parent           *Domain   `gorm:"constraint:OnDelete:CASCADE;"`
+
+	Authorizations   []Authorization
+	Libraries        []Library `gorm:"many2many:domain_libraries;"`
+	Tags             []Tag     `gorm:"many2many:domain_tags;"`
+	Environments     []Environment
+	
+	GitServerURL string
+	GitPersonalAccessToken string
+	GitOrganization string
+	
+	Products         []Product
 	Childs           []*Domain
+
+
 }
 
 func (d *Domain) BeforeDelete(tx *gorm.DB) (err error) {

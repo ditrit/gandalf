@@ -13,5 +13,5 @@ type Environment struct {
 	Description       string
 	Logo              string
 	DomainID          uuid.UUID `gorm:"type:uuid"`
-	Domain            Domain
+	Domain           Domain
 }

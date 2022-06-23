@@ -591,8 +591,7 @@ func runCreateProduct(cfg *verdeter.ConfigCmd, args []string) {
 	shortDescription := args[1]
 	description := args[2]
 	logo := args[3]
-	repositoryURL := args[4]
-	domainID, err := uuid.Parse(args[5])
+	domainID, err := uuid.Parse(args[4])
 	if err == nil {
 
 		fmt.Printf("gandalf cli create product called with name=%s, shortDescription=%s, description=%s, logo=%s, repositoryURL=%s, domainID=%s\n", name, shortDescription, description, logo, repositoryURL, domainID)
@@ -632,10 +631,9 @@ func runUpdateProduct(cfg *verdeter.ConfigCmd, args []string) {
 		shortDescription := viper.GetViper().GetString("shortDescription")
 		description := viper.GetViper().GetString("description")
 		logo := viper.GetViper().GetString("logo")
-		repositoryURL := viper.GetViper().GetString("repositoryURL")
 		domainID, err := uuid.Parse(viper.GetViper().GetString("domainID"))
 		if err == nil {
-			fmt.Printf("gandalf cli update user called with name=%s, shortDescription=%s, description=%s, logo=%s, repositoryURL=%s, domainID=%s\n", name, shortDescription, description, logo, repositoryURL, domainID)
+			fmt.Printf("gandalf cli update user called with name=%s, shortDescription=%s, description=%s, logo=%s, domainID=%s\n", name, shortDescription, description, logo, domainID)
 			configurationCli := cmodels.NewConfigurationCli()
 			cliClient := cli.NewClient(configurationCli.GetEndpoint())
 
