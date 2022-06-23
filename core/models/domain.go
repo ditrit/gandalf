@@ -24,6 +24,7 @@ type Domain struct {
 }
 
 func (d *Domain) BeforeDelete(tx *gorm.DB) (err error) {
+	// TODO : delete only if empty, if products in descendants domain we do not delete domain (cascade delete)
 	var childs []Domain
 	tx.Where("parent_id = ?", d.ID).Find(&childs)
 	for _, child := range childs {

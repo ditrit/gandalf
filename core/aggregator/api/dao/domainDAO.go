@@ -21,18 +21,10 @@ func CreateDomain(database *gorm.DB, domain *models.Domain, parentDomainID uuid.
 	admin, err := utils.GetState(database)
 	if err == nil {
 		if admin {
-			// if parentDomainName == "root" {
-			// 	err = models.InsertDomainRoot(database, domain)
-			// } else {
-			// var parentDomain models.Domain
-			// err = database.Where("name = ?", parentDomainName).First(&parentDomain).Error
-			// if err == nil {
 			domain.ParentID = parentDomainID
 			err = database.Save(&domain).Error
-			//}
-			//}
 		} else {
-			err = errors.New("Invalid state")
+			err = errors.New("invalid state")
 		}
 	}
 
@@ -137,47 +129,6 @@ func RemoveDomainTag(database *gorm.DB, domain models.Domain, tag models.Tag) (e
 
 	return
 }
-
-/*
-func ListDomainEnvironment(database *gorm.DB, domain models.Domain) (environments []models.Environment, err error) {
-	admin, err := utils.GetState(database)
-	if err == nil {
-		if admin {
-			err = database.Model(&domain).Association("Environments").Find(&environments).Error
-		} else {
-			err = errors.New("Invalid state")
-		}
-	}
-
-	return
-}
-
-func AddDomainEnvironment(database *gorm.DB, domain models.Domain, environment models.Environment) (err error) {
-	admin, err := utils.GetState(database)
-	if err == nil {
-		if admin {
-			err = database.Model(&domain).Association("Environments").Append(&environment).Error
-		} else {
-			err = errors.New("Invalid state")
-		}
-	}
-
-	return
-}
-
-func RemoveDomainEnvironment(database *gorm.DB, domain models.Domain, environment models.Environment) (err error) {
-	admin, err := utils.GetState(database)
-	if err == nil {
-		if admin {
-			err = database.Model(&domain).Association("Environments").Delete(&environment).Error
-
-		} else {
-			err = errors.New("Invalid state")
-		}
-	}
-
-	return
-} */
 
 func ListDomainLibrary(database *gorm.DB, domain models.Domain) (libraries []models.Library, err error) {
 	admin, err := utils.GetState(database)

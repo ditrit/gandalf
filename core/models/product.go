@@ -16,13 +16,6 @@ type Product struct {
 	Domain           Domain
 }
 
-func (p *Product) AfterCreate(tx *gorm.DB) (err error) {
-	if p.RepositoryURL == "" {
-		var domain Domain
-		tx.Where("id = ?", p.DomainID).First(&domain)
-		if err == nil {
-			p.RepositoryURL = domain.GitURL + "/" + p.Name + ".git"
-		}
 	}
 	return
 }

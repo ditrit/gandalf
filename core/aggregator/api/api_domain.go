@@ -71,9 +71,6 @@ func CreateDomain(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Env
-		/* 		for _, environment := range parentDomain.Environments {
-			dao.AddDomainEnvironment(database, *domain, environment)
-		} */
 		for _, environment := range parentDomain.Environments {
 			currentEnvironment := new(models.Environment)
 			currentEnvironment.Name = environment.Name
@@ -115,15 +112,6 @@ func DeleteDomain(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			utils.RespondWithError(w, http.StatusBadRequest, INVALID_DOMAIN_ID)
 			return
-		}
-
-		//TEST
-		var domains []models.Domain
-		database.Unscoped().Find(&domains)
-		fmt.Println("domains")
-		for _, domain := range domains {
-			fmt.Println(domain)
-
 		}
 
 		if err := dao.DeleteDomain(database, id); err != nil {
@@ -218,7 +206,7 @@ func ListDomain(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateDomain(w http.ResponseWriter, r *http.Request) {
-
+	//TODO : verify if we need to update if fields are nil
 	vars := mux.Vars(r)
 	database := utils.DatabaseConnection.GetTenantDatabaseClient()
 	if database != nil {
@@ -247,6 +235,8 @@ func UpdateDomain(w http.ResponseWriter, r *http.Request) {
 		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
 		return
 	}
+
+	// TODO : do we update gitInfo in childs (recursive update) ?
 }
 
 func ListDomainTag(w http.ResponseWriter, r *http.Request) {
@@ -380,147 +370,6 @@ func DeleteDomainTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
-
-///
-/*
-func ListDomainEnvironment(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
-		idDomain, err := uuid.Parse(vars["domainId"])
-		if err != nil {
-			fmt.Println(err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
-			return
-		}
-		var domain models.Domain
-		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
-				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			}
-			return
-		}
-
-		environments, err := dao.ListDomainEnvironment(database, domain)
-		if err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		utils.RespondWithJSON(w, http.StatusOK, environments)
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
-}
-
-func CreateDomainEnvironment(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
-		idDomain, err := uuid.Parse(vars["domainId"])
-		if err != nil {
-			fmt.Println(err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
-			return
-		}
-		var domain models.Domain
-		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
-				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			}
-			return
-		}
-
-		idEnvironment, err := uuid.Parse(vars["environmentId"])
-		if err != nil {
-			fmt.Println(err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
-			return
-		}
-		var environment models.Environment
-		if environment, err = dao.ReadEnvironment(database, idEnvironment); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
-				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			}
-			return
-		}
-
-		if err := dao.AddDomainEnvironment(database, domain, environment); err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
-}
-
-func DeleteDomainEnvironment(w http.ResponseWriter, r *http.Request) {
-
-	vars := mux.Vars(r)
-	database := utils.DatabaseConnection.GetTenantDatabaseClient()
-	if database != nil {
-		idDomain, err := uuid.Parse(vars["domainId"])
-		if err != nil {
-			fmt.Println(err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
-			return
-		}
-		var domain models.Domain
-		if domain, err = dao.ReadDomain(database, idDomain); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
-				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			}
-			return
-		}
-
-		idEnvironment, err := uuid.Parse(vars["environmentId"])
-		if err != nil {
-			fmt.Println(err)
-			utils.RespondWithError(w, http.StatusBadRequest, "Invalid Product ID")
-			return
-		}
-		var environment models.Environment
-		if environment, err = dao.ReadEnvironment(database, idEnvironment); err != nil {
-			switch err {
-			case sql.ErrNoRows:
-				utils.RespondWithError(w, http.StatusNotFound, "Product not found")
-			default:
-				utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			}
-			return
-		}
-
-		if err := dao.RemoveDomainEnvironment(database, domain, environment); err != nil {
-			utils.RespondWithError(w, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		utils.RespondWithJSON(w, http.StatusOK, map[string]string{"result": "success"})
-	} else {
-		utils.RespondWithError(w, http.StatusInternalServerError, "tenant not found")
-		return
-	}
-} */
-
-///
 
 func ListDomainLibrary(w http.ResponseWriter, r *http.Request) {
 
