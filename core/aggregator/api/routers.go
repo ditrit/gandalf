@@ -310,7 +310,7 @@ var routes = Routes{
 	Route{
 		"CreateProduct",
 		strings.ToUpper("Post"),
-		"/ditrit/Gandalf/1.0.0/product",
+		"/ditrit/Gandalf/1.0.0/product/{domainId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
 		IsAuthorized(CreateProduct),
 	},
 
@@ -721,6 +721,13 @@ var routes = Routes{
 	},
 
 	Route{
+		"RefreshToken",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/user/refreshtoken/{userId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		RefreshToken,
+	},
+
+	Route{
 		"UploadFile",
 		strings.ToUpper("Post"),
 		"/ditrit/Gandalf/1.0.0/file/{fileId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
@@ -731,6 +738,42 @@ var routes = Routes{
 		"GetFile",
 		strings.ToUpper("Get"),
 		"/ditrit/Gandalf/1.0.0/file/{fileId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
-		IsAuthorized(GetFile),
+		// IsAuthorized(GetFile),
+		GetFile,
+	},
+
+	Route{
+		"GetRequirementGroups",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups",
+		IsAuthorized(GetRequirementGroups),
+	},
+
+	Route{
+		"GetRequirementGroupById",
+		strings.ToUpper("Get"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups/{requirementGroupId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(GetRequirementGroupById),
+	},
+
+	Route{
+		"CreateRequirementGroup",
+		strings.ToUpper("Post"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups",
+		IsAuthorized(CreateRequirementGroup),
+	},
+
+	Route{
+		"UpdateRequirementGroup",
+		strings.ToUpper("Put"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups/{requirementGroupId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(UpdateRequirementGroup),
+	},
+
+	Route{
+		"DeleteRequirementGroup",
+		strings.ToUpper("Delete"),
+		"/ditrit/Gandalf/1.0.0/requirementgroups/{requirementGroupId:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}}",
+		IsAuthorized(DeleteRequirementGroup),
 	},
 }
