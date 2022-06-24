@@ -1,8 +1,12 @@
 #!/bin/bash
 
+killall cockroach
+killall gandalf
+sleep 2
 cd /usr/local/bin
 start_aggregator="/var/lib/gandalf/start_aggregator.sh"
 echo -n Launching cluster 
+rm -rf /var/lib/cockroach/node1
 gandalf start cluster  --offset 1 > /tmp/cluster &
 nb=0
 
