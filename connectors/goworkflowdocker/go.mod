@@ -11,7 +11,7 @@ require (
 	github.com/ditrit/gandalf/libraries/goclient v0.0.0-20211213144417-a91cc4cf66b4
 	github.com/ditrit/gandalf/libraries/gogrpc v0.0.0-20211213144417-a91cc4cf66b4 // indirect
 	github.com/ditrit/shoset v0.0.0-20210805144630-18875ae40cdc
-	github.com/docker/docker v20.10.12+incompatible
+	github.com/docker/docker v20.10.24+incompatible
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/mux v1.8.0
